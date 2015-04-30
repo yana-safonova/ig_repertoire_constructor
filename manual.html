@@ -1,0 +1,202 @@
+
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>IgRepertoireConstructor 1.0 Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <link rel="shortcut icon" href="http://bioinf.spbau.ru/sites/default/files/ig_tools.ico">
+<style>
+
+  </style></head>
+
+  
+
+<body>
+<h1>IgRepertoireConstructor 1.0 manual</h1>
+
+1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
+
+2. <a href="#install">Installation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
+
+3. <a href="#repertoire_constructor">IgRepertoireConstructor</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#repertoire_constructor_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#repertoire_constructor_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.5. <a href="#repertoire_constructor_output">Output files</a><br>
+
+4.  <a href="#repertoire_files">Antibody repertoire representation</a><a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.1. </a><a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href="#read_cluster_map">RCM file format</a><br>
+
+5. <a href="#feedback">Feedback and bug reports</a><br>
+
+<!--- ----------------- --->
+
+<a id="intro"></a>
+<h2>1. What is IgRepertoireConstructor?</h2>
+<code>IgRepertoireConstructor</code> is a tool for construction of antibody repertoire from Illumina Ig-Seq library.
+<code>IgRepertoireConstructor</code> takes as an input immunosequencing reads that cover variable regions of antibodies.
+<br>
+
+<!--- ---------------------------------------------------------------- --->
+
+<a id="install"></a>
+<h2>2. Installation</h2>
+
+IgRepertoireConstructor requires the following pre-installed dependencies:
+<ul>
+	<li>64-bit Linux system</li>
+    <li>g++ (version 4.7 or higher)</li>
+    <li>cmake (version 2.8.8 or higher)</li>
+	<li>Python (version 2.7 or higher)</li>
+	<li>zlib</li>
+    <li>libbz2</li>
+</ul>
+
+To install <code>IgRepertoireConstructor</code>, type:
+<pre class="code">    <code>
+    make
+    </code>
+</pre> 
+
+<a id="test_datasets"></a>
+<h3>2.1. Verifying your installation</h3>
+For testing purposes, IgRepertoireConstructor comes with a toy data set. <br><br>
+
+&#9658; To try <code>IgRepertoireConstructor</code> on test data set, run:
+<pre class="code"><code>
+    ./ig_repertoire_constructor.py --test
+</code>
+</pre>
+
+If the installation is successful, you will find the following information at the end of the log:
+
+<pre class="code">    <code>
+    ==== IgRepertoireConstructor finished
+
+
+     * CLUSTERS.FASTA for final repertoire is in ig_repertoire_constructor_test/constructed_repertoire.clusters.fa
+     * RCM for final repertoire is in ig_repertoire_constructor_test/constructed_repertoire.rcm
+
+    Thank you for using IgRepertoireConstructor!
+
+    Log was written to ig_repertoire_constructor_test/ig_repertoire_constructor.log
+    </code>
+</pre>
+
+<a id="repertoire_constructor"></a>
+<h2>3. IgRepertoireConstructor</h2>
+
+To run <code>IgRepertoireConstructor</code>, type:
+<pre class="code"><code>
+    ./ig_repertoire_constructor.py [options] -s &lt;filename&gt; -o &lt;output_dir&gt;
+</code>
+</pre>
+
+<!--- --------------------- --->
+
+<a id="repertoire_constructor_basic"></a>
+<h3>3.1. Basic options:</h3>
+
+<code>-s &lt;filename&gt;</code><br>
+FASTQ file with Illumina reads (required). <br><br>
+
+<code>-o/--output &lt;output_dir&gt;</code><br>
+output directory (required). <br><br>
+
+<code>-t/--threads &lt;int&gt;</code><br>
+threads number. The default value is 16.<br><br>
+
+<code>--test</code><br>
+running of toy test dataset (see Section <a href="#test_datasets">2.1</a>).<br><br>
+
+<code>--help</code><br>
+printing help.<br><br>
+
+<!--- --------------------- --->
+
+<a id="repertoire_constructor_advanced"></a>
+<h3>3.3. Advanced options:</h3>
+
+<code>--tau &lt;int&gt;</code><br>
+maximum allowed number of mismatches between two reads corresponding to the same antibody. The default value is 3.<br><br>
+
+<code>-m/--memory &lt;int&gt;</code><br>
+memory limit in Gb. IgRepertoireConstructor terminates if it reaches this limit. The default value is 250.<br>
+
+<!--- --------------------- --->
+
+<a id="repertoire_constructor_examples"></a>
+<h3>3.4. Examples</h3>
+To construct antibody repertoire from illumina reads, covering variable regions of immunoglobulins
+<pre class="code">    <code>
+    ./ig_repertoire_constructor.py -s reads.fastq -o output_dir
+    </code>
+</pre>
+<!--- --------------------- --->
+
+<a id="repertoire_constructor_output"></a>
+<h3>3.5. Output files</h3>
+<code>IgRepertoireConstructor</code> creates working directory (which name was specified using option <code>-o</code>) and outputs there the following files:
+<ul>
+    <li><b>constructed_repertoire.clusters.fa</b> - CLUSTERS.FASTA file with constructed repertoire (see details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
+    <li><b>constructed_repertoire.rcm</b> - RCM file with constructed repertoire (see details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
+    <li><b>dataset.yaml</b> - internal YAML data set file.</li>
+    <li><b>ig_repertoire_constructor.log</b> - full log of <code>IgRepertoireConstructor</code> run.</li>
+</ul> 
+<br>
+<!--- ---------------------------------------------------------------- --->
+
+<a id="repertoire_files"></a>
+<h2>4. Antibody repertoire representation</h2>
+We used two files for representation of repertoire for the set of clustered reads: CLUSTERS.FASTA and RCM.
+
+<a id="clusters_fasta"></a>
+<h3>4.1. CLUSTERS.FASTA file format</h3>
+CLUSTERS.FASTA is a FASTA file, where sequences correspond to the assembled antibodies. 
+Each header contains information about corresponding antibody cluster (id and size):
+<pre class="code">    <code>
+    &gt;cluster___1___size___3
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGGACG
+    &gt;cluster___2___size___2
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGG
+    &gt;cluster___3___size___1
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGGAC
+    </code>
+</pre>
+
+<a id="read_cluster_map"></a>
+<h3>4.2. RCM file format</h3>
+Every line of RCM (read-cluster map) file contains information about read name and corresponding cluster id:
+<pre class="code">    <code>
+    MISEQ@:53:000000000-A2BMW:1:2114:14345:28882    1
+    MISEQ@:53:000000000-A2BMW:1:2114:14374:28884    1
+    MISEQ@:53:000000000-A2BMW:1:2114:14393:28886    1
+    MISEQ@:53:000000000-A2BMW:1:2114:16454:28882    2
+    MISEQ@:53:000000000-A2BMW:1:2114:16426:28886    2
+    MISEQ@:53:000000000-A2BMW:1:2114:15812:28886    3
+    </code>
+</pre>
+
+<br>
+Reperoire described in the example above consists of three antibodies. E.g., the antibody with id = 1 has abundancy 3, since it was reconstructed from three reads:<br>
+MISEQ@:53:000000000-A2BMW:1:2114:14345:28882<br>  
+MISEQ@:53:000000000-A2BMW:1:2114:14374:28884<br>
+MISEQ@:53:000000000-A2BMW:1:2114:14393:28886<br><br>
+<b>NOTE:</b> ids in CLUSTERS.FASTA and RCM files should be consistent.<br><br> 
+
+<!--- -------------------------------------------------------------------- --->
+<a id="feedback"></a>
+<h2>5. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcomed.
+They will help us to further improve IgRepertoireConstructor.
+<br><br>
+If you have any troubles running IgRepertoireConstructor, please send us log file from output output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>. 
+
+
+</body></html>
