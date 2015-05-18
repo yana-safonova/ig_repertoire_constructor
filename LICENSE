@@ -1,0 +1,41 @@
+
+IgRepertoireConstructor: an algorithm for construction of antibody repertoire from NGS data and immunoproteogenomics analysis
+Copyright (c) 2015 Saint-Petersburg State University
+
+SPAdes is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License, Version 2,
+dated June 1991, as published by the Free Software Foundation.
+
+SPAdes is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+-------------------------------------------------------------------------------
+
+Current IgRepertoireConstructor contributors:
+
+    Yana Safonova,
+    Ekaterina Starostina,
+    Alla Lapidus, and
+    Pavel Pevzner
+
+Also contributed:
+
+    Eugene Kurpilyansky
+
+Installation instructions and manual can be found on the website:
+TBA
+
+References:
+
+Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky,
+Ekaterina Starostina, Alla Lapidus, Jeremy Stinson,
+Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner
+IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
+Accepted to ISMB 2015.
+

@@ -7,25 +7,13 @@
 project(ig_repertoire_constructor CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
-include_directories(${CMAKE_SOURCE_DIR}/debruijn)
+include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 add_executable(ig_repertoire_constructor
-               ../debruijn/kmer_coverage_model.cpp
-               ../debruijn/config_struct.cpp
-               ../debruijn/path_extend/pe_config_struct.cpp
-               ../debruijn/stage.cpp
-               ../debruijn/construction.cpp
-               ../debruijn/gap_closer.cpp
-               ../debruijn/simplification.cpp
-               ../debruijn/mismatch_correction.cpp
-               ../debruijn/pair_info_count.cpp
-               ../debruijn/distance_estimation.cpp
-               ../debruijn/repeat_resolving.cpp
-               ../debruijn/genomic_info_filler.cpp
-          read_archive.cpp
-          ig_config.cpp          
-          main.cpp)
+               ${SPADES_MAIN_INCLUDE_DIR}/stage.cpp
+               read_archive.cpp
+               ig_config.cpp          
+               main.cpp)
 
 target_link_libraries(ig_repertoire_constructor input mph_index BamTools yaml-cpp nlopt ${COMMON_LIBRARIES} ssw)
 

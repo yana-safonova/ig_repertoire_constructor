@@ -15,7 +15,7 @@ class ClusteringAndAligningReadsPhase : public IgRepertoireConstructor::Phase {
 public:
     ClusteringAndAligningReadsPhase() : IgRepertoireConstructor::Phase("Read clustering", "read_clustering") { }
 
-    void run(debruijn_graph::conj_graph_pack &, const char*) {
+    void run(const char*) {
         INFO("Clustering and aligning reads starts");
 
         auto read_archive_ptr = storage().GetReadArchivePtr();
@@ -27,8 +27,7 @@ public:
         INFO("Clustering and aligning reads ends");
     }
 
-    void load(debruijn_graph::conj_graph_pack&,
-            const std::string &load_from,
+    void load(const std::string &load_from,
             const char* prefix) {
         std::string file_name = path::append_path(load_from, prefix) + ".aligned_clusters";
         INFO("Loading current state from " << file_name);
@@ -60,8 +59,7 @@ public:
         storage().SetAlignedReadClusters(clusters_ptr);
     }
 
-    void save(const debruijn_graph::conj_graph_pack&,
-            const std::string & save_to,
+    void save(const std::string & save_to,
             const char* prefix) const {
         std::string file_name = path::append_path(save_to, prefix) + ".aligned_clusters";
         INFO("Saving current state to " << file_name);

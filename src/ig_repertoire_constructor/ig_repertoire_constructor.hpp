@@ -65,12 +65,10 @@ class IgRepertoireConstructor : public spades::CompositeStage<IgRepertoireConstr
 public:
     IgRepertoireConstructor() : spades::CompositeStage<IgRepertoireConstructorStorage>("IgRepertoireConstructor", "ig_repertoire_constructor") { }
 
-    void load(debruijn_graph::conj_graph_pack&,
-            const std::string &,
+    void load(const std::string &,
             const char*) { }
 
-    void save(const debruijn_graph::conj_graph_pack&,
-            const std::string &,
+    void save(const std::string &,
             const char*) const { }
 
     virtual ~IgRepertoireConstructor() { }

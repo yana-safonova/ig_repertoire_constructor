@@ -13,7 +13,7 @@ import shutil
 import getopt
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-spades_src = os.path.join(home_directory, "src/spades_pipeline/")
+spades_src = os.path.join(home_directory, "src/python_pipeline/")
 config_dir = os.path.join(home_directory, "configs/ig_repertoire_constructor/")
 ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constructor")
 
@@ -110,7 +110,7 @@ def ParseOptions(options, not_options, log):
             params.mismatches_threshold = int(arg)
         elif opt == '--test':
             SetOutputParams(params, os.path.abspath('ig_repertoire_constructor_test'))
-            params.reads = os.path.join(home_directory, 'ig_test_dataset/merged_reads.fastq')
+            params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
             params.reads = os.path.abspath(params.reads)
         elif opt in ('-m', '--memory'):
             params.max_memory = int(arg)

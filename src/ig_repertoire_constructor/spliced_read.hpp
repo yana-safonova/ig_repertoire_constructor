@@ -2,6 +2,7 @@
 
 #include "io/single_read.hpp"
 #include <fstream>
+#include "io/mmapped_reader.hpp"
 
 namespace ig_repertoire_constructor {
 

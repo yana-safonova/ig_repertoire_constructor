@@ -20,8 +20,6 @@
 
 //#include "config_struct.hpp"
 
-#include "graph_pack.hpp"
-#include "construction.hpp"
 #include "stage.hpp"
 
 #include <sys/types.h>
@@ -43,7 +41,7 @@ void make_dirs(){
 }
 
 void copy_configs(string cfg_filename, string to) {
-  using namespace debruijn_graph;
+  //using namespace debruijn_graph;
 
   if (!make_dir(to)) {
     WARN("Could not create files use in /tmp directory");
@@ -81,7 +79,7 @@ int main(int /*argc*/, char** argv) {
     segfault_handler sh;
 
     try {
-        using namespace debruijn_graph;
+        //using namespace debruijn_graph;
         string cfg_filename = argv[1];
         load_config          (cfg_filename);
         make_dirs();

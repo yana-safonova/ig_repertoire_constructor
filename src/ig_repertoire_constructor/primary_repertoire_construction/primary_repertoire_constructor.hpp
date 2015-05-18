@@ -261,7 +261,7 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
             }
         }
     }
-    assert(false);
+//    assert(false);
     omp_destroy_lock(&lock_);
     return repertoire_ptr;
 }

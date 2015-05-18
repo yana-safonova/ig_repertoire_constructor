@@ -16,7 +16,7 @@ public:
         IgRepertoireConstructor::Phase("Build spliced reads and cluster them",
                 "read_overlaps_clustering") { }
 
-    void run(debruijn_graph::conj_graph_pack &, const char*) {
+    void run(const char*) {
         ReadArchivePtr read_archive_ptr = storage().GetReadArchivePtr();
 
         auto clusters_ptr = storage().GetAlignedReadClustersPtr();
@@ -35,8 +35,7 @@ public:
         storage().SetSplicedReadClusters(spliced_read_clusters_ptr);
     }
 
-    void load(debruijn_graph::conj_graph_pack&,
-            const std::string &load_from,
+    void load(const std::string &load_from,
             const char* prefix) {
         std::string file_name = path::append_path(load_from, prefix);
         INFO("Loading current state from " << file_name);
@@ -50,8 +49,7 @@ public:
         INFO(clusters_ptr->size() << " clusters of SplicedReads have been loaded");
     }
 
-    void save(const debruijn_graph::conj_graph_pack&,
-            const std::string & save_to,
+    void save(const std::string & save_to,
             const char* prefix) const {
         std::string file_name = path::append_path(save_to, prefix);
         std::string file_name_numan_readable = path::append_path(save_to, prefix) + "_human_readable";

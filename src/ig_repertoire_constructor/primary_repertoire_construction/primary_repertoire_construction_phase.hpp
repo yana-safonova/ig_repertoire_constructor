@@ -15,7 +15,7 @@ public:
         IgRepertoireConstructor::Phase("Construction of primary repertoire",
                 "primary_repertoire_construction") { }
 
-    void run(debruijn_graph::conj_graph_pack &, const char*) {
+    void run(const char*) {
         INFO("Have " << storage().GetSplicedReadClustersPtr()->size() << " spliced reads clusters");
 
         PrimaryRepertoireConstructor constructor(storage().GetSplicedReadClustersPtr(),
@@ -25,8 +25,7 @@ public:
         INFO(repertoire_ptr->size() << " primary clusters were constructed");
     }
 
-    void load(debruijn_graph::conj_graph_pack&,
-            const std::string &load_from,
+    void load(const std::string &load_from,
             const char *prefix) {
         std::string prefix_file_name = path::append_path(load_from, prefix);
         INFO("Loading current_state from " << prefix_file_name);
@@ -42,8 +41,7 @@ public:
         storage().SetRepertoirePtr(repertoire_ptr);
     }
 
-    void save(const debruijn_graph::conj_graph_pack&,
-            const std::string &save_to,
+    void save(const std::string &save_to,
             const char *prefix) const {
         std::string prefix_file_name = path::append_path(save_to, prefix);
         INFO("Saving current state to " << prefix_file_name);

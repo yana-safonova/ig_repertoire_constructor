@@ -13,7 +13,7 @@ class HammingGraphBuildingPhase : public IgRepertoireConstructor::Phase {
 public:
     HammingGraphBuildingPhase() : IgRepertoireConstructor::Phase("Building Hamming graph on kmers", "hamming_graph_building") { }
 
-    void run(debruijn_graph::conj_graph_pack &, const char*) {
+    void run(const char*) {
         auto read_archive_ptr = LoadReadArchive();
         storage().SetReadArchive(read_archive_ptr);
 
@@ -21,8 +21,7 @@ public:
         storage().SetHammingComponents(components_ptr);
     }
 
-    void load(debruijn_graph::conj_graph_pack&,
-            const std::string &load_from,
+    void load(const std::string &load_from,
             const char* prefix) {
         std::string file_name = path::append_path(load_from, prefix) + ".hamming_components";
         INFO("Loading current state from " << file_name);
@@ -48,8 +47,7 @@ public:
         storage().SetHammingComponents(components_ptr);
     }
 
-    void save(const debruijn_graph::conj_graph_pack&,
-            const std::string & save_to,
+    void save(const std::string & save_to,
             const char* prefix) const {
         std::string file_name = path::append_path(save_to, prefix) + ".hamming_components";
         INFO("Saving current state to " << file_name);

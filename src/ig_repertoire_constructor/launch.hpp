@@ -25,11 +25,7 @@ void run_ig_repertoire_constructor() {
 
     Ig_Manager.add(main_ig_phase);
 
-    // temporary STUB
-    size_t fake_k = 1;
-    size_t fake_lib_count = 1;
-    debruijn_graph::conj_graph_pack fake_graph_pack(fake_k, ig_cfg::get().io.output_dir, fake_lib_count);
-    Ig_Manager.run(fake_graph_pack, ig_cfg::get().rp.entry_point.c_str());
+    Ig_Manager.run(ig_cfg::get().rp.entry_point.c_str());
     INFO("IgRepertoireConstructor finished");
 }
 
