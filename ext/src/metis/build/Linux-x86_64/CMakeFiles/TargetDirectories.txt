@@ -1,0 +1,7 @@
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/cmpfillin.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/gpmetis.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/graphchk.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/m2gmetis.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/libmetis/CMakeFiles/metis.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/mpmetis.dir
+/home/yana/tools/metis-5.1.0/build/Linux-x86_64/programs/CMakeFiles/ndmetis.dir
