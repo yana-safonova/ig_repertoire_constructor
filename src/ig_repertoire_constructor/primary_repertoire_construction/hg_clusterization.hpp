@@ -36,39 +36,34 @@ public:
     }
 };
 
-template<class HammingDistanceCalculator>
+template<class HammingDistanceCalculator, class DenseSubgraphConstructor, class DenseSubgraphDecompositor>
 class HGClustersConstructor {
     // auxiliary classes-procedures
     HammingDistanceCalculator calculator_;
+    DenseSubgraphConstructor dense_subgraph_constructor_;
+    DenseSubgraphDecompositor dense_subgraph_decomposer_;
 
     // input data
     size_t max_tau_;
-    double edge_perc_threshold_;
-    double class_joining_edge_threshold_;
-
-    // temporary data
-    CRS_HammingGraph_Ptr hamming_graph_ptr_;
 
     // auxiliary structures
+    CRS_HammingGraph_Ptr hamming_graph_ptr_;
     HG_CollapsedStructs_Ptr collapsed_struct_;
-    PermutationPtr permutation_ptr_;
+    HG_DecompositionPtr dense_sgraphs_decomposition_ptr_;
 
-    HG_DecompositionPtr primary_decomposition_ptr_;
-    HG_DecompositionPtr secondary_decomposition_ptr_;
+    // output struct
     HG_DecompositionPtr final_decomposition_ptr_;
 
-    void InitializeCRSHammingGraph(const vector <SplicedRead> &spliced_reads) {
+    void InitializeCRSHammingGraph(SplicedReadGroup read_group) {
         TRACE("Initialization of Hamming graph edges");
         vector <HGEdge> hg_edges;
-        for (size_t i = 0; i < spliced_reads.size() - 1; i++)
-            for (size_t j = i + 1; j < spliced_reads.size(); j++) {
-                size_t dist = calculator_.HammingDistance(spliced_reads[i], spliced_reads[j]);
+        for (size_t i = 0; i < read_group.size() - 1; i++)
+            for (size_t j = i + 1; j < read_group.size(); j++) {
+                size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
                 if (dist <= max_tau_)
                     hg_edges.push_back(HGEdge(i, j, dist));
             }
-//        for (auto it = hg_edges.begin(); it != hg_edges.end(); it++)
-//            TRACE(it->i << " " << it->j << " " << it->dist);
-        TRACE("Hamming graph contains " << spliced_reads.size() << " vertices and " << hg_edges.size() << " edges");
+        TRACE("Hamming graph contains " << read_group.size() << " vertices and " << hg_edges.size() << " edges");
         hamming_graph_ptr_ = CRS_HammingGraph_Ptr(new CRS_HammingGraph(hg_edges));
     }
 
@@ -77,55 +72,20 @@ class HGClustersConstructor {
         TRACE("Collapsed graph contains " << collapsed_struct_->NumCollapsedVertices() << " vertices");
     }
 
-    string GetPermutationFname(size_t group_id) {
-        stringstream ss;
-        ss << "hamming_graphs_8_collapsed_tau3/hgraph_" << group_id << "_size_" <<
-                hamming_graph_ptr_->N() << "_nsize_" <<
-                collapsed_struct_->NumCollapsedVertices() << "_tau_3.graph.iperm";
-        return ss.str();
+    void CreateDenseSubgraphDecomposition() {
+    	dense_sgraphs_decomposition_ptr_ = dense_subgraph_constructor_.CreateDecomposition(hamming_graph_ptr_,
+    			collapsed_struct_);
     }
 
-    bool PermutationExists(size_t group_id) {
-        string perm_fname = GetPermutationFname(group_id);
-        // temporary
-        return !ifstream(perm_fname).fail();
+    void DecomposeDenseSubgraphs(SplicedReadGroup read_group) {
+    	final_decomposition_ptr_ = dense_subgraph_decomposer_.CreateDecomposition(hamming_graph_ptr_,
+    			collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
     }
 
-    void InitializePermutation(size_t group_id) {
-        string perm_fname = GetPermutationFname(group_id);
-        TRACE("Permutation will be extracted from " << perm_fname);
-        permutation_ptr_ = PermutationPtr(new Permutation(collapsed_struct_->NumCollapsedVertices()));
-        permutation_ptr_->ReadFromFile(perm_fname);
-    }
-
-    void ComputeHGPrimaryDecomposition() {
-        SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr_, permutation_ptr_, collapsed_struct_,
-                edge_perc_threshold_);
-        primary_decomposition_ptr_ = simple_constructor.CreateDecomposition();
-
-        // temporary
-        DecompositionStatsCalculator calculator(primary_decomposition_ptr_, hamming_graph_ptr_, collapsed_struct_);
-        calculator.WriteStatsInFile("primary_decomposition_stats.txt");
-    }
-
-    void ImprovePrimaryDecomposition() {
-        TRACE("GreedyJoiningDecomposition threshold: " << class_joining_edge_threshold_);
-        GreedyJoiningDecomposition decomposition_improver(hamming_graph_ptr_, collapsed_struct_,
-                primary_decomposition_ptr_, class_joining_edge_threshold_);
-        secondary_decomposition_ptr_ = decomposition_improver.ConstructDecomposition();
-
-        // temporary
-        TRACE("DecompositionStatsCalculator starts");
-        DecompositionStatsCalculator calculator(secondary_decomposition_ptr_, hamming_graph_ptr_, collapsed_struct_);
-        stringstream ss;
-        ss << "secondary_decomposition_stats_" << class_joining_edge_threshold_ << ".txt";
-        calculator.WriteStatsInFile(ss.str());
-    }
-
-    void ComputeHGFinalDecomposition(const vector <SplicedRead> &spliced_reads, size_t group_id) {
+    void ComputeHGFinalDecomposition(SplicedReadGroup read_group) {
         TRACE("AlignmentDecompositionConstructor starts");
         AlignmentDecompositionConstructor align_constructor(hamming_graph_ptr_, collapsed_struct_,
-                secondary_decomposition_ptr_, spliced_reads, group_id);
+                dense_sgraphs_decomposition_ptr_, read_group);
         final_decomposition_ptr_ = align_constructor.ConstructDecomposition();
 
         TRACE("DecompositionStatsCalculator starts");
@@ -133,6 +93,7 @@ class HGClustersConstructor {
         calculator.WriteStatsInFile("final_decomposition_stats.txt");
     }
 
+    /*
     string GetDecompositionFname(size_t group_id, string prefix) {
         stringstream ss;
         ss << prefix << "_decomposition_" << group_id;
@@ -154,6 +115,7 @@ class HGClustersConstructor {
         }
         out.close();
     }
+    */
 
     HG_DecompositionPtr CreateTrivialDecomposition(size_t reads_number) {
         HG_DecompositionPtr decomposition(new HG_Decomposition(reads_number));
@@ -163,54 +125,36 @@ class HGClustersConstructor {
     }
 
 public:
-    HGClustersConstructor(size_t max_tau, double edge_perc_threshold, double class_joining_edge_threshold) :
+    HGClustersConstructor(size_t max_tau,
+    		double edge_perc_threshold,
+    		double class_joining_edge_threshold,
+    		size_t min_recessive_abs_size,
+    		double min_recessive_rel_size) :
         calculator_(max_tau),
-        max_tau_(max_tau),
-        edge_perc_threshold_(edge_perc_threshold),
-        class_joining_edge_threshold_(class_joining_edge_threshold) { }
+        dense_subgraph_constructor_(edge_perc_threshold, class_joining_edge_threshold),
+        dense_subgraph_decomposer_(min_recessive_abs_size, min_recessive_rel_size),
+        max_tau_(max_tau) { }
 
 
-    HG_DecompositionPtr ConstructClusters(const vector <SplicedRead> &spliced_reads, size_t group_id) {
-        if(spliced_reads.size() < 4) {
-            return CreateTrivialDecomposition(spliced_reads.size());
+    HG_DecompositionPtr ConstructClusters(SplicedReadGroup read_group) {
+        if(read_group.size() < 4) {
+            return CreateTrivialDecomposition(read_group.size());
         }
 
         TRACE("------------");
-        TRACE("Clusterization starts. Index " << group_id);
+        TRACE("Clusterization starts. Index " << read_group.Id());
 
-        InitializeCRSHammingGraph(spliced_reads);
+        InitializeCRSHammingGraph(read_group);
         TRACE("CRS Hamming graph was constructed");
 
         CollapseIdenticalVertices();
         TRACE("Identical vertices were collapsed");
 
-        if(!PermutationExists(group_id)) {
-            TRACE("Graph is too small or too big. Permutation was not found");
-            return CreateTrivialDecomposition(spliced_reads.size());
-        }
-        InitializePermutation(group_id);
-        TRACE("Permutation was initialized");
-        //TRACE(*permutation_ptr_);
+        CreateDenseSubgraphDecomposition();
+        TRACE("Decomposition of Hamming graph into dense subgraphs was computed");
 
-        ComputeHGPrimaryDecomposition();
-        TRACE("Primary HG decomposition was computed");
-        //TRACE(*primary_decomposition_ptr_);
-        SaveDecomposition(spliced_reads, primary_decomposition_ptr_, GetDecompositionFname(group_id, "primary"));
-        //primary_decomposition_ptr_->SaveTo(GetDecompositionFname(group_id, "primary"));
-        TRACE("Primary decomposition was saved to " << GetDecompositionFname(group_id, "primary"));
-
-        TRACE("Improvement of primary decomposition");
-        ImprovePrimaryDecomposition();
-        TRACE("Secondary decomposition was computed");
-        //TRACE(*secondary_decomposition_ptr_);
-        SaveDecomposition(spliced_reads, secondary_decomposition_ptr_, GetDecompositionFname(group_id, "secondary"));
-        TRACE("Primary decomposition was saved to " << GetDecompositionFname(group_id, "secondary"));
-
-        ComputeHGFinalDecomposition(spliced_reads, group_id);
-        TRACE("Final HG decomposition was computed");
-        //TRACE(*final_decomposition_ptr_);
-        SaveDecomposition(spliced_reads, final_decomposition_ptr_, GetDecompositionFname(group_id, "final"));
-        TRACE("Primary decomposition was saved to " << GetDecompositionFname(group_id, "final"));
+        DecomposeDenseSubgraphs(read_group);
+        TRACE("Decomposition of dense subgraphs was computed");
 
         return final_decomposition_ptr_;
     }

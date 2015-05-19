@@ -9,6 +9,8 @@
 #include "cut_vertex_clusterization.hpp"
 
 #include "hg_clusterization.hpp"
+#include "dense_subgraph_constructor.hpp"
+#include "dense_subgraph_decomposer.hpp"
 
 namespace  ig_repertoire_constructor {
 
@@ -205,6 +207,8 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
     size_t tau = ig_cfg::get().aligning_params.overlap_mismatches_threshold;
     double edge_perc_thresh = ig_cfg::get().hgc_params.edge_perc_threshold;
     double class_joining_thresh = ig_cfg::get().hgc_params.class_joining_edge_threshold;
+	size_t min_recessive_abs_size = 4; // todo: compute and move to config
+	double min_recessive_rel_size = .01; // todo: compute and move to config
 
     omp_init_lock(&lock_);
     #pragma omp parallel for num_threads(ig_cfg::get().rp.threads_count)
@@ -216,18 +220,12 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
 
         // todo: process results of cluster_constructor
         //if(i == 357134) {
-        HGClustersConstructor<SimpleHammingDistanceCalculator> cluster_constructor(tau, edge_perc_thresh,
-                    class_joining_thresh);
-        HG_DecompositionPtr decomposition = cluster_constructor.ConstructClusters(read_group, i);
+        SplicedReadGroup spliced_read_group(read_group, i);
+        HGClustersConstructor<SimpleHammingDistanceCalculator, MetisDenseSubgraphConstructor,
+        	IterativeDenseSubgraphDecomposer> cluster_constructor(tau, edge_perc_thresh,
+                    class_joining_thresh, min_recessive_abs_size, min_recessive_rel_size);
+        HG_DecompositionPtr decomposition = cluster_constructor.ConstructClusters(spliced_read_group);
         //}
-
-        // temporary!!!
-        // everything should be refactored
-//        vector<vector<size_t> > subclusters;
-//        for(size_t i = 0; i < decomposition->Size(); i++) {
-//            assert(decomposition->ClassSize(i) != 0);
-//            for(auto it != )
-//        }
 
         continue;
 

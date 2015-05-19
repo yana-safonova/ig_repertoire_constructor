@@ -1,6 +1,7 @@
 #pragma once
 
 #include "hg_decomposition.hpp"
+#include "../../spliced_read.hpp"
 
 class PositionCounter {
     size_t a_;
@@ -272,8 +273,7 @@ class AlignmentDecompositionConstructor {
     CRS_HammingGraph_Ptr hamming_graph_ptr_;
     HG_CollapsedStructs_Ptr collapsed_struct_ptr_;
     HG_DecompositionPtr primary_decomposition_;
-    const vector<ig_repertoire_constructor::SplicedRead> &reads_;
-    size_t group_id_;
+    ig_repertoire_constructor::SplicedReadGroup read_group_;
 
     // output decomposition
     HG_DecompositionPtr output_decomposition_;
@@ -282,7 +282,7 @@ class AlignmentDecompositionConstructor {
         PositionCounter mismatch_counter;
         size_t read_index = 0;
         for(auto it = cur_class.begin(); it != cur_class.end(); it++) {
-            mismatch_counter.Update(nucl(reads_[read_indices[read_index]][pos]), *it,
+            mismatch_counter.Update(nucl(read_group_[read_indices[read_index]][pos]), *it,
                     collapsed_struct_ptr_->MultiplicityOfNewVertex(*it));
             read_index++;
         }
@@ -307,7 +307,7 @@ class AlignmentDecompositionConstructor {
         vector<size_t> old_read_ids;
         for(auto it = cur_class.begin(); it != cur_class.end(); it++)
             old_read_ids.push_back(collapsed_struct_ptr_->OldVerticesList()[*it]);
-        size_t read_size = reads_[0].size();
+        size_t read_size = read_group_[0].size();
         size_t num_trivial_mismatches = 0;
         vector<PositionCounter> non_trivial_counters;
         // tmp
@@ -320,7 +320,7 @@ class AlignmentDecompositionConstructor {
                 }
                 else {
                     TRACE("Pos: " << i << ", non trivial mismatch: " << counter);
-                    out << group_id_ << "\t" << class_id << "\t" <<
+                    out << read_group_.Id() << "\t" << class_id << "\t" <<
                             counter.A() << "\t" << counter.C() << "\t" <<
                             counter.G() << "\t" << counter.T() << "\t" <<
                             primary_decomposition_->RealSizeOfClass(class_id, collapsed_struct_ptr_) <<
@@ -340,13 +340,11 @@ public:
     AlignmentDecompositionConstructor(CRS_HammingGraph_Ptr hamming_graph_ptr,
             HG_CollapsedStructs_Ptr collapsed_struct_ptr,
             HG_DecompositionPtr primary_decomposition,
-            const vector<ig_repertoire_constructor::SplicedRead> &reads,
-            size_t group_id) :
+            ig_repertoire_constructor::SplicedReadGroup read_group) :
         hamming_graph_ptr_(hamming_graph_ptr),
         collapsed_struct_ptr_(collapsed_struct_ptr),
         primary_decomposition_(primary_decomposition),
-        reads_(reads),
-        group_id_(group_id),
+        read_group_(read_group),
         output_decomposition_(new HG_Decomposition(primary_decomposition->VertexNumber())) { }
 
     HG_DecompositionPtr ConstructDecomposition() {

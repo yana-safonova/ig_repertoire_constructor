@@ -171,4 +171,25 @@ int GetRightmostPosition(std::vector<SplicedRead> const &spliced_reads,
     }
 }
 
+class SplicedReadGroup {
+	const vector<SplicedRead> &reads_;
+	size_t id_;
+
+public:
+	SplicedReadGroup(const vector<SplicedRead> &reads, size_t id):
+		reads_(reads),
+		id_(id) { }
+
+	const vector<SplicedRead>& Reads() const { return reads_; }
+
+	size_t Id() { return id_; }
+
+	size_t size() const { return reads_.size(); }
+
+	const SplicedRead& operator[](size_t index) {
+		assert(index < size());
+		return reads_[index];
+	}
+};
+
 }
