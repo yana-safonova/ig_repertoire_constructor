@@ -9,8 +9,6 @@
 #include "cut_vertex_clusterization.hpp"
 
 #include "hg_clusterization.hpp"
-#include "dense_subgraph_constructor.hpp"
-#include "dense_subgraph_decomposer.hpp"
 
 namespace  ig_repertoire_constructor {
 
@@ -221,8 +219,7 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
         // todo: process results of cluster_constructor
         //if(i == 357134) {
         SplicedReadGroup spliced_read_group(read_group, i);
-        HGClustersConstructor<SimpleHammingDistanceCalculator, MetisDenseSubgraphConstructor,
-        	IterativeDenseSubgraphDecomposer> cluster_constructor(tau, edge_perc_thresh,
+        StandardHGClustersConstructor cluster_constructor(tau, edge_perc_thresh,
                     class_joining_thresh, min_recessive_abs_size, min_recessive_rel_size);
         HG_DecompositionPtr decomposition = cluster_constructor.ConstructClusters(spliced_read_group);
         //}

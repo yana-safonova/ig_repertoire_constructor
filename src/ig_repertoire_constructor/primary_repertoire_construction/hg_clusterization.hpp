@@ -7,10 +7,8 @@
 #include "hamming_graph_clusterization/permutation.hpp"
 #include "hamming_graph_clusterization/hg_decomposition.hpp"
 
-#include "hamming_graph_clusterization/simple_decomposition_constructor.hpp"
-#include "hamming_graph_clusterization/alignment_decomposition_constructor.hpp"
-#include "hamming_graph_clusterization/greedy_joining_decomposition_constructor.hpp"
-#include "hamming_graph_clusterization/decomposition_stats_calculator.hpp"
+#include "dense_subgraph_constructor.hpp"
+#include "dense_subgraph_decomposer.hpp"
 
 #include "primary_repertoire_constructor.hpp"
 #include "../../include/path_helper.hpp"
@@ -72,9 +70,9 @@ class HGClustersConstructor {
         TRACE("Collapsed graph contains " << collapsed_struct_->NumCollapsedVertices() << " vertices");
     }
 
-    void CreateDenseSubgraphDecomposition() {
+    void CreateDenseSubgraphDecomposition(size_t graph_id) {
     	dense_sgraphs_decomposition_ptr_ = dense_subgraph_constructor_.CreateDecomposition(hamming_graph_ptr_,
-    			collapsed_struct_);
+    			collapsed_struct_, graph_id);
     }
 
     void DecomposeDenseSubgraphs(SplicedReadGroup read_group) {
@@ -82,7 +80,7 @@ class HGClustersConstructor {
     			collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
     }
 
-    void ComputeHGFinalDecomposition(SplicedReadGroup read_group) {
+    /* void ComputeHGFinalDecomposition(SplicedReadGroup read_group) {
         TRACE("AlignmentDecompositionConstructor starts");
         AlignmentDecompositionConstructor align_constructor(hamming_graph_ptr_, collapsed_struct_,
                 dense_sgraphs_decomposition_ptr_, read_group);
@@ -93,7 +91,6 @@ class HGClustersConstructor {
         calculator.WriteStatsInFile("final_decomposition_stats.txt");
     }
 
-    /*
     string GetDecompositionFname(size_t group_id, string prefix) {
         stringstream ss;
         ss << prefix << "_decomposition_" << group_id;
@@ -150,7 +147,7 @@ public:
         CollapseIdenticalVertices();
         TRACE("Identical vertices were collapsed");
 
-        CreateDenseSubgraphDecomposition();
+        CreateDenseSubgraphDecomposition(read_group.Id());
         TRACE("Decomposition of Hamming graph into dense subgraphs was computed");
 
         DecomposeDenseSubgraphs(read_group);
@@ -166,5 +163,7 @@ public:
 private:
     DECL_LOGGER("HGClustersConstructor");
 };
+
+typedef HGClustersConstructor<SimpleHammingDistanceCalculator, MetisDenseSubgraphConstructor, IterativeDenseSubgraphDecomposer> StandardHGClustersConstructor;
 
 }

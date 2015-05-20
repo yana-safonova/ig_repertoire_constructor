@@ -37,11 +37,10 @@ class IterativeDenseSubgraphDecomposer {
 
 public:
 	IterativeDenseSubgraphDecomposer(size_t min_recessive_abs_size,
-			double min_recessive_rel_size,
-			size_t min_dense_sgraph_size) :
+			double min_recessive_rel_size) :
 		min_recessive_abs_size_(min_recessive_abs_size),
 		min_recessive_rel_size_(min_recessive_rel_size),
-		min_dense_sgraph_size_(min_dense_sgraph_size) { }
+		min_dense_sgraph_size_(min_recessive_abs_size * 2 + 1) { }
 
 	HG_DecompositionPtr CreateDecomposition(CRS_HammingGraph_Ptr hamming_graph_ptr,
 			HG_CollapsedStructs_Ptr collapsed_struct_ptr,
