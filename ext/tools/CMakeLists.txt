@@ -5,4 +5,4 @@
 ############################################################################
 
 add_subdirectory(bwa-0.6.2)
-add_subdirectory(metis)
+add_subdirectory(metis-5.1.0)
