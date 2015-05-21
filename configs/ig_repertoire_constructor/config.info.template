@@ -6,8 +6,6 @@ io {
 	output_saves	ig_repertoire_constructor_test/saves
 	load_from		ig_repertoire_constructor_test/saves
 	temp_files		ig_repertoire_constructor_test/temp_files
-	output_ham_graphs	false
-	hgraph_dir		hamming_graphs
 }
 
 ; run params ;
@@ -30,8 +28,17 @@ aligning_params {
 }
 
 hgc_params {
-    edge_perc_threshold	0.2
-    class_joining_edge_threshold 0.3
+    edge_perc_threshold				0.2
+    class_joining_edge_threshold	0.3
+	min_recessive_abs_size			4
+	min_recessive_rel_size			0.01
+
+	hgc_io_params {
+		hg_output_dir	hamming_graphs
+		path_to_metis	build/release/bin/
+		run_metis		./metis
+		trash_output	metis.output
+	}
 }
 
 ; singleton gluer params ;

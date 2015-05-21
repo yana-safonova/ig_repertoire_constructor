@@ -76,7 +76,7 @@ private:
     };
 
     void BuildHammingGraph(std::vector <SplicedRead> const &spliced_reads);
-    void PrintHammingGraph(size_t group_id) const;
+//    void PrintHammingGraph(size_t group_id) const;
     EdgeWeight GetHammingDistance(SplicedRead const &r1, SplicedRead const &r2) const;
     void DFSNonRecursive(size_t v);
     void StartDFS(size_t v, size_t p, EdgePtr edge_from_parent, std::stack<DFSStackElement> &dfs_stack);
@@ -108,7 +108,7 @@ std::shared_ptr<std::vector<std::vector<size_t> > > CutVertexClusterization::Clu
         return res;
     }
     BuildHammingGraph(spliced_reads);
-    PrintHammingGraph(group_id);
+ //   PrintHammingGraph(group_id);
     PaintEdges();
 
     /*
@@ -191,6 +191,7 @@ string GetHgraphName(size_t group_id, size_t graph_size) {
     return ss.str();
 }
 
+/*
 void CutVertexClusterization::PrintHammingGraph(size_t group_id) const {
     if (!ig_cfg::get().io.output_ham_graphs) {
         return;
@@ -217,7 +218,7 @@ void CutVertexClusterization::PrintHammingGraph(size_t group_id) const {
     VERIFY(!fs.fail());
     fs.close();
 }
-
+*/
 
 bool PositionIsPattern(const SplicedRead &r, size_t i, char N1, char N2) {
     return nucl(r[i]) == N1 or nucl(r[i]) == N2;

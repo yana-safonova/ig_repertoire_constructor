@@ -21,7 +21,7 @@ sys.path.append(spades_src)
 import process_cfg
 
 class Options:
-    long_options = "help help-hidden output= threads= test memory= entry-point= tau= output-graph joint-thresh=".split()
+    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh=".split()
     short_options = "o:s:t:e:m:"
 
 class Params:
@@ -37,7 +37,6 @@ class Params:
     temp_files_dir = "temp_files"
     mismatches_threshold = 3
     max_memory = 250
-    output_graph = False
     joint_thresh = 0.3
 
     def __init__(self):
@@ -72,7 +71,6 @@ def usage(log, show_hidden=False):
         log.info("\nHidden options:")
         log.info("  --entry-point\t\t<stage_name>\tcontinue from the given stage")
         log.info("  --help-hidden\t\t\t\tprints this usage message with all hidden options")
-        log.info("  --output-graph\t\t\toutputs Hamming graph")
 
 def supportInfo(log):
     log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.") 
@@ -114,8 +112,6 @@ def ParseOptions(options, not_options, log):
             params.reads = os.path.abspath(params.reads)
         elif opt in ('-m', '--memory'):
             params.max_memory = int(arg)
-        elif opt == '--output-graph':
-            params.output_graph = True
         elif opt == '--joint-thresh':
             params.joint_thresh = float(arg)
     return params
@@ -170,7 +166,6 @@ def CreateParamDict(params):
     param_dict['entry_point'] = params.entry_point
     param_dict['overlap_mismatches_threshold'] = params.mismatches_threshold
     param_dict['max_memory'] = params.max_memory
-    param_dict['output_ham_graphs'] = process_cfg.bool_to_str(params.output_graph)
     param_dict['class_joining_edge_threshold'] = params.joint_thresh
     return param_dict
 

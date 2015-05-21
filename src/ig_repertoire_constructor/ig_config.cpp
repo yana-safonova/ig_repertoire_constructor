@@ -1,10 +1,11 @@
 #include "ig_config.hpp"
 #include "../include/config_common.hpp"
 
-std::string update_hgraph_dir_name(std::string hgraph_dir, size_t overlap_mismatches_threshold) {
-    std::stringstream ss;
-    ss << hgraph_dir << "_" << overlap_mismatches_threshold;
-    return ss.str();
+std::string update_hgraph_dir_name(ig_config &cfg) {
+	std::stringstream ss;
+	ss << path::append_path(cfg.io.output_dir, cfg.hgc_params.hgc_io_params.hg_output_dir);
+	ss << "_tau_" << cfg.aligning_params.overlap_mismatches_threshold;
+	return ss.str();
 }
 
 void load(ig_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
@@ -18,10 +19,6 @@ void load(ig_config::io_params &io, boost::property_tree::ptree const &pt, bool)
     std::string fname;
     load(fname, pt, "dataset");
     io.dataset.load(fname);
-
-    load(io.output_ham_graphs, pt, "output_ham_graphs");
-    load(io.hgraph_dir, pt, "hgraph_dir");
-    io.hgraph_dir = io.output_saves + "/" + io.hgraph_dir;
 }
 
 void load(ig_config::run_params &rp, boost::property_tree::ptree const &pt, bool) {
@@ -49,10 +46,22 @@ void load(ig_config::read_aligning_params &params, boost::property_tree::ptree c
     load(params.overlap_mismatches_threshold, pt, "overlap_mismatches_threshold");
 }
 
-void load(ig_config::hg_clusterization_params &params, boost::property_tree::ptree const &pt, bool) {
+void load(ig_config::hg_clusterization_params::hg_clusterization_io_params &io_params, boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+	load(io_params.hg_output_dir, pt, "hg_output_dir");
+    load(io_params.path_to_metis, pt, "path_to_metis");
+    load(io_params.run_metis, pt, "run_metis");
+    load(io_params.trash_output, pt, "trash_output");
+    io_params.run_metis = path::append_path(io_params.path_to_metis, io_params.run_metis);
+}
+
+void load(ig_config::hg_clusterization_params &params, boost::property_tree::ptree const &pt, bool complete) {
     using config_common::load;
     load(params.edge_perc_threshold, pt, "edge_perc_threshold");
     load(params.class_joining_edge_threshold, pt, "class_joining_edge_threshold");
+    load(params.min_recessive_abs_size, pt, "min_recessive_abs_size");
+    load(params.min_recessive_rel_size, pt, "min_recessive_rel_size");
+    load(params.hgc_io_params, pt, "hgc_io_params", complete);
 }
 
 void load(ig_config &cfg, boost::property_tree::ptree const &pt, bool complete) {
@@ -61,10 +70,11 @@ void load(ig_config &cfg, boost::property_tree::ptree const &pt, bool complete) 
     load(cfg.rp, pt, "rp", complete);
     load(cfg.sg, pt, "sg", complete);
     load(cfg.aligning_params, pt, "aligning_params", complete);
-    load(cfg.hgc_params, pt, "hgc_params");
+    load(cfg.hgc_params, pt, "hgc_params", complete);
 
     // temporary
-    cfg.io.hgraph_dir = update_hgraph_dir_name(cfg.io.hgraph_dir, cfg.aligning_params.overlap_mismatches_threshold);
+    cfg.hgc_params.hgc_io_params.hg_output_dir = update_hgraph_dir_name(cfg);
+    cfg.hgc_params.hgc_io_params.trash_output = path::append_path(cfg.io.output_dir, cfg.hgc_params.hgc_io_params.trash_output);
 }
 
 void load(ig_config &cfg, std::string const &filename) {

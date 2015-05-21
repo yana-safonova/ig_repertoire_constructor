@@ -12,8 +12,6 @@ struct ig_config {
         std::string 	output_saves;
         std::string 	load_from;
         std::string     temp_files;
-        bool            output_ham_graphs;
-        std::string     hgraph_dir;
     };
 
     struct run_params {
@@ -32,6 +30,17 @@ struct ig_config {
     struct hg_clusterization_params {
         double edge_perc_threshold;
         double class_joining_edge_threshold;
+    	size_t min_recessive_abs_size;
+    	double min_recessive_rel_size;
+
+        struct hg_clusterization_io_params {
+        	std::string 	hg_output_dir;
+            std::string 	path_to_metis;
+            std::string		run_metis;
+            std::string		trash_output;
+        };
+
+        hg_clusterization_io_params hgc_io_params;
     };
 
     struct singleton_gluer_params {

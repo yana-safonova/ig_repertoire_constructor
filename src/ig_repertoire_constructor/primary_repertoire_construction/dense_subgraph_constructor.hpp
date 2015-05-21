@@ -13,49 +13,35 @@ namespace ig_repertoire_constructor {
 
 class MetisDenseSubgraphConstructor {
 	// config params
-	double primary_edge_fillin_threshold_;
-	double dense_subgraph_joining_threshold_;
+	const ig_config::hg_clusterization_params& params_;
 
 	// output struct
 	HG_DecompositionPtr dense_subgraph_decomposition_ptr_;
 
 	PermutationPtr CreatePermutation(CRS_HammingGraph_Ptr hamming_graph_ptr,
 			HG_CollapsedStructs_Ptr collapsed_struct_ptr, size_t graph_id) {
-		return MetisPermutationConstructor(hamming_graph_ptr, collapsed_struct_ptr, graph_id).CreatePermutation();
+		return MetisPermutationConstructor(hamming_graph_ptr, collapsed_struct_ptr, graph_id, params_.hgc_io_params).CreatePermutation();
 	}
 
 	HG_DecompositionPtr CreatePrimaryDecomposition(CRS_HammingGraph_Ptr hamming_graph_ptr,
 			HG_CollapsedStructs_Ptr collapsed_struct_ptr,
 			PermutationPtr permutation_ptr) {
         SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr,
-        		permutation_ptr, collapsed_struct_ptr, primary_edge_fillin_threshold_);
+        		permutation_ptr, collapsed_struct_ptr, params_.class_joining_edge_threshold);
         return simple_constructor.CreateDecomposition();
-
-        // todo: introduce config param and compute stats if it is enabled
-        //DecompositionStatsCalculator calculator(primary_decomposition_ptr_, hamming_graph_ptr_, collapsed_struct_);
-        //calculator.WriteStatsInFile("primary_decomposition_stats.txt");
 	}
 
 	HG_DecompositionPtr ImprovePrimaryDecomposition(CRS_HammingGraph_Ptr hamming_graph_ptr,
 			HG_CollapsedStructs_Ptr collapsed_struct_ptr,
 			HG_DecompositionPtr primary_decomposition_ptr) {
         GreedyJoiningDecomposition decomposition_improver(hamming_graph_ptr, collapsed_struct_ptr,
-                primary_decomposition_ptr, dense_subgraph_joining_threshold_);
+                primary_decomposition_ptr, params_.edge_perc_threshold);
         return decomposition_improver.ConstructDecomposition();
-
-        // todo: introduce config param and compute stats if it is enabled
-        //DecompositionStatsCalculator calculator(dense_subgraph_decomposition_ptr_,
-        //		hamming_graph_ptr_, collapsed_struct_ptr_);
-        //stringstream ss;
-        //ss << "secondary_decomposition_stats_" << dense_subgraph_joining_threshold_ << ".txt";
-        //calculator.WriteStatsInFile(ss.str());
 	}
 
 public:
-	MetisDenseSubgraphConstructor(double primary_edge_fillin_threshold,
-			double dense_subgraph_joining_threshold) :
-			primary_edge_fillin_threshold_(primary_edge_fillin_threshold),
-			dense_subgraph_joining_threshold_(dense_subgraph_joining_threshold) { }
+	MetisDenseSubgraphConstructor(const ig_config::hg_clusterization_params& params) :
+		params_(params) { }
 
 	HG_DecompositionPtr CreateDecomposition(CRS_HammingGraph_Ptr hamming_graph_ptr,
 			HG_CollapsedStructs_Ptr collapsed_struct_ptr, size_t graph_id) {

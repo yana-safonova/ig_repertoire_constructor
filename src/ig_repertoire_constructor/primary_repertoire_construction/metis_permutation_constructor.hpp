@@ -9,17 +9,26 @@ class MetisPermutationConstructor {
 	CRS_HammingGraph_Ptr hamming_graph_ptr_;
 	HG_CollapsedStructs_Ptr collapsed_struct_ptr_;
 	size_t graph_id_;
+	const ig_config::hg_clusterization_params::hg_clusterization_io_params &params_;
 
 	// get filename of METIS graph
 	string GetMETISGraphFilename() {
 		stringstream ss;
-		ss << "hamming_graph_" << graph_id_ << ".graph";
+		ss << path::append_path(params_.hg_output_dir, "hamming_graph");
+		ss << "_" << graph_id_ << ".graph";
 		return ss.str();
 	}
 
 	size_t GetNumEdgesInCollapsedGraph() {
-		// todo: compute me
-		return 0;
+		size_t collapsed_edges = 0;
+		for(size_t i = 0; i < hamming_graph_ptr_->N(); i++)
+			for(size_t j = hamming_graph_ptr_->RowIndexT()[i]; j < hamming_graph_ptr_->RowIndexT()[i + 1]; j++) {
+				size_t v1 = i;
+				size_t v2 = hamming_graph_ptr_->Col()[j];
+				if(collapsed_struct_ptr_->VertexIsMain(v1) and collapsed_struct_ptr_->VertexIsMain(v2))
+					collapsed_edges++;
+			}
+		return collapsed_edges;
 	}
 
 	// write graph in METIS format
@@ -27,31 +36,52 @@ class MetisPermutationConstructor {
 		ofstream output_fhandler(graph_fname.c_str());
 		output_fhandler << hamming_graph_ptr_->N() << "\t" << GetNumEdgesInCollapsedGraph() << endl;
 		for(size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
-			for(size_t j = hamming_graph_ptr_->RowIndexT()[i]; j < hamming_graph_ptr_->RowIndexT()[i + 1]; j++)
-				output_fhandler << hamming_graph_ptr_->ColT()[j] << "\t";
-			for(size_t j = hamming_graph_ptr_->RowIndex()[i]; j < hamming_graph_ptr_->RowIndex()[i + 1]; j++)
-				output_fhandler << hamming_graph_ptr_->Col()[j] << "\t";
+			if(!collapsed_struct_ptr_->VertexIsMain(i))
+				continue;
+			for(size_t j = hamming_graph_ptr_->RowIndexT()[i]; j < hamming_graph_ptr_->RowIndexT()[i + 1]; j++) {
+				size_t v = hamming_graph_ptr_->ColT()[j];
+				if(!collapsed_struct_ptr_->VertexIsMain(v))
+					continue;
+				output_fhandler << collapsed_struct_ptr_->NewIndexOfOldVertex(v) + 1 << "\t";
+			}
+			for(size_t j = hamming_graph_ptr_->RowIndex()[i]; j < hamming_graph_ptr_->RowIndex()[i + 1]; j++) {
+				size_t v = hamming_graph_ptr_->Col()[j];
+				if(!collapsed_struct_ptr_->VertexIsMain(v))
+					continue;
+				output_fhandler << collapsed_struct_ptr_->NewIndexOfOldVertex(v) + 1 << "\t";
+			}
 			output_fhandler << endl;
 		}
 		output_fhandler.close();
 	}
 
-	void RunMETIS(string graph_fname) {
-
+	string RunMETIS(string graph_fname) {
+		string command_line = params_.run_metis + " " + graph_fname + " > " + params_.trash_output;
+		system(command_line.c_str());
+		return graph_fname + ".iperm";
 	}
 
+	PermutationPtr ReadPermutation(string permutation_fname) {
+		PermutationPtr perm = PermutationPtr(new Permutation(collapsed_struct_ptr_->NumCollapsedVertices()));
+		perm->ReadFromFile(permutation_fname);
+		return perm;
+	}
 
 public:
-	MetisPermutationConstructor(CRS_HammingGraph_Ptr hamming_graph_ptr, HG_CollapsedStructs_Ptr collapsed_struct_ptr, size_t graph_id) :
+	MetisPermutationConstructor(CRS_HammingGraph_Ptr hamming_graph_ptr,
+			HG_CollapsedStructs_Ptr collapsed_struct_ptr,
+			size_t graph_id,
+			const ig_config::hg_clusterization_params::hg_clusterization_io_params &params) :
 		hamming_graph_ptr_(hamming_graph_ptr),
 		collapsed_struct_ptr_(collapsed_struct_ptr),
-		graph_id_(graph_id) { }
+		graph_id_(graph_id),
+		params_(params) { }
 
 	PermutationPtr CreatePermutation() {
 		string metis_graph_fname = GetMETISGraphFilename();
 		WriteHammingGraphInMETISFormat(metis_graph_fname);
-		assert(false);
-		return PermutationPtr(new Permutation(collapsed_struct_ptr_->NumCollapsedVertices()));
+		string permutation_fname = RunMETIS(metis_graph_fname);
+		return ReadPermutation(permutation_fname);
 	}
 };
 

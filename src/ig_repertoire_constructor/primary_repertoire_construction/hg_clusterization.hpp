@@ -122,14 +122,10 @@ class HGClustersConstructor {
     }
 
 public:
-    HGClustersConstructor(size_t max_tau,
-    		double edge_perc_threshold,
-    		double class_joining_edge_threshold,
-    		size_t min_recessive_abs_size,
-    		double min_recessive_rel_size) :
+    HGClustersConstructor(size_t max_tau, const ig_config::hg_clusterization_params& params) :
         calculator_(max_tau),
-        dense_subgraph_constructor_(edge_perc_threshold, class_joining_edge_threshold),
-        dense_subgraph_decomposer_(min_recessive_abs_size, min_recessive_rel_size),
+        dense_subgraph_constructor_(params),
+        dense_subgraph_decomposer_(params.min_recessive_abs_size, params.min_recessive_rel_size),
         max_tau_(max_tau) { }
 
 

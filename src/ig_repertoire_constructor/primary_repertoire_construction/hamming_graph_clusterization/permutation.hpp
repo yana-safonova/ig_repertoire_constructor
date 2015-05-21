@@ -18,6 +18,7 @@ public:
 
     void ReadFromFile(string filename) {
         ifstream perm_fhandler(filename.c_str());
+        assert(!perm_fhandler.fail());
         size_t index1 = 0;
         size_t index2 = 0;
         while(!perm_fhandler.eof()) {
