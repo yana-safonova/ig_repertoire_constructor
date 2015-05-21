@@ -37,6 +37,8 @@ void make_dirs(){
     if (ig_cfg::get().rp.developer_mode)
       make_dir(ig_cfg::get().io.output_saves);
     make_dir(ig_cfg::get().hgc_params.hgc_io_params.hg_output_dir);
+    if(ig_cfg::get().hgc_params.hgc_io_params.output_dense_subgraphs)
+    	make_dir(ig_cfg::get().hgc_params.hgc_io_params.dense_subgraphs_dir);
 }
 
 void copy_configs(string cfg_filename, string to) {

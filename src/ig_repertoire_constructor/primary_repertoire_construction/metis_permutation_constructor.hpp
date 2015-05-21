@@ -57,7 +57,8 @@ class MetisPermutationConstructor {
 
 	string RunMETIS(string graph_fname) {
 		string command_line = params_.run_metis + " " + graph_fname + " > " + params_.trash_output;
-		system(command_line.c_str());
+		int err_code = system(command_line.c_str());
+		TRACE("Error code: " << err_code);
 		return graph_fname + ".iperm";
 	}
 

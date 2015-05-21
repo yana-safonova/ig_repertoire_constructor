@@ -51,8 +51,9 @@ public:
 		HG_DecompositionPtr primary_decomposition_ptr = CreatePrimaryDecomposition(hamming_graph_ptr,
 				collapsed_struct_ptr, permutation_ptr);
 		TRACE("Improvement of the primary decomposition");
-		return ImprovePrimaryDecomposition(hamming_graph_ptr, collapsed_struct_ptr,
+		HG_DecompositionPtr dense_sgraph_decomposition = ImprovePrimaryDecomposition(hamming_graph_ptr, collapsed_struct_ptr,
 				primary_decomposition_ptr);
+		return dense_sgraph_decomposition;
 	}
 
 private:

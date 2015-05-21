@@ -21,7 +21,7 @@ sys.path.append(spades_src)
 import process_cfg
 
 class Options:
-    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh= save-hgraphs".split()
+    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh= save-hgraphs output-dense-sgraphs".split()
     short_options = "o:s:t:e:m:"
 
 class Params:
@@ -39,6 +39,7 @@ class Params:
     max_memory = 250
     joint_thresh = 0.3
     save_hamming_graphs = False
+    output_dense_sgraphs = False
 
     def __init__(self):
         self.output_dir = ""
@@ -55,6 +56,7 @@ class Params:
         self.max_memory = 250
         self.joint_thresh = 0.3
         self.save_hamming_graphs = False
+        self.output_dense_sgraphs = False
 
 def usage(log, show_hidden=False):
     log.info("./ig_repertoire_constructor.py [options] -s <filename> -o <output_dir>")
@@ -74,6 +76,7 @@ def usage(log, show_hidden=False):
         log.info("  --entry-point\t\t<stage_name>\tcontinue from the given stage")
         log.info("  --help-hidden\t\t\t\tprints this usage message with all hidden options")
         log.info("  --save-hgraphs\t\t\tsaves Hamming graphs in GRAPH format")
+        log.info("  --output-dense-sgraphs\t\toutputs decomposition into dense subgraphs")
 
 def supportInfo(log):
     log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.") 
@@ -117,6 +120,10 @@ def ParseOptions(options, not_options, log):
             params.max_memory = int(arg)
         elif opt == '--joint-thresh':
             params.joint_thresh = float(arg)
+        elif opt == '--save-hgraphs':
+            params.save_hamming_graphs = True
+        elif opt == '--output-dense-sgraphs':
+            params.output_dense_sgraphs = True
     return params
 
 def PrepareOutputDir(output_dir):
@@ -170,6 +177,8 @@ def CreateParamDict(params):
     param_dict['overlap_mismatches_threshold'] = params.mismatches_threshold
     param_dict['max_memory'] = params.max_memory
     param_dict['class_joining_edge_threshold'] = params.joint_thresh
+    if params.output_dense_sgraphs:
+        param_dict["output_dense_subgraphs"] = "true"
     return param_dict
 
 def PrepareConfigs(params, log):

@@ -186,7 +186,7 @@ public:
 
 	size_t size() const { return reads_.size(); }
 
-	const SplicedRead& operator[](size_t index) {
+	const SplicedRead& operator[](size_t index) const {
 		assert(index < size());
 		return reads_[index];
 	}

@@ -26,8 +26,6 @@ void load(ig_config::io_params &io, boost::property_tree::ptree const &pt, bool)
     std::string fname;
     load(fname, pt, "dataset");
     io.dataset.load(fname);
-
-    //AddOutputDir(io);
 }
 
 void load(ig_config::run_params &rp, boost::property_tree::ptree const &pt, bool) {
@@ -61,6 +59,8 @@ void load(ig_config::hg_clusterization_params::hg_clusterization_io_params &io_p
     load(io_params.path_to_metis, pt, "path_to_metis");
     load(io_params.run_metis, pt, "run_metis");
     load(io_params.trash_output, pt, "trash_output");
+    load(io_params.output_dense_subgraphs, pt, "output_dense_subgraphs");
+    load(io_params.dense_subgraphs_dir, pt, "dense_subgraphs_dir");
     io_params.run_metis = path::append_path(io_params.path_to_metis, io_params.run_metis);
 }
 
@@ -83,6 +83,7 @@ void load(ig_config &cfg, boost::property_tree::ptree const &pt, bool complete) 
 
     // temporary
     cfg.hgc_params.hgc_io_params.hg_output_dir = update_hgraph_dir_name(cfg);
+    cfg.hgc_params.hgc_io_params.dense_subgraphs_dir = path::append_path(cfg.io.output_dir, cfg.hgc_params.hgc_io_params.dense_subgraphs_dir);
     cfg.hgc_params.hgc_io_params.trash_output = path::append_path(cfg.io.temp_files, cfg.hgc_params.hgc_io_params.trash_output);
 }
 

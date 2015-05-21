@@ -34,15 +34,43 @@ public:
     }
 };
 
+class HG_DecompositionPrinter {
+	HG_DecompositionPtr hg_decomposition_;
+	const SplicedReadGroup &read_group_;
+	CRS_HammingGraph_Ptr hamming_graph_;
+	HG_CollapsedStructs_Ptr collapsed_struct_;
+
+public:
+	HG_DecompositionPrinter(HG_DecompositionPtr hg_decomposition,
+			const SplicedReadGroup &read_group,
+			CRS_HammingGraph_Ptr hamming_graph,
+			HG_CollapsedStructs_Ptr collapsed_struct) :
+				hg_decomposition_(hg_decomposition),
+				read_group_(read_group),
+				hamming_graph_(hamming_graph),
+				collapsed_struct_(collapsed_struct) { }
+
+	void PrintDecomposition(string output_fname) {
+		ofstream out_fhandler(output_fname.c_str());
+        for(size_t i = 0; i < read_group_.size(); i++) {
+            size_t new_vertex = collapsed_struct_->NewIndexOfOldVertex(i);
+            size_t sgraph_id = hg_decomposition_->GetVertexClass(new_vertex);
+            out_fhandler << sgraph_id << "\t" << read_group_[i].GetReadName() << "\t" << read_group_[i].GetFrom() << endl;
+        }
+        out_fhandler.close();
+	}
+};
+
 template<class HammingDistanceCalculator, class DenseSubgraphConstructor, class DenseSubgraphDecompositor>
 class HGClustersConstructor {
+    // input data
+    size_t max_tau_;
+    const ig_config::hg_clusterization_params& params_;
+
     // auxiliary classes-procedures
     HammingDistanceCalculator calculator_;
     DenseSubgraphConstructor dense_subgraph_constructor_;
     DenseSubgraphDecompositor dense_subgraph_decomposer_;
-
-    // input data
-    size_t max_tau_;
 
     // auxiliary structures
     CRS_HammingGraph_Ptr hamming_graph_ptr_;
@@ -70,6 +98,21 @@ class HGClustersConstructor {
         TRACE("Collapsed graph contains " << collapsed_struct_->NumCollapsedVertices() << " vertices");
     }
 
+    string GetDecompositionFname(size_t group_id) {
+        stringstream ss;
+        ss << "dense_sgraph_decomposition_" << group_id << "_size_" << hamming_graph_ptr_->N() << ".txt";
+        return path::append_path(params_.hgc_io_params.dense_subgraphs_dir, ss.str());
+    }
+
+    void OutputDenseSgraphDecomposition(HG_DecompositionPtr dense_sgraph_decomposition, SplicedReadGroup read_group) {
+    	if(!params_.hgc_io_params.output_dense_subgraphs)
+    		return;
+    	string output_fname = GetDecompositionFname(read_group.Id());
+    	HG_DecompositionPrinter(dense_sgraph_decomposition, read_group, hamming_graph_ptr_,
+    			collapsed_struct_).PrintDecomposition(output_fname);
+    	TRACE("Decomposition into dense subgraphs #" << read_group.Id() << " was written to " << output_fname);
+    }
+
     void CreateDenseSubgraphDecomposition(size_t graph_id) {
     	dense_sgraphs_decomposition_ptr_ = dense_subgraph_constructor_.CreateDecomposition(hamming_graph_ptr_,
     			collapsed_struct_, graph_id);
@@ -80,40 +123,6 @@ class HGClustersConstructor {
     			collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
     }
 
-    /* void ComputeHGFinalDecomposition(SplicedReadGroup read_group) {
-        TRACE("AlignmentDecompositionConstructor starts");
-        AlignmentDecompositionConstructor align_constructor(hamming_graph_ptr_, collapsed_struct_,
-                dense_sgraphs_decomposition_ptr_, read_group);
-        final_decomposition_ptr_ = align_constructor.ConstructDecomposition();
-
-        TRACE("DecompositionStatsCalculator starts");
-        DecompositionStatsCalculator calculator(final_decomposition_ptr_, hamming_graph_ptr_, collapsed_struct_);
-        calculator.WriteStatsInFile("final_decomposition_stats.txt");
-    }
-
-    string GetDecompositionFname(size_t group_id, string prefix) {
-        stringstream ss;
-        ss << prefix << "_decomposition_" << group_id;
-        if(prefix == "secondary")
-            ss << "_" << class_joining_edge_threshold_;
-        ss << ".txt";
-        return path::append_path(ig_cfg::get().io.hgraph_dir, ss.str());
-    }
-
-    void SaveDecomposition(const vector <SplicedRead> &spliced_reads, HG_DecompositionPtr decomposition,
-            string filename) {
-        ofstream out(filename.c_str());
-        for(size_t i = 0; i < spliced_reads.size(); i++) {
-            size_t old_vertex = i;
-            size_t new_vertex = collapsed_struct_->NewIndexOfOldVertex(i);
-            size_t sgraph_id = decomposition->GetVertexClass(new_vertex);
-            out << old_vertex << "\t" << sgraph_id << "\t" << spliced_reads[i].GetReadName() << "\t" <<
-                    spliced_reads[i].GetFrom() << endl;
-        }
-        out.close();
-    }
-    */
-
     HG_DecompositionPtr CreateTrivialDecomposition(size_t reads_number) {
         HG_DecompositionPtr decomposition(new HG_Decomposition(reads_number));
         for(size_t i = 0; i < reads_number; i++)
@@ -123,10 +132,11 @@ class HGClustersConstructor {
 
 public:
     HGClustersConstructor(size_t max_tau, const ig_config::hg_clusterization_params& params) :
+    	max_tau_(max_tau),
+        params_(params),
         calculator_(max_tau),
         dense_subgraph_constructor_(params),
-        dense_subgraph_decomposer_(params.min_recessive_abs_size, params.min_recessive_rel_size),
-        max_tau_(max_tau) { }
+        dense_subgraph_decomposer_(params.min_recessive_abs_size, params.min_recessive_rel_size)  { }
 
 
     HG_DecompositionPtr ConstructClusters(SplicedReadGroup read_group) {
@@ -144,6 +154,7 @@ public:
         TRACE("Identical vertices were collapsed");
 
         CreateDenseSubgraphDecomposition(read_group.Id());
+        OutputDenseSgraphDecomposition(dense_sgraphs_decomposition_ptr_, read_group);
         TRACE("Decomposition of Hamming graph into dense subgraphs was computed");
 
         //DecomposeDenseSubgraphs(read_group);

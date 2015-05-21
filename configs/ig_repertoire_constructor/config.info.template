@@ -34,10 +34,12 @@ hgc_params {
 	min_recessive_rel_size			0.01
 
 	hgc_io_params {
-		hg_output_dir	hamming_graphs
-		path_to_metis	build/release/bin/
-		run_metis		./metis
-		trash_output	metis.output
+		hg_output_dir			hamming_graphs
+		path_to_metis			build/release/bin/
+		run_metis				./metis
+		trash_output			metis.output
+		output_dense_subgraphs	false
+		dense_subgraphs_dir		dense_subgraphs
 	}
 }
 

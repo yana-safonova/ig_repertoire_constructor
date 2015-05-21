@@ -38,6 +38,8 @@ struct ig_config {
             std::string 	path_to_metis;
             std::string		run_metis;
             std::string		trash_output;
+            bool			output_dense_subgraphs;
+            std::string 	dense_subgraphs_dir;
         };
 
         hg_clusterization_io_params hgc_io_params;
