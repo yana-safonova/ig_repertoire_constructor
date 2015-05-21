@@ -21,7 +21,7 @@ sys.path.append(spades_src)
 import process_cfg
 
 class Options:
-    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh=".split()
+    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh= save-hgraphs".split()
     short_options = "o:s:t:e:m:"
 
 class Params:
@@ -38,6 +38,7 @@ class Params:
     mismatches_threshold = 3
     max_memory = 250
     joint_thresh = 0.3
+    save_hamming_graphs = False
 
     def __init__(self):
         self.output_dir = ""
@@ -53,6 +54,7 @@ class Params:
         self.mismatches_threshold = 3
         self.max_memory = 250
         self.joint_thresh = 0.3
+        self.save_hamming_graphs = False
 
 def usage(log, show_hidden=False):
     log.info("./ig_repertoire_constructor.py [options] -s <filename> -o <output_dir>")
@@ -71,6 +73,7 @@ def usage(log, show_hidden=False):
         log.info("\nHidden options:")
         log.info("  --entry-point\t\t<stage_name>\tcontinue from the given stage")
         log.info("  --help-hidden\t\t\t\tprints this usage message with all hidden options")
+        log.info("  --save-hgraphs\t\t\tsaves Hamming graphs in GRAPH format")
 
 def supportInfo(log):
     log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.") 
@@ -190,15 +193,20 @@ def RunIgRepertoireConstructor(params, log):
     sys.exit(-1)
     log.info("\n==== IgRepertoireConstructor finished\n")
 
-    for filename in os.listdir(params.output_dir):
-        path = os.path.join(params.output_dir, filename)
-        if filename.startswith("kmeridx") and os.path.isdir(path):
-            shutil.rmtree(path)
-
     log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.output_dir + "/constructed_repertoire.clusters.fa")
     log.info(" * RCM for final repertoire is in " + params.output_dir + "/constructed_repertoire.rcm")
     log.info("\nThank you for using IgRepertoireConstructor!\n")
-    
+
+def CleanOutputDir(params, log):
+    log.info("Removing temporary data")
+    shutil.rmtree("temp_files")
+    if not params.save_hamming_graphs:
+        log.info("Removing Hamming graphs")
+        for fname in os.listdir(params.output_dir):
+            path = os.path.join(params.output_dir, fname)
+            if path.startswith("hamming_graphs_tau_") and os.path.isdir(path):
+                shutil.rmtree(path)
+   
 def main(args):
     # prepare log
     log = logging.getLogger('ig_repertoire_constructor')
@@ -271,6 +279,8 @@ def main(args):
             log.exception(exc_value)
             log.info("\nERROR: Exception caught.")
             supportInfo(log)
+
+    CleanOutputDir(params, log)
 
     log.info("Log was written to " + params.log_filename)
 

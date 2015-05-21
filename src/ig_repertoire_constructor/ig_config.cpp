@@ -8,6 +8,13 @@ std::string update_hgraph_dir_name(ig_config &cfg) {
 	return ss.str();
 }
 
+void AddOutputDir(ig_config::io_params &io) {
+	io.load_from = path::append_path(io.output_dir, io.load_from);
+	io.log_filename = path::append_path(io.output_dir, io.log_filename);
+	io.output_saves = path::append_path(io.output_dir, io.output_saves);
+	io.temp_files = path::append_path(io.output_dir, io.temp_files);
+}
+
 void load(ig_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(io.log_filename, pt, "log_filename");
@@ -19,6 +26,8 @@ void load(ig_config::io_params &io, boost::property_tree::ptree const &pt, bool)
     std::string fname;
     load(fname, pt, "dataset");
     io.dataset.load(fname);
+
+    //AddOutputDir(io);
 }
 
 void load(ig_config::run_params &rp, boost::property_tree::ptree const &pt, bool) {
@@ -74,7 +83,7 @@ void load(ig_config &cfg, boost::property_tree::ptree const &pt, bool complete) 
 
     // temporary
     cfg.hgc_params.hgc_io_params.hg_output_dir = update_hgraph_dir_name(cfg);
-    cfg.hgc_params.hgc_io_params.trash_output = path::append_path(cfg.io.output_dir, cfg.hgc_params.hgc_io_params.trash_output);
+    cfg.hgc_params.hgc_io_params.trash_output = path::append_path(cfg.io.temp_files, cfg.hgc_params.hgc_io_params.trash_output);
 }
 
 void load(ig_config &cfg, std::string const &filename) {

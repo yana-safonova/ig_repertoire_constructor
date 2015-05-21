@@ -146,8 +146,8 @@ public:
         CreateDenseSubgraphDecomposition(read_group.Id());
         TRACE("Decomposition of Hamming graph into dense subgraphs was computed");
 
-        DecomposeDenseSubgraphs(read_group);
-        TRACE("Decomposition of dense subgraphs was computed");
+        //DecomposeDenseSubgraphs(read_group);
+        //TRACE("Decomposition of dense subgraphs was computed");
 
         return final_decomposition_ptr_;
     }
