@@ -78,7 +78,6 @@ class HGClustersConstructor {
     // auxiliary classes-procedures
     HammingDistanceCalculator calculator_;
     DenseSubgraphConstructor dense_subgraph_constructor_;
-    DenseSubgraphDecompositor dense_subgraph_decomposer_;
 
     // auxiliary structures
     CRS_HammingGraph_Ptr hamming_graph_ptr_;
@@ -128,8 +127,9 @@ class HGClustersConstructor {
     }
 
     void DecomposeDenseSubgraphs(SplicedReadGroup read_group) {
-    	final_decomposition_ptr_ = dense_subgraph_decomposer_.CreateDecomposition(hamming_graph_ptr_,
-    			collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
+        DenseSubgraphDecompositor dense_subgraph_decomposer_(params_.min_recessive_abs_size,
+        		params_.min_recessive_rel_size, hamming_graph_ptr_, collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
+    	final_decomposition_ptr_ = dense_subgraph_decomposer_.CreateDecomposition();
     }
 
     HG_DecompositionPtr CreateTrivialDecomposition(size_t reads_number) {
@@ -144,8 +144,7 @@ public:
     	max_tau_(max_tau),
         params_(params),
         calculator_(max_tau),
-        dense_subgraph_constructor_(params),
-        dense_subgraph_decomposer_(params.min_recessive_abs_size, params.min_recessive_rel_size)  { }
+        dense_subgraph_constructor_(params) { }
 
 
     HG_DecompositionPtr ConstructClusters(SplicedReadGroup read_group) {

@@ -13,12 +13,23 @@ class HG_Decomposition {
 
     void InitializeVertexClasses() {
         for(size_t i = 0; i < num_vertices_; i++)
-            vertex_class_.push_back(0);
+            vertex_class_.push_back(size_t(-1));
     }
 
     void AddNewClass() {
         set<size_t> new_class;
         decomposition_classes_.push_back(new_class);
+    }
+
+    bool ClassIsValid(size_t class_id) {
+    	return class_id != size_t(-1);
+    }
+
+    void RemoveVertex(size_t vertex) {
+    	size_t vertex_class = vertex_class_[vertex];
+    	if(!ClassIsValid(vertex_class))
+    		return;
+    	decomposition_classes_[vertex_class].erase(vertex);
     }
 
 public:
@@ -29,6 +40,7 @@ public:
 
     void SetClass(size_t vertex, size_t class_id) {
         assert(vertex < num_vertices_);
+        RemoveVertex(vertex);
         if(decomposition_classes_.size() == 0 or class_id > decomposition_classes_.size() - 1)
             for(size_t i = decomposition_classes_.size(); i <= class_id; i++)
                 AddNewClass();
@@ -52,6 +64,10 @@ public:
 
     size_t LastClassSize() const {
         return LastClass().size();
+    }
+
+    size_t LastClassId() const {
+    	return Size() - 1;
     }
 
     size_t VertexNumber() const {
@@ -100,6 +116,8 @@ public:
 private:
     DECL_LOGGER("HG_Decomposition");
 };
+
+typedef set<size_t> DecompositionClass;
 
 ostream& operator<<(ostream &out, const HG_Decomposition &hg_decomposition) {
     out << "Decomposition contains " << hg_decomposition.Size() << " classes" << endl;
