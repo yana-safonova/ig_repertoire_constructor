@@ -17,6 +17,7 @@ namespace ig_repertoire_constructor {
 
 class SimpleHammingDistanceCalculator {
     size_t max_distance_;
+
 public:
     SimpleHammingDistanceCalculator(size_t max_distance) :
             max_distance_(max_distance) {
@@ -24,8 +25,15 @@ public:
 
     size_t HammingDistance(const SplicedRead &r1, const SplicedRead &r2) {
         size_t dist = 0;
-        for (size_t i = 0; i < r1.size(); ++i)
-            if (r1[i] != r2[i]) {
+        size_t min_shift = min<size_t>(r1.GetFrom(), r2.GetFrom());
+        size_t start1 = r1.GetFrom() - min_shift;
+        size_t start2 = r2.GetFrom() - min_shift;
+        size_t overlap_len = min<size_t>(r1.ReadLength() - start1, r2.ReadLength() - start2);
+        //cout << r1.FullSequence() << ", start " << start1 << endl;
+        //cout << r2.FullSequence() << ", start " << start2 << endl;
+        //cout << "Overlap length: " << overlap_len << endl;
+        for(size_t i = 0; i < overlap_len; i++)
+        	if(r1[start1 + i] != r2[start2 + i]) {
                 ++dist;
                 if (dist > max_distance_)
                     return dist;
@@ -86,6 +94,7 @@ class HGClustersConstructor {
         for (size_t i = 0; i < read_group.size() - 1; i++)
             for (size_t j = i + 1; j < read_group.size(); j++) {
                 size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
+                //cout << "Distance: " << dist << endl;
                 if (dist <= max_tau_)
                     hg_edges.push_back(HGEdge(i, j, dist));
             }
