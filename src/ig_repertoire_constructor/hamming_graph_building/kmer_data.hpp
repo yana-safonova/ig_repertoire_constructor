@@ -7,7 +7,7 @@
 namespace ig_repertoire_constructor {
 
 #define MAX_KMER_LENGTH 500
-#define MAX_MISMATCHES_ON_OVERLAP 8
+#define MAX_MISMATCHES_ON_OVERLAP 3
 
 class KMerInfo;
 
