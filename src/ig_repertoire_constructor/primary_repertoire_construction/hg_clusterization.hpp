@@ -29,15 +29,18 @@ public:
         size_t start1 = r1.GetFrom() - min_shift;
         size_t start2 = r2.GetFrom() - min_shift;
         size_t overlap_len = min<size_t>(r1.ReadLength() - start1, r2.ReadLength() - start2);
-        //cout << r1.FullSequence() << ", start " << start1 << endl;
-        //cout << r2.FullSequence() << ", start " << start2 << endl;
-        //cout << "Overlap length: " << overlap_len << endl;
-        for(size_t i = 0; i < overlap_len; i++)
+        cout << r1.FullSequence() << ", start " << start1 << endl;
+        cout << r2.FullSequence() << ", start " << start2 << endl;
+        cout << "Overlap length: " << overlap_len << endl;
+        for(size_t i = 0; i < overlap_len; i++) {
+        	cout << i << " ";
         	if(r1[start1 + i] != r2[start2 + i]) {
                 ++dist;
                 if (dist > max_distance_)
                     return dist;
             }
+        }
+        cout << endl;
         return dist;
     }
 };
@@ -94,7 +97,7 @@ class HGClustersConstructor {
             for (size_t j = i + 1; j < read_group.size(); j++) {
             	cout << read_group[i].ReadName() << " - " << read_group[j].ReadName() << endl;
                 size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
-                //cout << "Distance: " << dist << endl;
+                cout << "Distance: " << dist << endl;
                 if (dist <= max_tau_)
                     hg_edges.push_back(HGEdge(i, j, dist));
             }
