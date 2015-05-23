@@ -170,6 +170,7 @@ class SingleRead {
    * @return Nucleotide on ith position of SingleRead sequence.
    */
   char operator[](size_t i) const {
+    std::cout << "Seq[i]: " << seq_[i] << std::endl;
     VERIFY(is_nucl(seq_[i]));
     return dignucl(seq_[i]);
   }

@@ -34,6 +34,8 @@ public:
         cout << "Overlap length: " << overlap_len << endl;
         for(size_t i = 0; i < overlap_len; i++) {
         	cout << i << " ";
+        	cout << "R1[i]: " << r1[start1 + i] << endl;
+        	cout << "R2[i]: " << r2[start2 + i] << endl;
         	if(r1[start1 + i] != r2[start2 + i]) {
                 ++dist;
                 if (dist > max_distance_)
