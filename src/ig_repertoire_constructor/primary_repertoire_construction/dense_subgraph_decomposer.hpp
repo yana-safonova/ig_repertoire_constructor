@@ -20,6 +20,9 @@ class UniformClassDecomposer {
 	size_t min_recessive_abs_size_;
 	double min_recessive_rel_size_;
 
+	// aux params;
+	size_t best_column_;
+
 	typedef map<char, size_t> ColumnMap;
 
 	ColumnMap ComputeColumnMap(size_t pos) {
@@ -52,16 +55,45 @@ class UniformClassDecomposer {
 		return rec_size <= 1;
 	}
 
+	size_t MapSize(ColumnMap cmap) {
+		size_t map_size = 0;
+		for(auto it = cmap.begin(); it != cmap.end(); it++)
+			map_size += it->second;
+		return map_size;
+	}
+
+	bool ColumnIsGood(ColumnMap cmap) {
+		size_t recessive_size = GetColumnRecessiveSize(cmap);
+		size_t map_size = MapSize(cmap);
+		return (recessive_size >= min_recessive_abs_size_) and
+				(double(recessive_size) / double(map_size) >= min_recessive_rel_size_);
+	}
+
+	size_t UpdateBestColumn(size_t column, ColumnMap cmap, size_t best_recessive_size) {
+		size_t recessive_size = GetColumnRecessiveSize(cmap);
+		if(recessive_size > best_recessive_size) {
+			best_column_ = column;
+			return recessive_size;
+		}
+		return best_recessive_size;
+	}
+
 	void FindBestAlignmentColumn() {
 		size_t spliced_read_length = read_group_[0].size();
+		size_t best_recessive_size = 0;
 		for(size_t i = 0; i < spliced_read_length; i++) {
 			auto column_map = ComputeColumnMap(i);
 			if(ColumnIsTrivial(column_map))
 				continue;
-			TRACE("Position: " << i << ", map: ");
+			if(!ColumnIsGood(column_map))
+				continue;
+			TRACE("Column at position " << i << " is good. Map: ");
 			for(auto it = column_map.begin(); it != column_map.end(); it++)
 				TRACE(it->first << " " << it->second);
+			best_recessive_size = UpdateBestColumn(i, column_map, best_recessive_size);
 		}
+		TRACE("Best column: " << best_column_ << " with recessive size " <<
+				best_recessive_size);
 	}
 
 public:
@@ -78,13 +110,13 @@ public:
 		hamming_graph_(hamming_graph),
 		collapsed_struct_(collapsed_struct),
 		min_recessive_abs_size_(min_recessive_abs_size),
-		min_recessive_rel_size_(min_recessive_rel_size) {
+		min_recessive_rel_size_(min_recessive_rel_size),
+		best_column_(size_t(-1)) {
 		FindBestAlignmentColumn();
 	}
 
 	bool ClassCanBeDecomposed() {
-		// todo: imlement me!
-		return true;
+		return best_column_ != size_t(-1);
 	}
 
 	HG_DecompositionPtr DecomposeClass() {
@@ -162,7 +194,7 @@ class IterativeDenseSubgraphDecomposer {
 		HG_DecompositionPtr new_decomposition = HG_DecompositionPtr(
 				new HG_Decomposition(current_decomposition->VertexNumber()));
 		vector<size_t> new_classes_for_analysis;
-		TRACE(classes_for_analysis_.size() << " classes will be analysed");
+		TRACE(classes_for_analysis_.size() << " class(es) will be analysed");
 		for(auto it = classes_for_analysis_.begin(); it!= classes_for_analysis_.end(); it++) {
 			TRACE("Analysis of class #" << *it << ", size: " << current_decomposition->ClassSize(*it));
 			auto newly_constructed_classes = DecomposeClass(
