@@ -15,7 +15,7 @@ class MetisPermutationConstructor {
 	string GetMETISGraphFilename() {
 		stringstream ss;
 		ss << path::append_path(params_.hg_output_dir, "hamming_graph");
-		ss << "_" << graph_id_ << ".graph";
+		ss << "_" << graph_id_ << "_size_" << collapsed_struct_ptr_->NumberNewVertices() << ".graph";
 		return ss.str();
 	}
 

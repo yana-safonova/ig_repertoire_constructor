@@ -284,6 +284,11 @@ public:
         return new_vertices_list_[main_vertices_map_[old_vertex]];
     }
 
+    size_t OldIndexOfNewVertex(size_t new_vertex) {
+    	assert(new_vertex < old_vertices_list_.size());
+    	return old_vertices_list_[new_vertex];
+    }
+
     size_t NumberNewVertices() { return old_vertices_list_.size(); }
 
     size_t MultiplicityOfNewVertex(size_t new_index) {

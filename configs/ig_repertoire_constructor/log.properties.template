@@ -12,3 +12,5 @@ AlignmentDecompositionConstructor=TRACE
 GreedyJoiningDecomposition=DEBUG
 DecompositionStatsCalculator=TRACE
 PositionCountersDecomposer=TRACE
+IterativeDenseSubgraphDecomposer=TRACE
+UniformClassDecomposer=TRACE

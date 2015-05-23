@@ -31,7 +31,7 @@ public:
         size_t overlap_len = min<size_t>(r1.ReadLength() - start1, r2.ReadLength() - start2);
 //        cout << r1.FullSequence() << ", start " << start1 << endl;
 //        cout << r2.FullSequence() << ", start " << start2 << endl;
-//        cout << "Overlap length: " << overlap_len << endl;
+//	        cout << "Overlap length: " << overlap_len << endl;
         for(size_t i = 0; i < overlap_len; i++) {
 //        	cout << i << " ";
 //        	cout << "R1[i]: " << r1[start1 + i] << endl;
@@ -97,9 +97,9 @@ class HGClustersConstructor {
         vector <HGEdge> hg_edges;
         for (size_t i = 0; i < read_group.size() - 1; i++)
             for (size_t j = i + 1; j < read_group.size(); j++) {
-            	cout << read_group[i].ReadName() << " - " << read_group[j].ReadName() << endl;
+//            	cout << read_group[i].ReadName() << " - " << read_group[j].ReadName() << endl;
                 size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
-                cout << "Distance: " << dist << endl;
+//                cout << "Distance: " << dist << endl;
                 if (dist <= max_tau_)
                     hg_edges.push_back(HGEdge(i, j, dist));
             }
@@ -134,7 +134,8 @@ class HGClustersConstructor {
 
     void DecomposeDenseSubgraphs(SplicedReadGroup read_group) {
         DenseSubgraphDecompositor dense_subgraph_decomposer_(params_.min_recessive_abs_size,
-        		params_.min_recessive_rel_size, hamming_graph_ptr_, collapsed_struct_, dense_sgraphs_decomposition_ptr_, read_group);
+        		params_.min_recessive_rel_size, hamming_graph_ptr_, collapsed_struct_,
+        		dense_sgraphs_decomposition_ptr_, read_group);
     	final_decomposition_ptr_ = dense_subgraph_decomposer_.CreateDecomposition();
     }
 
@@ -171,8 +172,8 @@ public:
         OutputDenseSgraphDecomposition(dense_sgraphs_decomposition_ptr_, read_group);
         TRACE("Decomposition of Hamming graph into dense subgraphs was computed");
 
-        //DecomposeDenseSubgraphs(read_group);
-        //TRACE("Decomposition of dense subgraphs was computed");
+        DecomposeDenseSubgraphs(read_group);
+        TRACE("Decomposition of dense subgraphs was computed");
 
         return final_decomposition_ptr_;
     }
