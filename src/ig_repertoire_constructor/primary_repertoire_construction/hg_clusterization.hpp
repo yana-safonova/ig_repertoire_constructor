@@ -92,6 +92,7 @@ class HGClustersConstructor {
         vector <HGEdge> hg_edges;
         for (size_t i = 0; i < read_group.size() - 1; i++)
             for (size_t j = i + 1; j < read_group.size(); j++) {
+            	cout << read_group[i].ReadName() << " - " << read_group[j].ReadName() << endl;
                 size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
                 //cout << "Distance: " << dist << endl;
                 if (dist <= max_tau_)
