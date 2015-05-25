@@ -20,8 +20,9 @@ void run_ig_repertoire_constructor() {
         add(new HammingGraphBuildingPhase()) ->
     	add(new ClusteringAndAligningReadsPhase()) ->
     	add(new ReadOverlapsClusteringPhase()) ->
-    	add(new PrimaryRepertoireConstructionPhase()) ->
-    	add(new RepertoirePostprocessingPhase());
+    	add(new PrimaryRepertoireConstructionPhase())
+    	//-> add(new RepertoirePostprocessingPhase())
+    	;
 
     Ig_Manager.add(main_ig_phase);
 

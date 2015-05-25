@@ -5,8 +5,6 @@
 #include "spliced_read.hpp"
 #include "read_archive.hpp"
 #include "repertoire.hpp"
-#include "upgma_clusterization.hpp"
-#include "cut_vertex_clusterization.hpp"
 
 #include "hg_clusterization.hpp"
 
@@ -212,18 +210,26 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
             TRACE("Process some cluster, size " << read_group.size() << ", " << read_group[0].size());
         }
 
-        // todo: process results of cluster_constructor
-        //if(i == 357134) {
         SplicedReadGroup spliced_read_group(read_group, i);
         StandardHGClustersConstructor cluster_constructor(tau, ig_cfg::get().hgc_params);
         HG_DecompositionPtr decomposition = cluster_constructor.ConstructClusters(spliced_read_group);
-        //}
 
-        continue;
+        // temporary stub
+        shared_ptr<vector<vector<size_t> > > subclusters_ptr =
+        		shared_ptr<vector<vector<size_t> > >(new vector<vector<size_t>>());
+        for(size_t i = 0; i < decomposition->Size(); i++) {
+        	auto decomposition_class = decomposition->GetClass(i);
+        	vector<size_t> new_subcluster;
+        	for(auto it = decomposition_class.begin(); it != decomposition_class.end(); it++)
+        		new_subcluster.push_back(*it);
+        	subclusters_ptr->push_back(new_subcluster);
+        }
+
+        //cout << subclusters_ptr->size() << " clusters were constructed for read group #" << i << endl;
 
         // old version
-        CutVertexClusterization clusterizator(tau);
-        std::shared_ptr <std::vector <std::vector <size_t> > > subclusters_ptr = clusterizator.Clusterize(read_group, i);
+        //CutVertexClusterization clusterizator(tau);
+        //std::shared_ptr <std::vector <std::vector <size_t> > > subclusters_ptr = clusterizator.Clusterize(read_group, i);
 
         for (auto subcluster_it = subclusters_ptr->begin(); subcluster_it != subclusters_ptr->end(); ++subcluster_it) {
             Sequence seq = GetConsensusSequence(read_group, *subcluster_it);
@@ -251,7 +257,6 @@ RepertoirePtr PrimaryRepertoireConstructor::BuildPrimaryRepertoire() {
             }
         }
     }
-    assert(false);
     omp_destroy_lock(&lock_);
     return repertoire_ptr;
 }

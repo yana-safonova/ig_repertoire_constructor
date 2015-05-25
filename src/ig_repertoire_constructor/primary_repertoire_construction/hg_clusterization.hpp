@@ -29,20 +29,13 @@ public:
         size_t start1 = r1.GetFrom() - min_shift;
         size_t start2 = r2.GetFrom() - min_shift;
         size_t overlap_len = min<size_t>(r1.ReadLength() - start1, r2.ReadLength() - start2);
-//        cout << r1.FullSequence() << ", start " << start1 << endl;
-//        cout << r2.FullSequence() << ", start " << start2 << endl;
-//	        cout << "Overlap length: " << overlap_len << endl;
         for(size_t i = 0; i < overlap_len; i++) {
-//        	cout << i << " ";
-//        	cout << "R1[i]: " << r1[start1 + i] << endl;
-//        	cout << "R2[i]: " << r2[start2 + i] << endl;
         	if(r1.FullSequence()[start1 + i] != r2.FullSequence()[start2 + i]) {
                 ++dist;
                 if (dist > max_distance_)
                     return dist;
             }
         }
-//        cout << endl;
         return dist;
     }
 };
@@ -88,6 +81,7 @@ class HGClustersConstructor {
     CRS_HammingGraph_Ptr hamming_graph_ptr_;
     HG_CollapsedStructs_Ptr collapsed_struct_;
     HG_DecompositionPtr dense_sgraphs_decomposition_ptr_;
+    HG_DecompositionPtr decomposed_dense_sgraphs_;
 
     // output struct
     HG_DecompositionPtr final_decomposition_ptr_;
@@ -136,7 +130,7 @@ class HGClustersConstructor {
         DenseSubgraphDecompositor dense_subgraph_decomposer_(params_.min_recessive_abs_size,
         		params_.min_recessive_rel_size, hamming_graph_ptr_, collapsed_struct_,
         		dense_sgraphs_decomposition_ptr_, read_group);
-    	final_decomposition_ptr_ = dense_subgraph_decomposer_.CreateDecomposition();
+        decomposed_dense_sgraphs_ = dense_subgraph_decomposer_.CreateDecomposition();
     }
 
     HG_DecompositionPtr CreateTrivialDecomposition(size_t reads_number) {
@@ -144,6 +138,15 @@ class HGClustersConstructor {
         for(size_t i = 0; i < reads_number; i++)
             decomposition->SetClass(i, 0);
         return decomposition;
+    }
+
+    void CreateFinalDecomposition() {
+    	final_decomposition_ptr_ = HG_DecompositionPtr(new HG_Decomposition(hamming_graph_ptr_->N()));
+    	for(size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
+    		size_t new_index = collapsed_struct_->NewIndexOfOldVertex(i);
+    		size_t new_class = decomposed_dense_sgraphs_->GetVertexClass(new_index);
+    		final_decomposition_ptr_->SetClass(i, new_class);
+    	}
     }
 
 public:
@@ -174,6 +177,9 @@ public:
 
         DecomposeDenseSubgraphs(read_group);
         TRACE("Decomposition of dense subgraphs was computed");
+
+        CreateFinalDecomposition();
+        TRACE("Final decomposition was computed");
 
         return final_decomposition_ptr_;
     }
