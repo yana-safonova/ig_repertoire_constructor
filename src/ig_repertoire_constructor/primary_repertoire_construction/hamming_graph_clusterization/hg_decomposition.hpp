@@ -11,7 +11,11 @@ class HG_Decomposition {
     vector<size_t> vertex_class_;
     vector<set<size_t> > decomposition_classes_;
 
+    // number of all classes: real and removed
+    size_t num_classes_;
+
     void InitializeVertexClasses() {
+    	num_classes_ = 0;
         for(size_t i = 0; i < num_vertices_; i++)
             vertex_class_.push_back(size_t(-1));
     }
@@ -19,6 +23,7 @@ class HG_Decomposition {
     void AddNewClass() {
         set<size_t> new_class;
         decomposition_classes_.push_back(new_class);
+        num_classes_++;
     }
 
     bool ClassIsValid(size_t class_id) {
@@ -111,6 +116,10 @@ public:
             class_size += collapsed_struct_ptr->GetMultiplicityOf(old_index);
         }
         return class_size;
+    }
+
+    size_t NextClassId() {
+    	return num_classes_;
     }
 
 private:
