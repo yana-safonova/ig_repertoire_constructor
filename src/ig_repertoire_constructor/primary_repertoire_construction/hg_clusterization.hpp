@@ -140,6 +140,17 @@ class HGClustersConstructor {
         return decomposition;
     }
 
+    bool HammingGraphIsIsolated() {
+    	return hamming_graph_ptr_->NZ() == 0;
+    }
+
+    HG_DecompositionPtr CreateIsolatedDecomposition(size_t reads_number) {
+        HG_DecompositionPtr decomposition(new HG_Decomposition(reads_number));
+        for(size_t i = 0; i < reads_number; i++)
+            decomposition->SetClass(i, i);
+        return decomposition;
+    }
+
     void CreateFinalDecomposition() {
     	final_decomposition_ptr_ = HG_DecompositionPtr(new HG_Decomposition(hamming_graph_ptr_->N()));
     	for(size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
@@ -167,6 +178,9 @@ public:
 
         InitializeCRSHammingGraph(read_group);
         TRACE("CRS Hamming graph was constructed");
+
+        if(HammingGraphIsIsolated())
+        	return CreateIsolatedDecomposition(read_group.size());
 
         CollapseIdenticalVertices();
         TRACE("Identical vertices were collapsed");
