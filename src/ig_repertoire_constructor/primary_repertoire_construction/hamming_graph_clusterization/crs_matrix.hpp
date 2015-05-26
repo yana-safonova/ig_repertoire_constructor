@@ -300,6 +300,18 @@ public:
         assert(old_vertex < multiplicity_.size());
         return multiplicity_[old_vertex];
     }
+
+    size_t NumberCollapsedEdges(CRS_HammingGraph_Ptr hamming_graph_ptr) {
+		size_t collapsed_edges = 0;
+		for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
+			for(size_t j = hamming_graph_ptr->RowIndex()[i]; j < hamming_graph_ptr->RowIndex()[i + 1]; j++) {
+				size_t v1 = i;
+				size_t v2 = hamming_graph_ptr->Col()[j];
+				if(VertexIsMain(v1) and VertexIsMain(v2))
+					collapsed_edges++;
+			}
+		return collapsed_edges;
+    }
 };
 
 typedef shared_ptr<HG_CollapsedStructs> HG_CollapsedStructs_Ptr;

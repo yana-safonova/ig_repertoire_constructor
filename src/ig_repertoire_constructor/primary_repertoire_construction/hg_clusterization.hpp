@@ -141,7 +141,8 @@ class HGClustersConstructor {
     }
 
     bool HammingGraphIsIsolated() {
-    	return hamming_graph_ptr_->NZ() == 0;
+    	return hamming_graph_ptr_->NZ() == 0 or
+    			collapsed_struct_->NumberCollapsedEdges(hamming_graph_ptr_) == 0;
     }
 
     HG_DecompositionPtr CreateIsolatedDecomposition(size_t reads_number) {
@@ -179,11 +180,11 @@ public:
         InitializeCRSHammingGraph(read_group);
         TRACE("CRS Hamming graph was constructed");
 
-        if(HammingGraphIsIsolated())
-        	return CreateIsolatedDecomposition(read_group.size());
-
         CollapseIdenticalVertices();
         TRACE("Identical vertices were collapsed");
+
+        if(HammingGraphIsIsolated())
+        	return CreateIsolatedDecomposition(read_group.size());
 
         CreateDenseSubgraphDecomposition(read_group.Id());
         OutputDenseSgraphDecomposition(dense_sgraphs_decomposition_ptr_, read_group);

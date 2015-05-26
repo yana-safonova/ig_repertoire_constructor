@@ -20,15 +20,7 @@ class MetisPermutationConstructor {
 	}
 
 	size_t GetNumEdgesInCollapsedGraph() {
-		size_t collapsed_edges = 0;
-		for(size_t i = 0; i < hamming_graph_ptr_->N(); i++)
-			for(size_t j = hamming_graph_ptr_->RowIndex()[i]; j < hamming_graph_ptr_->RowIndex()[i + 1]; j++) {
-				size_t v1 = i;
-				size_t v2 = hamming_graph_ptr_->Col()[j];
-				if(collapsed_struct_ptr_->VertexIsMain(v1) and collapsed_struct_ptr_->VertexIsMain(v2))
-					collapsed_edges++;
-			}
-		return collapsed_edges;
+		return collapsed_struct_ptr_->NumberCollapsedEdges(hamming_graph_ptr_);
 	}
 
 	// write graph in METIS format
