@@ -23,6 +23,16 @@ public:
         RepertoirePtr repertoire_ptr = constructor.BuildPrimaryRepertoire();
         storage().SetRepertoirePtr(repertoire_ptr);
         INFO(repertoire_ptr->size() << " primary clusters were constructed");
+
+        std::string clusters_filename = path::append_path(ig_cfg::get().io.output_dir, "constructed_repertoire.clusters.fa");
+        std::string rcm_filename = path::append_path(ig_cfg::get().io.output_dir, "constructed_repertoire.rcm");
+
+        storage().GetRepertoirePtr()->SaveClustersToFile(clusters_filename);
+        storage().GetRepertoirePtr()->SaveRcmToFile(rcm_filename);
+
+        INFO("Repertoire of size " << storage().GetRepertoirePtr()->size() << " was constructed");
+        INFO("CLUSTERS.FA file was written to " << clusters_filename);
+        INFO("RCM file was written to " << rcm_filename);
     }
 
     void load(const std::string &load_from,
