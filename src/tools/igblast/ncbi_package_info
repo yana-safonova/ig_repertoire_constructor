@@ -1,0 +1,24 @@
+PACKAGE_NAME: igblast
+PACKAGE_VERSION: 1.2.0
+PACKAGE_SIGNATURE: ICC_1010-ReleaseMT64--x86_64-unknown-linux2.6.18-gnu2.5-coremake3
+PACKAGE_CONFIG: Linux64-Centos : icc : ./c++/compilers/unix/ICC.sh --with-strip --without-debug --without-pcre --with-mt --with-flat-makefile --with-build-root-sfx=--Linux64-Centos-icc --with-ncbi-public --without-ccache --without-caution --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+
+>>>>>  igblastp
+
+igblastp: 1.0.0
+Package: igblast 1.2.0, build Sep 10 2013 17:01:28
+ ICC_1010-ReleaseMT64--x86_64-unknown-linux2.6.18-gnu2.5-coremake3
+ Linux64-Centos : icc : ./c++/compilers/unix/ICC.sh --with-strip --without-debug --without-pcre --with-mt --with-flat-makefile --with-build-root-sfx=--Linux64-Centos-icc --with-ncbi-public --without-ccache --without-caution --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+
+
+
+>>>>>  igblastn
+
+igblastn: 1.0.0
+Package: igblast 1.2.0, build Sep 10 2013 17:01:28
+ ICC_1010-ReleaseMT64--x86_64-unknown-linux2.6.18-gnu2.5-coremake3
+ Linux64-Centos : icc : ./c++/compilers/unix/ICC.sh --with-strip --without-debug --without-pcre --with-mt --with-flat-makefile --with-build-root-sfx=--Linux64-Centos-icc --with-ncbi-public --without-ccache --without-caution --without-makefile-auto-update --with-projects=scripts/projects/igblast/project.lst --with-internal
+
+
+
+
