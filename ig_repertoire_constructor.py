@@ -214,7 +214,7 @@ def CleanOutputDir(params, log):
         log.info("Removing Hamming graphs")
         for fname in os.listdir(params.output_dir):
             path = os.path.join(params.output_dir, fname)
-            if path.startswith("hamming_graphs_tau_") and os.path.isdir(path):
+            if fname.startswith("hamming_graphs_tau_") and os.path.isdir(path):
                 shutil.rmtree(path)
 
 def main(args):
