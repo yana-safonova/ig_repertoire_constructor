@@ -11,10 +11,10 @@ import sys
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Split source fastq file to hamming graph connectivity components")
-    parser.add_argument("-s", "--source",
+    parser.add_argument("-s", "--reads",
                         type=str,
                         required=True,
-                        help="Source fastq file")
+                        help="Reads file in FASTQ format")
     parser.add_argument("-i", "--igrc-output-dir",
                         type=str,
                         required=True,
@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    with open(args.source, "rU") as fh:
+    with open(args.reads, "rU") as fh:
         reads_hash_table = {record.id: record for record in SeqIO.parse(fh, "fastq")}
 
     if args.verbose:
