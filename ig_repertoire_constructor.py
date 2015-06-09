@@ -209,7 +209,7 @@ def RunIgRepertoireConstructor(params, log):
 
 def CleanOutputDir(params, log):
     log.info("Removing temporary data")
-    shutil.rmtree("temp_files")
+    shutil.rmtree(params.temp_files_dir)
     if not params.save_hamming_graphs:
         log.info("Removing Hamming graphs")
         for fname in os.listdir(params.output_dir):
