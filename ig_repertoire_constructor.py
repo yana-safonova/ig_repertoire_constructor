@@ -195,13 +195,14 @@ def RunIgRepertoireConstructor(params, log):
         sys.exit(1)
     command_line = ig_binary + " " + params.config_file
     log.info("\n==== IgRepertoireConstructor starts\n")
+
     err_code = os.system(command_line + " 2>&1 | tee -a " + params.log_filename)
     if err_code != 0:
         log.info("\nERROR: IgRepertoireConstructor was finished abnormally, error code: " + str(err_code))
         supportInfo(log)
-    sys.exit(-1)
-    log.info("\n==== IgRepertoireConstructor finished\n")
+        sys.exit(-1)
 
+    log.info("\n==== IgRepertoireConstructor finished\n")
     log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.output_dir + "/constructed_repertoire.clusters.fa")
     log.info(" * RCM for final repertoire is in " + params.output_dir + "/constructed_repertoire.rcm")
     log.info("\nThank you for using IgRepertoireConstructor!\n")
