@@ -25,22 +25,6 @@ class Options:
     short_options = "o:s:t:e:m:"
 
 class Params:
-    output_dir = ""
-    reads = ""
-    num_threads = 16
-    entry_point = "ig_repertoire_constructor"
-    log_filename = ""
-    dataset_file = "dataset.yaml"
-    config_dir = ""
-    config_file = "config.info"
-    saves_dir = "saves"
-    temp_files_dir = "temp_files"
-    mismatches_threshold = 3
-    max_memory = 250
-    joint_thresh = 0.3
-    save_hamming_graphs = False
-    output_dense_sgraphs = False
-
     def __init__(self):
         self.output_dir = ""
         self.reads = ""
