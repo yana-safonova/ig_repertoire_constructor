@@ -54,6 +54,15 @@ if __name__ == "__main__":
         else:
             print("Writing to existing output dir...")
 
+    if not os.path.exists(args.igrc_output_dir):
+        print("Passed Ig RC output dir don't exist")
+        sys.exit(1)
+
+    if not os.path.exists("%s/dense_subgraphs" % args.igrc_output_dir):
+        print("Passed Ig RC output dir don't contain dense_subgraphs")
+        print("Maybe you forget --output-dense-sgraphs option?")
+        sys.exit(1)
+
     for decomposition in glob.glob("%s/dense_subgraphs/*.txt" % args.igrc_output_dir):
         basename = os.path.basename(decomposition)
         out_file_cliques = "%s/%s" % (args.output_dir, re.sub("txt$", "cliques.txt", basename))
