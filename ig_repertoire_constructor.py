@@ -79,7 +79,7 @@ def usage(log, show_hidden=False):
         log.info("  --output-dense-sgraphs\t\toutputs decomposition into dense subgraphs")
 
 def supportInfo(log):
-    log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.") 
+    log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
 def SetOutputParams(params, output_dir):
@@ -129,7 +129,7 @@ def ParseOptions(options, not_options, log):
 def PrepareOutputDir(output_dir):
     if not os.path.isdir(output_dir):
         os.makedirs(output_dir)
-        
+
 def CheckParamsCorrectness(params, log):
     if params.output_dir == "":
         log.info("ERROR: Output directory (-o) was not specified")
@@ -141,8 +141,8 @@ def CheckParamsCorrectness(params, log):
         sys.exit(-1)
     if not os.path.exists(params.reads):
         log.info("ERROR: File with reads " + params.reads + " were not found")
-        usage(log)  
-        sys.exit(-1)  
+        usage(log)
+        sys.exit(-1)
 
 def PrintParams(params, log):
     log.info("IgRepertoireConstructor parameters:")
@@ -193,7 +193,7 @@ def RunIgRepertoireConstructor(params, log):
     if not os.path.exists(ig_binary):
         log.info("\nERROR: IgRepertoireConstructor binary file was not found!")
         sys.exit(1)
-    command_line = ig_binary + " " + params.config_file 
+    command_line = ig_binary + " " + params.config_file
     log.info("\n==== IgRepertoireConstructor starts\n")
     err_code = os.system(command_line + " 2>&1 | tee -a " + params.log_filename)
     if err_code != 0:
@@ -215,7 +215,7 @@ def CleanOutputDir(params, log):
             path = os.path.join(params.output_dir, fname)
             if path.startswith("hamming_graphs_tau_") and os.path.isdir(path):
                 shutil.rmtree(path)
-   
+
 def main(args):
     # prepare log
     log = logging.getLogger('ig_repertoire_constructor')
@@ -237,7 +237,7 @@ def main(args):
     if not options:
         usage(log)
         sys.stderr.flush()
-        sys.exit(1)    
+        sys.exit(1)
 
     # parse command line
     params = ParseOptions(options, not_options, log)
