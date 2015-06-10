@@ -58,7 +58,10 @@ public:
 
 	void PrintDecomposition(string output_fname) {
 		ofstream out_fhandler(output_fname.c_str());
+        //cout << "hamming_graph_->N(): " << hamming_graph_->N() << endl;
+        //cout << "Oppa: " << collapsed_struct_->NumberNewVertices() << endl;
         for(size_t i = 0; i < read_group_.size(); i++) {
+            //cout << i << endl;
             size_t new_vertex = collapsed_struct_->NewIndexOfOldVertex(i);
             size_t sgraph_id = hg_decomposition_->GetVertexClass(new_vertex);
             out_fhandler << sgraph_id << "\t" << read_group_[i].GetReadName() << "\t" << read_group_[i].GetFrom() << endl;
@@ -94,11 +97,13 @@ class HGClustersConstructor {
 //            	cout << read_group[i].ReadName() << " - " << read_group[j].ReadName() << endl;
                 size_t dist = calculator_.HammingDistance(read_group[i], read_group[j]);
 //                cout << "Distance: " << dist << endl;
-                if (dist <= max_tau_)
+                if (dist <= max_tau_) {
+                    //cout << i << " " << j << ", distance: "  << dist << endl;
                     hg_edges.push_back(HGEdge(i, j, dist));
+                }
             }
         TRACE("Hamming graph contains " << read_group.size() << " vertices and " << hg_edges.size() << " edges");
-        hamming_graph_ptr_ = CRS_HammingGraph_Ptr(new CRS_HammingGraph(hg_edges));
+        hamming_graph_ptr_ = CRS_HammingGraph_Ptr(new CRS_HammingGraph(read_group.size(), hg_edges));
     }
 
     void CollapseIdenticalVertices() {

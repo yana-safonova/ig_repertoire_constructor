@@ -35,6 +35,9 @@ class CRS_Matrix {
     // weights
     vector<size_t> dist_;
 
+    // isolated vertices
+    vector<size_t> isolated_vertices_;
+
     void InitializeRowIndex() {
         for(size_t i = 0; i < N_+ 1; i++)
             row_index_.push_back(0);
@@ -58,10 +61,6 @@ class CRS_Matrix {
     }
 
     void ComputeN_NZ(const vector<HGEdge> &edges) {
-        N_ = 0;
-        for(auto e = edges.begin(); e != edges.end(); e++)
-            N_ = max<size_t>(N_, max<size_t>(e->i, e->j));
-        N_++;
         NZ_ = edges.size();
     }
 
@@ -108,8 +107,8 @@ public:
         Initialize(trans_matrix);
     }
 
-    CRS_Matrix(const vector<HGEdge> &edges) :
-            N_(0), NZ_(0) {
+    CRS_Matrix(size_t N, const vector<HGEdge> &edges) :
+            N_(N), NZ_(0) {
         Initialize(edges);
     }
 
@@ -153,8 +152,8 @@ class CRS_HammingGraph {
     CRS_Matrix_Ptr trans_matrix_;
 
 public:
-    CRS_HammingGraph(const vector<HGEdge> &edges) :
-            direct_matrix_(new CRS_Matrix(edges)) {
+    CRS_HammingGraph(size_t N, const vector<HGEdge> &edges) :
+            direct_matrix_(new CRS_Matrix(N, edges)) {
         trans_matrix_ = direct_matrix_->Transpose();
     }
 
