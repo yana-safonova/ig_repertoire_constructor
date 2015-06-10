@@ -10,6 +10,7 @@ import sys
 import os
 import logging
 import shutil
+import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -123,7 +124,6 @@ def CleanOutputDir(params, log):
                 shutil.rmtree(path)
 
 def main():
-    import argparse
     # Parse commandline args
     parser = argparse.ArgumentParser(description="TODO Add some description",
                                      epilog="""
