@@ -10,7 +10,6 @@ import sys
 import os
 import logging
 import shutil
-import getopt
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -19,28 +18,6 @@ ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constr
 
 sys.path.append(spades_src)
 import process_cfg
-
-class Options:
-    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh= save-hgraphs output-dense-sgraphs".split()
-    short_options = "o:s:t:e:m:"
-
-class Params:
-    def __init__(self):
-        self.output_dir = ""
-        self.reads = ""
-        self.num_threads = 16
-        self.entry_point = "ig_repertoire_constructor"
-        self.log_filename = ""
-        self.dataset_file = "dataset.yaml"
-        self.config_dir = "configs"
-        self.config_file = "config.info"
-        self.saves_dir = "saves"
-        self.temp_files_dir = "temp_files"
-        self.mismatches_threshold = 3
-        self.max_memory = 250
-        self.joint_thresh = 0.3
-        self.save_hamming_graphs = False
-        self.output_dense_sgraphs = False
 
 def usage(log, show_hidden=False):
     log.info("./ig_repertoire_constructor.py [options] -s <filename> -o <output_dir>")
@@ -73,42 +50,6 @@ def SetOutputParams(params, output_dir):
     params.config_file = os.path.join(params.config_dir, params.config_file)
     params.saves_dir = os.path.join(params.output_dir, params.saves_dir)
     params.temp_files_dir = os.path.join(params.output_dir, params.temp_files_dir)
-
-def ParseOptions(options, not_options, log):
-    params = Params()
-    for opt, arg in options:
-        if opt in ('-o', '--output'):
-            SetOutputParams(params, arg)
-        elif opt == '-s':
-            if not os.path.isabs(arg):
-                params.reads = os.path.abspath(arg)
-            else:
-                params.reads = arg
-        elif opt in ('-t', '--threads'):
-            params.num_threads = int(arg)
-        elif opt == '--entry-point':
-            params.entry_point = arg
-        elif opt == '--help':
-            usage(log)
-            sys.exit(0)
-        elif opt == '--help-hidden':
-            usage(log, True)
-            sys.exit(0)
-        elif opt == '--tau':
-            params.mismatches_threshold = int(arg)
-        elif opt == '--test':
-            SetOutputParams(params, os.path.abspath('ig_repertoire_constructor_test'))
-            params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
-            params.reads = os.path.abspath(params.reads)
-        elif opt in ('-m', '--memory'):
-            params.max_memory = int(arg)
-        elif opt == '--joint-thresh':
-            params.joint_thresh = float(arg)
-        elif opt == '--save-hgraphs':
-            params.save_hamming_graphs = True
-        elif opt == '--output-dense-sgraphs':
-            params.output_dense_sgraphs = True
-    return params
 
 def PrepareOutputDir(output_dir):
     if not os.path.isdir(output_dir):
@@ -201,7 +142,7 @@ def CleanOutputDir(params, log):
             if fname.startswith("hamming_graphs_tau_") and os.path.isdir(path):
                 shutil.rmtree(path)
 
-def main(args):
+def main():
     import argparse
     # Parse commandline args
     parser = argparse.ArgumentParser(description="TODO Add some description",
@@ -287,9 +228,7 @@ def main(args):
     log.info("Log will be written to " + params.log_filename + "\n")
 
     # print command line
-    command_line = "Command line:"
-    for v in args:
-        command_line += " " + v
+    command_line = "Command line: " + " ".join(sys.argv)
     log.info(command_line)
 
     # params check and print
@@ -329,4 +268,4 @@ def main(args):
     log.info("Log was written to " + params.log_filename)
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
