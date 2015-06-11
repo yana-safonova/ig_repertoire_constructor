@@ -41,11 +41,11 @@ def PrepareOutputDir(params):
         os.makedirs(params.output_dir)
 
 def CheckParamsCorrectness(params, log, parser):
-    if not "output" in params:
+    if not "output" in params or params.output == "":
         log.info("ERROR: Output directory (-o) was not specified")
         parser.print_help()
         sys.exit(-1)
-    if not "reads" in params:
+    if not "reads" in params or params.reads == "":
         log.info("ERROR: Reads (-s) were not specified")
         parser.print_help()
         sys.exit(-1)
@@ -53,6 +53,8 @@ def CheckParamsCorrectness(params, log, parser):
         log.info("ERROR: File with reads " + params.reads + " were not found")
         parser.print_help()
         sys.exit(-1)
+    if not os.path.isabs(params.reads):
+        params.reads = os.path.abspath(params.reads)
 
 def PrintParams(params, log):
     log.info("IgRepertoireConstructor parameters:")
@@ -151,11 +153,13 @@ def main():
     req_args = parser.add_argument_group("Required arguments")
     req_args.add_argument("-s", "--reads",
                           type=str,
-                          # required=True,
+                          default="",
+                          required=True,
                           help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
     req_args.add_argument("-o", "--output",
                           type=str,
-                          # required=True,
+                          default="",
+                          required=True,
                           help="output directory (required)")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -184,8 +188,8 @@ def main():
     dev_args = parser.add_argument_group("Developer arguments")
     dev_args.add_argument("--joint-thresh",
                           type=float,
-                          default=0.3,
-                          help="Yana, please, provide some description;)")
+                          default=0.6,
+                          help="threshold for minimum value of edge fill-in in dense subgraph construction procedure")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default="ig_repertoire_constructor",
@@ -220,9 +224,6 @@ def main():
 
     # params check
     CheckParamsCorrectness(params, log, parser)
-
-    if not os.path.isabs(params.reads):
-        params.reads = os.path.abspath(params.reads)
 
     SetOutputParams(params, params.output)
     PrepareOutputDir(params)
