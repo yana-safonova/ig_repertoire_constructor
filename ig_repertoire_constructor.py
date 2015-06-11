@@ -154,12 +154,12 @@ def main():
     req_args.add_argument("-s", "--reads",
                           type=str,
                           default="",
-                          required=True,
+                          # required=True,
                           help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
     req_args.add_argument("-o", "--output",
                           type=str,
                           default="",
-                          required=True,
+                          # required=True,
                           help="output directory (required)")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -181,6 +181,12 @@ def main():
     optional_args.add_argument("--test",
                                action="store_true",
                                help="runs test dataset")
+    optional_args.add_argument("--test2",
+                               action="store_true",
+                               help="runs test dataset based on 2_SAM13306970 data using 13 largest connectivity components")
+    optional_args.add_argument("--test7",
+                               action="store_true",
+                               help="runs test dataset based on 7_SAM15574987 data using 13 largest connectivity components")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="show this help message and exit")
@@ -221,6 +227,12 @@ def main():
     if params.test:
         params.output = 'ig_repertoire_constructor_test'
         params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
+    elif params.test2:
+        params.output = 'ig_repertoire_constructor_test'
+        params.reads = os.path.join(home_directory, 'test_dataset/test2.fastq')
+    elif params.test7:
+        params.output = 'ig_repertoire_constructor_test'
+        params.reads = os.path.join(home_directory, 'test_dataset/test7.fastq')
 
     # params check
     CheckParamsCorrectness(params, log, parser)
