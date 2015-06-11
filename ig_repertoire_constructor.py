@@ -201,7 +201,6 @@ def main():
     if params.test:
         params.output = 'ig_repertoire_constructor_test'
         params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
-        params.reads = os.path.abspath(params.reads)
 
     # params check
     CheckParamsCorrectness(params, log, parser)
