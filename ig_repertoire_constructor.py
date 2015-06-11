@@ -161,6 +161,11 @@ def main():
                             const="test_dataset/merged_reads.fastq",
                             dest="reads",
                             help="`merged_reads` test dataset")
+    input_args.add_argument("--testIGHV",
+                            action="store_const",
+                            const="test_dataset/IGHV1-8.fastq",
+                            dest="reads",
+                            help="IGHV1-8 test dataset")
     input_args.add_argument("--test2",
                             action="store_const",
                             const="test_dataset/test2.fastq",
