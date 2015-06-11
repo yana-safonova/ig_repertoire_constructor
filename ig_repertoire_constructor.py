@@ -41,6 +41,9 @@ class Params:
         self.joint_thresh = 0.3
         self.save_hamming_graphs = False
         self.output_dense_sgraphs = False
+        # output params
+        self.result_clusters = "constructed_repertoire.clusters.fa"
+        self.result_rcm = "constructed_repertoire.rcm"
 
 def usage(log, show_hidden=False):
     log.info("./ig_repertoire_constructor.py [options] -s <filename> -o <output_dir>")
@@ -63,7 +66,7 @@ def usage(log, show_hidden=False):
         log.info("  --output-dense-sgraphs\t\toutputs decomposition into dense subgraphs")
 
 def supportInfo(log):
-    log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
+    log.info("\nIn case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
 def SetOutputParams(params, output_dir):
@@ -73,6 +76,8 @@ def SetOutputParams(params, output_dir):
     params.config_file = os.path.join(params.config_dir, params.config_file)
     params.saves_dir = os.path.join(params.output_dir, params.saves_dir)
     params.temp_files_dir = os.path.join(params.output_dir, params.temp_files_dir)
+    params.result_clusters = os.path.join(params.output_dir, "constructed_repertoire.clusters.fa")
+    params.result_rcm = os.path.join(params.output_dir, "constructed_repertoire.rcm")
 
 def ParseOptions(options, not_options, log):
     params = Params()
@@ -108,23 +113,27 @@ def ParseOptions(options, not_options, log):
             params.save_hamming_graphs = True
         elif opt == '--output-dense-sgraphs':
             params.output_dense_sgraphs = True
-    return params
 
-def PrepareOutputDir(output_dir):
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
-
-def CheckParamsCorrectness(params, log):
     if params.output_dir == "":
-        log.info("ERROR: Output directory (-o) was not specified")
+        log.info("ERROR: Output directory (-o) was not specified\n")
         usage(log)
         sys.exit(-1)
+
+    return params
+
+def PrepareOutputDir(params):
+    if params.entry_point == "ig_repertoire_constructor" and os.path.exists(params.output_dir):
+        shutil.rmtree(params.output_dir)
+    if not os.path.isdir(params.output_dir):
+        os.makedirs(params.output_dir)
+
+def CheckParamsCorrectness(params, log):
     if params.reads == "":
-        log.info("ERROR: Reads (-s) were not specified")
+        log.info("ERROR: Reads (-s) were not specified\n")
         usage(log)
         sys.exit(-1)
     if not os.path.exists(params.reads):
-        log.info("ERROR: File with reads " + params.reads + " were not found")
+        log.info("ERROR: File with reads " + params.reads + " were not found\n")
         usage(log)
         sys.exit(-1)
 
@@ -173,6 +182,20 @@ def PrepareConfigs(params, log):
         sys.exit(1)
     process_cfg.substitute_params(params.config_file, param_dict, log)
 
+def CheckIgRepertoireConstructor(params, log):
+    if os.path.exists(params.result_clusters):
+        log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.result_clusters)
+    else:
+        log.info("\nERROR: CLUSTERS.FASTA for final repertoire was not found")
+        supportInfo(log)
+        raise SystemExit()
+    if os.path.exists(params.result_rcm):
+        log.info(" * RCM for final repertoire is in " + params.result_rcm)
+    else:
+        log.info("ERROR: RCM for final repertoire was not found")
+        supportInfo(log)
+        raise SystemExit()
+
 def RunIgRepertoireConstructor(params, log):
     if not os.path.exists(ig_binary):
         log.info("\nERROR: IgRepertoireConstructor binary file was not found!")
@@ -185,17 +208,15 @@ def RunIgRepertoireConstructor(params, log):
         log.info("\nERROR: IgRepertoireConstructor was finished abnormally, error code: " + str(err_code))
         supportInfo(log)
         sys.exit(-1)
-
     log.info("\n==== IgRepertoireConstructor finished\n")
-    log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.output_dir + "/constructed_repertoire.clusters.fa")
-    log.info(" * RCM for final repertoire is in " + params.output_dir + "/constructed_repertoire.rcm")
+    CheckIgRepertoireConstructor(params, log)
     log.info("\nThank you for using IgRepertoireConstructor!\n")
 
 def CleanOutputDir(params, log):
-    log.info("Removing temporary data")
+    #log.info("Removing temporary data")
     shutil.rmtree(params.temp_files_dir)
     if not params.save_hamming_graphs:
-        log.info("Removing Hamming graphs")
+        #log.info("Removing Hamming graphs")
         for fname in os.listdir(params.output_dir):
             path = os.path.join(params.output_dir, fname)
             if fname.startswith("hamming_graphs_tau_") and os.path.isdir(path):
@@ -226,7 +247,7 @@ def main(args):
 
     # parse command line
     params = ParseOptions(options, not_options, log)
-    PrepareOutputDir(params.output_dir)
+    PrepareOutputDir(params)
 
     # log file
     params.log_filename = os.path.join(params.output_dir, "ig_repertoire_constructor.log")
@@ -240,7 +261,7 @@ def main(args):
     command_line = "Command line:"
     for v in args:
         command_line += " " + v
-    log.info(command_line)
+    log.info(command_line + "\n")
 
     # params check and print
     CheckParamsCorrectness(params, log)
