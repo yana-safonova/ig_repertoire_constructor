@@ -129,49 +129,64 @@ def main():
                                      epilog="""
     In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
-                                     """)
+                                     """,
+                                     add_help=False)
 
-    parser.add_argument("-o", "--output",
-                        type=str,
-                        # required=True,
-                        help="output directory (required)")
-    parser.add_argument("-s", "--reads",
-                        type=str,
-                        # required=True,
-                        help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
-    parser.add_argument("-t", "--threads",
-                        type=int,
-                        default=16,
-                        dest="num_threads",
-                        help="threads number [default %(default)d]")
-    parser.add_argument('--entry-point',
-                        type=str,
-                        default="ig_repertoire_constructor",
-                        help="continue from the given stage")
-    parser.add_argument("--tau",
-                        type=int,
-                        default=3,
-                        dest="mismatches_threshold",
-                        help="maximum allowed mismatches between reads in cluster [default: %(default)d]")
-    parser.add_argument("-m", "--memory",
-                        type=int,
-                        default=250,
-                        dest="max_memory",
-                        help="RAM limit for ig_repertoire_constructor in Gb [default: %(default)d]")
-    parser.add_argument("--joint-thresh",
-                        type=float,
-                        default=0.3,
-                        help="Yana, please, provide some description;)")
-    parser.add_argument("--save-hgraphs",
-                        action="store_true",
-                        dest="save_hamming_graphs",
-                        help="outputs decomposition into dense subgraphs")
-    parser.add_argument("--output-dense-sgraphs",
-                        action="store_true",
-                        help="saves Hamming graphs in GRAPH format")
-    parser.add_argument("--test",
-                        action="store_true",
-                        help="runs test dataset")
+    req_args = parser.add_argument_group("Required arguments")
+    req_args.add_argument("-s", "--reads",
+                          type=str,
+                          # required=True,
+                          help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
+    req_args.add_argument("-o", "--output",
+                          type=str,
+                          # required=True,
+                          help="output directory (required)")
+
+    optional_args = parser.add_argument_group("Optional arguments")
+    optional_args.add_argument("-t", "--threads",
+                               type=int,
+                               default=16,
+                               dest="num_threads",
+                               help="threads number [default %(default)d]")
+    optional_args.add_argument("-m", "--memory",
+                               type=int,
+                               default=250,
+                               dest="max_memory",
+                               help="RAM limit for ig_repertoire_constructor in Gb [default: %(default)d]")
+    optional_args.add_argument("--tau",
+                               type=int,
+                               default=3,
+                               dest="mismatches_threshold",
+                               help="maximum allowed mismatches between reads in cluster [default: %(default)d]")
+    optional_args.add_argument("--test",
+                               action="store_true",
+                               help="runs test dataset")
+    optional_args.add_argument("-h", "--help",
+                               action="help",
+                               help="show this help message and exit")
+
+    dev_args = parser.add_argument_group("Developer arguments")
+    dev_args.add_argument("--joint-thresh",
+                          type=float,
+                          default=0.3,
+                          help="Yana, please, provide some description;)")
+    dev_args.add_argument('--entry-point',
+                          type=str,
+                          default="ig_repertoire_constructor",
+                          help="continue from the given stage")
+    dev_args.add_argument("--save-hgraphs",
+                          action="store_true",
+                          dest="save_hamming_graphs",
+                          help="outputs decomposition into dense subgraphs")
+    dev_args.add_argument("--output-dense-sgraphs",
+                          action="store_true",
+                          help="saves Hamming graphs in GRAPH format")
+
+    parser.set_defaults(dataset_file="dataset.yaml",
+                        config_dir="configs",
+                        config_file="config.info",
+                        saves_dir="saves",
+                        temp_files_dir="temp_files")
 
     # prepare log
     log = logging.getLogger('ig_repertoire_constructor')
@@ -183,11 +198,6 @@ def main():
 
     # parse command line
     params = parser.parse_args()
-    params.dataset_file = "dataset.yaml"
-    params.config_dir = "configs"
-    params.config_file = "config.info"
-    params.saves_dir = "saves"
-    params.temp_files_dir = "temp_files"
     if params.test:
         params.output = 'ig_repertoire_constructor_test'
         params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
