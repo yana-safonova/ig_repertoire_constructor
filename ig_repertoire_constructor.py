@@ -212,13 +212,31 @@ def main():
                           type=str,
                           default="ig_repertoire_constructor",
                           help="continue from the given stage [default %(default)s]")
-    dev_args.add_argument("--save-hgraphs",
-                          action="store_true",
+    shg_args = dev_args.add_mutually_exclusive_group(required=False)
+    shg_args.add_argument("--save-hgraphs",
+                          action="store_const",
+                          const=True,
                           dest="save_hamming_graphs",
-                          help="outputs decomposition into dense subgraphs")
-    dev_args.add_argument("--output-dense-sgraphs",
-                          action="store_true",
-                          help="saves Hamming graphs in GRAPH format")
+                          help="saves Hamming graphs in GRAPH format [default]")
+    shg_args.add_argument("--no-save-hgraphs",
+                          action="store_const",
+                          const=False,
+                          dest="save_hamming_graphs",
+                          help="")
+    ods_args = dev_args.add_mutually_exclusive_group(required=False)
+    ods_args.add_argument("--output-dense-sgraphs",
+                          action="store_const",
+                          const=True,
+                          dest="output_dense_sgraphs",
+                          help="outputs decomposition into dense subgraphs [default]")
+    ods_args.add_argument("--no-output-dense-sgraphs",
+                          action="store_const",
+                          const=False,
+                          dest="output_dense_sgraphs",
+                          help="")
+
+    parser.set_defaults(output_dense_sgraphs=True,
+                        save_hamming_graphs=True)
 
     parser.set_defaults(dataset_file="dataset.yaml",
                         config_dir="configs",
