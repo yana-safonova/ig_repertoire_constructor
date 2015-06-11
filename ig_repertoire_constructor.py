@@ -189,11 +189,11 @@ def main():
     dev_args.add_argument("--joint-thresh",
                           type=float,
                           default=0.6,
-                          help="threshold for minimum value of edge fill-in in dense subgraph construction procedure")
+                          help="threshold for minimum value of edge fill-in in dense subgraph construction procedure [default %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default="ig_repertoire_constructor",
-                          help="continue from the given stage")
+                          help="continue from the given stage [default %(default)s]")
     dev_args.add_argument("--save-hgraphs",
                           action="store_true",
                           dest="save_hamming_graphs",
