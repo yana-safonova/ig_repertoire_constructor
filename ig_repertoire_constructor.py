@@ -21,7 +21,7 @@ sys.path.append(spades_src)
 import process_cfg
 
 def supportInfo(log):
-    log.info("In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
+    log.info("\nIn case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
 def SetOutputParams(params, output_dir):
@@ -31,10 +31,14 @@ def SetOutputParams(params, output_dir):
     params.config_file = os.path.join(params.config_dir, params.config_file)
     params.saves_dir = os.path.join(params.output_dir, params.saves_dir)
     params.temp_files_dir = os.path.join(params.output_dir, params.temp_files_dir)
+    params.result_clusters = os.path.join(params.output_dir, "constructed_repertoire.clusters.fa")
+    params.result_rcm = os.path.join(params.output_dir, "constructed_repertoire.rcm")
 
-def PrepareOutputDir(output_dir):
-    if not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
+def PrepareOutputDir(params):
+    if params.entry_point == "ig_repertoire_constructor" and os.path.exists(params.output_dir):
+        shutil.rmtree(params.output_dir)
+    if not os.path.isdir(params.output_dir):
+        os.makedirs(params.output_dir)
 
 def CheckParamsCorrectness(params, log, parser):
     if not "output" in params:
@@ -95,6 +99,20 @@ def PrepareConfigs(params, log):
         sys.exit(1)
     process_cfg.substitute_params(params.config_file, param_dict, log)
 
+def CheckIgRepertoireConstructor(params, log):
+    if os.path.exists(params.result_clusters):
+        log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.result_clusters)
+    else:
+        log.info("\nERROR: CLUSTERS.FASTA for final repertoire was not found")
+        supportInfo(log)
+        raise SystemExit()
+    if os.path.exists(params.result_rcm):
+        log.info(" * RCM for final repertoire is in " + params.result_rcm)
+    else:
+        log.info("ERROR: RCM for final repertoire was not found")
+        supportInfo(log)
+        raise SystemExit()
+
 def RunIgRepertoireConstructor(params, log):
     if not os.path.exists(ig_binary):
         log.info("\nERROR: IgRepertoireConstructor binary file was not found!")
@@ -107,17 +125,15 @@ def RunIgRepertoireConstructor(params, log):
         log.info("\nERROR: IgRepertoireConstructor was finished abnormally, error code: " + str(err_code))
         supportInfo(log)
         sys.exit(-1)
-
     log.info("\n==== IgRepertoireConstructor finished\n")
-    log.info("\n * CLUSTERS.FASTA for final repertoire is in " + params.output_dir + "/constructed_repertoire.clusters.fa")
-    log.info(" * RCM for final repertoire is in " + params.output_dir + "/constructed_repertoire.rcm")
+    CheckIgRepertoireConstructor(params, log)
     log.info("\nThank you for using IgRepertoireConstructor!\n")
 
 def CleanOutputDir(params, log):
-    log.info("Removing temporary data")
+    #log.info("Removing temporary data")
     shutil.rmtree(params.temp_files_dir)
     if not params.save_hamming_graphs:
-        log.info("Removing Hamming graphs")
+        #log.info("Removing Hamming graphs")
         for fname in os.listdir(params.output_dir):
             path = os.path.join(params.output_dir, fname)
             if fname.startswith("hamming_graphs_tau_") and os.path.isdir(path):
@@ -209,7 +225,7 @@ def main():
         params.reads = os.path.abspath(params.reads)
 
     SetOutputParams(params, params.output)
-    PrepareOutputDir(params.output_dir)
+    PrepareOutputDir(params)
 
     # Param print
     PrintParams(params, log)
