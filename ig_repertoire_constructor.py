@@ -10,7 +10,7 @@ import sys
 import os
 import logging
 import shutil
-import getopt
+import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -19,51 +19,6 @@ ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constr
 
 sys.path.append(spades_src)
 import process_cfg
-
-class Options:
-    long_options = "help help-hidden output= threads= test memory= entry-point= tau= joint-thresh= save-hgraphs output-dense-sgraphs".split()
-    short_options = "o:s:t:e:m:"
-
-class Params:
-    def __init__(self):
-        self.output_dir = ""
-        self.reads = ""
-        self.num_threads = 16
-        self.entry_point = "ig_repertoire_constructor"
-        self.log_filename = ""
-        self.dataset_file = "dataset.yaml"
-        self.config_dir = "configs"
-        self.config_file = "config.info"
-        self.saves_dir = "saves"
-        self.temp_files_dir = "temp_files"
-        self.mismatches_threshold = 3
-        self.max_memory = 250
-        self.joint_thresh = 0.3
-        self.save_hamming_graphs = False
-        self.output_dense_sgraphs = False
-        # output params
-        self.result_clusters = "constructed_repertoire.clusters.fa"
-        self.result_rcm = "constructed_repertoire.rcm"
-
-def usage(log, show_hidden=False):
-    log.info("./ig_repertoire_constructor.py [options] -s <filename> -o <output_dir>")
-    log.info("\nBasic options:")
-    log.info("  -s\t\t\t<filename>\tcleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
-    log.info("  -o/--output\t\t<output_dir>\toutput directory (required)")
-    log.info("  -t/--threads\t\t<int>\t\tthreads number [default: 16]")
-    log.info("  --test\t\t\t\truns test dataset")
-    log.info("  --help\t\t\t\tprints help")
-
-    log.info("\nAdvanced options:")
-    log.info("  --tau\t\t\t<int>\t\tmaximum allowed mismatches between reads in cluster [default: 3]")
-    log.info("  -m/--memory\t\t<int>\t\tRAM limit for ig_repertoire_constructor in Gb [default: 250]")
-
-    if show_hidden:
-        log.info("\nHidden options:")
-        log.info("  --entry-point\t\t<stage_name>\tcontinue from the given stage")
-        log.info("  --help-hidden\t\t\t\tprints this usage message with all hidden options")
-        log.info("  --save-hgraphs\t\t\tsaves Hamming graphs in GRAPH format")
-        log.info("  --output-dense-sgraphs\t\toutputs decomposition into dense subgraphs")
 
 def supportInfo(log):
     log.info("\nIn case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
@@ -79,62 +34,24 @@ def SetOutputParams(params, output_dir):
     params.result_clusters = os.path.join(params.output_dir, "constructed_repertoire.clusters.fa")
     params.result_rcm = os.path.join(params.output_dir, "constructed_repertoire.rcm")
 
-def ParseOptions(options, not_options, log):
-    params = Params()
-    for opt, arg in options:
-        if opt in ('-o', '--output'):
-            SetOutputParams(params, arg)
-        elif opt == '-s':
-            if not os.path.isabs(arg):
-                params.reads = os.path.abspath(arg)
-            else:
-                params.reads = arg
-        elif opt in ('-t', '--threads'):
-            params.num_threads = int(arg)
-        elif opt == '--entry-point':
-            params.entry_point = arg
-        elif opt == '--help':
-            usage(log)
-            sys.exit(0)
-        elif opt == '--help-hidden':
-            usage(log, True)
-            sys.exit(0)
-        elif opt == '--tau':
-            params.mismatches_threshold = int(arg)
-        elif opt == '--test':
-            SetOutputParams(params, os.path.abspath('ig_repertoire_constructor_test'))
-            params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
-            params.reads = os.path.abspath(params.reads)
-        elif opt in ('-m', '--memory'):
-            params.max_memory = int(arg)
-        elif opt == '--joint-thresh':
-            params.joint_thresh = float(arg)
-        elif opt == '--save-hgraphs':
-            params.save_hamming_graphs = True
-        elif opt == '--output-dense-sgraphs':
-            params.output_dense_sgraphs = True
-
-    if params.output_dir == "":
-        log.info("ERROR: Output directory (-o) was not specified\n")
-        usage(log)
-        sys.exit(-1)
-
-    return params
-
 def PrepareOutputDir(params):
     if params.entry_point == "ig_repertoire_constructor" and os.path.exists(params.output_dir):
         shutil.rmtree(params.output_dir)
     if not os.path.isdir(params.output_dir):
         os.makedirs(params.output_dir)
 
-def CheckParamsCorrectness(params, log):
-    if params.reads == "":
-        log.info("ERROR: Reads (-s) were not specified\n")
-        usage(log)
+def CheckParamsCorrectness(params, log, parser):
+    if not "output" in params:
+        log.info("ERROR: Output directory (-o) was not specified")
+        parser.print_help()
+        sys.exit(-1)
+    if not "reads" in params:
+        log.info("ERROR: Reads (-s) were not specified")
+        parser.print_help()
         sys.exit(-1)
     if not os.path.exists(params.reads):
-        log.info("ERROR: File with reads " + params.reads + " were not found\n")
-        usage(log)
+        log.info("ERROR: File with reads " + params.reads + " were not found")
+        parser.print_help()
         sys.exit(-1)
 
 def PrintParams(params, log):
@@ -222,7 +139,71 @@ def CleanOutputDir(params, log):
             if fname.startswith("hamming_graphs_tau_") and os.path.isdir(path):
                 shutil.rmtree(path)
 
-def main(args):
+def main():
+    # Parse commandline args
+    parser = argparse.ArgumentParser(description="TODO Add some description",
+                                     epilog="""
+    In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.
+    Please provide us with ig_repertoire_constructor.log file from the output directory.
+                                     """,
+                                     add_help=False)
+
+    req_args = parser.add_argument_group("Required arguments")
+    req_args.add_argument("-s", "--reads",
+                          type=str,
+                          # required=True,
+                          help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
+    req_args.add_argument("-o", "--output",
+                          type=str,
+                          # required=True,
+                          help="output directory (required)")
+
+    optional_args = parser.add_argument_group("Optional arguments")
+    optional_args.add_argument("-t", "--threads",
+                               type=int,
+                               default=16,
+                               dest="num_threads",
+                               help="threads number [default %(default)d]")
+    optional_args.add_argument("-m", "--memory",
+                               type=int,
+                               default=250,
+                               dest="max_memory",
+                               help="RAM limit for ig_repertoire_constructor in Gb [default: %(default)d]")
+    optional_args.add_argument("--tau",
+                               type=int,
+                               default=3,
+                               dest="mismatches_threshold",
+                               help="maximum allowed mismatches between reads in cluster [default: %(default)d]")
+    optional_args.add_argument("--test",
+                               action="store_true",
+                               help="runs test dataset")
+    optional_args.add_argument("-h", "--help",
+                               action="help",
+                               help="show this help message and exit")
+
+    dev_args = parser.add_argument_group("Developer arguments")
+    dev_args.add_argument("--joint-thresh",
+                          type=float,
+                          default=0.3,
+                          help="Yana, please, provide some description;)")
+    dev_args.add_argument('--entry-point',
+                          type=str,
+                          default="ig_repertoire_constructor",
+                          help="continue from the given stage")
+    dev_args.add_argument("--save-hgraphs",
+                          action="store_true",
+                          dest="save_hamming_graphs",
+                          help="outputs decomposition into dense subgraphs")
+    dev_args.add_argument("--output-dense-sgraphs",
+                          action="store_true",
+                          help="saves Hamming graphs in GRAPH format")
+
+    parser.set_defaults(dataset_file="dataset.yaml",
+                        config_dir="configs",
+                        config_file="config.info",
+                        saves_dir="saves",
+                        temp_files_dir="temp_files")
+
     # prepare log
     log = logging.getLogger('ig_repertoire_constructor')
     log.setLevel(logging.DEBUG)
@@ -231,23 +212,23 @@ def main(args):
     console.setLevel(logging.DEBUG)
     log.addHandler(console)
 
-    # preparing command line arguments
-    try:
-        options, not_options = getopt.gnu_getopt(args, Options.short_options, Options.long_options)
-    except getopt.GetoptError:
-        _, exc, _ = sys.exc_info()
-        sys.stderr.write(str(exc) + "\n")
-        usage(log)
-        sys.stderr.flush()
-        sys.exit(1)
-    if not options:
-        usage(log)
-        sys.stderr.flush()
-        sys.exit(1)
-
     # parse command line
-    params = ParseOptions(options, not_options, log)
+    params = parser.parse_args()
+    if params.test:
+        params.output = 'ig_repertoire_constructor_test'
+        params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
+
+    # params check
+    CheckParamsCorrectness(params, log, parser)
+
+    if not os.path.isabs(params.reads):
+        params.reads = os.path.abspath(params.reads)
+
+    SetOutputParams(params, params.output)
     PrepareOutputDir(params)
+
+    # Param print
+    PrintParams(params, log)
 
     # log file
     params.log_filename = os.path.join(params.output_dir, "ig_repertoire_constructor.log")
@@ -258,14 +239,8 @@ def main(args):
     log.info("Log will be written to " + params.log_filename + "\n")
 
     # print command line
-    command_line = "Command line:"
-    for v in args:
-        command_line += " " + v
-    log.info(command_line + "\n")
-
-    # params check and print
-    CheckParamsCorrectness(params, log)
-    PrintParams(params, log)
+    command_line = "Command line: " + " ".join(sys.argv)
+    log.info(command_line)
 
     # prepare dataset.yaml
     CreateDatasetYaml(params, log)
@@ -300,4 +275,4 @@ def main(args):
     log.info("Log was written to " + params.log_filename)
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main()
