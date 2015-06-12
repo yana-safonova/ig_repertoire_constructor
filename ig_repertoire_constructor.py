@@ -176,6 +176,11 @@ def main():
                             const="test_dataset/test7.fastq",
                             dest="reads",
                             help="test dataset based on 7_SAM15574987 data using 13 largest connectivity components. Be careful, it's longtime")
+    input_args.add_argument("--test7m1",
+                            action="store_const",
+                            const="test_dataset/test7m1.fastq",
+                            dest="reads",
+                            help="runs test dataset based on 7_SAM15574987 data using 13 most large (excluding the largest one) connectivity components")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
