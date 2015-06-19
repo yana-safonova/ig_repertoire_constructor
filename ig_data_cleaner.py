@@ -304,7 +304,7 @@ def WriteCleanedFilteredReads(params, log):
 
     num_merged_reads = len(merged_fastq_lines) / 4
     for i in range(0, num_merged_reads):
-        name = merged_fastq_lines[i * 4].strip()[1:]
+        name = merged_fastq_lines[i * 4].strip()[1:].split(' ')[0]
         seq = merged_fastq_lines[i * 4 + 1].strip()
         qual = merged_fastq_lines[i * 4 + 3].strip()
 
