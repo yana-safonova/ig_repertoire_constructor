@@ -150,17 +150,43 @@ def main():
                                      """,
                                      add_help=False)
 
-    req_args = parser.add_argument_group("Required arguments")
-    req_args.add_argument("-s", "--reads",
+    req_args = parser.add_argument_group("Input")
+    input_args = req_args.add_mutually_exclusive_group(required=True)
+    input_args.add_argument("-s", "--reads",
+                            type=str,
+                            default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
+                            help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins")
+    input_args.add_argument("--test",
+                            action="store_const",
+                            const="test_dataset/merged_reads.fastq",
+                            dest="reads",
+                            help="`merged_reads` test dataset")
+    input_args.add_argument("--testIGHV",
+                            action="store_const",
+                            const="test_dataset/IGHV1-8.fastq",
+                            dest="reads",
+                            help="IGHV1-8 test dataset")
+    input_args.add_argument("--test2",
+                            action="store_const",
+                            const="test_dataset/test2.fastq",
+                            dest="reads",
+                            help="test dataset based on 2_SAM13306970 data using 13 largest connectivity components")
+    input_args.add_argument("--test7",
+                            action="store_const",
+                            const="test_dataset/test7.fastq",
+                            dest="reads",
+                            help="test dataset based on 7_SAM15574987 data using 13 largest connectivity components. Be careful, it's longtime")
+    input_args.add_argument("--test7m1",
+                            action="store_const",
+                            const="test_dataset/test7m1.fastq",
+                            dest="reads",
+                            help="runs test dataset based on 7_SAM15574987 data using 13 most large (excluding the largest one) connectivity components")
+
+    out_args = parser.add_argument_group("Output")
+    out_args.add_argument("-o", "--output",
                           type=str,
-                          default="",
-                          required=True,
-                          help="cleaned FASTQ reads corresponding to variable regions of immunoglobulins (required)")
-    req_args.add_argument("-o", "--output",
-                          type=str,
-                          default="",
-                          required=True,
-                          help="output directory (required)")
+                          default="ig_repertoire_constructor_test",
+                          help="output directory [default \"%(default)s\"]")
 
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
@@ -178,9 +204,6 @@ def main():
                                default=3,
                                dest="mismatches_threshold",
                                help="maximum allowed mismatches between reads in cluster [default: %(default)d]")
-    optional_args.add_argument("--test",
-                               action="store_true",
-                               help="runs test dataset")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="show this help message and exit")
@@ -194,13 +217,31 @@ def main():
                           type=str,
                           default="ig_repertoire_constructor",
                           help="continue from the given stage [default %(default)s]")
-    dev_args.add_argument("--save-hgraphs",
-                          action="store_true",
+    shg_args = dev_args.add_mutually_exclusive_group(required=False)
+    shg_args.add_argument("--save-hgraphs",
+                          action="store_const",
+                          const=True,
                           dest="save_hamming_graphs",
-                          help="outputs decomposition into dense subgraphs")
-    dev_args.add_argument("--output-dense-sgraphs",
-                          action="store_true",
-                          help="saves Hamming graphs in GRAPH format")
+                          help="saves Hamming graphs in GRAPH format [default]")
+    shg_args.add_argument("--no-save-hgraphs",
+                          action="store_const",
+                          const=False,
+                          dest="save_hamming_graphs",
+                          help="")
+    ods_args = dev_args.add_mutually_exclusive_group(required=False)
+    ods_args.add_argument("--output-dense-sgraphs",
+                          action="store_const",
+                          const=True,
+                          dest="output_dense_sgraphs",
+                          help="outputs decomposition into dense subgraphs [default]")
+    ods_args.add_argument("--no-output-dense-sgraphs",
+                          action="store_const",
+                          const=False,
+                          dest="output_dense_sgraphs",
+                          help="")
+
+    parser.set_defaults(output_dense_sgraphs=True,
+                        save_hamming_graphs=True)
 
     parser.set_defaults(dataset_file="dataset.yaml",
                         config_dir="configs",
@@ -218,9 +259,6 @@ def main():
 
     # parse command line
     params = parser.parse_args()
-    if params.test:
-        params.output = 'ig_repertoire_constructor_test'
-        params.reads = os.path.join(home_directory, 'test_dataset/merged_reads.fastq')
 
     # params check
     CheckParamsCorrectness(params, log, parser)
