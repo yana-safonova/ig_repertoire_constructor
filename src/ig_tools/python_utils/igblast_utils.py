@@ -208,7 +208,7 @@ def LineIsHitTableHeader(line):
 # -------------
 
 def ProcessQueryStr(line, block_stats):
-    splits = line.split(' ')
+    splits = line.split(' ', 2)
     block_stats.query_name = splits[BlockConfig.query_name_ind].strip()
 
 def ProcessDBStr(line, block_stats):
