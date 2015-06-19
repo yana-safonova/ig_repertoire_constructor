@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import argparse
 from collections import defaultdict
 import file_utils
@@ -17,6 +19,7 @@ def DrawCoverageDistribution(data, filename, plotname):
             last_i = i + 1
             break
     data = data[:last_i]
+    data.append(0)
     fig, ax = plt.subplots()
     # ind = np.arange(len(data))
     cdr_color = "gray"
@@ -286,16 +289,33 @@ class Metrics:
             filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
             DrawHistogram(length_list, 'Peptide length', 'Count', 'Peptide length distribution', filename)
 
-if __name__ == '__main__':
+def PrepareArguments():
+    home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser(description = 'mass spectra analysis')
-    # parser.add_argument('--igblast', dest = 'igblast_aln', help = 'IgBLAST alignment for aminoacid sequences')
     parser.add_argument('--regions', dest = 'regions', help = 'regions file')
-    parser.add_argument('--outdir', dest = 'output_dir', help = 'output directory', required = True)
-    # parser.add_argument('--migec', dest = 'migec_cdrs', description = 'CDRs, extracted with Migec')
-    parser.add_argument(dest = 'inputs', help = 'mass spectrum alignment files in mzIdentML 1.1 format', nargs = '+')
+    parser.add_argument('--outdir', dest = 'output_dir', help = 'output directory')
+    parser.add_argument(dest = 'inputs', help = 'mass spectrum alignment files in mzIdentML 1.1 format', nargs = '*')
+    parser.add_argument('--test', dest = 'test', help = 'run on the test dataset', action='store_true')
     args = parser.parse_args()
+    if args.test:
+        args.output_dir = os.path.join(home_directory, 'test_output')
+        args.regions = os.path.join(home_directory, 'test_dataset', 'example_regions.txt')
+        args.inputs = [os.path.join(home_directory, 'test_dataset', 'example_HC_chymo_CID.mzid.spectra'), 
+                       os.path.join(home_directory, 'test_dataset', 'example_HC_trypsin_CID.mzid.spectra')]
+    if not args.inputs:
+        print 'You must specify at least one input file'
+        parser.print_help()
+        sys.exit(-1)
+    if not args.output_dir:
+        print 'You must specify output directory'
+        parser.print_help()
+        sys.exit(-1)
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
+    return args
+
+if __name__ == '__main__':
+    args = PrepareArguments()
     mass_spec_alns = []
 
     for filename in args.inputs:
