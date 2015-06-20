@@ -5,21 +5,9 @@ import argparse
 import sys
 import Levenshtein
 import igraph as ig
-
-
-def unique_counter_filler(l):
-    m = {}
-    res = []
-    i = 0
-    for e in l:
-        if e not in m:
-            i = i + 1
-            m[e] = ci = i
-        else:
-            ci = m[e]
-        res.append(ci)
-
-    return res
+from align import align_reads
+from align import consensus
+from ig_basic import *
 
 
 def load_sgraphs(dir):
@@ -30,31 +18,31 @@ def load_sgraphs(dir):
 
     id2cluster = {}
 
-    dec_index = 0
     for decomposition in glob.glob("%s/dense_subgraphs/*.txt" % dir):
-        dec_index += 1
+        basename = os.path.basename(decomposition)
         with open(decomposition, "r") as dec_fh:
             for line in dec_fh:
                 cluster, seq_id, align = line.split()
                 cluster = int(cluster)
                 seq_id = seq_id.strip()
-                id2cluster[seq_id] = (dec_index, cluster)
+                id2cluster[seq_id] = (basename, cluster)
 
     return id2cluster
 
-# from read_barcode_splitter import extract_barcode
-from align import align_reads
 
 
-def get_colors(ids, id2cluster):
-    import igraph as ig
+def most_popular_element(l):
+    from collections import defaultdict
 
-    idx = [id2cluster[_] if _ in id2cluster else 0 for _ in ids]
-    idx = unique_counter_filler(idx)
+    count = defaultdict(int)
+    for e in l:
+        if e is not None:
+            count[e] += 1
 
-    colors = ["black", "red", "blue", "pink", "violet", "grey", "magenta", "yellow", "green", "green4", "green", "green"] + ig.drawing.colors.known_colors.keys()
-
-    return [colors[i] for i in idx]
+    if len(count) == 0:
+        return None
+    else:
+        return max(count.keys(), key=lambda k: count[k])
 
 
 if __name__ == "__main__":
@@ -91,6 +79,9 @@ if __name__ == "__main__":
                         type=int,
                         default=0,
                         help="Max possible shift from reference (the largest string) [default %(default)d]")
+    parser.add_argument("-U", "--omit-unclustered",
+                        action="store_true",
+                        help="Whether to omit reads which was unclustered by igRC")
     parser.add_argument("-l", "--minimal-read-length",
                         type=int,
                         default=0,
@@ -113,8 +104,8 @@ if __name__ == "__main__":
 
     aligned_reads, max_shift = align_reads(reads, delta=args.delta, inplace=False)
 
-    from align import consensus
-    from ig_basic import count_multiplicity
+    if args.delta != 0:
+        print("Max shift %d" % max_shift)
 
     con = consensus(aligned_reads)
 
@@ -128,20 +119,41 @@ if __name__ == "__main__":
 
     str_reads = [str(read.seq) for read in aligned_reads]
     id2cluster = load_sgraphs(args.sgraphs)
-    # print(id2cluster.keys())
+    clusters = [id2cluster[read.id] if read.id in id2cluster else None for read in aligned_reads]
 
-    colors = get_colors([read.id for read in aligned_reads], id2cluster)
+    if args.omit_unclustered:
+        _ = [(str_read, cluster) for str_read, cluster in zip(str_reads, clusters) if cluster is not None]
+        str_reads, clusters = map(list, zip(*_))
 
-
-    read2color = {}
-    for read, color in zip(aligned_reads, colors):
-        read2color[str(read.seq)] = color
+    gd = groupby_dict(clusters, str_reads,
+                      lazy=False, key_as_index=True, raw_dict=True)
 
     str_reads, mult = count_multiplicity(str_reads)
+    clusters = [most_popular_element(gd[str_read]) for str_read in str_reads]
 
+    clusters_not_none = [cluster for cluster in clusters if cluster is not None]
+    clusters_unique, clusters_mult = count_multiplicity(clusters_not_none)
+    clusters_unique = [_[1] for _ in sorted(zip(clusters_mult,
+                                                clusters_unique),
+                                            reverse=True)]
+
+    read2index = {cluster: i for cluster, i in zip(clusters_unique,
+                                                   range(1, len(clusters_unique) + 1))}
+
+    read2index[None] = 0
+
+    indices = [read2index[cluster] for cluster in clusters]
+
+    n_indices = len(set(indices))
+    colors_palette = ["white", "red"]
+
+    if len(colors_palette) < max(indices) + 1:
+        n = max(indices) + 1 - len(colors_palette)
+        pal = ig.drawing.colors.RainbowPalette(n=n, start=0.3)
+        colors_palette += [ig.drawing.colors.color_to_html_format(pal.get(i)) for i in range(n)]
+
+    print("The number of different colors %d " % n_indices)
     print("The number of unique reads %d" % len(str_reads))
-
-    from ig_basic import *
 
     if args.levenshtein:
         g = levenshtein_graph(str_reads, tau=args.tau, multiplicity=mult)
@@ -152,7 +164,7 @@ if __name__ == "__main__":
         g = g.spanning_tree("weight")
 
     g.es["label"] = map(int, g.es["weight"])
-    g.vs["color"] = [read2color[read] for read in g.vs["read"]]
+    g.vs["color"] = [colors_palette[i] for i in indices]
     g.vs["label"] = map(int, g.vs["multiplicity"])
 
     if args.figure:

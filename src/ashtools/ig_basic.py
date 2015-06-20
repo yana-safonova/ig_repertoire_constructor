@@ -16,7 +16,8 @@ def anonnamedtuple(field_names, *args, **kwargs):
     return namedtuple("_", field_names)(*args, **kwargs)
 
 
-def groupby_dict(iterable, key=None, lazy=False, key_as_index=False):
+def groupby_dict(iterable, key=None, lazy=False, key_as_index=False,
+                 raw_dict=False):
     """
     Analogue of itertools.groupby, but using dict instead of sorted list
     """
@@ -33,7 +34,10 @@ def groupby_dict(iterable, key=None, lazy=False, key_as_index=False):
         for k, e in zip(key, iterable):
             d[k].append(e)
 
-    return d.iteritems() if lazy else list(d.iteritems())
+    if raw_dict:
+        return d
+    else:
+        return d.iteritems() if lazy else list(d.iteritems())
 
 
 def count_multiplicity(reads):
