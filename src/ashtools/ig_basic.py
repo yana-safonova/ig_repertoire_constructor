@@ -93,19 +93,67 @@ def levenshtein_matrix(reads):
     return m
 
 
-def hamming_graph(reads, tau=1, multiplicity=None):
+def hamming_graph_knuth(reads, tau=1, **kwargs):
+    """
+    Construct hamming(tau) graph using Knuth's algorithm
+    """
+    import igraph as ig
+    from collections import defaultdict
+    from Levenshtein import hamming
+
+    l = len(reads[0])
+
+    for read in reads:
+        assert(len(read) == l)
+
+    piece_len = int(l / (tau + 1))
+    piece_len_last = l - piece_len * tau
+
+    piece_lens = [piece_len] * tau + [piece_len_last]
+
+    g = ig.Graph(len(reads))
+    g.vs["reads"] = reads
+
+    for attr_name, attr_data in kwargs.iteritems():
+        g.vs[attr_name] = attr_data
+
+    for j in range(tau + 1):
+        sets = defaultdict(list)
+        for i in range(len(reads)):
+            substr = reads[i][j*piece_len:j*piece_len + piece_lens[j]]
+            sets[substr].append(i)
+
+        for v_list in sets.itervalues():
+            for i1 in range(len(v_list)):
+                for i2 in range(i1 + 1, len(v_list)):
+                    v1, v2 = v_list[i1], v_list[i2]
+                    read1, read2 = reads[v1], reads[v2]
+                    d = hamming(read1, read2)
+                    if d <= tau and g.get_eid(v1, v2, error=False) == -1:
+                        g.add_edge(v1, v2, weight=d)
+
+    return g
+
+
+def hamming_graph_naive(reads, tau=1, **kwargs):
     """
     Construct hamming(tau) graph using naive O(N**2 d) algorithm
     """
     import igraph as ig
     import numpy as np
+    from Levenshtein import hamming
+
+    l = len(reads[0])
+
+    for read in reads:
+        assert(len(read) == l)
 
     N = len(reads)
     m = np.zeros((N, N), dtype=int)
 
     for i in range(N):
         for j in range(i):
-            dist = hamming_dist(reads[i], reads[j])
+            dist = hamming(reads[i], reads[j])
             m[i, j] = m[j, i] = dist if dist <= tau else 0
 
     # Be careful! Zero elements are not interpreted as zero-length edges
@@ -116,9 +164,30 @@ def hamming_graph(reads, tau=1, multiplicity=None):
 
     g.vs["read"] = reads
 
+    for attr_name, attr_data in kwargs.iteritems():
+        g.vs[attr_name] = attr_data
+
+    return g
+
+
+def hamming_graph(reads, tau=1, multiplicity=None, use_naive=False, **kwargs):
+    """
+    Hamming graph(tau) construction wrapper
+    """
+    l = len(reads[0])
+
+    for read in reads:
+        assert(len(read) == l)
+
     if multiplicity is None:
-        multiplicity = [1] * N
-    g.vs["multiplicity"] = multiplicity
+        multiplicity = [1] * len(reads)
+
+    if use_naive or tau + 1 > l:
+        g = hamming_graph_naive(reads, tau=tau,
+                                multiplicity=multiplicity, **kwargs)
+    else:
+        g = hamming_graph_knuth(reads, tau=tau,
+                                multiplicity=multiplicity, **kwargs)
 
     return g
 
