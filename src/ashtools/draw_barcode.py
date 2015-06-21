@@ -30,7 +30,6 @@ def load_sgraphs(dir):
     return id2cluster
 
 
-
 def most_popular_element(l):
     from collections import defaultdict
 
