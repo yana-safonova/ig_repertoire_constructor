@@ -51,48 +51,6 @@ def count_multiplicity(reads):
     return reads, multiplicity
 
 
-def hamming_dist(s1, s2):
-    """
-    Ordinary Hamming distance between two strings
-    """
-    s1, s2 = s1.strip(), s2.strip()
-    assert(len(s1) == len(s2))
-    return sum([c1 != c2 for c1, c2 in zip(s1, s2)])
-
-def levenshtein_dist(s1, s2):
-    import Levenshtein
-    s1, s2 = s1.strip(), s2.strip()
-    return Levenshtein.distance(s1, s2)
-
-
-def hamming_matrix(reads):
-    import numpy as np
-
-    N = len(reads)
-    m = np.zeros((N, N), dtype=int)
-
-    for i in range(N):
-        for j in range(i):
-            dist = hamming_dist(reads[i], reads[j])
-            m[i, j] = m[j, i] = dist
-
-    return m
-
-
-def levenshtein_matrix(reads):
-    import numpy as np
-
-    N = len(reads)
-    m = np.zeros((N, N), dtype=int)
-
-    for i in range(N):
-        for j in range(i):
-            dist = levenshtein_dist(reads[i], reads[j])
-            m[i, j] = m[j, i] = dist
-
-    return m
-
-
 def hamming_graph_knuth(reads, tau=1, **kwargs):
     """
     Construct hamming(tau) graph using Knuth's algorithm
@@ -193,6 +151,7 @@ def levenshtein_graph(reads, tau=1, **kwargs):
     """
     import igraph as ig
     import numpy as np
+    from Levenshtein import distance as levenshtein_dist
 
     N = len(reads)
     m = np.zeros((N, N), dtype=int)
