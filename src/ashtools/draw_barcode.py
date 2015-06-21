@@ -171,15 +171,19 @@ if __name__ == "__main__":
     print("The number of unique reads %d" % len(str_reads))
 
     if args.levenshtein:
-        g = levenshtein_graph(str_reads, tau=args.tau, multiplicity=mult)
+        g = levenshtein_graph(str_reads, tau=args.tau)
     else:
-        g = hamming_graph(str_reads, tau=args.tau, multiplicity=mult)
+        g = hamming_graph(str_reads, tau=args.tau)
+        # g_naive = hamming_graph(str_reads, tau=args.tau, multiplicity=mult,
+        #                         use_naive=True)
+        # assert(sorted(g.get_edgelist()) == sorted(g_naive.get_edgelist()))
 
     if args.span:
         g = g.spanning_tree("weight")
 
     g.es["label"] = map(int, g.es["weight"])
     g.vs["color"] = [colors_palette[i] for i in indices]
+    g.vs["multiplicity"] = mult
     g.vs["label"] = map(int, g.vs["multiplicity"])
 
     if args.figure:
