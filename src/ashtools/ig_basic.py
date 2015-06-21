@@ -170,7 +170,7 @@ def hamming_graph_naive(reads, tau=1, **kwargs):
     return g
 
 
-def hamming_graph(reads, tau=1, multiplicity=None, use_naive=False, **kwargs):
+def hamming_graph(reads, tau=1, use_naive=False, **kwargs):
     """
     Hamming graph(tau) construction wrapper
     """
@@ -179,20 +179,15 @@ def hamming_graph(reads, tau=1, multiplicity=None, use_naive=False, **kwargs):
     for read in reads:
         assert(len(read) == l)
 
-    if multiplicity is None:
-        multiplicity = [1] * len(reads)
-
     if use_naive or tau + 1 > l:
-        g = hamming_graph_naive(reads, tau=tau,
-                                multiplicity=multiplicity, **kwargs)
+        g = hamming_graph_naive(reads, tau=tau, **kwargs)
     else:
-        g = hamming_graph_knuth(reads, tau=tau,
-                                multiplicity=multiplicity, **kwargs)
+        g = hamming_graph_knuth(reads, tau=tau, **kwargs)
 
     return g
 
 
-def levenshtein_graph(reads, tau=1, multiplicity=None):
+def levenshtein_graph(reads, tau=1, **kwargs):
     """
     Construct Levenshtein(tau) graph using naive O(N**2 d) algorithm
     """
@@ -215,9 +210,8 @@ def levenshtein_graph(reads, tau=1, multiplicity=None):
 
     g.vs["read"] = reads
 
-    if multiplicity is None:
-        multiplicity = [1] * N
-    g.vs["multiplicity"] = multiplicity
+    for attr_name, attr_data in kwargs.iteritems():
+        g.vs[attr_name] = attr_data
 
     return g
 
