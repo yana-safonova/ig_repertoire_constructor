@@ -117,8 +117,24 @@ if __name__ == "__main__":
         print("Reads left %d" % len(aligned_reads))
 
     str_reads = [str(read.seq) for read in aligned_reads]
+
+    print("Reading subgraphs...")
     id2cluster = load_sgraphs(args.sgraphs)
+    print("Subgraphs readed")
+
     clusters = [id2cluster[read.id] if read.id in id2cluster else None for read in aligned_reads]
+
+    main_cluster = most_popular_element(clusters)
+    none_cluster_size = sum(cluster is None for cluster in clusters)
+    main_cluster_size = sum(main_cluster == cluster for cluster in clusters)
+
+    print("Main cluster %d/%d = %f" % (main_cluster_size,
+                                       len(clusters),
+                                       float(main_cluster_size) / len(clusters)))
+    print("Unclustered items %d" % none_cluster_size)
+    print("Main cluster (excluded unclustered items) %d/%d = %f" % (main_cluster_size,
+                                                                    len(clusters) - none_cluster_size,
+                                                                    float(main_cluster_size) / (len(clusters) - none_cluster_size)))
 
     if args.omit_unclustered:
         _ = [(str_read, cluster) for str_read, cluster in zip(str_reads, clusters) if cluster is not None]
