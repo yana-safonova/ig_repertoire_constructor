@@ -20,6 +20,11 @@ def determine_format_by_ext(fname):
         return None
 
 
+def fastX_len(fname):
+    with open(fname, "rU") as fh:
+        return ilen(SeqIO.parse(fh, determine_format_by_ext(fname)))
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Count the number of reads in each file (like `wc -l`)")
     parser.add_argument("files", metavar="files", type=str, nargs='+',
@@ -27,6 +32,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     for fname in args.files:
-        with open(fname, "rU") as fh:
-            l = ilen(SeqIO.parse(fh, determine_format_by_ext(fname)))
-            print("%d\t%s" % (l, fname))
+        print("%d\t%s" % (fastX_len(fname), fname))
