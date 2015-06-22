@@ -75,6 +75,8 @@ def hamming_graph_knuth(reads, tau=1, **kwargs):
     for attr_name, attr_data in kwargs.iteritems():
         g.vs[attr_name] = attr_data
 
+    edges_for_check = set()
+
     for j in range(tau + 1):
         sets = defaultdict(list)
         for i in range(len(reads)):
@@ -82,13 +84,17 @@ def hamming_graph_knuth(reads, tau=1, **kwargs):
             sets[substr].append(i)
 
         for v_list in sets.itervalues():
+            # print("N += %d" % len(v_list))
             for i1 in range(len(v_list)):
                 for i2 in range(i1 + 1, len(v_list)):
-                    v1, v2 = v_list[i1], v_list[i2]
-                    read1, read2 = reads[v1], reads[v2]
-                    d = hamming(read1, read2)
-                    if d <= tau and g.get_eid(v1, v2, error=False) == -1:
-                        g.add_edge(v1, v2, weight=d)
+                    edges_for_check.add((v_list[i1], v_list[i2]))
+
+    # print("Edges for check %d" % len(edges_for_check))
+    for v1, v2 in edges_for_check:
+        read1, read2 = reads[v1], reads[v2]
+        d = hamming(read1, read2)
+        if d <= tau:
+            g.add_edge(v1, v2, weight=d)
 
     return g
 
