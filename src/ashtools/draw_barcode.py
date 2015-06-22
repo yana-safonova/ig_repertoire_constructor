@@ -107,6 +107,8 @@ if __name__ == "__main__":
         print("Max shift %d" % max_shift)
 
     con = consensus(aligned_reads)
+    print(con.ftm_all)
+    print(con.ftm_1)
 
     lev_dists = [Levenshtein.distance(con.consensus, str(read.seq)) for read in aligned_reads]
     ham_dists = [Levenshtein.hamming(con.consensus, str(read.seq)) for read in aligned_reads]
