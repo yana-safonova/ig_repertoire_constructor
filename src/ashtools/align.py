@@ -46,7 +46,7 @@ def align_reads(reads, delta=19, inplace=False):
 from collections import namedtuple
 
 Consensus = namedtuple("Consensus",
-                       "consensus mismatches reads_mismatches first_votes second_votes ftm_all ftm_1")
+                       "consensus mismatches reads_mismatches first_votes second_votes ftm_all ftm_1 ftm_multinodes")
 
 
 def consensus(reads, raw_strings=False):
@@ -81,6 +81,8 @@ def consensus(reads, raw_strings=False):
 
     ftm_all = np.zeros((4, 4), dtype=int)
     ftm_1 = np.zeros((4, 4), dtype=int)
+    ftm_multinodes = np.zeros((4, 4), dtype=int)
+    multinode_threshold = 2
 
     for read in reads:
         for _from, _to in zip(consensus, read):
@@ -91,13 +93,21 @@ def consensus(reads, raw_strings=False):
             for _from, _to in zip(consensus, read):
                 ftm_1[nuc_ind[_from], nuc_ind[_to]] += 1
 
+    from ig_basic import count_multiplicity
+    unique_reads, mult = count_multiplicity(reads)
+    for read, mul in zip(unique_reads, mult):
+        if mul >= multinode_threshold:
+            for _from, _to in zip(consensus, read):
+                ftm_multinodes[nuc_ind[_from], nuc_ind[_to]] += mul
+
     return Consensus(consensus=consensus,
                      mismatches=mismatches,
                      first_votes=first_votes,
                      second_votes=second_votes,
                      reads_mismatches=reads_mismatches,
                      ftm_all=ftm_all,
-                     ftm_1=ftm_1)
+                     ftm_1=ftm_1,
+                     ftm_multinodes=ftm_multinodes)
 
 
 import contextlib
