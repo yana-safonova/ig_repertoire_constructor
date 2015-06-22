@@ -45,11 +45,15 @@ def align_reads(reads, delta=19, inplace=False):
 
 from collections import namedtuple
 
-Consensus = namedtuple("Consensus", "consensus mismatches reads_mismatches first_votes second_votes")
+Consensus = namedtuple("Consensus",
+                       "consensus mismatches reads_mismatches first_votes second_votes ftm_all ftm_1")
 
 
-def consensus(reads):
+def consensus(reads, raw_strings=False):
     import numpy as np
+
+    if not raw_strings:
+        reads = [str(read.seq) for read in reads]
 
     n = max(map(len, reads))
     for read in reads:
@@ -60,7 +64,7 @@ def consensus(reads):
 
     consm = np.zeros((4, n), dtype=int)
     for j in range(len(reads)):
-        s = reads[j].seq
+        s = reads[j]
         for i in range(n):
             consm[nuc_ind[s[i]], i] += 1
 
@@ -73,13 +77,27 @@ def consensus(reads):
     trird_votes = np.percentile(consm, q=33, axis=0, interpolation="nearest")
     fourth_votes = np.min(consm, axis=0)
 
-    reads_mismatches = [n - count_matches(read.seq, consensus, align=0) for read in reads]
+    reads_mismatches = [n - count_matches(read, consensus, align=0) for read in reads]
+
+    ftm_all = np.zeros((4, 4), dtype=int)
+    ftm_1 = np.zeros((4, 4), dtype=int)
+
+    for read in reads:
+        for _from, _to in zip(consensus, read):
+            ftm_all[nuc_ind[_from], nuc_ind[_to]] += 1
+
+    for read, mm in zip(reads, reads_mismatches):
+        if mm <= 1:
+            for _from, _to in zip(consensus, read):
+                ftm_1[nuc_ind[_from], nuc_ind[_to]] += 1
 
     return Consensus(consensus=consensus,
                      mismatches=mismatches,
                      first_votes=first_votes,
                      second_votes=second_votes,
-                     reads_mismatches=reads_mismatches)
+                     reads_mismatches=reads_mismatches,
+                     ftm_all=ftm_all,
+                     ftm_1=ftm_1)
 
 
 import contextlib
