@@ -213,9 +213,9 @@ if __name__ == "__main__":
         if args.levenshtein:
             g = levenshtein_graph(str_reads, tau=args.tau)
         else:
-            g = hamming_graph(str_reads, tau=args.tau)
+            g = hamming_graph(str_reads, tau=args.tau, method="knuth")
             # g_naive = hamming_graph(str_reads, tau=args.tau, multiplicity=mult,
-            #                         use_naive=True)
+            #                         method="naive")
             # assert(sorted(g.get_edgelist()) == sorted(g_naive.get_edgelist()))
 
         if args.span and len(g.es):

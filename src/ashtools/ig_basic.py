@@ -99,6 +99,76 @@ def hamming_graph_knuth(reads, tau=1, **kwargs):
     return g
 
 
+def hamming_graph_vp(reads, tau=1, **kwargs):
+    """
+    Construct hamming(tau) graph using Vantage point tree
+    """
+    import igraph as ig
+    from Levenshtein import hamming
+    from vptree import VPTree
+
+    l = len(reads[0])
+
+    for read in reads:
+        assert(len(read) == l)
+
+
+    g = ig.Graph(len(reads))
+    g.vs["reads"] = reads
+
+    for attr_name, attr_data in kwargs.iteritems():
+        g.vs[attr_name] = attr_data
+
+    def dist(i, j):
+        return hamming(reads[i], reads[j])
+
+    tree = VPTree(range(len(reads)), dist)
+
+    for i in range(len(reads)):
+        neib = tree.get_all_in_range(i, tau)
+        for d, j in neib:
+            assert(d <= tau)
+            if j > i:
+                g.add_edge(i, j, weight=d)
+
+    return g
+
+
+def hamming_graph_bk(reads, tau=1, **kwargs):
+    """
+    Construct hamming(tau) graph using Vantage point tree
+    """
+    import igraph as ig
+    from Levenshtein import hamming
+    from vptree import BKTree
+
+    l = len(reads[0])
+
+    for read in reads:
+        assert(len(read) == l)
+
+
+    g = ig.Graph(len(reads))
+    g.vs["reads"] = reads
+
+    for attr_name, attr_data in kwargs.iteritems():
+        g.vs[attr_name] = attr_data
+
+    def dist(i, j):
+        return hamming(reads[i], reads[j])
+
+    tree = BKTree(range(len(reads)), dist)
+
+    for i in range(len(reads)):
+        neib = tree.get_all_in_range(i, tau)
+        for d, j in neib:
+            assert(d <= tau)
+            if j > i:
+                g.add_edge(i, j, weight=d)
+
+    return g
+
+
 def hamming_graph_naive(reads, tau=1, **kwargs):
     """
     Construct hamming(tau) graph using naive O(N**2 d) algorithm
@@ -134,7 +204,7 @@ def hamming_graph_naive(reads, tau=1, **kwargs):
     return g
 
 
-def hamming_graph(reads, tau=1, use_naive=False, **kwargs):
+def hamming_graph(reads, tau=1, method="knuth", **kwargs):
     """
     Hamming graph(tau) construction wrapper
     """
@@ -143,10 +213,19 @@ def hamming_graph(reads, tau=1, use_naive=False, **kwargs):
     for read in reads:
         assert(len(read) == l)
 
-    if use_naive or tau + 1 > l:
+    if tau + 1 > l and method == "knuth":
+        method = "naive"
+
+    if method == "naive":
         g = hamming_graph_naive(reads, tau=tau, **kwargs)
-    else:
+    elif method == "knuth":
         g = hamming_graph_knuth(reads, tau=tau, **kwargs)
+    elif method == "vp":
+        g = hamming_graph_vp(reads, tau=tau, **kwargs)
+    elif method == "bk":
+        g = hamming_graph_bk(reads, tau=tau, **kwargs)
+    else:
+        raise ValueError("unknown `method`")
 
     return g
 
