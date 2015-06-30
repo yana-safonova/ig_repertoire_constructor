@@ -15,8 +15,8 @@ def extract_barcode(s):
     """
     import re
 
-    m = re.match(r".*:([ACTG]{14}):.{14}_\d+", s)
-    return m.groups()[0]
+    m = re.match(r".*:([ACTG]{14}):.{14}_\d+(_SUBSTR\(\d*,\d*\))?", s)
+    return m.groups()[0] if m else None
 
 
 assert(extract_barcode("@M01691:10:000000000-A7F7L:1:2107:21387:4106_2:N:0:1_UMI:CTGACGTTACTCGG:GGGGGGGGGGGGGG_517009") == "CTGACGTTACTCGG")
