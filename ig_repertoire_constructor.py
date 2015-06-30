@@ -143,12 +143,13 @@ def CleanOutputDir(params, log):
 
 def main():
     # Parse commandline args
-    parser = argparse.ArgumentParser(description="TODO Add some description",
-                                     epilog="""
+    from argparse_ext import ArgumentHiddenParser
+    parser = ArgumentHiddenParser(description="TODO Add some description",
+                                  epilog="""
     In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
-                                     """,
-                                     add_help=False)
+                                  """,
+                                  add_help=False)
 
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=True)
@@ -160,27 +161,27 @@ def main():
                             action="store_const",
                             const="test_dataset/merged_reads.fastq",
                             dest="reads",
-                            help="`merged_reads` test dataset")
+                            help="_`merged_reads` test dataset")
     input_args.add_argument("--testIGHV",
                             action="store_const",
                             const="test_dataset/IGHV1-8.fastq",
                             dest="reads",
-                            help="IGHV1-8 test dataset")
+                            help="_IGHV1-8 test dataset")
     input_args.add_argument("--test2",
                             action="store_const",
                             const="test_dataset/test2.fastq",
                             dest="reads",
-                            help="test dataset based on 2_SAM13306970 data using 13 largest connectivity components")
+                            help="_test dataset based on 2_SAM13306970 data using 13 largest connectivity components")
     input_args.add_argument("--test7",
                             action="store_const",
                             const="test_dataset/test7.fastq",
                             dest="reads",
-                            help="test dataset based on 7_SAM15574987 data using 13 largest connectivity components. Be careful, it's longtime")
+                            help="_test dataset based on 7_SAM15574987 data using 13 largest connectivity components. Be careful, it's longtime")
     input_args.add_argument("--test7m1",
                             action="store_const",
                             const="test_dataset/test7m1.fastq",
                             dest="reads",
-                            help="runs test dataset based on 7_SAM15574987 data using 13 most large (excluding the largest one) connectivity components")
+                            help="_runs test dataset based on 7_SAM15574987 data using 13 most large (excluding the largest one) connectivity components")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
@@ -208,37 +209,40 @@ def main():
                                action="help",
                                help="show this help message and exit")
 
-    dev_args = parser.add_argument_group("Developer arguments")
+    dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("--joint-thresh",
                           type=float,
                           default=0.6,
-                          help="threshold for minimum value of edge fill-in in dense subgraph construction procedure [default %(default)2.1f]")
+                          help="_threshold for minimum value of edge fill-in in dense subgraph construction procedure [default %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default="ig_repertoire_constructor",
-                          help="continue from the given stage [default %(default)s]")
+                          help="_continue from the given stage [default %(default)s]")
     shg_args = dev_args.add_mutually_exclusive_group(required=False)
     shg_args.add_argument("--save-hgraphs",
                           action="store_const",
                           const=True,
                           dest="save_hamming_graphs",
-                          help="saves Hamming graphs in GRAPH format [default]")
+                          help="_saves Hamming graphs in GRAPH format [default]")
     shg_args.add_argument("--no-save-hgraphs",
                           action="store_const",
                           const=False,
                           dest="save_hamming_graphs",
-                          help="")
+                          help="_")
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--output-dense-sgraphs",
                           action="store_const",
                           const=True,
                           dest="output_dense_sgraphs",
-                          help="outputs decomposition into dense subgraphs [default]")
+                          help="_outputs decomposition into dense subgraphs [default]")
     ods_args.add_argument("--no-output-dense-sgraphs",
                           action="store_const",
                           const=False,
                           dest="output_dense_sgraphs",
-                          help="")
+                          help="_")
+    ods_args.add_argument("--help-hidden", "-H",
+                          action="help_hidden",
+                          help="_Show hidden help")
 
     parser.set_defaults(output_dense_sgraphs=True,
                         save_hamming_graphs=True)
