@@ -7,6 +7,20 @@ import re
 import glob
 import argparse
 import sys
+import sqlite3
+
+
+def initDB(cursor):
+    cursor.execute("create table reads ( \
+                   id integer primary key not null, \
+                   seqid string, \
+                   read string, \
+                   quality string, \
+                   component integer, \
+                   cluster integer, \
+                   barcode string)")
+
+from read_barcode_splitter import extract_barcode
 
 
 if __name__ == "__main__":
@@ -35,8 +49,17 @@ if __name__ == "__main__":
     parser.add_argument("-S", "--sort",
                         action="store_true",
                         help="Sort outputted reads by clique index (default no)")
+    parser.add_argument("--sqlite", "-Q",
+                        type=str,
+                        help="output database file (in SQLite format)")
 
     args = parser.parse_args()
+
+    if args.sqlite is not None:
+        if os.path.isfile(args.sqlite):
+            os.unlink(args.sqlite)
+        conn = sqlite3.connect(args.sqlite, isolation_level="EXCLUSIVE")
+        initDB(conn)
 
     with open(args.reads, "rU") as fh:
         reads_hash_table = {record.id: record for record in SeqIO.parse(fh, "fastq")}
@@ -65,6 +88,11 @@ if __name__ == "__main__":
 
     for decomposition in glob.glob("%s/dense_subgraphs/*.txt" % args.igrc_output_dir):
         basename = os.path.basename(decomposition)
+
+        m = re.match(r"dense_sgraph_decomposition_(\d+)_size_(\d+)\.txt",
+                     basename)
+        concomp_id = m.groups()[0] if m else None
+
         out_file_cliques = "%s/%s" % (args.output_dir, re.sub("txt$", "cliques.txt", basename))
         out_file_fastq = "%s/%s" % (args.output_dir, re.sub("txt$", "fastq", basename))
         with open(decomposition, "r") as dec_fh:
@@ -101,7 +129,31 @@ if __name__ == "__main__":
                 records = [record_ for cluster_, record_ in res]
                 SeqIO.write(records, out_fh, "fastq")
 
+            if args.sqlite is not None:
+                for cluster, record in res:
+                    conn.execute("insert into reads (seqid, read, quality, component, cluster, barcode) \
+                                 values (?, ?, ?, ?, ?, ?)", \
+                                 (str(record.id),
+                                  str(record.seq),
+                                  None,  # TODO extract quality
+                                  concomp_id,
+                                  cluster,
+                                  extract_barcode(record.id)))
+                conn.commit()
+
             if args.verbose:
                 print("Processed file %s, %d lines, min = %d" % (decomposition,
                                                                  len(res),
                                                                  min_len))
+    if args.sqlite is not None:
+        conn.commit()
+
+        conn.execute("create index if not exists read_seqid_index on reads(seqid)")
+        conn.execute("create index if not exists read_component_index on reads(component)")
+        conn.execute("create index if not exists read_component_cluster_index on reads(component, cluster)")
+        conn.execute("create index if not exists read_barcode_index on reads(barcode)")
+        conn.commit()
+
+        print("TABLE `reads` indexed")
+
+        conn.close()
