@@ -1,7 +1,7 @@
 ### draw_barcode.py
 Draw and colorize Hamming (or Levenshtein) graph for FASTQ file data
 Example:
-> src/ashtools/draw_barcode.py --sgraphs age_ig_s3_R12_raw_cropped/ s3_bcodes/CGACTATGAAGGCT.fastq -F 1.pdf -G 1.dot --tau 100000 --span --delta 100
+> src/ashtools/draw_barcode.py --sgraphs age_ig_s3_R12_raw_cropped/ -i s3_bcodes/CGACTATGAAGGCT.fastq -F 1.pdf -G 1.dot --tau 100000 --span --delta 100
 
 ### read_barcode_splitter.py
 Split barcoded datatset usign barcodes
