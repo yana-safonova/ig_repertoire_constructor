@@ -70,7 +70,7 @@ def hamming_graph_knuth(reads, tau=1, **kwargs):
     piece_lens = [piece_len] * tau + [piece_len_last]
 
     g = ig.Graph(len(reads))
-    g.vs["reads"] = reads
+    g.vs["read"] = reads
 
     for attr_name, attr_data in kwargs.iteritems():
         g.vs[attr_name] = attr_data
@@ -114,7 +114,7 @@ def hamming_graph_vp(reads, tau=1, **kwargs):
 
 
     g = ig.Graph(len(reads))
-    g.vs["reads"] = reads
+    g.vs["read"] = reads
 
     for attr_name, attr_data in kwargs.iteritems():
         g.vs[attr_name] = attr_data
@@ -149,7 +149,7 @@ def hamming_graph_bk(reads, tau=1, **kwargs):
 
 
     g = ig.Graph(len(reads))
-    g.vs["reads"] = reads
+    g.vs["read"] = reads
 
     for attr_name, attr_data in kwargs.iteritems():
         g.vs[attr_name] = attr_data
