@@ -213,7 +213,7 @@ def hamming_graph(reads, tau=1, method="knuth", **kwargs):
     for read in reads:
         assert(len(read) == l)
 
-    if tau + 1 > l and method == "knuth":
+    if l / (tau + 1) < 3 and method == "knuth":
         method = "naive"
 
     if method == "naive":
