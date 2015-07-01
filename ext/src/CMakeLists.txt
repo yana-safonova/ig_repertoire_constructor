@@ -1,5 +1,7 @@
 # -*- cmake -*-
 
+add_definitions(-w)
+
 add_subdirectory(jemalloc)
 add_subdirectory(nlopt)
 add_subdirectory(python_libs/joblib2)

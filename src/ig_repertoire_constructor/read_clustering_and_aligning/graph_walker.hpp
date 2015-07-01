@@ -96,7 +96,7 @@ inline void GraphWalker::TryVisitAnotherKmer(std::vector <size_t> & queue, const
     size_t read_number = kmer_info.read_number;
     size_t another_read_number = another_kmer_info.read_number;
     int new_shift_for_read = shift_for_read_[read_number] + kmer_info.offset - another_kmer_info.offset;
-    if (abs(new_shift_for_read) >= threshold_for_single_shift_) {
+    if (abs(size_t(new_shift_for_read)) >= threshold_for_single_shift_) {
     	return;
     }
     if (read_is_used_[another_read_number]) {
