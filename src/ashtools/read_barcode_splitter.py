@@ -21,6 +21,7 @@ def extract_barcode(s):
 
 assert(extract_barcode("@M01691:10:000000000-A7F7L:1:2107:21387:4106_2:N:0:1_UMI:CTGACGTTACTCGG:GGGGGGGGGGGGGG_517009") == "CTGACGTTACTCGG")
 assert(extract_barcode("@M01691:10:000000000-A7F7L:1:2109:5441:12945_1:N:0:1_UMI:AAGTATTTAGTAAC:FFEFFGGGGGGFG9_565461") == "AAGTATTTAGTAAC")
+assert(extract_barcode("M01691:56:000000000-ABFHP:1:1101:11306:1728 1:N:0:1 UMI:CTTTACGTACGT:<FFGGGGFF@@F") == "CTTTACGTACGT")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Split source FASTQ file due to barcode")
