@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from argparse import ArgumentParser
-# from ig_basic import *
+from ig_basic import hamming_graph
 # import glob
 # import os
 from Bio import SeqIO
@@ -40,6 +40,12 @@ if __name__ == "__main__":
     parser.add_argument("--supernodes", "-S",
                         type=str,
                         help="file for estimated original barcode list")
+    parser.add_argument("--hgraph-original",
+                        type=str,
+                        help="file for original barcodes H-graph (in .dot format)")
+    parser.add_argument("--hgraph-data",
+                        type=str,
+                        help="file for data barcodes H-graph (in .dot format)")
 
     args = parser.parse_args()
 
@@ -140,3 +146,13 @@ if __name__ == "__main__":
     if args.bad_output is not None:
         with open(args.bad_output, "w") as fh:
             SeqIO.write(bad_output, fh, "fastq")
+
+    if args.hgraph_data is not None:
+        g_data = hamming_graph(list(data_barcodes), tau=args.tau)
+        g_data.write_dot(args.hgraph_data)
+
+    if args.hgraph_original is not None:
+        g_original = hamming_graph(list(original_barcodes), tau=args.tau)
+        from scipy.stats import itemfreq
+        print itemfreq(g_original.es["weight"])
+        g_original.write_dot(args.hgraph_original)
