@@ -52,6 +52,9 @@ if __name__ == "__main__":
     parser.add_argument("--sqlite", "-Q",
                         type=str,
                         help="output database file (in SQLite format)")
+    parser.add_argument("--unclussified-output", "-B",
+                        type=str,
+                        help="output file for unclussified items")
 
     args = parser.parse_args()
 
@@ -86,6 +89,8 @@ if __name__ == "__main__":
         print("Maybe you forget --output-dense-sgraphs option?")
         sys.exit(1)
 
+    used_ids = set()
+
     for decomposition in glob.glob("%s/dense_subgraphs/*.txt" % args.igrc_output_dir):
         basename = os.path.basename(decomposition)
 
@@ -101,6 +106,9 @@ if __name__ == "__main__":
                 cluster, seq_id, align = line.split()
                 cluster, align = int(cluster), int(align)
                 k = re.sub(r"_SUBSTR\(\d*,\d*\)", "", seq_id)
+
+                used_ids.add(k)
+
                 if (k != seq_id):
                     if args.verbose:
                         print("Substitute %s -> ..." % seq_id)
@@ -145,6 +153,24 @@ if __name__ == "__main__":
                 print("Processed file %s, %d lines, min = %d" % (decomposition,
                                                                  len(res),
                                                                  min_len))
+    unclussified_reads = [record for id, record in reads_hash_table.iteritems() if id not in used_ids]
+
+    if args.unclussified_output is not None:
+        with open(args.unclussified_output, "w") as out_fh:
+            SeqIO.write(unclussified_reads, out_fh, "fastq")
+
+    if args.sqlite is not None:
+        for record in unclussified_reads:
+            conn.execute("insert into reads (seqid, read, quality, component, cluster, barcode) \
+                            values (?, ?, ?, ?, ?, ?)", \
+                            (str(record.id),
+                            str(record.seq),
+                            None,  # TODO extract quality
+                            None,
+                            None,
+                            extract_barcode(record.id)))
+        conn.commit()
+
     if args.sqlite is not None:
         conn.commit()
 
@@ -156,4 +182,5 @@ if __name__ == "__main__":
 
         print("TABLE `reads` indexed")
 
+    if args.sqlite is not None:
         conn.close()
