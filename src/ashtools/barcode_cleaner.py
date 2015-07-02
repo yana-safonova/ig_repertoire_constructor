@@ -14,6 +14,14 @@ from collections import defaultdict
 # sys.setrecursionlimit(10**8)
 
 
+def open_qgz(fname, *args, **kwargs):
+    import gzip
+    import re
+    if re.match(r"^.*\.gz$", fname):
+        return gzip.open(fname, *args, **kwargs)
+    else:
+        return open(fname, *args, **kwargs)
+
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fix barcode errors in dataset")
@@ -52,7 +60,7 @@ if __name__ == "__main__":
     barcodes_count = defaultdict(int)
 
     print("Reading FASTQ...")
-    with open(args.input, "rU") as fh:
+    with open_qgz(args.input, "r") as fh:
         for record in SeqIO.parse(fh, "fastq"):
             barcode = extract_barcode(record.id)
             barcodes_count[barcode] += 1
@@ -63,10 +71,10 @@ if __name__ == "__main__":
     if args.minimal_size is not None:
         original_barcodes = [barcode for barcode, n in barcodes_count.iteritems() if n >= args.minimal_size]
         if args.supernodes is not None:
-            with open(args.supernodes, "w") as fh:
+            with open_qgz(args.supernodes, "w") as fh:
                 fh.writelines([barcode + "\n" for barcode in original_barcodes])
     elif args.barcode_list is not None:
-        with open(args.barcode_list, "r") as fh:
+        with open_qgz(args.barcode_list, "r") as fh:
             original_barcodes = [barcode.strip() for barcode in fh]
 
     original_barcodes = set(original_barcodes)
@@ -131,7 +139,7 @@ if __name__ == "__main__":
                          "UMI:" + new_barcode + ":",
                          1)
 
-    with open(args.input, "rU") as fh:
+    with open_qgz(args.input, "r") as fh:
         for record in SeqIO.parse(fh, "fastq"):
             barcode = extract_barcode(record.id)
             if barcode in barcode_barcode:
@@ -140,11 +148,11 @@ if __name__ == "__main__":
             else:
                 bad_output.append(record)
 
-    with open(args.output, "w") as fh:
+    with open_qgz(args.output, "w") as fh:
         SeqIO.write(output, fh, "fastq")
 
     if args.bad_output is not None:
-        with open(args.bad_output, "w") as fh:
+        with open_qgz(args.bad_output, "w") as fh:
             SeqIO.write(bad_output, fh, "fastq")
 
     if args.hgraph_data is not None:
