@@ -127,8 +127,8 @@ if __name__ == "__main__":
 
     # TODO Do it more accurately
     def change_barcode(s, old_barcode, new_barcode):
-        return s.replace(":" + old_barcode + ":",
-                         ":" + new_barcode + ":",
+        return s.replace("UMI:" + old_barcode + ":",
+                         "UMI:" + new_barcode + ":",
                          1)
 
     with open(args.input, "rU") as fh:

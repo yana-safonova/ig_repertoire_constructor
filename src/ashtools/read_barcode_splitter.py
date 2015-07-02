@@ -15,7 +15,7 @@ def extract_barcode(s):
     """
     import re
 
-    m = re.match(r".*:([ACTG]{14}):.{14}_\d+(_SUBSTR\(\d*,\d*\))?", s)
+    m = re.match(r".*UMI:([ACTG]{12,14}):.*", s)
     return m.groups()[0] if m else None
 
 
