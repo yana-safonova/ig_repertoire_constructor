@@ -156,11 +156,16 @@ if __name__ == "__main__":
             SeqIO.write(bad_output, fh, "fastq")
 
     if args.hgraph_data is not None:
+        print "Construction H-graph for data barcodes..."
         g_data = hamming_graph(list(data_barcodes), tau=args.tau)
         g_data.write_dot(args.hgraph_data)
+        print "Constructed"
 
     if args.hgraph_original is not None:
+        print "Construction H-graph for original barcodes..."
         g_original = hamming_graph(list(original_barcodes), tau=args.tau)
         from scipy.stats import itemfreq
-        print itemfreq(g_original.es["weight"])
+        if len(g_original.es) > 0:
+            print itemfreq(g_original.es["weight"])
         g_original.write_dot(args.hgraph_original)
+        print "Constructed"
