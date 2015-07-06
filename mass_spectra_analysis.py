@@ -2,7 +2,7 @@
 
 import argparse
 from collections import defaultdict
-import file_utils
+import mass_spectra_analysis.file_utils as file_utils
 import os
 import os.path
 import sys
@@ -35,7 +35,7 @@ def DrawCoverageDistribution(data, filename, plotname):
     plt.close()
 
 def DrawHistogram(data, xlabel, ylabel, plotname, filename):
-    if not data: 
+    if not data:
         return
     fig, ax = plt.subplots()
     ind = np.arange(len(data))
@@ -82,23 +82,23 @@ class Metrics:
         if len(self.mass_spec_alns) == 1:
             return
         self.general_metrics['Total']['Aligned scans'] = \
-            sum(self.general_metrics[spectra_name]['Aligned scans'] 
+            sum(self.general_metrics[spectra_name]['Aligned scans']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['PSMs'] = \
-            sum(self.general_metrics[spectra_name]['PSMs'] 
+            sum(self.general_metrics[spectra_name]['PSMs']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Peptides'] = \
-            sum(self.general_metrics[spectra_name]['Peptides'] 
+            sum(self.general_metrics[spectra_name]['Peptides']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Covered sequences'] = \
             len(self.sequences_coverage)
         self.general_metrics['Total']['Average PSM number per scan'] = \
-            sum(sum(len(v) for v in aln.spectrum_identifications.values()) 
+            sum(sum(len(v) for v in aln.spectrum_identifications.values())
                 for aln in self.mass_spec_alns) / \
-            float(sum(len(aln.spectrum_identifications) 
+            float(sum(len(aln.spectrum_identifications)
                 for aln in self.mass_spec_alns))
         self.general_metrics['Total']['Maximum PSM number per scan'] = \
-            max(self.general_metrics[spectra_name]['Maximum PSM number per scan'] 
+            max(self.general_metrics[spectra_name]['Maximum PSM number per scan']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Average peptide length'] = \
             sum(sum(v) for v in self.peptide_lengths.values()) / \
@@ -161,7 +161,7 @@ class Metrics:
             self.general_metrics[spectra_name]['Average PSM number per covered sequence'] = \
                 float(sum(psm_per_seq[spectra_name])) / \
                 len(psm_per_seq[spectra_name])
-            self.general_metrics[spectra_name]['Maximum PSM number per covered sequence'] = max(psm_per_seq[spectra_name]) 
+            self.general_metrics[spectra_name]['Maximum PSM number per covered sequence'] = max(psm_per_seq[spectra_name])
         self.general_metrics['Total']['Average PSM number per covered sequence'] =\
             float(sum([sum(v) for v in psm_per_seq.values()])) / \
             sum([len(v) for v in psm_per_seq.values()])
@@ -244,7 +244,7 @@ class Metrics:
                 continue
             data = self.covered_cdrs[spectra_name]
             handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0' 
+                '\t'.join(str(data[reg_name]) if reg_name in data else '0'
                     for reg_name in self.region_names) + '\n')
         handler.close()
 
@@ -255,7 +255,7 @@ class Metrics:
             if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
                 continue
             handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0' 
+                '\t'.join(str(data[reg_name]) if reg_name in data else '0'
                     for reg_name in self.region_names) + '\n')
         handler.close()
 
@@ -299,9 +299,18 @@ def PrepareArguments():
     args = parser.parse_args()
     if args.test:
         args.output_dir = os.path.join(home_directory, 'test_output')
-        args.regions = os.path.join(home_directory, 'test_dataset', 'example_regions.txt')
-        args.inputs = [os.path.join(home_directory, 'test_dataset', 'example_HC_chymo_CID.mzid.spectra'), 
-                       os.path.join(home_directory, 'test_dataset', 'example_HC_trypsin_CID.mzid.spectra')]
+        args.regions = os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_regions.txt')
+        args.inputs = [os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_HC_chymo_CID.mzid.spectra'),
+                       os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_HC_trypsin_CID.mzid.spectra')]
     if not args.inputs:
         print 'You must specify at least one input file'
         parser.print_help()
