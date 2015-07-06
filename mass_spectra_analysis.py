@@ -225,7 +225,7 @@ class Metrics:
 
     def OutputMetrics(self, dirname):
         spectra_names = list(self.GetAllSpectraNames())
-        print spectra_names
+        print "Spectras processed: %s" % ", ".join(spectra_names)
 
         metrics_file = os.path.join(dirname, 'metrics.txt')
         with open(metrics_file, "w") as handler:
@@ -265,34 +265,26 @@ class Metrics:
         print "PSM on IG regions written to %s" % psm_on_ig_regions_file
 
         for spectra_name in spectra_names + ['Total']:
-            distr = self.PSM_coverage_distr[spectra_name]
             if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
                 continue
+            distr = self.PSM_coverage_distr[spectra_name]
             filename = os.path.join(dirname, 'PSM_cov_' + os.path.basename(spectra_name) + '.png')
             DrawCoverageDistribution(distr, filename, 'PSM coverage')
 
-        for spectra_name in spectra_names + ['Total']:
             distr = self.peptide_coverage_distr[spectra_name]
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
             filename = os.path.join(dirname, 'peptide_cov_' + os.path.basename(spectra_name) + '.png')
             DrawCoverageDistribution(distr, filename, 'Peptide coverage')
+
+            distr = self.peptide_lengths[spectra_name]
+            filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
+            DrawHistogram(distr, 'Peptide length', 'Count', 'Peptide length distribution', filename)
 
         for mass_spec_aln in self.mass_spec_alns:
             filename = os.path.join(dirname, 'PSM_per_scan_' + os.path.basename(mass_spec_aln.filename) + '.png')
             data = [len(v) for v in mass_spec_aln.spectrum_identifications.values()]
             threshold = np.percentile(data, [98])[0]
-            DrawHistogram([v for v in data if v < threshold], \
-                'PSMs per scan', 'Count', 'PSM number per scan', filename)
-
-        for spectra_name in spectra_names + ['Total']:
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
-            length_list = self.peptide_lengths[spectra_name]
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
-            filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
-            DrawHistogram(length_list, 'Peptide length', 'Count', 'Peptide length distribution', filename)
+            DrawHistogram([v for v in data if v < threshold],
+                          'PSMs per scan', 'Count', 'PSM number per scan', filename)
 
 
 def PrepareArguments():
