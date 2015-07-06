@@ -183,4 +183,5 @@ if __name__ == "__main__":
         print("TABLE `reads` indexed")
 
     if args.sqlite is not None:
+        conn.commit()
         conn.close()
