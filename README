@@ -7,21 +7,20 @@ Developed in Center for Algorithmic Biotechnology, Saint-Petersburg State Univer
 Current IgRepertoireConstructor contributors:
 
     Yana Safonova,
-	Ekaterina Starostina,
+    Ekaterina Starostina,
+    Alexander Shlemov,
     Alla Lapidus, and
-    Pavel Pevzner
+    Pavel A. Pevzner
 
 Also contributed:
 
-	Eugene Kurpilyansky
+    Eugene Kurpilyansky
 
 Installation instructions and manual can be found on the website:
-TBA
+http://yana-safonova.github.io/ig_repertoire_constructor/
 
 References:
 
-Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, 
-Ekaterina Starostina, Alla Lapidus, Jeremy Stinson, 
-Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner
-IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
-Accepted to ISMB 2015.
+Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus, Jeremy Stinson, 
+Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
+IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis. Bioinformatics. 2015 Jun 15;31(12):i53-i61.
