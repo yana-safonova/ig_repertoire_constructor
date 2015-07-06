@@ -7,7 +7,6 @@ import os
 import os.path
 import sys
 import itertools
-import xml.etree.ElementTree as ET
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
