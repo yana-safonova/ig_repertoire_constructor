@@ -14,13 +14,37 @@ from collections import defaultdict
 # sys.setrecursionlimit(10**8)
 
 
-def open_qgz(fname, *args, **kwargs):
+import contextlib
+@contextlib.contextmanager
+def smart_open(filename, mode="r"):
+    """
+    From http://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
+    """
     import gzip
     import re
-    if re.match(r"^.*\.gz$", fname):
-        return gzip.open(fname, *args, **kwargs)
+    from sys import stdout, stdin
+
+    if "w" in mode:
+        MODE = "w"
+    elif "a" in mode:
+        MODE= "a"
     else:
-        return open(fname, *args, **kwargs)
+        MODE = "r"
+
+    if filename != '-':
+        if re.match(r"^.*\.gz$", filename):
+            assert(MODE != "a")
+            fh = gzip.open(filename, mode=MODE)
+        else:
+            fh = open(filename, mode=mode)
+    else:
+        assert(MODE != "a")
+        fh = stdout if MODE == "w" else stdin
+    try:
+        yield fh
+    finally:
+        if fh is not stdout and fh is not stdin:
+            fh.close()
 
 
 if __name__ == "__main__":
@@ -54,13 +78,16 @@ if __name__ == "__main__":
     parser.add_argument("--hgraph-data",
                         type=str,
                         help="file for data barcodes H-graph (in .dot format)")
+    parser.add_argument("--subs-map", "-M",
+                        type=str,
+                        help="file for subs table")
 
     args = parser.parse_args()
 
     barcodes_count = defaultdict(int)
 
     print("Reading FASTQ...")
-    with open_qgz(args.input, "r") as fh:
+    with smart_open(args.input, "r") as fh:
         for record in SeqIO.parse(fh, "fastq"):
             barcode = extract_barcode(record.id)
             barcodes_count[barcode] += 1
@@ -71,10 +98,10 @@ if __name__ == "__main__":
     if args.minimal_size is not None:
         original_barcodes = [barcode for barcode, n in barcodes_count.iteritems() if n >= args.minimal_size]
         if args.supernodes is not None:
-            with open_qgz(args.supernodes, "w") as fh:
+            with smart_open(args.supernodes, "w") as fh:
                 fh.writelines([barcode + "\n" for barcode in original_barcodes])
     elif args.barcode_list is not None:
-        with open_qgz(args.barcode_list, "r") as fh:
+        with smart_open(args.barcode_list, "r") as fh:
             original_barcodes = [barcode.strip() for barcode in fh]
 
     original_barcodes = set(original_barcodes)
@@ -139,7 +166,7 @@ if __name__ == "__main__":
                          "UMI:" + new_barcode + ":",
                          1)
 
-    with open_qgz(args.input, "r") as fh:
+    with smart_open(args.input, "r") as fh:
         for record in SeqIO.parse(fh, "fastq"):
             barcode = extract_barcode(record.id)
             if barcode in barcode_barcode:
@@ -148,11 +175,11 @@ if __name__ == "__main__":
             else:
                 bad_output.append(record)
 
-    with open_qgz(args.output, "w") as fh:
+    with smart_open(args.output, "w") as fh:
         SeqIO.write(output, fh, "fastq")
 
     if args.bad_output is not None:
-        with open_qgz(args.bad_output, "w") as fh:
+        with smart_open(args.bad_output, "w") as fh:
             SeqIO.write(bad_output, fh, "fastq")
 
     if args.hgraph_data is not None:
@@ -169,3 +196,8 @@ if __name__ == "__main__":
             print itemfreq(g_original.es["weight"])
         g_original.write_dot(args.hgraph_original)
         print "Constructed"
+
+    if args.subs_map is not None:
+        with smart_open(args.subs_map, "w") as fh:
+            for _f, _t in barcode_barcode.iteritems():
+                fh.write("%s %s\n" % (_f, _t))

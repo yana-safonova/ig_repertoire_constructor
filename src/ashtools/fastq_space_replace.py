@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from argparse import ArgumentParser
-from barcode_cleaner import open_qgz
+from barcode_cleaner import smart_open
 
 if __name__ =="__main__":
     parser = ArgumentParser("Replace spaces by underlines")
@@ -15,8 +15,8 @@ if __name__ =="__main__":
 
     args = parser.parse_args()
 
-    with open_qgz(args.input, "r") as fi:
-        with open_qgz(args.output, "w") as fo:
+    with smart_open(args.input, "r") as fi:
+        with smart_open(args.output, "w") as fo:
             for l in fi:
                 l = l.replace(" ", "_")
                 fo.write(l)
