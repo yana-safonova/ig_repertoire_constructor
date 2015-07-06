@@ -11,6 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+
 def DrawCoverageDistribution(data, filename, plotname):
     last_i = len(data)
     for i in range(len(data) - 1, 0, -1):
@@ -33,6 +34,7 @@ def DrawCoverageDistribution(data, filename, plotname):
     plt.savefig(filename)
     plt.close()
 
+
 def DrawHistogram(data, xlabel, ylabel, plotname, filename):
     if not data:
         return
@@ -44,6 +46,7 @@ def DrawHistogram(data, xlabel, ylabel, plotname, filename):
     plt.title(plotname)
     plt.savefig(filename)
     plt.close()
+
 
 class Metrics:
     metric_names = ['Aligned scans', 'PSMs', 'Peptides', 'Covered sequences', \
@@ -224,39 +227,42 @@ class Metrics:
         spectra_names = list(self.GetAllSpectraNames())
         print spectra_names
 
-        handler = open(os.path.join(dirname, 'metrics.txt'), 'w')
-        curr_names = [a for a in spectra_names]
-        if len(spectra_names) != 1:
-            curr_names.append('Total')
-        handler.write('\t' + '\t'.join(curr_names) + '\n')
-        for metric_name in self.metric_names:
-            handler.write(metric_name + '\t' + \
-                '\t'.join(str(self.general_metrics[spectra_name][metric_name])
-                        if metric_name in self.general_metrics[spectra_name] else '*'
-                    for spectra_name in curr_names) + '\n')
-        handler.close()
+        metrics_file = os.path.join(dirname, 'metrics.txt')
+        with open(metrics_file, "w") as handler:
+            curr_names = [a for a in spectra_names]
+            if len(spectra_names) != 1:
+                curr_names.append('Total')
+            handler.write('\t' + '\t'.join(curr_names) + '\n')
+            for metric_name in self.metric_names:
+                handler.write(metric_name + '\t' + \
+                    '\t'.join(str(self.general_metrics[spectra_name][metric_name])
+                            if metric_name in self.general_metrics[spectra_name] else '*'
+                        for spectra_name in curr_names) + '\n')
+        print "Metrics written to %s" % metrics_file
 
-        handler = open(os.path.join(dirname, 'covered_cdrs.txt'), 'w')
-        handler.write('\t' + '\t'.join(self.region_names) + '\n')
-        for spectra_name in spectra_names + ['Any']:
-            if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
-                continue
-            data = self.covered_cdrs[spectra_name]
-            handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0'
-                    for reg_name in self.region_names) + '\n')
-        handler.close()
+        covered_cdrs_file = os.path.join(dirname, 'covered_cdrs.txt')
+        with open(covered_cdrs_file, "w") as handler:
+            handler.write('\t' + '\t'.join(self.region_names) + '\n')
+            for spectra_name in spectra_names + ['Any']:
+                if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
+                    continue
+                data = self.covered_cdrs[spectra_name]
+                handler.write(spectra_name + '\t' + \
+                    '\t'.join(str(data[reg_name]) if reg_name in data else '0'
+                        for reg_name in self.region_names) + '\n')
+        print "Covered CRDs written to %s" % covered_cdrs_file
 
-        handler = open(os.path.join(dirname, 'psm_on_ig_regions.txt'), 'w')
-        handler.write('\t' + '\t'.join(self.region_names) + '\n')
-        for spectra_name in spectra_names + ['Any']:
-            data = self.PSM_reg_coverage[spectra_name]
-            if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
-                continue
-            handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0'
-                    for reg_name in self.region_names) + '\n')
-        handler.close()
+        psm_on_ig_regions_file = os.path.join(dirname, 'psm_on_ig_regions.txt')
+        with open(psm_on_ig_regions_file, "w") as handler:
+            handler.write('\t' + '\t'.join(self.region_names) + '\n')
+            for spectra_name in spectra_names + ['Any']:
+                data = self.PSM_reg_coverage[spectra_name]
+                if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
+                    continue
+                handler.write(spectra_name + '\t' + \
+                    '\t'.join(str(data[reg_name]) if reg_name in data else '0'
+                        for reg_name in self.region_names) + '\n')
+        print "PSM on IG regions written to %s" % psm_on_ig_regions_file
 
         for spectra_name in spectra_names + ['Total']:
             distr = self.PSM_coverage_distr[spectra_name]
@@ -287,6 +293,7 @@ class Metrics:
                 continue
             filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
             DrawHistogram(length_list, 'Peptide length', 'Count', 'Peptide length distribution', filename)
+
 
 def PrepareArguments():
     home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -329,27 +336,28 @@ def PrepareArguments():
         os.makedirs(args.output_dir)
     return args
 
+
 if __name__ == '__main__':
     args = PrepareArguments()
     mass_spec_alns = []
 
     for filename in args.inputs:
-        print 'Parsing ' + filename
+        print "Reading %s..." % filename
         aln = file_utils.MassSpectraAlignment()
         if filename.endswith('.spectra'):
             aln.ParseSpectra(filename)
         else:
             aln.ParseMzindentFile(filename)
         mass_spec_alns.append(aln)
-        print 'Parsing ' + filename + ' done'
+        print "Reading done"
 
     metrics = Metrics(mass_spec_alns)
     if args.regions:
-        print 'Parsing regions file'
+        print "Reading regions file..."
         regions = file_utils.Regions()
         regions.ParseIgBlastAlignment(args.regions)
         metrics.regions = regions
-        print 'Parsing regions file done'
+        print "Reading done"
 
     metrics.CalculateMetrics()
     metrics.CalculateRegionMetrics()
