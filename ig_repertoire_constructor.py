@@ -10,7 +10,6 @@ import sys
 import os
 import logging
 import shutil
-import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -143,7 +142,7 @@ def CleanOutputDir(params, log):
 
 def main():
     # Parse commandline args
-    from argparse_ext import ArgumentHiddenParser
+    from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="TODO Add some description",
                                   epilog="""
     In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.
