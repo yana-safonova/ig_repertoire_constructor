@@ -265,16 +265,18 @@ def DrawSomaticMutations(X, Y, cdrs, settings):
         max_y = max(max_y, MaxValue(y))
     max_y += 1
 
-    from pylab import *
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
+
     cdr_color = "#EFBEBE"
     # cdr1
-    gca().add_patch(Rectangle((cdrs[0], 0), cdrs[1] - cdrs[0], max_y, facecolor= cdr_color, lw = 0))
+    gca().add_patch(patches.Rectangle((cdrs[0], 0), cdrs[1] - cdrs[0], max_y, facecolor= cdr_color, lw = 0))
 
     # cdr2
-    gca().add_patch(Rectangle((cdrs[2], 0), cdrs[3] - cdrs[2], max_y, facecolor= cdr_color, lw = 0))
+    gca().add_patch(patches.Rectangle((cdrs[2], 0), cdrs[3] - cdrs[2], max_y, facecolor= cdr_color, lw = 0))
 
     # cdr3
-    gca().add_patch(Rectangle((cdrs[4], 0), cdrs[5] - cdrs[4], max_y, facecolor= cdr_color, lw = 0))
+    gca().add_patch(patches.Rectangle((cdrs[4], 0), cdrs[5] - cdrs[4], max_y, facecolor= cdr_color, lw = 0))
     
     DrawMultiplePlot(X, Y, settings)
 
@@ -287,9 +289,12 @@ def DrawMutationHistogram(pos, settings):
     cdr3_end = 0.86
 
     n, bins, patches = DrawHistogram(pos, settings)
-    from pylab import *
+
+    import matplotlib.pyplot as plt
+    import matplotlib.patches as patches
+    
     cdr_color = "#EFBEBE"
-    plt.gca().add_patch(Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
-    plt.gca().add_patch(Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
-    plt.gca().add_patch(Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
+    plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
+    plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
+    plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, MaxValue(n) + 2, facecolor= cdr_color, lw = 0))
     DrawHistogram(pos, settings)

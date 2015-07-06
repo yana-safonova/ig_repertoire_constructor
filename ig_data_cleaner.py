@@ -10,7 +10,7 @@ import logging
 import shutil
 import numpy
 
-import ig_tools_init
+import init
 import drawing_utils
 import igblast_utils
 import files_utils
