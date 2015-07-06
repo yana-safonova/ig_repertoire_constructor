@@ -354,3 +354,4 @@ if __name__ == '__main__':
     metrics.CalculateMetrics()
     metrics.CalculateRegionMetrics()
     metrics.OutputMetrics(args.output_dir)
+    print "Figures and statistics saved in %s" % args.output_dir
