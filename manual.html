@@ -17,15 +17,18 @@
 <h1>IgRepertoireConstructor 1.0 manual</h1>
 
 1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1. <a href="#ig_repertoire_constructor">IgRepertoireConstructor</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.2. <a href="#ig_data_cleaner">IgDataCleaner</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.3. <a href="#immunoproteogenomics">Immunoproteogenomics analysis</a><br>
 
 2. <a href="#install">Installation</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
 
-3. <a href="#repertoire_constructor">IgRepertoireConstructor</a><br>
+3. <a href="#ig_repertoire_constructor_usage">IgRepertoireConstructor usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#repertoire_constructor_basic">Basic options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_advanced">Advanced options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#repertoire_constructor_examples">Examples</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.5. <a href="#repertoire_constructor_output">Output files</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#repertoire_constructor_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#repertoire_constructor_output">Output files</a><br>
 
 4.  <a href="#repertoire_files">Antibody repertoire representation</a><a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;4.1. </a><a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
@@ -37,9 +40,21 @@
 
 <a id="intro"></a>
 <h2>1. What is IgRepertoireConstructor?</h2>
-<code>IgRepertoireConstructor</code> is a tool for construction of antibody repertoire from Illumina Ig-Seq library.
-<code>IgRepertoireConstructor</code> takes as an input immunosequencing reads that cover variable regions of antibodies.
+IgRepertoireConstructor is a tool for construction of antibody repertoire from Illumina Ig-Seq library.
+IgRepertoireConstructor takes as an input immunosequencing reads that cover variable regions of antibodies.
 <br>
+
+<a id = "#ig_repertoire_constructor">
+<h3>1.1. IgRepertoireConstructor</h3>
+TBA
+
+<a id = "#ig_data_cleaner">
+<h3>1.2. IgDataCleaner</h3>
+TBA
+
+<a id = "#immunoproteogenomics">
+<h3>1.3. Immunoproteogenomics analysis</h3>
+TBA
 
 <!--- ---------------------------------------------------------------- --->
 
@@ -51,13 +66,20 @@ IgRepertoireConstructor requires the following pre-installed dependencies:
 	<li>64-bit Linux system</li>
     <li>g++ (version 4.7 or higher)</li>
     <li>cmake (version 2.8.8 or higher)</li>
-	<li>Python (version 2.7 or higher)</li>
+	<li>Python (version 2.7 or higher), including:</li>
+    <ul>
+        <li><a href = "http://biopython.org/wiki/Download">BioPython</a></li>
+        <li><a href = "http://matplotlib.org/users/installing.html">Matplotlib</a></li>
+        <li><a href = "http://www.numpy.org/">NumPy</a></li>
+        <li><a href = "http://www.scipy.org/install.html">SciPy<a><li>
+    </ul>
 	<li>zlib</li>
     <li>libbz2</li>
 </ul>
 
-To install <code>IgRepertoireConstructor</code>, type:
-<pre class="code">    <code>
+To install IgRepertoireConstructor, type:
+<pre class="code">
+    <code>
     make
     </code>
 </pre> 
@@ -66,7 +88,7 @@ To install <code>IgRepertoireConstructor</code>, type:
 <h3>2.1. Verifying your installation</h3>
 For testing purposes, IgRepertoireConstructor comes with a toy data set. <br><br>
 
-&#9658; To try <code>IgRepertoireConstructor</code> on test data set, run:
+&#9658; To try IgRepertoireConstructor on test data set, run:
 <pre class="code"><code>
     ./ig_repertoire_constructor.py --test
 </code>
@@ -87,10 +109,10 @@ If the installation is successful, you will find the following information at th
     </code>
 </pre>
 
-<a id="repertoire_constructor"></a>
-<h2>3. IgRepertoireConstructor</h2>
+<a id="ig_repertoire_constructor_usage"></a>
+<h2>3. IgRepertoireConstructor usage</h2>
 
-To run <code>IgRepertoireConstructor</code>, type:
+To run IgRepertoireConstructor, type:
 <pre class="code"><code>
     ./ig_repertoire_constructor.py [options] -s &lt;filename&gt; -o &lt;output_dir&gt;
 </code>
@@ -119,7 +141,7 @@ printing help.<br><br>
 <!--- --------------------- --->
 
 <a id="repertoire_constructor_advanced"></a>
-<h3>3.3. Advanced options:</h3>
+<h3>3.2. Advanced options:</h3>
 
 <code>--tau &lt;int&gt;</code><br>
 maximum allowed number of mismatches between two reads corresponding to the same antibody. The default value is 3.<br><br>
@@ -130,7 +152,7 @@ memory limit in Gb. IgRepertoireConstructor terminates if it reaches this limit.
 <!--- --------------------- --->
 
 <a id="repertoire_constructor_examples"></a>
-<h3>3.4. Examples</h3>
+<h3>3.3. Examples</h3>
 To construct antibody repertoire from illumina reads, covering variable regions of immunoglobulins
 <pre class="code">    <code>
     ./ig_repertoire_constructor.py -s reads.fastq -o output_dir
@@ -139,13 +161,13 @@ To construct antibody repertoire from illumina reads, covering variable regions 
 <!--- --------------------- --->
 
 <a id="repertoire_constructor_output"></a>
-<h3>3.5. Output files</h3>
-<code>IgRepertoireConstructor</code> creates working directory (which name was specified using option <code>-o</code>) and outputs there the following files:
+<h3>3.4. Output files</h3>
+IgRepertoireConstructor creates working directory (which name was specified using option <code>-o</code>) and outputs there the following files:
 <ul>
     <li><b>constructed_repertoire.clusters.fa</b> - CLUSTERS.FASTA file with constructed repertoire (see details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
     <li><b>constructed_repertoire.rcm</b> - RCM file with constructed repertoire (see details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
     <li><b>dataset.yaml</b> - internal YAML data set file.</li>
-    <li><b>ig_repertoire_constructor.log</b> - full log of <code>IgRepertoireConstructor</code> run.</li>
+    <li><b>ig_repertoire_constructor.log</b> - full log of IgRepertoireConstructor run.</li>
 </ul> 
 <br>
 <!--- ---------------------------------------------------------------- --->
