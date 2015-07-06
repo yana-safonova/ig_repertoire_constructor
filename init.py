@@ -23,8 +23,6 @@ path_to_config_template = os.path.join(config_directory, "config.info.template")
 
 make_ig_bins = "make igtools"
 
-prepare_cfg = "./prepare_cfg"
-
 sys.path.append(spades_py_scripts_directory)
 sys.path.append(python_src_directory)
 
