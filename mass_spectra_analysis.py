@@ -292,10 +292,17 @@ class Metrics:
 def PrepareArguments():
     home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser(description = 'mass spectra analysis')
-    parser.add_argument('--regions', dest = 'regions', help = 'regions file')
-    parser.add_argument('--outdir', dest = 'output_dir', help = 'output directory')
-    parser.add_argument(dest = 'inputs', help = 'mass spectrum alignment files in mzIdentML 1.1 format', nargs = '*')
-    parser.add_argument('--test', dest = 'test', help = 'run on the test dataset', action='store_true')
+    parser.add_argument('--regions',
+                        help='regions file')
+    parser.add_argument('--outdir',
+                        dest='output_dir',
+                        help='output directory')
+    parser.add_argument('inputs',
+                        help='mass spectrum alignment files in mzIdentML 1.1 format',
+                        nargs='*')
+    parser.add_argument('--test',
+                        help='run on the test dataset',
+                        action='store_true')
     args = parser.parse_args()
     if args.test:
         args.output_dir = os.path.join(home_directory, 'test_output')
