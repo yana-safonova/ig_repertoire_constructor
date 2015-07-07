@@ -308,14 +308,29 @@ def WriteCleanedFilteredReads(params, log):
         seq = merged_fastq_lines[i * 4 + 1].strip()
         qual = merged_fastq_lines[i * 4 + 3].strip()
 
-        reverse = not igblast_output.GetBlockByName(name).vdj_rearrangement.direct_strand
+        igblast_block = igblast_output[name]
+        reverse = not igblast_block.vdj_rearrangement.direct_strand
 #        print "Read: " + name + ", Reverse: " + str(reverse)
 
         if name in params.bad_reads:
             files_utils.WriteReadInFastqFile(name, seq, qual, reverse, params.filtered_reads)
             num_filtered += 1
         else:
-            files_utils.WriteReadInFastqFile(name, seq, qual, reverse, params.cleaned_reads)
+            if igblast_block.alignment_summary.fr1.valid:
+                fr1_index = igblast_block.alignment_summary.fr1.from_ind
+                if reverse and fr1_index != 0:
+                    cropped_read_seq = seq[:-fr1_index]
+                    cropped_qual = qual[:-fr1_index]
+                else:
+                    cropped_read_seq = seq[fr1_index:]
+                    cropped_qual = qual[fr1_index:]
+                files_utils.WriteReadInFastqFile(name, cropped_read_seq, cropped_qual, reverse, params.cleaned_reads)
+            else:
+                v_hit = next(igblast_block.hit_table)
+                if v_hit.q_start == 0 or v_hit.q_end == len(seq):
+                    files_utils.WriteReadInFastqFile(name, seq, qual, reverse, params.cleaned_reads)
+                else:
+                    files_utils.WriteReadInFastqFile(name, seq, qual, reverse, params.filtered_reads)
             num_cleaned += 1
 
     if os.path.exists(params.cleaned_reads):
