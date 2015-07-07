@@ -1,17 +1,8 @@
 
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>IgRepertoireConstructor 1.0 Manual</title>
-    <style type="text/css">
-        .code {
-            background-color: lightgray;
-        }
-    </style>
-    <link rel="shortcut icon" href="http://bioinf.spbau.ru/sites/default/files/ig_tools.ico">
-<style>
-
-  </style></head>
-
-  
+<html>
+    <head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <title>IgRepertoireConstructor 1.0 Manual</title>
+    </head>
 
 <body>
 <h1>IgRepertoireConstructor 1.0 manual</h1>
@@ -30,32 +21,43 @@
 &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_examples">Examples</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#repertoire_constructor_output">Output files</a><br>
 
-4.  <a href="#repertoire_files">Antibody repertoire representation</a><a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;4.1. </a><a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href="#read_cluster_map">RCM file format</a><br>
+4. <a href = "#ig_data_cleaner_usage">IgDataCleaner usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href = "#cleaner_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href = "#cleaner_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.3. <a href = "#cleaner_examples">Examples</a><br> 
+&nbsp;&nbsp;&nbsp;&nbsp;4.4. <a href = "#cleaner_output">Output files</a><br>
 
-5. <a href="#feedback">Feedback and bug reports</a><br>
+5. <a href = "#immunoproteogenomics_usage">Immunoproteogenomics usage</a><br>
+
+6. <a href = "#examples">Examples</a><br>
+
+7.  <a href="#repertoire_files">Antibody repertoire representation</a><a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;7.1. <a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;7.2. <a href="#read_cluster_map">RCM file format</a><br>
+
+8. <a href="#feedback">Feedback and bug reports</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;8.1. <a href="#citation">Citation</a><br>
 
 <!--- ----------------- --->
 
 <a id="intro"></a>
 <h2>1. What is IgRepertoireConstructor?</h2>
+TODO: draw a figure showing pipeline
+
+<a id = "ig_repertoire_constructor">
+<h3>1.1. IgRepertoireConstructor</h3>
 IgRepertoireConstructor is a tool for construction of antibody repertoire from Illumina Ig-Seq library.
 IgRepertoireConstructor takes as an input immunosequencing reads that cover variable regions of antibodies.
-<br>
 
-<a id = "#ig_repertoire_constructor">
-<h3>1.1. IgRepertoireConstructor</h3>
-TBA
-
-<a id = "#ig_data_cleaner">
+<a id = "ig_data_cleaner">
 <h3>1.2. IgDataCleaner</h3>
 TBA
 
-<a id = "#immunoproteogenomics">
+<a id = "immunoproteogenomics">
 <h3>1.3. Immunoproteogenomics analysis</h3>
-TBA
+TBA<br>
 
+<!--- ---------------------------------------------------------------- --->
 <!--- ---------------------------------------------------------------- --->
 
 <a id="install"></a>
@@ -105,9 +107,36 @@ If the installation is successful, you will find the following information at th
 
     Thank you for using IgRepertoireConstructor!
 
-    Log was written to ig_repertoire_constructor_test/ig_repertoire_constructor.log
+    Log was written to &lt;your_installation_directory>/igrepertoireconstructor_test/ig_repertoire_constructor.log
     </code>
+</pre></br>
+
+&#9658; To try IgDataCleaner on test data set, run:
+<pre class="code">
+<code>
+    ./ig_data_cleaner.py --test
+</code>
 </pre>
+
+If the installation is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+    <code>
+    ======== IgDataCleaner ends
+
+    Main output files:
+    * Cleaned merged reads were written to &lt;your_installation_directory>/igdatacleaner_test/cleaned_reads.fastq
+    * IgBlast alignment output for cleaned reads was written to &lt;your_installation_directory>/igdata
+cleaner_test/igblast_cleaned.align
+
+    Thank you for using IgDataCleaner!    
+
+    Log was written to &lt;your_installation_directory>/igdatacleaner_test/ig_data_cleaner.log
+    </code>
+</pre><br>
+
+<!--- ---------------------------------------------------------------- --->
+<!--- ---------------------------------------------------------------- --->
 
 <a id="ig_repertoire_constructor_usage"></a>
 <h2>3. IgRepertoireConstructor usage</h2>
@@ -127,13 +156,18 @@ To run IgRepertoireConstructor, type:
 FASTQ file with Illumina reads (required). <br><br>
 
 <code>-o/--output &lt;output_dir&gt;</code><br>
-output directory (required). <br><br>
+Output directory (required). <br><br>
 
 <code>-t/--threads &lt;int&gt;</code><br>
-threads number. The default value is 16.<br><br>
+Threads number. The default value is 16.<br><br>
 
 <code>--test</code><br>
-running of toy test dataset (see Section <a href="#test_datasets">2.1</a>).<br><br>
+Running of toy test dataset.Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./ig_repertoire_constructor.py -s test_dataset/merged_reads.fastq -o igrepertoireconstructor_test  
+    </code>
+</pre>
 
 <code>--help</code><br>
 printing help.<br><br>
@@ -144,17 +178,18 @@ printing help.<br><br>
 <h3>3.2. Advanced options:</h3>
 
 <code>--tau &lt;int&gt;</code><br>
-maximum allowed number of mismatches between two reads corresponding to the same antibody. The default value is 3.<br><br>
+Maximum allowed number of mismatches between two reads corresponding to the same antibody. The default value is 3.<br><br>
 
 <code>-m/--memory &lt;int&gt;</code><br>
-memory limit in Gb. IgRepertoireConstructor terminates if it reaches this limit. The default value is 250.<br>
+Memory limit in Gb. IgRepertoireConstructor terminates if it reaches this limit. The default value is 250.<br>
 
 <!--- --------------------- --->
 
 <a id="repertoire_constructor_examples"></a>
 <h3>3.3. Examples</h3>
 To construct antibody repertoire from illumina reads, covering variable regions of immunoglobulins
-<pre class="code">    <code>
+<pre class="code">
+    <code>
     ./ig_repertoire_constructor.py -s reads.fastq -o output_dir
     </code>
 </pre>
@@ -170,14 +205,161 @@ IgRepertoireConstructor creates working directory (which name was specified usin
     <li><b>ig_repertoire_constructor.log</b> - full log of IgRepertoireConstructor run.</li>
 </ul> 
 <br>
+
+<!--- ---------------------------------------------------------------- --->
 <!--- ---------------------------------------------------------------- --->
 
+<a id = "ig_data_cleaner_usage"></a>
+<h2>4. IgDataCleaner</h2>
+IgDataCleaner takes as an input Illumina MiSeq reads and constructs merged contamination-free library that can be used as an input for further running of IgRepertoireConstructor. 
+IgDataCleaner has two possible way of running: (i) using paired, i.e. left and right, overlapping Illumina MiSeq reads, or (ii) using previously merged single reads (see usage below).</br></br>
+
+&#9658; To run IgDataCleaner, type:
+<pre class="code">
+<code>
+    ./ig_data_cleaner.py [options] -1 left_reads.fastq -2 right_reads.fastq -o &lt;output_dir>
+</code>
+</pre>
+OR
+<pre class="code">
+<code>
+    ./ig_data_cleaner.py [options] -s merged_reads.fastq -o &lt;output_dir>
+</code>
+</pre>
+
+<!-- --------------------- -->
+
+<a id = "cleaner_basic"></a>
+<h3>4.1. Basic options:</h3>
+<code>-o &lt;output_dir></code></br>
+output directory (required).</br></br>
+
+<code>-1 &lt;filename></code></br>
+FASTQ file with left reads in forward orientation (required for the first type of run).</br></br>
+
+<code>-2 &lt;filename></code></br>
+FASTQ file with right reads in reverse orientation (required for the first type of run).</br></br>
+
+<code>-s &lt;filename></code></br>
+FASTQ file with merged reads (required for the second type of run).</br></br>
+
+<code>--test</code></br>
+Running toy test data set. Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./ig_data_cleaner.py -1 test_dataset/left.fastq -2 test_dataset/right.fastq -o igdatacleaner_test  
+    </code>
+</pre>
+
+<code>--help</code></br>
+Printing help.</br>
+
+<!-- --------------------- -->
+
+<a id = "cleaner_advanced"></a>
+<h3>4.2. Advanced options:</h3>
+<code>-a &lt;filename></code></br>
+IgBlast output for the merged reads.</br></br>
+
+<code>--min-overlap &lt;int></code></br>
+Minimal allowed size (nt) of overlap between left and right reads. Default value is <code>60</code>.</br></br>
+
+<code>--max-mismatch &lt;float></code></br>
+Maximal allowed mismatch rate in overlapping region of merged reads. Default value is <code>0.1</code>.</br></br>
+
+<code>--only-merging</code></br>
+Runnig paired read merging and visualization of stats and skips alignment by IgBlast.</br>
+<b>NOTE:</b> we recommend to use this option only if you are confident that input reads are not contaminated.</br></br>
+
+<code>--skip-drawing</code></br>
+Skipping visualization of statistics for merged reads.</br> 
+
+<!-- --------------------- -->
+
+<a id = "cleaner_examples"></a>
+<h3>4.3. Examples</h3>
+
+&#9658; To construct perfectly overlapped merged reads with minimal overlap size 100 nt and then clean them, run the following command: 
+<pre class = "code">
+    <code>
+    ./ig_data_cleaner.py -1 left_reads.fastq -2 right_reads.fastq --max-mismatch 0 --min-overlap 100 -o dataset1_cleaning
+    </code>
+</pre>
+
+&#9658; To run merging of paired reads without further cleaning, run the following command:
+<pre class = "code">
+    <code>
+    ./ig_data_cleaner.py -1 left_reads.fastq -2 right_reads.fastq --only-merging -o dataset2_cleaning
+    </code>
+</pre>
+
+&#9658; To construct cleaned reads from merged reads using preliminary constructed alignment output of IgBlast, run the following command:
+<pre class = "code">
+    <code>
+    ./ig_data_cleaner.py -s merged_reads.fastq -a igblast_output.align -o dataset3_cleaning
+    </code>
+</pre>
+
+<!-- --------------------- -->
+
+<a id = "cleaner_output"></a>
+<h3>4.4. Output files</h3>
+
+<ul>
+    <li>Files with sequences:</li>
+    <ul>
+        <li><b>merged_reads.fastq</b> - FASTQ file containing merged overlapping paired reads specified through options <code>-1</code> and <code>-2</code>.</li>
+        <li><b>cleaned_reads.fastq</b> - FASTQ file containing cleaned merged reads that correspond to antibody sequences.</li>
+        <li><b>filtered_reads.fastq</b> - FASTQ file containing filtered merged reads that correspond to contaminations.</li>
+    </ul></br>
+
+    <li>IgBlast output: </li>
+    <ul>
+        <li><b>igblast.align</b> - file containing alignment output of IgBlast for reads from <b>merged_reads.fastq</b>.</li>
+        <li><b>igblast_cleaned.align</b> - file containing alignment output of IgBlast for reads from <b>cleaned_reads.fastq</b>.</li>
+    </ul>
+</ul>
+<b>NOTE:</b> since construction of alignment using IgBlast takes significant time for large real data sets, we strongly recommend to save this file and use it for further repertoire construction from <b>cleaned_reads.fastq</b> (see section <a href = "#ig_repertoire_constructor_usage">IgRepertoireConstructor</a>).
+<ul>
+    <li>Statistics:</li>
+    <ul>
+        <li><b>paired_nucl_qual.stats</b> - file where i-th line corresponds to average quality of i-th nucleotide of paired reads specified through options <code>-1</code> and <code>-2</code>.</li>
+        <li><b>merged_nucl_qual.stats</b> - file where i-th line corresponds to average quality of i-th nucleotide of reads from <b>cleaned_reads.fastq</b>.</li>
+        <li><b>merged_rl.stats</b> - file where lines correspond to length of reads from <b>cleaned_reads.fastq</b>.</li>
+    </ul></br>
+
+    <li>Statistics visualization:</li>
+    <ul>
+        <li><b>aver_quality.png</b> - PNG file with plot showing average quality for paired and merged reads.</li>
+        <li><b>merged_read_length.png</b> - PNG file with histogram of distribution of cleaned merged reads lengths.</li>
+    </ul></br>
+
+    <li><b>ig_data_cleaner.log</b> - full log of IgDataCleaner tool.</li>
+</ul>
+</br>
+
+<!-- -------------------------------------------------------------------- -->
+
+<a id="immunoproteogenomics_usage"></a>
+<h2>5. Immunoproteogenomics usage</h2>
+TBA
+<br>
+
+<!-- -------------------------------------------------------------------- -->
+
+<a id="examples"></a>
+<h2>6. Examples</h2>
+TBA
+<br>
+
+<!-- -------------------------------------------------------------------- -->
+
 <a id="repertoire_files"></a>
-<h2>4. Antibody repertoire representation</h2>
+<h2>7. Antibody repertoire representation</h2>
 We used two files for representation of repertoire for the set of clustered reads: CLUSTERS.FASTA and RCM.
 
 <a id="clusters_fasta"></a>
-<h3>4.1. CLUSTERS.FASTA file format</h3>
+<h3>7.1. CLUSTERS.FASTA file format</h3>
 CLUSTERS.FASTA is a FASTA file, where sequences correspond to the assembled antibodies. 
 Each header contains information about corresponding antibody cluster (id and size):
 <pre class="code">    <code>
@@ -191,7 +373,7 @@ Each header contains information about corresponding antibody cluster (id and si
 </pre>
 
 <a id="read_cluster_map"></a>
-<h3>4.2. RCM file format</h3>
+<h3>7.2. RCM file format</h3>
 Every line of RCM (read-cluster map) file contains information about read name and corresponding cluster id:
 <pre class="code">    <code>
     MISEQ@:53:000000000-A2BMW:1:2114:14345:28882    1
@@ -204,15 +386,15 @@ Every line of RCM (read-cluster map) file contains information about read name a
 </pre>
 
 <br>
-Reperoire described in the example above consists of three antibodies. E.g., the antibody with id = 1 has abundancy 3, since it was reconstructed from three reads:<br>
+Reperoire described in the example above consists of three antibodies. E.g., the antibody with id 1 has abundancy 3, since it was constructed from three reads:<br>
 MISEQ@:53:000000000-A2BMW:1:2114:14345:28882<br>  
 MISEQ@:53:000000000-A2BMW:1:2114:14374:28884<br>
 MISEQ@:53:000000000-A2BMW:1:2114:14393:28886<br><br>
-<b>NOTE:</b> ids in CLUSTERS.FASTA and RCM files should be consistent.<br><br> 
+<b>NOTE:</b> ids in CLUSTERS.FASTA and RCM files should be consistent.<br>
 
 <!--- -------------------------------------------------------------------- --->
 <a id="feedback"></a>
-<h2>5. Feedback and bug reports</h2>
+<h2>8. Feedback and bug reports</h2>
 Your comments, bug reports, and suggestions are very welcomed.
 They will help us to further improve IgRepertoireConstructor.
 <br><br>
@@ -220,5 +402,7 @@ If you have any troubles running IgRepertoireConstructor, please send us log fil
 <br><br>
 Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>. 
 
-
+<a id = "citation"></a>
+<h3>8.1. Citation</h3>
+If you use IgRepertoireConstructor in your research, please include <a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova, Bonissone et al., 2015</a> in your reference list.
 </body></html>

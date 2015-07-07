@@ -137,7 +137,7 @@ def CheckForParams(params, log):
 
 def FillOutputNames(params, basename):
     params.dataset_name = basename
-    params.output_dir = os.path.join(ig_tools_init.home_directory, basename)
+    params.output_dir = os.path.join(init.home_directory, basename)
     params.basename = os.path.join(params.output_dir, params.dataset_name)
     
 def parse_command_line(options, log):
@@ -166,9 +166,9 @@ def parse_command_line(options, log):
         elif opt == '--skip-drawing':
             params.draw_stats = False
         elif opt == '--test':
-            params.left_reads = os.path.join(ig_tools_init.home_directory, 'ig_test_dataset/left.fastq')
-            params.right_reads = os.path.join(ig_tools_init.home_directory, 'ig_test_dataset/right.fastq')
-            FillOutputNames(params, "ig_data_cleaner_test")
+            params.left_reads = os.path.join(init.home_directory, 'test_dataset/left.fastq')
+            params.right_reads = os.path.join(init.home_directory, 'test_dataset/right.fastq')
+            FillOutputNames(params, "igdatacleaner_test")
         elif opt == '--only-merging':
             params.only_merging = True
         elif opt == "--help":
@@ -187,7 +187,7 @@ def MergePairedReads(params, log):
     if params.start_from_cleaning:
         return 
     log.info("==== Merging paired-end reads")
-    command_line = ig_tools_init.PathToBins.run_paired_read_merger_tool + " " + params.left_reads + " " + params.right_reads + " " + params.output_dir + "/merged_reads" + " --max-mismatch=" + str(params.max_mismatch) + "  --min-overlap=" + str(params.min_overlap)
+    command_line = init.PathToBins.run_paired_read_merger_tool + " " + params.left_reads + " " + params.right_reads + " " + params.output_dir + "/merged_reads" + " --max-mismatch=" + str(params.max_mismatch) + "  --min-overlap=" + str(params.min_overlap)
     error_code = os.system(command_line + " 2>&1 | tee -a " + params.log)
 
     if error_code != 0:
@@ -199,7 +199,7 @@ def MergePairedReads(params, log):
         log.info("* Merged reads were written to " + params.merged_fastq_reads)
     else:
         log.info("ERROR: FASTQ with merged reads was not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
 # --------------------------- ContaminationCleaning --------------------------
 
@@ -213,7 +213,7 @@ def GetFastaName(fastq_name):
 def FastqToFasta(params, log):
     log.info("\n==== Conversion from FASTQ to FASTA")
     params.merged_fasta_reads = GetFastaName(params.merged_fastq_reads)
-    error_code = os.system(ig_tools_init.PathToBins.run_fastq_to_fasta_tool + " " + params.merged_fastq_reads + " " + params.merged_fasta_reads + " 2>&1 | tee -a " + params.log)
+    error_code = os.system(init.PathToBins.run_fastq_to_fasta_tool + " " + params.merged_fastq_reads + " " + params.merged_fasta_reads + " 2>&1 | tee -a " + params.log)
 
     if error_code != 0:
         AbnormalFinishMsg(log, "fastq_to_fasta")
@@ -223,7 +223,7 @@ def FastqToFasta(params, log):
         log.info("* FASTA file with merged reads was written to " + params.merged_fasta_reads)
     else:
         log.info("FASTA file with merged reads was not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
 def RunIgblast(params, log):
     if params.igblast_align_output != "":
@@ -231,10 +231,8 @@ def RunIgblast(params, log):
 
     log.info("\n==== Running IgBLAST")
     params.igblast_align_output = os.path.join(params.output_dir, "igblast.align")
-    igblast_command_line = ig_tools_init.RunIgblast() + " -germline_db_V "+ ig_tools_init.IgblastDirectory() +"database/" + params.species + "_gl_V -germline_db_J "+ ig_tools_init.IgblastDirectory() +"database/" + params.species + "_gl_J -germline_db_D "+ ig_tools_init.IgblastDirectory() +\
-             "database/" + params.species + "_gl_D -query "+ params.merged_fasta_reads + " -show_translation -auxiliary_data auxilary_file -num_alignments 10  -outfmt \"7 qseqid sseqid pident length mismatch gapopen gaps qstart qend sstart send evalue bitscore slen\" -domain_system imgt > "\
-            + params.igblast_align_output
-    os.environ['IGDATA'] = ig_tools_init.IgblastDirectory()
+    igblast_command_line = init.PathToBins.run_igblast + " -germline_db_V "+ init.igblast_directory +"database/" + params.species + "_gl_V -germline_db_J "+ init.igblast_directory +"database/" + params.species + "_gl_J -germline_db_D "+ init.igblast_directory + "database/" + params.species + "_gl_D -query "+ params.merged_fasta_reads + " -show_translation -auxiliary_data auxilary_file -num_alignments 10  -outfmt \"7 qseqid sseqid pident length mismatch gapopen gaps qstart qend sstart send evalue bitscore slen\" -domain_system imgt > " + params.igblast_align_output
+    os.environ['IGDATA'] = init.igblast_directory
     error_code = os.system(igblast_command_line + " 2>&1 | tee -a " + params.log)
 
     if error_code != 0:
@@ -245,7 +243,7 @@ def RunIgblast(params, log):
         log.info("* Output of IgBLAST alignment was written to " + params.igblast_align_output)
     else:
         log.info("ERROR: Output of IgBLAST alignment was not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
     
 def FilterBadReads(params, log):
     log.info("\n==== Searching for contaminated reads")
@@ -337,13 +335,13 @@ def WriteCleanedFilteredReads(params, log):
         log.info("* " + str(num_cleaned) + " cleaned reads were written to " + params.cleaned_reads)
     else:
         log.info("ERROR: cleaned reads were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
     if os.path.exists(params.filtered_reads):
         log.info("* " + str(num_filtered) + " filtered reads were written to " + params.filtered_reads)    
     else:
         log.info("ERROR: filtered reads were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
 
 def WriteFilteredAlignOutput(params, log):
@@ -402,7 +400,7 @@ def ProcessAverageQualityStats(params, log):
         log.info("* Graphics of average nucleotide quality for original paired and merged reads were written to " + params.aver_qual_plot)    
     else:
         log.info("ERROR: Graphics of average nucleotide quality for original paired and merged reads were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
     
 def DrawReadLengthHistogram(params, log):
@@ -417,13 +415,13 @@ def DrawReadLengthHistogram(params, log):
         log.info("* Histogram of merged read length distribution was written to " + params.rl_hist + "\n")
     else:
         log.info("ERROR: Histogram of merged read length distribution was not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
 def RunComputeStats(params, log):
     if not params.start_from_merging:
         return 
     log.info("\n==== Calculatiom of statistics for merged reads")
-    command_line = ig_tools_init.PathToBins.run_merged_reads_stats_calc_tool + " " + params.left_reads + " " + params.right_reads + " " + params.cleaned_reads + " " + params.output_dir
+    command_line = init.PathToBins.run_merged_reads_stats_calc_tool + " " + params.left_reads + " " + params.right_reads + " " + params.cleaned_reads + " " + params.output_dir
     error_code = os.system(command_line + " 2>&1 | tee -a " + params.log)
 
     if error_code != 0:
@@ -435,21 +433,21 @@ def RunComputeStats(params, log):
         log.info("* Statistics about average merged reads quality were written to " + params.aver_merged_qual_stats)
     else:
         log.info("ERROR: Statistics about average merged reads quality were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
     params.aver_paired_qual_stats = os.path.join(params.output_dir, "paired_nucl_qual.stats")
     if os.path.exists(params.aver_paired_qual_stats):
         log.info("* Statistics about average paired reads quality were written to " + params.aver_paired_qual_stats)
     else:
         log.info("ERROR: Statistics about average paired reads quality were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
     params.merged_rl_stats = os.path.join(params.output_dir, "merged_rl.stats")
     if os.path.exists(params.merged_rl_stats):
         log.info("* Statistics about merged read lengths were written to " + params.merged_rl_stats)
     else:
         log.info("ERROR: Statistics about merged read lengths were not found")
-        ig_tools_init.ErrorMsg(log)
+        init.ErrorMsg(log)
 
     DrawReadLengthHistogram(params, log)
     ProcessAverageQualityStats(params, log)
@@ -462,7 +460,7 @@ def CleanOutputDir(params):
 def FinalOutput(params, log):
     log.info("Main output files:")
     log.info("* Cleaned merged reads were written to " + params.cleaned_reads)
-    if params.igblast_filtered_align_output != "":
+    if params.igblast_cleaned_align_output != "":
         log.info("* IgBlast alignment output for cleaned reads was written to " + params.igblast_cleaned_align_output)
     log.info("\nThank you for using IgDataCleaner!")
 
@@ -524,7 +522,7 @@ def main():
     CheckForParams(params, log)
 
     # print input params
-    ig_tools_init.PrintCommandLine(sys.argv, log)
+    init.PrintCommandLine(sys.argv, log)
     PrintInputParams(params, log)
 
     try:
