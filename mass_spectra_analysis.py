@@ -2,15 +2,15 @@
 
 import argparse
 from collections import defaultdict
-import file_utils
+import mass_spectra_analysis.file_utils as file_utils
 import os
 import os.path
 import sys
 import itertools
-import xml.etree.ElementTree as ET
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+
 
 def DrawCoverageDistribution(data, filename, plotname):
     last_i = len(data)
@@ -34,8 +34,9 @@ def DrawCoverageDistribution(data, filename, plotname):
     plt.savefig(filename)
     plt.close()
 
+
 def DrawHistogram(data, xlabel, ylabel, plotname, filename):
-    if not data: 
+    if not data:
         return
     fig, ax = plt.subplots()
     ind = np.arange(len(data))
@@ -45,6 +46,7 @@ def DrawHistogram(data, xlabel, ylabel, plotname, filename):
     plt.title(plotname)
     plt.savefig(filename)
     plt.close()
+
 
 class Metrics:
     metric_names = ['Aligned scans', 'PSMs', 'Peptides', 'Covered sequences', \
@@ -82,23 +84,23 @@ class Metrics:
         if len(self.mass_spec_alns) == 1:
             return
         self.general_metrics['Total']['Aligned scans'] = \
-            sum(self.general_metrics[spectra_name]['Aligned scans'] 
+            sum(self.general_metrics[spectra_name]['Aligned scans']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['PSMs'] = \
-            sum(self.general_metrics[spectra_name]['PSMs'] 
+            sum(self.general_metrics[spectra_name]['PSMs']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Peptides'] = \
-            sum(self.general_metrics[spectra_name]['Peptides'] 
+            sum(self.general_metrics[spectra_name]['Peptides']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Covered sequences'] = \
             len(self.sequences_coverage)
         self.general_metrics['Total']['Average PSM number per scan'] = \
-            sum(sum(len(v) for v in aln.spectrum_identifications.values()) 
+            sum(sum(len(v) for v in aln.spectrum_identifications.values())
                 for aln in self.mass_spec_alns) / \
-            float(sum(len(aln.spectrum_identifications) 
+            float(sum(len(aln.spectrum_identifications)
                 for aln in self.mass_spec_alns))
         self.general_metrics['Total']['Maximum PSM number per scan'] = \
-            max(self.general_metrics[spectra_name]['Maximum PSM number per scan'] 
+            max(self.general_metrics[spectra_name]['Maximum PSM number per scan']
                 for spectra_name in self.GetAllSpectraNames())
         self.general_metrics['Total']['Average peptide length'] = \
             sum(sum(v) for v in self.peptide_lengths.values()) / \
@@ -161,7 +163,7 @@ class Metrics:
             self.general_metrics[spectra_name]['Average PSM number per covered sequence'] = \
                 float(sum(psm_per_seq[spectra_name])) / \
                 len(psm_per_seq[spectra_name])
-            self.general_metrics[spectra_name]['Maximum PSM number per covered sequence'] = max(psm_per_seq[spectra_name]) 
+            self.general_metrics[spectra_name]['Maximum PSM number per covered sequence'] = max(psm_per_seq[spectra_name])
         self.general_metrics['Total']['Average PSM number per covered sequence'] =\
             float(sum([sum(v) for v in psm_per_seq.values()])) / \
             sum([len(v) for v in psm_per_seq.values()])
@@ -223,85 +225,97 @@ class Metrics:
 
     def OutputMetrics(self, dirname):
         spectra_names = list(self.GetAllSpectraNames())
-        print spectra_names
+        print "Spectras processed: %s" % ", ".join(spectra_names)
 
-        handler = open(os.path.join(dirname, 'metrics.txt'), 'w')
-        curr_names = [a for a in spectra_names]
-        if len(spectra_names) != 1:
-            curr_names.append('Total')
-        handler.write('\t' + '\t'.join(curr_names) + '\n')
-        for metric_name in self.metric_names:
-            handler.write(metric_name + '\t' + \
-                '\t'.join(str(self.general_metrics[spectra_name][metric_name])
-                        if metric_name in self.general_metrics[spectra_name] else '*'
-                    for spectra_name in curr_names) + '\n')
-        handler.close()
+        metrics_file = os.path.join(dirname, 'metrics.txt')
+        with open(metrics_file, "w") as handler:
+            curr_names = [a for a in spectra_names]
+            if len(spectra_names) != 1:
+                curr_names.append('Total')
+            handler.write('\t' + '\t'.join(curr_names) + '\n')
+            for metric_name in self.metric_names:
+                handler.write(metric_name + '\t' + \
+                    '\t'.join(str(self.general_metrics[spectra_name][metric_name])
+                            if metric_name in self.general_metrics[spectra_name] else '*'
+                        for spectra_name in curr_names) + '\n')
+        print "Metrics written to %s" % metrics_file
 
-        handler = open(os.path.join(dirname, 'covered_cdrs.txt'), 'w')
-        handler.write('\t' + '\t'.join(self.region_names) + '\n')
-        for spectra_name in spectra_names + ['Any']:
-            if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
-                continue
-            data = self.covered_cdrs[spectra_name]
-            handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0' 
-                    for reg_name in self.region_names) + '\n')
-        handler.close()
+        covered_cdrs_file = os.path.join(dirname, 'covered_cdrs.txt')
+        with open(covered_cdrs_file, "w") as handler:
+            handler.write('\t' + '\t'.join(self.region_names) + '\n')
+            for spectra_name in spectra_names + ['Any']:
+                if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
+                    continue
+                data = self.covered_cdrs[spectra_name]
+                handler.write(spectra_name + '\t' + \
+                    '\t'.join(str(data[reg_name]) if reg_name in data else '0'
+                        for reg_name in self.region_names) + '\n')
+        print "Covered CRDs written to %s" % covered_cdrs_file
 
-        handler = open(os.path.join(dirname, 'psm_on_ig_regions.txt'), 'w')
-        handler.write('\t' + '\t'.join(self.region_names) + '\n')
-        for spectra_name in spectra_names + ['Any']:
-            data = self.PSM_reg_coverage[spectra_name]
-            if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
-                continue
-            handler.write(spectra_name + '\t' + \
-                '\t'.join(str(data[reg_name]) if reg_name in data else '0' 
-                    for reg_name in self.region_names) + '\n')
-        handler.close()
+        psm_on_ig_regions_file = os.path.join(dirname, 'psm_on_ig_regions.txt')
+        with open(psm_on_ig_regions_file, "w") as handler:
+            handler.write('\t' + '\t'.join(self.region_names) + '\n')
+            for spectra_name in spectra_names + ['Any']:
+                data = self.PSM_reg_coverage[spectra_name]
+                if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
+                    continue
+                handler.write(spectra_name + '\t' + \
+                    '\t'.join(str(data[reg_name]) if reg_name in data else '0'
+                        for reg_name in self.region_names) + '\n')
+        print "PSM on IG regions written to %s" % psm_on_ig_regions_file
 
         for spectra_name in spectra_names + ['Total']:
-            distr = self.PSM_coverage_distr[spectra_name]
             if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
                 continue
+            distr = self.PSM_coverage_distr[spectra_name]
             filename = os.path.join(dirname, 'PSM_cov_' + os.path.basename(spectra_name) + '.png')
             DrawCoverageDistribution(distr, filename, 'PSM coverage')
 
-        for spectra_name in spectra_names + ['Total']:
             distr = self.peptide_coverage_distr[spectra_name]
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
             filename = os.path.join(dirname, 'peptide_cov_' + os.path.basename(spectra_name) + '.png')
             DrawCoverageDistribution(distr, filename, 'Peptide coverage')
+
+            distr = self.peptide_lengths[spectra_name]
+            filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
+            DrawHistogram(distr, 'Peptide length', 'Count', 'Peptide length distribution', filename)
 
         for mass_spec_aln in self.mass_spec_alns:
             filename = os.path.join(dirname, 'PSM_per_scan_' + os.path.basename(mass_spec_aln.filename) + '.png')
             data = [len(v) for v in mass_spec_aln.spectrum_identifications.values()]
             threshold = np.percentile(data, [98])[0]
-            DrawHistogram([v for v in data if v < threshold], \
-                'PSMs per scan', 'Count', 'PSM number per scan', filename)
+            DrawHistogram([v for v in data if v < threshold],
+                          'PSMs per scan', 'Count', 'PSM number per scan', filename)
 
-        for spectra_name in spectra_names + ['Total']:
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
-            length_list = self.peptide_lengths[spectra_name]
-            if spectra_name == 'Total' and len(self.mass_spec_alns) == 1:
-                continue
-            filename = os.path.join(dirname, 'peptide_length_' + os.path.basename(spectra_name) + '.png')
-            DrawHistogram(length_list, 'Peptide length', 'Count', 'Peptide length distribution', filename)
 
 def PrepareArguments():
     home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     parser = argparse.ArgumentParser(description = 'mass spectra analysis')
-    parser.add_argument('--regions', dest = 'regions', help = 'regions file')
-    parser.add_argument('--outdir', dest = 'output_dir', help = 'output directory')
-    parser.add_argument(dest = 'inputs', help = 'mass spectrum alignment files in mzIdentML 1.1 format', nargs = '*')
-    parser.add_argument('--test', dest = 'test', help = 'run on the test dataset', action='store_true')
+    parser.add_argument('--regions',
+                        help='regions file')
+    parser.add_argument('--outdir',
+                        dest='output_dir',
+                        help='output directory')
+    parser.add_argument('inputs',
+                        help='mass spectrum alignment files in mzIdentML 1.1 format',
+                        nargs='*')
+    parser.add_argument('--test',
+                        help='run on the test dataset',
+                        action='store_true')
     args = parser.parse_args()
     if args.test:
         args.output_dir = os.path.join(home_directory, 'test_output')
-        args.regions = os.path.join(home_directory, 'test_dataset', 'example_regions.txt')
-        args.inputs = [os.path.join(home_directory, 'test_dataset', 'example_HC_chymo_CID.mzid.spectra'), 
-                       os.path.join(home_directory, 'test_dataset', 'example_HC_trypsin_CID.mzid.spectra')]
+        args.regions = os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_regions.txt')
+        args.inputs = [os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_HC_chymo_CID.mzid.spectra'),
+                       os.path.join(home_directory,
+                                    'mass_spectra_analysis',
+                                    'test_dataset',
+                                    'example_HC_trypsin_CID.mzid.spectra')]
     if not args.inputs:
         print 'You must specify at least one input file'
         parser.print_help()
@@ -314,28 +328,30 @@ def PrepareArguments():
         os.makedirs(args.output_dir)
     return args
 
+
 if __name__ == '__main__':
     args = PrepareArguments()
     mass_spec_alns = []
 
     for filename in args.inputs:
-        print 'Parsing ' + filename
+        print "Reading %s..." % filename
         aln = file_utils.MassSpectraAlignment()
         if filename.endswith('.spectra'):
             aln.ParseSpectra(filename)
         else:
             aln.ParseMzindentFile(filename)
         mass_spec_alns.append(aln)
-        print 'Parsing ' + filename + ' done'
+        print "Reading done"
 
     metrics = Metrics(mass_spec_alns)
     if args.regions:
-        print 'Parsing regions file'
+        print "Reading regions file..."
         regions = file_utils.Regions()
         regions.ParseIgBlastAlignment(args.regions)
         metrics.regions = regions
-        print 'Parsing regions file done'
+        print "Reading done"
 
     metrics.CalculateMetrics()
     metrics.CalculateRegionMetrics()
     metrics.OutputMetrics(args.output_dir)
+    print "Figures and statistics saved in %s" % args.output_dir
