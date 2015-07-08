@@ -168,7 +168,7 @@ def parse_command_line(options, log):
         elif opt == '--test':
             params.left_reads = os.path.join(init.home_directory, 'test_dataset/left.fastq')
             params.right_reads = os.path.join(init.home_directory, 'test_dataset/right.fastq')
-            FillOutputNames(params, "igdatacleaner_test")
+            FillOutputNames(params, "ig_data_cleaner_test")
         elif opt == '--only-merging':
             params.only_merging = True
         elif opt == "--help":

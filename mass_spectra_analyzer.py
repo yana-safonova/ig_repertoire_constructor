@@ -7,10 +7,9 @@ import os.path
 import sys
 import itertools
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib
+matplotlib.use('Agg')
 
 import init
 import ms_utils
@@ -292,10 +291,10 @@ class Metrics:
 
 def PrepareArguments():
     home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    parser = argparse.ArgumentParser(description = 'mass spectra analysis')
+    parser = argparse.ArgumentParser(description = 'mass spectra analyzer')
     parser.add_argument('--regions',
                         help='regions file')
-    parser.add_argument('--outdir',
+    parser.add_argument('-o', '--outdir',
                         dest='output_dir',
                         help='output directory')
     parser.add_argument('inputs',
@@ -306,7 +305,7 @@ def PrepareArguments():
                         action='store_true')
     args = parser.parse_args()
     if args.test:
-        args.output_dir = os.path.join(home_directory, 'msanalysis_test')
+        args.output_dir = os.path.join(home_directory, 'ms_analyzer_test')
         args.regions = os.path.join(home_directory,
                                     'test_dataset',
                                     'MS_analysis',

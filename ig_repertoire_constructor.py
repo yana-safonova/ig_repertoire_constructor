@@ -185,7 +185,7 @@ def main():
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                           type=str,
-                          default="igrepertoireconstructor_test",
+                          default="ig_repertoire_constructor_test",
                           help="output directory [default \"%(default)s\"]")
 
     optional_args = parser.add_argument_group("Optional arguments")
