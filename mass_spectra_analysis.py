@@ -259,9 +259,9 @@ class Metrics:
         with open(psm_on_ig_regions_file, "w") as handler:
             handler.write('\t' + '\t'.join(self.region_names) + '\n')
             for spectra_name in spectra_names + ['Any']:
-                data = self.PSM_reg_coverage[spectra_name]
                 if spectra_name == 'Any' and len(self.mass_spec_alns) == 1:
                     continue
+                data = self.PSM_reg_coverage[spectra_name]
                 handler.write(spectra_name + '\t' + \
                     '\t'.join(str(data[reg_name]) if reg_name in data else '0'
                         for reg_name in self.region_names) + '\n')
