@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+import matplotlib
+matplotlib.use('Agg')
+
 import argparse
 from collections import defaultdict
 import os
@@ -8,8 +11,6 @@ import sys
 import itertools
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib
-matplotlib.use('Agg')
 
 import init
 import ms_utils
