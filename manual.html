@@ -368,30 +368,65 @@ MassSpectraAnalyzer takes as an input result of matching of mass spectra against
 &#9658; To run MassSpectraAnalyzer, type:
 <pre class="code">
 <code>
-    ./mass_spectra_analyzer.py [options] -o &lt;output_dir> input_file_1.mzid.spectra ... input_file_N.mzid.spectra
+    ./mass_spectra_analyzer.py [options] -o &lt;output_dir> input_file_1.mzid ... input_file_N.mzid
 </code>
 </pre>
 
 <!-- --------------------- -->
 <a id = "msanalyzer_basic"></a>
 <h3>5.1. Basic options:</h3>
-TBA
+
+<code>inputs</code></br>
+Input files with mass spectra alignment to protein database in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> format.</br></br>
+
+<code>-o &lt;output_dir></code></br>
+output directory (required).</br></br>
+
+<code>--test</code></br>
+Running toy test data set. <!-- Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./mass_spectra_analysis.py --regions test_dataset/MS_analysis/example_regions.txt test_dataset/MS_analysis/example_HC_chymo_CID.mzid.spectra test_dataset/MS_analysis/example_HC_trypsin_CID.mzid.spectra
+    </code>
+</pre> --></br></br>
+
+<code>--help, -h</code></br>
+Printing help.</br>
 
 <!-- --------------------- -->
 <a id = "msanalyzer_advanced"></a>
 <h3>5.2. Advanced options:</h3>
-TBA
+<code>--regions</code></br>
+File with information about framework and CDR-regions for protein sequences from used database in IgBLAST format.
 
 <!-- --------------------- -->
 <a id = "msanalyzer_examples"></a>
 <h3>5.3. Examples:</h3>
-TBA
+<pre class = "code">
+    <code>
+    ./mass_spectra_analysis.py --output out_dir --regions regions.align input1.mzid input2.mzid
+    </code>
+</pre>
 
 <!-- --------------------- -->
 <a id = "msanalyzer_output"></a>
 <h3>5.4. Output files:</h3>
-TBA
-<br><br>
+<ul>
+    <li>Statistics:</li>
+    <ul>
+        <li><b>metrics.txt</b> - file with basic statistics for each of given mass spectrum alignments.</li>
+        <li><b>covered_cdrs.txt</b> - file with information about number of sequences with at least one peptide spectrum match on corresponding region.</li>
+        <li><b>psm_on_ig_regions.txt</b> - file with information about number of peptide spectrum matches aligned to corresponding regions of sequences.</li>
+    </ul></br>
+
+    <li>Statistics visualization: </li>
+    <ul>
+        <li><b>PSM_cov.png</b> - PNG file with plot showing coverage by peptide spectrum matches along antibody sequence.</li>
+        <li><b>peptide_cov.png</b> - PNG file with plot showing coverage by peptide spectrum matches along antibody sequence, consider only scans with unique alignment to database.</li>
+        <li><b>PSM_per_scan.png</b> - PNG file with histogram of distribution of number of peptide spectrum matches per scan.</li>
+        <li><b>peptide_length.png</b> - PNG file with histogram of distribution of peptide length.</li>
+    </ul>
+</ul>
 
 <!-- -------------------------------------------------------------------- -->
 
