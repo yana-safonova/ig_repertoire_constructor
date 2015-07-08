@@ -1,0 +1,4 @@
+rm *.pyc
+rm -rf ig_data_cleaner_test
+rm -rf ig_repertoire_constructor_test
+rm -rf ms_analyzer_test
