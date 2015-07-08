@@ -1,5 +1,5 @@
 ############################################################################
-# Copyright (c) 2011-2013 Saint-Petersburg Academic University
+# Copyright (c) 2011-2015 Saint-Petersburg Academic University
 # All Rights Reserved
 # See file LICENSE for details.
 ############################################################################
@@ -17,15 +17,14 @@ ig_bin_directory = os.path.join(home_directory, "build/release/bin/")
 python_src_directory = os.path.join(home_directory, "src/ig_tools/python_utils/")
 config_directory = os.path.join(home_directory, "configs/ig_tools/")
 spades_py_scripts_directory = os.path.join(home_directory, "src/spades_pipeline/")
-spades_py_scripts_directory = os.path.join(home_directory, "src/spades_pipeline/")
 igblast_directory = os.path.join(home_directory, "src/tools/igblast/")
+ms_utils_directory = os.path.join(home_directory, "src/mass_spectra_analysis/")
 
 path_to_config_template = os.path.join(config_directory, "config.info.template")
 
-make_ig_bins = "make igtools"
-
 sys.path.append(spades_py_scripts_directory)
 sys.path.append(python_src_directory)
+sys.path.append(ms_utils_directory)
 
 class PathToBins:
     paired_read_merger_tool = os.path.join(ig_bin_directory, "paired_read_merger")

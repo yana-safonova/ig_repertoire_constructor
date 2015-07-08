@@ -2,7 +2,6 @@
 
 import argparse
 from collections import defaultdict
-import mass_spectra_analysis.file_utils as file_utils
 import os
 import os.path
 import sys
@@ -11,6 +10,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 
+import init
+import ms_utils
 
 def DrawCoverageDistribution(data, filename, plotname):
     last_i = len(data)
@@ -303,18 +304,18 @@ def PrepareArguments():
                         action='store_true')
     args = parser.parse_args()
     if args.test:
-        args.output_dir = os.path.join(home_directory, 'test_output')
+        args.output_dir = os.path.join(home_directory, 'msanalysis_test')
         args.regions = os.path.join(home_directory,
-                                    'mass_spectra_analysis',
                                     'test_dataset',
+                                    'MS_analysis',
                                     'example_regions.txt')
         args.inputs = [os.path.join(home_directory,
-                                    'mass_spectra_analysis',
                                     'test_dataset',
+                                    'MS_analysis',
                                     'example_HC_chymo_CID.mzid.spectra'),
                        os.path.join(home_directory,
-                                    'mass_spectra_analysis',
                                     'test_dataset',
+                                    'MS_analysis',
                                     'example_HC_trypsin_CID.mzid.spectra')]
     if not args.inputs:
         print 'You must specify at least one input file'
@@ -335,7 +336,7 @@ if __name__ == '__main__':
 
     for filename in args.inputs:
         print "Reading %s..." % filename
-        aln = file_utils.MassSpectraAlignment()
+        aln = ms_utils.MassSpectraAlignment()
         if filename.endswith('.spectra'):
             aln.ParseSpectra(filename)
         else:
@@ -346,7 +347,7 @@ if __name__ == '__main__':
     metrics = Metrics(mass_spec_alns)
     if args.regions:
         print "Reading regions file..."
-        regions = file_utils.Regions()
+        regions = ms_utils.Regions()
         regions.ParseIgBlastAlignment(args.regions)
         metrics.regions = regions
         print "Reading done"
