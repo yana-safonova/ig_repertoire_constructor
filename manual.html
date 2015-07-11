@@ -377,7 +377,7 @@ MassSpectraAnalyzer takes as an input result of matching of mass spectra against
 <h3>5.1. Basic options:</h3>
 
 <code>inputs</code></br>
-Input files with mass spectra alignment to protein database in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> format.</br></br>
+Input files with mass spectra alignment to protein database in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a>.</br></br>
 
 <code>-o &lt;output_dir></code></br>
 output directory (required).</br></br>
@@ -396,15 +396,37 @@ Printing help.</br>
 <!-- --------------------- -->
 <a id = "msanalyzer_advanced"></a>
 <h3>5.2. Advanced options:</h3>
-<code>--regions</code></br>
-File with information about framework and CDR-regions for protein sequences from used database in IgBLAST format.
+<code>--regions &lt;filename></code></br>
+File with information about framework and CDRs for protein sequences from used database in IgBLAST format. 
+Example of file with labeled regions is given below:
+<pre class = "code">
+    <code>
+    Query= Antibody_sequence_1
+    CDR2-IMGT       51      58
+    FR2-IMGT        34      50
+    FR1-IMGT        1       25
+    FR3-IMGT        59      94
+    CDR1-IMGT       26      33
+    CDR3-IMGT       95      110
+    Query= Antibody_sequence_2
+    CDR2-IMGT       51      58
+    FR2-IMGT        34      50
+    FR1-IMGT        1       25
+    FR3-IMGT        59      94
+    CDR1-IMGT       26      33
+    CDR3-IMGT       95      111
+    </code>
+</pre>
+where Antibody_sequence_1 and Antibody_sequence_2 are sequences from database.
 
 <!-- --------------------- -->
 <a id = "msanalyzer_examples"></a>
 <h3>5.3. Examples:</h3>
+
+&#9658; To compute statistics for both chymo and trypsin mass spectra datasets and labeled regions, run the following command: 
 <pre class = "code">
     <code>
-    ./mass_spectra_analysis.py --output out_dir --regions regions.align input1.mzid input2.mzid
+    ./mass_spectra_analysis.py --output output_dir --regions regions.align example_HC_chymo_CID.mzid example_HC_trypsin_CID.mzid
     </code>
 </pre>
 
@@ -432,7 +454,30 @@ File with information about framework and CDR-regions for protein sequences from
 
 <a id="examples"></a>
 <h2>6. Examples</h2>
-TBA
+Example shows IgRepertoireConstructor pipeline in action for paired-end Illumina MiSeq library including reads <b>left_reads.fastq</b> and <b>right_reads.fastq</b> and mass spectra <b>AspN_CID.mzXML</b> corresponding to the same antibody repertoire.<br><br>
+&#9658; First, run IgDataCleaner using the following command:
+<pre class = "code">
+    <code>
+    ./ig_data_cleaner.py -1 left_reads.fastq -2 right_reads.fastq -o cleaning_ig_reads
+    </code>
+</pre>
+Merged and cleaned reads are located in <b>cleaning_ig_reads/cleaned_reads.fastq</b> and can be used for IgRepertoireConstructor run.<br><br>
+
+&#9658; To run IgRepertoireConstructor with standard settings, type the following command:
+<pre class = "code">
+    <code>
+    ./ig_repertoire_constructor.py -s cleaning_ig_reads/cleaned_reads.fastq -o repertoire_constructing
+    </code>
+</pre>
+Sequences of the constructed repertoire are located in <b>repertoire_constructing/constructed_repertoire.clusters.fa</b>. They can be converted into amino acid sequences and used as a database for matching mass spectra <b>AspN_CID.mzXML</b> (e.g., using MS-GF+ tool). Let result of MS-GF+ tool be a file <b>AspN_CID.mzId</b>.<br><br>
+
+&#9658; To run MassSpectraAnalyzer on <b>AspN_CID.mzId</b> file, type the following command: 
+<pre class = "code">
+    <code>
+    ./mass_spectra_analyzer.py -o ms_analysis AspN_CID.mzId
+    </code>
+</pre>
+Statistics for mass spectra alignment can be found in <b>ms_analysis</b> directory.
 <br><br>
 
 <!-- -------------------------------------------------------------------- -->
@@ -488,5 +533,5 @@ Address for communications: <a href="mailto:igtools_support@googlegroups.com">ig
 
 <a id = "citation"></a>
 <h3>8.1. Citation</h3>
-If you use IgRepertoireConstructor in your research, please include <a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova, Bonissone et al., 2015</a> in your reference list.
+If you use IgRepertoireConstructor in your research, please include <a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a> in your reference list.
 </body></html>
