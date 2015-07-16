@@ -221,15 +221,23 @@ if __name__ == "__main__":
         if args.span and len(g.es):
             g = g.spanning_tree("weight")
 
-        if len(g.es):
-            g.es["label"] = map(int, g.es["weight"])
+        # if len(g.es):
+        #     g.es["label"] = map(int, g.es["weight"])
         g.vs["color"] = [colors_palette[i] for i in indices]
         g.vs["multiplicity"] = mult
         g.vs["label"] = map(int, g.vs["multiplicity"])
 
+        vertex_sizes = [30 if m > 10 else 20 for m in mult]
+        if len(g.es):
+            edge_widths = [3 if w > 10 else 1 for w in g.es["weight"]]
+            edge_colors = ["red" if w > 10 else "black" for w in g.es["weight"]]
+
         if args.figure:
             ig.plot(g, target=expand_path(args.figure % templates),
-                    vertex_size=25, bbox=(1800, 1800))
+                    vertex_size=vertex_sizes,
+                    edge_width=edge_widths,
+                    edge_color=edge_colors,
+                    bbox=(800, 800))
 
         if args.graph:
             g.write_dot(expand_path(args.graph % templates))
