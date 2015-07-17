@@ -30,11 +30,13 @@ class PathToBins:
     paired_read_merger_tool = os.path.join(ig_bin_directory, "paired_read_merger")
     fastq_to_fasta_tool = os.path.join(ig_bin_directory, "fastq_to_fasta")
     merged_reads_stats_calc_tool = os.path.join(ig_bin_directory, "compute_merged_reads_stats")
+    dense_subgraph_finder = os.path.join(ig_bin_directory, "dense_sgraph_finder")
 
     run_paired_read_merger_tool = ig_bin_directory + "./paired_read_merger"
     run_fastq_to_fasta_tool = ig_bin_directory + "./fastq_to_fasta"
     run_merged_reads_stats_calc_tool = ig_bin_directory + "./compute_merged_reads_stats"
     run_igblast = os.path.join(igblast_directory, "bin/igblastn")
+    run_dense_sgraph_finder = os.path.join(ig_bin_directory, "./dense_sgraph_finder")
 
 def PrintCommandLine(argv, log):
     command_line = " ".join([str(x) for x in argv] )
