@@ -1,5 +1,7 @@
 #include "metis_permutation_constructor.hpp"
 
+namespace dense_subgraph_finder {
+
 std::string MetisPermutationConstructor::GetMETISGraphFilename() {
     std::stringstream ss;
     ss << path::append_path(params_.hg_output_dir, "hamming_graph");
@@ -48,4 +50,6 @@ PermutationPtr MetisPermutationConstructor::CreatePermutation() {
     WriteHammingGraphInMETISFormat(metis_graph_fname);
     std::string permutation_fname = RunMETIS(metis_graph_fname);
     return ReadPermutation(permutation_fname);
+}
+
 }

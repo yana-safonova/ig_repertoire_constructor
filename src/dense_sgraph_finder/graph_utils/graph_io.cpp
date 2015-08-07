@@ -25,7 +25,7 @@ public:
 
     CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
-        while(!graph_stream.end()) {
+        while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
             vector<string> splits = split(tmp_line, ' ');
@@ -59,7 +59,7 @@ public:
 
     CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
-        while(!graph_stream.end()) {
+        while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
             vector<string> splits = split(tmp_line, ' ');
@@ -75,7 +75,7 @@ public:
  */
 class VersatileGraphReader {
     bool GraphIsUnweighted(const vector<string> &header_splits) {
-        return splits.size() == 2;
+        return header_splits.size() == 2;
     }
 
     bool GraphInWeighted(const vector<string> &header_splits) {
@@ -88,7 +88,7 @@ public:
     CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
         string header_line;
         getline(graph_stream, header_line);
-        vector<string> splits = split(header_line);
+        vector<string> splits = split(header_line, ' ');
         if(GraphIsUnweighted(splits))
             return UnweightedGraphReader().ReadGraph(graph_stream);
         if(GraphInWeighted(splits))
@@ -106,6 +106,6 @@ CRS_HammingGraph_Ptr GraphReader::CreateGraph() {
         std::cout << "File " + this->graph_filename + " with graph was not found" << std::endl;
     }
     CRS_HammingGraph_Ptr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
-    std::cout("Graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
+    INFO("Graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
     return graph_ptr;
 }
