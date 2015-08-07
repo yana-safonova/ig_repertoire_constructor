@@ -1,13 +1,13 @@
 #pragma once
 
-#include "hg_decomposition.hpp"
+#include "hamming_graph_clusterization/hg_decomposition.hpp"
 
 class DecompositionStatsCalculator {
     HG_DecompositionPtr decomposition_;
     CRS_HammingGraph_Ptr hamming_graph_;
     HG_CollapsedStructs_Ptr collapsed_struct_;
 
-    vector<size_t> num_edges_in_class;
+    std::vector<size_t> num_edges_in_class;
 
     size_t GetClassOfVertices(size_t v1, size_t v2) {
         if(decomposition_->GetVertexClass(v1) == decomposition_->GetVertexClass(v2))

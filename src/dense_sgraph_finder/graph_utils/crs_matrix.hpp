@@ -1,5 +1,5 @@
 #pragma once
-#include "include_me.hpp"
+#include "../include_me.hpp"
 
 /*
     struct Edge characterizes edge of graph
@@ -119,8 +119,8 @@ public:
 
     size_t NZ() const { return NZ_; }
 
-    shared_ptr<CRS_Matrix> Transpose() {
-        return shared_ptr<CRS_Matrix>(new CRS_Matrix(*this));
+    std::shared_ptr<CRS_Matrix> Transpose() {
+        return std::shared_ptr<CRS_Matrix>(new CRS_Matrix(*this));
     }
 };
 

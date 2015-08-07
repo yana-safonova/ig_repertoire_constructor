@@ -10,6 +10,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 add_executable(dense_sgraph_finder
+               graph_utils/graph_io.cpp
+               metis_permutation_constructor/metis_permutation_constructor.cpp
                main.cpp)
 
 target_link_libraries(dense_sgraph_finder ${COMMON_LIBRARIES})

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "hamming_graph_clusterization/crs_matrix.hpp"
+#include "graph_utils/crs_matrix.hpp"
 #include "hamming_graph_clusterization/permutation.hpp"
 #include "hamming_graph_clusterization/hg_decomposition.hpp"
 
 #include "hamming_graph_clusterization/simple_decomposition_constructor.hpp"
 #include "hamming_graph_clusterization/greedy_joining_decomposition_constructor.hpp"
-#include "hamming_graph_clusterization/decomposition_stats_calculator.hpp"
+#include "decomposition_stats_calculator.hpp"
 #include "metis_permutation_constructor.hpp"
 
 namespace ig_repertoire_constructor {
