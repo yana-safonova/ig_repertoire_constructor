@@ -1,0 +1,27 @@
+; input-output parameters ;
+io {
+	log_filename 	log.properties
+    	output_dir      dsf_test
+	graph_filename	test_dataset/test.graph
+}
+
+; run params ;
+rp {
+	developer_mode	true
+    	threads_count   16
+    	max_memory      250
+}
+
+; algorithm parameters ;
+dsf_params {
+    	edge_perc_threshold		0.2
+    	class_joining_edge_threshold	0.3
+}
+
+; input-output parameters of METIS ;
+metis_io {
+	path_to_metis                   build/release/bin/
+        run_metis                       ./metis
+        trash_output                    metis.output
+}
+

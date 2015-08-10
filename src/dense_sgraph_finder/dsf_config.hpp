@@ -9,7 +9,6 @@ struct dsf_config {
         std::string     log_filename;
         std::string     output_dir;
         std::string 	graph_filename;
-        std::string     temp_dir;
     };
 
     struct run_params {
@@ -18,25 +17,21 @@ struct dsf_config {
         unsigned        max_memory;
     };
 
+    struct metis_io_params {
+        std::string 	path_to_metis;
+        std::string		run_metis;
+        std::string		trash_output;
+    };
+
     struct dense_sgraph_finder_params {
         double edge_perc_threshold;
         double class_joining_edge_threshold;
-
-        struct hg_clusterization_io_params {
-        	std::string 	hg_output_dir;
-            std::string 	path_to_metis;
-            std::string		run_metis;
-            std::string		trash_output;
-            bool			output_dense_subgraphs;
-            std::string 	dense_subgraphs_dir;
-        };
-
-        hg_clusterization_io_params hgc_io_params;
     };
 
     io_params io;
     run_params rp;
-    dense_sgraph_finder_params hgc_params;
+    dense_sgraph_finder_params dsf_params;
+    metis_io_params metis_io;
 };
 
 void load(dsf_config &cfg, std::string const &filename);
