@@ -8,12 +8,12 @@
 //	return ss.str();
 //}
 
-void AddOutputDir(dsf_config::io_params &io) {
-	io.load_from = path::append_path(io.output_dir, io.load_from);
-	io.log_filename = path::append_path(io.output_dir, io.log_filename);
-	io.output_saves = path::append_path(io.output_dir, io.output_saves);
-	io.temp_files = path::append_path(io.output_dir, io.temp_files);
-}
+//void AddOutputDir(dsf_config::io_params &io) {
+//	io.load_from = path::append_path(io.output_dir, io.load_from);
+//	io.log_filename = path::append_path(io.output_dir, io.log_filename);
+//	io.output_saves = path::append_path(io.output_dir, io.output_saves);
+//	io.temp_files = path::append_path(io.output_dir, io.temp_files);
+//}
 
 void load(dsf_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;

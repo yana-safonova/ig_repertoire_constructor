@@ -1,4 +1,4 @@
-#include "crs_matrix.hpp"
+#include "sparse_graph.hpp"
 
 class GraphReader {
     std::string graph_filename;
@@ -8,7 +8,7 @@ public:
         this->graph_filename = graph_filename;
     }
 
-    CRS_HammingGraph_Ptr CreateGraph();
+    SparseGraphPtr CreateGraph();
 };
 
 class GraphWriter {
@@ -19,5 +19,5 @@ public:
         this->graph_filename = graph_filename;
     }
 
-    void PrintGraph(CRS_HammingGraph_Ptr graph_ptr);
+    void PrintGraph(SparseGraphPtr graph_ptr);
 };

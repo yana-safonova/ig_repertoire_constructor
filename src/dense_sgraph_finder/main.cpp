@@ -7,29 +7,16 @@
 #include "copy_file.hpp"
 #include "perfcounter.hpp"
 #include "runtime_k.hpp"
-#include "io/ireadstream.hpp"
-#include "io/library.hpp"
-#include "io/single_read.hpp"
-#include "io/io_helper.hpp"
-
-//#include "config_struct.hpp"
-
-#include "stage.hpp"
+#include "segfault_handler.hpp"
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "segfault_handler.hpp"
-
-#include "include_me.hpp"
-
 #include "dsf_config.hpp"
-
-#include "graph_utils/crs_matrix.hpp"
+#include "graph_utils/sparse_graph.hpp"
+#include "graph_utils/graph_collapsed_structure.hpp"
 #include "graph_utils/graph_io.hpp"
-
-#include "metis_permutation_constructor/metis_permutation_constructor.hpp"
 
 void make_dirs(){
     make_dir(dsf_cfg::get().io.output_dir);
@@ -81,12 +68,7 @@ int main(int argc, char* argv[]) {
 
     std::string graph_fname = dsf_cfg::get().io.graph_filename;
     GraphReader graph_reader(graph_fname);
-    CRS_HammingGraph_Ptr graph_ptr = graph_reader.CreateGraph();
-    HG_CollapsedStructs_Ptr collapsed_struct_ptr = HG_CollapsedStructs_Ptr(new HG_CollapsedStructs(graph_ptr));
-
-    dense_subgraph_finder::MetisPermutationConstructor permutation_constructor(graph_ptr,
-                                                                               collapsed_struct_ptr,
-                                                                               0,
-                                                                               dsf_cfg::get().hgc_params.hgc_io_params);
-
+    SparseGraphPtr graph_ptr = graph_reader.CreateGraph();
+    GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
+            new GraphCollapsedStructure(graph_ptr));
 }

@@ -24,7 +24,7 @@ struct HGEdge {
 /*
     class CRS_Matrix for storage of sparse symmetric matrix in compressed rows format
  */
-class CRS_Matrix {
+class CrsMatrix {
     size_t N_;
     size_t NZ_;
 
@@ -102,12 +102,12 @@ class CRS_Matrix {
     }
 
 public:
-    CRS_Matrix(const CRS_Matrix &trans_matrix) :
+    CrsMatrix(const CRS_Matrix &trans_matrix) :
             N_(0), NZ_(0) {
         Initialize(trans_matrix);
     }
 
-    CRS_Matrix(size_t N, const vector<HGEdge> &edges) :
+    CrsMatrix(size_t N, const vector<HGEdge> &edges) :
             N_(N), NZ_(0) {
         Initialize(edges);
     }
@@ -141,7 +141,7 @@ ostream& operator<<(ostream &out, const CRS_Matrix &matrix) {
     return out;
 }
 
-typedef shared_ptr<CRS_Matrix> CRS_Matrix_Ptr;
+typedef shared_ptr<CRS_Matrix> CrsMatrixPtr;
 
 /*
     class Hamming graph in CRS format

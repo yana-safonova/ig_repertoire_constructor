@@ -1,14 +1,15 @@
 #pragma once
 
 #include <dsf_config.hpp>
-#include "hamming_graph_clusterization/permutation.hpp"
-#include "graph_utils/crs_matrix.hpp"
+#include "graph_utils/permutation.hpp"
+#include "graph_utils/sparse_graph.hpp"
+#include "graph_utils/graph_collapsed_structure.hpp"
 
 namespace dense_subgraph_finder {
 
 class MetisPermutationConstructor {
-	CRS_HammingGraph_Ptr hamming_graph_ptr_;
-	HG_CollapsedStructs_Ptr collapsed_struct_ptr_;
+	SparseGraphPtr hamming_graph_ptr_;
+	GraphCollapsedStructurePtr collapsed_struct_ptr_;
 	size_t graph_id_;
 	const dsf_config::dense_sgraph_finder_params::hg_clusterization_io_params &params_;
 
@@ -25,8 +26,8 @@ class MetisPermutationConstructor {
 	PermutationPtr ReadPermutation(std::string permutation_fname);
 
 public:
-	MetisPermutationConstructor(CRS_HammingGraph_Ptr hamming_graph_ptr,
-			HG_CollapsedStructs_Ptr collapsed_struct_ptr,
+	MetisPermutationConstructor(SparseGraphPtr hamming_graph_ptr,
+			GraphCollapsedStructurePtr collapsed_struct_ptr,
 			size_t graph_id,
 			const dsf_config::dense_sgraph_finder_params::hg_clusterization_io_params &params) :
 		hamming_graph_ptr_(hamming_graph_ptr),

@@ -23,7 +23,7 @@ class WeightedGraphReader {
 public:
     WeightedGraphReader() { }
 
-    CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
+    SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
         while(!graph_stream.eof()) {
             std::string tmp_line;
@@ -32,7 +32,7 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        return CRS_HammingGraph_Ptr(new CRS_HammingGraph(cur_vertex, graph_edges));
+        return SparseGraphPtr(new SparseGraph(cur_vertex, graph_edges));
     }
 };
 
@@ -57,7 +57,7 @@ class UnweightedGraphReader {
 public:
     UnweightedGraphReader() { }
 
-    CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
+    SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
         while(!graph_stream.eof()) {
             std::string tmp_line;
@@ -66,7 +66,7 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        return CRS_HammingGraph_Ptr(new CRS_HammingGraph(cur_vertex, graph_edges));
+        return SparseGraphPtr(new SparseGraph(cur_vertex, graph_edges));
     }
 };
 
@@ -85,7 +85,7 @@ class VersatileGraphReader {
     }
 
 public:
-    CRS_HammingGraph_Ptr ReadGraph(std::ifstream &graph_stream) {
+    SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         string header_line;
         getline(graph_stream, header_line);
         vector<string> splits = split(header_line, ' ');
@@ -100,12 +100,12 @@ public:
 /*
  *
  */
-CRS_HammingGraph_Ptr GraphReader::CreateGraph() {
+SparseGraphPtr GraphReader::CreateGraph() {
     std::ifstream graph_stream(this->graph_filename);
     if(graph_stream.fail()) {
         std::cout << "File " + this->graph_filename + " with graph was not found" << std::endl;
     }
-    CRS_HammingGraph_Ptr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
+    SparseGraphPtr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
     INFO("Graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
     return graph_ptr;
 }
