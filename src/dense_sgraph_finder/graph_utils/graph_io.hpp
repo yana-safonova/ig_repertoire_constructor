@@ -9,6 +9,9 @@ public:
     }
 
     SparseGraphPtr CreateGraph();
+
+private:
+    DECL_LOGGER("GraphReader");
 };
 
 class GraphWriter {
@@ -20,4 +23,7 @@ public:
     }
 
     void PrintGraph(SparseGraphPtr graph_ptr);
+
+private:
+    DECL_LOGGER("GraphWriter");
 };

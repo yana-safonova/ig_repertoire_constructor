@@ -16,7 +16,8 @@ class WeightedGraphReader {
         for(size_t i = 0; i < num_edges; i++) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i * 2]);
             size_t edge_weight = string_to_number<size_t>(line_splits[i * 2 + 1]);
-            graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
+            if(cur_vertex < dst_vertex)
+                graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
         }
     }
 
@@ -50,7 +51,8 @@ class UnweightedGraphReader {
         for(size_t i = 0; i < num_edges; i++) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i]);
             size_t edge_weight = 1;
-            graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
+            if(cur_vertex < dst_vertex)
+                graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
         }
     }
 
@@ -88,22 +90,31 @@ public:
     SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         string header_line;
         getline(graph_stream, header_line);
-        vector<string> splits = split(header_line, ' ');
-        if(GraphIsUnweighted(splits))
+        vector<string> splits = split(header_line, '\t');
+        if(GraphIsUnweighted(splits)) {
+            INFO("Unweighted graph reader was chosen");
             return UnweightedGraphReader().ReadGraph(graph_stream);
-        if(GraphInWeighted(splits))
+        }
+        if(GraphInWeighted(splits)) {
+            INFO("Weighted graph reader was chosen");
             return WeightedGraphReader().ReadGraph(graph_stream);
+        }
         return WeightedGraphReader().ReadGraph(graph_stream);
     }
+
+private:
+    DECL_LOGGER("VersatileGraphReader");
 };
 
 /*
  *
  */
 SparseGraphPtr GraphReader::CreateGraph() {
-    std::ifstream graph_stream(this->graph_filename);
-    if(graph_stream.fail()) {
-        std::cout << "File " + this->graph_filename + " with graph was not found" << std::endl;
+    INFO("Trying to extract graph from " + graph_filename);
+    std::ifstream graph_stream(graph_filename);
+    if(!graph_stream.good()) {
+        WARN("File " + this->graph_filename + " with graph was not found");
+        return SparseGraphPtr(NULL);
     }
     SparseGraphPtr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
     INFO("Graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");

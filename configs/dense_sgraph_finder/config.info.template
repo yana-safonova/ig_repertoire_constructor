@@ -1,8 +1,9 @@
 ; input-output parameters ;
 io {
-	log_filename 	log.properties
-    	output_dir      dsf_test
-	graph_filename	test_dataset/test.graph
+	log_filename 		log.properties
+    	output_dir      	dsf_test
+	graph_filename		test_dataset/test.graph
+	decomposition_filename	dense_subgraphs.txt
 }
 
 ; run params ;

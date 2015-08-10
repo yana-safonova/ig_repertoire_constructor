@@ -3,12 +3,14 @@
 #include "io/library.hpp"
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
+#include "include_me.hpp"
 
 struct dsf_config {
     struct io_params {
         std::string     log_filename;
         std::string     output_dir;
         std::string 	graph_filename;
+        std::string     decomposition_filename;
     };
 
     struct run_params {

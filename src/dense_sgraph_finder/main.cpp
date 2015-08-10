@@ -14,9 +14,7 @@
 #include <unistd.h>
 
 #include "dsf_config.hpp"
-#include "graph_utils/sparse_graph.hpp"
-#include "graph_utils/graph_collapsed_structure.hpp"
-#include "graph_utils/graph_io.hpp"
+#include "launch.hpp"
 
 void make_dirs(){
     make_dir(dsf_cfg::get().io.output_dir);
@@ -65,10 +63,13 @@ int main(int argc, char* argv[]) {
     }
 
     load_config(argv[1]);
+    create_console_logger(dsf_cfg::get().io.log_filename);
+    make_dirs();
 
-    std::string graph_fname = dsf_cfg::get().io.graph_filename;
-    GraphReader graph_reader(graph_fname);
-    SparseGraphPtr graph_ptr = graph_reader.CreateGraph();
-    GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
-            new GraphCollapsedStructure(graph_ptr));
+    int error_code = dense_subgraph_finder::DenseSubgraphFinder().Run();
+    if(error_code != 0) {
+        INFO("Dense subgraph finder finished abnormally");
+        return error_code;
+    }
+    return 0;
 }

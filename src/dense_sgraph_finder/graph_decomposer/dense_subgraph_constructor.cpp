@@ -30,14 +30,16 @@ DecompositionPtr MetisDenseSubgraphConstructor::ImprovePrimaryDecomposition(Spar
 
 DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphPtr hamming_graph_ptr,
                                      GraphCollapsedStructurePtr collapsed_struct_ptr) {
-    TRACE("Computation of permutation using METIS");
+    INFO("== Computation of permutation using METIS");
     PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr, collapsed_struct_ptr);
-    TRACE("Computation of primary dense subgraph decomposition");
+    INFO("== Computation of primary dense subgraph decomposition");
     DecompositionPtr primary_decomposition_ptr = CreatePrimaryDecomposition(hamming_graph_ptr,
                                                                             collapsed_struct_ptr, permutation_ptr);
-    TRACE("Improvement of the primary decomposition");
+    INFO("Primary decomposition contains " << primary_decomposition_ptr->Size() << " subgraphs");
+    INFO("== Improvement of the primary decomposition");
     DecompositionPtr dense_sgraph_decomposition = ImprovePrimaryDecomposition(hamming_graph_ptr,
                                                                               collapsed_struct_ptr,
                                                                               primary_decomposition_ptr);
+    INFO("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
     return dense_sgraph_decomposition;
 }

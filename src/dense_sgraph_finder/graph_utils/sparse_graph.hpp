@@ -45,4 +45,4 @@ public:
 
 ostream& operator<<(ostream &out, const SparseGraph &graph);
 
-typedef shared_ptr<SparseGraph> SparseGraphPtr;
+typedef std::shared_ptr<SparseGraph> SparseGraphPtr;

@@ -83,4 +83,4 @@ public:
 
 ostream& operator<<(ostream &out, const CrsMatrix &matrix);
 
-typedef shared_ptr<CrsMatrix> CrsMatrixPtr;
+typedef std::shared_ptr<CrsMatrix> CrsMatrixPtr;
