@@ -2,11 +2,9 @@
 
 using namespace dense_subgraph_finder;
 
+// todo: remove this function
 std::string MetisPermutationConstructor::GetMETISGraphFilename() {
-    std::stringstream ss;
-    ss << path::append_path(params_.hg_output_dir, "hamming_graph");
-    ss << "_" << graph_id_ << "_size_" << collapsed_struct_ptr_->NumberNewVertices() << ".graph";
-    return ss.str();
+    return graph_filename;
 }
 
 void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string graph_fname) {

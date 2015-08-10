@@ -13,13 +13,15 @@ namespace dense_subgraph_finder {
 
     class MetisDenseSubgraphConstructor {
         // config params
-        const dsf_config::dense_sgraph_finder_params &params_;
+        const dsf_config::dense_sgraph_finder_params &dsf_params_;
+        const dsf_config::metis_io_params &metis_params_;
+        const string graph_filename_;
 
         // output struct
         DecompositionPtr dense_subgraph_decomposition_ptr_;
 
         PermutationPtr CreatePermutation(SparseGraphPtr hamming_graph_ptr,
-                                         GraphCollapsedStructurePtr collapsed_struct_ptr, size_t graph_id);
+                                         GraphCollapsedStructurePtr collapsed_struct_ptr);
 
         DecompositionPtr CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
                                                     GraphCollapsedStructurePtr collapsed_struct_ptr,
@@ -30,12 +32,15 @@ namespace dense_subgraph_finder {
                                                      DecompositionPtr primary_decomposition_ptr);
 
     public:
-        MetisDenseSubgraphConstructor(const dsf_config::dense_sgraph_finder_params &params) :
-                params_(params) { }
+        MetisDenseSubgraphConstructor(const dsf_config::dense_sgraph_finder_params &dsf_params,
+                const dsf_config::metis_io_params &metis_params,
+                const string graph_filename) :
+                dsf_params_(dsf_params),
+                metis_params_(metis_params),
+                graph_filename_(graph_filename) { }
 
         DecompositionPtr CreateDecomposition(SparseGraphPtr hamming_graph_ptr,
-                                             GraphCollapsedStructurePtr collapsed_struct_ptr,
-                                             size_t graph_id);
+                                             GraphCollapsedStructurePtr collapsed_struct_ptr);
 
     private:
         DECL_LOGGER("MetisDenseSubgraphConstructor");
