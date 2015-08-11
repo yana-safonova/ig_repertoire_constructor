@@ -12,11 +12,20 @@ struct dsf_config {
         };
 
         struct output_params {
-        
+            std::string     log_filename;
+            std::string     output_dir;
+            std::string     decomposition_filename;
         };
-        std::string     log_filename;
-        std::string     output_dir;
-        std::string     decomposition_filename;
+
+        struct output_nonparallel {
+            std::string     graph_filename;
+            std::string     permutation_filename;
+        };
+
+        struct output_mthreading {
+            std::string     connected_components_dir;
+            std::string     decompositions_dir;
+        };
     };
 
     struct run_params {
