@@ -44,8 +44,8 @@ PermutationPtr MetisPermutationConstructor::ReadPermutation(std::string permutat
 }
 
 PermutationPtr MetisPermutationConstructor::CreatePermutation() {
-    std::string metis_graph_fname = GetMETISGraphFilename();
-    WriteHammingGraphInMETISFormat(metis_graph_fname);
-    std::string permutation_fname = RunMETIS(metis_graph_fname);
+    //WriteHammingGraphInMETISFormat(graph_filename);
+    std::string permutation_fname = RunMETIS(graph_filename);
+    INFO("Permutation was written to " << permutation_fname);
     return ReadPermutation(permutation_fname);
 }

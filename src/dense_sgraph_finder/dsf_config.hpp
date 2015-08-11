@@ -7,9 +7,15 @@
 
 struct dsf_config {
     struct io_params {
+        struct input_params {
+            std::string 	graph_filename;
+        };
+
+        struct output_params {
+        
+        };
         std::string     log_filename;
         std::string     output_dir;
-        std::string 	graph_filename;
         std::string     decomposition_filename;
     };
 
