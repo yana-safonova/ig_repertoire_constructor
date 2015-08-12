@@ -1,4 +1,5 @@
 #include "launch.hpp"
+#include "graph_utils/graph_splitter.hpp"
 
 namespace {
     class NonParallelDenseSubgraphFinder {
@@ -30,25 +31,26 @@ namespace {
     };
 
     class ParallelDenseSubgraphFinder {
-        SparseGraphPtr sparse_graph_ptr_;
+        SparseGraphPtr graph_ptr_;
         GraphCollapsedStructurePtr collapsed_struct_ptr_;
         const dsf_config::dense_sgraph_finder_params &dsf_params_;
         const dsf_config::io_params &io_;
         const dsf_config::metis_io_params &metis_io_;
 
     public:
-        ParallelDenseSubgraphFinder(SparseGraphPtr sparse_graph_ptr,
+        ParallelDenseSubgraphFinder(SparseGraphPtr graph_ptr,
                                     GraphCollapsedStructurePtr collapsed_struct_ptr,
                                     const dsf_config::dense_sgraph_finder_params &dsf_params,
                                     const dsf_config::io_params &io,
                                     const dsf_config::metis_io_params &metis_io) :
-                sparse_graph_ptr_(sparse_graph_ptr),
+                graph_ptr_(graph_ptr),
                 collapsed_struct_ptr_(collapsed_struct_ptr),
                 dsf_params_(dsf_params),
                 io_(io),
                 metis_io_(metis_io) { }
 
         void Run() {
+            auto connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
             // todo: implement me!
         }
     };

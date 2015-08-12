@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <set>
+#include <queue>
 
 #include <assert.h>
 

@@ -16,6 +16,7 @@ add_executable(dense_sgraph_finder
                graph_utils/graph_io.cpp
                graph_utils/permutation.cpp
                graph_utils/decomposition.cpp
+               graph_utils/graph_splitter.cpp
                graph_decomposer/metis_permutation_constructor.cpp
                graph_decomposer/greedy_joining_decomposition_constructor.cpp
                graph_decomposer/simple_decomposition_constructor.cpp
