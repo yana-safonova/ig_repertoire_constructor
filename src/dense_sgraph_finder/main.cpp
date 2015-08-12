@@ -65,9 +65,10 @@ int main(int argc, char* argv[]) {
     create_console_logger(cfg_filename);
     make_dirs();
 
-    int error_code = dense_subgraph_finder::DenseSubgraphFinder().Run(dsf_cfg::get().dsf_params,
-                                                                      dsf_cfg::get().io,
-                                                                      dsf_cfg::get().metis_io);
+    int error_code = dense_subgraph_finder::DenseSubgraphFinder(dsf_cfg::get().rp,
+                                                                dsf_cfg::get().dsf_params,
+                                                                dsf_cfg::get().io,
+                                                                dsf_cfg::get().metis_io).Run();
     if(error_code != 0) {
         INFO("Dense subgraph finder finished abnormally");
         return error_code;

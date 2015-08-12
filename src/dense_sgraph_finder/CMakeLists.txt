@@ -22,6 +22,7 @@ add_executable(dense_sgraph_finder
                graph_decomposer/dense_subgraph_constructor.cpp
                graph_decomposer/decomposition_stats_calculator.cpp
                dsf_config.cpp
+               launch.cpp
                main.cpp)
 
 target_link_libraries(dense_sgraph_finder input yaml-cpp ${COMMON_LIBRARIES})
