@@ -17,15 +17,20 @@ struct dsf_config {
             std::string     decomposition_filename;
         };
 
-        struct output_nonparallel {
-            std::string     graph_filename;
+        struct output_nonparallel_params {
+            std::string     graph_copy_filename;
             std::string     permutation_filename;
         };
 
-        struct output_mthreading {
+        struct output_mthreading_params {
             std::string     connected_components_dir;
             std::string     decompositions_dir;
         };
+
+        input_params input;
+        output_params output_base;
+        output_nonparallel_params output_nonparallel;
+        output_mthreading_params output_mthreading;
     };
 
     struct run_params {

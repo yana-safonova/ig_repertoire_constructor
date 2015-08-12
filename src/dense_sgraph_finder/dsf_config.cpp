@@ -2,20 +2,54 @@
 #include "../include/config_common.hpp"
 
 void updateIO(dsf_config::io_params &io) {
-    io.log_filename = path::append_path(io.output_dir, io.log_filename);
-    io.decomposition_filename = path::append_path(io.output_dir, io.decomposition_filename);
+    io.output_base.log_filename = path::append_path(io.output_base.output_dir, io.output_base.log_filename);
+    io.output_base.decomposition_filename = path::append_path(io.output_base.output_dir,
+                                                              io.output_base.decomposition_filename);
+    io.output_nonparallel.graph_copy_filename = path::append_path(io.output_base.output_dir,
+                                                                  io.output_nonparallel.graph_copy_filename);
+    io.output_nonparallel.permutation_filename = path::append_path(io.output_base.output_dir,
+                                                                   io.output_nonparallel.permutation_filename);
+    io.output_mthreading.connected_components_dir = path::append_path(io.output_base.output_dir,
+                                                                      io.output_mthreading.connected_components_dir);
+    io.output_mthreading.decompositions_dir = path::append_path(io.output_base.output_dir,
+                                                                      io.output_mthreading.decompositions_dir);
 }
 
 void updateMetisIO(dsf_config::io_params &io, dsf_config::metis_io_params &metis_io) {
-    metis_io.trash_output = path::append_path(io.output_dir, metis_io.trash_output);
+    metis_io.trash_output = path::append_path(io.output_base.output_dir, metis_io.trash_output);
+}
+
+void load(dsf_config::io_params::input_params &input_params, boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(input_params.graph_filename, pt, "graph_filename");
+}
+
+void load(dsf_config::io_params::output_params &output_base, boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(output_base.log_filename, pt, "log_filename");
+    load(output_base.output_dir, pt, "output_dir");
+    load(output_base.decomposition_filename, pt, "decomposition_filename");
+}
+
+void load(dsf_config::io_params::output_nonparallel_params &output_nonparallel,
+          boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(output_nonparallel.graph_copy_filename, pt, "graph_copy_filename");
+    load(output_nonparallel.permutation_filename, pt, "permutation_filename");
+}
+
+void load(dsf_config::io_params::output_mthreading_params &output_mthreading,
+          boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(output_mthreading.connected_components_dir, pt, "connected_components_dir");
+    load(output_mthreading.decompositions_dir, pt, "decompositions_dir");
 }
 
 void load(dsf_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    load(io.log_filename, pt, "log_filename");
-    load(io.output_dir, pt, "output_dir");
-    load(io.graph_filename, pt, "graph_filename");
-    load(io.decomposition_filename, pt, "decomposition_filename");
+    load(io.input, pt, "input");
+    load(io.output_base, pt, "output_base");
+    load(io.output_nonparallel, pt, "output_nonparallel");
     updateIO(io);
 }
 

@@ -7,7 +7,7 @@ PermutationPtr MetisDenseSubgraphConstructor::CreatePermutation(SparseGraphPtr h
     return MetisPermutationConstructor(hamming_graph_ptr,
                                        collapsed_struct_ptr,
                                        metis_params_,
-                                       graph_filename_).CreatePermutation();
+                                       io_params_).CreatePermutation();
 }
 
 DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,

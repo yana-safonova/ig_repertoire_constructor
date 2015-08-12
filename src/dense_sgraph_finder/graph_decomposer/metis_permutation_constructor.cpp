@@ -4,7 +4,7 @@ using namespace dense_subgraph_finder;
 
 // todo: remove this function
 std::string MetisPermutationConstructor::GetMETISGraphFilename() {
-    return graph_filename;
+    return io_params_.output_nonparallel.graph_copy_filename;
 }
 
 void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string graph_fname) {
@@ -31,7 +31,7 @@ void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string gra
 }
 
 std::string MetisPermutationConstructor::RunMETIS(std::string graph_fname) {
-    std::string command_line = params_.run_metis + " " + graph_fname + " > " + params_.trash_output;
+    std::string command_line = metis_io_params_.run_metis + " " + graph_fname + " > " + metis_io_params_.trash_output;
     int err_code = system(command_line.c_str());
     TRACE("Error code: " << err_code);
     return graph_fname + ".iperm";
@@ -44,8 +44,9 @@ PermutationPtr MetisPermutationConstructor::ReadPermutation(std::string permutat
 }
 
 PermutationPtr MetisPermutationConstructor::CreatePermutation() {
-    //WriteHammingGraphInMETISFormat(graph_filename);
-    std::string permutation_fname = RunMETIS(graph_filename);
+    string graph_copy_filename = GetMETISGraphFilename();
+    WriteHammingGraphInMETISFormat(graph_copy_filename);
+    std::string permutation_fname = RunMETIS(graph_copy_filename);
     INFO("Permutation was written to " << permutation_fname);
     return ReadPermutation(permutation_fname);
 }

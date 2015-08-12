@@ -11,9 +11,11 @@ namespace dense_subgraph_finder {
     public:
         DenseSubgraphFinder() { }
 
-        int Run() {
+        int Run(const dsf_config::dense_sgraph_finder_params &dsf_params,
+                const dsf_config::io_params &io,
+                const dsf_config::metis_io_params &metis_io) {
             INFO("==== Dense subgraph finder starts");
-            std::string graph_fname = dsf_cfg::get().io.graph_filename;
+            std::string graph_fname = io.input.graph_filename;
             GraphReader graph_reader(graph_fname);
             SparseGraphPtr graph_ptr = graph_reader.CreateGraph();
             if (!graph_ptr) {
@@ -24,10 +26,10 @@ namespace dense_subgraph_finder {
                     new GraphCollapsedStructure(graph_ptr));
             INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices");
             dense_subgraph_finder::MetisDenseSubgraphConstructor denseSubgraphConstructor(
-                    dsf_cfg::get().dsf_params, dsf_cfg::get().metis_io, dsf_cfg::get().io.graph_filename);
+                    dsf_params, metis_io, io);
             DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr,
                                                                                               collapsed_struct_ptr);
-            decomposition_ptr->SaveTo(dsf_cfg::get().io.decomposition_filename);
+            decomposition_ptr->SaveTo(io.output_base.decomposition_filename);
             INFO("==== Dense subgraph finder ends");
             return 0;
         }

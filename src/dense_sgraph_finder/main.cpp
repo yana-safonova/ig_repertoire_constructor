@@ -16,14 +16,12 @@
 #include "dsf_config.hpp"
 #include "launch.hpp"
 
-void make_dirs(){
-    make_dir(dsf_cfg::get().io.output_dir);
-//    make_dir(dsf_cfg::get().io.temp_files);
-//    if (dsf_cfg::get().rp.developer_mode)
-//        make_dir(dsf_cfg::get().io.output_saves);
-//    make_dir(dsf_cfg::get().hgc_params.hgc_io_params.hg_output_dir);
-//    if(dsf_cfg::get().hgc_params.hgc_io_params.output_dense_subgraphs)
-//        make_dir(dsf_cfg::get().hgc_params.hgc_io_params.dense_subgraphs_dir);
+void make_dirs() {
+    make_dir(dsf_cfg::get().io.output_base.output_dir);
+    if(dsf_cfg::get().rp.threads_count > 1) {
+        make_dir(dsf_cfg::get().io.output_mthreading.connected_components_dir);
+        make_dir(dsf_cfg::get().io.output_mthreading.decompositions_dir);
+    }
 }
 
 void copy_configs(string cfg_filename, string to) {
@@ -38,17 +36,17 @@ void copy_configs(string cfg_filename, string to) {
 void load_config(string cfg_filename) {
     path::CheckFileExistenceFATAL(cfg_filename);
     dsf_cfg::create_instance(cfg_filename);
-    string path_to_copy = path::append_path(dsf_cfg::get().io.output_dir, "configs");
+    string path_to_copy = path::append_path(dsf_cfg::get().io.output_base.output_dir, "configs");
     copy_configs(cfg_filename, path_to_copy);
 }
 
 void create_console_logger(string cfg_filename) {
     using namespace logging;
 
-    string log_props_file = dsf_cfg::get().io.log_filename;
+    string log_props_file = dsf_cfg::get().io.output_base.log_filename;
 
     if (!path::FileExists(log_props_file)){
-        log_props_file = path::append_path(path::parent_path(cfg_filename), dsf_cfg::get().io.log_filename);
+        log_props_file = path::append_path(path::parent_path(cfg_filename), dsf_cfg::get().io.output_base.log_filename);
     }
 
     logger *lg = create_logger(path::FileExists(log_props_file) ? log_props_file : "");
@@ -62,11 +60,14 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    load_config(argv[1]);
-    create_console_logger(dsf_cfg::get().io.log_filename);
+    string cfg_filename = argv[1];
+    load_config(cfg_filename);
+    create_console_logger(cfg_filename);
     make_dirs();
 
-    int error_code = dense_subgraph_finder::DenseSubgraphFinder().Run();
+    int error_code = dense_subgraph_finder::DenseSubgraphFinder().Run(dsf_cfg::get().dsf_params,
+                                                                      dsf_cfg::get().io,
+                                                                      dsf_cfg::get().metis_io);
     if(error_code != 0) {
         INFO("Dense subgraph finder finished abnormally");
         return error_code;

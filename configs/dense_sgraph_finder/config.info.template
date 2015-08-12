@@ -1,9 +1,24 @@
 ; input-output parameters ;
 io {
-	log_filename 		log.properties
-    	output_dir      	dsf_test
-	graph_filename		test_dataset/test.graph
-	decomposition_filename	dense_subgraphs.txt
+	input {
+                graph_filename          test_dataset/test.graph
+	}
+
+	output_base {
+		log_filename 		log.properties
+    		output_dir      	dsf_test
+		decomposition_filename	dense_subgraphs.txt
+	}
+
+	output_nonparallel {
+		graph_copy_filename	graph_copy.graph
+		permutation_filename	graph_copy.graph.iperm
+	}
+
+	output_mthreading {
+		connected_components_dir	connected_components
+		decompositions_dir	dense_subgraphs
+	}
 }
 
 ; run params ;

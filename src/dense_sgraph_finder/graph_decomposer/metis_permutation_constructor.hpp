@@ -10,8 +10,8 @@ namespace dense_subgraph_finder {
 class MetisPermutationConstructor {
 	SparseGraphPtr hamming_graph_ptr_;
 	GraphCollapsedStructurePtr collapsed_struct_ptr_;
-	const dsf_config::metis_io_params &params_;
-    string graph_filename;
+	const dsf_config::metis_io_params &metis_io_params_;
+	const dsf_config::io_params &io_params_;
 
 	std::string GetMETISGraphFilename();
 
@@ -28,12 +28,12 @@ class MetisPermutationConstructor {
 public:
 	MetisPermutationConstructor(SparseGraphPtr hamming_graph_ptr,
 			GraphCollapsedStructurePtr collapsed_struct_ptr,
-			const dsf_config::metis_io_params &params,
-            string graph_filename) :
+			const dsf_config::metis_io_params &metis_io_params,
+            const dsf_config::io_params &io_params) :
 		hamming_graph_ptr_(hamming_graph_ptr),
 		collapsed_struct_ptr_(collapsed_struct_ptr),
-		params_(params),
-        graph_filename(graph_filename) { }
+		metis_io_params_(metis_io_params),
+		io_params_(io_params) { }
 
 	PermutationPtr CreatePermutation();
 };

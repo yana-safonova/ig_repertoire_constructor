@@ -15,7 +15,7 @@ namespace dense_subgraph_finder {
         // config params
         const dsf_config::dense_sgraph_finder_params &dsf_params_;
         const dsf_config::metis_io_params &metis_params_;
-        const string graph_filename_;
+        const dsf_config::io_params &io_params_;
 
         // output struct
         DecompositionPtr dense_subgraph_decomposition_ptr_;
@@ -34,10 +34,10 @@ namespace dense_subgraph_finder {
     public:
         MetisDenseSubgraphConstructor(const dsf_config::dense_sgraph_finder_params &dsf_params,
                 const dsf_config::metis_io_params &metis_params,
-                const string graph_filename) :
+                const dsf_config::io_params &io_params) :
                 dsf_params_(dsf_params),
                 metis_params_(metis_params),
-                graph_filename_(graph_filename) { }
+                io_params_(io_params) { }
 
         DecompositionPtr CreateDecomposition(SparseGraphPtr hamming_graph_ptr,
                                              GraphCollapsedStructurePtr collapsed_struct_ptr);
