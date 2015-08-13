@@ -4,7 +4,7 @@ using namespace dense_subgraph_finder;
 
 // todo: remove this function
 std::string MetisPermutationConstructor::GetMETISGraphFilename() {
-    return io_params_.output_nonparallel.graph_copy_filename;
+    return graph_filename_;
 }
 
 void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string graph_fname) {
@@ -33,8 +33,9 @@ void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string gra
 std::string MetisPermutationConstructor::RunMETIS(std::string graph_fname) {
     std::string command_line = metis_io_params_.run_metis + " " + graph_fname + " > " + metis_io_params_.trash_output;
     int err_code = system(command_line.c_str());
+    string permutation_fname = graph_filename_ + ".iperm";
     TRACE("Error code: " << err_code);
-    return graph_fname + ".iperm";
+    return permutation_fname;
 }
 
 PermutationPtr MetisPermutationConstructor::ReadPermutation(std::string permutation_fname) {

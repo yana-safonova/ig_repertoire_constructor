@@ -7,7 +7,7 @@ PermutationPtr MetisDenseSubgraphConstructor::CreatePermutation(SparseGraphPtr h
     return MetisPermutationConstructor(hamming_graph_ptr,
                                        collapsed_struct_ptr,
                                        metis_params_,
-                                       io_params_).CreatePermutation();
+                                       graph_filename_).CreatePermutation();
 }
 
 DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
@@ -41,5 +41,6 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
                                                                               collapsed_struct_ptr,
                                                                               primary_decomposition_ptr);
     INFO("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
+    dense_sgraph_decomposition->SaveTo(decomposition_filename_);
     return dense_sgraph_decomposition;
 }
