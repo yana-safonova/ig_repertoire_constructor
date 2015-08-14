@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from cvxopt.modeling import op
 
 import sys
 import os
