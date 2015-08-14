@@ -54,7 +54,6 @@ DecompositionPtr MetisDenseSubgraphConstructor::ExpandDecomposition(SparseGraphP
     size_t cur_class_id = 0;
     for(size_t i = 0; i < final_decomposition_ptr1->Size(); i++)
         if(final_decomposition_ptr1->ClassSize(i) != 0) {
-            cout << "oppa " << i << " " << final_decomposition_ptr1->ClassSize(i) << endl;
             auto cur_class = final_decomposition_ptr1->GetClass(i);
             for(auto it = cur_class.begin(); it != cur_class.end(); it++)
                 final_decomposition_ptr2->SetClass(*it, cur_class_id);
@@ -88,8 +87,6 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
     dense_sgraph_decomposition = ExpandDecomposition(hamming_graph_ptr,
                                                        collapsed_struct_ptr,
                                                        dense_sgraph_decomposition);
-    //dense_sgraph_decomposition = AddIsolatedVertices(hamming_graph_ptr,
-    //                                                 dense_sgraph_decomposition);
     INFO("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
     dense_sgraph_decomposition->SaveTo(decomposition_filename_);
     return dense_sgraph_decomposition;

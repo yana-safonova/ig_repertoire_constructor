@@ -27,7 +27,6 @@ namespace {
                     io_.output_base.decomposition_filename);
             GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
                     new GraphCollapsedStructure(graph_ptr_));
-            cout << *collapsed_struct_ptr << endl;
             INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices & " <<
                 collapsed_struct_ptr->NumberCollapsedEdges(graph_ptr_) << " edges");
             DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_,

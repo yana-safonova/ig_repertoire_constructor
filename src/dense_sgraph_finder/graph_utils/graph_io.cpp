@@ -77,7 +77,6 @@ public:
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
-            cout << cur_vertex << ": " << tmp_line << endl;
             vector<string> splits = SplitGraphString(tmp_line);
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
