@@ -110,12 +110,12 @@ namespace {
                         decomposition_filename);
                 DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(current_subgraph,
                                                                                                   current_collapsed_struct);
-                INFO("Dense subgraph decomposition was written to " << decomposition_filename);
+                TRACE("Dense subgraph decomposition was written to " << decomposition_filename);
             }
             INFO("Parallel construction of dense subgraphs for connected components finished");
             INFO("Connected components in GRAPH format were written to " <<
                          io_.output_mthreading.connected_components_dir);
-            INFO("Dense subgraph decomposition for connected components were written to " <<
+            INFO("Dense subgraph decompositions for connected components were written to " <<
                          io_.output_mthreading.decompositions_dir);
             DecompositionPtr final_decomposition = CreateFinalDecomposition(connected_components.size());
             final_decomposition->SaveTo(io_.output_base.decomposition_filename);

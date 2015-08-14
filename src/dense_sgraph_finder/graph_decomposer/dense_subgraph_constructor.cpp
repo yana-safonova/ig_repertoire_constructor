@@ -64,30 +64,30 @@ DecompositionPtr MetisDenseSubgraphConstructor::ExpandDecomposition(SparseGraphP
 
 DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphPtr hamming_graph_ptr,
                                      GraphCollapsedStructurePtr collapsed_struct_ptr) {
-    INFO("== Computation of permutation using METIS");
-    INFO("Input graph contains " << hamming_graph_ptr->N() << " vertices & " << hamming_graph_ptr->NZ() << " edges");
+    TRACE("== Computation of permutation using METIS");
+    TRACE("Input graph contains " << hamming_graph_ptr->N() << " vertices & " << hamming_graph_ptr->NZ() << " edges");
     if(hamming_graph_ptr->NZ() == 0) {
-        INFO("Graph does not contain edges. Trivial decomposition was created");
+        TRACE("Graph does not contain edges. Trivial decomposition was created");
         DecompositionPtr trivial_decomposition(new Decomposition(hamming_graph_ptr->N()));
         trivial_decomposition = AddIsolatedVertices(hamming_graph_ptr, trivial_decomposition);
         trivial_decomposition->SaveTo(decomposition_filename_);
         return trivial_decomposition;
     }
     PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr, collapsed_struct_ptr);
-    INFO("Computation of primary dense subgraph decomposition starts");
+    TRACE("Computation of primary dense subgraph decomposition starts");
     DecompositionPtr primary_decomposition_ptr = CreatePrimaryDecomposition(hamming_graph_ptr,
                                                                             collapsed_struct_ptr, permutation_ptr);
-    INFO("Primary decomposition contains " << primary_decomposition_ptr->Size() << " subgraphs");
-    INFO("Improvement of the primary decomposition starts");
+    TRACE("Primary decomposition contains " << primary_decomposition_ptr->Size() << " subgraphs");
+    TRACE("Improvement of the primary decomposition starts");
     DecompositionPtr dense_sgraph_decomposition = ImprovePrimaryDecomposition(hamming_graph_ptr,
                                                                               collapsed_struct_ptr,
                                                                               primary_decomposition_ptr);
-    INFO("Improved decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
-    INFO("Expansion of the constructed decomposition and addition of isolated vertices");
+    TRACE("Improved decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
+    TRACE("Expansion of the constructed decomposition and addition of isolated vertices");
     dense_sgraph_decomposition = ExpandDecomposition(hamming_graph_ptr,
                                                        collapsed_struct_ptr,
                                                        dense_sgraph_decomposition);
-    INFO("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
+    TRACE("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
     dense_sgraph_decomposition->SaveTo(decomposition_filename_);
     return dense_sgraph_decomposition;
 }
