@@ -41,6 +41,8 @@ public:
     const CrsMatrixPtr DirectMatrix() const { return direct_matrix_; }
 
     const CrsMatrixPtr TransposedMatrix() const { return trans_matrix_; }
+
+    std::shared_ptr<SparseGraph> GetSubgraph(const set<size_t> vertex_set);
 };
 
 ostream& operator<<(ostream &out, const SparseGraph &graph);

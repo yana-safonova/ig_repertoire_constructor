@@ -50,6 +50,7 @@ void load(dsf_config::io_params &io, boost::property_tree::ptree const &pt, bool
     load(io.input, pt, "input");
     load(io.output_base, pt, "output_base");
     load(io.output_nonparallel, pt, "output_nonparallel");
+    load(io.output_mthreading, pt, "output_mthreading");
     updateIO(io);
 }
 

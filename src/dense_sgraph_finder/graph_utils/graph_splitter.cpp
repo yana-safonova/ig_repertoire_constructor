@@ -46,11 +46,11 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
             }
         }
     }
-    cout << "Connected component: ";
-    for(auto it = connected_component.begin(); it != connected_component.end(); it++)
-        cout << *it << " ";
+    //cout << "Connected component: ";
+    //for(auto it = connected_component.begin(); it != connected_component.end(); it++)
+    //    cout << *it << " ";
     //assert(false);
-    return NULL;
+    return graph_ptr_->GetSubgraph(connected_component);
 }
 
 vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
@@ -63,6 +63,6 @@ vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
         connected_components.push_back(cur_connected_component);
         start_vertex = GetStartVertex();
     }
-    INFO("Graph was splitted into " << connected_components.size() << " connected components");
+    INFO("Graph was splitted into " << connected_components.size() << " connected component(s)");
     return connected_components;
 }

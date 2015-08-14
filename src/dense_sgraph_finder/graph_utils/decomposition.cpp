@@ -34,7 +34,6 @@ void Decomposition::SaveTo(string output_fname) {
     for(auto it = vertex_class_.begin(); it != vertex_class_.end(); it++)
         out << *it << endl;
     out.close();
-    INFO("Decomposition was written to " << output_fname);
 }
 
 size_t Decomposition::MaxClassSize() {

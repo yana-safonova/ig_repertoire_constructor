@@ -25,7 +25,7 @@ class WeightedGraphReader {
         assert(line_splits.size() % 2 == 0);
         size_t num_edges = line_splits.size() / 2;
         for(size_t i = 0; i < num_edges; i++) {
-            size_t dst_vertex = string_to_number<size_t>(line_splits[i * 2]);
+            size_t dst_vertex = string_to_number<size_t>(line_splits[i * 2]) - 1;
             size_t edge_weight = string_to_number<size_t>(line_splits[i * 2 + 1]);
             if(cur_vertex < dst_vertex)
                 graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
@@ -60,7 +60,7 @@ class UnweightedGraphReader {
     void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits) {
         size_t num_edges = line_splits.size();
         for(size_t i = 0; i < num_edges; i++) {
-            size_t dst_vertex = string_to_number<size_t>(line_splits[i]);
+            size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
             size_t edge_weight = 1;
             if(cur_vertex < dst_vertex)
                 graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));

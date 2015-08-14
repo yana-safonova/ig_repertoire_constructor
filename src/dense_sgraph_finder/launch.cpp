@@ -88,8 +88,8 @@ namespace {
                          io_.output_mthreading.connected_components_dir);
             INFO("Dense subgraph decomposition for connected components were written to " <<
                          io_.output_mthreading.decompositions_dir);
-            // todo: create final decomposition
         }
+        // todo: create final decomposition
     };
 }
 
@@ -110,7 +110,7 @@ int dense_subgraph_finder::DenseSubgraphFinder::Run() {
         NonParallelDenseSubgraphFinder(graph_ptr, collapsed_struct_ptr, dsf_params_, io_, metis_io_).Run();
     }
     else {
-        INFO("Parallel mode was chosen. Number of threads " << run_params_.threads_count);
+        INFO("Parallel mode was chosen. Number of threads: " << run_params_.threads_count);
         ParallelDenseSubgraphFinder(graph_ptr, collapsed_struct_ptr, dsf_params_, io_, metis_io_).Run();
     }
     INFO("==== Dense subgraph finder ends");
