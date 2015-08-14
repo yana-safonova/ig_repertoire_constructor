@@ -46,8 +46,19 @@ size_t GraphCollapsedStructure::NumberCollapsedEdges(SparseGraphPtr hamming_grap
         for(size_t j = hamming_graph_ptr->RowIndex()[i]; j < hamming_graph_ptr->RowIndex()[i + 1]; j++) {
             size_t v1 = i;
             size_t v2 = hamming_graph_ptr->Col()[j];
-            if(VertexIsMain(v1) and VertexIsMain(v2))
+            if(VertexIsMain(v1) and VertexIsMain(v2)) {
                 collapsed_edges++;
+            }
         }
     return collapsed_edges;
+}
+
+ostream& operator<<(ostream& out, GraphCollapsedStructure collapsed_structure) {
+    out << "Old vertex - new vertex" << endl;
+    for(size_t i = 0; i < collapsed_structure.NumberNewVertices(); i++)
+        out << collapsed_structure.OldVerticesList()[i] << "\t" << i << endl;
+    out << "Old vertex - main vertex" << endl;
+    for(size_t i = 0; i < collapsed_structure.NumberOldVertices(); i++)
+        out << i << "\t" << collapsed_structure.GetMainVertexIndex(i) << endl;
+    return out;
 }

@@ -27,6 +27,7 @@ namespace {
                     io_.output_base.decomposition_filename);
             GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
                     new GraphCollapsedStructure(graph_ptr_));
+            cout << *collapsed_struct_ptr << endl;
             INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices");
 
             DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_,
@@ -53,7 +54,8 @@ namespace {
             return path::append_path(io_.output_mthreading.decompositions_dir, ss.str());
         }
 
-        // this function is very complex. todo: refactor it
+        // this function is incorrect
+        // todo: fix me!!!
         DecompositionPtr CreateFinalDecomposition(size_t num_connected_components) {
             GraphComponentMap &component_map = graph_ptr_->GetGraphComponentMap();
             cout << component_map << endl;
@@ -82,17 +84,12 @@ namespace {
             DecompositionPtr final_decomposition_ptr(new Decomposition(graph_ptr_->N()));
             for(size_t i = 0; i < graph_ptr_->N(); i++) {
                 size_t new_vertex_id = collapsed_structure->NewIndexOfOldVertex(i);
-                if(vertex_new_set.find(new_vertex_id) != vertex_new_set.end()) {
-                    size_t class_id = vertex_new_set[new_vertex_id];
-                    final_decomposition_ptr->SetClass(i, class_id);
-                }
-                else assert(graph_ptr_->VertexIsIsolated(i));
+                assert(vertex_new_set.find(new_vertex_id) != vertex_new_set.end());
+                size_t class_id = vertex_new_set[new_vertex_id];
+                final_decomposition_ptr->SetClass(i, class_id);
             }
-            for(size_t i = 0; i < graph_ptr_->N(); i++)
-                if(graph_ptr_->VertexIsIsolated(i))
-                    final_decomposition_ptr->SetClass(i, final_decomposition_ptr->LastClassId());
             cout << "Final decomposition: " << endl;
-            cout << *final_decomposition_ptr << endl;
+            cout << *final_decomposition_ptr;
             return final_decomposition_ptr;
         }
 
@@ -108,11 +105,9 @@ namespace {
 
         void Run() {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
-#pragma omp parallel for
+//#pragma omp parallel for
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];
-                cout << "Oppa: new connected component contains " << current_subgraph->N() <<
-                                                                     " & " << current_subgraph->NZ() << endl;
                 GraphCollapsedStructurePtr current_collapsed_struct = GraphCollapsedStructurePtr(
                         new GraphCollapsedStructure(current_subgraph));
                 string graph_filename = GetSubgraphFilename(i);

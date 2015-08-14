@@ -52,6 +52,11 @@ public:
         return index == main_vertices_map_[index];
     }
 
+    size_t GetMainVertexIndex(size_t index) {
+        assert(index < main_vertices_map_.size());
+        return main_vertices_map_[index];
+    }
+
     size_t NewIndexOfOldVertex(size_t old_vertex) {
         assert(old_vertex < main_vertices_map_.size());
         return new_vertices_list_[main_vertices_map_[old_vertex]];
@@ -63,6 +68,8 @@ public:
     }
 
     size_t NumberNewVertices() { return old_vertices_list_.size(); }
+
+    size_t NumberOldVertices() { return main_vertices_map_.size(); }
 
     size_t MultiplicityOfNewVertex(size_t new_index) {
         assert(new_index < old_vertices_list_.size());
@@ -78,3 +85,5 @@ public:
 };
 
 typedef shared_ptr<GraphCollapsedStructure> GraphCollapsedStructurePtr;
+
+ostream& operator<<(ostream& out, GraphCollapsedStructure collapsed_structure);

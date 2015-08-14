@@ -44,6 +44,8 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
+        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
+            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
@@ -81,7 +83,7 @@ public:
             cur_vertex++;
         }
         for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
-            cout << it->i << " " << it->j << endl;
+            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
@@ -137,6 +139,6 @@ SparseGraphPtr GraphReader::CreateGraph() {
         return SparseGraphPtr(NULL);
     }
     SparseGraphPtr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
-    INFO("Graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
+    INFO("Extracted graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
     return graph_ptr;
 }
