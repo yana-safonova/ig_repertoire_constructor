@@ -35,16 +35,16 @@ class WeightedGraphReader {
 public:
     WeightedGraphReader() { }
 
-    SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
+    SparseGraphPtr ReadGraph(size_t num_vertices, std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
-            vector<string> splits = SplitGraphString(tmp_line); // split(tmp_line, ' ');
+            vector<string> splits = SplitGraphString(tmp_line);
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        return SparseGraphPtr(new SparseGraph(cur_vertex, graph_edges));
+        return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
 
@@ -70,16 +70,19 @@ class UnweightedGraphReader {
 public:
     UnweightedGraphReader() { }
 
-    SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
+    SparseGraphPtr ReadGraph(size_t num_vertices, std::ifstream &graph_stream) {
         size_t cur_vertex = 0;
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
-            vector<string> splits = SplitGraphString(tmp_line); //split(tmp_line, ' ');
+            cout << cur_vertex << ": " << tmp_line << endl;
+            vector<string> splits = SplitGraphString(tmp_line);
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        return SparseGraphPtr(new SparseGraph(cur_vertex, graph_edges));
+        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
+            cout << it->i << " " << it->j << endl;
+        return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
 
@@ -97,20 +100,26 @@ class VersatileGraphReader {
         return header_splits[2] == "001";
     }
 
+    size_t GetNumVertices(const vector<string> &header_splits) {
+        assert(header_splits.size() > 0);
+        return string_to_number<size_t>(header_splits[0]);
+    }
+
 public:
     SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         string header_line;
         getline(graph_stream, header_line);
-        vector<string> splits = SplitGraphString(header_line); //split(header_line, '\t');
+        vector<string> splits = SplitGraphString(header_line);
+        size_t num_vertices = GetNumVertices(splits);
         if(GraphIsUnweighted(splits)) {
             INFO("Unweighted graph reader was chosen");
-            return UnweightedGraphReader().ReadGraph(graph_stream);
+            return UnweightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
         if(GraphInWeighted(splits)) {
             INFO("Weighted graph reader was chosen");
-            return WeightedGraphReader().ReadGraph(graph_stream);
+            return WeightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
-        return WeightedGraphReader().ReadGraph(graph_stream);
+        return WeightedGraphReader().ReadGraph(num_vertices, graph_stream);
     }
 
 private:

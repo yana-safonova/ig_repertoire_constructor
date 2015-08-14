@@ -22,7 +22,7 @@ size_t ConnectedComponentGraphSplitter::GetStartVertex() {
 }
 
 
-SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(size_t start_vertex) {
+SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(size_t component_id, size_t start_vertex) {
     queue<size_t> vertex_queue;
     vertex_queue.push(start_vertex);
     set<size_t> connected_component;
@@ -46,11 +46,7 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
             }
         }
     }
-    //cout << "Connected component: ";
-    //for(auto it = connected_component.begin(); it != connected_component.end(); it++)
-    //    cout << *it << " ";
-    //assert(false);
-    return graph_ptr_->GetSubgraph(connected_component);
+    return graph_ptr_->GetSubgraph(component_id, connected_component);
 }
 
 vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
@@ -59,7 +55,8 @@ vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
     vector<SparseGraphPtr> connected_components;
     size_t start_vertex = GetStartVertex();
     while(start_vertex != size_t(-1)) {
-        SparseGraphPtr cur_connected_component = GetConnectedComponentByVertex(start_vertex);
+        size_t component_id = connected_components.size();
+        SparseGraphPtr cur_connected_component = GetConnectedComponentByVertex(component_id, start_vertex);
         connected_components.push_back(cur_connected_component);
         start_vertex = GetStartVertex();
     }

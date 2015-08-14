@@ -9,7 +9,7 @@ class ConnectedComponentGraphSplitter {
 
     size_t GetStartVertex();
 
-    SparseGraphPtr GetConnectedComponentByVertex(size_t start_vertex);
+    SparseGraphPtr GetConnectedComponentByVertex(size_t component_id, size_t start_vertex);
 
 public:
     ConnectedComponentGraphSplitter(SparseGraphPtr graph_ptr) : graph_ptr_(graph_ptr) { }

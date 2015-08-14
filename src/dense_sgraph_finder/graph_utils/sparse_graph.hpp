@@ -1,6 +1,7 @@
 #pragma once
 
 #include "crs_matrix.hpp"
+#include "graph_component_map.hpp"
 
 /*
     class sparse graph in CRS format
@@ -9,6 +10,7 @@
 class SparseGraph {
     CrsMatrixPtr direct_matrix_;
     CrsMatrixPtr trans_matrix_;
+    GraphComponentMap component_map_;
 
 public:
     SparseGraph(size_t N, const vector<GraphEdge> &edges) :
@@ -42,7 +44,13 @@ public:
 
     const CrsMatrixPtr TransposedMatrix() const { return trans_matrix_; }
 
-    std::shared_ptr<SparseGraph> GetSubgraph(const set<size_t> vertex_set);
+    std::shared_ptr<SparseGraph> GetSubgraph(size_t subgraph_id, const set<size_t> &vertex_set);
+
+    GraphComponentMap& GetGraphComponentMap() { return component_map_; }
+
+    bool VertexIsIsolated(size_t vertex) const {
+        return RowIndex()[vertex + 1] - RowIndex()[vertex] + RowIndexT()[vertex + 1] - RowIndexT()[vertex] == 0;
+    }
 };
 
 ostream& operator<<(ostream &out, const SparseGraph &graph);

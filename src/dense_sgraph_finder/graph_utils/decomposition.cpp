@@ -1,9 +1,33 @@
 #include "decomposition.hpp"
+#include "../../ig_tools/utils/string_tools.hpp"
+
+Decomposition::Decomposition(string decomposition_filename) {
+    ifstream in(decomposition_filename);
+    assert(in.good());
+    vector <size_t> classes_list = ReadClassIdsFromIfstream(in);
+    TRACE("Decomposition of size " << classes_list.size() << " was extracted from " << decomposition_filename);
+    num_vertices_ = classes_list.size();
+    InitializeVertexClasses();
+    for (size_t i = 0; i < classes_list.size(); i++)
+        SetClass(i, classes_list[i]);
+}
 
 void Decomposition::InitializeVertexClasses() {
     num_classes_ = 0;
     for(size_t i = 0; i < num_vertices_; i++)
         vertex_class_.push_back(size_t(-1));
+}
+
+vector<size_t> Decomposition::ReadClassIdsFromIfstream(ifstream &in) {
+    vector<size_t> classes_list;
+    while(!in.eof()) {
+        string tmp;
+        getline(in, tmp);
+        if(tmp == "")
+            break;
+        classes_list.push_back(string_to_number<size_t>(tmp));
+    }
+    return classes_list;
 }
 
 void Decomposition::AddNewClass() {
@@ -28,6 +52,15 @@ void Decomposition::SetClass(size_t vertex, size_t class_id) {
     decomposition_classes_[class_id].insert(vertex);
     vertex_class_[vertex] = class_id;
 }
+
+void Decomposition::AddDecomposition(shared_ptr<Decomposition> decomposition) {
+    size_t last_class_id = LastClassId();
+    for(size_t i = 0; i < decomposition->Size(); i++) {
+        set<size_t> cur_class = decomposition->GetClass(i);
+        for(auto it = cur_class.begin(); it != cur_class.end(); it++)
+            SetClass(*it, last_class_id + i);
+    }
+};
 
 void Decomposition::SaveTo(string output_fname) {
     ofstream out(output_fname.c_str());

@@ -10,7 +10,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 add_executable(dense_sgraph_finder
+               ../ig_tools/utils/string_tools.cpp
+               ../ig_tools/utils/include_me.cpp
                graph_utils/crs_matrix.cpp
+               graph_utils/graph_component_map.cpp
                graph_utils/sparse_graph.cpp
                graph_utils/graph_collapsed_structure.cpp
                graph_utils/graph_io.cpp

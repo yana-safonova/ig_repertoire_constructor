@@ -15,6 +15,8 @@ class Decomposition {
 
     void InitializeVertexClasses();
 
+    vector<size_t> ReadClassIdsFromIfstream(ifstream &in);
+
     void AddNewClass();
 
     bool ClassIsValid(size_t class_id) { return class_id != size_t(-1); }
@@ -27,7 +29,11 @@ public:
         InitializeVertexClasses();
     }
 
+    Decomposition(string decomposition_filename);
+
     void SetClass(size_t vertex, size_t class_id);
+
+    void AddDecomposition(shared_ptr<Decomposition> decomposition);
 
     const set<size_t>& GetClass(size_t index) const {
         assert(index < Size());
