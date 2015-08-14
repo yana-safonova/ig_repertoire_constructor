@@ -1,6 +1,17 @@
 #include "graph_io.hpp"
 #include "../../ig_tools/utils/string_tools.hpp"
 
+vector<string> SplitGraphString(string str) {
+    vector<string> final_splits;
+    vector<string> splits = split(str, ' ');
+    for(auto it = splits.begin(); it != splits.end(); it++) {
+        vector<string> cur_splits = split(*it, '\t');
+        for(auto it2 = cur_splits.begin(); it2 != cur_splits.end(); it2++)
+            final_splits.push_back(*it2);
+    }
+    return final_splits;
+}
+
 /*
  * class WeightedGraphReader
  *      takes as an input file stream starting from the first line of the adjacency list
@@ -29,7 +40,7 @@ public:
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
-            vector<string> splits = split(tmp_line, ' ');
+            vector<string> splits = SplitGraphString(tmp_line); // split(tmp_line, ' ');
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
@@ -64,7 +75,7 @@ public:
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
-            vector<string> splits = split(tmp_line, ' ');
+            vector<string> splits = SplitGraphString(tmp_line); //split(tmp_line, ' ');
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
@@ -90,7 +101,7 @@ public:
     SparseGraphPtr ReadGraph(std::ifstream &graph_stream) {
         string header_line;
         getline(graph_stream, header_line);
-        vector<string> splits = split(header_line, '\t');
+        vector<string> splits = SplitGraphString(header_line); //split(header_line, '\t');
         if(GraphIsUnweighted(splits)) {
             INFO("Unweighted graph reader was chosen");
             return UnweightedGraphReader().ReadGraph(graph_stream);
