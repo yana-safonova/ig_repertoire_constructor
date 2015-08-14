@@ -28,8 +28,8 @@ namespace {
             GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
                     new GraphCollapsedStructure(graph_ptr_));
             cout << *collapsed_struct_ptr << endl;
-            INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices");
-
+            INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices & " <<
+                collapsed_struct_ptr->NumberCollapsedEdges(graph_ptr_) << " edges");
             DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_,
                                                                                               collapsed_struct_ptr);
             INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
@@ -54,27 +54,20 @@ namespace {
             return path::append_path(io_.output_mthreading.decompositions_dir, ss.str());
         }
 
-        // this function is incorrect
-        // todo: fix me!!!
         DecompositionPtr CreateFinalDecomposition(size_t num_connected_components) {
             GraphComponentMap &component_map = graph_ptr_->GetGraphComponentMap();
-            cout << component_map << endl;
+            TRACE(component_map);
             GraphCollapsedStructurePtr collapsed_structure(new GraphCollapsedStructure(graph_ptr_));
             map<size_t, size_t> vertex_new_set;
             size_t cur_set_id = 0;
             for(size_t i = 0; i < num_connected_components; i++) {
-                cout << "1: " << i << endl;
                 string cur_decomposition_fname = GetDecompositionFilename(i);
-                cout << "2: " << cur_decomposition_fname << endl;
                 DecompositionPtr subgraph_decomposition(new Decomposition(cur_decomposition_fname));
-                cout << "3: " << subgraph_decomposition->Size() << endl;
                 for(size_t j = 0; j < subgraph_decomposition->Size(); j++) {
                     const set<size_t> &cur_subclass = subgraph_decomposition->GetClass(j);
                     for(auto it = cur_subclass.begin(); it != cur_subclass.end(); it++) {
-                        cout << "4: " << j << " " << *it << endl;
-                        size_t new_vertex = *it;
-                        size_t old_vertex = component_map.GetOldVertexByNewVertex(i, new_vertex);
-                        cout << "5: " << old_vertex << endl;
+                        size_t subgraph_vertex = *it;
+                        size_t old_vertex = component_map.GetOldVertexByNewVertex(i, subgraph_vertex);
                         size_t new_set_id = cur_set_id + j;
                         vertex_new_set[old_vertex] = new_set_id;
                     }
@@ -83,13 +76,12 @@ namespace {
             }
             DecompositionPtr final_decomposition_ptr(new Decomposition(graph_ptr_->N()));
             for(size_t i = 0; i < graph_ptr_->N(); i++) {
-                size_t new_vertex_id = collapsed_structure->NewIndexOfOldVertex(i);
-                assert(vertex_new_set.find(new_vertex_id) != vertex_new_set.end());
-                size_t class_id = vertex_new_set[new_vertex_id];
+                assert(vertex_new_set.find(i) != vertex_new_set.end());
+                size_t class_id = vertex_new_set[i];
                 final_decomposition_ptr->SetClass(i, class_id);
             }
-            cout << "Final decomposition: " << endl;
-            cout << *final_decomposition_ptr;
+//            TRACE("Final decomposition: ");
+//            TRACE(*final_decomposition_ptr);
             return final_decomposition_ptr;
         }
 
@@ -105,7 +97,7 @@ namespace {
 
         void Run() {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
-//#pragma omp parallel for
+#pragma omp parallel for
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];
                 GraphCollapsedStructurePtr current_collapsed_struct = GraphCollapsedStructurePtr(
@@ -121,13 +113,15 @@ namespace {
                                                                                                   current_collapsed_struct);
                 INFO("Dense subgraph decomposition was written to " << decomposition_filename);
             }
-            //assert(false);
             INFO("Parallel construction of dense subgraphs for connected components finished");
             INFO("Connected components in GRAPH format were written to " <<
                          io_.output_mthreading.connected_components_dir);
             INFO("Dense subgraph decomposition for connected components were written to " <<
                          io_.output_mthreading.decompositions_dir);
             DecompositionPtr final_decomposition = CreateFinalDecomposition(connected_components.size());
+            final_decomposition->SaveTo(io_.output_base.decomposition_filename);
+            INFO(final_decomposition->Size() << " dense subgraphs were constructed");
+            INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
         }
     };
 }

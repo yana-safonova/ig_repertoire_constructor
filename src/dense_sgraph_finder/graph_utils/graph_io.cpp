@@ -44,8 +44,8 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
-            cout << it->i << " " << it->j << " " << it->dist << endl;
+//        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
+//            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
@@ -82,8 +82,8 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
-            cout << it->i << " " << it->j << " " << it->dist << endl;
+//        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
+//            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };

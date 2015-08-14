@@ -32,7 +32,7 @@ namespace dense_subgraph_finder {
         DecompositionPtr AddIsolatedVertices(SparseGraphPtr hamming_graph_ptr,
                                              DecompositionPtr primary_decomposition_ptr);
 
-        DecompositionPtr GetFinalDecomposition(SparseGraphPtr hamming_graph_ptr,
+        DecompositionPtr ExpandDecomposition(SparseGraphPtr hamming_graph_ptr,
                                                GraphCollapsedStructurePtr collapsed_struct_ptr,
                                                DecompositionPtr primary_decomposition_ptr);
 
