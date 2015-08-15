@@ -19,6 +19,12 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
     queue<size_t> vertex_queue;
     vertex_queue.push(start_vertex);
     set<size_t> connected_component;
+    // check if vertex is isolated
+    if(graph_ptr_->VertexIsIsolated(start_vertex)) {
+        connected_component.insert(start_vertex);
+        return graph_ptr_->GetSubgraph(component_id, connected_component);
+    }
+    // otherwise search for connected component
     while(!vertex_queue.empty()) {
         size_t cur_vertex = vertex_queue.front();
         vertex_queue.pop();
