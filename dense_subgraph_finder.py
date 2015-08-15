@@ -123,7 +123,6 @@ def main():
 
     CheckParamsCorrectness(params, log, parser)
     SetOutputParams(params, params.output)
-    PrintParams(params, log)
 
     PrepareOutputDir(params, log)
 
@@ -138,12 +137,13 @@ def main():
     # print command line
     command_line = "Command line: " + " ".join(sys.argv)
     log.info(command_line)
+    PrintParams(params, log)
 
     PrepareConfigs(params, log)
 
     # just draft of main fuction
     dsf_command_line = init.PathToBins.run_dense_sgraph_finder + " " + params.config_file
-    print "Command line: " + dsf_command_line
+    #log.info("Command line: " + dsf_command_line)
     error_code = os.system(dsf_command_line)
     if error_code != 0:
         print "ERROR: Dense sgraph finder finished abnormally"
