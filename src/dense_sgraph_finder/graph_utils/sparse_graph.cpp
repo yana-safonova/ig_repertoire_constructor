@@ -16,7 +16,7 @@ std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const 
             }
         }
     }
-    INFO("Subgraph contains " << vertex_set.size() << " vertices and " << subgraph_edges.size() << " edges");
+    //INFO("Subgraph contains " << vertex_set.size() << " vertices and " << subgraph_edges.size() << " edges");
     return std::shared_ptr<SparseGraph>(new SparseGraph(vertex_set.size(), subgraph_edges));
 }
 
