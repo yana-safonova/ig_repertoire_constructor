@@ -48,6 +48,6 @@ PermutationPtr MetisPermutationConstructor::CreatePermutation() {
     string graph_copy_filename = GetMETISGraphFilename();
     WriteHammingGraphInMETISFormat(graph_copy_filename);
     std::string permutation_fname = RunMETIS(graph_copy_filename);
-    INFO("Permutation was written to " << permutation_fname);
+    TRACE("Permutation was written to " << permutation_fname);
     return ReadPermutation(permutation_fname);
 }

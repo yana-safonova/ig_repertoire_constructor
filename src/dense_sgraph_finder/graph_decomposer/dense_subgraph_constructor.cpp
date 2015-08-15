@@ -36,7 +36,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::AddIsolatedVertices(SparseGraphP
             primary_decomposition_ptr->SetClass(i, primary_decomposition_ptr->LastClassId() + 1);
             num_isolated_vertices++;
         }
-    INFO(num_isolated_vertices << " isolated vertices were added")
+    TRACE(num_isolated_vertices << " isolated vertices were added")
     return primary_decomposition_ptr;
 }
 
