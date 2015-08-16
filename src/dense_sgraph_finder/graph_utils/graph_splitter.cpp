@@ -68,9 +68,9 @@ void ConnectedComponentGraphSplitter::PrintConnectedComponentsStats(const vector
             max_edge_size = (*it)->NZ();
     }
     INFO("Largest component contains " << max_vertex_size << " vertices & " << max_edge_size << " edges");
-    float singleton_perc = (float)num_singletons / float(connected_components.size());
+    float singleton_perc = (float)num_singletons / float(connected_components.size()) * 100.0;
     INFO("# singleton components: " << num_singletons << " (" << singleton_perc << "%)");
-    float small_comp_perc = float(num_small_components) / float(connected_components.size());
+    float small_comp_perc = float(num_small_components) / float(connected_components.size()) * 100.0;
     INFO("# small components (# vertices <= " << min_graph_size << "): " <<
                  num_small_components << " (" << small_comp_perc << "%)");
 }
