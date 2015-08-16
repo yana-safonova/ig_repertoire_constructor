@@ -72,7 +72,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
         TRACE("Graph is tirvial. Trivial decomposition was created");
         DecompositionPtr trivial_decomposition(new Decomposition(hamming_graph_ptr->N()));
         for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
-            trivial_decomposition->SetClass(i , i);
+            trivial_decomposition->SetClass(i , 0);
         //trivial_decomposition = AddIsolatedVertices(hamming_graph_ptr, trivial_decomposition);
         trivial_decomposition->SaveTo(decomposition_filename_);
         return trivial_decomposition;

@@ -34,7 +34,7 @@ def PrintParams(params, log):
     log.info("DSF parameters:")
     log.info("  Input graph:\t\t\t" + params.graph)
     log.info("  Output directory:\t\t" + params.output)
-    log.info("  Number of threads:\t\t" + str(params.num_threads))
+    log.info("  Number of threads:\t\t" + str(params.num_threads) + "\n")
 
 def supportInfo(log):
     log.info("\nIn case you have troubles running DSF, you can write to igtools_support@googlegroups.com.")
@@ -136,7 +136,7 @@ def main():
 
     # print command line
     command_line = "Command line: " + " ".join(sys.argv)
-    log.info(command_line)
+    log.info(command_line + "\n")
     PrintParams(params, log)
 
     PrepareConfigs(params, log)
