@@ -22,7 +22,13 @@ class WeightedGraphReader {
     vector<GraphEdge> graph_edges;
 
     void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits) {
-        assert(line_splits.size() % 2 == 0);
+        if(line_splits.size() % 2 != 0) {
+            WARN("Line for vertex " << cur_vertex << " contains " << line_splits.size() << " elements:");
+            for(auto it = line_splits.begin(); it != line_splits.end(); it++)
+                cout << *it << " ";
+            cout << endl;
+            assert(line_splits.size() % 2 == 0);
+        }
         size_t num_edges = line_splits.size() / 2;
         for(size_t i = 0; i < num_edges; i++) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i * 2]) - 1;
