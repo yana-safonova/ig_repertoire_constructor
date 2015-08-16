@@ -23,7 +23,7 @@ class WeightedGraphReader {
 
     void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits) {
         if(line_splits.size() % 2 != 0) {
-            WARN("Line for vertex " << cur_vertex << " contains " << line_splits.size() << " elements:");
+            WARN("Line for vertex " << cur_vertex << " contains odd number of elements (" << line_splits.size() << "):");
             for(auto it = line_splits.begin(); it != line_splits.end(); it++)
                 cout << *it << " ";
             cout << endl;
