@@ -46,8 +46,9 @@ struct dsf_config {
     };
 
     struct dense_sgraph_finder_params {
-        double edge_perc_threshold;
-        double class_joining_edge_threshold;
+        double          edge_perc_threshold;
+        double          class_joining_edge_threshold;
+        size_t          min_graph_size;
     };
 
     io_params io;

@@ -13,6 +13,7 @@ ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constr
 
 sys.path.append(spades_src)
 import process_cfg
+import support
 
 def CheckParamsCorrectness(params, log, parser):
     if not "output" in params or params.output == "":
@@ -132,22 +133,23 @@ def main():
         os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
     log.addHandler(log_handler)
-    log.info("Log will be written to " + params.log_filename + "\n")
 
     # print command line
     command_line = "Command line: " + " ".join(sys.argv)
     log.info(command_line + "\n")
     PrintParams(params, log)
+    log.info("Log will be written to " + params.log_filename + "\n")
 
     PrepareConfigs(params, log)
 
     # just draft of main fuction
     dsf_command_line = init.PathToBins.run_dense_sgraph_finder + " " + params.config_file
+    support.sys_call(dsf_command_line, log)
     #log.info("Command line: " + dsf_command_line)
-    error_code = os.system(dsf_command_line)
-    if error_code != 0:
-        print "ERROR: Dense sgraph finder finished abnormally"
-        sys.exit(1)
+    #error_code = os.system(dsf_command_line)
+    #if error_code != 0:
+    #    print "ERROR: Dense sgraph finder finished abnormally"
+    #    sys.exit(1)
 
 if __name__ == '__main__':
     main() 

@@ -66,14 +66,11 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
                                      GraphCollapsedStructurePtr collapsed_struct_ptr) {
     TRACE("== Computation of permutation using METIS");
     TRACE("Input graph contains " << hamming_graph_ptr->N() << " vertices & " << hamming_graph_ptr->NZ() << " edges");
-    //todo: move min_graph_size to the config
-    size_t min_graph_size = 4;
-    if(hamming_graph_ptr->N() <= min_graph_size) {
+    if(hamming_graph_ptr->N() < dsf_params_.min_graph_size) {
         TRACE("Graph is tirvial. Trivial decomposition was created");
         DecompositionPtr trivial_decomposition(new Decomposition(hamming_graph_ptr->N()));
         for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
             trivial_decomposition->SetClass(i , 0);
-        //trivial_decomposition = AddIsolatedVertices(hamming_graph_ptr, trivial_decomposition);
         trivial_decomposition->SaveTo(decomposition_filename_);
         return trivial_decomposition;
     }

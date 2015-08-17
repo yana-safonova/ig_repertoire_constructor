@@ -65,6 +65,7 @@ void load(dsf_config::dense_sgraph_finder_params &params, boost::property_tree::
     using config_common::load;
     load(params.edge_perc_threshold, pt, "edge_perc_threshold");
     load(params.class_joining_edge_threshold, pt, "class_joining_edge_threshold");
+    load(params.min_graph_size, pt, "min_graph_size");
 }
 
 void load(dsf_config::metis_io_params &metis_io, boost::property_tree::ptree const &pt, bool) {

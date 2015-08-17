@@ -56,5 +56,4 @@ DecompositionPtr SimpleDecompositionConstructor::CreateDecomposition() {
     DEBUG(decomposition_ptr_->Size() << " classes were constructed");
     DEBUG("Maximal class size: " << decomposition_ptr_->MaxClassSize());
     return decomposition_ptr_;
-    //ComputeStats();
 }

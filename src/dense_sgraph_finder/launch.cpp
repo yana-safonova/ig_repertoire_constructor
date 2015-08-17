@@ -79,9 +79,32 @@ namespace {
                 size_t class_id = vertex_new_set[i];
                 final_decomposition_ptr->SetClass(i, class_id);
             }
-//            TRACE("Final decomposition: ");
-//            TRACE(*final_decomposition_ptr);
             return final_decomposition_ptr;
+        }
+
+        void PrintConnectedComponentsStats(const vector<SparseGraphPtr> &connected_components) {
+            size_t max_vertex_size = 0;
+            size_t max_edge_size = 0;
+            size_t num_small_components = 0;
+            size_t num_singletons = 0;
+            for(auto it = connected_components.begin(); it != connected_components.end(); it++) {
+                if((*it)->N() == 1)
+                    num_singletons++;
+                if((*it)->N() < dsf_params_.min_graph_size)
+                    num_small_components++;
+                if((*it)->N() > max_vertex_size) {
+                    max_vertex_size = (*it)->N();
+                    max_edge_size = (*it)->NZ();
+                }
+                else if((*it)->N() == max_vertex_size and (*it)->NZ() > max_edge_size)
+                    max_edge_size = (*it)->NZ();
+            }
+            INFO("Largest component contains " << max_vertex_size << " vertices & " << max_edge_size << " edges");
+            float singleton_perc = float(num_singletons * 100) / float(connected_components.size());
+            INFO("# singleton components: " << num_singletons << " (" << singleton_perc << "%)");
+            float small_comp_perc = float(num_small_components * 100) / float(connected_components.size());
+            INFO("# small components (# vertices < " << dsf_params_.min_graph_size << "): " <<
+                 num_small_components << " (" << small_comp_perc << "%)");
         }
 
     public:
@@ -96,6 +119,7 @@ namespace {
 
         void Run() {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
+            PrintConnectedComponentsStats(connected_components);
 #pragma omp parallel for
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];

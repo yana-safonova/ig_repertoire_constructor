@@ -50,7 +50,7 @@ namespace dense_subgraph_finder {
                                              GraphCollapsedStructurePtr collapsed_struct_ptr);
 
     private:
-        DECL_LOGGER("MetisDenseSubgraphConstructor");
+        DECL_LOGGER("DenseSubgraphConstructor");
     };
 
 }

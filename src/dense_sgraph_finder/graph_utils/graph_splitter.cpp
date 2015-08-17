@@ -14,7 +14,6 @@ size_t ConnectedComponentGraphSplitter::GetStartVertex() {
     return size_t(-1);
 }
 
-
 SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(size_t component_id, size_t start_vertex) {
     queue<size_t> vertex_queue;
     vertex_queue.push(start_vertex);
@@ -48,33 +47,6 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
     return graph_ptr_->GetSubgraph(component_id, connected_component);
 }
 
-void ConnectedComponentGraphSplitter::PrintConnectedComponentsStats(const vector<SparseGraphPtr> &connected_components) {
-    size_t max_vertex_size = 0;
-    size_t max_edge_size = 0;
-    size_t num_small_components = 0;
-    size_t num_singletons = 0;
-    // todo: move it to the config
-    size_t min_graph_size = 4;
-    for(auto it = connected_components.begin(); it != connected_components.end(); it++) {
-        if((*it)->N() == 1)
-            num_singletons++;
-        if((*it)->N() <= min_graph_size)
-            num_small_components++;
-        if((*it)->N() > max_vertex_size) {
-            max_vertex_size = (*it)->N();
-            max_edge_size = (*it)->NZ();
-        }
-        else if((*it)->N() == max_vertex_size and (*it)->NZ() > max_edge_size)
-            max_edge_size = (*it)->NZ();
-    }
-    INFO("Largest component contains " << max_vertex_size << " vertices & " << max_edge_size << " edges");
-    float singleton_perc = (float)num_singletons / float(connected_components.size()) * 100.0;
-    INFO("# singleton components: " << num_singletons << " (" << singleton_perc << "%)");
-    float small_comp_perc = float(num_small_components) / float(connected_components.size()) * 100.0;
-    INFO("# small components (# vertices <= " << min_graph_size << "): " <<
-                 num_small_components << " (" << small_comp_perc << "%)");
-}
-
 vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
     InitializeInnerVertices();
     INFO("Connected component splitter was initialized");
@@ -87,6 +59,5 @@ vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
         start_vertex = GetStartVertex();
     }
     INFO("Graph was splitted into " << connected_components.size() << " connected component(s)");
-    PrintConnectedComponentsStats(connected_components);
     return connected_components;
 }
