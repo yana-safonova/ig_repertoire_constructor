@@ -9,6 +9,7 @@ from align import align_reads
 from align import consensus
 from ig_basic import *
 import numpy as np
+import seaborn as sns
 import os
 
 
@@ -132,6 +133,11 @@ if __name__ == "__main__":
 
         reads = [read for read in reads if len(read.seq) >= args.minimal_read_length]
 
+
+        lens = [len(read.seq) for read in reads]
+        print "Min/max length: %d:%d" % (min(lens), max(lens))
+        print sorted(lens)
+
         if len(reads) < args.minimal_library_size:
             print("Too few reads %d < %d" % (len(reads), args.minimal_library_size))
             continue
@@ -204,8 +210,12 @@ if __name__ == "__main__":
 
         if len(colors_palette) < max(indices) + 1:
             n = max(indices) + 1 - len(colors_palette)
-            pal = ig.drawing.colors.RainbowPalette(n=n, start=0.3)
-            colors_palette += [ig.drawing.colors.color_to_html_format(pal.get(i)) for i in range(n)]
+            pal = sns.color_palette("husl", n)
+            pal = sns.color_palette("Set2")[:7]
+            if len(pal) < n:
+                # pal += sns.cubehelix_palette(n - len(pal), dark=0.5, light=0.95)
+                pal += sns.color_palette("Blues_r", n - len(pal))
+            colors_palette += [ig.drawing.colors.color_to_html_format(pal[i]) for i in range(n)]
 
         print("The number of different colors %d " % n_indices)
         print("The number of unique reads %d" % len(str_reads))
@@ -221,11 +231,12 @@ if __name__ == "__main__":
         if args.span and len(g.es):
             g = g.spanning_tree("weight")
 
-        # if len(g.es):
-        #     g.es["label"] = map(int, g.es["weight"])
+        if len(g.es):
+            g.es["label"] = map(int, g.es["weight"])
         g.vs["color"] = [colors_palette[i] for i in indices]
         g.vs["multiplicity"] = mult
         g.vs["label"] = map(int, g.vs["multiplicity"])
+        # g.vs["label"] = indices
 
         vertex_sizes = [30 if m > 10 else 20 for m in mult]
         if len(g.es):
