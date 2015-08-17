@@ -10,7 +10,7 @@ CXXLIBS+=-fopenmp
 # CXX=clang++-3.6
 CXX=g++
 
-all: ig_swgraph_construct ig_trie_compressor ig_matcher ig_kplus_vj_finder
+all: ig_swgraph_construct ig_trie_compressor ig_matcher ig_kplus_vj_finder ig_final_alignment
 
 ig_swgraph_construct: ig_swgraph_construct.cpp ig_matcher.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_swgraph_construct.cpp ${CXXLIBS} -o ig_swgraph_construct
@@ -23,6 +23,9 @@ ig_trie_compressor: ig_trie_compressor.cpp ig_trie_compressor.hpp
 
 ig_kplus_vj_finder: ig_kplus_vj_finder.cpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_kplus_vj_finder.cpp ${CXXLIBS} -o ig_kplus_vj_finder
+
+ig_final_alignment: ig_final_alignment.cpp
+	${CXX} ${CXXFLAGS} ${INCLUDES} ig_final_alignment.cpp ${CXXLIBS} -o ig_final_alignment
 
 gtest-all.o:
 	${CXX} -c ${CXXFLAGS} ${INCLUDES} ./gtest-1.7.0/fused-src/gtest/gtest-all.cc -o gtest-all.o
