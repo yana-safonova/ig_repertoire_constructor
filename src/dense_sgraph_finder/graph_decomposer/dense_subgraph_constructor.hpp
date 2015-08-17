@@ -18,8 +18,7 @@ namespace dense_subgraph_finder {
         string graph_filename_;
         string decomposition_filename_;
 
-        PermutationPtr CreatePermutation(SparseGraphPtr hamming_graph_ptr,
-                                         GraphCollapsedStructurePtr collapsed_struct_ptr);
+        PermutationPtr CreatePermutation(SparseGraphPtr graph_ptr);
 
         DecompositionPtr CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
                                                     GraphCollapsedStructurePtr collapsed_struct_ptr,

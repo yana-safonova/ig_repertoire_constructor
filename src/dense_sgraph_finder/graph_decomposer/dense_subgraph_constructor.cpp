@@ -2,10 +2,8 @@
 
 using namespace dense_subgraph_finder;
 
-PermutationPtr MetisDenseSubgraphConstructor::CreatePermutation(SparseGraphPtr hamming_graph_ptr,
-                                 GraphCollapsedStructurePtr collapsed_struct_ptr) {
-    return MetisPermutationConstructor(hamming_graph_ptr,
-                                       collapsed_struct_ptr,
+PermutationPtr MetisDenseSubgraphConstructor::CreatePermutation(SparseGraphPtr graph_ptr) {
+    return MetisPermutationConstructor(graph_ptr,
                                        metis_params_,
                                        graph_filename_).CreatePermutation();
 }
@@ -74,7 +72,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
         trivial_decomposition->SaveTo(decomposition_filename_);
         return trivial_decomposition;
     }
-    PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr, collapsed_struct_ptr);
+    PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr);
     TRACE("Computation of primary dense subgraph decomposition starts");
     DecompositionPtr primary_decomposition_ptr = CreatePrimaryDecomposition(hamming_graph_ptr,
                                                                             collapsed_struct_ptr, permutation_ptr);

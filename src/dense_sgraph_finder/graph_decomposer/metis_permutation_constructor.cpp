@@ -9,21 +9,15 @@ std::string MetisPermutationConstructor::GetMETISGraphFilename() {
 
 void MetisPermutationConstructor::WriteHammingGraphInMETISFormat(std::string graph_fname) {
     std::ofstream output_fhandler(graph_fname.c_str());
-    output_fhandler << collapsed_struct_ptr_->NumberNewVertices() << "\t" << GetNumEdgesInCollapsedGraph() << endl;
-    for (size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
-        if (!collapsed_struct_ptr_->VertexIsMain(i))
-            continue;
-        for (size_t j = hamming_graph_ptr_->RowIndexT()[i]; j < hamming_graph_ptr_->RowIndexT()[i + 1]; j++) {
-            size_t v = hamming_graph_ptr_->ColT()[j];
-            if (!collapsed_struct_ptr_->VertexIsMain(v))
-                continue;
-            output_fhandler << collapsed_struct_ptr_->NewIndexOfOldVertex(v) + 1 << "\t";
+    output_fhandler << graph_ptr_->N() << "\t" << graph_ptr_->NZ() << endl;
+    for (size_t i = 0; i < graph_ptr_->N(); i++) {
+        for (size_t j = graph_ptr_->RowIndexT()[i]; j < graph_ptr_->RowIndexT()[i + 1]; j++) {
+            size_t v = graph_ptr_->ColT()[j];
+            output_fhandler << v + 1 << "\t";
         }
-        for (size_t j = hamming_graph_ptr_->RowIndex()[i]; j < hamming_graph_ptr_->RowIndex()[i + 1]; j++) {
-            size_t v = hamming_graph_ptr_->Col()[j];
-            if (!collapsed_struct_ptr_->VertexIsMain(v))
-                continue;
-            output_fhandler << collapsed_struct_ptr_->NewIndexOfOldVertex(v) + 1 << "\t";
+        for (size_t j = graph_ptr_->RowIndex()[i]; j < graph_ptr_->RowIndex()[i + 1]; j++) {
+            size_t v = graph_ptr_->Col()[j];
+            output_fhandler << v + 1 << "\t";
         }
         output_fhandler << std::endl;
     }
@@ -39,7 +33,7 @@ std::string MetisPermutationConstructor::RunMETIS(std::string graph_fname) {
 }
 
 PermutationPtr MetisPermutationConstructor::ReadPermutation(std::string permutation_fname) {
-    PermutationPtr perm = PermutationPtr(new Permutation(collapsed_struct_ptr_->NumCollapsedVertices()));
+    PermutationPtr perm = PermutationPtr(new Permutation(graph_ptr_->N()));
     perm->ReadFromFile(permutation_fname);
     return perm;
 }
