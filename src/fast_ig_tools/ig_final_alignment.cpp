@@ -74,6 +74,7 @@ int main(int argc, char **argv) {
   std::string input_file = "input.fa";
   std::string dense_subgraphs_file = "dense_subgraphs.txt";
   std::string output_file = "output.fa";
+  std::string rcm_file = "repertoire.rcm";
 
 
   // Parse cmd-line arguments
@@ -94,6 +95,8 @@ int main(int argc, char **argv) {
        "dense subgraphs file")
       ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
        "output file for final repertoire")
+      ("rcm-file,R", po::value<std::string>(&rcm_file)->default_value(rcm_file),
+       "output RCM-file; empty string means no RCM-file producing")
       ;
 
     // Declare a group of options that will be
@@ -183,6 +186,14 @@ int main(int argc, char **argv) {
 
   cout << bformat("Reads: %d; component_indices: %d") % input_reads.size() % component_indices.size() << std::endl;
   assert(component_indices.size() == input_reads.size());
+
+  if (rcm_file != "") {
+    cout << bformat("Saving RCM-file to %s...") % rcm_file << std::endl;
+    std::ofstream rcm_fh(rcm_file);
+    for (size_t i = 0; i < component_indices.size(); ++i) {
+      rcm_fh << input_ids[i] << "\t" << component_indices[i] << "\n";
+    }
+  }
 
   size_t max_index = *std::max_element(component_indices.cbegin(), component_indices.cend());
   cout << bformat("The number of components: %d") % (max_index + 1) << std::endl;
