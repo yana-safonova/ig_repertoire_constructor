@@ -76,17 +76,6 @@ size_t Decomposition::MaxClassSize() {
     return max_class;
 }
 
-size_t Decomposition::RealSizeOfClass(size_t class_id, GraphCollapsedStructurePtr collapsed_struct_ptr) {
-    assert(class_id < Size());
-    size_t class_size = 0;
-    for(auto it = decomposition_classes_[class_id].begin();
-        it != decomposition_classes_[class_id].end(); it++) {
-        size_t old_index = collapsed_struct_ptr->OldVerticesList()[*it];
-        class_size += collapsed_struct_ptr->GetMultiplicityOf(old_index);
-    }
-    return class_size;
-}
-
 ostream& operator<<(ostream &out, const Decomposition &hg_decomposition) {
     out << "Decomposition contains " << hg_decomposition.Size() << " classes" << endl;
     for(size_t i = 0; i < hg_decomposition.Size(); i++) {

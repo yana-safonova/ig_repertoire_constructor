@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../graph_utils/sparse_graph.hpp"
-#include "../graph_utils/graph_collapsed_structure.hpp"
 #include "../graph_utils/decomposition.hpp"
 
 namespace dense_subgraph_finder {
@@ -9,7 +8,6 @@ namespace dense_subgraph_finder {
     class DecompositionStatsCalculator {
         DecompositionPtr decomposition_;
         SparseGraphPtr hamming_graph_;
-        GraphCollapsedStructurePtr collapsed_struct_;
 
         std::vector <size_t> num_edges_in_class;
 
@@ -23,11 +21,9 @@ namespace dense_subgraph_finder {
 
     public:
         DecompositionStatsCalculator(DecompositionPtr decomposition,
-                                     SparseGraphPtr hamming_graph,
-                                     GraphCollapsedStructurePtr collapsed_struct) :
+                                     SparseGraphPtr hamming_graph) :
                 decomposition_(decomposition),
-                hamming_graph_(hamming_graph),
-                collapsed_struct_(collapsed_struct) { }
+                hamming_graph_(hamming_graph) { }
 
         void WriteStatsInFile(string filename);
 

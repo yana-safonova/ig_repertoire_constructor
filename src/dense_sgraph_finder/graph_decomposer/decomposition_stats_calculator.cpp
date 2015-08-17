@@ -15,12 +15,7 @@ void DecompositionStatsCalculator::Initialize() {
         for (size_t j = hamming_graph_->RowIndex()[i]; j < hamming_graph_->RowIndex()[i + 1]; j++) {
             size_t v1 = i;
             size_t v2 = hamming_graph_->Col()[j];
-            if (!collapsed_struct_->VertexIsMain(v1) or !collapsed_struct_->VertexIsMain(v2))
-                continue;
-            // if both vertices are main
-            size_t v1_new = collapsed_struct_->NewVerticesList()[v1];
-            size_t v2_new = collapsed_struct_->NewVerticesList()[v2];
-            size_t class_id = GetClassOfVertices(v1_new, v2_new);
+            size_t class_id = GetClassOfVertices(v1, v2);
             if (class_id == size_t(-1))
                 continue;
             num_edges_in_class[class_id]++;
@@ -35,14 +30,7 @@ double DecompositionStatsCalculator::ComputeClassFillin(size_t class_id) {
 }
 
 size_t DecompositionStatsCalculator::ComputeClassSize(size_t class_id) {
-    return decomposition_->RealSizeOfClass(class_id, collapsed_struct_);
-//    size_t class_size = 0;
-//    for (auto it = decomposition_->GetClass(class_id).begin();
-//         it != decomposition_->GetClass(class_id).end(); it++) {
-//        size_t old_index = collapsed_struct_->OldVerticesList()[*it];
-//        class_size += collapsed_struct_->GetMultiplicityOf(old_index);
-//    }
-//    return class_size;
+    return decomposition_->ClassSize(class_id);
 }
 
 void DecompositionStatsCalculator::WriteStatsInFile(string filename) {

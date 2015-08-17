@@ -1,7 +1,6 @@
 #pragma once
 
 #include "graph_utils/sparse_graph.hpp"
-#include "graph_utils/graph_collapsed_structure.hpp"
 #include "graph_utils/graph_io.hpp"
 #include "graph_decomposer/dense_subgraph_constructor.hpp"
 

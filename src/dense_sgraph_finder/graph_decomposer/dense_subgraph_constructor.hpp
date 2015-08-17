@@ -21,19 +21,16 @@ namespace dense_subgraph_finder {
         PermutationPtr CreatePermutation(SparseGraphPtr graph_ptr);
 
         DecompositionPtr CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
-                                                    GraphCollapsedStructurePtr collapsed_struct_ptr,
                                                     PermutationPtr permutation_ptr);
 
         DecompositionPtr ImprovePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
-                                                     GraphCollapsedStructurePtr collapsed_struct_ptr,
                                                      DecompositionPtr primary_decomposition_ptr);
 
         DecompositionPtr AddIsolatedVertices(SparseGraphPtr hamming_graph_ptr,
                                              DecompositionPtr primary_decomposition_ptr);
 
         DecompositionPtr ExpandDecomposition(SparseGraphPtr hamming_graph_ptr,
-                                               GraphCollapsedStructurePtr collapsed_struct_ptr,
-                                               DecompositionPtr primary_decomposition_ptr);
+                                             DecompositionPtr primary_decomposition_ptr);
 
     public:
         MetisDenseSubgraphConstructor(const dsf_config::dense_sgraph_finder_params &dsf_params,
@@ -43,10 +40,9 @@ namespace dense_subgraph_finder {
                 dsf_params_(dsf_params),
                 metis_params_(metis_params),
                 graph_filename_(graph_filename),
-                decomposition_filename_(decomposition_filename){ }
+                decomposition_filename_(decomposition_filename) { }
 
-        DecompositionPtr CreateDecomposition(SparseGraphPtr hamming_graph_ptr,
-                                             GraphCollapsedStructurePtr collapsed_struct_ptr);
+        DecompositionPtr CreateDecomposition(SparseGraphPtr hamming_graph_ptr);
 
     private:
         DECL_LOGGER("DenseSubgraphConstructor");

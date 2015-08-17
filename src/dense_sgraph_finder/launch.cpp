@@ -25,12 +25,7 @@ namespace {
                     metis_io_,
                     io_.output_nonparallel.graph_copy_filename,
                     io_.output_base.decomposition_filename);
-            GraphCollapsedStructurePtr collapsed_struct_ptr = GraphCollapsedStructurePtr(
-                    new GraphCollapsedStructure(graph_ptr_));
-            INFO("Collapsed structure contains " << collapsed_struct_ptr->NumberNewVertices() << " vertices & " <<
-                collapsed_struct_ptr->NumberCollapsedEdges(graph_ptr_) << " edges");
-            DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_,
-                                                                                              collapsed_struct_ptr);
+            DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_);
             INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
         }
     };
@@ -56,7 +51,6 @@ namespace {
         DecompositionPtr CreateFinalDecomposition(size_t num_connected_components) {
             GraphComponentMap &component_map = graph_ptr_->GetGraphComponentMap();
             TRACE(component_map);
-            GraphCollapsedStructurePtr collapsed_structure(new GraphCollapsedStructure(graph_ptr_));
             map<size_t, size_t> vertex_new_set;
             size_t cur_set_id = 0;
             for(size_t i = 0; i < num_connected_components; i++) {
@@ -123,8 +117,6 @@ namespace {
 #pragma omp parallel for
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];
-                GraphCollapsedStructurePtr current_collapsed_struct = GraphCollapsedStructurePtr(
-                        new GraphCollapsedStructure(current_subgraph));
                 string graph_filename = GetSubgraphFilename(i);
                 string decomposition_filename = GetDecompositionFilename(i);
                 dense_subgraph_finder::MetisDenseSubgraphConstructor denseSubgraphConstructor(
@@ -132,8 +124,7 @@ namespace {
                         metis_io_,
                         graph_filename,
                         decomposition_filename);
-                DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(current_subgraph,
-                                                                                                  current_collapsed_struct);
+                DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(current_subgraph);
                 TRACE("Dense subgraph decomposition was written to " << decomposition_filename);
             }
             INFO("Parallel construction of dense subgraphs for connected components finished");

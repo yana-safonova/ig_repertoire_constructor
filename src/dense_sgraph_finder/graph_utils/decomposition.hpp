@@ -55,6 +55,10 @@ public:
         return vertex_class_[vertex];
     }
 
+    bool VertexClassIsInitialized(size_t vertex) {
+        return ClassIsValid(GetVertexClass(vertex));
+    }
+
     size_t Size() const { return decomposition_classes_.size(); }
 
     void SaveTo(string output_fname);
@@ -66,8 +70,6 @@ public:
     size_t MaxClassSize();
 
     bool IsTrivial() { return Size() == 1; }
-
-    size_t RealSizeOfClass(size_t class_id, GraphCollapsedStructurePtr collapsed_struct_ptr);
 
     size_t NextClassId() { return num_classes_; }
 

@@ -15,7 +15,8 @@ void GreedyJoiningDecomposition::InitializeDecompositionGraph() {
 }
 
 void GreedyJoiningDecomposition::InitializeVertexClass() {
-    for(size_t i = 0; i < collapsed_struct_->NumberNewVertices(); i++)
+    for(size_t i = 0; i < hamming_graph_ptr_->N(); i++)
+    //for(size_t i = 0; i < collapsed_struct_->NumberNewVertices(); i++)
         vertex_class_.push_back(size_t(-1));
     for(size_t i = 0; i < basic_decomposition_ptr_->Size(); i++)
         for(auto it = basic_decomposition_ptr_->GetClass(i).begin();
@@ -38,9 +39,9 @@ void GreedyJoiningDecomposition::UpdateDecompositionGraph(size_t class1, size_t 
 
 void GreedyJoiningDecomposition::CreateDecompositionGraph() {
     for(size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
-        size_t v1 = collapsed_struct_->NewIndexOfOldVertex(i);
+        size_t v1 = i; //collapsed_struct_->NewIndexOfOldVertex(i);
         for(size_t j = hamming_graph_ptr_->RowIndex()[i]; j < hamming_graph_ptr_->RowIndex()[i + 1]; j++) {
-            size_t v2 = collapsed_struct_->NewIndexOfOldVertex(hamming_graph_ptr_->Col()[j]);
+            size_t v2 = hamming_graph_ptr_->Col()[j]; //collapsed_struct_->NewIndexOfOldVertex();
             size_t class1 = basic_decomposition_ptr_->GetVertexClass(v1);
             size_t class2 = basic_decomposition_ptr_->GetVertexClass(v2);
             UpdateDecompositionGraph(class1, class2);
@@ -61,27 +62,27 @@ size_t GreedyJoiningDecomposition::GetMaximalAvailableClass() {
 
 double GreedyJoiningDecomposition::ComputeRelativeFillin(size_t class_id, size_t vertex) {
     size_t num_edges_to_class = 0;
-    size_t old_vertex = collapsed_struct_->OldVerticesList()[vertex];
+    size_t old_vertex = vertex; //collapsed_struct_->OldVerticesList()[vertex];
     set<size_t> used_main_vertices;
 
     for(size_t i = hamming_graph_ptr_->RowIndex()[old_vertex];
         i < hamming_graph_ptr_->RowIndex()[old_vertex + 1]; i++) {
         size_t old_neigh = hamming_graph_ptr_->Col()[i];
-        size_t new_neigh = collapsed_struct_->NewIndexOfOldVertex(old_neigh);
-        size_t neigh_class = vertex_class_[new_neigh];
-        if(used_main_vertices.find(new_neigh) == used_main_vertices.end() and neigh_class == class_id) {
+        //size_t new_neigh = collapsed_struct_->NewIndexOfOldVertex(old_neigh);
+        size_t neigh_class = vertex_class_[old_neigh];
+        if(used_main_vertices.find(old_neigh) == used_main_vertices.end() and neigh_class == class_id) {
             num_edges_to_class++;
-            used_main_vertices.insert(new_neigh);
+            used_main_vertices.insert(old_neigh);
         }
     }
     for(size_t i = hamming_graph_ptr_->RowIndexT()[old_vertex];
         i < hamming_graph_ptr_->RowIndexT()[old_vertex + 1]; i++) {
         size_t old_neigh = hamming_graph_ptr_->ColT()[i];
-        size_t new_neigh = collapsed_struct_->NewIndexOfOldVertex(old_neigh);
-        size_t neigh_class = vertex_class_[new_neigh];
-        if(used_main_vertices.find(new_neigh) == used_main_vertices.end() and neigh_class == class_id) {
+        //size_t new_neigh = collapsed_struct_->NewIndexOfOldVertex(old_neigh);
+        size_t neigh_class = vertex_class_[old_neigh];
+        if(used_main_vertices.find(old_neigh) == used_main_vertices.end() and neigh_class == class_id) {
             num_edges_to_class++;
-            used_main_vertices.insert(new_neigh);
+            used_main_vertices.insert(old_neigh);
         }
     }
     return double(num_edges_to_class) / double(class_size_[class_id]);

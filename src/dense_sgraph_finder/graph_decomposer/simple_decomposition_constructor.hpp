@@ -8,9 +8,8 @@ namespace dense_subgraph_finder {
 
     class SimpleDecompositionConstructor {
         // input parameters
-        SparseGraphPtr hamming_graph_ptr_;
+        SparseGraphPtr graph_ptr_;
         PermutationPtr permutation_prt_;
-        GraphCollapsedStructurePtr collapsed_struct_;
         double edge_perc_threshold_;
 
         //output parameters
@@ -21,13 +20,11 @@ namespace dense_subgraph_finder {
         double ComputeEdgePercToPreviousSet(size_t vertex);
 
     public:
-        SimpleDecompositionConstructor(SparseGraphPtr hamming_graph_ptr,
+        SimpleDecompositionConstructor(SparseGraphPtr graph_ptr,
                                        PermutationPtr permutation_ptr,
-                                       GraphCollapsedStructurePtr collapsed_struct,
                                        double edge_perc_threshold) :
-                hamming_graph_ptr_(hamming_graph_ptr),
+                graph_ptr_(graph_ptr),
                 permutation_prt_(permutation_ptr),
-                collapsed_struct_(collapsed_struct),
                 edge_perc_threshold_(edge_perc_threshold),
                 decomposition_ptr_(new Decomposition(permutation_ptr->Size())) { }
 
