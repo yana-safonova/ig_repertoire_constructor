@@ -185,11 +185,18 @@ int main(int argc, char **argv) {
   assert(component_indices.size() == input_reads.size());
 
   size_t max_index = *std::max_element(component_indices.cbegin(), component_indices.cend());
+  cout << bformat("The number of components: %d") % (max_index + 1) << std::endl;
 
   std::vector<std::vector<size_t>> component2id(max_index + 1);
   for (size_t i = 0; i < component_indices.size(); ++i) {
     component2id[component_indices[i]].push_back(i);
   }
+
+  size_t max_component_size = 0;
+  for (const auto &_ : component2id) {
+    max_component_size = std::max(max_component_size, _.size());
+  }
+  cout << bformat("Maximum component size: %d") % max_component_size << std::endl;
 
   std::vector<Dna5String> consensuses(component2id.size());
 
