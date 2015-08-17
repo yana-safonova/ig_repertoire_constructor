@@ -12,7 +12,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(Spars
                                                                            PermutationPtr permutation_ptr) {
     SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr,
                                                       permutation_ptr,
-                                                      dsf_params_.min_fillin_threshold);
+                                                      dsf_params_.primary_edge_fillin);
     return simple_constructor.CreateDecomposition();
 }
 
