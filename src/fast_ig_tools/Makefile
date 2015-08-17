@@ -24,7 +24,7 @@ ig_trie_compressor: ig_trie_compressor.cpp ig_trie_compressor.hpp
 ig_kplus_vj_finder: ig_kplus_vj_finder.cpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_kplus_vj_finder.cpp ${CXXLIBS} -o ig_kplus_vj_finder
 
-ig_final_alignment: ig_final_alignment.cpp
+ig_final_alignment: ig_final_alignment.cpp ig_final_alignment.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_final_alignment.cpp ${CXXLIBS} -o ig_final_alignment
 
 gtest-all.o:
