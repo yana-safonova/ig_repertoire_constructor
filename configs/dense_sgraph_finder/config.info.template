@@ -31,8 +31,9 @@ rp {
 ; algorithm parameters ;
 dsf_params {
     	edge_perc_threshold		0.2
-    	class_joining_edge_threshold	0.3
+    	class_joining_edge_threshold	0.5
 	min_graph_size			5
+	min_fillin_threshold		0.6
 }
 
 ; input-output parameters of METIS ;

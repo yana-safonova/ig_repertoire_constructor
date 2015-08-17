@@ -60,18 +60,38 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    string cfg_filename = argv[1];
-    load_config(cfg_filename);
-    create_console_logger(cfg_filename);
-    make_dirs();
+    perf_counter pc;
+    segfault_handler sh;
 
-    int error_code = dense_subgraph_finder::DenseSubgraphFinder(dsf_cfg::get().rp,
-                                                                dsf_cfg::get().dsf_params,
-                                                                dsf_cfg::get().io,
-                                                                dsf_cfg::get().metis_io).Run();
-    if(error_code != 0) {
-        INFO("Dense subgraph finder finished abnormally");
-        return error_code;
+    try {
+        string cfg_filename = argv[1];
+        load_config(cfg_filename);
+        create_console_logger(cfg_filename);
+        make_dirs();
+        int error_code = dense_subgraph_finder::DenseSubgraphFinder(dsf_cfg::get().rp,
+                                                                    dsf_cfg::get().dsf_params,
+                                                                    dsf_cfg::get().io,
+                                                                    dsf_cfg::get().metis_io).Run();
+        if (error_code != 0) {
+            INFO("Dense subgraph finder finished abnormally");
+            return error_code;
+        }
+    } catch (std::bad_alloc const& e) {
+        std::cerr << "Not enough memory to run IgRepertoireConstructor. " << e.what() << std::endl;
+        return EINTR;
+    } catch (std::exception const& e) {
+        std::cerr << "Exception caught " << e.what() << std::endl;
+        return EINTR;
+    } catch (...) {
+        std::cerr << "Unknown exception caught " << std::endl;
+        return EINTR;
     }
+
+    unsigned ms = (unsigned)pc.time_ms();
+    unsigned secs = (ms / 1000) % 60;
+    unsigned mins = (ms / 1000 / 60) % 60;
+    unsigned hours = (ms / 1000 / 60 / 60);
+    INFO("Running time: " << hours << " hours " << mins << " minutes " << secs << " seconds");
+
     return 0;
 }

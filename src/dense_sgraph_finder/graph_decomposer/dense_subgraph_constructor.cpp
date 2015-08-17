@@ -12,7 +12,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(Spars
                                                                            PermutationPtr permutation_ptr) {
     SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr,
                                                       permutation_ptr,
-                                                      dsf_params_.class_joining_edge_threshold);
+                                                      dsf_params_.min_fillin_threshold);
     return simple_constructor.CreateDecomposition();
 }
 
@@ -20,7 +20,7 @@ DecompositionPtr MetisDenseSubgraphConstructor::ImprovePrimaryDecomposition(Spar
                                                                             DecompositionPtr primary_decomposition_ptr) {
     GreedyJoiningDecomposition decomposition_improver(hamming_graph_ptr,
                                                       primary_decomposition_ptr,
-                                                      dsf_params_.edge_perc_threshold);
+                                                      dsf_params_.min_fillin_threshold);
     return decomposition_improver.ConstructDecomposition();
 }
 
@@ -64,7 +64,6 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
         DecompositionPtr trivial_decomposition(new Decomposition(hamming_graph_ptr->N()));
         for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
             trivial_decomposition->SetClass(i , 0);
-        trivial_decomposition->SaveTo(decomposition_filename_);
         return trivial_decomposition;
     }
     PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr);
@@ -80,6 +79,5 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
     dense_sgraph_decomposition = ExpandDecomposition(hamming_graph_ptr,
                                                        dense_sgraph_decomposition);
     TRACE("Final decomposition contains " << dense_sgraph_decomposition->Size() << " subgraphs");
-    dense_sgraph_decomposition->SaveTo(decomposition_filename_);
     return dense_sgraph_decomposition;
 }

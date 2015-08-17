@@ -144,6 +144,6 @@ SparseGraphPtr GraphReader::CreateGraph() {
         return SparseGraphPtr(NULL);
     }
     SparseGraphPtr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
-    INFO("Extracted graph contains " << graph_ptr->N() << " vertices and " << graph_ptr->NZ() << " edges");
+    INFO("Extracted graph contains " << graph_ptr->N() << " vertices & " << graph_ptr->NZ() << " edges");
     return graph_ptr;
 }

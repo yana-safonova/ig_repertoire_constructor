@@ -123,7 +123,6 @@ void GreedyJoiningDecomposition::GlueClasses(size_t main_class, size_t sec_class
     // erase
     decomposition_graph_.erase(sec_class);
     num_processed_++;
-
     // todo: add some kind of class id remapping
     class_size_[main_class] += class_size_[sec_class];
     for(auto it = basic_decomposition_ptr_->GetClass(sec_class).begin();

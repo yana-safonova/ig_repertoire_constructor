@@ -20,7 +20,7 @@ def CheckParamsCorrectness(params, log, parser):
         log.info("ERROR: Output directory (-o) was not specified")
         parser.print_help()
         sys.exit(-1)
-    if not "graph" in params or params.reads == "":
+    if not "graph" in params or params.graph == "":
         log.info("ERROR: Graph (-g/--graph) was not specified")
         parser.print_help()
         sys.exit(-1)
@@ -90,7 +90,7 @@ def main():
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                             type=str,
-                            default="",
+                            default="dsf_test",
                             help="Output directory")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -102,7 +102,7 @@ def main():
     optional_args.add_argument("--test",
                             action="store_const",
                             const="test_dataset/test.graph",
-                            dest="reads",
+                            dest="graph",
                             help="Running test dataset")
     optional_args.add_argument("-h", "--help",
                                action="help",

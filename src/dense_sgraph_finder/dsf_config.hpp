@@ -49,6 +49,7 @@ struct dsf_config {
         double          edge_perc_threshold;
         double          class_joining_edge_threshold;
         size_t          min_graph_size;
+        double          min_fillin_threshold;
     };
 
     io_params io;

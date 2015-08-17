@@ -19,16 +19,17 @@ namespace {
                 io_(io),
                 metis_io_(metis_io) { }
 
-        void Run() {
+        DecompositionPtr Run() {
             dense_subgraph_finder::MetisDenseSubgraphConstructor denseSubgraphConstructor(
                     dsf_params_,
                     metis_io_,
-                    io_.output_nonparallel.graph_copy_filename,
-                    io_.output_base.decomposition_filename);
+                    io_.output_nonparallel.graph_copy_filename);
             DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(graph_ptr_);
-            INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
+            return decomposition_ptr;
         }
     };
+
+    //---------------------------------------------------------------------------
 
     class ParallelDenseSubgraphFinder {
         SparseGraphPtr graph_ptr_;
@@ -111,7 +112,7 @@ namespace {
                 io_(io),
                 metis_io_(metis_io) { }
 
-        void Run() {
+        DecompositionPtr Run() {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
             PrintConnectedComponentsStats(connected_components);
 #pragma omp parallel for
@@ -122,9 +123,9 @@ namespace {
                 dense_subgraph_finder::MetisDenseSubgraphConstructor denseSubgraphConstructor(
                         dsf_params_,
                         metis_io_,
-                        graph_filename,
-                        decomposition_filename);
+                        graph_filename);
                 DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(current_subgraph);
+                decomposition_ptr->SaveTo(decomposition_filename);
                 TRACE("Dense subgraph decomposition was written to " << decomposition_filename);
             }
             INFO("Parallel construction of dense subgraphs for connected components finished");
@@ -133,9 +134,7 @@ namespace {
             INFO("Dense subgraph decompositions for connected components were written to " <<
                          io_.output_mthreading.decompositions_dir);
             DecompositionPtr final_decomposition = CreateFinalDecomposition(connected_components.size());
-            final_decomposition->SaveTo(io_.output_base.decomposition_filename);
-            INFO(final_decomposition->Size() << " dense subgraphs were constructed");
-            INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
+            return final_decomposition;
         }
     };
 }
@@ -148,15 +147,20 @@ int dense_subgraph_finder::DenseSubgraphFinder::Run() {
         INFO("Dense subgraph finder was unable to extract graph from " << io_.input.graph_filename);
         return 1;
     }
+    DecompositionPtr dense_sgraph_decomposition;
     if(run_params_.threads_count == 1) {
         INFO("Nonparallel mode was chosen");
-        NonParallelDenseSubgraphFinder(graph_ptr, dsf_params_, io_, metis_io_).Run();
+        dense_sgraph_decomposition = NonParallelDenseSubgraphFinder(graph_ptr, dsf_params_, io_, metis_io_).Run();
     }
     else {
         INFO("Parallel mode was chosen. Number of threads: " << run_params_.threads_count);
         omp_set_num_threads(run_params_.threads_count);
-        ParallelDenseSubgraphFinder(graph_ptr, dsf_params_, io_, metis_io_).Run();
+        dense_sgraph_decomposition = ParallelDenseSubgraphFinder(graph_ptr, dsf_params_, io_, metis_io_).Run();
     }
+    INFO(dense_sgraph_decomposition->Size() << " dense subgraphs were constructed");
+    DecompositionStatsCalculator(dense_sgraph_decomposition, graph_ptr).WriteShortStats(std::cout);
+    dense_sgraph_decomposition->SaveTo(io_.output_base.decomposition_filename);
+    INFO("Dense subgraph decomposition was written to " << io_.output_base.decomposition_filename);
     INFO("==== Dense subgraph finder ends");
     return 0;
 }
