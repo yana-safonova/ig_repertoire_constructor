@@ -33,9 +33,11 @@ def CheckParamsCorrectness(params, log, parser):
 
 def PrintParams(params, log):
     log.info("DSF parameters:")
-    log.info("  Input graph:\t\t\t" + params.graph)
-    log.info("  Output directory:\t\t" + params.output)
-    log.info("  Number of threads:\t\t" + str(params.num_threads) + "\n")
+    log.info("  Input graph:\t\t\t\t\t" + params.graph)
+    log.info("  Output directory:\t\t\t\t" + params.output)
+    log.info("  Number of threads:\t\t\t\t" + str(params.num_threads))
+    log.info("  Minimum size of processed graphs:\t\t" + str(params.min_graph_size))
+    log.info("  Minimum edge fill-in of dense subgraph:\t" + str(params.min_fillin) + "\n")
 
 def supportInfo(log):
     log.info("\nIn case you have troubles running DSF, you can write to igtools_support@googlegroups.com.")
@@ -62,6 +64,8 @@ def CreateParamDict(params):
     param_dict['output_dir'] = params.output
     param_dict['graph_filename'] = params.graph
     param_dict['threads_count'] = params.num_threads
+    param_dict['min_fillin_threshold'] = params.min_fillin
+    param_dict['min_graph_size'] = params.min_graph_size
     return param_dict
 
 def PrepareConfigs(params, log):
@@ -99,6 +103,16 @@ def main():
                                default=16,
                                dest="num_threads",
                                help="Threads number [default %(default)d]")
+    optional_args.add_argument("-f", '--min_fillin',
+                               type=float,
+                               default=0.6,
+                               dest="min_fillin",
+                               help='Minimum fill-in of dense subgraphs [default %(default)d]')
+    optional_args.add_argument("-s", "--min-size",
+                               type=int,
+                               default=5,
+                               dest="min_graph_size",
+                               help="Minimum size of graph where dense subgraphs will be computed [default %(default)d]")
     optional_args.add_argument("--test",
                             action="store_const",
                             const="test_dataset/test.graph",

@@ -38,8 +38,7 @@ void DecompositionStatsCalculator::ComputeShortStats() {
             average_fillin_ += class_edge_fillin_[i];
             num_nontrivial_classes++;
         }
-        else
-            num_trivial_classes_++;
+        else num_trivial_classes_++;
         if(decomposition_->ClassSize(i) > max_class_size) {
             max_class_size = decomposition_->ClassSize(i);
             max_class_id = i;

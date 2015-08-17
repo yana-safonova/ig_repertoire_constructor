@@ -63,8 +63,6 @@ void load(dsf_config::run_params &rp, boost::property_tree::ptree const &pt, boo
 
 void load(dsf_config::dense_sgraph_finder_params &params, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    load(params.edge_perc_threshold, pt, "edge_perc_threshold");
-    load(params.class_joining_edge_threshold, pt, "class_joining_edge_threshold");
     load(params.min_graph_size, pt, "min_graph_size");
     load(params.min_fillin_threshold, pt, "min_fillin_threshold");
 }
