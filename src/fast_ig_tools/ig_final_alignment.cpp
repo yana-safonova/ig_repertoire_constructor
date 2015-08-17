@@ -13,11 +13,43 @@
 
 using namespace seqan;
 
+using std::cout;
+
+template<typename T = seqan::Dna5>
+seqan::String<T> consensus(const std::vector<seqan::String<T>> &reads) {
+  using _String = seqan::String<T>;
+  Align<_String> align;
+
+  resize(rows(align), reads.size());
+  for (size_t i = 0; i < reads.size(); ++i) {
+    assignSource(row(align, i), reads[i]);
+  }
+
+  globalMsaAlignment(align, SimpleScore(5, -3, -1, -3));
+
+  String<ProfileChar<T>> profile;
+  resize(profile, length(row(align, 0)));
+  for (size_t rowNo = 0; rowNo < reads.size(); ++rowNo)
+    for (size_t i = 0; i < length(row(align, rowNo)); ++i)
+      profile[i].count[ordValue(row(align, rowNo)[i])] += 1;
+
+  // call consensus from this string
+  _String consensus;
+  for (size_t i = 0; i < length(profile); ++i) {
+    size_t idx = getMaxIndex(profile[i]);
+    if (idx < ValueSize<T>::VALUE) {  // is not gap  TODO Check it!!
+      appendValue(consensus, T(getMaxIndex(profile[i])));
+    }
+  }
+
+  return consensus;
+}
+
+
 int main()
 {
   // some variangs of sonic hedgehog exon 1
-  char const * strings[4] =
-  {
+  std::vector<Dna5String> reads {
     // gi|2440284|dbj|AB007129.1| Oryzias latipes
     "GCGGGTCACTGAGGGCTGGGATGAGGACGGCCACCACTTCGAGGAGTCCCTTCACTACGAGGGCAGGGCC"
       "GTGGACATCACCACGTCAGACAGGGACAAGAGCAAGTACGGCACCCTGTCCAGACTGGCGGTGGAAGCTG"
@@ -40,32 +72,8 @@ int main()
       "AGCGATTTAAGGAACTCACCCCCAATTACAACCC"
   };
 
-  Align<DnaString> align;
-  resize(rows(align), 4);
-  for (int i = 0; i < 4; ++i)
-    assignSource(row(align, i), strings[i]);
+  auto cons = consensus(reads);
 
-  globalMsaAlignment(align, SimpleScore(5, -3, -1, -3));
-  std::cout << align << "\n";
-
-  // create the profile string
-  String<ProfileChar<Dna> > profile;
-  resize(profile, length(row(align, 0)));
-  for (unsigned rowNo = 0; rowNo < 4u; ++rowNo)
-    for (unsigned i = 0; i < length(row(align, rowNo)); ++i)
-      profile[i].count[ordValue(row(align, rowNo)[i])] += 1;
-
-  // call consensus from this string
-  DnaString consensus;
-  for (unsigned i = 0; i < length(profile); ++i)
-  {
-    int idx = getMaxIndex(profile[i]);
-    if (idx < 4)  // is not gap
-      appendValue(consensus, Dna(getMaxIndex(profile[i])));
-  }
-
-  std::cout << "consensus sequence is\n"
-    << consensus << "\n";
-
+  cout << cons << std::endl;
   return 0;
 }
