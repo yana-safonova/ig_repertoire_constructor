@@ -20,7 +20,7 @@ decomposition_fname = sys.argv[2]
 output_fname = sys.argv[3]
 
 graph = draw_matrix.Graph()
-graph.ExtractFromFile(input_graph_fname)
+graph.ExtractFromGraphFile(input_graph_fname)
 
 decomposition = draw_matrix.Decomposition()
 decomposition.ExtractFromFile(decomposition_fname)

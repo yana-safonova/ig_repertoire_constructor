@@ -8,13 +8,11 @@ class Edge:
     v1 = 0
     v2 = 0
     w = 0
-    shm = 0
-    
-    def __init__(self, v1, v2, w, shm):
+
+    def __init__(self, v1, v2, w):
         self.v1 = v1
         self.v2 = v2
         self.w = w
-        self.shm = shm
 
 # --------------------- Graph ---------------------
 class Graph:
@@ -22,22 +20,52 @@ class Graph:
     num_vertices = 0
     name = ""
 
-    def __init(self):
+    def __init__(self):
         self.edges = list()
 
-    def ParseNumVertices(self, first_line):
-        self.num_vertices = int(first_line.strip()[2:])
+    def __ParseNumVertices(self, first_line_splits):
+        self.num_vertices = int(first_line_splits[0])
 
-    def ExtractFromFile(self, filename):
+    def __CreateWeightedGraph(self, filelines):
+        for i in range(1, len(filelines)):
+            splits = filelines[i].strip().split()
+            if(len(splits) % 2 != 0):
+                print "Incorrect line of GRAPH file " + self.name + " contains odd number of elements:"
+                print filelines[i]
+                sys.exit(1)
+            for j in range(0, len(splits) / 2):
+                neigh = int(splits[j * 2]) - 1
+                weight = float(splits[j * 2 + 1])
+                self.edges.append(Edge(i - 1, neigh, weight))
+
+    def __CreateUnweightedGraph(self, filelines):
+        for i in range(1, len(filelines)):
+            splits = filelines[i].strip().split()
+            for j in range(0, len(splits)):
+                neigh = int(splits[j]) - 1
+                weight = 1.0
+                self.edges.append(Edge(i - 1, neigh, weight))
+
+    def __GraphIsUnweighted(self, first_line_splits):
+        return len(first_line_splits) == 2
+
+    def __GraphIsWeighted(self, first_line_splits):
+        if len(first_line_splits) < 3:
+            return False
+        return first_line_splits[2] == '001'
+
+    def ExtractFromGraphFile(self, filename):
         self.name = filename
-        fhandler = open(filename, "r")
-        lines = fhandler.readlines()
-        self.ParseNumVertices(lines[0])
-        for i in range(1, len(lines)):
-            splits = lines[i].strip().split()
-            edge = Edge(int(splits[0]), int(splits[1]), int(splits[2]), int(splits[3]))
-            self.edges.append(edge)
-        fhandler.close()
+        fhandler = open(filename, 'r')
+        lines = fhandler.readlines();
+        first_line_splits = lines[0].strip().split()
+        self.__ParseNumVertices(first_line_splits)
+        if self.__GraphIsUnweighted(first_line_splits):
+            self.__CreateUnweightedGraph(lines)
+        elif self.__GraphIsWeighted(first_line_splits):
+            self.__CreateWeightedGraph(lines)
+        print "Graph with " + str(self.num_vertices) + " & " + str(len(self.edges)) + \
+              " edges was extracted from " + self.name
 
 # --------------------- Permutation ----------------
 class Permutation:
@@ -77,7 +105,7 @@ class Decomposition:
             self.vertex_color.append(set_id)
             self.class_color[set_id] = 'red'
         self.num_classes = len(self.class_color)
-        print "Decomposition into " + str(self.num_classes) + " classes were extracted from " + filename
+        print "Decomposition into " + str(self.num_classes) + " classes was extracted from " + filename
 
     def AssignColors(self):
         index = 6
@@ -105,8 +133,6 @@ def FillImage(img, img_size, color):
 def GetColorForValue(mode, edge, decomposition):
     if mode == 'weight':
         return weight_color_dict[edge.w]
-    if mode == 'shm':
-        return shm_color_dict[edge.shm]
     if decomposition.vertex_color[edge.v1] == decomposition.vertex_color[edge.v2]:
         return decomposition.class_color[decomposition.vertex_color[edge.v1]]
     return "grey"
@@ -115,8 +141,6 @@ def GetOutputFigName(graph, mode, max_tau, output_dir):
     output_file = os.path.join(output_dir, os.path.basename(graph.name) + "_tau_" + str(max_tau))
     if mode == 'weight':
         return output_file + "_weight.ppm"
-    if mode == 'shm':
-        return output_file + "_shm.ppm"
     return output_file + "_dec.ppm"
 
 # --------------------- graph drawing ---------------------
@@ -131,7 +155,8 @@ def Draw_GraphSizeLessWindow(graph, perm, image, mode, max_tau, decomposition, w
     if mode == 'dec':
         for i in range(0, graph.num_vertices):
             x = int(float(i) / graph.num_vertices * window_size)
-            DrawRectOnImg(image, x, x, rect_size, rect_size, GetColorForValue(mode, Edge(perm.reverse[i], perm.reverse[i], 0, 0), decomposition))
+            DrawRectOnImg(image, x, x, rect_size, rect_size, GetColorForValue(
+                mode, Edge(perm.reverse[i], perm.reverse[i], 0, 0), decomposition))
     
 def Draw_GraphSizeGreaterWindow(graph, perm, image, mode, max_tau, decomposition, window_size):
     for edge in graph.edges:
@@ -155,7 +180,7 @@ def DrawGraph(graph, perm, mode, max_tau, output_dir, decomposition, window_size
 # --------------------- outline ---------------------
 def DrawMatrices(graph_file, perm_file, mode, dec_file):
     graph = Graph()
-    graph.ExtractFromFile(graph_file)
+    graph.ExtractFromGraphFile(graph_file)
 
     perm = Permutation(graph.num_vertices)
     perm.ExtractFromFile(perm_file)

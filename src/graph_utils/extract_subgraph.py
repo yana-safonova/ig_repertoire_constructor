@@ -6,7 +6,7 @@ input_graph = sys.argv[1]
 tau_threshold = int(sys.argv[2])
 
 graph = draw_matrix.Graph()
-graph.ExtractFromFile(input_graph)
+graph.ExtractFromGraphFile(input_graph)
 
 output_graph = input_graph + "_tau_" + str(tau_threshold)
 output_fhandler = open(output_graph, "w")
