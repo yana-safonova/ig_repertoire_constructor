@@ -2,6 +2,7 @@
 #define SEQAN_HAS_BZLIB 1
 
 
+#include <fstream>
 #include <vector>
 #include <cassert>
 #include <algorithm>
@@ -11,8 +12,7 @@
 #include <seqan/align.h>
 #include <seqan/graph_msa.h>
 
-using namespace seqan;
-
+#include <iostream>
 using std::cout;
 
 #include <boost/program_options.hpp>
@@ -30,6 +30,7 @@ using seqan::CharString;
 template<typename T = seqan::Dna5>
 seqan::String<T> consensus(const std::vector<seqan::String<T>> &reads,
                            const std::vector<size_t> indices) {
+  using namespace seqan;
   using _String = seqan::String<T>;
   Align<_String> align;
 
