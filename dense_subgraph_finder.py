@@ -156,14 +156,32 @@ def main():
 
     PrepareConfigs(params, log)
 
-    # just draft of main fuction
-    dsf_command_line = init.PathToBins.run_dense_sgraph_finder + " " + params.config_file
-    support.sys_call(dsf_command_line, log)
-    #log.info("Command line: " + dsf_command_line)
-    #error_code = os.system(dsf_command_line)
-    #if error_code != 0:
-    #    print "ERROR: Dense sgraph finder finished abnormally"
-    #    sys.exit(1)
+    # run dense subgraph finder
+    try:
+        dsf_command_line = init.PathToBins.run_dense_sgraph_finder + " " + params.config_file
+        support.sys_call(dsf_command_line, log)
+        log.info("\nThank you for using Dense Subgraph Finder!\n")
+    except (KeyboardInterrupt):
+        log.info("\nDense subgraph finder was interrupted!")
+    except Exception:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            supportInfo(log)
+    except BaseException:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            supportInfo(log)
+
+    log.info("Log was written to " + params.log_filename)
+
 
 if __name__ == '__main__':
     main() 
