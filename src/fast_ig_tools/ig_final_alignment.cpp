@@ -35,6 +35,7 @@ int main(int argc, char **argv) {
   std::string dense_subgraphs_file = "dense_subgraphs.txt";
   std::string output_file = "output.fa";
   std::string rcm_file = "repertoire.rcm";
+  bool use_hamming_alignment = false;
 
 
   // Parse cmd-line arguments
@@ -57,6 +58,8 @@ int main(int argc, char **argv) {
        "output file for final repertoire")
       ("rcm-file,R", po::value<std::string>(&rcm_file)->default_value(rcm_file),
        "output RCM-file; empty string means no RCM-file producing")
+      ("hamming,H",
+       "use Hamming-based (position-wise) multiple alignment instead of seqan's one")
       ;
 
     // Declare a group of options that will be
@@ -119,6 +122,10 @@ int main(int argc, char **argv) {
       return 0;
     }
 
+    if (vm.count("hamming")) {
+      use_hamming_alignment = true;
+    }
+
     cout << "Input file is: "
       << input_file << "\n";
   } catch(std::exception& e) {
@@ -176,7 +183,15 @@ int main(int argc, char **argv) {
 
   SEQAN_OMP_PRAGMA(parallel for)  // becomes: #pragma omp parallel for
   for (size_t comp = 0; comp < component2id.size(); ++comp) {
-    consensuses[comp] = consensus(input_reads, component2id[comp]);
+    if (component2id[comp].empty()) {
+      continue;
+    }
+
+    if (use_hamming_alignment) {
+      consensuses[comp] = consensus_hamming(input_reads, component2id[comp]);
+    } else {
+      consensuses[comp] = consensus(input_reads, component2id[comp]);
+    }
   }
 
   cout << "Saving results" << std::endl;

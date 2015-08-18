@@ -13,7 +13,7 @@
 
 template<typename T = seqan::Dna5>
 seqan::String<T> consensus(const std::vector<seqan::String<T>> &reads,
-                           const std::vector<size_t> indices) {
+                           const std::vector<size_t> &indices) {
   using namespace seqan;
   using _String = seqan::String<T>;
   Align<_String> align;
@@ -49,4 +49,47 @@ seqan::String<T> consensus(const std::vector<seqan::String<T>> &reads) {
   std::vector<size_t> indices(reads.size());
   std::iota(indices.begin(), indices.end(), 0);
   return consensus(reads, indices);
+}
+
+
+template<typename T = seqan::Dna5>
+seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads,
+                                   const std::vector<size_t> &indices) {
+  using namespace seqan;
+  using _String = seqan::String<T>;
+
+  String<ProfileChar<T>> profile;
+
+  size_t len = 0;
+  for (size_t i : indices) {
+    len = std::max(len, length(reads[i]));
+  }
+
+  resize(profile, len);
+
+  for (size_t i : indices) {
+    const auto &read = reads[i];
+    for (size_t j = 0; j < length(read); ++j) {
+      profile[j].count[ordValue(read[j])] += 1;
+    }
+  }
+
+  // call consensus from this string
+  _String consensus;
+  for (size_t i = 0; i < length(profile); ++i) {
+    size_t idx = getMaxIndex(profile[i]);
+    if (idx < ValueSize<T>::VALUE) {  // is not gap  TODO Check it!!
+      appendValue(consensus, T(getMaxIndex(profile[i])));
+    }
+  }
+
+  return consensus;
+}
+
+
+template<typename T = seqan::Dna5>
+seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads) {
+  std::vector<size_t> indices(reads.size());
+  std::iota(indices.begin(), indices.end(), 0);
+  return consensus_hamming(reads, indices);
 }
