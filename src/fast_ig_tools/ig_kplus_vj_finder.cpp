@@ -139,18 +139,6 @@ public:
       }
     }
 
-    // Reverse for LIS search
-    // Very important step!
-    // We don't use LIS more...
-    // for (auto &p : kmer2needle) {
-    //   std::reverse(p.second.begin(), p.second.end());
-    // }
-
-    most_pop_kmer_uses = 0;
-    for (const auto &e : kmer2needle) {
-      most_pop_kmer_uses = std::max<int>(most_pop_kmer_uses, e.second.size());
-    }
-
     StringSet<Dna5String> kmers;
     for (const auto &e : kmer2needle) {
       appendValue(kmers, e.first);
