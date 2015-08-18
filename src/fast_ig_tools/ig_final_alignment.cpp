@@ -26,6 +26,7 @@ using seqan::CharString;
 
 #include "ig_final_alignment.hpp"
 
+
 size_t find_abundance(const std::string &s) {
   std::smatch m;
   std::regex e("(abundance:)(\\d+)$");
