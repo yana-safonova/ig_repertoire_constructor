@@ -14,10 +14,11 @@
 #include <seqan/seq_io.h>
 using seqan::length;
 
-
-template<size_t card = 5>
+template<typename Tletter = seqan::Dna5>
 class Trie {
 private:
+  static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
+
   class TrieNode {
   public:
     using pointer_type = TrieNode*;
@@ -130,7 +131,7 @@ public:
 
   template<typename T>
   void add(const T &s, size_t id) {
-    auto to_size_t = [](decltype(s[0]) &letter) -> size_t { return size_t(letter); };
+    auto to_size_t = [](decltype(s[0]) &letter) -> size_t { return seqan::ordValue(letter); };
     add(s, id, to_size_t);
   }
 
