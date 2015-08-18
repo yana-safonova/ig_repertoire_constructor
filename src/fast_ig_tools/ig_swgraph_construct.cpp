@@ -22,6 +22,7 @@ using seqan::CharString;
 
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
+#include "ig_final_alignment.hpp"
 
 
 template<typename T, typename Tf>
@@ -73,6 +74,7 @@ int main(int argc, char **argv) {
   std::string output_filename = "output.graph";
   int strategy_int = Strategy::TRIPLE;
   int max_indels = 0;
+  bool export_abundances = false;
 
   // Parse cmd-line arguments
   try {
@@ -90,6 +92,8 @@ int main(int argc, char **argv) {
        "name of an input file (FASTA|FASTQ)")
       ("output-file,o", po::value<std::string>(&output_filename)->default_value(output_filename),
        "file for outputted truncated dist-graph in METIS format")
+      ("export-abundances,A", "export read abundances to output graph file")
+      ("no-export-abundances", "don't export read abundances to output graph file (default)")
       ;
 
     // Declare a group of options that will be
@@ -168,6 +172,14 @@ int main(int argc, char **argv) {
         << vm["input-file"].as<std::string>() << "\n";
     }
 
+    if (vm.count("export-abundances")) {
+      export_abundances = true;
+    }
+
+    if (vm.count("no-export-abundances")) {
+      export_abundances = false;
+    }
+
     cout << "K = " << K << endl;
     cout << "tau = " << tau << endl;
   } catch(std::exception& e) {
@@ -216,9 +228,17 @@ int main(int argc, char **argv) {
                                  tau, K,
                                  strategy);
 
+
+
   // Output
-  cout << "Saving graph..." << std::endl;
-  write_metis_graph(dist_graph, output_filename);
+  if (export_abundances) {
+    cout << "Saving graph (with abundances)..." << std::endl;
+    auto abundances = find_abundances(input_ids);
+    write_metis_graph(dist_graph, abundances, output_filename);
+  } else {
+    cout << "Saving graph (without abundances)..." << std::endl;
+    write_metis_graph(dist_graph, output_filename);
+  }
   cout << "Graph has been saved to file " << output_filename << std::endl;
 
   auto finish_time = std::chrono::high_resolution_clock::now();

@@ -295,3 +295,32 @@ void write_metis_graph(const Graph &graph,
     out << "\n";
   }
 }
+
+
+void write_metis_graph(const Graph &graph,
+                       const std::vector<size_t> &weights,
+                       const std::string &filename) {
+  std::ofstream out(filename);
+
+  // Count the numder of vertices and the number of edges
+  int nV = graph.size();
+
+  int nE = 0;
+  for (size_t i = 0; i < graph.size(); ++i) {
+    for (const auto &neib : graph[i]) {
+      if (i != neib.first) nE += 1; // Exclude loop edges
+    }
+  }
+  nE /= 2;
+
+  out << nV << " " << nE << " 011\n"; // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+
+  for (size_t i = 0; i < graph.size(); ++i) {
+    out << weights[i] << " ";
+    for (const auto &neib : graph[i]) {
+      if (i == neib.first) continue; // Exclude loop edges
+      out << neib.first + 1 << " " << neib.second << " ";
+    }
+    out << "\n";
+  }
+}
