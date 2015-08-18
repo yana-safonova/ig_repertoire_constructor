@@ -15,6 +15,7 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include <mutex>
+#include <chrono>
 
 
 using namespace seqan;
@@ -335,6 +336,8 @@ private:
 
 
 int main(int argc, char **argv) {
+  auto start_time = std::chrono::high_resolution_clock::now();
+
   int K = 7; // anchor length
   int word_size_j = 5;
   int left_uncoverage_limit = 16;
@@ -667,5 +670,9 @@ int main(int argc, char **argv) {
     t.join();
   }
 
+  auto finish_time = std::chrono::high_resolution_clock::now();
+
+  auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count();
+  cout << bformat("Elapsed time: %0.3fs") % (double(elapsed_time) / 1000.) << std::endl;
   return 0;
 }
