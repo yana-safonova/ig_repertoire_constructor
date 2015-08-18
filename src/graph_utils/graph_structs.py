@@ -56,6 +56,7 @@ class Graph:
 # --------------------- Permutation ----------------
 class Permutation:
     def __init__(self, num_elems):
+        self.__num_elems = num_elems
         self.direct = [0] * num_elems
         self.reverse = [0] * num_elems
 
@@ -69,23 +70,36 @@ class Permutation:
             self.reverse[num2] = num1
         fhandler.close()
 
+    def CreateTrivialPermutation(self):
+        for i in range(0, self.__num_elems):
+            self.direct[i] = i
+            self.reverse[i] = i
+
 # --------------------- Decomposition --------------
 class Decomposition:
-    vertex_color = list()
-    class_color = dict()
-    num_classes = 0
-
     def __init__(self):
-        self.vertex_color = list()
-        self.class_color = dict()
-        self.num_classes = 0
+        self.__vertex_color = list()
+        self.__num_classes = 0
 
     def ExtractFromFile(self, filename):
         fhandler = open(filename, 'r')
         lines = fhandler.readlines()
         for l in lines:
             set_id = int(l.strip())
-            self.vertex_color.append(set_id)
-            self.class_color[set_id] = 'red'
-        self.num_classes = len(self.class_color)
-        print "Decomposition into " + str(self.num_classes) + " classes was extracted from " + filename
+            self.__vertex_color.append(set_id)
+            self.__num_classes = max(self.__num_classes, set_id)
+        self.__num_classes += 1
+        print "Decomposition into " + str(self.__num_classes) + " classes was extracted from " + filename
+
+    def ClassNumber(self):
+        return self.__num_classes
+
+    def __iter__(self):
+        for class_id in self.__vertex_color:
+            yield class_id
+
+    def VerticesFromTheSameClass(self, v1, v2):
+        return self.__vertex_color[v1] == self.__vertex_color[v2]
+
+    def GetClassByVertex(self, vertex):
+        return self.__vertex_color[vertex]

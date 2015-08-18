@@ -11,7 +11,7 @@ from graph_structs import Edge
 class MetisGraphReader:
     def __init__(self, filename):
         self.__filename = filename
-        if not os.path.exists(self.__fhandler):
+        if not os.path.exists(self.__filename):
             print "GRAPH file " + self.__filename + " was not found"
             sys.exit(1)
         self.__fhandler = open(self.__filename, 'r')
@@ -60,8 +60,8 @@ class MetisGraphReader:
         elif self.__GraphIsWeighted(first_line_splits):
             print "Weighted graph reader was chosen"
             self.__CreateWeightedGraph(lines)
-        print "Graph with " + str(self.num_vertices) + " & " + str(len(self.edges)) + \
-              " edges was extracted from " + self.name
+        print "Graph with " + str(self.__graph.VertexNumber()) + " & " + str(self.__graph.EdgeNumber()) + \
+              " edges was extracted from " + self.__filename
         self.__fhandler.close()
         return self.__graph
 
@@ -121,7 +121,10 @@ class MtxGraphReader:
             splits = lines[i].strip().split()
             if splits[0] == splits[1]:
                 continue
-            graph.AddEdge(Edge(int(splits[0]) - 1, int(splits[1]) - 1, float(splits[2])))
+            weight = 1
+            if len(splits) > 2:
+                weight = float(splits[2])
+            graph.AddEdge(Edge(int(splits[0]) - 1, int(splits[1]) - 1, weight))
         print "Graph with " + str(graph.VertexNumber()) + " vertices & " + str(graph.EdgeNumber()) + \
               " edges was extracted from " + self.__filename
         self.__fhandler.close()
