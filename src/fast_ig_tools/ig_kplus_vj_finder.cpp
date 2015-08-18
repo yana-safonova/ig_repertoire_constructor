@@ -158,9 +158,9 @@ public:
 
     // Define the Aho-Corasick pattern over the queries with the preprocessing
     // data structure.
-    // Better to use make_unique
-    pattern = std::move(std::unique_ptr<PatternIndex>(new PatternIndex(kmers)));
-    pmtx = std::move(std::unique_ptr<std::mutex>(new std::mutex));
+    // Better to use make_unique UPD Better to read mans before coding.
+    pattern.reset(new PatternIndex(kmers));
+    pmtx.reset(new std::mutex);
   }
 
   std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) {
