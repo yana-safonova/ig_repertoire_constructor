@@ -40,6 +40,28 @@ size_t find_abundance(const std::string &s) {
 }
 
 
+template<typename T>
+std::vector<size_t> find_abundances(const std::vector<T> &ids) {
+  std::vector<size_t> result(ids.size());
+  std::regex e("(abundance:)(\\d+)$");
+
+  SEQAN_OMP_PRAGMA(parallel for)  // becomes: #pragma omp parallel for
+  for (size_t i = 0; i < ids.size(); ++i) {
+    const char *sz = seqan::toCString(ids[i]);
+    std::cmatch m;
+
+    if (std::regex_search(sz, m, e)) {
+      std::string abundance = m[2];
+      result[i] = atoi(abundance.c_str());
+    } else {
+      result[i] = 1;
+    }
+  }
+
+  return result;
+}
+
+
 int main(int argc, char **argv) {
   assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:666") == 666);
   assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:ewrwer") == 1);
@@ -193,8 +215,10 @@ int main(int argc, char **argv) {
   }
   cout << bformat("Maximum component size: %d") % max_component_size << std::endl;
 
+  auto abundances = find_abundances(input_ids);
+
   std::vector<Dna5String> consensuses(component2id.size());
-  std::vector<size_t> abundances(component2id.size());
+  std::vector<size_t> comp_abundances(component2id.size());
 
   omp_set_num_threads(nthreads);
   cout << bformat("Consensus computation (using %d threads)...") % nthreads << std::endl;
@@ -212,7 +236,7 @@ int main(int argc, char **argv) {
     }
 
     for (size_t i : component2id[comp]) {
-      abundances[comp] += find_abundance(seqan::toCString(input_ids[i]));
+      comp_abundances[comp] += abundances[i];
     }
   }
 
