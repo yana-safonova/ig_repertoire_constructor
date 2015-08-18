@@ -133,12 +133,8 @@ int main(int argc, char **argv) {
   readRecords(input_ids, input_reads, seqFileIn_input);
   cout << bformat("Reads: %d\n") % length(input_reads);
 
-  Trie<seqan::Dna5> trie;
-
   cout << "Construction trie..." << std::endl;
-  for (size_t i = 0; i < length(input_reads); ++i) {
-    trie.add(input_reads[i], i);
-  }
+  Trie<seqan::Dna5> trie(input_reads);
 
   cout << "Unique prefixes collecting..." << std::endl;
   auto result = trie.checkout(length(input_reads));

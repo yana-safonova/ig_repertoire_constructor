@@ -103,6 +103,15 @@ public:
   Trie(Trie&&) = default;
   Trie& operator=(Trie&&) = default;
 
+  template<typename Tcont>
+  Trie(const Tcont &cont) {
+    size_t i = 0;
+    for (const auto &s : cont) {
+      add(s, i);
+      ++i;
+    }
+  }
+
   template<typename T, typename Tf>
   void add(const T &s, size_t id, const Tf &toIndex) {
     if (!root) {
@@ -131,7 +140,7 @@ public:
 
   template<typename T>
   void add(const T &s, size_t id) {
-    auto to_size_t = [](decltype(s[0]) &letter) -> size_t { return seqan::ordValue(letter); };
+    auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
     add(s, id, to_size_t);
   }
 
