@@ -6,7 +6,7 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
-#include <unordered_map>
+#include <regex>
 
 
 #include <iostream>
@@ -26,8 +26,24 @@ using seqan::CharString;
 
 #include "ig_final_alignment.hpp"
 
+size_t find_abundance(const std::string &s) {
+  std::smatch m;
+  std::regex e("(abundance:)(\\d+)$");
+
+  if (std::regex_search(s, m, e)) {
+    std::string abundance = m[2];
+    return atoi(abundance.c_str());
+  } else {
+    return 1;
+  }
+}
+
 
 int main(int argc, char **argv) {
+  assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:666") == 666);
+  assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:ewrwer") == 1);
+
+
   auto start_time = std::chrono::high_resolution_clock::now();
 
   int nthreads = 4;
@@ -177,6 +193,7 @@ int main(int argc, char **argv) {
   cout << bformat("Maximum component size: %d") % max_component_size << std::endl;
 
   std::vector<Dna5String> consensuses(component2id.size());
+  std::vector<size_t> abundances(component2id.size());
 
   omp_set_num_threads(nthreads);
   cout << bformat("Consensus computation (using %d threads)...") % nthreads << std::endl;
@@ -192,6 +209,10 @@ int main(int argc, char **argv) {
     } else {
       consensuses[comp] = consensus(input_reads, component2id[comp]);
     }
+
+    for (size_t i : component2id[comp]) {
+      abundances[comp] += find_abundance(seqan::toCString(input_ids[i]));
+    }
   }
 
   cout << "Saving results" << std::endl;
@@ -203,7 +224,7 @@ int main(int argc, char **argv) {
       continue;
     }
 
-    size_t abundance = component2id[comp].size(); // TODO Use abundance from read ids
+    size_t abundance = abundances[comp];
 
     bformat fmt("cluster___%d___size___%d");
     fmt % comp % abundance;
