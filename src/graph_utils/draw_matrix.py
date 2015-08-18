@@ -60,7 +60,7 @@ class DrawingConfig:
             self.decomposition = Decomposition()
             self.decomposition.ExtractFromFile(command_arguments[3])
             self.permutation = Permutation(self.graph.VertexNumber())
-            self.permutation.CreateTrivialPermutation()
+            self.permutation.CreatePermutationByDecomposition(self.decomposition)
         self.output_dir = command_arguments[4]
 
     def __str__(self):
@@ -70,6 +70,7 @@ class DrawingConfig:
             string += "(ii) permutation"
         elif self.ModeIsDecomposed():
             string += "(ii) decomposition"
+        string += ". Output directory: " + self.output_dir
         return string
 
 # --------------------- drawing utils ------------------------------
@@ -85,15 +86,6 @@ weight_color_dict = {1: color_rgb(91, 255, 56), 2: color_rgb(65, 232, 46), 3: co
 dec_color_dict = {0: color_rgb(255, 0, 0), 1: color_rgb(255, 140, 0), 2: color_rgb(255, 255, 0),
                   3: color_rgb(0, 238, 118), 4: color_rgb(0, 191, 255), 5: color_rgb(0, 0, 255),
                   6: color_rgb(238, 0, 238)}
-
-#---------------------------------------------------------------------
-    
-def Draw_GraphSizeGreaterWindow(graph, perm, image, mode, decomposition, window_size):
-    for edge in graph.edges:
-        x = int(float(perm.direct[edge.v1]) / graph.num_vertices * window_size)
-        y = int(float(perm.direct[edge.v2]) / graph.num_vertices * window_size)
-        image.setPixel(x, y, GetColorForValue(mode, edge, decomposition))
-        image.setPixel(y, x, GetColorForValue(mode, edge, decomposition))
 
 #-----------------------------------------------------------
 class GraphDrawer:
@@ -139,7 +131,7 @@ class GraphDrawer:
     def __DrawGraphLessSize(self):
         graph = self.__drawing_config.graph
         rect_size = self.__drawing_config.image_size / graph.VertexNumber() + 1
-        for edge in self.__drawing_config.graph:
+        for edge in graph:
             if edge.v1 < edge.v2:
                 x = int(float(self.__drawing_config.permutation.direct[edge.v1]) /
                         graph.VertexNumber() * self.__drawing_config.image_size)
@@ -156,7 +148,16 @@ class GraphDrawer:
                                                                   0)))
 
     def __DrawGraphGreaterSize(self):
-        return
+        graph = self.__drawing_config.graph
+        for edge in graph:
+            if not edge.v1 < edge.v2:
+                continue
+            x = int(float(self.__drawing_config.permutation.direct[edge.v1]) / graph.VertexNumber() *
+                    self.__drawing_config.image_size)
+            y = int(float(self.__drawing_config.permutation.direct[edge.v2]) / graph.VertexNumber() *
+                    self.__drawing_config.image_size)
+            self.__image.setPixel(x, y, self.__GetColorForEdge(edge))
+            self.__image.setPixel(y, x, self.__GetColorForEdge(edge))
 
     def __DrawGraph(self):
         if self.__drawing_config.ModeIsDecomposed():

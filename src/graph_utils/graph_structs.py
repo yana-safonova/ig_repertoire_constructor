@@ -53,12 +53,48 @@ class Graph:
         for edge in self.__edges:
             yield edge
 
+# --------------------- Decomposition --------------
+class Decomposition:
+    def __init__(self):
+        self.__vertex_color = list()
+        self.__num_classes = 0
+        self.__decomposition_classes = dict()
+
+    def ExtractFromFile(self, filename):
+        fhandler = open(filename, 'r')
+        lines = fhandler.readlines()
+        for i in range(0, len(lines)):
+            set_id = int(lines[i].strip())
+            self.__vertex_color.append(set_id)
+            self.__num_classes = max(self.__num_classes, set_id)
+            if not set_id in self.__decomposition_classes:
+                self.__decomposition_classes[set_id] = list()
+            self.__decomposition_classes[set_id].append(i)
+        self.__num_classes = len(self.__decomposition_classes)
+        print "Decomposition into " + str(self.__num_classes) + " classes was extracted from " + filename
+
+    def ClassNumber(self):
+        return self.__num_classes
+
+    def __iter__(self):
+        for class_id in self.__vertex_color:
+            yield class_id
+
+    def VerticesFromTheSameClass(self, v1, v2):
+        return self.__vertex_color[v1] == self.__vertex_color[v2]
+
+    def GetClassByVertex(self, vertex):
+        return self.__vertex_color[vertex]
+
+    def GetDecompositionClassById(self, class_id):
+        return self.__decomposition_classes[class_id]
+
 # --------------------- Permutation ----------------
 class Permutation:
     def __init__(self, num_elems):
         self.__num_elems = num_elems
-        self.direct = [0] * num_elems
-        self.reverse = [0] * num_elems
+        self.direct = [0] * num_elems # direct[i] shows new index of old vertex i
+        self.reverse = [0] * num_elems # reverse[i] shows old index of new vertex i
 
     def ExtractFromFile(self, filename):
         fhandler = open(filename, "r")
@@ -75,31 +111,11 @@ class Permutation:
             self.direct[i] = i
             self.reverse[i] = i
 
-# --------------------- Decomposition --------------
-class Decomposition:
-    def __init__(self):
-        self.__vertex_color = list()
-        self.__num_classes = 0
-
-    def ExtractFromFile(self, filename):
-        fhandler = open(filename, 'r')
-        lines = fhandler.readlines()
-        for l in lines:
-            set_id = int(l.strip())
-            self.__vertex_color.append(set_id)
-            self.__num_classes = max(self.__num_classes, set_id)
-        self.__num_classes += 1
-        print "Decomposition into " + str(self.__num_classes) + " classes was extracted from " + filename
-
-    def ClassNumber(self):
-        return self.__num_classes
-
-    def __iter__(self):
-        for class_id in self.__vertex_color:
-            yield class_id
-
-    def VerticesFromTheSameClass(self, v1, v2):
-        return self.__vertex_color[v1] == self.__vertex_color[v2]
-
-    def GetClassByVertex(self, vertex):
-        return self.__vertex_color[vertex]
+    def CreatePermutationByDecomposition(self, decompositon = Decomposition()):
+        new_index_counter = 0
+        for i in range(0, decompositon.ClassNumber()):
+            cur_decomposition_class = decompositon.GetDecompositionClassById(i)
+            for elem in cur_decomposition_class:
+                self.direct[elem] = new_index_counter
+                self.reverse[new_index_counter] = elem
+                new_index_counter += 1
