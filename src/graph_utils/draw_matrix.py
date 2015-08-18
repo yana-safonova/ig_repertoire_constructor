@@ -3,115 +3,13 @@ from graphics import *
 
 import random
 
-# --------------------- Edge ----------------------
-class Edge:
-    v1 = 0
-    v2 = 0
-    w = 0
 
-    def __init__(self, v1, v2, w):
-        self.v1 = v1
-        self.v2 = v2
-        self.w = w
 
-# --------------------- Graph ---------------------
-class Graph:
-    edges = list()
-    num_vertices = 0
-    name = ""
-
-    def __init__(self):
-        self.edges = list()
-
-    def __ParseNumVertices(self, first_line_splits):
-        self.num_vertices = int(first_line_splits[0])
-
-    def __CreateWeightedGraph(self, filelines):
-        for i in range(1, len(filelines)):
-            splits = filelines[i].strip().split()
-            if(len(splits) % 2 != 0):
-                print "Incorrect line of GRAPH file " + self.name + " contains odd number of elements:"
-                print filelines[i]
-                sys.exit(1)
-            for j in range(0, len(splits) / 2):
-                neigh = int(splits[j * 2]) - 1
-                weight = float(splits[j * 2 + 1])
-                self.edges.append(Edge(i - 1, neigh, weight))
-
-    def __CreateUnweightedGraph(self, filelines):
-        for i in range(1, len(filelines)):
-            splits = filelines[i].strip().split()
-            for j in range(0, len(splits)):
-                neigh = int(splits[j]) - 1
-                weight = 1.0
-                self.edges.append(Edge(i - 1, neigh, weight))
-
-    def __GraphIsUnweighted(self, first_line_splits):
-        return len(first_line_splits) == 2
-
-    def __GraphIsWeighted(self, first_line_splits):
-        if len(first_line_splits) < 3:
-            return False
-        return first_line_splits[2] == '001'
-
-    def ExtractFromGraphFile(self, filename):
-        self.name = filename
-        fhandler = open(filename, 'r')
-        lines = fhandler.readlines();
-        first_line_splits = lines[0].strip().split()
-        self.__ParseNumVertices(first_line_splits)
-        if self.__GraphIsUnweighted(first_line_splits):
-            self.__CreateUnweightedGraph(lines)
-        elif self.__GraphIsWeighted(first_line_splits):
-            self.__CreateWeightedGraph(lines)
-        print "Graph with " + str(self.num_vertices) + " & " + str(len(self.edges)) + \
-              " edges was extracted from " + self.name
-
-# --------------------- Permutation ----------------
-class Permutation:
-    direct = list()
-    reverse = list()
-
-    def __init__(self, num_elems):
-        self.direct = [0] * num_elems
-        self.reverse = [0] * num_elems
-
-    def ExtractFromFile(self, filename):
-        fhandler = open(filename, "r")
-        lines = fhandler.readlines()
-        for i in range(0, len(lines)):
-            num1 = i
-            num2 = int(lines[i].strip())
-            self.direct[num1] = num2
-            self.reverse[num2] = num1
-        fhandler.close()
-
-# --------------------- Decomposition --------------
-class Decomposition:
-    vertex_color = list()
-    class_color = dict()
-    num_classes = 0
-
-    def __init__(self):
-        self.vertex_color = list()
-        self.class_color = dict()
-        self.num_classes = 0
-
-    def ExtractFromFile(self, filename):
-        fhandler = open(filename, 'r')
-        lines = fhandler.readlines()
-        for l in lines:
-            set_id = int(l.strip())
-            self.vertex_color.append(set_id)
-            self.class_color[set_id] = 'red'
-        self.num_classes = len(self.class_color)
-        print "Decomposition into " + str(self.num_classes) + " classes was extracted from " + filename
-
-    def AssignColors(self):
-        index = 6
-        for set_id in self.class_color:
-            self.class_color[set_id] = dec_color_dict[index % len(dec_color_dict)]
-            index += 1
+#    def AssignColors(self):
+#        index = 6
+#        for set_id in self.class_color:
+#            self.class_color[set_id] = dec_color_dict[index % len(dec_color_dict)]
+#            index += 1
 
 # --------------------- drawing utils ---------------------
 shm_color_dict = {0: color_rgb(41, 209, 37), 1: color_rgb(241, 143, 30), 2: color_rgb(239, 122, 26), 3: color_rgb(237, 102, 22), 4: color_rgb(235, 81, 19), 5: color_rgb(234, 61, 15), 6: color_rgb(232, 40, 12), 7: color_rgb(230, 20, 8), 8: color_rgb(229, 0, 5)}
