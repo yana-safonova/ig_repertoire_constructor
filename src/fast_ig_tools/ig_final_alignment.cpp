@@ -6,7 +6,6 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
-#include <regex>
 
 
 #include <iostream>
@@ -25,41 +24,6 @@ using seqan::SeqFileOut;
 using seqan::CharString;
 
 #include "ig_final_alignment.hpp"
-
-
-size_t find_abundance(const std::string &s) {
-  std::smatch m;
-  std::regex e("(abundance:)(\\d+)$");
-
-  if (std::regex_search(s, m, e)) {
-    std::string abundance = m[2];
-    return atoi(abundance.c_str());
-  } else {
-    return 1;
-  }
-}
-
-
-template<typename T>
-std::vector<size_t> find_abundances(const std::vector<T> &ids) {
-  std::vector<size_t> result(ids.size());
-  std::regex e("(abundance:)(\\d+)$");
-
-  SEQAN_OMP_PRAGMA(parallel for)  // becomes: #pragma omp parallel for
-  for (size_t i = 0; i < ids.size(); ++i) {
-    const char *sz = seqan::toCString(ids[i]);
-    std::cmatch m;
-
-    if (std::regex_search(sz, m, e)) {
-      std::string abundance = m[2];
-      result[i] = atoi(abundance.c_str());
-    } else {
-      result[i] = 1;
-    }
-  }
-
-  return result;
-}
 
 
 int main(int argc, char **argv) {
