@@ -335,8 +335,21 @@ private:
 };
 
 
+std::string join_cmd_line(size_t argc, char **argv) {
+  std::string result = argv[0];
+  for (size_t i = 1; i < argc; ++i) {
+    result += " ";
+    result += argv[i];
+  }
+
+  return result;
+}
+
+
 int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
+
+  cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
 
   int K = 7; // anchor length
   int word_size_j = 5;
