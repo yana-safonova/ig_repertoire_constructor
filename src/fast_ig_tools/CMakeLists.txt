@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(fast_ig_tools CXX)
+project(fast_ig_tools C CXX)
 
 # Need newer cmake =(
 # set_property(GLOBAL PROPERTY CXX_STANDARD 11)
@@ -29,12 +29,43 @@ find_package(BZip2 REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Boost REQUIRED program_options)
 
+find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
+          HINTS ../../ext/include)
+
+find_library(TCMALLOC_LIBRARY NAMES tcmalloc)
+if(TCMALLOC_LIBRARY)
+  message("tcmalloc found")
+endif()
+
+find_library(JEMALLOC_LIBRARY NAMES jemalloc)
+if(JEMALLOC_LIBRARY)
+  message("jemalloc found")
+endif()
+
+if(Boost_INCLUDE_DIR)
+  message("Boost headers found in ${Boost_INCLUDE_DIR}")
+endif()
+
+if(SEQAN_INCLUDE_DIR)
+  message("seqan headers found in ${SEQAN_INCLUDE_DIR}")
+endif()
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
-INCLUDE_DIRECTORIES(../../ext/include)
-
+INCLUDE_DIRECTORIES(${SEQAN_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${BOOST_INCLUDE_DIR})
 link_libraries(boost_program_options z bz2 pthread)
+
+if(TCMALLOC_LIBRARY)
+  message("Linking using tcmalloc")
+  link_libraries(${TCMALLOC_LIBRARY})
+elseif(JEMALLOC_LIBRARY)
+  message("Linking using jemalloc")
+  link_libraries(${JEMALLOC_LIBRARY})
+else()
+  message("Linking using ordinary malloc")
+endif()
 
 add_executable(ig_trie_compressor ig_trie_compressor.cpp)
 add_executable(ig_final_alignment ig_final_alignment.cpp)
