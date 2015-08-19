@@ -25,8 +25,20 @@ if(OPENMP_FOUND)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-find_package(BZip2 REQUIRED)
 find_package(ZLIB REQUIRED)
+if(ZLIB_FOUND)
+  add_definitions(-DSEQAN_HAS_ZLIB=1)
+else()
+  add_definitions(-DSEQAN_HAS_ZLIB=0)
+endif()
+
+find_package(BZip2)
+if(BZIP2_FOUND)
+  add_definitions(-DSEQAN_HAS_BZLIB=1)
+else()
+  add_definitions(-DSEQAN_HAS_BZLIB=0)
+endif()
+
 find_package(Boost REQUIRED program_options)
 
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h

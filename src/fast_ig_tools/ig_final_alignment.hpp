@@ -1,9 +1,5 @@
 #pragma once
 
-#define SEQAN_HAS_ZLIB 1 // TODO Set it using cmake
-#define SEQAN_HAS_BZLIB 1
-
-
 #include <vector>
 #include <cassert>
 #include <algorithm>
