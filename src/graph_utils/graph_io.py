@@ -25,7 +25,7 @@ class MetisGraphReader:
     def __CreateWeightedGraph(self, filelines):
         for i in range(1, len(filelines)):
             splits = filelines[i].strip().split()
-            if(len(splits) % 2 != 0):
+            if len(splits) % 2 != 0:
                 print "Incorrect line of GRAPH file " + self.__filename + " contains odd number of elements:"
                 print filelines[i]
                 sys.exit(1)
@@ -51,14 +51,14 @@ class MetisGraphReader:
         return first_line_splits[2] == '001'
 
     def ExtractGraph(self):
-        lines = self.__fhandler.readlines();
+        lines = self.__fhandler.readlines()
         first_line_splits = lines[0].strip().split()
         self.__graph = Graph(self.__ParseNumVertices(first_line_splits))
         if self.__GraphIsUnweighted(first_line_splits):
-            print "Unweighted graph reader was chosen"
+            #print "Unweighted graph reader was chosen"
             self.__CreateUnweightedGraph(lines)
         elif self.__GraphIsWeighted(first_line_splits):
-            print "Weighted graph reader was chosen"
+            #print "Weighted graph reader was chosen"
             self.__CreateWeightedGraph(lines)
         print "Graph with " + str(self.__graph.VertexNumber()) + " & " + str(self.__graph.EdgeNumber()) + \
               " edges was extracted from " + self.__filename
@@ -124,7 +124,9 @@ class MtxGraphReader:
             weight = 1
             if len(splits) > 2:
                 weight = float(splits[2])
-            graph.AddEdge(Edge(int(splits[0]) - 1, int(splits[1]) - 1, weight))
+            v1 = int(splits[0]) - 1
+            v2 = int(splits[1]) - 1
+            graph.AddEdge(Edge(v1, v2, weight))
         print "Graph with " + str(graph.VertexNumber()) + " vertices & " + str(graph.EdgeNumber()) + \
               " edges was extracted from " + self.__filename
         self.__fhandler.close()

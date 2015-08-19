@@ -43,6 +43,7 @@ void load(dsf_config::io_params::output_mthreading_params &output_mthreading,
     using config_common::load;
     load(output_mthreading.connected_components_dir, pt, "connected_components_dir");
     load(output_mthreading.decompositions_dir, pt, "decompositions_dir");
+    load(output_mthreading.output_component_decompositions, pt, "output_component_decompositions");
 }
 
 void load(dsf_config::io_params &io, boost::property_tree::ptree const &pt, bool) {

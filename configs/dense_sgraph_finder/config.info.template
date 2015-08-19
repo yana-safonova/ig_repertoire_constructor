@@ -16,8 +16,9 @@ io {
 	}
 
 	output_mthreading {
-		connected_components_dir	connected_components
-		decompositions_dir	dense_subgraphs
+		connected_components_dir		connected_components
+		decompositions_dir			dense_subgraphs
+		output_component_decompositions		true
 	}
 }
 

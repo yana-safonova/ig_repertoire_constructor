@@ -5,7 +5,7 @@ import sys
 
 # --------------------- Edge ----------------------
 class Edge:
-    def __init__(self, v1, v2, w):
+    def __init__(self, v1, v2, w = 0):
         self.v1 = v1
         self.v2 = v2
         self.w = w
@@ -22,6 +22,13 @@ class Graph:
             self.__num_edges += len(adj_list)
         self.__num_edges /= 2
 
+    def __InitializeEdgeList(self):
+        for v1 in range(0, len(self.__adjacent_lists)):
+            for v2 in self.__adjacent_lists[v1]:
+                self.__edges.append(Edge(v1, v2))
+        #print str(len(self.__edges)) + " edges were created"
+        #sys.exit(1)
+
     def __init__(self, num_vertices):
         self.__edges = list()
         self.__num_vertices = num_vertices
@@ -29,7 +36,6 @@ class Graph:
         self.__InitializeAdjacencyList()
 
     def AddEdge(self, edge):
-        self.__edges.append(edge)
         self.__adjacent_lists[edge.v1].add(edge.v2)
         self.__adjacent_lists[edge.v2].add(edge.v1)
 
@@ -50,6 +56,8 @@ class Graph:
         return self.__num_edges
 
     def __iter__(self):
+        if len(self.__edges) == 0:
+            self.__InitializeEdgeList()
         for edge in self.__edges:
             yield edge
 

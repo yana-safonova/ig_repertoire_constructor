@@ -25,6 +25,7 @@ struct dsf_config {
         struct output_mthreading_params {
             std::string     connected_components_dir;
             std::string     decompositions_dir;
+            bool            output_component_decompositions;
         };
 
         input_params input;

@@ -36,6 +36,7 @@ namespace {
         const dsf_config::dense_sgraph_finder_params &dsf_params_;
         const dsf_config::io_params &io_;
         const dsf_config::metis_io_params &metis_io_;
+        vector<DecompositionPtr> connected_component_decompositions_;
 
         string GetSubgraphFilename(size_t subgraph_index) {
             stringstream ss;
@@ -49,14 +50,18 @@ namespace {
             return path::append_path(io_.output_mthreading.decompositions_dir, ss.str());
         }
 
+        void InitializeDecompositionVector(size_t num_connected_components) {
+            connected_component_decompositions_.resize(num_connected_components);
+        }
+
         DecompositionPtr CreateFinalDecomposition(size_t num_connected_components) {
             GraphComponentMap &component_map = graph_ptr_->GetGraphComponentMap();
             TRACE(component_map);
             map<size_t, size_t> vertex_new_set;
             size_t cur_set_id = 0;
             for(size_t i = 0; i < num_connected_components; i++) {
-                string cur_decomposition_fname = GetDecompositionFilename(i);
-                DecompositionPtr subgraph_decomposition(new Decomposition(cur_decomposition_fname));
+                //string cur_decomposition_fname = GetDecompositionFilename(i);
+                DecompositionPtr subgraph_decomposition = connected_component_decompositions_[i]; //(new Decomposition(cur_decomposition_fname));
                 for(size_t j = 0; j < subgraph_decomposition->Size(); j++) {
                     const set<size_t> &cur_subclass = subgraph_decomposition->GetClass(j);
                     for(auto it = cur_subclass.begin(); it != cur_subclass.end(); it++) {
@@ -114,6 +119,7 @@ namespace {
 
         DecompositionPtr Run() {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
+            InitializeDecompositionVector(connected_components.size());
             PrintConnectedComponentsStats(connected_components);
 #pragma omp parallel for
             for(size_t i = 0; i < connected_components.size(); i++) {
@@ -125,7 +131,9 @@ namespace {
                         metis_io_,
                         graph_filename);
                 DecompositionPtr decomposition_ptr = denseSubgraphConstructor.CreateDecomposition(current_subgraph);
-                decomposition_ptr->SaveTo(decomposition_filename);
+                connected_component_decompositions_[i] = decomposition_ptr;
+                if(io_.output_mthreading.output_component_decompositions)
+                    decomposition_ptr->SaveTo(decomposition_filename);
                 TRACE("Dense subgraph decomposition was written to " << decomposition_filename);
             }
             INFO("Parallel construction of dense subgraphs for connected components finished");

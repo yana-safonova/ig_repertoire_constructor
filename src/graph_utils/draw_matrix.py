@@ -20,19 +20,23 @@ class DrawingConfig:
                  permutation = Permutation(0),
                  decomposition = Decomposition(),
                  mode = "",
-                 output_dir = "",
+                 output_img = "",
                  image_size = 600,
                  background_color = "white"):
         self.graph = graph
         self.permutation = permutation
         self.decomposition = decomposition
         self.__mode = mode
-        self.output_dir = output_dir
+        self.output_img = output_img
         self.image_size = image_size
         self.background_color = background_color
 
-    def __ModeIsCorrect(self, mode_str):
-        return mode_str == 'PERM' or mode_str == 'DEC'
+    def __CommandLineArgumentsAreCorrect(self, command_arguments):
+        if len(command_arguments) == 5 and (command_arguments[2] == 'DEC' or command_arguments[2] == 'PERM'):
+            return True
+        elif len(command_arguments) == 4 and command_arguments[2] == 'TRIV':
+            return True
+        return False
 
     def ModeIsPermutated(self):
         return self.__mode == 'PERM'
@@ -40,37 +44,54 @@ class DrawingConfig:
     def ModeIsDecomposed(self):
         return self.__mode == 'DEC'
 
+    def ModeIsTrivial(self):
+        return self.__mode == 'TRIV'
+
+    def __ModeIsCorrect(self, mode_str):
+        return not self.ModeIsPermutated() and \
+               not self.ModeIsDecomposed() and \
+               not self.ModeIsTrivial()
+
     def CreateConfigFromCommandLine(self, command_arguments):
-        if len(command_arguments) != 5:
-            print "Invalid number of input arguments"
-            print "argv[1] - GRAPH filename, argv[2] - permutation or decomposition filename, " \
-                  "argv[3] - mode (PERM / DEC), argv[4] - output directory"
+        if not self.__CommandLineArgumentsAreCorrect(command_arguments):
+            print "Invalid number of input arguments: "
+            print "argv[1] - GRAPH filename, " \
+                  "argv[2] - mode (PERM / DEC / TRIV), " \
+                  "argv[3] - output directory, " \
+                  "argv[4] - permutation or decomposition filename for PERM/DEC mode"
             sys.exit(1)
         graph_filename = command_arguments[1]
         self.graph = MetisGraphReader(graph_filename).ExtractGraph()
         mode_string = command_arguments[2]
         if not self.__ModeIsCorrect(mode_string):
-            print "Mode string is not correct. Please specify PERM for drawing permutated graph or DEC for drawing decomposed graph"
+            print "Mode string is not correct. Please choose one the following values of mode:"
+            print " PERM\t\tdrawing permutated graph,"
+            print " DEC\t\tdrawing decomposed graph,"
+            print " TRIV\t\tgraph drawing"
             sys.exit(1)
         self.__mode = mode_string
+        self.output_img = command_arguments[3]
         if self.ModeIsPermutated():
             self.permutation = Permutation(self.graph.VertexNumber())
-            self.permutation.ExtractFromFile(command_arguments[3])
+            self.permutation.ExtractFromFile(command_arguments[4])
         elif self.ModeIsDecomposed():
             self.decomposition = Decomposition()
-            self.decomposition.ExtractFromFile(command_arguments[3])
+            self.decomposition.ExtractFromFile(command_arguments[4])
             self.permutation = Permutation(self.graph.VertexNumber())
             self.permutation.CreatePermutationByDecomposition(self.decomposition)
-        self.output_dir = command_arguments[4]
+        elif self.ModeIsTrivial():
+            self.permutation = Permutation(self.graph.VertexNumber())
+            self.permutation.CreateTrivialPermutation()
 
     def __str__(self):
-        string = "Drawing config contains (i) graph with " + str(self.graph.VertexNumber()) + " vertices & " + \
-                 str(self.graph.EdgeNumber()) + " edges and "
+        string = "Drawing config:\n"
+        string += " - graph with " + str(self.graph.VertexNumber()) + " vertices & " + \
+                 str(self.graph.EdgeNumber()) + " edges\n"
         if self.ModeIsPermutated():
-            string += "(ii) permutation"
+            string += " - permutation\n"
         elif self.ModeIsDecomposed():
-            string += "(ii) decomposition"
-        string += ". Output directory: " + self.output_dir
+            string += " - decomposition\n"
+        string += " - Output filename: " + self.output_img
         return string
 
 # --------------------- drawing utils ------------------------------
@@ -88,6 +109,7 @@ dec_color_dict = {0: color_rgb(255, 0, 0), 1: color_rgb(255, 140, 0), 2: color_r
                   6: color_rgb(238, 0, 238)}
 
 #-----------------------------------------------------------
+
 class GraphDrawer:
     def __init__(self, drawing_config = DrawingConfig()):
         self.__drawing_config = drawing_config
@@ -141,11 +163,10 @@ class GraphDrawer:
                 self.__DrawRectangleOnImage(y, x, rect_size, rect_size, self.__GetColorForEdge(edge))
         if self.__drawing_config.ModeIsDecomposed():
             for i in range(0, graph.VertexNumber()):
-                x = int(float(i) / graph.VertexNumber()* self.__drawing_config.image_size)
+                x = int(float(i) / graph.VertexNumber() * self.__drawing_config.image_size)
                 self.__DrawRectangleOnImage(x, x, rect_size, rect_size,
                                             self.__GetColorForEdge(Edge(self.__drawing_config.permutation.reverse[i],
-                                                                  self.__drawing_config.permutation.reverse[i],
-                                                                  0)))
+                                                                  self.__drawing_config.permutation.reverse[i],0)))
 
     def __DrawGraphGreaterSize(self):
         graph = self.__drawing_config.graph
@@ -174,12 +195,12 @@ class GraphDrawer:
             print "Graph size (" + str(self.__drawing_config.graph.VertexNumber()) + ") > image size (" + \
                   str(self.__drawing_config.image_size) + ")"
             self.__DrawGraphGreaterSize()
-        image_fname = os.path.join(self.__drawing_config.output_dir, "image.ppm")
+        image_fname = self.__drawing_config.output_img #os.path.join(self.__drawing_config.output_dir, "image.ppm")
         self.__image.save(image_fname)
-        print "Image was written to " + image_fname
+        print "Matrix image was written to " + image_fname
 
     def Draw(self):
-        self.__PrepareOutputDir()
+        #self.__PrepareOutputDir()
         self.__DrawGraph()
 
 #-----------------------------------------------------------
