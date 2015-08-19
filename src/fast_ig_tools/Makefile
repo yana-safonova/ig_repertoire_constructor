@@ -1,4 +1,4 @@
-INCLUDES=-isystem ./seqan-library-2.0.0/include/ -isystem ./gtest-1.7.0/fused-src/
+INCLUDES=-isystem ../../ext/include/ -isystem ./gtest-1.7.0/fused-src/
 CXXFLAGS=-std=c++11 -Wall -Wextra
 CXXFLAGS+=-O3
 CXXLIBS=-lpthread -lboost_program_options -lz -lbz2
