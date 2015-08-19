@@ -12,19 +12,19 @@ CXX=g++
 
 all: ig_swgraph_construct ig_trie_compressor ig_matcher ig_kplus_vj_finder ig_final_alignment
 
-ig_swgraph_construct: ig_swgraph_construct.cpp ig_matcher.hpp
+ig_swgraph_construct: ig_swgraph_construct.cpp ig_matcher.hpp fast_ig_tools.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_swgraph_construct.cpp ${CXXLIBS} -o ig_swgraph_construct
 
-ig_matcher: ig_matcher.cpp ig_matcher.hpp banded_half_smith_waterman.hpp
+ig_matcher: ig_matcher.cpp ig_matcher.hpp banded_half_smith_waterman.hpp fast_ig_tools.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_matcher.cpp ${CXXLIBS} -o ig_matcher
 
-ig_trie_compressor: ig_trie_compressor.cpp ig_trie_compressor.hpp
+ig_trie_compressor: ig_trie_compressor.cpp ig_trie_compressor.hpp fast_ig_tools.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_trie_compressor.cpp ${CXXLIBS} -o ig_trie_compressor
 
-ig_kplus_vj_finder: ig_kplus_vj_finder.cpp
+ig_kplus_vj_finder: ig_kplus_vj_finder.cpp fast_ig_tools.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_kplus_vj_finder.cpp ${CXXLIBS} -o ig_kplus_vj_finder
 
-ig_final_alignment: ig_final_alignment.cpp ig_final_alignment.hpp
+ig_final_alignment: ig_final_alignment.cpp ig_final_alignment.hpp fast_ig_tools.hpp
 	${CXX} ${CXXFLAGS} ${INCLUDES} ig_final_alignment.cpp ${CXXLIBS} -o ig_final_alignment
 
 gtest-all.o:

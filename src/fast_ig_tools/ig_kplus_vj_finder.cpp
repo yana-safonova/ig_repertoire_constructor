@@ -33,6 +33,9 @@ using bformat = boost::format;
 namespace po = boost::program_options;
 
 
+#include "fast_ig_tools.hpp"
+
+
 // input vector(pair(needle_pos, read_pos))
 // output vector(tuple(needle_pos, read_pos, length))
 struct Match {
@@ -333,17 +336,6 @@ private:
   map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
   std::unique_ptr<std::mutex> pmtx;
 };
-
-
-std::string join_cmd_line(size_t argc, char **argv) {
-  std::string result = argv[0];
-  for (size_t i = 1; i < argc; ++i) {
-    result += " ";
-    result += argv[i];
-  }
-
-  return result;
-}
 
 
 int main(int argc, char **argv) {

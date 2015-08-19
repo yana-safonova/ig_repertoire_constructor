@@ -23,6 +23,7 @@ using seqan::CharString;
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
 #include "ig_final_alignment.hpp"
+#include "fast_ig_tools.hpp"
 
 
 template<typename T, typename Tf>
@@ -66,6 +67,8 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
 
 int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
+
+  cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
 
   int K = 36; // anchor length
   int tau = 3;

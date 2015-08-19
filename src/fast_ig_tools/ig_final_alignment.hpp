@@ -109,6 +109,8 @@ size_t find_abundance(const std::string &s) {
     return 1;
   }
 }
+// assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:666") == 666);
+// assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:ewrwer") == 1);
 
 
 template<typename T>

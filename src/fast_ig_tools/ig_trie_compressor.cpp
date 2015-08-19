@@ -26,10 +26,13 @@ using std::cout;
 namespace po = boost::program_options;
 
 #include "ig_trie_compressor.hpp"
+#include "fast_ig_tools.hpp"
 
 
 int main(int argc, char **argv) {
   auto start_time = std::chrono::high_resolution_clock::now();
+
+  cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
 
   std::string input_file = "input.fa";
   std::string output_file = "output.fa";

@@ -24,14 +24,13 @@ using seqan::SeqFileOut;
 using seqan::CharString;
 
 #include "ig_final_alignment.hpp"
+#include "fast_ig_tools.hpp"
 
 
 int main(int argc, char **argv) {
-  assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:666") == 666);
-  assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:ewrwer") == 1);
-
-
   auto start_time = std::chrono::high_resolution_clock::now();
+
+  cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
 
   int nthreads = 4;
   std::string input_file = "input.fa";
