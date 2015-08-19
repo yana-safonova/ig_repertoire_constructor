@@ -34,12 +34,16 @@ find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
 
 find_library(TCMALLOC_LIBRARY NAMES tcmalloc)
 if(TCMALLOC_LIBRARY)
-  message("tcmalloc found")
+  message("tcmalloc found: ${TCMALLOC_LIBRARY}")
 endif()
 
-find_library(JEMALLOC_LIBRARY NAMES jemalloc)
+
+find_library(JEMALLOC_LIBRARY NAMES jemalloc NO_DEFAULT_PATH PATHS ../../build/release/ext/jemalloc)
+if(NOT JEMALLOC_LIBRARY)
+  find_library(JEMALLOC_LIBRARY NAMES jemalloc HINT ../../build/release/ext/jemalloc)
+endif()
 if(JEMALLOC_LIBRARY)
-  message("jemalloc found")
+  message("jemalloc found: ${JEMALLOC_LIBRARY}")
 endif()
 
 if(Boost_INCLUDE_DIR)
