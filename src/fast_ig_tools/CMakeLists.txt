@@ -36,7 +36,7 @@ endif()
 find_package(Boost REQUIRED program_options)
 
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
-          HINTS ../../ext/include ${EXT}/include)
+  HINTS ../../ext/include ${EXT_DIR}/include)
 
 
 find_library(TCMALLOC_LIBRARY NAMES tcmalloc)
@@ -44,10 +44,7 @@ if(TCMALLOC_LIBRARY)
   message("tcmalloc found: ${TCMALLOC_LIBRARY}")
 endif()
 
-find_library(JEMALLOC_LIBRARY NAMES jemalloc NO_DEFAULT_PATH PATHS ../../build/release/ext/jemalloc)
-if(NOT JEMALLOC_LIBRARY)
-  find_library(JEMALLOC_LIBRARY NAMES jemalloc HINT ../../build/release/ext/jemalloc)
-endif()
+find_library(JEMALLOC_LIBRARY NAMES jemalloc)
 if(JEMALLOC_LIBRARY)
   message("jemalloc found: ${JEMALLOC_LIBRARY}")
 endif()
@@ -79,7 +76,10 @@ else()
   add_definitions(-DSEQAN_HAS_BZIP2=0)
 endif()
 
-if(JEMALLOC_LIBRARY)
+if(EXT_DIR)
+  message("Linking using internal jemalloc")
+  link_libraries(jemalloc)
+elseif(JEMALLOC_LIBRARY)
   message("Linking using jemalloc")
   link_libraries(${JEMALLOC_LIBRARY})
 elseif(TCMALLOC_LIBRARY)
