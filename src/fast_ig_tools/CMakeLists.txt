@@ -73,10 +73,10 @@ link_libraries(${BOOST_PROGRAM_OPTIONS_LIBRARY})
 
 find_package(BZip2)
 if(BZIP2_FOUND)
-  add_definitions(-DSEQAN_HAS_BZLIB=1)
+  add_definitions(-DSEQAN_HAS_BZIP2=1)
   link_libraries(${BZIP2_LIBRARIES})
 else()
-  add_definitions(-DSEQAN_HAS_BZLIB=0)
+  add_definitions(-DSEQAN_HAS_BZIP2=0)
 endif()
 
 if(JEMALLOC_LIBRARY)
