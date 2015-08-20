@@ -69,7 +69,7 @@ add_subdirectory(ssw)
 #add_subdirectory(ionhammer)
 #add_subdirectory(spades_pipeline)
 #add_subdirectory(dipspades)
-add_subdirectory(ig_repertoire_constructor)
+#add_subdirectory(ig_repertoire_constructor)
 add_subdirectory(fast_ig_tools)
 add_subdirectory(dense_sgraph_finder)
 
