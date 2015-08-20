@@ -45,7 +45,7 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
 // and then, refactor it!!!!!!!!111111111111oneoneone
 std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, size_t ss_len = 3) {
   assert(ss_len >= 1);
-  assert(costs.size() >= ss_len * K);
+  assert(costs.size() + K - 1 >= ss_len * K);
 
   const int INF = 1 << 30; // TODO Use exact value
 
