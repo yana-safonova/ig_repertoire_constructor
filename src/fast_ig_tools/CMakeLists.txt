@@ -33,14 +33,6 @@ else()
   add_definitions(-DSEQAN_HAS_ZLIB=0)
 endif()
 
-find_package(BZip2)
-if(BZIP2_FOUND)
-  add_definitions(-DSEQAN_HAS_BZLIB=1)
-  link_libraries(${BZIP2_LIBRARIES})
-else()
-  add_definitions(-DSEQAN_HAS_BZLIB=0)
-endif()
-
 find_package(Boost REQUIRED program_options)
 
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
@@ -78,6 +70,14 @@ link_libraries(pthread)
 set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 find_library(BOOST_PROGRAM_OPTIONS_LIBRARY NAMES boost_program_options)
 link_libraries(${BOOST_PROGRAM_OPTIONS_LIBRARY})
+
+find_package(BZip2)
+if(BZIP2_FOUND)
+  add_definitions(-DSEQAN_HAS_BZLIB=1)
+  link_libraries(${BZIP2_LIBRARIES})
+else()
+  add_definitions(-DSEQAN_HAS_BZLIB=0)
+endif()
 
 if(JEMALLOC_LIBRARY)
   message("Linking using jemalloc")
