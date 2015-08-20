@@ -70,6 +70,7 @@ add_subdirectory(ssw)
 #add_subdirectory(spades_pipeline)
 #add_subdirectory(dipspades)
 add_subdirectory(ig_repertoire_constructor)
+add_subdirectory(fast_ig_tools)
 
 # Main pipeline script
 #install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/../spades.py"

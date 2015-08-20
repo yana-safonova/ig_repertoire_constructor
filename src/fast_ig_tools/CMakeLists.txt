@@ -83,6 +83,10 @@ else()
   message("Linking using ordinary malloc")
 endif()
 
+# Enable compilation in debug mode
+# See http://stackoverflow.com/questions/19729036/boost-program-options-wont-work-with-glibcxx-debug
+remove_definitions(-D_GLIBCXX_DEBUG)
+
 add_executable(ig_trie_compressor ig_trie_compressor.cpp)
 add_executable(ig_final_alignment ig_final_alignment.cpp)
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
