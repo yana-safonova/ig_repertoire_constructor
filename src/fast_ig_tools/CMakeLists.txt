@@ -42,13 +42,13 @@ endif()
 find_package(Boost REQUIRED program_options)
 
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
-          HINTS ../../ext/include)
+          HINTS ../../ext/include ${EXT}/include)
+
 
 find_library(TCMALLOC_LIBRARY NAMES tcmalloc)
 if(TCMALLOC_LIBRARY)
   message("tcmalloc found: ${TCMALLOC_LIBRARY}")
 endif()
-
 
 find_library(JEMALLOC_LIBRARY NAMES jemalloc NO_DEFAULT_PATH PATHS ../../build/release/ext/jemalloc)
 if(NOT JEMALLOC_LIBRARY)
