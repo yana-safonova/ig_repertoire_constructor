@@ -114,7 +114,7 @@ std::vector<size_t> find_abundances(const std::vector<T> &ids) {
   std::vector<size_t> result(ids.size());
   std::regex e("(abundance:)(\\d+)$");
 
-  SEQAN_OMP_PRAGMA(parallel for)  // becomes: #pragma omp parallel for
+  SEQAN_OMP_PRAGMA(parallel for)
   for (size_t i = 0; i < ids.size(); ++i) {
     const char *sz = seqan::toCString(ids[i]);
     std::cmatch m;

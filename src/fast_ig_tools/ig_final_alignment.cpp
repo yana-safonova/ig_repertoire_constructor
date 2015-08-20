@@ -182,7 +182,7 @@ int main(int argc, char **argv) {
   omp_set_num_threads(nthreads);
   cout << bformat("Consensus computation (using %d threads)...") % nthreads << std::endl;
 
-  SEQAN_OMP_PRAGMA(parallel for)  // becomes: #pragma omp parallel for
+  SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
   for (size_t comp = 0; comp < component2id.size(); ++comp) {
     if (component2id[comp].empty()) {
       continue;
