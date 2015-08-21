@@ -3,7 +3,6 @@
 #include <vector>
 #include <cassert>
 #include <algorithm>
-#include <regex>
 
 #include <seqan/seq_io.h>
 #include <seqan/align.h>
@@ -94,38 +93,22 @@ seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads) {
 }
 
 
-size_t find_abundance(const std::string &s) {
-    std::smatch m;
-    std::regex e("(abundance:)(\\d+)$");
-
-    if (std::regex_search(s, m, e)) {
-        std::string abundance = m[2];
-        return atoi(abundance.c_str());
-    } else {
-        return 1;
-    }
-}
-// assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:666") == 666);
-// assert(find_abundance(">51774600-A5HPB:1:1108:11496:24798_1:N:0:TCTCGCGCATAGAGGC_abundance:ewrwer") == 1);
-
-
 template<typename T>
 std::vector<size_t> find_abundances(const std::vector<T> &ids) {
     std::vector<size_t> result(ids.size());
-    std::regex e("(abundance:)(\\d+)$");
+    std::string pat = "_abundance:";
 
     SEQAN_OMP_PRAGMA(parallel for)
-        for (size_t i = 0; i < ids.size(); ++i) {
-            const char *sz = seqan::toCString(ids[i]);
-            std::cmatch m;
+    for (size_t i = 0; i < ids.size(); ++i) {
+        std::string s = seqan::toCString(ids[i]);
+        size_t pos = s.find("_abundance:");
 
-            if (std::regex_search(sz, m, e)) {
-                std::string abundance = m[2];
-                result[i] = atoi(abundance.c_str());
-            } else {
-                result[i] = 1;
-            }
+        if (pos == std::string::npos) {
+            result[i] = 1;
+        } else {
+            result[i] = atoi(s.c_str() + pos + pat.length());
         }
+    }
 
     return result;
 }
