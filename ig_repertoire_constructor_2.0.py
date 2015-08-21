@@ -24,6 +24,44 @@ def ErrorMessagePrepareCfg(log):
     log.info("  (4) rerun IgRepertoireConstrictor")
 
 #######################################################################################
+#           Binary routines
+#######################################################################################
+
+class IgBinaryConfig:
+    def __init__(self):
+        self.path_to_vj_aligner = 'build/release/bin/ig_kplus_vj_finder'
+        self.run_vj_aligner = 'build/release/bin/./ig_kplus_vj_finder'
+        self.path_to_trie_compressor = 'build/release/bin/ig_trie_compressor'
+        self.run_trie_compressor = 'build/release/bin/./ig_trie_compressor'
+        self.path_to_graph_constructor = 'build/release/bin/ig_swgraph_construct'
+        self.run_graph_constructor = 'build/release/bin/./ig_swgraph_construct'
+        self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
+        self.run_consensus_constructor = 'build/release/bin/./ig_final_alignment'
+        self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
+
+    def CheckBinaries(self, log):
+        if not os.path.exists(self.path_to_vj_aligner):
+            log.info("ERROR: Binary file of VJFinder was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.path_to_trie_compressor):
+            log.info("ERROR: Binary file of TrieCompressor was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.path_to_graph_constructor):
+            log.info("ERROR: Binary file of GraphConstructor was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.path_to_dsf):
+            log.info("ERROR: Binary file of DSF was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.path_to_consensus_constructor):
+            log.info("ERROR: Binary file of ConsensusConstructor was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+
+#######################################################################################
 #           Phases
 #######################################################################################
 class PhaseNames:
@@ -69,13 +107,20 @@ class VJAlignmentPhase:
         self.__log = log
 
     def PrintStartMessage(self):
-        self.__log.info("Hello, I am VJ aligner!")
+        self.__log.info("==== VJ aligner starts")
 
     def Run(self):
-        self.__log.info("Rrrrruning!")
+        self.__params.vj_finder_output_dir = os.path.join(self.__params.output, "vj_finder")
+        command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
+                       self.__params.vj_finder_output_dir
+        self.__log.info("VJ finder command line: " + command_line + "\n")
+        support.sys_call(command_line, self.__log)
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
+
+    def PrintFinishMessage(self):
+        self.__log.info("==== VJ aligner finished\n")
 
 ###########
 class TrieCompressionPhase:
@@ -84,13 +129,16 @@ class TrieCompressionPhase:
         self.__log = log
 
     def PrintStartMessage(self):
-        self.__log.info("Hello, I am Trie compressor!")
+        self.__log.info("==== Trie Compressor starts")
 
     def Run(self):
         self.__log.info("Rrrrruning!")
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
+
+    def PrintFinishMessage(self):
+        self.__log.info("==== Trie Compressor finished\n")
 
 ###########
 class GraphConstructionPhase:
@@ -181,44 +229,6 @@ class PhaseManager:
             phase.Run()
             phase.PrintOutputFiles()
             self.__log.info("\n============================================\n")
-
-#######################################################################################
-#           Binary routines
-#######################################################################################
-
-class IgBinaryConfig:
-    def __init__(self):
-        self.path_to_vj_aligner = 'build/release/bin/ig_kplus_vj_finder'
-        self.run_vj_aligner = 'build/release/bin/./ig_kplus_vj_finder'
-        self.path_to_trie_compressor = 'build/release/bin/ig_trie_compressor'
-        self.run_trie_compressor = 'build/release/bin/./ig_trie_compressor'
-        self.path_to_graph_constructor = 'build/release/bin/ig_swgraph_construct'
-        self.run_graph_constructor = 'build/release/bin/./ig_swgraph_construct'
-        self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
-        self.run_consensus_constructor = 'build/release/bin/./ig_final_alignment'
-        self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
-
-    def CheckBinaries(self, log):
-        if not os.path.exists(self.path_to_vj_aligner):
-            log.info("ERROR: Binary file of VJFinder was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.path_to_trie_compressor):
-            log.info("ERROR: Binary file of TrieCompressor was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.path_to_graph_constructor):
-            log.info("ERROR: Binary file of GraphConstructor was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.path_to_dsf):
-            log.info("ERROR: Binary file of DSF was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor):
-            log.info("ERROR: Binary file of ConsensusConstructor was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
 
 #######################################################################################
 #           IO routines
