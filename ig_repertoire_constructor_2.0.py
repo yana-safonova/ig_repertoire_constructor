@@ -38,6 +38,7 @@ class IgBinaryConfig:
         self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
         self.run_consensus_constructor = 'build/release/bin/./ig_final_alignment'
         self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
+        self.path_to_germline = "build/release/bin/germline"
 
     def CheckBinaries(self, log):
         if not os.path.exists(self.path_to_vj_aligner):
@@ -110,9 +111,9 @@ class VJAlignmentPhase:
         self.__log.info("==== VJ aligner starts")
 
     def Run(self):
-        self.__params.vj_finder_output_dir = os.path.join(self.__params.output, "vj_finder")
+        self.__params.good_reads = os.path.join(self.__params.output, "good_reads.fasta")
         command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
-                       self.__params.vj_finder_output_dir
+                       self.__params.good_reads + " --db-directory " + IgBinaryConfig().path_to_germline
         self.__log.info("VJ finder command line: " + command_line + "\n")
         support.sys_call(command_line, self.__log)
 
@@ -132,7 +133,7 @@ class TrieCompressionPhase:
         self.__log.info("==== Trie Compressor starts")
 
     def Run(self):
-        self.__log.info("Rrrrruning!")
+        self.__log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
@@ -150,7 +151,7 @@ class GraphConstructionPhase:
         self.__log.info("Hello, I am Graph Constructor!")
 
     def Run(self):
-        self.__log.info("Rrrrruning!")
+        self.__log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
@@ -165,7 +166,7 @@ class DSFPhase:
         self.__log.info("Hello, I am Dense Subgraph Finder!")
 
     def Run(self):
-        self.__log.info("Rrrrruning!")
+        self.__log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
@@ -180,7 +181,7 @@ class ConsensusConstructionPhase:
         self.__log.info("Hello, I am Consensus Constructor!")
 
     def Run(self):
-        self.__log.info("Rrrrruning!")
+        self.__log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
         self.__log.info("Some output files!")
