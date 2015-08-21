@@ -388,7 +388,7 @@ int main(int argc, char **argv) {
        "output directory")
       ("compress, C", "compress FASTA files")
       ("no-compress", "don't compress FASTA files (default)")
-      ("silent,S", "suppose output for each query (default)")
+      ("silent,S", "suppress output for each query (default)")
       ("no-silent,V", "produce info output for each query")
       ("chain,C", po::value<std::string>(&chain)->default_value(chain),
        "IG chain ('heavy', 'lambda' or 'kappa')")
