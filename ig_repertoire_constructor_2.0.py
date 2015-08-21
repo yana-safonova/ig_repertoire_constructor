@@ -11,7 +11,6 @@ spades_src = os.path.join(home_directory, "src/python_pipeline/")
 import dense_subgraph_finder
 
 sys.path.append(spades_src)
-import process_cfg
 import support
 
 #######################################################################################
@@ -289,7 +288,7 @@ class ConsensusConstructionPhase(Phase):
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
-        self.__CheckDecompositionExistance()
+        self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * CLUSTERS.FA file containing final repertoire was written to " +
                        self.__params.repertoire_clusters_fa)
@@ -471,10 +470,31 @@ def main():
     PrintParams(params, log)
     PrintCommandLine(log)
 
-    # todo: add try-catch
-    ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
-    ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
-    ig_repertoire_constructor.Run()
+    try:
+        ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
+        ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
+        ig_repertoire_constructor.Run()
+        log.info("\nThank you for using IgRepertoireConstructor!")
+    except (KeyboardInterrupt):
+        log.info("\nIgRepertoireConstructor was interrupted!")
+    except Exception:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+    except BaseException:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+
+    log.info("Log was written to " + params.log_filename)
 
 if __name__ == '__main__':
     main()
