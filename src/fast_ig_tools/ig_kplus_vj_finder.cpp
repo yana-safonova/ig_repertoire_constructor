@@ -361,6 +361,7 @@ int main(int argc, char **argv) {
   int threads = 4;
   bool silent = true;
   bool fill_prefix_by_germline = true;
+  bool compress = false;
 
   // Parse cmd-line arguments
   try {
@@ -385,6 +386,8 @@ int main(int argc, char **argv) {
     config.add_options()
       ("output,o", po::value<std::string>(&output_dir),
        "output directory")
+      ("compress, C", "compress FASTA files")
+      ("no-compress", "don't compress FASTA files (default)")
       ("silent,S", "suppose output for each query (default)")
       ("no-silent,V", "produce info output for each query")
       ("chain,C", po::value<std::string>(&chain)->default_value(chain),
@@ -485,6 +488,12 @@ int main(int argc, char **argv) {
       silent = false;
     }
 
+    if (vm.count("compress")) {
+      compress = true;
+    } else if (vm.count("no-compress")) {
+      compress = false;
+    }
+
     if (vm.count("no-fill-prefix-by-germline")) {
       fill_prefix_by_germline = false;
     }
@@ -504,6 +513,11 @@ int main(int argc, char **argv) {
   std::string output_filename = output_dir + "/cropped.fa";
   std::string bad_output_filename = output_dir + "/bad.fa";
   std::string add_info_filename = output_dir + "/add_info.csv";
+
+  if (compress) {
+    output_filename += ".gz";
+    bad_output_filename += ".gz";
+  }
 
   vector<CharString> v_ids;
   StringSet<Dna5String> v_reads;
