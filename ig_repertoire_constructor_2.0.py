@@ -333,13 +333,17 @@ class PhaseManager:
         self.__phase_factory = phase_factory
         self.__phases = self.__phase_factory.CreatePhases()
 
+    def __RunSinglePhase(self, phase_index):
+            self.__phases[phase_index].PrintStartMessage()
+            self.__phases[phase_index].Run()
+            self.__phases[phase_index].PrintOutputFiles()
+            self.__phases[phase_index].PrintFinishMessage()
+
     def Run(self):
-        for phase in self.__phases:
-            phase.PrintStartMessage()
-            phase.Run()
-            phase.PrintOutputFiles()
-            phase.PrintFinishMessage()
+        for i in range(0, len(self.__phases) - 1):
+            self.__RunSinglePhase(i)
             self.__log.info("\n============================================\n")
+        self.__RunSinglePhase(len(self.__phases) - 1)
 
 #######################################################################################
 #           IO routines
