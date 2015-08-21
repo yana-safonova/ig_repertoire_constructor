@@ -76,7 +76,7 @@ def PrepareConfigs(params, log):
         sys.exit(1)
     process_cfg.substitute_params(params.config_file, param_dict, log)
 
-def main():
+def main(argv):
     from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="== DSF: an algorithm for corrupted cliques search ==",
                                   epilog="""
@@ -134,7 +134,8 @@ def main():
     log.addHandler(console)
 
     # parse command line
-    params = parser.parse_args()
+    args = [arg for arg in argv if arg != './dense_subgraph_finder.py']
+    params = parser.parse_args(args)
 
     CheckParamsCorrectness(params, log, parser)
     SetOutputParams(params, params.output)
@@ -184,4 +185,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main() 
+    main(sys.argv)
