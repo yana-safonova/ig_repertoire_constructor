@@ -16,6 +16,8 @@
 
 #include <path_helper.hpp>
 
+#include "logger/log_writers.hpp"
+#include "logger/logger.hpp"
 
 using namespace seqan;
 using std::vector;
@@ -35,6 +37,8 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 
+
+namespace fast_ig_tools {
 
 // input vector(pair(needle_pos, read_pos))
 // output vector(tuple(needle_pos, read_pos, length))
@@ -337,8 +341,23 @@ class KmerIndex {
     std::unique_ptr<std::mutex> pmtx;
 };
 
+} // namespace fast_ig_tools
+
+using namespace fast_ig_tools;
+
+using std::string;
+void create_console_logger(string log_props_file) {
+    using namespace logging;
+
+    logger *lg = create_logger(path::FileExists(log_props_file) ? log_props_file : "");
+    lg->add_writer(std::make_shared<console_writer>());
+    attach_logger(lg);
+}
+
 
 int main(int argc, char **argv) {
+    create_console_logger("log.txt");
+
     auto start_time = std::chrono::high_resolution_clock::now();
 
     cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
