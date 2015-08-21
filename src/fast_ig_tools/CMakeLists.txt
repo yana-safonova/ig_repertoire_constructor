@@ -5,6 +5,8 @@ project(fast_ig_tools C CXX)
 # Need newer cmake =(
 # set_property(GLOBAL PROPERTY CXX_STANDARD 11)
 # set(CMAKE_CXX_STANDARD 11)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 
 include(CheckCXXCompilerFlag)
@@ -92,6 +94,8 @@ endif()
 # Enable compilation in debug mode
 # See http://stackoverflow.com/questions/19729036/boost-program-options-wont-work-with-glibcxx-debug
 remove_definitions(-D_GLIBCXX_DEBUG)
+
+link_libraries(input yaml-cpp ${COMMON_LIBRARIES})
 
 add_executable(ig_trie_compressor ig_trie_compressor.cpp)
 add_executable(ig_final_alignment ig_final_alignment.cpp)

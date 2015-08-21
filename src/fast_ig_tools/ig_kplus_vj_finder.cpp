@@ -14,6 +14,8 @@
 #include <mutex>
 #include <chrono>
 
+#include <path_helper.hpp>
+
 
 using namespace seqan;
 using std::vector;
@@ -25,6 +27,7 @@ using std::map;
 using std::make_pair;
 using std::make_tuple;
 using bformat = boost::format;
+using path::make_dirs;
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
@@ -354,9 +357,7 @@ int main(int argc, char **argv) {
   int max_candidates_j = 3;
   std::string chain = "heavy";
   std::string db_directory = "./germline";
-  std::string output_filename = "cropped.fa";
-  std::string bad_output_filename = "bad.fa";
-  std::string add_info_filename = "add_info.csv";
+  std::string output_dir;
   int threads = 4;
   bool silent = true;
   bool fill_prefix_by_germline = true;
@@ -382,18 +383,14 @@ int main(int argc, char **argv) {
     // config file
     po::options_description config("Configuration");
     config.add_options()
+      ("output,o", po::value<std::string>(&output_dir),
+       "output directory")
       ("silent,S", "suppose output for each query (default)")
       ("no-silent,V", "produce info output for each query")
       ("chain,C", po::value<std::string>(&chain)->default_value(chain),
        "IG chain ('heavy', 'lambda' or 'kappa')")
       ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
        "directory with germline database")
-      ("output,o", po::value<std::string>(&output_filename)->default_value(output_filename),
-       "output file for <<good>> reads ([right-stranded], filtered and cropped)")
-      ("add-info,a", po::value<std::string>(&add_info_filename)->default_value(add_info_filename),
-       "output file for additional aligment info (in CSV format)")
-      ("bad-output,b", po::value<std::string>(&bad_output_filename)->default_value(bad_output_filename),
-       "output file for <<bad>> reads")
       ("threads,t", po::value<int>(&threads)->default_value(threads),
        "the number of threads")
       ("word-size,k", po::value<int>(&K)->default_value(K),
@@ -497,11 +494,16 @@ int main(int argc, char **argv) {
     }
 
     cout << "K = " << K << endl;
-    cout << bformat("Output files are: %s %s %s") % output_filename % bad_output_filename % add_info_filename << std::endl;
+    cout << bformat("Output dir is: %s") % output_dir << std::endl;
   } catch(std::exception& e) {
     std::cerr << e.what() << std::endl;
     return 1;
   }
+
+  make_dirs(output_dir);
+  std::string output_filename = output_dir + "/cropped.fa";
+  std::string bad_output_filename = output_dir + "/bad.fa";
+  std::string add_info_filename = output_dir + "/add_info.csv";
 
   vector<CharString> v_ids;
   StringSet<Dna5String> v_reads;
