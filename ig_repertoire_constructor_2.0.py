@@ -8,6 +8,8 @@ import logging
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
 
+import dense_subgraph_finder
+
 sys.path.append(spades_src)
 import process_cfg
 import support
@@ -22,6 +24,10 @@ def ErrorMessagePrepareCfg(log):
     log.info("  (2) type command \'./prepare cfg\' to check all dependencies")
     log.info("  (3) type \'make\' to compile IgRepertoireConstrictor")
     log.info("  (4) rerun IgRepertoireConstrictor")
+
+def SupportInfo(log):
+    log.info("\nIn case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
+    log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
 #######################################################################################
 #           Binary routines
@@ -85,12 +91,12 @@ class PhaseNames:
         return self.__long_names[self.__dsf]
 
     def PhaseIsConsensusConstructor(self, phase_name):
-        return phase_name == 'consensus_constructor'
+        return phase_name == self.__consensus_constructor
 
     def GetConsensusConstructorLongName(self):
         return self.__long_names[self.__consensus_constructor]
 
-
+###########
 class IgBinaryConfig:
     def __init__(self):
         self.path_to_vj_aligner = 'build/release/bin/ig_kplus_vj_finder'
@@ -136,10 +142,10 @@ class Phase:
         self._log = log
 
     def PrintStartMessage(self):
-        self._log.info("==== " + self._long_name + " starts")
+        self._log.info("==== " + self._long_name + " starts\n")
 
     def PrintFinishMessage(self):
-        self._log.info("==== " + self._long_name + " finished\n")
+        self._log.info("\n==== " + self._long_name + " finished")
 
 ###########
 class VJAlignmentPhase(Phase):
@@ -147,15 +153,44 @@ class VJAlignmentPhase(Phase):
         Phase.__init__(self, PhaseNames().GetVJAlignmentLongName(), log)
         self.__params = params
 
+    def __AddCroppedReadsToParams(self):
+        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
+        if not os.path.exists(self.__params.cropped_reads):
+            self._log.info("ERROR: File containing cropped reads was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __AddBadReadsToParams(self):
+        self.__params.bad_reads = os.path.join(self.__params.vj_finder_output, "bad.fa")
+        if not os.path.exists(self.__params.bad_reads):
+            self._log.info("ERROR: File containing contaminated reads (not Ig-Seq) was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __AddAlignmentInfoToParams(self):
+        self.__params.vj_alignment_info = os.path.join(self.__params.vj_finder_output, "add_info.csv")
+        if not os.path.exists(self.__params.vj_alignment_info):
+            self._log.info("ERROR: File containing VJ alignment info was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __AddOutputFilesToParams(self):
+        self.__AddCroppedReadsToParams()
+        self.__AddBadReadsToParams()
+        self.__AddAlignmentInfoToParams()
+
     def Run(self):
-        self.__params.good_reads = os.path.join(self.__params.output, "good_reads.fasta")
+        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
         command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
-                       self.__params.good_reads + " --db-directory " + IgBinaryConfig().path_to_germline
-        self._log.info(self._long_name + " command line: " + command_line + "\n")
+                       self.__params.vj_finder_output + " --db-directory " + IgBinaryConfig().path_to_germline
         support.sys_call(command_line, self._log)
+        self.__AddOutputFilesToParams()
 
     def PrintOutputFiles(self):
-        self._log.info("Some output files!")
+        self._log.info("\nOutput files: ")
+        self._log.info("  * Cropped reads were written to " + self.__params.cropped_reads)
+        self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.bad_reads)
+        self._log.info("  * VJ alignment output was written to " + self.__params.vj_alignment_info)
 
 ###########
 class TrieCompressionPhase(Phase):
@@ -163,11 +198,22 @@ class TrieCompressionPhase(Phase):
         Phase.__init__(self, PhaseNames().GetTrieCompressorLongName(), log)
         self.__params = params
 
+    def __CheckOutputExistance(self):
+        if not os.path.exists(self.__params.compressed_reads):
+            self._log.info("ERROR: File containing compressed reads was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
     def Run(self):
-        self._log.info("Rrrrrunning!")
+        self.__params.compressed_reads = os.path.join(self.__params.output, "compressed.fa")
+        command_line = IgBinaryConfig().run_trie_compressor + " -i " + self.__params.cropped_reads + " -o " + \
+                       self.__params.compressed_reads
+        support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
-        self._log.info("Some output files!")
+        self.__CheckOutputExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * Compressed reads were written to " + self.__params.compressed_reads)
 
 ###########
 class GraphConstructionPhase(Phase):
@@ -175,11 +221,22 @@ class GraphConstructionPhase(Phase):
         Phase.__init__(self, PhaseNames().GetGraphConstructionLongName(), log)
         self.__params = params
 
+    def __CheckOutputExistance(self):
+        if not os.path.exists(self.__params.sw_graph):
+            self._log.info("ERROR: File containing Smith-Waterman graph was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
     def Run(self):
-        self._log.info("Rrrrrunning!")
+        self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
+        command_line = IgBinaryConfig().run_graph_constructor + " -i " + self.__params.compressed_reads + " -o " + \
+                       self.__params.sw_graph
+        support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
-        self._log.info("Some output files!")
+        self.__CheckOutputExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * File containing Smith-Waterman graph was " + self.__params.sw_graph)
 
 ###########
 class DSFPhase(Phase):
@@ -187,11 +244,24 @@ class DSFPhase(Phase):
         Phase.__init__(self, PhaseNames().GetDSFLongName(), log)
         self.__params = params
 
+    def __GetDSFParams(self):
+        dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output]
+        return dsf_params
+
+    def __CheckDecompositionExistance(self):
+        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
+        if not os.path.exists(self.__params.dense_sgraph_decomposition):
+            self._log("ERROR: File containing dense subgraph decomposition was not found")
+
     def Run(self):
-        self._log.info("Rrrrrunning!")
+        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
+        dense_subgraph_finder.main(self.__GetDSFParams())
 
     def PrintOutputFiles(self):
-        self._log.info("Some output files!")
+        self.__CheckDecompositionExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * File containing dense subgraph decomposition was written to " +
+                       self.__params.dense_sgraph_decomposition)
 
 ###########
 class ConsensusConstructionPhase(Phase):
@@ -199,11 +269,32 @@ class ConsensusConstructionPhase(Phase):
         Phase.__init__(self, PhaseNames().GetConsensusConstructorLongName(), log)
         self.__params = params
 
+    def __CheckOutputExistance(self):
+        if not os.path.exists(self.__params.repertoire_clusters_fa):
+            self._log.info("ERROR: CLUSTERS.FA file containing final repertoire was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not os.path.exists(self.__params.repertoire_rcm):
+            self._log.info("ERROR: RCM file containing final repertoire was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
     def Run(self):
-        self._log.info("Rrrrrunning!")
+        self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
+        self.__params.repertoire_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
+        command_line = IgBinaryConfig().run_consensus_constructor + " -i " + self.__params.compressed_reads + \
+                       " -d " + self.__params.dense_sgraph_decomposition + \
+                       " -o " + self.__params.repertoire_clusters_fa + " -R " + self.__params.repertoire_rcm
+        print command_line
+        support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
-        self._log.info("Some output files!")
+        self.__CheckDecompositionExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * CLUSTERS.FA file containing final repertoire was written to " +
+                       self.__params.repertoire_clusters_fa)
+        self._log.info("  * RCM file containing final repertoire was written to " +
+                       self.__params.repertoire_rcm)
 
 ###########
 class PhaseFactory:
@@ -227,7 +318,7 @@ class PhaseFactory:
 
     def CreatePhases(self):
         phase_list = list()
-        first_phase_index = self.__phase_names .GetPhaseIndex(self.__entry_point)
+        first_phase_index = self.__phase_names.GetPhaseIndex(self.__entry_point)
         if first_phase_index == -1:
             self.__log.info("Incorrect name of entry-point")
             sys.exit(1)
