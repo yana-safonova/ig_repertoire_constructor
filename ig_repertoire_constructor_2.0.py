@@ -26,6 +26,70 @@ def ErrorMessagePrepareCfg(log):
 #######################################################################################
 #           Binary routines
 #######################################################################################
+class PhaseNames:
+    def __init__(self):
+        self.__vj_alignment = 'vj_alignment'
+        self.__trie_compressor = 'trie_compressor'
+        self.__graph_construction = 'graph_constructor'
+        self.__dsf = 'dsf'
+        self.__consensus_constructor = 'consensus_constructor'
+        self.__phase_order = [self.__vj_alignment,
+                              self.__trie_compressor,
+                              self.__graph_construction,
+                              self.__dsf,
+                              self.__consensus_constructor]
+        self.__long_names = {'vj_alignment' : 'VJ Alignment',
+                             'trie_compressor' : 'Trie Compressor',
+                             'graph_constructor' : 'Graph Constructor',
+                             'dsf' : 'Dense Subgraph Finder',
+                             'consensus_constructor' : 'Consensus Constructor'}
+
+    def __iter__(self):
+        for sname in self.__phase_order:
+            yield sname
+
+    def __len__(self):
+        return len(self.__phase_order)
+
+    def GetPhaseNameBy(self, index):
+        return self.__phase_order[index]
+
+    def GetPhaseIndex(self, phase_name):
+        for i in range(len(self)):
+            if self.GetPhaseNameBy(i) == phase_name:
+                return i
+        return -1
+
+    def PhaseIsVJAlignment(self, phase_name):
+        return phase_name == self.__vj_alignment
+
+    def GetVJAlignmentLongName(self):
+        return self.__long_names[self.__vj_alignment]
+
+    def PhaseIsTrieCompressor(self, phase_name):
+        return phase_name == self.__trie_compressor
+
+    def GetTrieCompressorLongName(self):
+        return self.__long_names[self.__trie_compressor]
+
+    def PhaseIsGraphConstructor(self, phase_name):
+        return phase_name == self.__graph_construction
+
+    def GetGraphConstructionLongName(self):
+        return self.__long_names[self.__graph_construction]
+
+    def PhaseIsDSF(self, phase_name):
+        return phase_name == self.__dsf
+
+    def GetDSFLongName(self):
+        return self.__long_names[self.__dsf]
+
+    def PhaseIsConsensusConstructor(self, phase_name):
+        return phase_name == 'consensus_constructor'
+
+    def GetConsensusConstructorLongName(self):
+        return self.__long_names[self.__consensus_constructor]
+
 
 class IgBinaryConfig:
     def __init__(self):
@@ -41,158 +105,113 @@ class IgBinaryConfig:
         self.path_to_germline = "build/release/bin/germline"
 
     def CheckBinaries(self, log):
+        phase_names = PhaseNames()
         if not os.path.exists(self.path_to_vj_aligner):
-            log.info("ERROR: Binary file of VJFinder was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetVJAlignmentLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_trie_compressor):
-            log.info("ERROR: Binary file of TrieCompressor was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
-            log.info("ERROR: Binary file of GraphConstructor was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetGraphConstructionLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_dsf):
-            log.info("ERROR: Binary file of DSF was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_consensus_constructor):
-            log.info("ERROR: Binary file of ConsensusConstructor was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetGraphConstructionLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
 #######################################################################################
 #           Phases
 #######################################################################################
-class PhaseNames:
-    def __init__(self):
-        self.__short_names = ['vj_alignment', 'trie_compressor', 'graph_constructor', 'dsf', 'consensus_constructor']
-        self.__long_names = ['VJ Alignment', 'Trie Compressor', 'Graph Constructor', 'Dense Subgraph Finder', 'Consensus Constructor']
-
-    def __iter__(self):
-        for sname in self.__short_names:
-            yield sname
-
-    def __len__(self):
-        return len(self.__short_names)
-
-    def GetPhaseNameBy(self, index):
-        return self.__short_names[index]
-
-    def GetPhaseIndex(self, phase_name):
-        for i in range(len(self)):
-            if self.GetPhaseNameBy(i) == phase_name:
-                return i
-        return -1
-
-    def PhaseIsVJAlignment(self, phase_name):
-        return phase_name == 'vj_alignment'
-
-    def PhaseIsTrieCompressor(self, phase_name):
-        return phase_name == 'trie_compressor'
-
-    def PhaseIsGraphConstructor(self, phase_name):
-        return phase_name == 'graph_constructor'
-
-    def PhaseIsDSF(self, phase_name):
-        return phase_name == 'dsf'
-
-    def PhaseIsConsensusConstructor(self, phase_name):
-        return phase_name == 'consensus_constructor'
-
-###########
-class VJAlignmentPhase:
-    def __init__(self, params, log):
-        self.__params = params
-        self.__log = log
+class Phase:
+    def __init__(self, long_name, log):
+        self._long_name = long_name
+        self._log = log
 
     def PrintStartMessage(self):
-        self.__log.info("==== VJ aligner starts")
+        self._log.info("==== " + self._long_name + " starts")
+
+    def PrintFinishMessage(self):
+        self._log.info("==== " + self._long_name + " finished\n")
+
+###########
+class VJAlignmentPhase(Phase):
+    def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetVJAlignmentLongName(), log)
+        self.__params = params
 
     def Run(self):
         self.__params.good_reads = os.path.join(self.__params.output, "good_reads.fasta")
         command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
                        self.__params.good_reads + " --db-directory " + IgBinaryConfig().path_to_germline
-        self.__log.info("VJ finder command line: " + command_line + "\n")
-        support.sys_call(command_line, self.__log)
+        self._log.info(self._long_name + " command line: " + command_line + "\n")
+        support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
-        self.__log.info("Some output files!")
-
-    def PrintFinishMessage(self):
-        self.__log.info("==== VJ aligner finished\n")
+        self._log.info("Some output files!")
 
 ###########
-class TrieCompressionPhase:
+class TrieCompressionPhase(Phase):
     def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetTrieCompressorLongName(), log)
         self.__params = params
-        self.__log = log
-
-    def PrintStartMessage(self):
-        self.__log.info("==== Trie Compressor starts")
 
     def Run(self):
-        self.__log.info("Rrrrrunning!")
+        self._log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
-        self.__log.info("Some output files!")
-
-    def PrintFinishMessage(self):
-        self.__log.info("==== Trie Compressor finished\n")
+        self._log.info("Some output files!")
 
 ###########
-class GraphConstructionPhase:
+class GraphConstructionPhase(Phase):
     def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetGraphConstructionLongName(), log)
         self.__params = params
-        self.__log = log
-
-    def PrintStartMessage(self):
-        self.__log.info("Hello, I am Graph Constructor!")
 
     def Run(self):
-        self.__log.info("Rrrrrunning!")
+        self._log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
-        self.__log.info("Some output files!")
+        self._log.info("Some output files!")
 
 ###########
-class DSFPhase:
+class DSFPhase(Phase):
     def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetDSFLongName(), log)
         self.__params = params
-        self.__log = log
-
-    def PrintStartMessage(self):
-        self.__log.info("Hello, I am Dense Subgraph Finder!")
 
     def Run(self):
-        self.__log.info("Rrrrrunning!")
+        self._log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
-        self.__log.info("Some output files!")
+        self._log.info("Some output files!")
 
 ###########
-class ConsensusConstructionPhase:
+class ConsensusConstructionPhase(Phase):
     def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetConsensusConstructorLongName(), log)
         self.__params = params
-        self.__log = log
-
-    def PrintStartMessage(self):
-        self.__log.info("Hello, I am Consensus Constructor!")
 
     def Run(self):
-        self.__log.info("Rrrrrunning!")
+        self._log.info("Rrrrrunning!")
 
     def PrintOutputFiles(self):
-        self.__log.info("Some output files!")
+        self._log.info("Some output files!")
 
 ###########
 class PhaseFactory:
-    def __init__(self, params, log):
+    def __init__(self, phase_names, params, log):
+        self.__phase_names = phase_names
         self.__entry_point = params.entry_point
         self.__params = params
         self.__log = log
-        self.__phase_names = PhaseNames()
 
     def __CreatePhaseByName(self, phase_name):
         if self.__phase_names.PhaseIsVJAlignment(phase_name):
@@ -218,10 +237,10 @@ class PhaseFactory:
 
 ############
 class PhaseManager:
-    def __init__(self, params, log):
+    def __init__(self, phase_factory, params, log):
         self.__params = params
         self.__log = log
-        self.__phase_factory = PhaseFactory(params, log)
+        self.__phase_factory = phase_factory
         self.__phases = self.__phase_factory.CreatePhases()
 
     def Run(self):
@@ -229,6 +248,7 @@ class PhaseManager:
             phase.PrintStartMessage()
             phase.Run()
             phase.PrintOutputFiles()
+            phase.PrintFinishMessage()
             self.__log.info("\n============================================\n")
 
 #######################################################################################
@@ -236,7 +256,6 @@ class PhaseManager:
 #######################################################################################
 
 def CreateLogger():
-    # prepare log
     log = logging.getLogger('ig_repertoire_constructor')
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(sys.stdout)
@@ -246,7 +265,6 @@ def CreateLogger():
     return log
 
 def ParseCommandLineParams():
-    # Parse commandline args
     from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="IgRepertoireConstructor: an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
@@ -363,7 +381,8 @@ def main():
     PrintCommandLine(log)
 
     # todo: add try-catch
-    ig_repertoire_constructor = PhaseManager(params, log)
+    ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
+    ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
     ig_repertoire_constructor.Run()
 
 if __name__ == '__main__':
