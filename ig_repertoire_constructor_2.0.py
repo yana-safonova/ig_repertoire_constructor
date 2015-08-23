@@ -140,8 +140,14 @@ class Phase:
         self._long_name = long_name
         self._log = log
 
+    def RestoreParamsFromPreviousPoint(self):
+        print "This method should be overloaded"
+
     def PrintStartMessage(self):
         self._log.info("==== " + self._long_name + " starts\n")
+
+    def Run(self):
+        print "This method should be overloaded"
 
     def PrintFinishMessage(self):
         self._log.info("\n==== " + self._long_name + " finished")
@@ -152,33 +158,36 @@ class VJAlignmentPhase(Phase):
         Phase.__init__(self, PhaseNames().GetVJAlignmentLongName(), log)
         self.__params = params
 
-    def __AddCroppedReadsToParams(self):
+    def __CheckInputExistance(self):
+        if not os.path.exists(self.__params.reads):
+            self._log.info("ERROR: Input reads " + self.__params.reads + " were not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __AddOutputFilesToParams(self):
         self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
+        self.__params.bad_reads = os.path.join(self.__params.vj_finder_output, "bad.fa")
+        self.__params.vj_alignment_info = os.path.join(self.__params.vj_finder_output, "add_info.csv")
+
+    def __CheckOutputExistance(self):
         if not os.path.exists(self.__params.cropped_reads):
             self._log.info("ERROR: File containing cropped reads was not found")
             SupportInfo(self._log)
             sys.exit(1)
-
-    def __AddBadReadsToParams(self):
-        self.__params.bad_reads = os.path.join(self.__params.vj_finder_output, "bad.fa")
         if not os.path.exists(self.__params.bad_reads):
             self._log.info("ERROR: File containing contaminated reads (not Ig-Seq) was not found")
             SupportInfo(self._log)
             sys.exit(1)
-
-    def __AddAlignmentInfoToParams(self):
-        self.__params.vj_alignment_info = os.path.join(self.__params.vj_finder_output, "add_info.csv")
         if not os.path.exists(self.__params.vj_alignment_info):
             self._log.info("ERROR: File containing VJ alignment info was not found")
             SupportInfo(self._log)
             sys.exit(1)
 
-    def __AddOutputFilesToParams(self):
-        self.__AddCroppedReadsToParams()
-        self.__AddBadReadsToParams()
-        self.__AddAlignmentInfoToParams()
+    def RestoreParamsFromPreviousPoint(self):
+        return
 
     def Run(self):
+        self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
         command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
                        self.__params.vj_finder_output + " --db-directory " + IgBinaryConfig().path_to_germline
@@ -186,6 +195,7 @@ class VJAlignmentPhase(Phase):
         self.__AddOutputFilesToParams()
 
     def PrintOutputFiles(self):
+        self.__CheckOutputExistance()
         self._log.info("\nOutput files: ")
         self._log.info("  * Cropped reads were written to " + self.__params.cropped_reads)
         self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.bad_reads)
@@ -197,13 +207,26 @@ class TrieCompressionPhase(Phase):
         Phase.__init__(self, PhaseNames().GetTrieCompressorLongName(), log)
         self.__params = params
 
+    def __CheckInputExistance(self):
+        if not 'cropped_reads' in self.__params or not os.path.exists(self.__params.cropped_reads):
+            self._log.info("ERROR: Compressed reads " + self.__params.cropped_reads + " were not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
     def __CheckOutputExistance(self):
         if not os.path.exists(self.__params.compressed_reads):
             self._log.info("ERROR: File containing compressed reads was not found")
             SupportInfo(self._log)
             sys.exit(1)
 
+    def RestoreParamsFromPreviousPoint(self):
+        if not 'vj_finder_output' in self.__params:
+            self.__params.vj_finder_output = os.path.join(self.__params.output, 'vj_finder_output')
+        if not 'cropped reads' in self.__params:
+            self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, 'cropped.fa')
+
     def Run(self):
+        self.__CheckInputExistance()
         self.__params.compressed_reads = os.path.join(self.__params.output, "compressed.fa")
         command_line = IgBinaryConfig().run_trie_compressor + " -i " + self.__params.cropped_reads + " -o " + \
                        self.__params.compressed_reads
@@ -220,13 +243,23 @@ class GraphConstructionPhase(Phase):
         Phase.__init__(self, PhaseNames().GetGraphConstructionLongName(), log)
         self.__params = params
 
+    def __CheckInputExistance(self):
+        if not 'compressed_reads' in self.__params or not os.path.exists(self.__params.compressed_reads):
+            self._log.info("ERROR: File containing compressed reads was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
     def __CheckOutputExistance(self):
         if not os.path.exists(self.__params.sw_graph):
             self._log.info("ERROR: File containing Smith-Waterman graph was not found")
             SupportInfo(self._log)
             sys.exit(1)
 
+    def RestoreParamsFromPreviousPoint(self):
+        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+
     def Run(self):
+        self.__CheckInputExistance()
         self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
         command_line = IgBinaryConfig().run_graph_constructor + " -i " + self.__params.compressed_reads + " -o " + \
                        self.__params.sw_graph
@@ -243,21 +276,35 @@ class DSFPhase(Phase):
         Phase.__init__(self, PhaseNames().GetDSFLongName(), log)
         self.__params = params
 
+    def __CheckInputExistance(self):
+        if not "sw_graph" in self.__params or not os.path.exists(self.__params.sw_graph):
+            self._log.info("ERROR: File containing Smith-Waterman graph was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __AddOutputToParams(self):
+        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
+        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
+
     def __GetDSFParams(self):
         dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output]
         return dsf_params
 
-    def __CheckDecompositionExistance(self):
-        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
+    def __CheckOutputExistance(self):
         if not os.path.exists(self.__params.dense_sgraph_decomposition):
             self._log("ERROR: File containing dense subgraph decomposition was not found")
 
+    def RestoreParamsFromPreviousPoint(self):
+        self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
+        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+
     def Run(self):
-        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
+        self.__CheckInputExistance()
+        self.__AddOutputToParams()
         dense_subgraph_finder.main(self.__GetDSFParams())
 
     def PrintOutputFiles(self):
-        self.__CheckDecompositionExistance()
+        self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * File containing dense subgraph decomposition was written to " +
                        self.__params.dense_sgraph_decomposition)
@@ -267,6 +314,21 @@ class ConsensusConstructionPhase(Phase):
     def __init__(self, params, log):
         Phase.__init__(self, PhaseNames().GetConsensusConstructorLongName(), log)
         self.__params = params
+
+    def __CheckInputExistance(self):
+        if not 'compressed_reads' in self.__params or not os.path.exists(self.__params.compressed_reads):
+            self._log.info("ERROR: File containing compressed reads was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not "dsf_output" in self.__params or not os.path.exists(self.__params.dsf_output):
+            self._log.info("ERROR: DSF output directory was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not "dense_sgraph_decomposition" in self.__params or \
+                not os.path.exists(self.__params.dense_sgraph_decomposition):
+            self._log("File containing dense subgraph decomposition was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
 
     def __CheckOutputExistance(self):
         if not os.path.exists(self.__params.repertoire_clusters_fa):
@@ -278,7 +340,13 @@ class ConsensusConstructionPhase(Phase):
             SupportInfo(self._log)
             sys.exit(1)
 
+    def RestoreParamsFromPreviousPoint(self):
+        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
+        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
+        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+
     def Run(self):
+        self.__CheckInputExistance()
         self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
         self.__params.repertoire_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
         command_line = IgBinaryConfig().run_consensus_constructor + " -i " + self.__params.compressed_reads + \
@@ -339,11 +407,18 @@ class PhaseManager:
             self.__phases[phase_index].PrintOutputFiles()
             self.__phases[phase_index].PrintFinishMessage()
 
+    def __PrintPhaseDelimeter(self):
+        self.__log.info("\n============================================\n")
+
     def Run(self):
-        for i in range(0, len(self.__phases) - 1):
+        self.__phases[0].RestoreParamsFromPreviousPoint()
+        self.__RunSinglePhase(0)
+        for i in range(1, len(self.__phases) - 1):
+            self.__PrintPhaseDelimeter()
             self.__RunSinglePhase(i)
-            self.__log.info("\n============================================\n")
-        self.__RunSinglePhase(len(self.__phases) - 1)
+        if len(self.__phases) != 1:
+            self.__PrintPhaseDelimeter()
+            self.__RunSinglePhase(len(self.__phases) - 1)
 
 #######################################################################################
 #           IO routines
