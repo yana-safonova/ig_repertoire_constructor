@@ -8,6 +8,7 @@ from ig_basic import extract_barcode, most_popular_element
 from collections import defaultdict
 import numpy as np
 from Levenshtein import distance as levenshtein
+import sys
 
 
 def consensus(reads):
@@ -91,6 +92,8 @@ if __name__ == "__main__":
     print_barcode_abundance(barcode2abundance, good_barcodes)
     print "Bad barcodes: %d" % len(bad_barcodes)
     print_barcode_abundance(barcode2abundance, bad_barcodes)
+
+    sys.exit(0)
 
     print "Reading input reads..."
     with smart_open(args.reads, "r") as fh:
