@@ -50,7 +50,7 @@ if __name__ == "__main__":
     parser.add_argument("--rate", "-r",
                         type=float,
                         default=0.9,
-                        help="<<good>> barcode coverage rate threshold (default = %{default})")
+                        help="<<good>> barcode coverage rate threshold (default = %(default)0.2f})")
 
     args = parser.parse_args()
     with smart_open(args.input) as fh:
