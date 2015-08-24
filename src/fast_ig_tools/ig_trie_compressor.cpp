@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
 
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
+    std::string idmap_file_name = "";
     try {
         std::string config_file = "";
 
@@ -47,6 +48,8 @@ int main(int argc, char **argv) {
              "name of the input file (FASTA|FASTQ)")
             ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
              "name of the output file (FASTA|FASTQ)")
+            ("idmap,m", po::value<std::string>(&idmap_file_name)->default_value(idmap_file_name),
+             "map file name; empty (default) for non-producing")
             ;
 
         // Declare a group of options that will be
@@ -136,7 +139,9 @@ int main(int argc, char **argv) {
     Trie<seqan::Dna5> trie(input_reads);
 
     cout << "Unique prefixes collecting..." << std::endl;
-    auto result = trie.checkout(length(input_reads));
+    auto result__ = trie.checkout(length(input_reads));
+    std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
+    std::sort(result.begin(), result.end());
 
     cout << "Saving output..." << std::endl;
     size_t count = 0;
@@ -155,6 +160,42 @@ int main(int argc, char **argv) {
     assert(count == length(input_reads));
 
     cout << bformat("Output reads: %d\n") % result.size();
+
+    if (idmap_file_name != "") {
+        cout << "Saving map..." << std::endl;
+        std::ofstream idmap_file(idmap_file_name.c_str());
+        std::vector<size_t> idmap(length(input_reads));
+        auto result = trie.checkout_ids(length(input_reads));
+        for (const auto &_ : result) {
+            size_t index = _.first;
+            const auto &ids = _.second;
+
+            for (size_t id : ids) {
+                idmap[id] = index;
+            }
+        }
+
+        // TODO Refactor it ASAP
+        std::vector<size_t> ord(length(input_reads), 0);
+        for (size_t id : idmap) {
+            ord[id] = 1;
+        }
+
+        size_t ii = 0;
+        for (size_t &o : ord) {
+            if (o) {
+                o = ii;
+                ++ii;
+            }
+        }
+
+
+        for (size_t id : idmap) {
+            idmap_file << ord[id] << "\n";
+        }
+
+        cout << bformat("Map saved to : %s") % idmap_file_name << std::cout;
+    }
 
     auto finish_time = std::chrono::high_resolution_clock::now();
 

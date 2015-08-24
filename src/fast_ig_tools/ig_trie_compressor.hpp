@@ -61,6 +61,19 @@ class Trie {
           }
         }
 
+        void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
+          if (ids && !ids->empty()) {
+            assert(!nearest_leaf->ids->empty());
+            size_t id = nearest_leaf->ids->at(0);
+            result[id].insert(result[id].end(), ids->cbegin(), ids->cend());
+          }
+
+          // DFS
+          for (const auto &child : children) {
+            if (child) child->checkout(result);
+          }
+        }
+
         size_t leaves_count() const {
           size_t result = 0;
           bool is_leaf = true;
@@ -150,6 +163,20 @@ class Trie {
     }
 
     std::unordered_map<size_t, size_t> checkout() {
+      size_t nleaves = root->leaves_count();
+      return checkout(nleaves);
+    }
+
+    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
+      root->compute_nearest_leaf_distance();
+
+      std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
+      root->checkout(result);
+
+      return result;
+    }
+
+    std::unordered_map<size_t, std::vector<size_t>> checkout_ids() {
       size_t nleaves = root->leaves_count();
       return checkout(nleaves);
     }
