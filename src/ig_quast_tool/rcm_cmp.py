@@ -62,8 +62,8 @@ if __name__ == "__main__":
         barcode2cliques[barcode].append(clique)
 
 
-    for barcode, cliques in barcode2cliques.iteritems():
-        print barcode, cliques
+    # for barcode, cliques in barcode2cliques.iteritems():
+    #     print barcode, cliques
 
     barcode2mp_clique = {id: most_popular_element(cliques) for id, cliques in barcode2cliques.iteritems()}
     barcode2abundance = {id: len(cliques) for id, cliques in barcode2cliques.iteritems()}
@@ -74,7 +74,7 @@ if __name__ == "__main__":
         mp_clique = most_popular_element(cliques)
         nmp = sum([clique == mp_clique for clique in cliques])
 
-        rate = float(nmp) / len(clique)
+        rate = float(nmp) / len(cliques)
         if rate >= args.rate:
             good_barcodes.append(barcode)
         else:
@@ -105,8 +105,8 @@ if __name__ == "__main__":
         dists = [levenshtein(cons, id2read[id]) for id in ids]
         barcode2dists[barcode] = dists
 
-    for barcode in good_barcodes:
-        print barcode2dists[barcode]
+    # for barcode in good_barcodes:
+    #     print barcode2dists[barcode]
 
 
 
