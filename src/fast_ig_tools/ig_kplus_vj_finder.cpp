@@ -33,9 +33,6 @@ using bformat = boost::format;
 using path::make_dirs;
 
 #include <boost/program_options.hpp>
-namespace po = boost::program_options;
-
-
 #include "fast_ig_tools.hpp"
 
 
@@ -347,10 +344,10 @@ class KmerIndex {
 using namespace fast_ig_tools;
 
 using std::string;
-void create_console_logger(string log_props_file) {
+void create_console_logger(std::string log_props_file = "") {
     using namespace logging;
 
-    logger *lg = create_logger(path::FileExists(log_props_file) ? log_props_file : "");
+    logger *lg = create_logger(log_props_file);
     lg->add_writer(std::make_shared<console_writer>());
     attach_logger(lg);
 }
@@ -366,12 +363,7 @@ std::string running_time_format(const perf_counter &pc) {
 }
 
 
-int main(int argc, char **argv) {
-    perf_counter pc;
-    create_console_logger("./fast_ig_tools.log");
-
-    INFO("Command line: " << join_cmd_line(argc, argv));
-
+struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
@@ -391,10 +383,15 @@ int main(int argc, char **argv) {
     bool silent = true;
     bool fill_prefix_by_germline = true;
     bool compress = false;
+    std::string config_file = "";
+    std::string output_filename;
+    std::string bad_output_filename;
+    std::string add_info_filename;
+    std::string vgenes_filename;
+    std::string jgenes_filename;
 
-    // Parse cmd-line arguments
-    try {
-        std::string config_file;
+    int parse(int argc, char **argv) {
+        namespace po = boost::program_options;
 
         // Declare a group of options that will be
         // allowed only on command line
@@ -533,56 +530,67 @@ int main(int argc, char **argv) {
 
         INFO("K = " << K);
         INFO(bformat("Output dir is: %s") % output_dir);
-    } catch(std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        return 1;
-    }
 
-    make_dirs(output_dir);
-    std::string output_filename = output_dir + "/cropped.fa";
-    std::string bad_output_filename = output_dir + "/bad.fa";
-    std::string add_info_filename = output_dir + "/add_info.csv";
+        make_dirs(output_dir);
+        output_filename = output_dir + "/cropped.fa";
+        bad_output_filename = output_dir + "/bad.fa";
+        add_info_filename = output_dir + "/add_info.csv";
 
-    if (compress) {
-        output_filename += ".gz";
-        bad_output_filename += ".gz";
+        if (compress) {
+            output_filename += ".gz";
+            bad_output_filename += ".gz";
+        }
+
+        std::string chain_letter;
+        if (chain == "heavy") {
+            chain_letter = "H";
+        } else if (chain == "lambda") {
+            chain_letter = "L";
+        } else if (chain == "kappa") {
+            chain_letter = "K";
+        } else {
+            std::cerr << "chain should be 'heavy', 'lambda' or 'kappa'" << std::endl;
+            return 1;
+        }
+
+        vgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "V.fa";
+        jgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "J.fa";
+
+        return 0;
     }
+};
+
+
+int main(int argc, char **argv) {
+    perf_counter pc;
+    create_console_logger("./fast_ig_tools.log");
+
+    INFO("Command line: " << join_cmd_line(argc, argv));
+
+    Ig_KPlus_Finder_Parameters param;
+    param.parse(argc, argv);
 
     vector<CharString> v_ids;
     StringSet<Dna5String> v_reads;
 
-    std::string chain_letter;
-    if (chain == "heavy") {
-        chain_letter = "H";
-    } else if (chain == "lambda") {
-        chain_letter = "L";
-    } else if (chain == "kappa") {
-        chain_letter = "K";
-    } else {
-        std::cerr << "chain should be 'heavy', 'lambda' or 'kappa'" << std::endl;
-        return 1;
-    }
-
-    std::string vgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "V.fa";
-    std::string jgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "J.fa";
-    SeqFileIn seqFileIn_v_genes(vgenes_filename.c_str());
-    SeqFileIn seqFileIn_j_genes(jgenes_filename.c_str());
+    SeqFileIn seqFileIn_v_genes(param.vgenes_filename.c_str());
+    SeqFileIn seqFileIn_j_genes(param.jgenes_filename.c_str());
 
     readRecords(v_ids, v_reads, seqFileIn_v_genes);
     vector<CharString> j_ids;
     StringSet<Dna5String> j_reads;
     readRecords(j_ids, j_reads, seqFileIn_j_genes);
 
-    seqan::SeqFileOut cropped_reads_seqFile(output_filename.c_str());
-    seqan::SeqFileOut bad_reads_seqFile(bad_output_filename.c_str());
-    std::ofstream add_info(add_info_filename.c_str());
+    seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
+    seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
+    std::ofstream add_info(param.add_info_filename.c_str());
     add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s\n")
         % "Vstart" % "Vend"
         % "Vscore" % "Vindex"
         % "Jstart" % "Jend"
         % "Jscore" % "Jindex";
 
-    seqan::SeqFileIn seqFileIn_reads(input_file.c_str());
+    seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
     std::mutex read_mtx, write_mtx, stdout_mtx;
 
@@ -603,8 +611,8 @@ int main(int argc, char **argv) {
             Dna5String read_rc = read;
             reverseComplement(read_rc);
 
-            auto result_pstrand = index.query(read, max_candidates);
-            auto result_nstrand = index.query(read_rc, max_candidates);
+            auto result_pstrand = index.query(read, param.max_candidates);
+            auto result_nstrand = index.query(read_rc, param.max_candidates);
 
             int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
             int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
@@ -619,9 +627,9 @@ int main(int argc, char **argv) {
                     auto last_match = align.path[align.path.size() - 1];
                     int end_of_v = last_match.read_pos + last_match.length;
                     auto suff = suffix(stranded_read, end_of_v);
-                    auto jresult = j_index.query(suff, max_candidates_j);
+                    auto jresult = j_index.query(suff, param.max_candidates_j);
 
-                    if (!silent) {
+                    if (!param.silent) {
                         std::lock_guard<std::mutex> lck(stdout_mtx);
 
                         cout << "Query: " << read_id << endl;
@@ -655,7 +663,7 @@ int main(int argc, char **argv) {
                         if (align.start >= 0) {
                             cropped_read = suffix(stranded_read, align.start);
                         } else {
-                            if (fill_prefix_by_germline) {
+                            if (param.fill_prefix_by_germline) {
                                 cropped_read = prefix(v_reads[align.needle_index], std::abs(align.start)); // Fill by germline
                             } else {
                                 cropped_read = std::string(std::abs(align.start), 'N');
@@ -685,7 +693,7 @@ int main(int argc, char **argv) {
                         aligned = true;
                     }
                 }
-            } else if (!silent) {
+            } else if (!param.silent) {
                 std::lock_guard<std::mutex> lck(stdout_mtx);
 
                 cout << "Query: " << read_id << endl;
@@ -703,14 +711,14 @@ int main(int argc, char **argv) {
     };
 
     std::vector<std::thread> workers;
-    for (int i = 0; i < threads; ++i) {
+    for (int i = 0; i < param.threads; ++i) {
         workers.push_back(std::thread(work,
-                                      KmerIndex(v_reads, K,
-                                                max_global_gap, left_uncoverage_limit, right_uncoverage_limit,
-                                                max_local_insertions, max_local_deletions, min_k_coverage),
-                                      KmerIndex(j_reads, word_size_j,
-                                                max_global_gap, 100000, 10000,
-                                                max_local_insertions, max_local_deletions, min_k_coverage_j)));
+                                      KmerIndex(v_reads, param.K,
+                                                param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
+                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage),
+                                      KmerIndex(j_reads, param.word_size_j,
+                                                param.max_global_gap, 100000, 10000,
+                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j)));
     }
 
     for (auto &t : workers) {
