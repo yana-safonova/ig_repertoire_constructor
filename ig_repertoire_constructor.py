@@ -25,7 +25,8 @@ def ErrorMessagePrepareCfg(log):
     log.info("  (4) rerun IgRepertoireConstrictor")
 
 def SupportInfo(log):
-    log.info("\nIn case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.")
+    log.info("\nIn case you have troubles running IgRepertoireConstructor, "
+             "you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
 #######################################################################################
@@ -190,7 +191,8 @@ class VJAlignmentPhase(Phase):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
         command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
-                       self.__params.vj_finder_output + " --db-directory " + IgBinaryConfig().path_to_germline
+                       self.__params.vj_finder_output + " --db-directory " + IgBinaryConfig().path_to_germline + \
+                       " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
         self.__AddOutputFilesToParams()
 
@@ -262,7 +264,7 @@ class GraphConstructionPhase(Phase):
         self.__CheckInputExistance()
         self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
         command_line = IgBinaryConfig().run_graph_constructor + " -i " + self.__params.compressed_reads + " -o " + \
-                       self.__params.sw_graph
+                       self.__params.sw_graph + " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
@@ -287,7 +289,7 @@ class DSFPhase(Phase):
         self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output]
+        dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output, '-t', str(self.__params.num_threads)]
         return dsf_params
 
     def __CheckOutputExistance(self):
@@ -351,8 +353,8 @@ class ConsensusConstructionPhase(Phase):
         self.__params.repertoire_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
         command_line = IgBinaryConfig().run_consensus_constructor + " -i " + self.__params.compressed_reads + \
                        " -d " + self.__params.dense_sgraph_decomposition + \
-                       " -o " + self.__params.repertoire_clusters_fa + " -R " + self.__params.repertoire_rcm
-        print command_line
+                       " -o " + self.__params.repertoire_clusters_fa + " -R " + self.__params.repertoire_rcm + \
+                       " -H " + " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
