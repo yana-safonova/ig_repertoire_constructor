@@ -183,21 +183,21 @@ int main(int argc, char **argv) {
     cout << bformat("Consensus computation (using %d threads)...") % nthreads << std::endl;
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-        for (size_t comp = 0; comp < component2id.size(); ++comp) {
-            if (component2id[comp].empty()) {
-                continue;
-            }
-
-            if (use_hamming_alignment) {
-                consensuses[comp] = consensus_hamming(input_reads, component2id[comp]);
-            } else {
-                consensuses[comp] = consensus(input_reads, component2id[comp]);
-            }
-
-            for (size_t i : component2id[comp]) {
-                comp_abundances[comp] += abundances[i];
-            }
+    for (size_t comp = 0; comp < component2id.size(); ++comp) {
+        if (component2id[comp].empty()) {
+            continue;
         }
+
+        if (use_hamming_alignment) {
+            consensuses[comp] = consensus_hamming(input_reads, component2id[comp]);
+        } else {
+            consensuses[comp] = consensus(input_reads, component2id[comp]);
+        }
+
+        for (size_t i : component2id[comp]) {
+            comp_abundances[comp] += abundances[i];
+        }
+    }
 
     cout << "Saving results" << std::endl;
 
@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        size_t abundance = abundances[comp];
+        size_t abundance = comp_abundances[comp];
 
         bformat fmt("cluster___%d___size___%d");
         fmt % comp % abundance;
