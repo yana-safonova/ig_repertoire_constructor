@@ -355,6 +355,16 @@ void create_console_logger(string log_props_file) {
     attach_logger(lg);
 }
 
+std::string running_time_format(const perf_counter &pc) {
+    unsigned ms = (unsigned)pc.time_ms();
+    unsigned secs = (ms / 1000) % 60;
+    unsigned mins = (ms / 1000 / 60) % 60;
+    unsigned hours = (ms / 1000 / 60 / 60);
+    bformat bf("%u hours %u minutes %u seconds");
+    bf % hours % mins % secs;
+    return bf.str();
+}
+
 
 int main(int argc, char **argv) {
     perf_counter pc;
@@ -707,11 +717,7 @@ int main(int argc, char **argv) {
         t.join();
     }
 
-    unsigned ms = (unsigned)pc.time_ms();
-    unsigned secs = (ms / 1000) % 60;
-    unsigned mins = (ms / 1000 / 60) % 60;
-    unsigned hours = (ms / 1000 / 60 / 60);
-    INFO("Running time: " << hours << " hours " << mins << " minutes " << secs << " seconds");
+    INFO("Running time: " << running_time_format(pc));
 
     return 0;
 }
