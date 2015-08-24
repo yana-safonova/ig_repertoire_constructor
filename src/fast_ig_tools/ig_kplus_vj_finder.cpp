@@ -15,6 +15,7 @@
 #include <chrono>
 
 #include <path_helper.hpp>
+#include <perfcounter.hpp>
 
 #include "logger/log_writers.hpp"
 #include "logger/logger.hpp"
@@ -356,11 +357,10 @@ void create_console_logger(string log_props_file) {
 
 
 int main(int argc, char **argv) {
-    create_console_logger("log.txt");
+    perf_counter pc;
+    create_console_logger("./fast_ig_tools.log");
 
-    auto start_time = std::chrono::high_resolution_clock::now();
-
-    cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
+    INFO("Command line: " << join_cmd_line(argc, argv));
 
     int K = 7; // anchor length
     int word_size_j = 5;
@@ -470,8 +470,8 @@ int main(int argc, char **argv) {
         if (config_file != "") {
             std::ifstream ifs(config_file.c_str());
             if (!ifs) {
-                cout << "can not open config file: " << config_file << "\n";
-                return 0;
+                ERROR("can not open config file: " << config_file);
+                return 1;
             } else {
                 store(parse_config_file(ifs, config_file_options), vm);
                 // reparse cmd line again for update config defaults
@@ -521,8 +521,8 @@ int main(int argc, char **argv) {
             fill_prefix_by_germline = true;
         }
 
-        cout << "K = " << K << endl;
-        cout << bformat("Output dir is: %s") % output_dir << std::endl;
+        INFO("K = " << K);
+        INFO(bformat("Output dir is: %s") % output_dir);
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
@@ -707,10 +707,12 @@ int main(int argc, char **argv) {
         t.join();
     }
 
-    auto finish_time = std::chrono::high_resolution_clock::now();
+    unsigned ms = (unsigned)pc.time_ms();
+    unsigned secs = (ms / 1000) % 60;
+    unsigned mins = (ms / 1000 / 60) % 60;
+    unsigned hours = (ms / 1000 / 60 / 60);
+    INFO("Running time: " << hours << " hours " << mins << " minutes " << secs << " seconds");
 
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count();
-    cout << bformat("Elapsed time: %0.3fs") % (double(elapsed_time) / 1000.) << std::endl;
     return 0;
 }
 
