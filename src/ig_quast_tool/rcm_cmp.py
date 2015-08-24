@@ -93,7 +93,6 @@ if __name__ == "__main__":
     print "Bad barcodes: %d" % len(bad_barcodes)
     print_barcode_abundance(barcode2abundance, bad_barcodes)
 
-    sys.exit(0)
 
     print "Reading input reads..."
     with smart_open(args.reads, "r") as fh:
@@ -112,8 +111,8 @@ if __name__ == "__main__":
         dists = [levenshtein(cons, id2read[id]) for id in ids]
         barcode2dists[barcode] = dists
 
-    # for barcode in good_barcodes:
-    #     print barcode2dists[barcode]
+    for barcode in good_barcodes:
+        print barcode2dists[barcode]
 
 
 
