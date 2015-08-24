@@ -37,6 +37,13 @@ def consensus(reads):
     return consensus
 
 
+def print_barcode_abundance(barcode2abundance, barcodes):
+    barcode_abundances = [barcode2abundance[_] for _ in barcodes]
+
+    print "min = %d, max = %d, mean=%f" % (min(barcode_abundances),
+                                           max(barcode_abundances),
+                                           np.mean(barcode_abundances))
+
 if __name__ == "__main__":
     parser = ArgumentParser(description="Compare rcm-file")
     parser.add_argument("--input", "-i",
@@ -81,12 +88,9 @@ if __name__ == "__main__":
             bad_barcodes.append(barcode)
 
     print "Good barcodes: %d" % len(good_barcodes)
+    print_barcode_abundance(barcode2abundance, good_barcodes)
     print "Bad barcodes: %d" % len(bad_barcodes)
-
-    bad_barcode_abundances = [barcode2abundance[_] for _ in bad_barcodes]
-    print "Bad barcode abundance: min = %d, max = %d, mean=%f" % (min(bad_barcode_abundances),
-                                                                  max(bad_barcode_abundances),
-                                                                  np.mean(bad_barcode_abundances))
+    print_barcode_abundance(barcode2abundance, bad_barcodes)
 
     print "Reading input reads..."
     with smart_open(args.reads, "r") as fh:
