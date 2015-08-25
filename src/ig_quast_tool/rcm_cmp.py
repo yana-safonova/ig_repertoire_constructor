@@ -57,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument("-reads", "-s",
                         type=str,
                         required=True,
-                        help="Input reads file (FASTA)")
+                        help="Input (cropped) reads file (FASTA)")
     parser.add_argument("--rate", "-r",
                         type=float,
                         default=0.9,
