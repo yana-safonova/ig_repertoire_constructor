@@ -113,6 +113,8 @@ if __name__ == "__main__":
 
     for barcode in good_barcodes:
         print barcode2dists[barcode]
+    for barcode in bad_barcodes:
+        print barcode2dists[barcode]
 
 
 
