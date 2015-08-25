@@ -3,8 +3,10 @@
 import os
 import sys
 
+
 def LineIsHeader(line):
-    return line[0] == '@'
+    header_prefix = "@MIG_UMI:"
+    return line[:len(header_prefix)] == header_prefix
 
 def main():
     if len(sys.argv) != 3:
