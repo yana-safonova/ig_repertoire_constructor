@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
             idmap_file << ord[id] << "\n";
         }
 
-        cout << bformat("Map saved to : %s") % idmap_file_name << std::cout;
+        cout << bformat("Map saved to : %s") % idmap_file_name << std::endl;
     }
 
     auto finish_time = std::chrono::high_resolution_clock::now();
