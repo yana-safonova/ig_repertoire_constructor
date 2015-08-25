@@ -28,7 +28,7 @@ if __name__ == "__main__":
     parser.add_argument("--ids-file", "-i",
                         type=str,
                         required=True,
-                        help="FASTQ file with ids")
+                        help="FASTA file with ids")
     parser.add_argument("--output", "-o",
                         type=str,
                         required=True,

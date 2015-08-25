@@ -107,6 +107,7 @@ class IgBinaryConfig:
         self.run_graph_constructor = 'build/release/bin/./ig_swgraph_construct'
         self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
         self.run_consensus_constructor = 'build/release/bin/./ig_final_alignment'
+        self.run_rcm_recoverer = 'src/ig_quast_tool/rcm_recoverer.py'
         self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
         self.path_to_germline = "build/release/bin/germline"
 
@@ -356,10 +357,19 @@ class ConsensusConstructionPhase(Phase):
         self.__CheckInputExistance()
         self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
         self.__params.repertoire_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
+        self.__params.cropped_rcm = os.path.join(self.__params.output, 'cropped.rcm')
         command_line = IgBinaryConfig().run_consensus_constructor + " -i " + self.__params.compressed_reads + \
                        " -d " + self.__params.dense_sgraph_decomposition + \
                        " -o " + self.__params.repertoire_clusters_fa + " -R " + self.__params.repertoire_rcm + \
                        " -H " + " -t " + str(self.__params.num_threads)
+        support.sys_call(command_line, self._log)
+
+        # Restore RCM file
+        command_line = "%s -i %s -c %s -q %s -o %s" % (IgBinaryConfig().run_rcm_recoverer,
+                                                       self.__params.cropped_reads,
+                                                       self.__params.map_file,
+                                                       self.__params.dense_sgraph_decomposition,
+                                                       self.__params.cropped_rcm)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
