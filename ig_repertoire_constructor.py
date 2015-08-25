@@ -230,8 +230,9 @@ class TrieCompressionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.compressed_reads = os.path.join(self.__params.output, "compressed.fa")
+        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
         command_line = IgBinaryConfig().run_trie_compressor + " -i " + self.__params.cropped_reads + " -o " + \
-                       self.__params.compressed_reads
+                       self.__params.compressed_reads + " -m " + self.__params.map_file
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
