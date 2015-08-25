@@ -115,7 +115,7 @@ if __name__ == "__main__":
     barcode2dists = {}
     for barcode, ii in barcode2ids.iteritems():
         barcode2consensus[barcode] = cons = consensus([reads[i] for i in ii])
-        barcode2dists = [levenshtein(reads[i], cons) for i in ii]
+        barcode2dists[barcode] = [levenshtein(reads[i], cons) for i in ii]
 
     for barcode, dists in barcode2dists:
         print barcode, dists
