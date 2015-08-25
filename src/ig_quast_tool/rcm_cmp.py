@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     barcode2ids = defaultdict(list)
     for barcode, id in zip(barcodes, ids):
-        barcode2cliques[barcode].append(id)
+        barcode2ids[barcode].append(id)
 
     barcode2consensus = {}
     barcode2dists = {}
