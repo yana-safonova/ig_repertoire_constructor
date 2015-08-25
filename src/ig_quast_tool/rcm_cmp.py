@@ -61,17 +61,54 @@ if __name__ == "__main__":
                         help="<<good>> barcode coverage rate threshold (default = %(default)0.2f})")
 
     args = parser.parse_args()
+    ids = []
+    cliques = []
+    barcodes = []
+
     with smart_open(args.input) as fh:
-        id2clique = {id: int(clique) for id, clique in [l.split("\t") for l in fh]}
+        for l in fh:
+            id, clique = l.split("\t")
+            clique = int(clique)
+            ids.append(id)
+            cliques.append(clique)
+            barcodes.append(extract_barcode(id))
+
+    reads = []
+    read_ids = []
+    print "Reading input reads..."
+    with smart_open(args.reads, "r") as fh:
+        for record in SeqIO.parse(fh, "fasta"):
+            id = str(record.id)
+            read = str(record.seq)
+            reads.append(read)
+            read_ids.append(id)
+
+    for id, id_read in zip(ids, read_ids):
+        assert(id == id_read)
+
+    id2clique = {id: clique for id, clique in zip(ids, cliques)}
 
     barcode2cliques = defaultdict(list)
-    for id, clique in id2clique.iteritems():
-        barcode = extract_barcode(id)
+    for barcode, clique in zip(barcodes, cliques):
         barcode2cliques[barcode].append(clique)
 
+    barcode2ids = defaultdict(list)
+    for barcode, id in zip(barcodes, ids):
+        barcode2cliques[barcode].append(id)
 
-    # for barcode, cliques in barcode2cliques.iteritems():
-    #     print barcode, cliques
+    barcode2consensus = {}
+    barcode2dists = {}
+    for barcode, ii in barcode2ids.iteritems():
+        barcode2consensus[barcode] = cons = consensus([reads[i] for i in ii])
+        barcode2dists = [levenshtein(reads[i], cons) for i in ii]
+
+    for barcode, dists in barcode2dists:
+        print barcode, dists
+
+    sys.exit()
+
+
+
 
     barcode2mp_clique = {id: most_popular_element(cliques) for id, cliques in barcode2cliques.iteritems()}
     barcode2abundance = {id: len(cliques) for id, cliques in barcode2cliques.iteritems()}
