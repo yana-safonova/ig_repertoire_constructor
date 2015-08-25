@@ -51,6 +51,9 @@ if __name__ == "__main__":
                         type=str,
                         required=True,
                         help="Input RCM file")
+    parser.add_argument("--barcode_rcm", "-b",
+                        type=str,
+                        help="Barcode RCM file")
     parser.add_argument("-reads", "-s",
                         type=str,
                         required=True,
@@ -71,7 +74,19 @@ if __name__ == "__main__":
             clique = int(clique)
             ids.append(id)
             cliques.append(clique)
+
+    if args.barcode_rcm is None:
+        for id in ids:
             barcodes.append(extract_barcode(id))
+    else:
+        id2barcode = {}
+        with smart_open(args.barcode_rcm) as barcode_rcm:
+            for l in barcode_rcm:
+                id, barcode = l.split("\t")
+                id = id.strip()
+                barcode = barcode.strip()
+                id2barcode[id] = barcode
+        barcodes = [id2barcode[_id] for _id in ids]
 
     reads = []
     read_ids = []
@@ -105,11 +120,6 @@ if __name__ == "__main__":
     for barcode, dists in barcode2dists:
         print barcode, dists
 
-    sys.exit()
-
-
-
-
     barcode2mp_clique = {id: most_popular_element(cliques) for id, cliques in barcode2cliques.iteritems()}
     barcode2abundance = {id: len(cliques) for id, cliques in barcode2cliques.iteritems()}
 
@@ -129,6 +139,8 @@ if __name__ == "__main__":
     print_barcode_abundance(barcode2abundance, good_barcodes)
     print "Bad barcodes: %d" % len(bad_barcodes)
     print_barcode_abundance(barcode2abundance, bad_barcodes)
+
+    sys.exit()
 
 
     print "Reading input reads..."
