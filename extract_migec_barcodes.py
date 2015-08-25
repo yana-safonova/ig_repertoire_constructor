@@ -22,7 +22,6 @@ def main():
     for l in fastq_lines:
         if LineIsHeader(l):
             l = l.strip().split(':')
-            if len(l) != 3:
                 continue
             barcodes.append(l[1])
     print str(len(barcodes)) + " barcodes were extracted from " + fastq_filename
