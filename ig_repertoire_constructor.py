@@ -291,6 +291,10 @@ class DSFPhase(Phase):
 
     def __GetDSFParams(self):
         dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output, '-t', str(self.__params.num_threads)]
+        if self.__params.create_trivial_decomposition:
+            dsf_params.append('--create-triv-dec')
+        if self.__params.save_aux_files:
+            dsf_params.append('--save-aux-files')
         return dsf_params
 
     def __CheckOutputExistance(self):
@@ -451,43 +455,55 @@ def ParseCommandLineParams():
     input_args.add_argument("-s", "--reads",
                             type=str,
                             default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
-                            help="immunosequencing reads in FASTQ format")
+                            help="Immunosequencing reads in FASTQ format")
     input_args.add_argument("--test",
                             action="store_const",
                             const="test_dataset/merged_reads.fastq",
                             dest="reads",
-                            help="running of test dataset")
+                            help="Running of test dataset")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                           type=str,
                           default="igrepcon_test",
-                          help="output directory [default: \"%(default)s\"]")
+                          help="Output directory [default: \"%(default)s\"]")
 
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
                                type=int,
                                default=16,
                                dest="num_threads",
-                               help="thread number [default: %(default)d]")
+                               help="Thread number [default: %(default)d]")
     optional_args.add_argument("--tau",
                                type=int,
                                default=3,
                                dest="max_mismatches",
-                               help="maximum allowed mismatches between identical error-prone reads [default: %(default)d]")
+                               help="Maximum allowed mismatches between identical error-prone reads "
+                                    "[default: %(default)d]")
     optional_args.add_argument("-h", "--help",
                                action="help",
-                               help="show this help message and exit")
+                               help="Show this help message and exit")
 
     dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
                           type=float,
                           default=0.6,
-                          help="_minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
+                          help="_Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default=PhaseNames().GetPhaseNameBy(0),
-                          help="_continue from the given stage [default: %(default)s]")
+                          help="_Continue from the given stage [default: %(default)s]")
+    dev_args.add_argument("--create-triv-dec",
+                          action="store_const",
+                          const=True,
+                          dest="create_trivial_decomposition",
+                          help='_Creating decomposition according to connected components [default: False]')
+    dev_args.add_argument("--save-aux-files",
+                          action="store_const",
+                          const=True,
+                          dest="save_aux_files",
+                          help="_Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
+                                    "[default: False]")
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
