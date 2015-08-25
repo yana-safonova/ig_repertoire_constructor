@@ -37,7 +37,11 @@ def PrintParams(params, log):
     log.info("  Output directory:\t\t\t\t" + params.output)
     log.info("  Number of threads:\t\t\t\t" + str(params.num_threads))
     log.info("  Minimum size of processed graphs:\t\t" + str(params.min_graph_size))
-    log.info("  Minimum edge fill-in of dense subgraph:\t" + str(params.min_fillin) + "\n")
+    log.info("  Minimum edge fill-in of dense subgraph:\t" + str(params.min_fillin))
+    if params.create_trivial_decomposition:
+        log.info("  Trivial decomposition will be created")
+    log.info("  Output auxiliary files:\t\t\t" + str(params.save_aux_files))
+    log.info("\n")
 
 def supportInfo(log):
     log.info("\nIn case you have troubles running DSF, you can write to igtools_support@googlegroups.com.")
@@ -66,6 +70,7 @@ def CreateParamDict(params):
     param_dict['threads_count'] = params.num_threads
     param_dict['min_fillin_threshold'] = params.min_fillin
     param_dict['min_graph_size'] = params.min_graph_size
+    param_dict['create_trivial_decomposition'] = process_cfg.bool_to_str(params.create_trivial_decomposition)
     return param_dict
 
 def PrepareConfigs(params, log):
@@ -75,6 +80,18 @@ def PrepareConfigs(params, log):
         log.info("ERROR: config file was not found")
         sys.exit(1)
     process_cfg.substitute_params(params.config_file, param_dict, log)
+
+def Cleanup(params, log):
+    params.sgraph_dir = os.path.join(params.output, "connected_components")
+    params.decomposition_dir = os.path.join(params.output, "dense_subgraphs")
+    params.metis_output = os.path.join(params.output, "metis.output")
+    if os.path.exists(params.metis_output):
+        os.remove(params.metis_output)
+    if not "save_aux_files" in params or not params.save_aux_files:
+        if os.path.exists(params.sgraph_dir):
+            shutil.rmtree(params.sgraph_dir)
+        if os.path.exists(params.decomposition_dir):
+            shutil.rmtree(params.decomposition_dir)
 
 def main(argv):
     from src.python_add.argparse_ext import ArgumentHiddenParser
@@ -102,17 +119,28 @@ def main(argv):
                                type=int,
                                default=16,
                                dest="num_threads",
-                               help="Threads number [default %(default)d]")
+                               help="Threads number [default: %(default)d]")
     optional_args.add_argument("-f", '--min_fillin',
                                type=float,
                                default=0.6,
                                dest="min_fillin",
-                               help='Minimum fill-in of dense subgraphs [default %(default)d]')
+                               help='Minimum fill-in of dense subgraphs [default: %(default)f]')
     optional_args.add_argument("-s", "--min-size",
                                type=int,
                                default=5,
                                dest="min_graph_size",
-                               help="Minimum size of graph where dense subgraphs will be computed [default %(default)d]")
+                               help="Minimum size of graph where dense subgraphs will be computed [default: %(default)d]")
+    optional_args.add_argument("--create-triv-dec",
+                               action="store_const",
+                               const=True,
+                               dest="create_trivial_decomposition",
+                               help='Creating decomposition according to connected components [default: False]')
+    optional_args.add_argument("--save-aux-files",
+                               action="store_const",
+                               const=True,
+                               dest="save_aux_files",
+                               help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
+                                    "[default: False]")
     optional_args.add_argument("--test",
                             action="store_const",
                             const="test_dataset/test.graph",
@@ -161,6 +189,7 @@ def main(argv):
     try:
         dsf_command_line = init.PathToBins.run_dense_sgraph_finder + " " + params.config_file
         support.sys_call(dsf_command_line, log)
+        Cleanup(params, log)
         log.info("\nThank you for using Dense Subgraph Finder!\n")
     except (KeyboardInterrupt):
         log.info("\nDense subgraph finder was interrupted!")

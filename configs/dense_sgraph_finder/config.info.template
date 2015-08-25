@@ -34,6 +34,7 @@ dsf_params {
 	min_graph_size			5
 	primary_edge_fillin		0.3
 	min_fillin_threshold		0.6
+	create_trivial_decomposition	false
 }
 
 ; input-output parameters of METIS ;

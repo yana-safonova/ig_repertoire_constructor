@@ -50,6 +50,7 @@ struct dsf_config {
         size_t          min_graph_size;
         double          primary_edge_fillin;
         double          min_fillin_threshold;
+        bool            create_trivial_decomposition;
     };
 
     io_params io;

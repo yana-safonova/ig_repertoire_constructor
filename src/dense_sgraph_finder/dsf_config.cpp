@@ -67,6 +67,7 @@ void load(dsf_config::dense_sgraph_finder_params &params, boost::property_tree::
     load(params.min_graph_size, pt, "min_graph_size");
     load(params.min_fillin_threshold, pt, "min_fillin_threshold");
     load(params.primary_edge_fillin, pt, "primary_edge_fillin");
+    load(params.create_trivial_decomposition, pt, "create_trivial_decomposition");
 }
 
 void load(dsf_config::metis_io_params &metis_io, boost::property_tree::ptree const &pt, bool) {
