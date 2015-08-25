@@ -74,6 +74,9 @@ if __name__ == "__main__":
     parser.add_argument("--subs-map", "-M",
                         type=str,
                         help="file for subs table")
+    parser.add_argument("--rcm-output", "-r",
+                        type=str,
+                        help="FASTQ file for bad-barcoded reads")
 
     args = parser.parse_args()
 
@@ -159,14 +162,22 @@ if __name__ == "__main__":
                          "UMI:" + new_barcode + ":",
                          1)
 
+    rcm_data = []
     with smart_open(args.input, "r") as fh:
         for record in SeqIO.parse(fh, "fastq"):
             barcode = extract_barcode(record.id)
             if barcode in barcode_barcode:
+                rcm_data.append("%s\t%s\n" % (record.id, barcode_barcode[barcode]))
                 record.id = change_barcode(record.id, barcode, barcode_barcode[barcode])
                 output.append(record)
             else:
+                rcm_data.append("%s\t%s\n" % (record.id, barcode))
                 bad_output.append(record)
+
+    if args.rcm_output is not None:
+        with smart_open(args.rcm_output, "w") as rcm:
+            for l in rcm_data:
+                rcm.write(l)
 
     with smart_open(args.output, "w") as fh:
         SeqIO.write(output, fh, "fastq")
