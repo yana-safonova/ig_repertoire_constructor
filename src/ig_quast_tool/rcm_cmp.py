@@ -90,6 +90,8 @@ if __name__ == "__main__":
 
     reads = []
     read_ids = []
+    id2i = {}
+
     print "Reading input reads..."
     with smart_open(args.reads, "r") as fh:
         for record in SeqIO.parse(fh, "fasta"):
@@ -100,6 +102,10 @@ if __name__ == "__main__":
 
     for id, id_read in zip(ids, read_ids):
         assert(id == id_read)
+
+
+    for i in xrange(len(ids)):
+        id2i[ids[i]] = i
 
     id2clique = {id: clique for id, clique in zip(ids, cliques)}
 
@@ -114,10 +120,13 @@ if __name__ == "__main__":
     barcode2consensus = {}
     barcode2dists = {}
     for barcode, ii in barcode2ids.iteritems():
-        barcode2consensus[barcode] = cons = consensus([reads[i] for i in ii])
-        barcode2dists[barcode] = [levenshtein(reads[i], cons) for i in ii]
+        local_reads = [reads[id2i[i]] for i in ii]
+        l = min(map(len, local_reads))
+        trimmed_reads = [read[:l] for read in local_reads]
+        barcode2consensus[barcode] = cons = consensus(trimmed_reads)
+        barcode2dists[barcode] = [levenshtein(read, cons) for read in trimmed_reads]
 
-    for barcode, dists in barcode2dists:
+    for barcode, dists in barcode2dists.iteritems():
         print barcode, dists
 
     barcode2mp_clique = {id: most_popular_element(cliques) for id, cliques in barcode2cliques.iteritems()}
