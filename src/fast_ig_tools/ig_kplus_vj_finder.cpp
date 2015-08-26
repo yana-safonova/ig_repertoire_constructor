@@ -566,7 +566,8 @@ struct Ig_KPlus_Finder_Parameters {
 
 int main(int argc, char **argv) {
     perf_counter pc;
-    create_console_logger("./fast_ig_tools.log");
+    // create_console_logger("./fast_ig_tools.log");
+    create_console_logger("");
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
