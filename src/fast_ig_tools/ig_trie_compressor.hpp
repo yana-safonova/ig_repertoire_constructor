@@ -21,37 +21,39 @@ class Trie {
         static const size_t INFu = -1u;
         std::array<pointer_type, card> children;
 
-        TrieNode() : nearest_leaf{nullptr}, nearest_leaf_distance{INFu}, ids{nullptr} {
+        TrieNode() : target_node{nullptr},
+                     target_node_distance{INFu}, ids{nullptr} {
           children.fill(nullptr);
         }
 
-        pointer_type nearest_leaf;
-        size_t nearest_leaf_distance;
+        pointer_type target_node;
+
+        size_t target_node_distance;
         std::vector<size_t> *ids;
 
-        void compute_nearest_leaf_distance() {
-          nearest_leaf_distance = INFu;
+        void compute_target_node_distance() {
+          target_node_distance = INFu;
 
           for (auto &child : children) {
             if (child) {
-              child->compute_nearest_leaf_distance();
-              if (nearest_leaf_distance > child->nearest_leaf_distance + 1) {
-                nearest_leaf_distance = child->nearest_leaf_distance;
-                nearest_leaf = child->nearest_leaf;
+              child->compute_target_node_distance();
+              if (target_node_distance > child->target_node_distance + 1) {
+                target_node_distance = child->target_node_distance;
+                target_node = child->target_node;
               }
             }
           }
 
-          if (nearest_leaf_distance == INFu) {
-            nearest_leaf_distance = 0;
-            nearest_leaf = this;
+          if (target_node_distance == INFu) {
+            target_node_distance = 0;
+            target_node = this;
           }
         }
 
         void checkout(std::unordered_map<size_t, size_t> &result) const {
           if (ids && !ids->empty()) {
-            assert(!nearest_leaf->ids->empty());
-            size_t id = nearest_leaf->ids->at(0);
+            assert(!target_node->ids->empty());
+            size_t id = target_node->ids->at(0);
             result[id] += ids->size();
           }
 
@@ -63,8 +65,8 @@ class Trie {
 
         void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
           if (ids && !ids->empty()) {
-            assert(!nearest_leaf->ids->empty());
-            size_t id = nearest_leaf->ids->at(0);
+            assert(!target_node->ids->empty());
+            size_t id = target_node->ids->at(0);
             result[id].insert(result[id].end(), ids->cbegin(), ids->cend());
           }
 
@@ -154,7 +156,7 @@ class Trie {
       }
 
     std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
-      root->compute_nearest_leaf_distance();
+      root->compute_target_node_distance();
 
       std::unordered_map<size_t, size_t> result(nbucket);
       root->checkout(result);
@@ -168,7 +170,7 @@ class Trie {
     }
 
     std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
-      root->compute_nearest_leaf_distance();
+      root->compute_target_node_distance();
 
       std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
       root->checkout(result);
