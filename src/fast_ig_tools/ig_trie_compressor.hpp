@@ -50,6 +50,26 @@ class Trie {
           }
         }
 
+        void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
+            target_node_distance = INFu;
+
+            if (!p && ids) {
+                p = this;
+                dist = 0;
+            }
+
+            if (ids) {
+                target_node = p;
+                target_node_distance = dist;
+            }
+
+            for (auto &child : children) {
+                if (child) {
+                    child->compress_to_shortest(p, dist + 1);
+                }
+            }
+        }
+
         void checkout(std::unordered_map<size_t, size_t> &result) const {
           if (ids && !ids->empty()) {
             assert(!target_node->ids->empty());
@@ -156,7 +176,8 @@ class Trie {
       }
 
     std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
-      root->compress_to_longest();
+      // root->compress_to_longest();
+      root->compress_to_shortest();
 
       std::unordered_map<size_t, size_t> result(nbucket);
       root->checkout(result);
@@ -170,7 +191,8 @@ class Trie {
     }
 
     std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
-      root->compress_to_longest();
+      // root->compress_to_longest();
+      root->compress_to_shortest();
 
       std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
       root->checkout(result);
