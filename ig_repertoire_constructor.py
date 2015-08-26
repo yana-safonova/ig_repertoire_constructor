@@ -266,7 +266,7 @@ class GraphConstructionPhase(Phase):
         self.__CheckInputExistance()
         self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
         command_line = IgBinaryConfig().run_graph_constructor + " -i " + self.__params.compressed_reads + " -o " + \
-                       self.__params.sw_graph + " -t " + str(self.__params.num_threads)
+                       self.__params.sw_graph + " -t " + str(self.__params.num_threads) + " --tau=" + str(self.__params.max_mismatches)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
