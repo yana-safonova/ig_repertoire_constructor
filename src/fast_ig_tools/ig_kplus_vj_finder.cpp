@@ -369,9 +369,9 @@ struct Ig_KPlus_Finder_Parameters {
     int left_uncoverage_limit = 16;
     int right_uncoverage_limit = 0; // We have to cover (D)J region too. Maybe it should be even negative
     std::string input_file = "", organism = "human";
-    int max_local_deletions = 9;
-    int max_local_insertions = 9;
-    int max_global_gap = 18;
+    int max_local_deletions = 12;
+    int max_local_insertions = 12;
+    int max_global_gap = 24;
     int min_k_coverage = 50;
     int min_k_coverage_j = 9;
     int max_candidates = 3;
