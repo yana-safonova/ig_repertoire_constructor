@@ -389,6 +389,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::string add_info_filename;
     std::string vgenes_filename;
     std::string jgenes_filename;
+    int left_fill_germline = 3;
 
     int parse(int argc, char **argv) {
         namespace po = boost::program_options;
@@ -455,6 +456,8 @@ struct Ig_KPlus_Finder_Parameters {
              "maximal allowed size of local insertion")
             ("max-local-deletions", po::value<int>(&max_local_deletions)->default_value(max_local_deletions),
              "maximal allowed size of local deletion")
+            ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
+             "the number of values in left size will be filled by germline")
             ;
 
         po::options_description cmdline_options("All command line options");
@@ -670,9 +673,16 @@ int main(int argc, char **argv) {
                             }
                             cropped_read += stranded_read;
                         }
+
                         // if (align.finish > length(stranded_read)) {
                         //   cropped_read += std::string(align.finish - length(stranded_read), 'N');
                         // }
+
+                        if (param.left_fill_germline > 0) {
+                            for (int i = 0; i < param.left_fill_germline; ++i) {
+                                cropped_read[i] = v_reads[align.needle_index][i]; // Fill by germline
+                            }
+                        }
 
                         const auto &jalign = *jresult.cbegin();
 
