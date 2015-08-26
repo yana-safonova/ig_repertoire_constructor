@@ -31,12 +31,12 @@ class Trie {
         size_t target_node_distance;
         std::vector<size_t> *ids;
 
-        void compute_target_node_distance() {
+        void compress_to_longest() {
           target_node_distance = INFu;
 
           for (auto &child : children) {
             if (child) {
-              child->compute_target_node_distance();
+              child->compress_to_longest();
               if (target_node_distance > child->target_node_distance + 1) {
                 target_node_distance = child->target_node_distance;
                 target_node = child->target_node;
@@ -156,7 +156,7 @@ class Trie {
       }
 
     std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
-      root->compute_target_node_distance();
+      root->compress_to_longest();
 
       std::unordered_map<size_t, size_t> result(nbucket);
       root->checkout(result);
@@ -170,7 +170,7 @@ class Trie {
     }
 
     std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
-      root->compute_target_node_distance();
+      root->compress_to_longest();
 
       std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
       root->checkout(result);
