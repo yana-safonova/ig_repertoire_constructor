@@ -54,13 +54,13 @@ if __name__ == "__main__":
     parser.add_argument("--barcode_rcm", "-b",
                         type=str,
                         help="Barcode RCM file")
-    parser.add_argument("-reads", "-s",
-                        type=str,
-                        required=True,
-                        help="Input (cropped) reads file (FASTA)")
+    # parser.add_argument("-reads", "-s",
+    #                     type=str,
+    #                     required=False,
+    #                     help="Input (cropped) reads file (FASTA)")
     parser.add_argument("--rate", "-r",
                         type=float,
-                        default=0.9,
+                        default=0.5,
                         help="<<good>> barcode coverage rate threshold (default = %(default)0.2f})")
 
     args = parser.parse_args()
