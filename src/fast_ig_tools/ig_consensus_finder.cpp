@@ -199,7 +199,7 @@ int main(int argc, char **argv) {
         }
 
         if (use_hamming_alignment) {
-            consensuses[comp] = consensus_hamming(input_reads, component2id[comp]);
+            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], 5);
         } else {
             consensuses[comp] = consensus(input_reads, component2id[comp]);
         }
