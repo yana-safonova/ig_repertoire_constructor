@@ -70,6 +70,21 @@ class Trie {
             }
         }
 
+        void compress_to_itselft() {
+            target_node_distance = INFu;
+
+            if (ids) {
+                target_node = this;
+                target_node_distance = 0;
+            }
+
+            for (auto &child : children) {
+                if (child) {
+                    child->compress_to_itselft();
+                }
+            }
+        }
+
         void checkout(std::unordered_map<size_t, size_t> &result) const {
           if (ids && !ids->empty()) {
             assert(!target_node->ids->empty());
