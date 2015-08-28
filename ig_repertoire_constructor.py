@@ -39,16 +39,19 @@ class PhaseNames:
         self.__graph_construction = 'graph_constructor'
         self.__dsf = 'dsf'
         self.__consensus_constructor = 'consensus_constructor'
+        self.__remove_low_abundance_reads = 'remove_low_abundance_reads'
         self.__phase_order = [self.__vj_alignment,
                               self.__trie_compressor,
                               self.__graph_construction,
                               self.__dsf,
-                              self.__consensus_constructor]
+                              self.__consensus_constructor,
+                              self.__remove_low_abundance_reads]
         self.__long_names = {'vj_alignment' : 'VJ Alignment',
                              'trie_compressor' : 'Trie Compressor',
                              'graph_constructor' : 'Graph Constructor',
                              'dsf' : 'Dense Subgraph Finder',
-                             'consensus_constructor' : 'Consensus Constructor'}
+                             'consensus_constructor' : 'Consensus Constructor',
+                             'remove_low_abundance_reads' : 'Remove low abundance reads'}
 
     def __iter__(self):
         for sname in self.__phase_order:
@@ -96,6 +99,12 @@ class PhaseNames:
     def GetConsensusConstructorLongName(self):
         return self.__long_names[self.__consensus_constructor]
 
+    def PhaseIsRemoveLowAbundanceReads(self, phase_name):
+        return phase_name == self.__remove_low_abundance_reads
+
+    def GetRemoveLowAbundanceReadsName(self):
+        return self.__long_names[self.__remove_low_abundance_reads]
+
 ###########
 class IgBinaryConfig:
     def __init__(self):
@@ -108,8 +117,10 @@ class IgBinaryConfig:
         self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
         self.run_consensus_constructor = 'build/release/bin/./ig_consensus_finder'
         self.run_rcm_recoverer = 'src/ig_quast_tool/rcm_recoverer.py'
+        self.run_remove_low_abundance_reads = 'src/ig_quast_tool/ig_remove_low_abundance_reads.py'
         self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
         self.path_to_germline = "build/release/bin/germline"
+        self.cluster_size_limit = 5
 
     def CheckBinaries(self, log):
         phase_names = PhaseNames()
@@ -129,8 +140,12 @@ class IgBinaryConfig:
             log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor):
+        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
             log.info("ERROR: Binary file of " + phase_names.GetGraphConstructionLongName() + " was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_remove_low_abundance_reads):
+            log.info("ERROR: Binary file of " + phase_names.GetRemoveLowAbundanceReadsName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
@@ -380,6 +395,42 @@ class ConsensusConstructionPhase(Phase):
         self._log.info("  * RCM file containing final repertoire was written to " +
                        self.__params.cropped_rcm)
 
+class RemoveLowAbundanceReadsPhase(Phase):
+    def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetRemoveLowAbundanceReadsName(), log)
+        self.__params = params
+
+    def __CheckInputExistance(self):
+        if not os.path.exists(self.__params.repertoire_clusters_fa):
+            self._log.info("ERROR: CLUSTERS.FA file containing final repertoire was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __CheckOutputExistance(self):
+        if not os.path.exists(self.__params.repertoire_clusters_stripped_fa):
+            self._log.info("ERROR: CLUSTERS_STRIPPED.FA file containing final repertoire was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def RestoreParamsFromPreviousPoint(self):
+        self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
+
+    def Run(self):
+        self.__CheckInputExistance()
+        self.__params.repertoire_clusters_stripped_fa = os.path.join(self.__params.output, 'final_repertoire_stripped.fa')
+        command_line = "%s %s %s --limit=%d" % (IgBinaryConfig().run_remove_low_abundance_reads,
+                                                self.__params.repertoire_clusters_fa,
+                                                self.__params.repertoire_clusters_stripped_fa,
+                                                IgBinaryConfig().cluster_size_limit)
+        support.sys_call(command_line, self._log)
+
+
+    def PrintOutputFiles(self):
+        self.__CheckOutputExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * CLUSTERS_STRIPPED.FA file containing final repertoire was written to " +
+                       self.__params.repertoire_clusters_stripped_fa)
+
 ###########
 class PhaseFactory:
     def __init__(self, phase_names, params, log):
@@ -399,6 +450,8 @@ class PhaseFactory:
             return DSFPhase(self.__params, self.__log)
         elif self.__phase_names.PhaseIsConsensusConstructor(phase_name):
             return ConsensusConstructionPhase(self.__params, self.__log)
+        elif self.__phase_names.PhaseIsRemoveLowAbundanceReads(phase_name):
+            return RemoveLowAbundanceReadsPhase(self.__params, self.__log)
 
     def CreatePhases(self):
         phase_list = list()
