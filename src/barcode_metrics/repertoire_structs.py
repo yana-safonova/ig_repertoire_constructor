@@ -37,9 +37,10 @@ class Repertoire:
         return float(sum(sizes)) / len(sizes)
 
 class Cluster:
-    def __init__(self, size, seq):
+    def __init__(self, size, seq, abundance = 1):
         self.size = size
         self.seq = seq
+        self.abundance = abundance
 
     def __str__(self):
         return 'size ' + str(self.size) + ', seq ' + str(self.seq)

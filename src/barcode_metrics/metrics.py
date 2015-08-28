@@ -18,9 +18,10 @@ class BarcodeMetrics():
 
     def calculate_distances(self):
         distances = []
-        for cluster_id in self.compressed_barcode_rep.clusters:
+        for cluster_id, cluster in self.compressed_barcode_rep.clusters.items():
             if cluster_id in self.barcode_cluster_matches:
-                distances.append(self.barcode_cluster_matches[cluster_id][1])
+                for i in range(cluster.abundance):
+                    distances.append(self.barcode_cluster_matches[cluster_id][1])
         for dist in range(max(distances) + 1):
             cnt = distances.count(dist)
             if cnt:

@@ -21,48 +21,50 @@ def read_repertoires(barcode_clusters, barcode_rcm, data_clusters, data_rcm):
     data_repertoire = read_repertoire(data_clusters, data_rcm, name)
     return barcode_repertoire, data_repertoire
 
-def cut_abundance(id_string):
+def cut_and_get_abundance(id_string):
+    abundance = 1
     if 'abundance' in id_string:
+        abundance = int(id_string.split('_')[-1].split(':')[1])
         id_string = '_'.join(id_string.split('_')[:-1])
-    return id_string
+    return abundance, id_string
 
 def parse_cluster_fa_id(id_string):
-    id_string = cut_abundance(id_string)
+    abundance, id_string = cut_and_get_abundance(id_string)
     fields = id_string.split('___')
     if len(fields) < 4:
         print "ERROR: wrong format of cluster id " + string_ids + ", must be in format cluster___id___size___sz"
         sys.exit(-1)
-    return int(fields[1]), int(fields[3])
+    return int(fields[1]), int(fields[3]), abundance
 
 def parse_migec_id(id_string):
-    id_string = cut_abundance(id_string)
+    abundance, id_string = cut_and_get_abundance(id_string)
     fields = id_string.split(':')[-1].split('_')
     if len(fields) != 2:
         print "ERROR: wrong format of MiGEC ids, must be in format @MIG_UMI:BARCODE:size_id"
         sys.exit(-1)
-    return int(fields[1]), int(fields[0])
+    return int(fields[1]), int(fields[0]), abundance
 
 def parse_seq_id(id_string):
     if '___' in id_string:
-        cluster_id, cluster_size = parse_cluster_fa_id(id_string)
+        cluster_id, cluster_size, cluster_abundance = parse_cluster_fa_id(id_string)
     else:
-        cluster_id, cluster_size = parse_migec_id(id_string)
-    return cluster_id, cluster_size
+        cluster_id, cluster_size, cluster_abundance = parse_migec_id(id_string)
+    return cluster_id, cluster_size, cluster_abundance
 
 def read_clusters_fa(fasta):
     clusters = {}
     fasta_records = SeqIO.parse(open(fasta), 'fasta')
     for rec in fasta_records:
-        cluster_id, cluster_size = parse_seq_id(rec.id)
-        clusters[cluster_id] = Cluster(cluster_size, rec.seq)
+        cluster_id, cluster_size, cluster_abundance = parse_seq_id(rec.id)
+        clusters[cluster_id] = Cluster(cluster_size, rec.seq, cluster_abundance)
     return clusters
 
 def read_migec(migec_filename):
     clusters = {}
     fastq_records = SeqIO.parse(open(migec_filename), 'fastq')
     for rec in fastq_records:
-        cluster_id, cluster_size = parse_seq_id(rec.id)
-        clusters[cluster_id] = Cluster(cluster_size, rec.seq)
+        cluster_id, cluster_size, cluster_abundance = parse_seq_id(rec.id)
+        clusters[cluster_id] = Cluster(cluster_size, rec.seq, cluster_abundance)
     return clusters
 
 def read_rcm(rcm):
@@ -83,7 +85,7 @@ def read_cluster_numbers_to_ids(filtered_clusters_fa):
     cluster_num_to_id = {}
     fasta_records = SeqIO.parse(open(filtered_clusters_fa), 'fasta')
     for i, rec in enumerate(fasta_records):
-        cluster_id, cluster_size = parse_seq_id(rec.id)
+        cluster_id, cluster_size, abundance = parse_seq_id(rec.id)
         cluster_num_to_id[i] = cluster_id
     return cluster_num_to_id
 
