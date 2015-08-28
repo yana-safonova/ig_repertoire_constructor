@@ -105,6 +105,7 @@ add_executable(ig_final_alignment ig_final_alignment.cpp)
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
 add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
+add_executable(ig_consensus_finder ig_consensus_finder.cpp)
 
 if(EXT_DIR)
   add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
