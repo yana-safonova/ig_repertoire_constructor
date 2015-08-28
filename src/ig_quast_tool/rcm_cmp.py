@@ -88,24 +88,24 @@ if __name__ == "__main__":
                 id2barcode[id] = barcode
         barcodes = [id2barcode[_id] for _id in ids]
 
-    reads = []
-    read_ids = []
-    id2i = {}
-
-    print "Reading input reads..."
-    with smart_open(args.reads, "r") as fh:
-        for record in SeqIO.parse(fh, "fasta"):
-            id = str(record.id)
-            read = str(record.seq)
-            reads.append(read)
-            read_ids.append(id)
-
-    for id, id_read in zip(ids, read_ids):
-        assert(id == id_read)
-
-
-    for i in xrange(len(ids)):
-        id2i[ids[i]] = i
+    # reads = []
+    # read_ids = []
+    # id2i = {}
+    #
+    # print "Reading input reads..."
+    # with smart_open(args.reads, "r") as fh:
+    #     for record in SeqIO.parse(fh, "fasta"):
+    #         id = str(record.id)
+    #         read = str(record.seq)
+    #         reads.append(read)
+    #         read_ids.append(id)
+    #
+    # for id, id_read in zip(ids, read_ids):
+    #     assert(id == id_read)
+    #
+    #
+    # for i in xrange(len(ids)):
+    #     id2i[ids[i]] = i
 
     id2clique = {id: clique for id, clique in zip(ids, cliques)}
 
@@ -117,17 +117,17 @@ if __name__ == "__main__":
     for barcode, id in zip(barcodes, ids):
         barcode2ids[barcode].append(id)
 
-    barcode2consensus = {}
-    barcode2dists = {}
-    for barcode, ii in barcode2ids.iteritems():
-        local_reads = [reads[id2i[i]] for i in ii]
-        l = min(map(len, local_reads))
-        trimmed_reads = [read[:l] for read in local_reads]
-        barcode2consensus[barcode] = cons = consensus(trimmed_reads)
-        barcode2dists[barcode] = [levenshtein(read, cons) for read in trimmed_reads]
-
-    for barcode, dists in barcode2dists.iteritems():
-        print barcode, dists
+    # barcode2consensus = {}
+    # barcode2dists = {}
+    # for barcode, ii in barcode2ids.iteritems():
+    #     local_reads = [reads[id2i[i]] for i in ii]
+    #     l = min(map(len, local_reads))
+    #     trimmed_reads = [read[:l] for read in local_reads]
+    #     barcode2consensus[barcode] = cons = consensus(trimmed_reads)
+    #     barcode2dists[barcode] = [levenshtein(read, cons) for read in trimmed_reads]
+    #
+    # for barcode, dists in barcode2dists.iteritems():
+    #     print barcode, dists
 
     barcode2mp_clique = {id: most_popular_element(cliques) for id, cliques in barcode2cliques.iteritems()}
     barcode2abundance = {id: len(cliques) for id, cliques in barcode2cliques.iteritems()}
