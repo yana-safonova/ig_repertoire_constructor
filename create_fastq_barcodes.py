@@ -17,11 +17,13 @@ def main():
         sys.exit(1)
     fastq_fname = sys.argv[1]
     result_records = []
+    print "FASTQ reads: " + fastq_fname
     for record in SeqIO.parse(open(fastq_fname), 'fastq'):
         result_records.append(record)
     print str(len(result_records)) + " reads were extracted from " + fastq_fname
 
     barcodes_fname = sys.argv[2]
+    print "Barcodes RCM: " + barcodes_fname
     read_barcodes = dict()
     fhandler = open(barcodes_fname, "r")
     for line in fhandler:
@@ -37,9 +39,16 @@ def main():
         barcode_reads[barcode].append(record)
 
     output_dir = sys.argv[3]
+    print "Output directory: " + output_dir
     PrepareOutputDir(output_dir)
     for barcode in barcode_reads:
         records = barcode_reads[barcode]
-        barcode_fname = os.path.join(output_dir, barcode + "_size_" + str(len(record)) + ".txt")
+        if len(records) < 100:
+            continue
+        barcode_fname = os.path.join(output_dir, barcode + "_size_" + str(len(records)) + ".fastq")
         SeqIO.write(records, open(barcode_fname, 'w'), 'fastq')
         print "Barcode " + barcode + " was written to " + barcode_fname
+
+if __name__ == '__main__':
+    main()
+
