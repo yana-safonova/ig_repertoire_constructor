@@ -280,9 +280,16 @@ int main(int argc, char **argv) {
     Strategy strategy = Strategy(strategy_int);
     cout << toCString(strategy) << std::endl;
 
+    /*
     auto score_fun = [tau](const Dna5String &s1, const Dna5String &s2) -> int {
         auto lizard_tail = [](int l) -> int { return ((l > 0) ? -1 : 0); };
         return half_sw_banded(s1, s2, 1, -1, -1, lizard_tail, tau);
+    };
+    */
+
+    auto score_fun = [tau](const Dna5String &s1, const Dna5String &s2) -> int {
+        auto lizard_tail = [](int) -> int { return 0; };
+        return half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, tau);
     };
 
     bestScorePairing(input_reads1, input_reads2,
