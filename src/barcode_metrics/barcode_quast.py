@@ -82,17 +82,20 @@ def RunIgMatcherPreparations(params, log, rep, working_dir):
 def RunIgMatcher(params, log):
     log.info(".. Building neighbour clusters")
 
-    barcoded_aln_file, barcode_cluster_num_to_ids = RunIgMatcherPreparations(
+    barcode_aln_file, barcode_cluster_num_to_ids = RunIgMatcherPreparations(
         params, log, params.barcode_repertoire, 
         os.path.join(params.output_dir, params.barcode_repertoire.name))
     data_aln_file, data_cluster_num_to_ids = RunIgMatcherPreparations(
         params, log, params.data_repertoire, 
         os.path.join(params.output_dir, params.data_repertoire.name))
 
+    params.compressed_barcode_repertoire = reading_utils.read_repertoire(barcode_aln_file, None, 'compressed_assembled_barcodes')
+    params.compressed_data_repertoire = reading_utils.read_repertoire(data_aln_file, None, 'compressed_' + params.data_repertoire.name)
+
     barcode_matches_file = os.path.join(params.output_dir, params.barcode_repertoire.name + '.match')
     data_matches_file = os.path.join(params.output_dir, params.data_repertoire.name + '.match')
     command_line = params.ig_matcher + \
-            ' -i ' + barcoded_aln_file + \
+            ' -i ' + barcode_aln_file + \
             ' -I ' + data_aln_file + \
             ' --tau ' + str(params.tau) + ' --threads ' + str(params.threads_num) + \
             ' -o ' + barcode_matches_file + \
@@ -101,7 +104,7 @@ def RunIgMatcher(params, log):
     if not params.rerun:
         exit_code = os.system(command_line)
         if exit_code != 0:
-            log.info('ERROR: ig_matcher failed on ' + barcoded_aln_file + ' and ' + data_aln_file + ' files')
+            log.info('ERROR: ig_matcher failed on ' + barcode_aln_file + ' and ' + data_aln_file + ' files')
             sys.exit(-1)
     if not os.path.exists(barcode_matches_file) or not os.path.exists(data_matches_file):
         log.info('ERROR: cannot find matches file') 
@@ -116,8 +119,9 @@ def RunIgMatcher(params, log):
 def Evaluate(params, log):
     ReadRepertoires(params, log)
     barcode_cluster_matches, data_cluster_matches = RunIgMatcher(params, log)
-    barcode_metrics = metrics.BarcodeMetrics(params.barcode_repertoire, barcode_cluster_matches, 
-        params.data_repertoire, data_cluster_matches)
+    barcode_metrics = metrics.BarcodeMetrics(
+        params.barcode_repertoire, params.compressed_barcode_repertoire, barcode_cluster_matches, 
+        params.data_repertoire, params.compressed_data_repertoire, data_cluster_matches)
     barcode_metrics.evaluate()
     metrics_file = os.path.join(params.output_dir, 'metrics.txt')
     barcode_metrics.write(metrics_file)

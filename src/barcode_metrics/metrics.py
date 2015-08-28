@@ -1,18 +1,24 @@
 class BarcodeMetrics():
-    def __init__(self, barcode_repertoire, barcode_cluster_matches, data_repertoire, data_cluster_matches):
+    def __init__(self, barcode_repertoire, compressed_barcode_repertoire, barcode_cluster_matches, 
+                       data_repertoire, compressed_data_repertoire, data_cluster_matches):
         self.barcode_rep = barcode_repertoire
+        self.compressed_barcode_rep = compressed_barcode_repertoire
         self.barcode_cluster_matches = barcode_cluster_matches
         self.data_rep = data_repertoire
+        self.compressed_data_rep = compressed_data_repertoire
         self.data_cluster_matches = data_cluster_matches
         self.distances_dict = {} # distance -> count
         self.barcodes_number = len(self.barcode_rep.clusters)
+        self.compressed_barcodes_number = len(self.compressed_barcode_rep.clusters)
+        self.data_clusters_number = len(self.data_rep.clusters)
+        self.compressed_data_clusters_number = len(self.compressed_data_rep.clusters)
         self.good_barcodes = 0
         self.erroneous_clusters = 0
         self.has_reads = bool(self.barcode_rep.read_clusters and self.data_rep.read_clusters)
 
     def calculate_distances(self):
         distances = []
-        for cluster_id in self.barcode_rep.clusters:
+        for cluster_id in self.compressed_barcode_rep.clusters:
             if cluster_id in self.barcode_cluster_matches:
                 distances.append(self.barcode_cluster_matches[cluster_id][1])
         for dist in range(max(distances) + 1):
@@ -46,28 +52,32 @@ class BarcodeMetrics():
     def write(self, filename):
         handler = open(filename, 'w')
         handler.write('Total number of barcodes is ' + str(self.barcodes_number) + '\n')
+        handler.write('Total number of barcodes in compressed repertoire is ' + \
+                      str(self.compressed_barcodes_number) + '\n')
+        handler.write('Total number of clusters in data is ' + str(self.data_clusters_number) + '\n')
+        handler.write('Total number of clusters in compressed repertoire is ' + \
+                      str(self.compressed_data_clusters_number) + '\n')
+        handler.write('\n')
         for dist, count in self.distances_dict.items():
             handler.write('Number of barcodes reconstructed with distance ' + str(dist) + 
                           ' is ' + str(count) + '(' + 
                           str(round(float(count) / self.barcodes_number * 100, 2)) + '%)\n')
         handler.write('Number of isolated clusters in barcode is ' + \
-            str(len(self.barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))) + '\n')
+            str(len(self.compressed_barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))) + '\n')
         handler.write('Min size of isolated cluster in barcode is ' + \
-            str(self.barcode_rep.get_min_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
+            str(self.compressed_barcode_rep.get_min_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
         handler.write('Avg size of isolated cluster in barcode is ' + \
-            str(self.barcode_rep.get_avg_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
+            str(self.compressed_barcode_rep.get_avg_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
         handler.write('Max size of isolated cluster in barcode is ' + \
-            str(self.barcode_rep.get_max_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
+            str(self.compressed_barcode_rep.get_max_isolated_cluster_size(self.barcode_cluster_matches)) + '\n') 
         handler.write('Number of isolated clusters in data is ' + \
-            str(len(self.data_rep.get_isolated_cluster_sizes(self.data_cluster_matches))) + '\n')
+            str(len(self.compressed_data_rep.get_isolated_cluster_sizes(self.data_cluster_matches))) + '\n')
         handler.write('Min size of isolated cluster in data is ' + \
-            str(self.data_rep.get_min_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
+            str(self.compressed_data_rep.get_min_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
         handler.write('Avg size of isolated cluster in data is ' + \
-            str(self.data_rep.get_avg_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
+            str(self.compressed_data_rep.get_avg_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
         handler.write('Max size of isolated cluster in data is ' + \
-            str(self.data_rep.get_max_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
+            str(self.compressed_data_rep.get_max_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
         if self.has_reads:
             handler.write('Good barcodes number is ' + str(self.good_barcodes) + '\n')
         handler.close()
-
-            

@@ -4,7 +4,7 @@ from collections import defaultdict
 import sys
 import os.path
 
-def read_repertoire(clusters_file, rcm_file):
+def read_repertoire(clusters_file, rcm_file, name):
     clusters = None
     if clusters_file.endswith('.fa') or clusters_file.endswith('.fasta'):
         clusters = read_clusters_fa(clusters_file)
@@ -13,14 +13,12 @@ def read_repertoire(clusters_file, rcm_file):
     cluster_reads, read_clusters = None, None
     if rcm_file:
         cluster_reads, read_clusters = read_rcm(rcm_file)
-    return clusters, cluster_reads, read_clusters
+    return Repertoire(clusters_file, rcm_file, clusters, cluster_reads, read_clusters, name)
 
 def read_repertoires(barcode_clusters, barcode_rcm, data_clusters, data_rcm):
-    clusters, cluster_reads, read_clusters = read_repertoire(barcode_clusters, barcode_rcm)
-    barcode_repertoire = Repertoire(barcode_clusters, barcode_rcm, clusters, cluster_reads, read_clusters, 'assembled_barcodes')
-    clusters, cluster_reads, read_clusters = read_repertoire(data_clusters, data_rcm)
+    barcode_repertoire = read_repertoire(barcode_clusters, barcode_rcm, 'assembled_barcodes')
     name = os.path.basename(data_clusters).split('.', 1)[0]
-    data_repertoire = Repertoire(data_clusters, data_rcm, clusters, cluster_reads, read_clusters, name)
+    data_repertoire = read_repertoire(data_clusters, data_rcm, name)
     return barcode_repertoire, data_repertoire
 
 def cut_abundance(id_string):
@@ -44,11 +42,18 @@ def parse_migec_id(id_string):
         sys.exit(-1)
     return int(fields[1]), int(fields[0])
 
+def parse_seq_id(id_string):
+    if '___' in id_string:
+        cluster_id, cluster_size = parse_cluster_fa_id(id_string)
+    else:
+        cluster_id, cluster_size = parse_migec_id(id_string)
+    return cluster_id, cluster_size
+
 def read_clusters_fa(fasta):
     clusters = {}
     fasta_records = SeqIO.parse(open(fasta), 'fasta')
     for rec in fasta_records:
-        cluster_id, cluster_size = parse_cluster_fa_id(rec.id)
+        cluster_id, cluster_size = parse_seq_id(rec.id)
         clusters[cluster_id] = Cluster(cluster_size, rec.seq)
     return clusters
 
@@ -56,7 +61,7 @@ def read_migec(migec_filename):
     clusters = {}
     fastq_records = SeqIO.parse(open(migec_filename), 'fastq')
     for rec in fastq_records:
-        cluster_id, cluster_size = parse_migec_id(rec.id)
+        cluster_id, cluster_size = parse_seq_id(rec.id)
         clusters[cluster_id] = Cluster(cluster_size, rec.seq)
     return clusters
 
@@ -78,11 +83,7 @@ def read_cluster_numbers_to_ids(filtered_clusters_fa):
     cluster_num_to_id = {}
     fasta_records = SeqIO.parse(open(filtered_clusters_fa), 'fasta')
     for i, rec in enumerate(fasta_records):
-        cluster_id, cluster_size = 0, 0
-        if '___' in rec.id:
-            cluster_id, cluster_size = parse_cluster_fa_id(rec.id)
-        else:
-            cluster_id, cluster_size = parse_migec_id(rec.id)
+        cluster_id, cluster_size = parse_seq_id(rec.id)
         cluster_num_to_id[i] = cluster_id
     return cluster_num_to_id
 
@@ -94,8 +95,8 @@ def read_cluster_matches(matches_filename, repertoire, this_cluster_num_to_ids, 
             fields = l.strip().split(' ')
             if not fields[0]:
                 continue
-            score = int(fields[0])
-            if score < -tau:
+            score = -int(fields[0])
+            if score > tau:
                 continue
             cluster_nums = (int(i) for i in fields[1:])
             this_cluster_id = this_cluster_num_to_ids[this_cluster_no]
