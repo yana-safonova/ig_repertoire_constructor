@@ -33,16 +33,16 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     Graph g(input_reads.size());
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-        for (size_t j = 0; j < input_reads.size(); ++j) {
-            auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
+    for (size_t j = 0; j < input_reads.size(); ++j) {
+        auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
 
-            for (size_t i : cand) {
-                int dist = dist_fun(input_reads[j], input_reads[i]);
-                if (dist <= tau) {
-                    g[j].push_back( { i, dist } );
-                }
+        for (size_t i : cand) {
+            int dist = dist_fun(input_reads[j], input_reads[i]);
+            if (dist <= tau) {
+                g[j].push_back( { i, dist } );
             }
         }
+    }
 
     // Undirecting
     auto gg = g;
@@ -54,9 +54,9 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     gg.clear(); // Free memory
 
     SEQAN_OMP_PRAGMA(parallel for schedule(guided, 8))
-        for (size_t j = 0; j < g.size(); ++j) {
-            remove_duplicates(g[j]);
-        }
+    for (size_t j = 0; j < g.size(); ++j) {
+        remove_duplicates(g[j]);
+    }
 
     return g;
 }
