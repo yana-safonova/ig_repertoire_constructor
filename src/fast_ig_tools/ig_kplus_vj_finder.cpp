@@ -681,7 +681,7 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        auto bf = bformat("%d, %d, %d, %d, %d, %d, %d, %d\n");
+                        bformat bf("%d, %d, %d, %d, %d, %d, %d, %d");
                         bf % (align.start+1)             % end_of_v
                            % align.kp_coverage           % align.needle_index
                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
