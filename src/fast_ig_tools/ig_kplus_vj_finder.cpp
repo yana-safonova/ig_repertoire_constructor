@@ -590,8 +590,13 @@ int main(int argc, char **argv) {
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
     std::mutex read_mtx, write_mtx, stdout_mtx;
+    const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
+                          param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
+    const KmerIndex j_index(j_reads, param.word_size_j,
+                            param.max_global_gap, 100000, 10000,
+                            param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
 
-    auto work = [&](KmerIndex index, KmerIndex j_index) -> void {
+    auto work = [&]() -> void {
         while (true) {
             CharString read_id;
             Dna5String read;
@@ -716,13 +721,7 @@ int main(int argc, char **argv) {
 
     std::vector<std::thread> workers;
     for (int i = 0; i < param.threads; ++i) {
-        workers.push_back(std::thread(work,
-                                      KmerIndex(v_reads, param.K,
-                                                param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
-                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage),
-                                      KmerIndex(j_reads, param.word_size_j,
-                                                param.max_global_gap, 100000, 10000,
-                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j)));
+        workers.push_back(std::thread(work));
     }
 
     for (auto &t : workers) {
