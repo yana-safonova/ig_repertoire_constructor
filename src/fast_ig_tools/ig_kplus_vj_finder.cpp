@@ -578,18 +578,9 @@ int main(int argc, char **argv) {
     StringSet<Dna5String> j_reads;
     readRecords(j_ids, j_reads, seqFileIn_j_genes);
 
-    seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
-    seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
-    std::ofstream add_info(param.add_info_filename.c_str());
-    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s\n")
-        % "Vstart" % "Vend"
-        % "Vscore" % "Vindex"
-        % "Jstart" % "Jend"
-        % "Jscore" % "Jindex";
-
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
-    std::mutex write_mtx, stdout_mtx;
+    std::mutex stdout_mtx;
     const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
                           param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
     const KmerIndex j_index(j_reads, param.word_size_j,
@@ -601,6 +592,7 @@ int main(int argc, char **argv) {
     readRecords(read_ids, reads, seqFileIn_reads);
     vector<Dna5String> output_reads(reads.size());
     vector<int> output_isok(reads.size());
+    std::vector<std::string> add_info_strings(reads.size());
 
     omp_set_num_threads(param.threads);
     INFO(bformat("Aligning (using %d threads)...") % param.threads);
@@ -689,12 +681,13 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        std::lock_guard<std::mutex> lck(write_mtx);
-                        add_info << bformat("%d, %d, %d, %d, %d, %d, %d, %d\n")
-                            % (align.start+1)             % end_of_v
-                            % align.kp_coverage           % align.needle_index
-                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
-                            % jalign.kp_coverage          % jalign.needle_index;
+                        auto bf = bformat("%d, %d, %d, %d, %d, %d, %d, %d\n");
+                        bf % (align.start+1)             % end_of_v
+                           % align.kp_coverage           % align.needle_index
+                           % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
+                           % jalign.kp_coverage          % jalign.needle_index;
+
+                        add_info_strings[j] = bf.str();
 
                         output_reads[j] = cropped_read;
                         output_isok[j] = true;
@@ -720,15 +713,23 @@ int main(int argc, char **argv) {
     }
 
     INFO("Saving results...");
+    seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
+    seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
+    std::ofstream add_info(param.add_info_filename.c_str());
+    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s\n")
+        % "Vstart" % "Vend"
+        % "Vscore" % "Vindex"
+        % "Jstart" % "Jend"
+        % "Jscore" % "Jindex";
+
     for (size_t j = 0; j < output_reads.size(); ++j) {
         if (output_isok[j]) {
             seqan::writeRecord(cropped_reads_seqFile, read_ids[j], output_reads[j]);
+            add_info << add_info_strings[j] << "\n";
         } else {
             seqan::writeRecord(bad_reads_seqFile, read_ids[j], output_reads[j]);
         }
     }
-
-
 
     INFO("Running time: " << running_time_format(pc));
 
