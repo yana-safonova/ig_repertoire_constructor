@@ -27,13 +27,21 @@ class Repertoire:
         return sizes
 
     def get_min_isolated_cluster_size(self, cluster_matches):
+        sizes = self.get_isolated_cluster_sizes(cluster_matches)
+        if not sizes:
+            return 0
         return min(self.get_isolated_cluster_sizes(cluster_matches))
 
     def get_max_isolated_cluster_size(self, cluster_matches):
+        sizes = self.get_isolated_cluster_sizes(cluster_matches)
+        if not sizes:
+            return 0
         return max(self.get_isolated_cluster_sizes(cluster_matches))
 
     def get_avg_isolated_cluster_size(self, cluster_matches):
         sizes = self.get_isolated_cluster_sizes(cluster_matches)
+        if not sizes:
+            return 0
         return float(sum(sizes)) / len(sizes)
 
 class Cluster:

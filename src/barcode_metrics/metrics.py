@@ -1,6 +1,6 @@
 class BarcodeMetrics():
     def __init__(self, barcode_repertoire, compressed_barcode_repertoire, barcode_cluster_matches, 
-                       data_repertoire, compressed_data_repertoire, data_cluster_matches):
+                       data_repertoire, compressed_data_repertoire, data_cluster_matches, rate_cutoff = 0.9):
         self.barcode_rep = barcode_repertoire
         self.compressed_barcode_rep = compressed_barcode_repertoire
         self.barcode_cluster_matches = barcode_cluster_matches
@@ -13,15 +13,24 @@ class BarcodeMetrics():
         self.data_clusters_number = len(self.data_rep.clusters)
         self.compressed_data_clusters_number = len(self.compressed_data_rep.clusters)
         self.good_barcodes = 0
-        self.erroneous_clusters = 0
+        self.bad_barcodes = 0
         self.has_reads = bool(self.barcode_rep.read_clusters and self.data_rep.read_clusters)
+        self.rate_cutoff = rate_cutoff
 
     def calculate_distances(self):
         distances = []
+        # handler = open("dist1.txt", 'w')
         for cluster_id, cluster in self.compressed_barcode_rep.clusters.items():
             if cluster_id in self.barcode_cluster_matches:
                 for i in range(cluster.abundance):
                     distances.append(self.barcode_cluster_matches[cluster_id][1])
+                '''
+                if self.barcode_cluster_matches[cluster_id][1] == 1:
+                    handler.write("Barcode: " + str(cluster_id) + '\n')
+                    handler.write("Neighbour clusters: " + 
+                        ' '.join(str(i) for i in self.barcode_cluster_matches[cluster_id][0]) + '\n')
+        handler.close()
+        '''
         for dist in range(max(distances) + 1):
             cnt = distances.count(dist)
             if cnt:
@@ -43,8 +52,10 @@ class BarcodeMetrics():
                 continue
             corr_data_cluster_id, corr_cluster_shared_reads_num = \
                 max(data_corr_clusters.items(), key = lambda a: a[1])
-            if corr_cluster_shared_reads_num >= 0.9 * len(reads):
+            if corr_cluster_shared_reads_num >= self.rate_cutoff * len(reads):
                 self.good_barcodes += 1
+            else:
+                self.bad_barcodes += 1
 
     def evaluate(self):
         self.calculate_distances()
@@ -81,4 +92,5 @@ class BarcodeMetrics():
             str(self.compressed_data_rep.get_max_isolated_cluster_size(self.data_cluster_matches)) + '\n') 
         if self.has_reads:
             handler.write('Good barcodes number is ' + str(self.good_barcodes) + '\n')
+            handler.write('Bad barcodes number is ' + str(self.bad_barcodes) + '\n')
         handler.close()
