@@ -93,7 +93,7 @@ def Cleanup(params, log):
         if os.path.exists(params.decomposition_dir):
             shutil.rmtree(params.decomposition_dir)
 
-def main(argv):
+def main(argv, external_logger = ""):
     from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="== DSF: an algorithm for corrupted cliques search ==",
                                   epilog="""
@@ -160,6 +160,9 @@ def main(argv):
     console.setFormatter(logging.Formatter('%(message)s'))
     console.setLevel(logging.DEBUG)
     log.addHandler(console)
+    if external_logger != "":
+        external_log_handler = logging.FileHandler(external_logger, mode = "a")
+        log.addHandler(external_log_handler)
 
     # parse command line
     args = [arg for arg in argv if arg != './dense_subgraph_finder.py']

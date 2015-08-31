@@ -331,7 +331,7 @@ class DSFPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__AddOutputToParams()
-        dense_subgraph_finder.main(self.__GetDSFParams())
+        dense_subgraph_finder.main(self.__GetDSFParams(), self.__params.log_filename)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
