@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit", "-l",
                         type=int,
                         default=5,
-                        help="abundence limit (default: %(default)s)")
+                        help="abundance limit (default: %(default)s)")
 
     args = parser.parse_args()
 
