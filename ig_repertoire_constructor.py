@@ -118,6 +118,7 @@ class IgBinaryConfig:
         self.run_consensus_constructor = 'build/release/bin/./ig_consensus_finder'
         self.run_rcm_recoverer = 'src/ig_quast_tool/rcm_recoverer.py'
         self.run_remove_low_abundance_reads = 'src/ig_quast_tool/ig_remove_low_abundance_reads.py'
+        self.run_report_supernodes = 'src/ig_quast_tool/ig_report_supernodes.py'
         self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
         self.path_to_germline = "build/release/bin/germline"
         self.cluster_size_limit = 5
@@ -247,8 +248,14 @@ class TrieCompressionPhase(Phase):
         self.__CheckInputExistance()
         self.__params.compressed_reads = os.path.join(self.__params.output, "compressed.fa")
         self.__params.map_file = os.path.join(self.__params.output, "map.txt")
+        self.__params.supernodes_file = os.path.join(self.__params.output, "supernodes.fa")
         command_line = IgBinaryConfig().run_trie_compressor + " -i " + self.__params.cropped_reads + " -o " + \
                        self.__params.compressed_reads + " -m " + self.__params.map_file
+        support.sys_call(command_line, self._log)
+        command_line = "%s %s %s --limit=%d" % (IgBinaryConfig().run_report_supernodes,
+                                                self.__params.compressed_reads,
+                                                self.__params.supernodes_file,
+                                                5)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
