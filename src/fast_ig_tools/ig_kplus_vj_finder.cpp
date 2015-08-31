@@ -506,11 +506,6 @@ struct Ig_KPlus_Finder_Parameters {
             return 0;
         }
 
-        if (vm.count("input-file")) {
-            cout << "Input file is: "
-                << vm["input-file"].as<std::string>() << "\n";
-        }
-
         if (vm.count("silent")) {
             silent = true;
         } else if (vm.count("no-silent")) {
@@ -531,8 +526,9 @@ struct Ig_KPlus_Finder_Parameters {
             fill_prefix_by_germline = true;
         }
 
-        INFO("K = " << K);
+        INFO(bformat("Input file is: %s") % input_file);
         INFO(bformat("Output dir is: %s") % output_dir);
+        INFO("K = " << K);
 
         make_dirs(output_dir);
         output_filename = output_dir + "/cropped.fa";
