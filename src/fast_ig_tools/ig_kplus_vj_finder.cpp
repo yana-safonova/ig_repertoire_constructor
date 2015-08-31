@@ -599,9 +599,11 @@ int main(int argc, char **argv) {
     vector<CharString> read_ids;
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
+    vector<Dna5String> output_reads(reads.size());
+    vector<int> output_isok(reads.size());
 
     omp_set_num_threads(param.threads);
-    cout << bformat("Aligning (using %d threads)...") % param.threads << std::endl;
+    INFO(bformat("Aligning (using %d threads)...") % param.threads);
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
@@ -694,7 +696,8 @@ int main(int argc, char **argv) {
                             % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
                             % jalign.kp_coverage          % jalign.needle_index;
 
-                        seqan::writeRecord(cropped_reads_seqFile, read_id, cropped_read);
+                        output_reads[j] = cropped_read;
+                        output_isok[j] = true;
                     }
 
                     aligned = true;
@@ -711,10 +714,21 @@ int main(int argc, char **argv) {
         }
 
         if (!aligned) { // Save as bad read
-            std::lock_guard<std::mutex> lck(write_mtx);
-            seqan::writeRecord(bad_reads_seqFile, read_id, read); // Write original read, not stranded
+            output_reads[j] = read;
+            output_isok[j] = false;
         }
     }
+
+    INFO("Saving results...");
+    for (size_t j = 0; j < output_reads.size(); ++j) {
+        if (output_isok[j]) {
+            seqan::writeRecord(cropped_reads_seqFile, read_ids[j], output_reads[j]);
+        } else {
+            seqan::writeRecord(bad_reads_seqFile, read_ids[j], output_reads[j]);
+        }
+    }
+
+
 
     INFO("Running time: " << running_time_format(pc));
 
