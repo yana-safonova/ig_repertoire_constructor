@@ -589,7 +589,7 @@ int main(int argc, char **argv) {
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
-    std::mutex read_mtx, write_mtx, stdout_mtx;
+    std::mutex write_mtx, stdout_mtx;
     const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
                           param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
     const KmerIndex j_index(j_reads, param.word_size_j,
@@ -600,7 +600,10 @@ int main(int argc, char **argv) {
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
 
-    // SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+    omp_set_num_threads(param.threads);
+    cout << bformat("Aligning (using %d threads)...") % param.threads << std::endl;
+
+    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
         CharString read_id = read_ids[j];
         Dna5String read = reads[j];
