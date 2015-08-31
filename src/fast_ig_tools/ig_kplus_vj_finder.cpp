@@ -156,8 +156,8 @@ public:
         // Lock it
         std::lock_guard<std::mutex> lck(*this->pmtx);
 
-        for (size_t j = 0; j < length(read) - K + 1; ++j) {
-            auto kmer = infix(read, j, j + K);
+        for (int j = 0; j < length(read) - K + 1; ++j) {
+            auto kmer = infixWithLength(read, j, K);
             if (!kmer2needle.count(kmer)) {
                 continue;
             }
