@@ -76,9 +76,9 @@ if __name__ == "__main__":
             if abundance >= args.limit:
                 old_id = str(record.id)
                 if "_abundance" in old_id:
-                    new_id = old_id.replace("_abundance:", "___size")
+                    new_id = old_id.replace("_abundance:", "___size___")
                 else:
-                    new_id = "%ssize___%d" % (old_id, abundance)
+                    new_id = "%s___size___%d" % (old_id, abundance)
                 record.id = record.name = record.description = new_id
                 result.append(record)
 
