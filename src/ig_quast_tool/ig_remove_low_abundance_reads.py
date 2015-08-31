@@ -56,10 +56,10 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Remove low abundance reads")
     parser.add_argument("input",
                         type=str,
-                        help="input FASTQ file")
+                        help="input FASTA file")
     parser.add_argument("output",
                         type=str,
-                        help="output FASTQ file")
+                        help="output FASTA file")
     parser.add_argument("--limit", "-l",
                         type=int,
                         default=5,
