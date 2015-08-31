@@ -35,6 +35,10 @@ class BestScoreIndices {
             omp_init_lock(&lock);
         }
 
+        ~BestScoreIndices() {
+            omp_destroy_lock(&lock);
+        }
+
         void update(int score, size_t index) {
             omp_set_lock(&lock);
             update_nolock(score, index);
