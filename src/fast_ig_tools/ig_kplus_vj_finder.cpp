@@ -1,7 +1,4 @@
-#include <seqan/find.h>
 #include <seqan/seq_io.h>
-#include <seqan/stream.h>
-#include <seqan/modifier.h>
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -126,8 +123,7 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
 
 class KmerIndex {
-    using PatternIndex = Pattern<StringSet<Dna5String>, AhoCorasick>;
-    public:
+public:
     KmerIndex(StringSet<Dna5String> queries, int K,
               int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
               int max_local_insertions, int max_local_deletions, int min_k_coverage) : max_local_insertions{max_local_insertions},
@@ -150,26 +146,24 @@ class KmerIndex {
                 appendValue(kmers, e.first);
             }
 
-            // Define the Aho-Corasick pattern over the queries with the preprocessing
-            // data structure.
-            // Better to use make_unique UPD Better to read mans before coding.
-            pattern.reset(new PatternIndex(kmers));
             pmtx.reset(new std::mutex);
         }
 
     std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) {
         std::unordered_map<size_t, std::vector<std::pair<int, int>> > needle2matches;
 
-        Finder<Dna5String> finder(read);  // new finder for each seq
         // Lock it
         std::lock_guard<std::mutex> lck(*this->pmtx);
 
-        while (find(finder, *pattern)) {
-            auto kmer = infix(finder);
+        for (size_t j = 0; j < length(read) - K + 1; ++j) {
+            auto kmer = infix(read, j, j + K);
+            if (!kmer2needle.count(kmer)) {
+                continue;
+            }
 
             for (const auto &p : kmer2needle[kmer]) {
                 size_t needle_index = p.first;
-                int kmer_pos_in_read = position(finder);
+                int kmer_pos_in_read = j;
                 int kmer_pos_in_needle = p.second;
                 int shift = kmer_pos_in_read - kmer_pos_in_needle;
 
@@ -334,7 +328,6 @@ class KmerIndex {
     int min_k_coverage;
     int most_pop_kmer_uses = 0;
     int K;
-    std::unique_ptr<PatternIndex> pattern;
     map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
     std::unique_ptr<std::mutex> pmtx;
 };
