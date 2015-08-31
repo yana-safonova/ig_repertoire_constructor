@@ -14,8 +14,9 @@
 #include <path_helper.hpp>
 #include <perfcounter.hpp>
 
-#include "logger/log_writers.hpp"
-#include "logger/logger.hpp"
+#include <logger/log_writers.hpp>
+#include <logger/logger.hpp>
+#include <segfault_handler.hpp>
 
 using namespace seqan;
 using std::vector;
@@ -554,6 +555,7 @@ struct Ig_KPlus_Finder_Parameters {
 
 
 int main(int argc, char **argv) {
+    segfault_handler sh;
     perf_counter pc;
     // create_console_logger("./fast_ig_tools.log");
     create_console_logger("");
