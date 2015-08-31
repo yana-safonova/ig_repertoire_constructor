@@ -546,7 +546,7 @@ def ParseCommandLineParams():
                                help="Thread number [default: %(default)d]")
     optional_args.add_argument("--tau",
                                type=int,
-                               default=3,
+                               default=4,
                                dest="max_mismatches",
                                help="Maximum allowed mismatches between identical error-prone reads "
                                     "[default: %(default)d]")
