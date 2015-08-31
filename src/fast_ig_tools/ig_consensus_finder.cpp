@@ -24,39 +24,26 @@ using seqan::CharString;
 #include "fast_ig_tools.hpp"
 
 
-std::unordered_map<std::string, size_t> read_rcm_file_string(const std::string &file_name) {
+std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> read_rcm_file_string(const std::string &file_name) {
     std::ifstream rcm(file_name.c_str());
 
     std::unordered_map<std::string, size_t> result;
     std::unordered_map<std::string, size_t> barcode2num;
 
     std::string id, target;
+    std::vector<std::string> targets;
     size_t num = 0;
     while (rcm >> id >> target) {
         if (barcode2num.count(target) == 0) { // TODO Use iterator here??
             barcode2num[target] = num++;
+            targets.push_back(target);
+            assert(targets.size() == num);
         }
 
         result[id] = barcode2num[target];
     }
 
-    return result;
-}
-
-
-std::unordered_map<std::string, size_t> read_rcm_file_integer(const std::string &file_name) {
-    std::ifstream rcm(file_name.c_str());
-
-    std::unordered_map<std::string, size_t> result;
-    std::unordered_map<std::string, size_t> barcode2num;
-
-    std::string id;
-    size_t target;
-    while (rcm >> id >> target) {
-        result[id] = target;
-    }
-
-    return result;
+    return { result, targets };
 }
 
 
@@ -71,7 +58,6 @@ int main(int argc, char **argv) {
     std::string rcm_file = "cropped.rcm";
     bool use_hamming_alignment = false;
     std::string config_file = "";
-    bool string_rcm = false;
 
     // Parse cmd-line arguments
     try {
@@ -91,8 +77,6 @@ int main(int argc, char **argv) {
              "input RCM-file")
             ("hamming,H",
              "use Hamming-based (position-wise) multiple alignment instead of seqan's one")
-            ("string-rcm,S",
-             "whether RCM has string cluster labels (like barcodes). Default false")
             ;
 
         // Declare a group of options that will be
@@ -176,15 +160,12 @@ int main(int argc, char **argv) {
     std::vector<size_t> component_indices;
     component_indices.resize(input_reads.size());
 
-    {
-        cout << "Reading rcm..." << std::endl;
-        auto rcm = string_rcm ? read_rcm_file_string(rcm_file) : read_rcm_file_integer(rcm_file);
-
-        for (size_t i = 0; i < input_reads.size(); ++i) {
-            const char *id = toCString(input_ids[i]);
-            assert(rcm.count(id));
-            component_indices[i] = rcm[id];
-        }
+    cout << "Reading rcm..." << std::endl;
+    auto rcm = read_rcm_file_string(rcm_file);
+    for (size_t i = 0; i < input_reads.size(); ++i) {
+        const char *id = toCString(input_ids[i]);
+        assert(rcm.first.count(id));
+        component_indices[i] = rcm.first[id];
     }
 
     cout << bformat("Reads: %d") % input_reads.size() << std::endl;
@@ -239,8 +220,8 @@ int main(int argc, char **argv) {
 
         size_t abundance = comp_abundances[comp];
 
-        bformat fmt("cluster___%d___size___%d");
-        fmt % comp % abundance;
+        bformat fmt("cluster___%s___size___%d");
+        fmt % rcm.second[comp] % abundance;
         std::string id = fmt.str();
 
         seqan::writeRecord(seqFileOut_output, id, consensuses[comp]);
