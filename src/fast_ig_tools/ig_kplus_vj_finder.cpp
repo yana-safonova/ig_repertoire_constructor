@@ -596,19 +596,15 @@ int main(int argc, char **argv) {
                             param.max_global_gap, 100000, 10000,
                             param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
 
-    auto work = [&]() -> void {
-        while (true) {
-            CharString read_id;
-            Dna5String read;
+    vector<CharString> read_ids;
+    vector<Dna5String> reads;
+    readRecords(read_ids, reads, seqFileIn_reads);
 
-            {
-                std::lock_guard<std::mutex> lck(read_mtx);
-                if (!atEnd(seqFileIn_reads)) {
-                    readRecord(read_id, read, seqFileIn_reads);
-                } else {
-                    return;
-                }
-            }
+    // SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+    for (size_t j = 0; j < reads.size(); ++j) {
+        {
+            CharString read_id = read_ids[j];
+            Dna5String read = reads[j];
 
             Dna5String read_rc = read;
             reverseComplement(read_rc);
@@ -718,15 +714,6 @@ int main(int argc, char **argv) {
             }
         }
     };
-
-    std::vector<std::thread> workers;
-    for (int i = 0; i < param.threads; ++i) {
-        workers.push_back(std::thread(work));
-    }
-
-    for (auto &t : workers) {
-        t.join();
-    }
 
     INFO("Running time: " << running_time_format(pc));
 
