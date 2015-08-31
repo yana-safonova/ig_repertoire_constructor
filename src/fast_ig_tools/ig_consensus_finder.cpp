@@ -24,7 +24,7 @@ using seqan::CharString;
 #include "fast_ig_tools.hpp"
 
 
-std::unordered_map<std::string, size_t> read_rcm_file(const std::string &file_name) {
+std::unordered_map<std::string, size_t> read_rcm_file_string(const std::string &file_name) {
     std::ifstream rcm(file_name.c_str());
 
     std::unordered_map<std::string, size_t> result;
@@ -44,6 +44,22 @@ std::unordered_map<std::string, size_t> read_rcm_file(const std::string &file_na
 }
 
 
+std::unordered_map<std::string, size_t> read_rcm_file_integer(const std::string &file_name) {
+    std::ifstream rcm(file_name.c_str());
+
+    std::unordered_map<std::string, size_t> result;
+    std::unordered_map<std::string, size_t> barcode2num;
+
+    std::string id;
+    size_t target;
+    while (rcm >> id >> target) {
+        result[id] = target;
+    }
+
+    return result;
+}
+
+
 int main(int argc, char **argv) {
     auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -55,6 +71,7 @@ int main(int argc, char **argv) {
     std::string rcm_file = "cropped.rcm";
     bool use_hamming_alignment = false;
     std::string config_file = "";
+    bool string_rcm = false;
 
     // Parse cmd-line arguments
     try {
@@ -74,6 +91,8 @@ int main(int argc, char **argv) {
              "input RCM-file")
             ("hamming,H",
              "use Hamming-based (position-wise) multiple alignment instead of seqan's one")
+            ("string-rcm,S",
+             "whether RCM has string cluster labels (like barcodes). Default false")
             ;
 
         // Declare a group of options that will be
@@ -159,7 +178,7 @@ int main(int argc, char **argv) {
 
     {
         cout << "Reading rcm..." << std::endl;
-        auto rcm = read_rcm_file(rcm_file);
+        auto rcm = string_rcm ? read_rcm_file_string(rcm_file) : read_rcm_file_integer(rcm_file);
 
         for (size_t i = 0; i < input_reads.size(); ++i) {
             const char *id = toCString(input_ids[i]);
@@ -171,7 +190,7 @@ int main(int argc, char **argv) {
     cout << bformat("Reads: %d") % input_reads.size() << std::endl;
 
     size_t max_index = *std::max_element(component_indices.cbegin(), component_indices.cend());
-    cout << bformat("The number of components: %d") % (max_index + 1) << std::endl;
+    cout << bformat("The number of components: %d") % (max_index + 1) << std::endl;  // TODO Compute #of cmps more carefully
 
     std::vector<std::vector<size_t>> component2id(max_index + 1);
     for (size_t i = 0; i < component_indices.size(); ++i) {
