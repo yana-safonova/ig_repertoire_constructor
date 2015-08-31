@@ -602,118 +602,116 @@ int main(int argc, char **argv) {
 
     // SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
-        {
-            CharString read_id = read_ids[j];
-            Dna5String read = reads[j];
+        CharString read_id = read_ids[j];
+        Dna5String read = reads[j];
 
-            Dna5String read_rc = read;
-            reverseComplement(read_rc);
+        Dna5String read_rc = read;
+        reverseComplement(read_rc);
 
-            auto result_pstrand = index.query(read, param.max_candidates);
-            auto result_nstrand = index.query(read_rc, param.max_candidates);
+        auto result_pstrand = index.query(read, param.max_candidates);
+        auto result_nstrand = index.query(read_rc, param.max_candidates);
 
-            int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
-            int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
+        int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
+        int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
 
-            int strand = (pscore >= nscore) ? 1 : -1;
-            auto result = (strand == 1) ? result_pstrand : result_nstrand;
-            auto stranded_read = (strand == 1) ? read : read_rc;
+        int strand = (pscore >= nscore) ? 1 : -1;
+        auto result = (strand == 1) ? result_pstrand : result_nstrand;
+        auto stranded_read = (strand == 1) ? read : read_rc;
 
-            bool aligned = false;
-            if (!result.empty()) { // If we found at least one alignment
-                for (const auto &align : result) {
-                    auto last_match = align.path[align.path.size() - 1];
-                    int end_of_v = last_match.read_pos + last_match.length;
-                    auto suff = suffix(stranded_read, end_of_v);
-                    auto jresult = j_index.query(suff, param.max_candidates_j);
+        bool aligned = false;
+        if (!result.empty()) { // If we found at least one alignment
+            for (const auto &align : result) {
+                auto last_match = align.path[align.path.size() - 1];
+                int end_of_v = last_match.read_pos + last_match.length;
+                auto suff = suffix(stranded_read, end_of_v);
+                auto jresult = j_index.query(suff, param.max_candidates_j);
 
-                    if (!param.silent) {
-                        std::lock_guard<std::mutex> lck(stdout_mtx);
+                if (!param.silent) {
+                    std::lock_guard<std::mutex> lck(stdout_mtx);
 
-                        cout << "Query: " << read_id << endl;
-                        cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
-                            % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
+                    cout << "Query: " << read_id << endl;
+                    cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
+                        % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
 
-                        cout << "V-genes:" << endl;
+                    cout << "V-genes:" << endl;
 
-                        cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%")
-                            % (align.start+1)   % end_of_v
-                            % align.kp_coverage % v_ids[align.needle_index];
+                    cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%")
+                        % (align.start+1)   % end_of_v
+                        % align.kp_coverage % v_ids[align.needle_index];
 
-                        cout << " " << visualize_matches(align.path, length(v_reads[align.needle_index]), length(stranded_read)) << endl;
-                        if (!jresult.empty()) {
-                            cout << "\tJ-genes:" << endl;
-                            for (const auto &jalign : jresult) {
-                                cout << bformat("\tk+-coverage %3%; %1%:%2%; J-gene: %4%")
-                                    % (jalign.start+1 + end_of_v) % (jalign.finish + end_of_v)
-                                    % jalign.kp_coverage          % j_ids[jalign.needle_index];
+                    cout << " " << visualize_matches(align.path, length(v_reads[align.needle_index]), length(stranded_read)) << endl;
+                    if (!jresult.empty()) {
+                        cout << "\tJ-genes:" << endl;
+                        for (const auto &jalign : jresult) {
+                            cout << bformat("\tk+-coverage %3%; %1%:%2%; J-gene: %4%")
+                                % (jalign.start+1 + end_of_v) % (jalign.finish + end_of_v)
+                                % jalign.kp_coverage          % j_ids[jalign.needle_index];
 
-                                cout << " " << visualize_matches(jalign.path, length(j_reads[jalign.needle_index]), length(suff)) << endl;
-                            }
-                        } else {
-                            cout << "J-genes not found" << endl;
+                            cout << " " << visualize_matches(jalign.path, length(j_reads[jalign.needle_index]), length(suff)) << endl;
                         }
-                        cout << endl;
+                    } else {
+                        cout << "J-genes not found" << endl;
                     }
-
-                    if (!jresult.empty() && !aligned) { // Save as <<good>> read
-                        Dna5String cropped_read; // Crop to head of V-gene
-                        if (align.start >= 0) {
-                            cropped_read = suffix(stranded_read, align.start);
-                        } else {
-                            if (param.fill_prefix_by_germline) {
-                                cropped_read = prefix(v_reads[align.needle_index], std::abs(align.start)); // Fill by germline
-                            } else {
-                                cropped_read = std::string(std::abs(align.start), 'N');
-                            }
-                            cropped_read += stranded_read;
-                        }
-
-                        // if (align.finish > length(stranded_read)) {
-                        //   cropped_read += std::string(align.finish - length(stranded_read), 'N');
-                        // }
-
-                        if (param.left_fill_germline > 0) {
-                            for (int i = 0; i < param.left_fill_germline; ++i) {
-                                cropped_read[i] = v_reads[align.needle_index][i]; // Fill by germline
-                            }
-                        }
-
-                        const auto &jalign = *jresult.cbegin();
-
-                        {
-                            const auto &first_jalign = jalign.path[0];
-                            const auto &last_jalign = jalign.path[jalign.path.size() - 1];
-
-                            std::lock_guard<std::mutex> lck(write_mtx);
-                            add_info << bformat("%d, %d, %d, %d, %d, %d, %d, %d\n")
-                                % (align.start+1)             % end_of_v
-                                % align.kp_coverage           % align.needle_index
-                                % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
-                                % jalign.kp_coverage          % jalign.needle_index;
-
-                            seqan::writeRecord(cropped_reads_seqFile, read_id, cropped_read);
-                        }
-
-                        aligned = true;
-                    }
+                    cout << endl;
                 }
-            } else if (!param.silent) {
-                std::lock_guard<std::mutex> lck(stdout_mtx);
 
-                cout << "Query: " << read_id << endl;
-                cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
-                    % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
-                cout << "V-genes not found" << endl;
-                cout << endl;
-            }
+                if (!jresult.empty() && !aligned) { // Save as <<good>> read
+                    Dna5String cropped_read; // Crop to head of V-gene
+                    if (align.start >= 0) {
+                        cropped_read = suffix(stranded_read, align.start);
+                    } else {
+                        if (param.fill_prefix_by_germline) {
+                            cropped_read = prefix(v_reads[align.needle_index], std::abs(align.start)); // Fill by germline
+                        } else {
+                            cropped_read = std::string(std::abs(align.start), 'N');
+                        }
+                        cropped_read += stranded_read;
+                    }
 
-            if (!aligned) { // Save as bad read
-                std::lock_guard<std::mutex> lck(write_mtx);
-                seqan::writeRecord(bad_reads_seqFile, read_id, read); // Write original read, not stranded
+                    // if (align.finish > length(stranded_read)) {
+                    //   cropped_read += std::string(align.finish - length(stranded_read), 'N');
+                    // }
+
+                    if (param.left_fill_germline > 0) {
+                        for (int i = 0; i < param.left_fill_germline; ++i) {
+                            cropped_read[i] = v_reads[align.needle_index][i]; // Fill by germline
+                        }
+                    }
+
+                    const auto &jalign = *jresult.cbegin();
+
+                    {
+                        const auto &first_jalign = jalign.path[0];
+                        const auto &last_jalign = jalign.path[jalign.path.size() - 1];
+
+                        std::lock_guard<std::mutex> lck(write_mtx);
+                        add_info << bformat("%d, %d, %d, %d, %d, %d, %d, %d\n")
+                            % (align.start+1)             % end_of_v
+                            % align.kp_coverage           % align.needle_index
+                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
+                            % jalign.kp_coverage          % jalign.needle_index;
+
+                        seqan::writeRecord(cropped_reads_seqFile, read_id, cropped_read);
+                    }
+
+                    aligned = true;
+                }
             }
+        } else if (!param.silent) {
+            std::lock_guard<std::mutex> lck(stdout_mtx);
+
+            cout << "Query: " << read_id << endl;
+            cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
+                % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
+            cout << "V-genes not found" << endl;
+            cout << endl;
         }
-    };
+
+        if (!aligned) { // Save as bad read
+            std::lock_guard<std::mutex> lck(write_mtx);
+            seqan::writeRecord(bad_reads_seqFile, read_id, read); // Write original read, not stranded
+        }
+    }
 
     INFO("Running time: " << running_time_format(pc));
 
