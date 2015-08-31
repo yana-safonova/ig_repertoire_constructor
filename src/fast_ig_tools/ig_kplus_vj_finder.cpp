@@ -146,26 +146,26 @@ public:
             for (const auto &e : kmer2needle) {
                 appendValue(kmers, e.first);
             }
-
-            pmtx.reset(new std::mutex);
         }
 
-    std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) {
+    std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) const {
         std::unordered_map<size_t, std::vector<std::pair<int, int>> > needle2matches;
 
-        // Lock it
-        std::lock_guard<std::mutex> lck(*this->pmtx);
         if (length(read) < K) {
             return needle2matches;
         }
 
+        const auto &kmer2needle = this->kmer2needle;
+
         for (size_t j = 0; j < length(read) - K + 1; ++j) {
             auto kmer = infixWithLength(read, j, K);
-            if (!kmer2needle.count(kmer)) {
+            auto it = kmer2needle.find(kmer);
+
+            if (it == kmer2needle.cend()) {
                 continue;
             }
 
-            for (const auto &p : kmer2needle[kmer]) {
+            for (const auto &p : it->second) {
                 size_t needle_index = p.first;
                 int kmer_pos_in_read = j;
                 int kmer_pos_in_needle = p.second;
@@ -196,7 +196,7 @@ public:
         }
     };
 
-    std::vector<Alignment> query_unordered(Dna5String read) {
+    std::vector<Alignment> query_unordered(Dna5String read) const {
         std::vector<Alignment> liss;
         auto needle2matches = this->Needle2matches(read);
 
@@ -307,7 +307,7 @@ public:
         return liss;
     }
 
-    std::vector<Alignment> query(Dna5String read, int limit) {
+    std::vector<Alignment> query(Dna5String read, int limit) const {
         auto liss = query_unordered(read);
 
         using ctuple_type = decltype(*liss.cbegin());
@@ -333,7 +333,6 @@ public:
     int most_pop_kmer_uses = 0;
     int K;
     map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
-    std::unique_ptr<std::mutex> pmtx;
 };
 
 } // namespace fast_ig_tools
