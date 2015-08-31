@@ -125,7 +125,7 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
 class KmerIndex {
 public:
-    KmerIndex(StringSet<Dna5String> queries, int K,
+    KmerIndex(StringSet<Dna5String> queries, size_t K,
               int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
               int max_local_insertions, int max_local_deletions, int min_k_coverage) : max_local_insertions{max_local_insertions},
         max_local_deletions{max_local_deletions},
@@ -141,11 +141,6 @@ public:
                     kmer2needle[infix(queries[j], start, start + K)].push_back(std::make_pair(j, start));
                 }
             }
-
-            StringSet<Dna5String> kmers;
-            for (const auto &e : kmer2needle) {
-                appendValue(kmers, e.first);
-            }
         }
 
     std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) const {
@@ -154,8 +149,6 @@ public:
         if (length(read) < K) {
             return needle2matches;
         }
-
-        const auto &kmer2needle = this->kmer2needle;
 
         for (size_t j = 0; j < length(read) - K + 1; ++j) {
             auto kmer = infixWithLength(read, j, K);
@@ -331,7 +324,7 @@ public:
     int max_local_deletions;
     int min_k_coverage;
     int most_pop_kmer_uses = 0;
-    int K;
+    size_t K;
     map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
 };
 
@@ -591,7 +584,7 @@ int main(int argc, char **argv) {
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
     vector<Dna5String> output_reads(reads.size());
-    vector<int> output_isok(reads.size());
+    vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
 
     omp_set_num_threads(param.threads);
