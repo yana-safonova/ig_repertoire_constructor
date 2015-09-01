@@ -283,6 +283,9 @@ class GraphConstructionPhase(Phase):
 
     def RestoreParamsFromPreviousPoint(self):
         self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
+        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
+        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
 
     def Run(self):
         self.__CheckInputExistance()
@@ -327,6 +330,9 @@ class DSFPhase(Phase):
     def RestoreParamsFromPreviousPoint(self):
         self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
         self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
+        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
+        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
 
     def Run(self):
         self.__CheckInputExistance()
