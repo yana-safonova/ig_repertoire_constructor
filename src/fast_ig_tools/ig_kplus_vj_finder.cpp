@@ -141,6 +141,18 @@ class KmerIndex {
         int position;
     };
 
+    struct Alignment {
+        int kp_coverage;
+        std::vector<Match> path;
+        int start, finish;
+        size_t needle_index;
+        int overlap_length;
+
+        bool operator< (const Alignment& b) const {
+            return this->kp_coverage < b.kp_coverage;
+        }
+    };
+
 public:
     KmerIndex(const vector<Dna5String> &queries,
               size_t K,
@@ -166,11 +178,29 @@ public:
             }
         }
 
-    std::unordered_map<size_t, std::vector<KmerMatch>> Needle2matches(Dna5String read) const {
-        std::unordered_map<size_t, std::vector<KmerMatch>> needle2matches;
+    std::vector<Alignment> query(Dna5String read, size_t limit) const {
+        auto result = query_unordered(read);
+
+        using ctuple_type = decltype(*result.cbegin());
+
+        auto score_function = [](ctuple_type a) { return a.kp_coverage; };
+        auto comp = [&](ctuple_type a, ctuple_type b) -> bool { return score_function(a) > score_function(b); };
+
+        // Return top <limit>
+        std::nth_element(result.begin(), result.begin() + limit, result.end(), comp);
+        result.resize(std::min(result.size(), limit));
+        std::sort(result.begin(), result.end(), comp);
+
+        return result;
+    }
+
+private:
+    std::unordered_map<size_t, std::vector<KmerMatch>> needle2matches(Dna5String read) const {
+        std::unordered_map<size_t, std::vector<KmerMatch>> result;
 
         if (length(read) < K) {
-            return needle2matches;
+            // Return empty result
+            return result;
         }
 
         for (size_t j = 0; j < length(read) - K + 1; ++j) {
@@ -192,32 +222,20 @@ public:
                 int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
 
                 if (shift >= shift_min && shift <= shift_max) {
-                    needle2matches[needle_index].push_back( { kmer_pos_in_needle, kmer_pos_in_read } );
+                    result[needle_index].push_back( { kmer_pos_in_needle, kmer_pos_in_read } );
                 }
             }
         }
 
-        return needle2matches;
+        return result;
     }
-
-    struct Alignment {
-        int kp_coverage;
-        std::vector<Match> path;
-        int start, finish;
-        size_t needle_index;
-        int overlap_length;
-
-        bool operator< (const Alignment& b) const {
-            return this->kp_coverage < b.kp_coverage;
-        }
-    };
 
     std::vector<Alignment> query_unordered(Dna5String read) const {
         std::vector<Alignment> liss;
-        auto needle2matches = this->Needle2matches(read);
+        auto n2m = this->needle2matches(read);
 
-        if (!needle2matches.empty()) { // if we found at least one proper k-mer match
-            for (const auto &p : needle2matches) {
+        if (!n2m.empty()) { // if we found at least one proper k-mer match
+            for (const auto &p : n2m) {
                 const auto &needle_index = p.first;
                 const auto &matches = p.second;
 
@@ -323,23 +341,6 @@ public:
         return liss;
     }
 
-    std::vector<Alignment> query(Dna5String read, int limit) const {
-        auto liss = query_unordered(read);
-
-        using ctuple_type = decltype(*liss.cbegin());
-
-        auto score_function = [](ctuple_type a) { return a.kp_coverage; };
-        auto comp = [&](ctuple_type a, ctuple_type b) -> bool { return score_function(a) > score_function(b); };
-
-        // Return top <limit>
-        std::nth_element(liss.begin(), liss.begin() + limit, liss.end(), comp);
-        liss.resize(std::min<int>(liss.size(), limit));
-        std::sort(liss.begin(), liss.end(), comp);
-
-        return liss;
-    }
-
-private:
     vector<Dna5String> queries;
     int max_local_insertions;
     int max_local_deletions;
