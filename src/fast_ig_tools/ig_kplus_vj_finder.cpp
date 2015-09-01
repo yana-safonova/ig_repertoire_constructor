@@ -711,15 +711,18 @@ int main(int argc, char **argv) {
         % "Jstart" % "Jend"
         % "Jscore" % "Jindex";
 
+    size_t good_reads = 0;
     for (size_t j = 0; j < reads.size(); ++j) {
         if (output_isok[j]) {
             seqan::writeRecord(cropped_reads_seqFile, read_ids[j], reads[j]);
             add_info << add_info_strings[j] << "\n";
+            ++good_reads;
         } else {
             seqan::writeRecord(bad_reads_seqFile, read_ids[j], reads[j]);
         }
     }
 
+    INFO(bformat("Reads: good %1%, bad %2%, all %3%") % good_reads % (reads.size() - good_reads) % reads.size());
     INFO("Running time: " << running_time_format(pc));
 
     return 0;
