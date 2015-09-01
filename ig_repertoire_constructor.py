@@ -356,7 +356,15 @@ class ConsensusConstructionPhase(Phase):
             sys.exit(1)
         if not "dense_sgraph_decomposition" in self.__params or \
                 not os.path.exists(self.__params.dense_sgraph_decomposition):
-            self._log("File containing dense subgraph decomposition was not found")
+            self._log.info("ERROR: File containing dense subgraph decomposition was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not "cropped_reads" in self.__params or not os.path.exists(self.__params.cropped_reads):
+            self._log.info("ERROR: File contaning cropped reads was not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not "map_file" in self.__params or not os.path.exists(self.__params.map_file):
+            self._log.info("ERROR: File contaning read map was not found")
             SupportInfo(self._log)
             sys.exit(1)
 
@@ -374,6 +382,9 @@ class ConsensusConstructionPhase(Phase):
         self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
         self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
         self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
+        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
+        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
+        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
 
     def Run(self):
         self.__CheckInputExistance()
