@@ -583,7 +583,6 @@ int main(int argc, char **argv) {
     vector<CharString> read_ids;
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
-    vector<Dna5String> output_reads(reads.size());
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
 
@@ -658,10 +657,6 @@ int main(int argc, char **argv) {
                         cropped_read += stranded_read;
                     }
 
-                    // if (align.finish > length(stranded_read)) {
-                    //   cropped_read += std::string(align.finish - length(stranded_read), 'N');
-                    // }
-
                     if (param.left_fill_germline > 0) {
                         for (int i = 0; i < param.left_fill_germline; ++i) {
                             cropped_read[i] = v_reads[align.needle_index][i]; // Fill by germline
@@ -682,7 +677,7 @@ int main(int argc, char **argv) {
 
                         add_info_strings[j] = bf.str();
 
-                        output_reads[j] = cropped_read;
+                        reads[j] = cropped_read;
                         output_isok[j] = true;
                     }
 
@@ -700,7 +695,8 @@ int main(int argc, char **argv) {
         }
 
         if (!aligned) { // Save as bad read
-            output_reads[j] = read;
+            // output_reads[j] = read;
+            // Do nothing, save origonal read
             output_isok[j] = false;
         }
     }
@@ -715,12 +711,12 @@ int main(int argc, char **argv) {
         % "Jstart" % "Jend"
         % "Jscore" % "Jindex";
 
-    for (size_t j = 0; j < output_reads.size(); ++j) {
+    for (size_t j = 0; j < reads.size(); ++j) {
         if (output_isok[j]) {
-            seqan::writeRecord(cropped_reads_seqFile, read_ids[j], output_reads[j]);
+            seqan::writeRecord(cropped_reads_seqFile, read_ids[j], reads[j]);
             add_info << add_info_strings[j] << "\n";
         } else {
-            seqan::writeRecord(bad_reads_seqFile, read_ids[j], output_reads[j]);
+            seqan::writeRecord(bad_reads_seqFile, read_ids[j], reads[j]);
         }
     }
 
