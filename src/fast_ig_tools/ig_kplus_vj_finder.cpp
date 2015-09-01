@@ -41,7 +41,13 @@ namespace fast_ig_tools {
 struct Match {
     int needle_pos;
     int read_pos;
-    unsigned length;
+    size_t length;
+};
+
+
+struct KmerMatch {
+    int needle_pos;
+    int read_pos;
 };
 
 
@@ -56,11 +62,13 @@ int path_coverage_length(const std::vector<Match> &path) {
 }
 
 
-std::vector<Match> combine_sequential_kmer_matches(std::vector<std::pair<int, int>> matches,
-                                                   unsigned K) {
+std::vector<Match> combine_sequential_kmer_matches(const std::vector<KmerMatch> &kmatches,
+                                                   size_t K) {
     // Convert to (shift, read_pos)
-    for (auto &match : matches) {
-        match.first = match.second - match.first;
+    std::vector<std::pair<int, int>> matches;
+    matches.reserve(kmatches.size());
+    for (auto &kmatch : kmatches) {
+        matches.push_back( { kmatch.read_pos - kmatch.needle_pos, kmatch.read_pos } );
     }
 
     std::sort(matches.begin(), matches.end());
@@ -125,17 +133,19 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
 class KmerIndex {
 public:
-    KmerIndex(StringSet<Dna5String> queries, size_t K,
+    KmerIndex(StringSet<Dna5String> queries,
+              size_t K,
               int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
-              int max_local_insertions, int max_local_deletions, int min_k_coverage) : max_local_insertions{max_local_insertions},
-        max_local_deletions{max_local_deletions},
-        min_k_coverage{min_k_coverage} {
-            this->queries = queries; // FIXME
-            this->K = K;
-            this->left_uncoverage_limit = left_uncoverage_limit;
-            this->right_uncoverage_limit = right_uncoverage_limit;
-            this->max_global_gap = max_global_gap;
-
+              int max_local_insertions,
+              int max_local_deletions,
+              int min_k_coverage) : max_local_insertions{max_local_insertions},
+                                    max_local_deletions{max_local_deletions},
+                                    min_k_coverage{min_k_coverage},
+                                    K{K}, queries{queries},
+                                    left_uncoverage_limit{left_uncoverage_limit},
+                                    right_uncoverage_limit{right_uncoverage_limit},
+                                    max_global_gap{max_global_gap} {
+            this->queries = queries;
             for (size_t j = 0; j < length(queries); ++j) {
                 for (size_t start = 0; start + K <= length(queries[j]); start += 1) {
                     kmer2needle[infix(queries[j], start, start + K)].push_back(std::make_pair(j, start));
@@ -143,8 +153,8 @@ public:
             }
         }
 
-    std::unordered_map<size_t, std::vector<std::pair<int, int>> > Needle2matches(Dna5String read) const {
-        std::unordered_map<size_t, std::vector<std::pair<int, int>> > needle2matches;
+    std::unordered_map<size_t, std::vector<KmerMatch>> Needle2matches(Dna5String read) const {
+        std::unordered_map<size_t, std::vector<KmerMatch>> needle2matches;
 
         if (length(read) < K) {
             return needle2matches;
@@ -169,7 +179,7 @@ public:
                 int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
 
                 if (shift >= shift_min && shift <= shift_max) {
-                    needle2matches[needle_index].push_back(make_pair(kmer_pos_in_needle, kmer_pos_in_read));
+                    needle2matches[needle_index].push_back( { kmer_pos_in_needle, kmer_pos_in_read } );
                 }
             }
         }
@@ -316,14 +326,13 @@ public:
         return liss;
     }
 
-    private:
+private:
     StringSet<Dna5String> queries;
     int max_global_gap;
     int left_uncoverage_limit, right_uncoverage_limit;
     int max_local_insertions;
     int max_local_deletions;
     int min_k_coverage;
-    int most_pop_kmer_uses = 0;
     size_t K;
     map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
 };
