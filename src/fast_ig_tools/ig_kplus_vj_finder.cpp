@@ -136,6 +136,11 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
 
 class KmerIndex {
+    struct PositionInDB {
+        size_t needle_index;
+        int position;
+    };
+
 public:
     KmerIndex(const vector<Dna5String> &queries,
               size_t K,
@@ -155,8 +160,8 @@ public:
             }
 
             for (size_t j = 0; j < length(queries); ++j) {
-                for (size_t start = 0; start + K <= length(queries[j]); start += 1) {
-                    kmer2needle[infix(queries[j], start, start + K)].push_back(std::make_pair(j, start));
+                for (size_t start = 0; start + K <= length(queries[j]); ++start) {
+                    kmer2needle[infix(queries[j], start, start + K)].push_back( { j, start } );
                 }
             }
         }
@@ -177,9 +182,9 @@ public:
             }
 
             for (const auto &p : it->second) {
-                size_t needle_index = p.first;
+                size_t needle_index = p.needle_index;
                 int kmer_pos_in_read = j;
-                int kmer_pos_in_needle = p.second;
+                int kmer_pos_in_needle = p.position;
                 int shift = kmer_pos_in_read - kmer_pos_in_needle;
 
                 // We make these limits less strict because of possibility of indels
@@ -336,13 +341,13 @@ public:
 
 private:
     vector<Dna5String> queries;
-    int max_global_gap;
-    int left_uncoverage_limit, right_uncoverage_limit;
     int max_local_insertions;
     int max_local_deletions;
     int min_k_coverage;
     size_t K;
-    map<Dna5String, vector<std::pair<int, int> > > kmer2needle;
+    int left_uncoverage_limit, right_uncoverage_limit;
+    int max_global_gap;
+    map<Dna5String, vector<PositionInDB>> kmer2needle;
 };
 
 } // namespace fast_ig_tools
