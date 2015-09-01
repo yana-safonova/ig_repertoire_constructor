@@ -4,6 +4,9 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+import operator
+from matplotlib.ticker import FuncFormatter, MultipleLocator
+
 class StatsRow:
     def __init__(self, file_row):
         splits = file_row.strip().split()
@@ -34,8 +37,9 @@ def GetDigitByNucl(nucl):
     if nucl == 'T' or nucl == 't':
         return 4
     print "ERROR: nucleotide " + nucl + " is unknown"
+    sys.exit(1)
 
-def GetNuclByDigit(digit):
+def GetNuclByDigit(digit, p = None):
     if digit == 1:
         return 'A'
     if digit == 2:
@@ -43,8 +47,8 @@ def GetNuclByDigit(digit):
     if digit == 3:
         return 'G'
     if digit == 4:
-        return 'G'
-    print "ERROR: digit " + str(digit) + " is unknown"
+        return 'T'
+    #print "ERROR: digit " + str(digit) + " is unknown"
 
 def CreateXY(rec):
     nucl1 = rec[0]
@@ -59,7 +63,7 @@ def CreateXYArea(mismatches_dict):
         x_coord, y_coord = CreateXY(rec)
         x.append(x_coord)
         y.append(y_coord)
-        area.append(mismatches_dict[rec] * np.pi * 10)
+        area.append(mismatches_dict[rec] * np.pi)
     return x, y, area
 
 def CreateScatterPlot(mismatches_dict):
@@ -68,8 +72,14 @@ def CreateScatterPlot(mismatches_dict):
         print "ERROR: invalid x, y, area lists"
         sys.exit(1)
     colors = np.random.rand(len(x))
-    print x, y
+    fig, ax = plt.subplots()
     plt.scatter(x, y, s = area, c = colors, alpha = 0.5)
+    plt.xlabel("From ->")
+    plt.ylabel("-> To")
+    ax.xaxis.set_major_formatter(FuncFormatter(GetNuclByDigit))
+    ax.xaxis.set_major_locator(MultipleLocator(1))
+    ax.yaxis.set_major_formatter(FuncFormatter(GetNuclByDigit))
+    ax.yaxis.set_major_locator(MultipleLocator(1))
     plt.show()
 
 def main():
