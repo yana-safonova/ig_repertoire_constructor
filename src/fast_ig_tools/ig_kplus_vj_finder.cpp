@@ -18,7 +18,12 @@
 #include <logger/logger.hpp>
 #include <segfault_handler.hpp>
 
-using namespace seqan;
+using seqan::Dna5String;
+using seqan::CharString;
+using seqan::length;
+using seqan::SeqFileIn;
+using seqan::SeqFileOut;
+
 using std::vector;
 using std::cout;
 using std::cin;
@@ -26,7 +31,6 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::make_pair;
-using std::make_tuple;
 using bformat = boost::format;
 using path::make_dirs;
 
