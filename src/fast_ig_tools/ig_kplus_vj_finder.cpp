@@ -133,7 +133,7 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
 class KmerIndex {
 public:
-    KmerIndex(StringSet<Dna5String> queries,
+    KmerIndex(const vector<Dna5String> &queries,
               size_t K,
               int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
               int max_local_insertions,
@@ -141,11 +141,15 @@ public:
               int min_k_coverage) : max_local_insertions{max_local_insertions},
                                     max_local_deletions{max_local_deletions},
                                     min_k_coverage{min_k_coverage},
-                                    K{K}, queries{queries},
+                                    K{K},
                                     left_uncoverage_limit{left_uncoverage_limit},
                                     right_uncoverage_limit{right_uncoverage_limit},
                                     max_global_gap{max_global_gap} {
-            this->queries = queries;
+            this->queries.resize(queries.size());
+            for (size_t i = 0; i < queries.size(); ++i) {
+                this->queries[i] = queries[i];
+            }
+
             for (size_t j = 0; j < length(queries); ++j) {
                 for (size_t start = 0; start + K <= length(queries[j]); start += 1) {
                     kmer2needle[infix(queries[j], start, start + K)].push_back(std::make_pair(j, start));
@@ -327,7 +331,7 @@ public:
     }
 
 private:
-    StringSet<Dna5String> queries;
+    vector<Dna5String> queries;
     int max_global_gap;
     int left_uncoverage_limit, right_uncoverage_limit;
     int max_local_insertions;
@@ -570,14 +574,14 @@ int main(int argc, char **argv) {
     param.parse(argc, argv);
 
     vector<CharString> v_ids;
-    StringSet<Dna5String> v_reads;
+    vector<Dna5String> v_reads;
 
     SeqFileIn seqFileIn_v_genes(param.vgenes_filename.c_str());
     SeqFileIn seqFileIn_j_genes(param.jgenes_filename.c_str());
 
     readRecords(v_ids, v_reads, seqFileIn_v_genes);
     vector<CharString> j_ids;
-    StringSet<Dna5String> j_reads;
+    vector<Dna5String> j_reads;
     readRecords(j_ids, j_reads, seqFileIn_j_genes);
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
