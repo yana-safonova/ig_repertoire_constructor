@@ -72,7 +72,7 @@ def read_rcm(rcm):
     read_clusters = {}
     for l in open(rcm):
         fields = l.strip().split('\t')
-        read_id = fields[0].split('_')[0]
+        read_id = fields[0]
         if len(fields) != 2:
             print "ERROR: wrong line in rcm: " + l.strip() + ", must be in format read_id\\tcluster_no"
             sys.exit(1)

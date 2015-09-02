@@ -19,6 +19,9 @@ class Repertoire:
     def get_cluster_seq_length(self, cluster_id):
         return len(self.clusters[cluster_id].seq)
 
+    def get_all_cluster_seq_lengths(self):
+        return [len(c.seq) for c in self.clusters.values()]
+
     def get_isolated_cluster_sizes(self, cluster_matches):
         sizes = []
         for cluster_id, cluster in self.clusters.items():
