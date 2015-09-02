@@ -56,7 +56,7 @@ def main():
     PrepareOutputDir(output_dir)
     for barcode in barcode_reads:
         records = barcode_reads[barcode]
-        if len(records) < 10:
+        if len(records) < 100:
             continue
         barcode_fname = os.path.join(output_dir, barcode + "_size_" + str(len(records)) + "." + description)
         SeqIO.write(records, open(barcode_fname, 'w'), description)
