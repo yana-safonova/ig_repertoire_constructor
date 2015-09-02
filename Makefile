@@ -1,6 +1,5 @@
 all:
 	$(MAKE) -C build/release all
-	# $(MAKE) -C build/debug all
 
 rig:
 	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
