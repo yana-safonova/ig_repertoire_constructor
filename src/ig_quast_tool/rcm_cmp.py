@@ -41,7 +41,7 @@ def consensus(reads):
 def print_barcode_abundance(barcode2abundance, barcodes):
     barcode_abundances = [barcode2abundance[_] for _ in barcodes]
 
-    print "min = %d, max = %d, mean=%f" % (min(barcode_abundances),
+    print "min = %d\t\tmax = %d\tmean = %0.2f" % (min(barcode_abundances),
                                            max(barcode_abundances),
                                            np.mean(barcode_abundances))
 
