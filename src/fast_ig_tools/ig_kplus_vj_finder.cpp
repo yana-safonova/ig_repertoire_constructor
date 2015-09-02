@@ -184,7 +184,7 @@ public:
         using ctuple_type = decltype(*result.cbegin());
 
         auto score_function = [](ctuple_type a) { return a.kp_coverage; };
-        auto comp = [&](ctuple_type a, ctuple_type b) -> bool { return score_function(a) > score_function(b); };
+        auto comp = [&score_function](ctuple_type a, ctuple_type b) -> bool { return score_function(a) > score_function(b); };
 
         // Return top <limit>
         std::nth_element(result.begin(), result.begin() + limit, result.end(), comp);
@@ -231,7 +231,7 @@ private:
     }
 
     std::vector<Alignment> query_unordered(Dna5String read) const {
-        std::vector<Alignment> liss;
+        std::vector<Alignment> result;
         auto n2m = this->needle2matches(read);
 
         if (!n2m.empty()) { // if we found at least one proper k-mer match
@@ -334,11 +334,11 @@ private:
                 align.needle_index = needle_index;
                 align.overlap_length = needle_overlap_length;
 
-                liss.push_back(std::move(align));
+                result.push_back(std::move(align));
             }
         }
 
-        return liss;
+        return result;
     }
 
     vector<Dna5String> queries;
