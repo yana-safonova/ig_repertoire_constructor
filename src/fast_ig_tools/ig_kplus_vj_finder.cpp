@@ -593,7 +593,14 @@ int main(int argc, char **argv) {
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
         CharString read_id = read_ids[j];
-        Dna5String read = reads[j];
+
+        // temporary solution - we crop three nucleotides at the end of string
+        size_t num_cropped_nucls = 3;
+        if(length(reads[j]) <= num_cropped_nucls)
+            continue;
+        Dna5String cropped_read = prefix(reads[j], length(reads[j]) - num_cropped_nucls);
+
+        Dna5String read = cropped_read; //reads[j];
 
         Dna5String read_rc = read;
         reverseComplement(read_rc);
