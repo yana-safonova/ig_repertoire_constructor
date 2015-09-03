@@ -13,7 +13,7 @@ class Distance():
 
 class BarcodeMetrics():
     def __init__(self, barcode_repertoire, compressed_barcode_repertoire, barcode_cluster_matches, 
-                       data_repertoire, compressed_data_repertoire, data_cluster_matches, rate_cutoff = 0.9):
+                       data_repertoire, compressed_data_repertoire, data_cluster_matches, rate_cutoff):
         self.barcode_rep = barcode_repertoire
         self.compressed_barcode_rep = compressed_barcode_repertoire
         self.barcode_cluster_matches = barcode_cluster_matches
@@ -30,8 +30,9 @@ class BarcodeMetrics():
         self.has_reads = bool(self.barcode_rep.read_clusters and self.data_rep.read_clusters)
         self.rate_cutoff = rate_cutoff
         self.good_barcode_matches= []
+        self.has_barcodes_dist = False
 
-    def calculate_distances(self):
+    def calculate_distances(self, log):
         distances = []
         '''
         handler = open("dist1.txt", 'w')
@@ -43,10 +44,10 @@ class BarcodeMetrics():
             if cluster_id in self.barcode_cluster_matches:
                 for i in range(cluster.abundance):
                     distances.append(self.barcode_cluster_matches[cluster_id][1])
+                '''
                 if self.barcode_cluster_matches[cluster_id][1] == 1:
                     dist1_sizes.append(cluster.size)
                     dist1_abundances.append(cluster.abundance)
-        '''
                     handler.write(str(cluster_id) + '\t' + str(cluster.size) + '\t' + str(cluster.abundance) + '\t' +
                                   '\t'.join(str(i) for i in self.barcode_cluster_matches[cluster_id][0]) + '\n')
         handler.write("Min/avg/max sizes are: " + 
@@ -64,7 +65,7 @@ class BarcodeMetrics():
             if cnt:
                 self.distances_dict[dist] = cnt
 
-    def calculate_good_barcodes_number(self):
+    def calculate_good_barcodes_number(self, log):
         if not self.has_reads:
             return
         for cluster_id, reads in self.barcode_rep.cluster_reads.items():
@@ -90,41 +91,78 @@ class BarcodeMetrics():
             else:
                 self.bad_barcodes += 1
 
-    def get_distance_for_alignment(self, alignment):
+    def get_distance_for_alignment(self, barcode_seq, data_seq):
         mismatches = 0
         gaps = 0
-        first_i = max(next(i for i, c in enumerate(alignment[0]) if c != '-'), 
-                  next(i for i, c in enumerate(alignment[1]) if c != '-'))
-        last_i = min(max(i for i, c in alignment[0] if c != '-'), 
-                 max(i for i, c in alignment[1] if c != '-'))
-        for i in len(alignment[0]):
+        first_i = max(next(i for i, c in enumerate(barcode_seq) if c != '-'), 
+                  next(i for i, c in enumerate(data_seq) if c != '-'))
+        last_i = min(max(i for i, c in enumerate(barcode_seq) if c != '-'), 
+                 max(i for i, c in enumerate(data_seq) if c != '-'))
+        for i in range(len(barcode_seq)):
             if i < first_i or i > last_i:
                 continue
-            if alignment[0][i] == '-' or alignment[1][i] == '-':
+            if barcode_seq[i] == '-' or data_seq[i] == '-':
                 gaps += 1
                 continue
-            if alignment[0][i] != alignment[1][i]:
+            if barcode_seq[i] != data_seq[i]:
                 mismatches += 1
         return Distance(mismatches, gaps)
 
-    def process_good_barcode_matches(self):
+    def get_distances_for_alignment(self, alignment):
         distances = []
-        for barcode_match in self.good_barcode_matches:
+        barcode_record = alignment._records[0]
+        for record in alignment._records[1:]:
+            distances.append(self.get_distance_for_alignment(barcode_record.seq, record.seq))
+        return distances
+
+    def align_with_muscle(self, string_to_align):
+        from Bio.Align.Applications import MuscleCommandline
+        from Bio import AlignIO
+        from StringIO import StringIO
+        muscle_cline = MuscleCommandline(clwstrict=True, diags=True, maxiters=2)
+        handler = StringIO()
+        handler.write(string_to_align)
+        stdout, stderr = muscle_cline(stdin=handler.getvalue())
+        return AlignIO.read(StringIO(stdout), 'clustal')
+
+    def process_good_barcode_matches(self, log):
+        string_to_align = ""
+        string_to_align += ">barcode_seq\n"
+        distances = []
+        log.info("..Number of good barcodes is " + str(len(self.good_barcode_matches)))
+        for i, barcode_match in enumerate(self.good_barcode_matches):
+            if i % 100 == 0:
+                log.info("..Processed " + str(i) + " good barcodes")
             for cluster_id in barcode_match.all_corr_cluster_ids:
                 if cluster_id == barcode_match.corr_cluster_id:
                     continue
+                if not self.barcode_rep.clusters[barcode_match.barcode_id].seq:
+                    continue
                 alignment = pairwise2.align.globalxx(self.barcode_rep.clusters[barcode_match.barcode_id].seq,
-                                         self.data_rep.clusters[cluster_id].seq, one_alignment_only=True)[0]
-                distance = self.get_distance_for_alignment(alignment)
+                    self.data_rep.clusters[cluster_id].seq, one_alignment_only=True)[0]
+                distance = self.get_distance_for_alignment(alignment[0], alignment[1])
                 distances.append(distance)
+            '''
+            string_to_align += self.barcode_rep.clusters[barcode_match.barcode_id].seq + '\n'
+            for cluster_id in barcode_match.all_corr_cluster_ids:
+                if cluster_id == barcode_match.corr_cluster_id:
+                    continue
+                if not self.barcode_rep.clusters[barcode_match.barcode_id].seq:
+                    continue
+                string_to_align += '>cluster___' + str(cluster_id) + '\n'
+                string_to_align += self.data_rep.clusters[cluster_id].seq + '\n'
+            alignment = self.align_with_muscle(string_to_align)
+            distances += self.get_distances_for_alignment(alignment)
+            '''
         self.min_gaps_distance = min(d.gaps for d in distances)
         self.avg_gaps_distance = float(sum(d.gaps for d in distances)) / len(distances)
         self.max_gaps_distance = max(d.gaps for d in distances)
         self.min_mismatches_distance = min(d.mismatches for d in distances)
         self.avg_mismatches_distance = float(sum(d.mismatches for d in distances)) / len(distances)
         self.max_mismatches_distance = max(d.mismatches for d in distances)
+        self.has_barcodes_dist = True
 
-    def compute_lengths(self):
+    def compute_lengths(self, log):
         barcode_lengths = self.barcode_rep.get_all_cluster_seq_lengths()
         self.min_barcode_length = min(barcode_lengths)
         self.avg_barcode_length = float(sum(barcode_lengths)) / len(barcode_lengths)
@@ -134,12 +172,13 @@ class BarcodeMetrics():
         self.avg_data_clusters_length = float(sum(data_clusters_lengths)) / len(data_clusters_lengths)
         self.max_data_clusters_length = max(data_clusters_lengths)
 
-    def evaluate(self):
-        self.calculate_distances()
-        self.compute_lengths()
+    def evaluate(self, log, compute_rcm_matches):
+        self.calculate_distances(log)
+        self.compute_lengths(log)
         if self.has_reads:
-            self.calculate_good_barcodes_number()
-            # self.process_good_barcode_matches()
+            self.calculate_good_barcodes_number(log)
+            if compute_rcm_matches:
+                self.process_good_barcode_matches(log)
 
     def write(self, filename):
         handler = open(filename, 'w')
@@ -184,12 +223,11 @@ class BarcodeMetrics():
         if self.has_reads:
             handler.write('Good barcodes number: ' + str(self.good_barcodes) + '\n')
             handler.write('Bad barcodes number: ' + str(self.bad_barcodes) + '\n')
-            '''
-            handler.write('Min gap distance to good barcodes: ' + str(self.min_gaps_distance) + '\n')
-            handler.write('Avg gap distance to good barcodes: ' + str(self.min_gaps_distance) + '\n')
-            handler.write('Max gap distance to good barcodes: ' + str(self.min_gaps_distance) + '\n')
-            handler.write('Min mismatche distance to good barcodes: ' + str(self.min_mismatches_distance) + '\n')
-            handler.write('Avg mismatche distance to good barcodes: ' + str(self.min_mismatches_distance) + '\n')
-            handler.write('Max mismatche distance to good barcodes: ' + str(self.min_mismatches_distance) + '\n')
-            '''
+            if self.has_barcodes_dist:
+                handler.write('Min gap distance to good barcodes: ' + str(self.min_gaps_distance) + '\n')
+                handler.write('Avg gap distance to good barcodes: ' + str(self.avg_gaps_distance) + '\n')
+                handler.write('Max gap distance to good barcodes: ' + str(self.max_gaps_distance) + '\n')
+                handler.write('Min mismatches distance to good barcodes: ' + str(self.min_mismatches_distance) + '\n')
+                handler.write('Avg mismatches distance to good barcodes: ' + str(self.avg_mismatches_distance) + '\n')
+                handler.write('Max mismatches distance to good barcodes: ' + str(self.max_mismatches_distance) + '\n')
         handler.close()

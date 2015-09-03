@@ -18,7 +18,8 @@ def ParseCommandLine():
     parser.add_argument("--rerun", action="store_true", dest='rerun', help="Run with match results from output directory")
     parser.add_argument("--threads-num", type=int, dest="threads_num", help="Number of threads to use", default=4)
     parser.add_argument("--out", type=str, dest="output_dir", help="Output directory")
-    parser.add_argument("--rate", type=float, dest="rate", help="Rate for good and bad components", default=0.9)
+    parser.add_argument("--rate", type=float, dest="rate", help="Rate for good and bad components", default=0.5)
+    parser.add_argument("--deep-rcm-cmp", action="store_true", dest="deep_rcm_cmp", help="Compute alignment stats for good barcodes")
     parser.parse_args()
     return parser.parse_args()
 
@@ -125,7 +126,7 @@ def Evaluate(params, log):
     barcode_metrics = metrics.BarcodeMetrics(
         params.barcode_repertoire, params.compressed_barcode_repertoire, barcode_cluster_matches, 
         params.data_repertoire, params.compressed_data_repertoire, data_cluster_matches, params.rate)
-    barcode_metrics.evaluate()
+    barcode_metrics.evaluate(log, params.deep_rcm_cmp)
     metrics_file = os.path.join(params.output_dir, 'metrics.txt')
     barcode_metrics.write(metrics_file)
     if not os.path.exists:
