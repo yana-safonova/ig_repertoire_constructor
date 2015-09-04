@@ -1,4 +1,5 @@
 from Bio import pairwise2
+from scipy.stats.stats import pearsonr
 
 class GoodBarcodeMatch():
     def __init__(self, barcode_id, corr_cluster_id, all_corr_cluster_ids):
@@ -31,6 +32,8 @@ class BarcodeMetrics():
         self.rate_cutoff = rate_cutoff
         self.good_barcode_matches= []
         self.has_barcodes_dist = False
+        self.corresponding_cluster_sizes = ([], [])
+        self.sizes_correlation = 0
 
     def calculate_distances(self, log):
         distances = []
@@ -44,6 +47,11 @@ class BarcodeMetrics():
             if cluster_id in self.barcode_cluster_matches:
                 for i in range(cluster.abundance):
                     distances.append(self.barcode_cluster_matches[cluster_id][1])
+                if self.barcode_cluster_matches[cluster_id][1] == 0:
+                    corr_size = sum(self.compressed_data_rep.clusters[c].size for c in
+                                    self.barcode_cluster_matches[cluster_id][0])
+                    self.corresponding_cluster_sizes[0].append(self.compressed_barcode_rep.clusters[cluster_id].size)
+                    self.corresponding_cluster_sizes[1].append(corr_size)
                 '''
                 if self.barcode_cluster_matches[cluster_id][1] == 1:
                     dist1_sizes.append(cluster.size)
@@ -60,6 +68,7 @@ class BarcodeMetrics():
                        str(max(dist1_abundances)) + "\n")
         handler.close()
         '''
+        self.sizes_correlation = pearsonr(self.corresponding_cluster_sizes[0], self.corresponding_cluster_sizes[1])[0]
         for dist in range(max(distances) + 1):
             cnt = distances.count(dist)
             if cnt:
@@ -204,6 +213,8 @@ class BarcodeMetrics():
             handler.write('Number of barcodes reconstructed with distance ' + str(dist) + 
                           ': ' + str(count) + '(' + 
                           str(round(float(count) / self.barcodes_number * 100, 2)) + '%)\n')
+        handler.write('Pearson correlation between sizes of clusters with distance 0 in barcode and in data: ' + 
+            str(self.sizes_correlation) + '\n')
         handler.write('Number of isolated clusters in barcode: ' + \
             str(len(self.compressed_barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))) + '\n')
         handler.write('Min size of isolated cluster in barcode: ' + \
@@ -231,3 +242,8 @@ class BarcodeMetrics():
                 handler.write('Avg mismatches distance to good barcodes: ' + str(self.avg_mismatches_distance) + '\n')
                 handler.write('Max mismatches distance to good barcodes: ' + str(self.max_mismatches_distance) + '\n')
         handler.close()
+
+    def draw_sizes_correlation_plot(self, filename):
+        import matplotlib.pyplot as plt
+        plt.plot(self.corresponding_cluster_sizes[0], self.corresponding_cluster_sizes[1], 'b*')
+        plt.savefig(filename)

@@ -129,6 +129,10 @@ def Evaluate(params, log):
     barcode_metrics.evaluate(log, params.deep_rcm_cmp)
     metrics_file = os.path.join(params.output_dir, 'metrics.txt')
     barcode_metrics.write(metrics_file)
+    '''
+    sizes_corr_filename = os.path.join(params.output_dir, 'sizes_corr.png')
+    barcode_metrics.draw_sizes_correlation_plot(sizes_corr_filename)
+    '''
     if not os.path.exists:
         log.info("ERROR: barcode metrics were not found")
         sys.exit(-1)
