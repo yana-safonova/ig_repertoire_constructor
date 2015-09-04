@@ -402,6 +402,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::string vgenes_filename;
     std::string jgenes_filename;
     int left_fill_germline = 3;
+    size_t num_cropped_nucls = 3;
 
     int parse(int argc, char **argv) {
         namespace po = boost::program_options;
@@ -469,7 +470,9 @@ struct Ig_KPlus_Finder_Parameters {
             ("max-local-deletions", po::value<int>(&max_local_deletions)->default_value(max_local_deletions),
              "maximal allowed size of local deletion")
             ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
-             "the number of values in left size will be filled by germline")
+             "the number left positions which will be filled by germline")
+            ("right-cropped", po::value<size_t>(&num_cropped_nucls)->default_value(num_cropped_nucls),
+             "the number of right positions which will be cropped")
             ;
 
         po::options_description cmdline_options("All command line options");
@@ -617,13 +620,13 @@ int main(int argc, char **argv) {
         CharString read_id = read_ids[j];
 
         // temporary solution - we crop three nucleotides at the end of string
-        size_t num_cropped_nucls = 3;
-        if(length(reads[j]) <= num_cropped_nucls)
+        if (length(reads[j]) <= param.num_cropped_nucls) {
+            // Discard so short read
+            output_isok[j] = false;
             continue;
-        Dna5String cropped_read = prefix(reads[j], length(reads[j]) - num_cropped_nucls);
+        }
 
-        Dna5String read = cropped_read; //reads[j];
-
+        Dna5String read = prefix(reads[j], length(reads[j]) - param.num_cropped_nucls);
         Dna5String read_rc = read;
         reverseComplement(read_rc);
 
