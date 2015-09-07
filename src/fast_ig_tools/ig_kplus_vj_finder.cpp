@@ -388,7 +388,7 @@ struct Ig_KPlus_Finder_Parameters {
     int min_k_coverage_j = 9;
     int max_candidates = 3;
     int max_candidates_j = 3;
-    std::string chain = "heavy";
+    std::string chain = "all";
     std::string db_directory = "./germline";
     std::string output_dir;
     int threads = 4;
@@ -403,6 +403,10 @@ struct Ig_KPlus_Finder_Parameters {
     std::string jgenes_filename;
     int left_fill_germline = 3;
     size_t num_cropped_nucls = 3;
+    std::vector<CharString> v_ids;
+    std::vector<Dna5String> v_reads;
+    std::vector<CharString> j_ids;
+    std::vector<Dna5String> j_reads;
 
     int parse(int argc, char **argv) {
         namespace po = boost::program_options;
@@ -431,7 +435,7 @@ struct Ig_KPlus_Finder_Parameters {
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
             ("chain,C", po::value<std::string>(&chain)->default_value(chain),
-             "IG chain ('heavy', 'lambda' or 'kappa')")
+             "IG chain: 'all' (default), 'heavy', 'lambda', 'kappa' or 'light' ('lambda' + 'kappa')")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
              "directory with germline database")
             ("threads,t", po::value<int>(&threads)->default_value(threads),
@@ -545,6 +549,14 @@ struct Ig_KPlus_Finder_Parameters {
         INFO(bformat("Output dir is: %s") % output_dir);
         INFO("K = " << K);
 
+        prepare_output();
+        read_genes();
+
+        return 0;
+    }
+
+private:
+    void prepare_output() {
         make_dirs(output_dir);
         output_filename = output_dir + "/cropped.fa";
         bad_output_filename = output_dir + "/bad.fa";
@@ -554,23 +566,57 @@ struct Ig_KPlus_Finder_Parameters {
             output_filename += ".gz";
             bad_output_filename += ".gz";
         }
+    }
 
-        std::string chain_letter;
+    std::string gene_file_name(const std::string &chain_letter,
+                               const std::string &gene) {
+        return db_directory + "/" + organism + "/IG" + chain_letter + gene + ".fa";
+    }
+
+    std::vector<std::string> chain_letters() {
         if (chain == "heavy") {
-            chain_letter = "H";
+            return { "H" };
         } else if (chain == "lambda") {
-            chain_letter = "L";
+            return { "L" };
         } else if (chain == "kappa") {
-            chain_letter = "K";
+            return { "K" };
+        } else if (chain == "light") {
+            return { "K", "L" };
+        } else if (chain == "all") {
+            return { "K", "L", "H" };
         } else {
-            std::cerr << "chain should be 'heavy', 'lambda' or 'kappa'" << std::endl;
-            return 1;
+            throw "Unknown chain type";
+            return {};
+        }
+    }
+
+    void read_genes() {
+        for (const auto &letter : chain_letters()) {
+            std::string v_file = gene_file_name(letter, "V");
+            read_gene(v_file, v_ids, v_reads);
+
+            std::string j_file = gene_file_name(letter, "J");
+            read_gene(j_file, j_ids, j_reads);
+        }
+    }
+
+    static void read_gene(const std::string &filename,
+                          vector<CharString> &ids, vector<Dna5String> &reads) {
+        vector<CharString> _ids;
+        vector<Dna5String> _reads;
+
+        SeqFileIn seqFileIn(filename.c_str());
+        readRecords(_ids, _reads, seqFileIn);
+
+        ids.reserve(ids.size() + _ids.size());
+        for (const auto &id : _ids) {
+            ids.push_back(id);
         }
 
-        vgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "V.fa";
-        jgenes_filename = db_directory + "/" + organism + "/IG" + chain_letter + "J.fa";
-
-        return 0;
+        reads.reserve(reads.size() + _reads.size());
+        for (const auto &read : _reads) {
+            reads.push_back(read);
+        }
     }
 };
 
@@ -586,16 +632,10 @@ int main(int argc, char **argv) {
     Ig_KPlus_Finder_Parameters param;
     param.parse(argc, argv);
 
-    vector<CharString> v_ids;
-    vector<Dna5String> v_reads;
-
-    SeqFileIn seqFileIn_v_genes(param.vgenes_filename.c_str());
-    SeqFileIn seqFileIn_j_genes(param.jgenes_filename.c_str());
-
-    readRecords(v_ids, v_reads, seqFileIn_v_genes);
-    vector<CharString> j_ids;
-    vector<Dna5String> j_reads;
-    readRecords(j_ids, j_reads, seqFileIn_j_genes);
+    const auto &v_reads = param.v_reads;
+    const auto &j_reads = param.j_reads;
+    const auto &v_ids = param.v_ids;
+    const auto &j_ids = param.j_ids;
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
