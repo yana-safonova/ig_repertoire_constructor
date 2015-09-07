@@ -408,8 +408,14 @@ struct Ig_KPlus_Finder_Parameters {
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
 
-    int parse(int argc, char **argv) {
+    Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
+    Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
+    Ig_KPlus_Finder_Parameters& operator=(const Ig_KPlus_Finder_Parameters &) = delete;
+    Ig_KPlus_Finder_Parameters& operator=(Ig_KPlus_Finder_Parameters &&) = delete;
+
+    explicit Ig_KPlus_Finder_Parameters(int argc, char **argv) {
         namespace po = boost::program_options;
+        using std::exit;
 
         // Declare a group of options that will be
         // allowed only on command line
@@ -500,7 +506,7 @@ struct Ig_KPlus_Finder_Parameters {
             std::ifstream ifs(config_file.c_str());
             if (!ifs) {
                 ERROR("can not open config file: " << config_file);
-                return 1;
+                exit(1);
             } else {
                 store(parse_config_file(ifs, config_file_options), vm);
                 // reparse cmd line again for update config defaults
@@ -512,17 +518,17 @@ struct Ig_KPlus_Finder_Parameters {
 
         if (vm.count("help-hidden")) {
             cout << cmdline_options << std::endl;
-            return 0;
+            exit(0);
         }
 
         if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
             cout << visible << "\n";
-            return 0;
+            exit(0);
         }
 
         if (vm.count("version")) {
             cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
-            return 0;
+            exit(0);
         }
 
         if (vm.count("silent")) {
@@ -551,8 +557,6 @@ struct Ig_KPlus_Finder_Parameters {
 
         prepare_output();
         read_genes();
-
-        return 0;
     }
 
 private:
@@ -629,8 +633,7 @@ int main(int argc, char **argv) {
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
-    Ig_KPlus_Finder_Parameters param;
-    param.parse(argc, argv);
+    Ig_KPlus_Finder_Parameters param(argc, argv);
 
     const auto &v_reads = param.v_reads;
     const auto &j_reads = param.j_reads;
