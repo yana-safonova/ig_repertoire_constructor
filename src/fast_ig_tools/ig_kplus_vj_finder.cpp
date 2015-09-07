@@ -138,7 +138,7 @@ std::string visualize_matches(const std::vector<Match> &matches,
 class KmerIndex {
     struct PositionInDB {
         size_t needle_index;
-        int position;
+        size_t position;
     };
 
     struct Alignment {
@@ -213,16 +213,16 @@ private:
 
             for (const auto &p : it->second) {
                 size_t needle_index = p.needle_index;
-                int kmer_pos_in_read = j;
-                int kmer_pos_in_needle = p.position;
-                int shift = kmer_pos_in_read - kmer_pos_in_needle;
+                size_t kmer_pos_in_read = j;
+                size_t kmer_pos_in_needle = p.position;
+                int shift = static_cast<int>(kmer_pos_in_read) - static_cast<int>(kmer_pos_in_needle);
 
                 // We make these limits less strict because of possibility of indels
                 int shift_min = -left_uncoverage_limit - max_global_gap;
                 int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
 
                 if (shift >= shift_min && shift <= shift_max) {
-                    result[needle_index].push_back( { kmer_pos_in_needle, kmer_pos_in_read } );
+                    result[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
                 }
             }
         }
