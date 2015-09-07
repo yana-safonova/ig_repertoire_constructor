@@ -702,11 +702,12 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        bformat bf("%d, %d, %d, %d, %d, %d, %d, %d");
-                        bf % (align.start+1)             % end_of_v
-                           % align.kp_coverage           % align.needle_index
+                        bformat bf("%s, %d, %d, %d, %s, %d, %d, %d, %s");
+                        bf % read_id
+                           % (align.start+1)             % end_of_v
+                           % align.kp_coverage           % toCString(v_ids[align.needle_index])
                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
-                           % jalign.kp_coverage          % jalign.needle_index;
+                           % jalign.kp_coverage          % toCString(j_ids[jalign.needle_index]);
 
                         add_info_strings[j] = bf.str();
 
@@ -738,11 +739,12 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s\n")
+    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s, %s\n")
+        % "id"
         % "Vstart" % "Vend"
-        % "Vscore" % "Vindex"
+        % "Vscore" % "Vid"
         % "Jstart" % "Jend"
-        % "Jscore" % "Jindex";
+        % "Jscore" % "Jid";
 
     size_t good_reads = 0;
     for (size_t j = 0; j < reads.size(); ++j) {
