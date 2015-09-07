@@ -219,7 +219,7 @@ private:
 
                 // We make these limits less strict because of possibility of indels
                 int shift_min = -left_uncoverage_limit - max_global_gap;
-                int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
+                int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
 
                 if (shift >= shift_min && shift <= shift_max) {
                     result[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
