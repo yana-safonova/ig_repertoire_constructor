@@ -1,0 +1,141 @@
+Determining if the atomic_fetchadd_long exist failed with the following output:
+Change Dir: /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2472391301/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2472391301.dir/build.make CMakeFiles/cmTryCompileExec2472391301.dir/build
+make[1]: Entering directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2472391301.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec2472391301.dir/CheckSymbolExists.c.o   -c /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:3:28: fatal error: machine/atomic.h: No such file or directory
+ #include <machine/atomic.h>
+                            ^
+compilation terminated.
+make[1]: *** [CMakeFiles/cmTryCompileExec2472391301.dir/CheckSymbolExists.c.o] Error 1
+make[1]: Leaving directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec2472391301/fast] Error 2
+
+File /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <sys/types.h>
+#include <machine/atomic.h>
+#include <inttypes.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef atomic_fetchadd_long
+  return ((int*)(&atomic_fetchadd_long))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the OSAtomicAdd64 exist failed with the following output:
+Change Dir: /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec3606745214/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec3606745214.dir/build.make CMakeFiles/cmTryCompileExec3606745214.dir/build
+make[1]: Entering directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3606745214.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec3606745214.dir/CheckSymbolExists.c.o   -c /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:2:30: fatal error: libkern/OSAtomic.h: No such file or directory
+ #include <libkern/OSAtomic.h>
+                              ^
+compilation terminated.
+make[1]: *** [CMakeFiles/cmTryCompileExec3606745214.dir/CheckSymbolExists.c.o] Error 1
+make[1]: Leaving directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec3606745214/fast] Error 2
+
+File /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <libkern/OSAtomic.h>
+#include <inttypes.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef OSAtomicAdd64
+  return ((int*)(&OSAtomicAdd64))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the OSSpinLockLock exist failed with the following output:
+Change Dir: /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1136714242/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1136714242.dir/build.make CMakeFiles/cmTryCompileExec1136714242.dir/build
+make[1]: Entering directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1136714242.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec1136714242.dir/CheckSymbolExists.c.o   -c /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:2:30: fatal error: libkern/OSAtomic.h: No such file or directory
+ #include <libkern/OSAtomic.h>
+                              ^
+compilation terminated.
+make[1]: *** [CMakeFiles/cmTryCompileExec1136714242.dir/CheckSymbolExists.c.o] Error 1
+make[1]: Leaving directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec1136714242/fast] Error 2
+
+File /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <libkern/OSAtomic.h>
+#include <inttypes.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef OSSpinLockLock
+  return ((int*)(&OSSpinLockLock))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function _malloc_thread_cleanup exists failed with the following output:
+Change Dir: /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec1582747696/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec1582747696.dir/build.make CMakeFiles/cmTryCompileExec1582747696.dir/build
+make[1]: Entering directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec1582747696.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=_malloc_thread_cleanup   -o CMakeFiles/cmTryCompileExec1582747696.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec1582747696
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec1582747696.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=_malloc_thread_cleanup    CMakeFiles/cmTryCompileExec1582747696.dir/CheckFunctionExists.c.o  -o cmTryCompileExec1582747696 -rdynamic 
+CMakeFiles/cmTryCompileExec1582747696.dir/CheckFunctionExists.c.o: In function `main':
+CheckFunctionExists.c:(.text+0x15): undefined reference to `_malloc_thread_cleanup'
+collect2: error: ld returned 1 exit status
+make[1]: *** [cmTryCompileExec1582747696] Error 1
+make[1]: Leaving directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec1582747696/fast] Error 2
+
+
+Determining if the function _pthread_mutex_init_calloc_cb, exists failed with the following output:
+Change Dir: /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp
+
+Run Build Command:/usr/bin/make "cmTryCompileExec2621097618/fast"
+/usr/bin/make -f CMakeFiles/cmTryCompileExec2621097618.dir/build.make CMakeFiles/cmTryCompileExec2621097618.dir/build
+make[1]: Entering directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec2621097618.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=_pthread_mutex_init_calloc_cb,   -o CMakeFiles/cmTryCompileExec2621097618.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-2.8/Modules/CheckFunctionExists.c
+/usr/share/cmake-2.8/Modules/CheckFunctionExists.c:3:28: error: expected identifier or ‘(’ before ‘)’ token
+ char CHECK_FUNCTION_EXISTS();
+                            ^
+/usr/share/cmake-2.8/Modules/CheckFunctionExists.c: In function ‘main’:
+/usr/share/cmake-2.8/Modules/CheckFunctionExists.c:11:25: error: expected expression before ‘)’ token
+   CHECK_FUNCTION_EXISTS();
+                         ^
+make[1]: *** [CMakeFiles/cmTryCompileExec2621097618.dir/CheckFunctionExists.c.o] Error 1
+make[1]: Leaving directory `/ssd/ig_repertoire_constructor/ext/src/CMakeFiles/CMakeTmp'
+make: *** [cmTryCompileExec2621097618/fast] Error 2
+
+
