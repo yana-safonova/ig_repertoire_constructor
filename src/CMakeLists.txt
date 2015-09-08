@@ -63,7 +63,6 @@ add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
 # sub projects
 add_subdirectory(io)
 #add_subdirectory(mph_index)
-#add_subdirectory(ssw)
 #add_subdirectory(debruijn)
 #add_subdirectory(hammer)
 #add_subdirectory(ionhammer)
