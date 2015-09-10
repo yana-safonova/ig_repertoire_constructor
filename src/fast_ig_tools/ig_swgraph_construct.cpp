@@ -197,14 +197,23 @@ int main(int argc, char **argv) {
 
     cout << "Reads' length checking..." << std::endl;
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+    size_t required_read_length_for_single_stratagy =  K * (tau + 1);
 
     size_t discarded_reads = 0;
+    size_t discarded_reads_single = 0;
     for (const auto &read : input_reads) {
         discarded_reads += length(read) < required_read_length;
+        discarded_reads_single += length(read) < required_read_length_for_single_stratagy;
     }
 
     if (discarded_reads) {
         cout << bformat("Discarded reads %d") % discarded_reads << std::endl;
+    }
+
+    if (discarded_reads_single < discarded_reads) {
+        cout << bformat("Too many discaded reads! Falling down to <<single>> strategy due to save %d reads")
+            % (discarded_reads - discarded_reads_single) << std::endl;
+        strategy_int = 1;
     }
 
     cout << "K-mer index construction..." << std::endl;
