@@ -22,6 +22,18 @@ class Repertoire:
     def get_all_cluster_seq_lengths(self):
         return [len(c.seq) for c in self.clusters.values()]
 
+    def get_all_cluster_sizes(self):
+        return [c.size for c in self.clusters.values()]
+
+    def get_min_cluster_size(self):
+        return min(self.get_all_cluster_sizes())
+
+    def get_avg_cluster_size(self):
+        return float(sum(self.get_all_cluster_sizes())) / len(self.get_all_cluster_sizes())
+
+    def get_max_cluster_size(self):
+        return max(self.get_all_cluster_sizes())
+
     def get_isolated_cluster_sizes(self, cluster_matches):
         sizes = []
         for cluster_id, cluster in self.clusters.items():

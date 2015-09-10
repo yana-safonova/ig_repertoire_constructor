@@ -20,7 +20,6 @@ def ParseCommandLine():
     parser.add_argument("--out", type=str, dest="output_dir", help="Output directory")
     parser.add_argument("--rate", type=float, dest="rate", help="Rate for good and bad components", default=0.5)
     parser.add_argument("--deep-rcm-cmp", action="store_true", dest="deep_rcm_cmp", help="Compute alignment stats for good barcodes")
-    parser.parse_args()
     return parser.parse_args()
 
 def InitParams(params):
@@ -33,13 +32,16 @@ def InitParams(params):
     params.germline_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
         '../fast_ig_tools/germline')
 
-def CreateLogger():
+def CreateLogger(params):
     log = logging.getLogger('barcode_quast')
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(sys.stdout)
     console.setFormatter(logging.Formatter('%(message)s'))
     console.setLevel(logging.DEBUG)
     log.addHandler(console)
+    params.log_filename = os.path.join(params.output_dir, 'barcode_quast.log')
+    log_handler = logging.FileHandler(params.log_filename, mode='w')
+    log.addHandler(log_handler)
     return log
 
 def PrepareOutputDir(params):
@@ -129,18 +131,19 @@ def Evaluate(params, log):
     barcode_metrics.evaluate(log, params.deep_rcm_cmp)
     metrics_file = os.path.join(params.output_dir, 'metrics.txt')
     barcode_metrics.write(metrics_file)
-    '''
     sizes_corr_filename = os.path.join(params.output_dir, 'sizes_corr.png')
-    barcode_metrics.draw_sizes_correlation_plot(sizes_corr_filename)
-    '''
+    # barcode_metrics.draw_sizes_correlation_plot(sizes_corr_filename)
     if not os.path.exists:
         log.info("ERROR: barcode metrics were not found")
         sys.exit(-1)
     log.info("Barcode metrics were written to " + metrics_file)
 
-if __name__ == "__main__":
+def main():
     params = ParseCommandLine()
-    log = CreateLogger()
     PrepareOutputDir(params)
     InitParams(params)
+    log = CreateLogger(params)
     Evaluate(params, log)
+
+if __name__ == "__main__":
+    main()
