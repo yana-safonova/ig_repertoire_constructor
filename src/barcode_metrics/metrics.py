@@ -104,8 +104,8 @@ class BarcodeMetrics():
                 self.good_barcode_matches.append(match)
             else:
                 bad_barcodes += 1
-        self.gen_metrics_dict["#good barcodes"] = good_barcodes
-        self.gen_metrics_dict["#bad barcodes"] = bad_barcodes
+        self.gen_metrics_dict["#good barcodes"] = "{:d} ({:.2f}%)".format(good_barcodes, 100.0 * good_barcodes / self.barcodes_number)
+        self.gen_metrics_dict["#bad barcodes"] = "{:d} ({:.2f}%)".format(bad_barcodes, 100.0 * bad_barcodes/ self.barcodes_number)
 
     def get_distance_for_alignment(self, barcode_seq, data_seq):
         mismatches = 0
@@ -171,19 +171,19 @@ class BarcodeMetrics():
         self.gen_metrics_dict["Max mismatches distance to good barcodes"] = \
             max(d.mismatches for d in distances)
 
-    def compute_lengths(self, log):
+    def compute_length_metrics(self):
         self.barcode_lengths = self.barcode_rep.get_all_cluster_seq_lengths()
         self.sep_metrics_dict["barcodes"]["Min sequence length"] = min(self.barcode_lengths)
         self.sep_metrics_dict["barcodes"]["Avg sequence length"] = \
-            float(sum(self.barcode_lengths)) / len(self.barcode_lengths)
+            str(round(float(sum(self.barcode_lengths)) / len(self.barcode_lengths), 2))
         self.sep_metrics_dict["barcodes"]["Max sequence length"] = max(self.barcode_lengths)
         self.data_clusters_lengths = self.data_rep.get_all_cluster_seq_lengths()
         self.sep_metrics_dict["data"]["Min sequence length"] = min(self.data_clusters_lengths)
         self.sep_metrics_dict["data"]["Avg sequence length"] = \
-            float(sum(self.data_clusters_lengths)) / len(self.data_clusters_lengths)
+            str(round(float(sum(self.data_clusters_lengths)) / len(self.data_clusters_lengths), 2))
         self.sep_metrics_dict["data"]["Max sequence length"] = max(self.data_clusters_lengths)
 
-    def compute_metrics(self):
+    def compute_clusters_number_metrics(self):
         self.sep_metrics_dict["barcodes"]["#clusters"] = self.barcodes_number
         self.sep_metrics_dict["data"]["#clusters"] = self.data_clusters_number
         self.sep_metrics_dict["barcodes"]["#clusters (>=10)"] = len([s for s in 
@@ -206,18 +206,22 @@ class BarcodeMetrics():
             self.data_rep.get_all_cluster_sizes() if s >= 500])
         self.sep_metrics_dict["data"]["#clusters (>=1000)"] = len([s for s in 
             self.data_rep.get_all_cluster_sizes() if s >= 1000])
-        self.sep_metrics_dict["barcodes"]["#isolated clusters"] = \
-            len(self.compressed_barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))
-        self.sep_metrics_dict["data"]["#isolated clusters"] = \
-            len(self.compressed_data_rep.get_isolated_cluster_sizes(self.data_cluster_matches))
+        isolated_barcodes = len(self.compressed_barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))
+        self.sep_metrics_dict["barcodes"]["#isolated clusters"] = "{:d} ({:.2f}%)".format(
+            isolated_barcodes, isolated_barcodes / self.barcodes_number * 100.0)
+        isolated_data_clusters = len(self.compressed_data_rep.get_isolated_cluster_sizes(self.data_cluster_matches))
+        self.sep_metrics_dict["data"]["#isolated clusters"] = "{:d} ({:.2f}%)".format(
+            isolated_data_clusters, isolated_data_clusters / self.data_clusters_number * 100.0)
+
+    def compute_cluster_size_metrics(self):
         self.sep_metrics_dict["barcodes"]["Min size of cluster"] = \
             self.compressed_barcode_rep.get_min_cluster_size()
         self.sep_metrics_dict["data"]["Min size of cluster"] = \
             self.compressed_data_rep.get_min_cluster_size()
         self.sep_metrics_dict["barcodes"]["Avg size of cluster"] = \
-            self.compressed_barcode_rep.get_avg_cluster_size()
+            round(self.compressed_barcode_rep.get_avg_cluster_size(), 3)
         self.sep_metrics_dict["data"]["Avg size of cluster"] = \
-            self.compressed_data_rep.get_avg_cluster_size()
+            round(self.compressed_data_rep.get_avg_cluster_size(), 3)
         self.sep_metrics_dict["barcodes"]["Max size of cluster"] = \
             self.compressed_barcode_rep.get_max_cluster_size()
         self.sep_metrics_dict["data"]["Max size of cluster"] = \
@@ -227,19 +231,23 @@ class BarcodeMetrics():
         self.sep_metrics_dict["data"]["Min size of isolated cluster"] = \
             self.compressed_data_rep.get_min_isolated_cluster_size(self.data_cluster_matches)
         self.sep_metrics_dict["barcodes"]["Avg size of isolated cluster"] = \
-            self.compressed_barcode_rep.get_avg_isolated_cluster_size(self.barcode_cluster_matches)
+            round(self.compressed_barcode_rep.get_avg_isolated_cluster_size(self.barcode_cluster_matches), 3)
         self.sep_metrics_dict["data"]["Avg size of isolated cluster"] = \
-            self.compressed_data_rep.get_avg_isolated_cluster_size(self.data_cluster_matches)
+            round(self.compressed_data_rep.get_avg_isolated_cluster_size(self.data_cluster_matches), 3)
         self.sep_metrics_dict["barcodes"]["Max size of isolated cluster"] = \
             self.compressed_barcode_rep.get_max_isolated_cluster_size(self.barcode_cluster_matches)
         self.sep_metrics_dict["data"]["Max size of isolated cluster"] = \
             self.compressed_data_rep.get_max_isolated_cluster_size(self.data_cluster_matches)
 
+    def compute_metrics(self):
+        self.compute_clusters_number_metrics()
+        self.compute_length_metrics()
+        self.compute_cluster_size_metrics()
+
     def evaluate(self, log, compute_rcm_matches):
         self.sep_metrics_dict["barcodes"] = {}
         self.sep_metrics_dict["data"] = {}
         self.calculate_distances(log)
-        self.compute_lengths(log)
         self.compute_metrics()
         if self.has_reads:
             self.calculate_good_barcodes_number(log)
@@ -253,22 +261,19 @@ class BarcodeMetrics():
         handler.write("\n")
 
         handler.write("{:<45s}{:<14s}{:s}\n".format("Metric name", "Barcodes", "Data"))
-        float_fmt = "{:<45s}{:<14.3f}{:.3f}\n"
-        int_fmt = "{:<45s}{:<14d}{:d}\n"
+        fmt = "{:<45s}{:14s}{:s}\n"
         for metric_name in self.sep_metric_names:
             if metric_name not in self.sep_metrics_dict["barcodes"]:
                 continue
-            fmt = float_fmt if type(self.sep_metrics_dict["barcodes"][metric_name]) == float else int_fmt
             handler.write(fmt.format(metric_name, 
-                self.sep_metrics_dict["barcodes"][metric_name], self.sep_metrics_dict["data"][metric_name]))
+                str(self.sep_metrics_dict["barcodes"][metric_name]), 
+                str(self.sep_metrics_dict["data"][metric_name])))
 
         if self.gen_metrics_dict:
             handler.write("\n{:<45s}{:s}\n".format("Metric name", "Value"))
-        float_fmt = "{:<45s}{:.3f}\n"
-        int_fmt = "{:<45s}{:d}\n"
+        fmt = "{:<45s}{:s}\n"
         for metric_name in self.gen_metrics_dict:
-            fmt = float_fmt if type(self.gen_metrics_dict[metric_name]) == float else int_fmt
-            handler.write(fmt.format(metric_name, self.gen_metrics_dict[metric_name]))
+            handler.write(fmt.format(metric_name, str(self.gen_metrics_dict[metric_name])))
         handler.close()
 
     '''
