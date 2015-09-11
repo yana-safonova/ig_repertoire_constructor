@@ -101,7 +101,6 @@ link_libraries(input yaml-cpp ${COMMON_LIBRARIES})
 remove_definitions(-Wconversion)
 
 add_executable(ig_trie_compressor ig_trie_compressor.cpp)
-add_executable(ig_final_alignment ig_final_alignment.cpp)
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
 add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
