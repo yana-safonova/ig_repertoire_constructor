@@ -206,14 +206,15 @@ int main(int argc, char **argv) {
         discarded_reads_single += length(read) < required_read_length_for_single_stratagy;
     }
 
-    if (discarded_reads) {
-        cout << bformat("Discarded reads %d") % discarded_reads << std::endl;
-    }
-
     if (discarded_reads_single < discarded_reads) {
-        cout << bformat("Too many discaded reads! Falling down to <<single>> strategy due to save %d reads")
+        cout << bformat("Falling down to <<single>> strategy due to save %d reads")
             % (discarded_reads - discarded_reads_single) << std::endl;
         strategy_int = 1;
+        discarded_reads = discarded_reads_single;
+    }
+
+    if (discarded_reads) {
+        cout << bformat("Discarded reads %d") % discarded_reads << std::endl;
     }
 
     cout << "K-mer index construction..." << std::endl;
