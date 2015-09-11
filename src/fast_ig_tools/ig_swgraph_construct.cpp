@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     perf_counter pc;
     create_console_logger("");
 
-    cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
+    INFO("Command line: " << join_cmd_line(argc, argv));
 
     int K = 36; // anchor length
     int tau = 3;
@@ -169,11 +169,6 @@ int main(int argc, char **argv) {
             return 0;
         }
 
-        if (vm.count("input-file")) {
-            cout << "Input file is: "
-                << vm["input-file"].as<std::string>() << "\n";
-        }
-
         if (vm.count("export-abundances")) {
             export_abundances = true;
         }
@@ -181,23 +176,25 @@ int main(int argc, char **argv) {
         if (vm.count("no-export-abundances")) {
             export_abundances = false;
         }
-
-        cout << "K = " << K << endl;
-        cout << "tau = " << tau << endl;
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
 
+    INFO("Input file is: " << input_file);
+
+    INFO("K = " << K);
+    INFO("tau = " << tau);
+
     SeqFileIn seqFileIn_input(input_file.c_str());
     std::vector<CharString> input_ids;
     std::vector<Dna5String> input_reads;
 
-    cout << "Reading data..." << std::endl;
+    INFO("Reading data...");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    cout << bformat("Reads: %d\n") % length(input_reads);
+    INFO(bformat("Reads: %d\n") % length(input_reads));
 
-    cout << "Reads' length checking..." << std::endl;
+    INFO("Reads' length checking...");
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
     size_t required_read_length_for_single_stratagy =  K * (tau + 1);
 
@@ -209,25 +206,25 @@ int main(int argc, char **argv) {
     }
 
     if (discarded_reads_single < discarded_reads) {
-        cout << bformat("Falling down to <<single>> strategy due to save %d reads")
-            % (discarded_reads - discarded_reads_single) << std::endl;
+        INFO(bformat("Falling down to <<single>> strategy due to save %d reads")
+             % (discarded_reads - discarded_reads_single));
         strategy_int = 1;
         discarded_reads = discarded_reads_single;
     }
 
     if (discarded_reads) {
-        cout << bformat("Discarded reads %d") % discarded_reads << std::endl;
+        WARN(bformat("Discarded reads %d") % discarded_reads);
     }
 
-    cout << "K-mer index construction..." << std::endl;
+    INFO("K-mer index construction...");
     auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
     omp_set_num_threads(nthreads);
-    cout << bformat("Truncated dist-graph construction (using %d threads)") % nthreads << std::endl;
-    cout << "Candidates graph construcion..." << std::endl;
+    INFO(bformat("Truncated dist-graph construction (using %d threads)") % nthreads);
+    INFO("Candidates graph construcion...");
 
     Strategy strategy = Strategy(strategy_int);
-    cout << toCString(strategy) << std::endl;
+    INFO(toCString(strategy));
 
     auto dist_fun = [max_indels](const Dna5String &s1, const Dna5String &s2) -> int {
         auto lizard_tail = [](int l) -> int { return 0*l; };
@@ -244,14 +241,14 @@ int main(int argc, char **argv) {
 
     // Output
     if (export_abundances) {
-        cout << "Saving graph (with abundances)..." << std::endl;
+        INFO("Saving graph (with abundances)...");
         auto abundances = find_abundances(input_ids);
         write_metis_graph(dist_graph, abundances, output_filename);
     } else {
-        cout << "Saving graph (without abundances)..." << std::endl;
+        INFO("Saving graph (without abundances)...");
         write_metis_graph(dist_graph, output_filename);
     }
-    cout << "Graph has been saved to file " << output_filename << std::endl;
+    INFO("Graph has been saved to file " << output_filename);
 
     INFO("Running time: " << running_time_format(pc));
 
