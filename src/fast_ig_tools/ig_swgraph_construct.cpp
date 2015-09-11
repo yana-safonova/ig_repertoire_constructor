@@ -63,7 +63,9 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
 
 
 int main(int argc, char **argv) {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    segfault_handler sh;
+    perf_counter pc;
+    create_console_logger("");
 
     cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
 
@@ -251,10 +253,8 @@ int main(int argc, char **argv) {
     }
     cout << "Graph has been saved to file " << output_filename << std::endl;
 
-    auto finish_time = std::chrono::high_resolution_clock::now();
+    INFO("Running time: " << running_time_format(pc));
 
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count();
-    cout << bformat("Elapsed time: %0.3fs") % (double(elapsed_time) / 1000.) << std::endl;
     return 0;
 }
 

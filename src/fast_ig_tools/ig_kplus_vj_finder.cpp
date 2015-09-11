@@ -11,13 +11,6 @@
 #include <mutex>
 #include <chrono>
 
-#include <path_helper.hpp>
-#include <perfcounter.hpp>
-
-#include <logger/log_writers.hpp>
-#include <logger/logger.hpp>
-#include <segfault_handler.hpp>
-
 using seqan::Dna5String;
 using seqan::CharString;
 using seqan::length;
@@ -32,10 +25,10 @@ using std::endl;
 using std::map;
 using std::make_pair;
 using bformat = boost::format;
-using path::make_dirs;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
+using path::make_dirs;
 
 
 namespace fast_ig_tools {
@@ -356,23 +349,6 @@ private:
 using namespace fast_ig_tools;
 
 using std::string;
-void create_console_logger(std::string log_props_file = "") {
-    using namespace logging;
-
-    logger *lg = create_logger(log_props_file);
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
-
-std::string running_time_format(const perf_counter &pc) {
-    unsigned ms = (unsigned)pc.time_ms();
-    unsigned secs = (ms / 1000) % 60;
-    unsigned mins = (ms / 1000 / 60) % 60;
-    unsigned hours = (ms / 1000 / 60 / 60);
-    bformat bf("%u hours %u minutes %u seconds");
-    bf % hours % mins % secs;
-    return bf.str();
-}
 
 
 struct Ig_KPlus_Finder_Parameters {
