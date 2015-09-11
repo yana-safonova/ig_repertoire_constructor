@@ -67,6 +67,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print "Supernode reporter started..."
     print "Command line: %s" % " ".join(sys.argv)
 
     result = []
@@ -84,3 +85,5 @@ if __name__ == "__main__":
 
     with smart_open(args.output, "w") as fout:
         SeqIO.write(result, fout, "fasta")
+
+    print "Supernode reporter done"
