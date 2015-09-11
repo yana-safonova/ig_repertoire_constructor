@@ -48,9 +48,11 @@ std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> rea
 
 
 int main(int argc, char **argv) {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    segfault_handler sh;
+    perf_counter pc;
+    create_console_logger("");
 
-    cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
+    INFO("Command line: " << join_cmd_line(argc, argv));
 
     int nthreads = 4;
     std::string reads_file = "input.fa";
@@ -142,25 +144,24 @@ int main(int argc, char **argv) {
         if (vm.count("hamming")) {
             use_hamming_alignment = true;
         }
-
-        cout << "Input file is: "
-            << reads_file << "\n";
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
 
+    INFO("Input file is: " << reads_file);
+
     std::vector<Dna5String> input_reads;
     std::vector<CharString> input_ids;
     SeqFileIn seqFileIn_input(reads_file.c_str());
 
-    cout << "Reading data..." << std::endl;
+    INFO("Reading data...");
     readRecords(input_ids, input_reads, seqFileIn_input);
 
     std::vector<size_t> component_indices;
     component_indices.resize(input_reads.size());
 
-    cout << "Reading rcm..." << std::endl;
+    INFO("Reading rcm...");
     auto rcm = read_rcm_file_string(rcm_file);
     for (size_t i = 0; i < input_reads.size(); ++i) {
         const char *id = toCString(input_ids[i]);
@@ -168,10 +169,10 @@ int main(int argc, char **argv) {
         component_indices[i] = rcm.first[id];
     }
 
-    cout << bformat("Reads: %d") % input_reads.size() << std::endl;
+    INFO(bformat("Reads: %d") % input_reads.size());
 
     size_t max_index = *std::max_element(component_indices.cbegin(), component_indices.cend());
-    cout << bformat("The number of components: %d") % (max_index + 1) << std::endl;  // TODO Compute #of cmps more carefully
+    INFO(bformat("The number of components: %d") % (max_index + 1));  // TODO Compute #of cmps more carefully
 
     std::vector<std::vector<size_t>> component2id(max_index + 1);
     for (size_t i = 0; i < component_indices.size(); ++i) {
@@ -182,7 +183,7 @@ int main(int argc, char **argv) {
     for (const auto &_ : component2id) {
         max_component_size = std::max(max_component_size, _.size());
     }
-    cout << bformat("Maximum component size: %d") % max_component_size << std::endl;
+    INFO(bformat("Maximum component size: %d") % max_component_size);
 
     auto abundances = find_abundances(input_ids);
 
@@ -190,7 +191,7 @@ int main(int argc, char **argv) {
     std::vector<size_t> comp_abundances(component2id.size());
 
     omp_set_num_threads(nthreads);
-    cout << bformat("Consensus computation (using %d threads)...") % nthreads << std::endl;
+    INFO(bformat("Consensus computation (using %d threads)...") % nthreads);
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t comp = 0; comp < component2id.size(); ++comp) {
@@ -209,7 +210,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    cout << "Saving results" << std::endl;
+    INFO("Saving results");
 
     SeqFileOut seqFileOut_output(output_file.c_str());
 
@@ -227,12 +228,10 @@ int main(int argc, char **argv) {
         seqan::writeRecord(seqFileOut_output, id, consensuses[comp]);
     }
 
-    cout << "Final repertoire has been saved to file " << output_file << std::endl;
+    INFO("Final repertoire has been saved to file " << output_file);
 
-    auto finish_time = std::chrono::high_resolution_clock::now();
+    INFO("Running time: " << running_time_format(pc));
 
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count();
-    cout << bformat("Elapsed time: %0.3fs") % (double(elapsed_time) / 1000.) << std::endl;
     return 0;
 }
 

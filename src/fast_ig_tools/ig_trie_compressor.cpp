@@ -26,9 +26,11 @@ namespace po = boost::program_options;
 
 
 int main(int argc, char **argv) {
-    auto start_time = std::chrono::high_resolution_clock::now();
+    segfault_handler sh;
+    perf_counter pc;
+    create_console_logger("");
 
-    cout << "Command line: " << join_cmd_line(argc, argv) << std::endl;
+    INFO("Command line: " << join_cmd_line(argc, argv));
 
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
@@ -111,39 +113,32 @@ int main(int argc, char **argv) {
             cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
             return 0;
         }
-
-        if (vm.count("input-file")) {
-            cout << "Input file is: "
-                << vm["input-file"].as<std::string>() << "\n";
-        }
-
-        if (vm.count("output-file")) {
-            cout << "Output file is: "
-                << vm["output-file"].as<std::string>() << "\n";
-        }
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
+
+    INFO("Input file is: " << input_file);
+    INFO("Output file is: " << output_file);
 
     SeqFileIn seqFileIn_input(input_file.c_str());
     SeqFileOut seqFileOut_output(output_file.c_str());
     std::vector<CharString> input_ids;
     std::vector<Dna5String> input_reads;
 
-    cout << "Reading data..." << std::endl;
+    INFO("Reading data...");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    cout << bformat("Reads: %d\n") % length(input_reads);
+    INFO(bformat("Reads: %d") % length(input_reads));
 
-    cout << "Construction trie..." << std::endl;
+    INFO("Construction trie...");
     Trie<seqan::Dna5> trie(input_reads);
 
-    cout << "Unique prefixes collecting..." << std::endl;
+    INFO("Unique prefixes collecting...");
     auto result__ = trie.checkout(length(input_reads));
     std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
     std::sort(result.begin(), result.end());
 
-    cout << "Saving output..." << std::endl;
+    INFO("Saving output...");
     size_t count = 0;
     for (const auto &_ : result) {
         size_t index = _.first;
@@ -159,10 +154,10 @@ int main(int argc, char **argv) {
 
     assert(count == length(input_reads));
 
-    cout << bformat("Output reads: %d\n") % result.size();
+    INFO(bformat("Output reads: %d") % result.size());
 
     if (idmap_file_name != "") {
-        cout << "Saving map..." << std::endl;
+        INFO("Saving map...");
         std::ofstream idmap_file(idmap_file_name.c_str());
         std::vector<size_t> idmap(length(input_reads));
         auto result = trie.checkout_ids(length(input_reads));
@@ -194,13 +189,11 @@ int main(int argc, char **argv) {
             idmap_file << ord[id] << "\n";
         }
 
-        cout << bformat("Map saved to : %s") % idmap_file_name << std::endl;
+        INFO(bformat("Map saved to : %s") % idmap_file_name);
     }
 
-    auto finish_time = std::chrono::high_resolution_clock::now();
+    INFO("Running time: " << running_time_format(pc));
 
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count();
-    cout << bformat("Elapsed time: %0.3fs") % (double(elapsed_time) / 1000.) << std::endl;
     return 0;
 }
 

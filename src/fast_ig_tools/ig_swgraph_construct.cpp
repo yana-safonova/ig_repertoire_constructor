@@ -192,7 +192,7 @@ int main(int argc, char **argv) {
 
     INFO("Reading data...");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    INFO(bformat("Reads: %d\n") % length(input_reads));
+    INFO(bformat("Reads: %d") % length(input_reads));
 
     INFO("Reads' length checking...");
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
