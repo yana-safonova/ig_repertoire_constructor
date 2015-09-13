@@ -114,7 +114,7 @@ class IgBinaryConfig:
         self.run_trie_compressor = 'build/release/bin/./ig_trie_compressor'
         self.path_to_graph_constructor = 'build/release/bin/ig_swgraph_construct'
         self.run_graph_constructor = 'build/release/bin/./ig_swgraph_construct'
-        self.path_to_consensus_constructor = 'build/release/bin/ig_final_alignment'
+        self.path_to_consensus_constructor = 'build/release/bin/ig_consensus_finder'
         self.run_consensus_constructor = 'build/release/bin/./ig_consensus_finder'
         self.run_rcm_recoverer = 'src/ig_quast_tool/rcm_recoverer.py'
         self.run_remove_low_abundance_reads = 'src/ig_quast_tool/ig_remove_low_abundance_reads.py'
@@ -142,7 +142,7 @@ class IgBinaryConfig:
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
-            log.info("ERROR: Binary file of " + phase_names.GetGraphConstructionLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_remove_low_abundance_reads):
