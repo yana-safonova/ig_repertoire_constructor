@@ -8,7 +8,5 @@ file(GLOB boost_filesystem_SRC
     "*.cpp"
 )
 
-
-add_definitions(-DBOOST_NOEXCEPT_OR_NOTHROW=noexcept)
 add_library(boost_filesystem STATIC
             ${boost_filesystem_SRC})

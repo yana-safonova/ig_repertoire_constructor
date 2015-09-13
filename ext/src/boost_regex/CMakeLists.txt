@@ -8,6 +8,5 @@ file(GLOB boost_regex_SRC
     "*.cpp"
 )
 
-add_definitions(-DBOOST_FALLTHROUGH=0)
 add_library(boost_regex STATIC
             ${boost_regex_SRC})
