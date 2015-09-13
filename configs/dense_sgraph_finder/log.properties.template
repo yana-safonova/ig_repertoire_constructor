@@ -1,0 +1,7 @@
+default=INFO
+
+#Permutation=TRACE
+#Decomposition=TRACE
+#SimpleDecompositionConstructor=DEBUG
+#GreedyJoiningDecomposition=DEBUG
+#DecompositionStatsCalculator=TRACE

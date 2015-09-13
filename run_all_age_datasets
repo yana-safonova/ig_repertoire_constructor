@@ -1,0 +1,9 @@
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s1_R12_raw.cropped.fastq -o age_ig_s1 -t 4 > ig_age_s1.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s2_R12_raw.cropped.fastq -o age_ig_s2 -t 4 > ig_age_s2.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s3_R12_raw.cropped.fastq -o age_ig_s3 -t 4 > ig_age_s3.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s4_R12_raw.cropped.fastq -o age_ig_s4 -t 4 > ig_age_s4.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s5_R12_raw.cropped.fastq -o age_ig_s5 -t 4 > ig_age_s5.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s6_R12_raw.cropped.fastq -o age_ig_s6 -t 4 > ig_age_s6.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s7_R12_raw.cropped.fastq -o age_ig_s7 -t 4 > ig_age_s7.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s8_R12_raw.cropped.fastq -o age_ig_s8 -t 4 > ig_age_s8.out &
+./ig_repertoire_constructor.py -s /Johnny/data/input/Ig/ibh_datasets/age_datasets/raw_reads/cropped_reads/age_ig_s9_R12_raw.cropped.fastq -o age_ig_s9 -t 4 > ig_age_s9.out &
