@@ -9,25 +9,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
-
-find_package(OpenMP REQUIRED)
-if(OPENMP_FOUND)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-endif()
-
-find_package(ZLIB REQUIRED)
 if(ZLIB_FOUND)
   add_definitions(-DSEQAN_HAS_ZLIB=1)
   link_libraries(${ZLIB_LIBRARIES})
@@ -40,21 +21,6 @@ find_package(Boost REQUIRED program_options)
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
   HINTS ../../ext/include ${EXT_DIR}/include)
 
-
-find_library(TCMALLOC_LIBRARY NAMES tcmalloc)
-if(TCMALLOC_LIBRARY)
-  message("tcmalloc found: ${TCMALLOC_LIBRARY}")
-endif()
-
-find_library(JEMALLOC_LIBRARY NAMES jemalloc)
-if(JEMALLOC_LIBRARY)
-  message("jemalloc found: ${JEMALLOC_LIBRARY}")
-endif()
-
-if(Boost_INCLUDE_DIR)
-  message("Boost headers found in ${Boost_INCLUDE_DIR}")
-endif()
-
 if(SEQAN_INCLUDE_DIR)
   message("seqan headers found in ${SEQAN_INCLUDE_DIR}")
 endif()
@@ -63,12 +29,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
-INCLUDE_DIRECTORIES(SYSTEM ${BOOST_INCLUDE_DIR})
 link_libraries(pthread)
 
-set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-find_library(BOOST_PROGRAM_OPTIONS_LIBRARY NAMES boost_program_options)
-link_libraries(${BOOST_PROGRAM_OPTIONS_LIBRARY})
+link_libraries(boost_program_options)
 
 find_package(BZip2)
 if(BZIP2_FOUND)
@@ -76,19 +39,6 @@ if(BZIP2_FOUND)
   link_libraries(${BZIP2_LIBRARIES})
 else()
   add_definitions(-DSEQAN_HAS_BZIP2=0)
-endif()
-
-if(EXT_DIR)
-  message("Linking using internal jemalloc")
-  link_libraries(jemalloc)
-elseif(JEMALLOC_LIBRARY)
-  message("Linking using jemalloc")
-  link_libraries(${JEMALLOC_LIBRARY})
-elseif(TCMALLOC_LIBRARY)
-  message("Linking using tcmalloc")
-  link_libraries(${TCMALLOC_LIBRARY})
-else()
-  message("Linking using ordinary malloc")
 endif()
 
 # Enable compilation in debug mode
@@ -106,9 +56,7 @@ add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
 
-if(EXT_DIR)
-  add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
-      COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${PROJECT_SOURCE_DIR}/germline"
-          $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
-endif()
+add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/germline"
+        $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
