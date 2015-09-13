@@ -412,7 +412,7 @@ struct Ig_KPlus_Finder_Parameters {
         config.add_options()
             ("output,o", po::value<std::string>(&output_dir),
              "output directory")
-            ("compress, C", "compress FASTA files")
+            ("compress,Z", "compress FASTA files using Zlib")
             ("no-compress", "don't compress FASTA files (default)")
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
