@@ -118,27 +118,26 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    INFO("Input file is: " << input_file);
-    INFO("Output file is: " << output_file);
+    INFO("Input reads: " << input_file);
+    INFO("Output filename: " << output_file);
 
     SeqFileIn seqFileIn_input(input_file.c_str());
     SeqFileOut seqFileOut_output(output_file.c_str());
     std::vector<CharString> input_ids;
     std::vector<Dna5String> input_reads;
 
-    INFO("Reading data...");
+    INFO("Reading input reads starts");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    INFO(bformat("Reads: %d") % length(input_reads));
+    INFO(length(input_reads) << " reads were extracted from " << input_file);
 
-    INFO("Construction trie...");
+    INFO("Construction of trie starts");
     Trie<seqan::Dna5> trie(input_reads);
 
-    INFO("Unique prefixes collecting...");
     auto result__ = trie.checkout(length(input_reads));
     std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
     std::sort(result.begin(), result.end());
+    INFO("Unique prefixes were collected");
 
-    INFO("Saving output...");
     size_t count = 0;
     for (const auto &_ : result) {
         size_t index = _.first;
@@ -154,10 +153,9 @@ int main(int argc, char **argv) {
 
     assert(count == length(input_reads));
 
-    INFO(bformat("Output reads: %d") % result.size());
+    INFO(result.size() << " compressed reads were written to " << output_file);
 
     if (idmap_file_name != "") {
-        INFO("Saving map...");
         std::ofstream idmap_file(idmap_file_name.c_str());
         std::vector<size_t> idmap(length(input_reads));
         auto result = trie.checkout_ids(length(input_reads));
@@ -189,11 +187,10 @@ int main(int argc, char **argv) {
             idmap_file << ord[id] << "\n";
         }
 
-        INFO(bformat("Map saved to : %s") % idmap_file_name);
+        INFO("Map from input reads to compressed reads was written to " << idmap_file_name);
     }
-
+    INFO("Construction of trie finished")
     INFO("Running time: " << running_time_format(pc));
-
     return 0;
 }
 
