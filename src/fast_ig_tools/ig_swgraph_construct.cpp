@@ -181,20 +181,19 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    INFO("Input file is: " << input_file);
+    INFO("Input reads: " << input_file);
 
-    INFO("K = " << K);
-    INFO("tau = " << tau);
+    INFO("K = " << K << ", tau = " << tau);
 
     SeqFileIn seqFileIn_input(input_file.c_str());
     std::vector<CharString> input_ids;
     std::vector<Dna5String> input_reads;
 
-    INFO("Reading data...");
+    INFO("Reading input reads starts");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    INFO(bformat("Reads: %d") % length(input_reads));
+    INFO(input_reads.size() << " reads were extracted from " << input_file);
 
-    INFO("Reads' length checking...");
+    INFO("Read length checking");
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
     size_t required_read_length_for_single_stratagy =  K * (tau + 1);
 
@@ -206,7 +205,7 @@ int main(int argc, char **argv) {
     }
 
     if (discarded_reads_single < discarded_reads) {
-        INFO(bformat("Falling down to <<single>> strategy due to save %d reads")
+        INFO(bformat("Choosing <<single>> strategy for saving %d reads")
              % (discarded_reads - discarded_reads_single));
         strategy_int = 1;
         discarded_reads = discarded_reads_single;
@@ -216,15 +215,15 @@ int main(int argc, char **argv) {
         WARN(bformat("Discarded reads %d") % discarded_reads);
     }
 
-    INFO("K-mer index construction...");
+    INFO("K-mer index construction");
     auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
     omp_set_num_threads(nthreads);
-    INFO(bformat("Truncated dist-graph construction (using %d threads)") % nthreads);
-    INFO("Candidates graph construcion...");
+    INFO(bformat("Truncated distance graph construction using %d threads starts") % nthreads);
+    INFO("Construction of candidates graph");
 
     Strategy strategy = Strategy(strategy_int);
-    INFO(toCString(strategy));
+    INFO(toCString(strategy) << " was chosen");
 
     auto dist_fun = [max_indels](const Dna5String &s1, const Dna5String &s2) -> int {
         auto lizard_tail = [](int l) -> int { return 0*l; };
@@ -241,14 +240,14 @@ int main(int argc, char **argv) {
 
     // Output
     if (export_abundances) {
-        INFO("Saving graph (with abundances)...");
+        INFO("Saving graph (with abundances)");
         auto abundances = find_abundances(input_ids);
         write_metis_graph(dist_graph, abundances, output_filename);
     } else {
-        INFO("Saving graph (without abundances)...");
+        INFO("Saving graph (without abundances)");
         write_metis_graph(dist_graph, output_filename);
     }
-    INFO("Graph has been saved to file " << output_filename);
+    INFO("Graph was written to " << output_filename);
 
     INFO("Running time: " << running_time_format(pc));
 
