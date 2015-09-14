@@ -121,7 +121,7 @@ namespace {
             vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
             InitializeDecompositionVector(connected_components.size());
             PrintConnectedComponentsStats(connected_components);
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic)
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];
                 string graph_filename = GetSubgraphFilename(i);
