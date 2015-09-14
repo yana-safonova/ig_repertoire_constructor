@@ -22,7 +22,7 @@ def ErrorMessagePrepareCfg(log):
     log.info("  (1) remove build/ directory")
     log.info("  (2) type command \'./prepare cfg\' to check all dependencies")
     log.info("  (3) type \'make\' to compile IgRepertoireConstrictor")
-    log.info("  (4) rerun IgRepertoireConstrictor")
+    log.info("  (4) rerun IgRepertoireConstructor")
 
 def SupportInfo(log):
     log.info("\nIn case you have troubles running IgRepertoireConstructor, "
@@ -108,19 +108,19 @@ class PhaseNames:
 ###########
 class IgBinaryConfig:
     def __init__(self):
-        self.path_to_vj_aligner = 'build/release/bin/ig_kplus_vj_finder'
-        self.run_vj_aligner = 'build/release/bin/./ig_kplus_vj_finder'
-        self.path_to_trie_compressor = 'build/release/bin/ig_trie_compressor'
-        self.run_trie_compressor = 'build/release/bin/./ig_trie_compressor'
-        self.path_to_graph_constructor = 'build/release/bin/ig_swgraph_construct'
-        self.run_graph_constructor = 'build/release/bin/./ig_swgraph_construct'
-        self.path_to_consensus_constructor = 'build/release/bin/ig_consensus_finder'
-        self.run_consensus_constructor = 'build/release/bin/./ig_consensus_finder'
-        self.run_rcm_recoverer = 'src/ig_quast_tool/rcm_recoverer.py'
-        self.run_remove_low_abundance_reads = 'src/ig_quast_tool/ig_remove_low_abundance_reads.py'
-        self.run_report_supernodes = 'src/ig_quast_tool/ig_report_supernodes.py'
-        self.path_to_dsf = 'build/release/bin/dense_sgraph_finder'
-        self.path_to_germline = "build/release/bin/germline"
+        self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/ig_kplus_vj_finder')
+        self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
+        self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
+        self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
+        self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
+        self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
+        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
+        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
+        self.run_rcm_recoverer = os.path.join(home_directory, 'src/ig_quast_tool/rcm_recoverer.py')
+        self.run_remove_low_abundance_reads = os.path.join(home_directory, 'src/ig_quast_tool/ig_remove_low_abundance_reads.py')
+        self.run_report_supernodes = os.path.join(home_directory, 'src/ig_quast_tool/ig_report_supernodes.py')
+        self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
+        self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
         self.cluster_size_limit = 5
 
     def CheckBinaries(self, log):
