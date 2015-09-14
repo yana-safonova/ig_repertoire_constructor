@@ -371,6 +371,7 @@ struct Ig_KPlus_Finder_Parameters {
     bool silent = true;
     bool fill_prefix_by_germline = true;
     bool compress = false;
+    bool pseudogenes = false;
     std::string config_file = "";
     std::string output_filename;
     std::string bad_output_filename;
@@ -414,6 +415,8 @@ struct Ig_KPlus_Finder_Parameters {
              "output directory")
             ("compress,Z", "compress FASTA files using Zlib")
             ("no-compress", "don't compress FASTA files (default)")
+            ("pseudogenes,P", "use pseudogenes along with normal genes (default)")
+            ("no-pseudogenes", "don't use pseudogenes along with normal genes")
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
             ("chain,C", po::value<std::string>(&chain)->default_value(chain),
@@ -519,6 +522,12 @@ struct Ig_KPlus_Finder_Parameters {
             compress = false;
         }
 
+        if (vm.count("pseudogenes")) {
+            compress = true;
+        } else if (vm.count("no-pseudogenes")) {
+            compress = false;
+        }
+
         if (vm.count("no-fill-prefix-by-germline")) {
             fill_prefix_by_germline = false;
         }
@@ -532,7 +541,12 @@ struct Ig_KPlus_Finder_Parameters {
         INFO("Short k-mer size: " << K);
 
         prepare_output();
+
         read_genes();
+        if (pseudogenes) {
+            // Read pseudogenes
+            read_genes(true);
+        }
     }
 
 private:
@@ -549,8 +563,9 @@ private:
     }
 
     std::string gene_file_name(const std::string &chain_letter,
-                               const std::string &gene) {
-        return db_directory + "/" + organism + "/IG" + chain_letter + gene + ".fa";
+                               const std::string &gene,
+                               bool pseudo = false) {
+        return db_directory + "/" + organism + "/IG" + chain_letter + gene + (pseudo ? "-pseudo" : "") + ".fa";
     }
 
     std::vector<std::string> chain_letters() {
@@ -570,12 +585,12 @@ private:
         }
     }
 
-    void read_genes() {
+    void read_genes(bool pseudo = false) {
         for (const auto &letter : chain_letters()) {
-            std::string v_file = gene_file_name(letter, "V");
+            std::string v_file = gene_file_name(letter, "V", pseudo);
             read_gene(v_file, v_ids, v_reads);
 
-            std::string j_file = gene_file_name(letter, "J");
+            std::string j_file = gene_file_name(letter, "J", pseudo);
             read_gene(j_file, j_ids, j_reads);
         }
     }
