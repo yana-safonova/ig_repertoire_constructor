@@ -149,30 +149,29 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    INFO("Input file is: " << reads_file);
+    INFO("Input files: " << reads_file << ", " << rcm_file);
 
     std::vector<Dna5String> input_reads;
     std::vector<CharString> input_ids;
     SeqFileIn seqFileIn_input(reads_file.c_str());
 
-    INFO("Reading data...");
+    INFO("Reading input reads starts");
     readRecords(input_ids, input_reads, seqFileIn_input);
+    INFO(input_reads.size() << " reads were extracted from " << reads_file);
 
     std::vector<size_t> component_indices;
     component_indices.resize(input_reads.size());
 
-    INFO("Reading rcm...");
+    INFO("Reading read-cluster map starts");
     auto rcm = read_rcm_file_string(rcm_file);
     for (size_t i = 0; i < input_reads.size(); ++i) {
         const char *id = toCString(input_ids[i]);
         assert(rcm.first.count(id));
         component_indices[i] = rcm.first[id];
     }
-
-    INFO(bformat("Reads: %d") % input_reads.size());
-
     size_t max_index = *std::max_element(component_indices.cbegin(), component_indices.cend());
-    INFO(bformat("The number of components: %d") % (max_index + 1));  // TODO Compute #of cmps more carefully
+    INFO((max_index + 1) << " clusters were extracted from " << rcm_file);  // TODO Compute #of cmps more carefully
+
 
     std::vector<std::vector<size_t>> component2id(max_index + 1);
     for (size_t i = 0; i < component_indices.size(); ++i) {
@@ -183,7 +182,7 @@ int main(int argc, char **argv) {
     for (const auto &_ : component2id) {
         max_component_size = std::max(max_component_size, _.size());
     }
-    INFO(bformat("Maximum component size: %d") % max_component_size);
+    INFO(bformat("Size of maximal cluster: %d") % max_component_size);
 
     auto abundances = find_abundances(input_ids);
 
@@ -191,7 +190,7 @@ int main(int argc, char **argv) {
     std::vector<size_t> comp_abundances(component2id.size());
 
     omp_set_num_threads(nthreads);
-    INFO(bformat("Consensus computation (using %d threads)...") % nthreads);
+    INFO(bformat("Computation of consensus using %d threads starts") % nthreads);
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t comp = 0; comp < component2id.size(); ++comp) {
@@ -228,7 +227,7 @@ int main(int argc, char **argv) {
         seqan::writeRecord(seqFileOut_output, id, consensuses[comp]);
     }
 
-    INFO("Final repertoire has been saved to file " << output_file);
+    INFO("Final repertoire was written to " << output_file);
 
     INFO("Running time: " << running_time_format(pc));
 
