@@ -481,7 +481,7 @@ struct Ig_KPlus_Finder_Parameters {
         if (config_file != "") {
             std::ifstream ifs(config_file.c_str());
             if (!ifs) {
-                ERROR("can not open config file: " << config_file);
+                ERROR("Config file " << config_file << " was not found");
                 exit(1);
             } else {
                 store(parse_config_file(ifs, config_file_options), vm);
@@ -527,9 +527,9 @@ struct Ig_KPlus_Finder_Parameters {
             fill_prefix_by_germline = true;
         }
 
-        INFO(bformat("Input file is: %s") % input_file);
-        INFO(bformat("Output dir is: %s") % output_dir);
-        INFO("K = " << K);
+        INFO(bformat("Input FASTQ reads: %s") % input_file);
+        INFO(bformat("Output directory: %s") % output_dir);
+        INFO("Short k-mer size: " << K);
 
         prepare_output();
         read_genes();
@@ -628,11 +628,13 @@ int main(int argc, char **argv) {
     vector<CharString> read_ids;
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
+    INFO(reads.size() << " reads were extracted from " << param.input_file);
+
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
 
     omp_set_num_threads(param.threads);
-    INFO(bformat("Aligning (using %d threads)...") % param.threads);
+    INFO(bformat("Alignment reads using %d threads starts") % param.threads);
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
@@ -754,7 +756,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    INFO("Saving results...");
+    INFO("Saving results");
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
@@ -776,9 +778,12 @@ int main(int argc, char **argv) {
         }
     }
 
-    INFO(bformat("Reads: good %1%, bad %2%, all %3%") % good_reads % (reads.size() - good_reads) % reads.size());
+    INFO("Alignment reads finished");
+    size_t num_good_reads = good_reads;
+    size_t num_bad_reads = reads.size() - good_reads;
+    INFO(num_good_reads << " Ig-Seq reads were written to " << param.output_filename);
+    INFO(num_bad_reads << " junk (not Ig-Seq) reads were written to " << param.bad_output_filename);
     INFO("Running time: " << running_time_format(pc));
-
     return 0;
 }
 
