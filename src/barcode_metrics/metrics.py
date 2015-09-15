@@ -293,25 +293,39 @@ class BarcodeMetrics():
     def draw_all_sizes_distributions(self, output_dir):
         barcode_sizes = self.barcode_rep.get_all_cluster_sizes()
         data_cluster_sizes = self.data_rep.get_all_cluster_sizes()
-        self.draw_sizes_distribution(os.path.join(output_dir, "cluster_sizes_distr.png"),
+        distr_filename = os.path.join(output_dir, "cluster_sizes_distr.png")
+        self.draw_sizes_distribution(distr_filename,
                                      barcode_sizes, data_cluster_sizes)
-        self.draw_sizes_distribution(os.path.join(output_dir, "cluster_sizes_distr_nt.png"),
+        distr_nt_filename = os.path.join(output_dir, "cluster_sizes_distr_nt.png")
+        self.draw_sizes_distribution(distr_nt_filename,
                                      [s for s in barcode_sizes if s > 1],
                                      [s for s in data_cluster_sizes if s > 1])
 
         isolated_barcode_sizes = \
             self.barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches)
+        isolated_distr_filename = os.path.join(output_dir, "isolated_cluster_sizes_distr.png")
         isolated_data_cluster_sizes = \
             self.data_rep.get_isolated_cluster_sizes(self.data_cluster_matches)
-        self.draw_sizes_distribution(os.path.join(output_dir, "isolated_cluster_sizes_distr.png"),
+        self.draw_sizes_distribution(isolated_distr_filename,
                                      isolated_barcode_sizes, isolated_data_cluster_sizes)
-        self.draw_sizes_distribution(os.path.join(output_dir, "isolated_cluster_sizes_distr_nt.png"),
+        isolated_distr_nt_filename = os.path.join(output_dir, "isolated_cluster_sizes_distr_nt.png")
+        self.draw_sizes_distribution(isolated_distr_nt_filename,
                                      [s for s in isolated_barcode_sizes if s > 1],
                                      [s for s in isolated_data_cluster_sizes if s > 1])
+        return distr_filename, distr_nt_filename, isolated_distr_filename, isolated_distr_nt_filename
 
     def draw_all_lengths_distribution(self, output_dir):
         barcode_lengths = [len(c.seq) for c in self.barcode_rep.clusters.values()]
-        data_lengths = [len(c.seq) for c in self.barcode_rep.clusters.values()]
+        data_lengths = [len(c.seq) for c in self.data_rep.clusters.values()]
+        length_distr_filename = os.path.join(output_dir, "lengths_distr.png")
         drawing_utils.DrawClusterLengthsHist([barcode_lengths, data_lengths],
                                              ["barcodes", "data"],
-                                             os.path.join(output_dir, "lengths_distr.png"))
+                                             length_distr_filename)
+
+        isolated_barcodes_lengths = self.barcode_rep.get_isolated_cluster_lengths(self.barcode_cluster_matches)
+        isolated_data_cluster_lengths = self.data_rep.get_isolated_cluster_lengths(self.data_cluster_matches)
+        isolated_length_distr_filename = os.path.join(output_dir, "isolated_lengths_distr.png")
+        drawing_utils.DrawClusterLengthsHist([isolated_barcodes_lengths, isolated_data_cluster_lengths],
+                                             ["barcodes", "data"],
+                                             isolated_length_distr_filename)
+        return length_distr_filename, isolated_length_distr_filename

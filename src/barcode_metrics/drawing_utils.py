@@ -355,7 +355,8 @@ def DrawClusterLengthsHist(histograms, histlabel, histname):
     bins = min(GetMaxBinsNumber(len(histograms)), (max_length - min_length) / 10)
     settings_all = GetGraphicalSettings(xlabel = 'Cluster length', ylabel = 'Cluster number', 
         title = "", output_filename = histname, bins = bins, label = histlabel, 
-        histtype = 'bar', xlog_scale = False, ylog_scale = False, draw_legend = True)
+        histtype = 'bar', xlog_scale = False, ylog_scale = False, draw_legend = True,
+        legend_loc = "upper left")
     DrawHistogram(histograms, settings_all)
 
 def DrawClusterGroupsBarChart(data, labels, chartname):

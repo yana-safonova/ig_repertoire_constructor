@@ -40,7 +40,9 @@ def CreateLogger(params):
     console.setLevel(logging.DEBUG)
     log.addHandler(console)
     params.log_filename = os.path.join(params.output_dir, 'barcode_quast.log')
-    log_handler = logging.FileHandler(params.log_filename, mode='w')
+    if os.path.exists(params.log_filename):
+        os.remove(params.log_filename)
+    log_handler = logging.FileHandler(params.log_filename, mode='a')
     log.addHandler(log_handler)
     return log
 
@@ -61,7 +63,8 @@ def RunIgMatcherPreparations(params, log, rep, working_dir):
     command_line = params.ig_kplus_vj_finder + \
             ' -i ' + rep.clusters_filename + \
             ' -o ' + working_dir + \
-            ' --db-directory ' + params.germline_dir
+            ' --db-directory ' + params.germline_dir + \
+            ' | tmux -a ' + params.log_filename
     if not params.rerun:
         exit_code = os.system(command_line)
         if exit_code != 0:
@@ -73,7 +76,8 @@ def RunIgMatcherPreparations(params, log, rep, working_dir):
     trie_compressed_file = os.path.join(working_dir, rep.name + '.fa')
     command_line = params.ig_trie_compressor + \
             ' -i ' + vj_aln_file + \
-            ' -o ' + trie_compressed_file
+            ' -o ' + trie_compressed_file + \
+            ' | tmux -a ' + params.log_filename
     if not params.rerun:
         exit_code = os.system(command_line)
         if exit_code != 0:
@@ -105,7 +109,7 @@ def RunIgMatcher(params, log):
             ' -I ' + data_aln_file + \
             ' --tau ' + str(params.tau) + ' --threads ' + str(params.threads_num) + \
             ' -o ' + barcode_matches_file + \
-            ' -O ' + data_matches_file
+            ' -O ' + data_matches_file + ' | tmux -a ' + params.log_filename
 
     if not params.rerun:
         exit_code = os.system(command_line)
@@ -131,21 +135,39 @@ def Evaluate(params, log):
     barcode_metrics.evaluate(log, params.deep_rcm_cmp)
     metrics_file = os.path.join(params.output_dir, 'metrics.txt')
     barcode_metrics.write(metrics_file)
-    barcode_metrics.draw_all_sizes_distributions(params.output_dir)
-    barcode_metrics.draw_all_lengths_distribution(params.output_dir)
     # sizes_corr_filename = os.path.join(params.output_dir, 'sizes_corr.png')
     # barcode_metrics.draw_sizes_correlation_plot(sizes_corr_filename)
-    if not os.path.exists:
+    if not os.path.exists(metrics_file):
         log.info("ERROR: barcode metrics were not found")
         sys.exit(-1)
     log.info("Barcode metrics were written to " + metrics_file)
+    
+    distr_filename, distr_nt_filename, isolated_distr_filename, isolated_distr_nt_filename = \
+        barcode_metrics.draw_all_sizes_distributions(params.output_dir)
+    if os.path.exists(distr_filename):
+        log.info("Cluster sizes distribution were written to " + distr_filename)
+    if os.path.exists(distr_nt_filename):
+        log.info("Non-trivial cluster sizes distribution were written to " + distr_nt_filename)
+    if os.path.exists(isolated_distr_filename):
+        log.info("Isolated cluster sizes distribution were written to " + isolated_distr_filename)
+    if os.path.exists(isolated_distr_nt_filename):
+        log.info("Non-trivial isolated cluster sizes distribution were written to " + isolated_distr_nt_filename)
+    length_distr_filename, isolated_length_distr_filename = \
+        barcode_metrics.draw_all_lengths_distribution(params.output_dir)
+    if os.path.exists(length_distr_filename):
+        log.info("Cluster sequence's length distribution were written to " + length_distr_filename)
+    if os.path.exists(isolated_length_distr_filename):
+        log.info("Isolated cluster sequence's length distribution were written to " + isolated_length_distr_filename)
 
 def main():
     params = ParseCommandLine()
     PrepareOutputDir(params)
     InitParams(params)
     log = CreateLogger(params)
-    Evaluate(params, log)
+    try:
+        Evaluate(params, log)
+    except KeyboardInterrupt:
+        log.info("\nApplication was interrupted!")
 
 if __name__ == "__main__":
     main()

@@ -34,6 +34,13 @@ class Repertoire:
     def get_max_cluster_size(self):
         return max(self.get_all_cluster_sizes())
 
+    def get_isolated_cluster_lengths(self, cluster_matches):
+        lengths = []
+        for cluster_id, cluster in self.clusters.items():
+            if cluster_id not in cluster_matches:
+                lengths.append(len(cluster.seq))
+        return lengths
+
     def get_isolated_cluster_sizes(self, cluster_matches):
         sizes = []
         for cluster_id, cluster in self.clusters.items():
