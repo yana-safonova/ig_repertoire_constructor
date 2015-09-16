@@ -17,7 +17,7 @@ def ParseCommandLine():
     parser.add_argument("--tau", type=int, dest="tau", help="Tau parameter for algorithm", default=3)
     parser.add_argument("--rerun", action="store_true", dest='rerun', help="Run with match results from output directory")
     parser.add_argument("--threads-num", type=int, dest="threads_num", help="Number of threads to use", default=4)
-    parser.add_argument("--out", type=str, dest="output_dir", help="Output directory")
+    parser.add_argument("--out", type=str, dest="output_dir", help="Output directory", required=True)
     parser.add_argument("--rate", type=float, dest="rate", help="Rate for good and bad components", default=0.5)
     parser.add_argument("--deep-rcm-cmp", action="store_true", dest="deep_rcm_cmp", help="Compute alignment stats for good barcodes")
     return parser.parse_args()
@@ -64,7 +64,7 @@ def RunIgMatcherPreparations(params, log, rep, working_dir):
             ' -i ' + rep.clusters_filename + \
             ' -o ' + working_dir + \
             ' --db-directory ' + params.germline_dir + \
-            ' | tmux -a ' + params.log_filename
+            ' | tee -a ' + params.log_filename
     if not params.rerun:
         exit_code = os.system(command_line)
         if exit_code != 0:
@@ -77,7 +77,7 @@ def RunIgMatcherPreparations(params, log, rep, working_dir):
     command_line = params.ig_trie_compressor + \
             ' -i ' + vj_aln_file + \
             ' -o ' + trie_compressed_file + \
-            ' | tmux -a ' + params.log_filename
+            ' | tee -a ' + params.log_filename
     if not params.rerun:
         exit_code = os.system(command_line)
         if exit_code != 0:
@@ -109,7 +109,7 @@ def RunIgMatcher(params, log):
             ' -I ' + data_aln_file + \
             ' --tau ' + str(params.tau) + ' --threads ' + str(params.threads_num) + \
             ' -o ' + barcode_matches_file + \
-            ' -O ' + data_matches_file + ' | tmux -a ' + params.log_filename
+            ' -O ' + data_matches_file + ' | tee -a ' + params.log_filename
 
     if not params.rerun:
         exit_code = os.system(command_line)
