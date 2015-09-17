@@ -285,9 +285,14 @@ class VJAlignmentPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
-                       self.__params.io.vj_finder_output + " --db-directory " + IgRepConConfig().path_to_germline + \
-                       " -t " + str(self.__params.num_threads)
+        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.reads + \
+                       " -o " + self.__params.io.vj_finder_output + \
+                       " --db-directory " + IgRepConConfig().path_to_germline + \
+                       " -t " + str(self.__params.num_threads) + \
+                       " -C " + self.__params.chain + \
+                       " --organism " + self.__params.organism
+        if self.__params.no_pseudogenes:
+            command_line += " --no-pseudogenes"
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
@@ -560,9 +565,28 @@ def ParseCommandLineParams():
                                dest="max_mismatches",
                                help="Maximum allowed mismatches between identical error-prone reads "
                                     "[default: %(default)d]")
+
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Show this help message and exit")
+
+    vj_align_args = parser.add_argument_group("VJ alignment arguments")
+    vj_align_args.add_argument("--no-pseudogenes",
+                               action="store_const",
+                               const=True,
+                               dest="no_pseudogenes",
+                               help="Do not use pseudogenes along with normal gene segments for VJ alignment [default: False]")
+    vj_align_args.add_argument("--organism",
+                               type=str,
+                               default="human",
+                               dest="organism",
+                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
+    vj_align_args.add_argument("-C", "--chain",
+                               type=str,
+                               dest="chain",
+                               default="all",
+                               help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda) "
+                                    "/ lambda / kappa [default: %(default)s]")
 
     dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
