@@ -51,7 +51,7 @@ class PhaseNames:
                              'graph_constructor' : 'Graph Constructor',
                              'dsf' : 'Dense Subgraph Finder',
                              'consensus_constructor' : 'Consensus Constructor',
-                             'remove_low_abundance_reads' : 'Remove low abundance reads'}
+                             'remove_low_abundance_reads' : 'Low Abundant Clusters Remover'}
 
     def __iter__(self):
         for sname in self.__phase_order:
@@ -106,8 +106,8 @@ class PhaseNames:
         return self.__long_names[self.__remove_low_abundance_reads]
 
 ###########
-class IgBinaryConfig:
-    def __init__(self):
+class IgRepConConfig:
+    def __initBinaryPaths(self):
         self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/ig_kplus_vj_finder')
         self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
@@ -121,6 +121,9 @@ class IgBinaryConfig:
         self.run_report_supernodes = os.path.join(home_directory, 'src/ig_quast_tool/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
         self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
+
+    def __init__(self):
+        self.__initBinaryPaths()
         self.cluster_size_limit = 5
 
     def CheckBinaries(self, log):
@@ -150,6 +153,101 @@ class IgBinaryConfig:
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
+class IgRepConIO:
+    def __initVJFinderOutput(self, output_dir):
+        self.vj_finder_output = os.path.join(output_dir, "vj_finder")
+        self.cropped_reads = os.path.join(self.vj_finder_output, "cropped.fa")
+        self.bad_reads = os.path.join(self.vj_finder_output, "bad.fa")
+        self.vj_alignment_info = os.path.join(self.vj_finder_output, "add_info.csv")
+
+    def __initCompressorOutput(self, output_dir):
+        self.compressed_reads = os.path.join(output_dir, "compressed.fa")
+        self.map_file = os.path.join(output_dir, "map.txt")
+        self.supernodes_file = os.path.join(output_dir, "supernodes.fa")
+
+    def __initDSFOutput(self, output_dir):
+        self.dsf_output = os.path.join(output_dir, "dense_sgraph_finder")
+        self.dense_sgraph_decomposition = os.path.join(self.dsf_output, 'dense_subgraphs.txt')
+
+    def __initFinalOutput(self, output_dir):
+        self.final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
+        self.final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
+
+    def __init__(self, output_dir, log):
+        self.__log = log
+        self.__initVJFinderOutput(output_dir)
+        self.__initCompressorOutput(output_dir)
+        self.sw_graph = os.path.join(output_dir, "sw.graph")
+        self.__initDSFOutput(output_dir)
+        self.__initFinalOutput(output_dir)
+        self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_stripped.fa')
+
+    def CheckCroppedReadsExistance(self):
+        if not os.path.exists(self.cropped_reads):
+            self.__log.info("ERROR: File containing cropped reads was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckBadReadsExistance(self):
+        if not os.path.exists(self.bad_reads):
+            self.__log.info("ERROR: File containing contaminated reads (not Ig-Seq) was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckVJAlignmentInfoExistance(self):
+        if not os.path.exists(self.vj_alignment_info):
+            self.__log.info("ERROR: File containing VJ alignment info was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckCompressedReadsExistance(self):
+        if not os.path.exists(self.compressed_reads):
+            self.__log.info("ERROR: File containing compressed reads was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckCroppedCompressedMapExistance(self):
+        if not os.path.exists(self.map_file):
+            self.__log.info("ERROR: File containing map from cropped reads to compressed reads was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckSupernodesExistance(self):
+        if not os.path.exists(self.supernodes_file):
+            self.__log.info("ERROR: File containing supernodes was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckSWGraphExistance(self):
+        if not os.path.exists(self.sw_graph):
+            self.__log.info("ERROR: File containing Smith-Waterman graph was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckDenseSubgraphDecompositionExistance(self):
+        if not os.path.exists(self.dense_sgraph_decomposition):
+            self.__log("ERROR: File containing dense subgraph decomposition was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckFinalClustersExistance(self):
+        if not os.path.exists(self.final_clusters_fa):
+            self.__log("ERROR: File containing clusters of final repertoire was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckFinalRCMExistance(self):
+        if not os.path.exists(self.final_rcm):
+            self.__log("ERROR: File containing RCM of final repertoire was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckFinalStrippedClustersExistance(self):
+        if not os.path.exists(self.final_stripped_clusters_fa):
+            self.__log("ERROR: File containing stripped clusters of final repertoire was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
 #######################################################################################
 #           Phases
 #######################################################################################
@@ -157,9 +255,6 @@ class Phase:
     def __init__(self, long_name, log):
         self._long_name = long_name
         self._log = log
-
-    def RestoreParamsFromPreviousPoint(self):
-        print "This method should be overloaded"
 
     def PrintStartMessage(self):
         self._log.info("==== " + self._long_name + " starts\n")
@@ -182,43 +277,25 @@ class VJAlignmentPhase(Phase):
             SupportInfo(self._log)
             sys.exit(1)
 
-    def __AddOutputFilesToParams(self):
-        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
-        self.__params.bad_reads = os.path.join(self.__params.vj_finder_output, "bad.fa")
-        self.__params.vj_alignment_info = os.path.join(self.__params.vj_finder_output, "add_info.csv")
-
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.cropped_reads):
-            self._log.info("ERROR: File containing cropped reads was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not os.path.exists(self.__params.bad_reads):
-            self._log.info("ERROR: File containing contaminated reads (not Ig-Seq) was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not os.path.exists(self.__params.vj_alignment_info):
-            self._log.info("ERROR: File containing VJ alignment info was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def RestoreParamsFromPreviousPoint(self):
-        return
+        self.__params.io.CheckCroppedReadsExistance()
+        self.__params.io.CheckBadReadsExistance()
+        self.__params.io.CheckVJAlignmentInfoExistance()
 
     def Run(self):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = IgBinaryConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
-                       self.__params.vj_finder_output + " --db-directory " + IgBinaryConfig().path_to_germline + \
+        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.reads + " -o " + \
+                       self.__params.io.vj_finder_output + " --db-directory " + IgRepConConfig().path_to_germline + \
                        " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
-        self.__AddOutputFilesToParams()
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files: ")
-        self._log.info("  * Cropped reads were written to " + self.__params.cropped_reads)
-        self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.bad_reads)
-        self._log.info("  * VJ alignment output was written to " + self.__params.vj_alignment_info)
+        self._log.info("  * Cropped reads were written to " + self.__params.io.cropped_reads)
+        self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
+        self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
 
 ###########
 class TrieCompressionPhase(Phase):
@@ -227,41 +304,29 @@ class TrieCompressionPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not 'cropped_reads' in self.__params or not os.path.exists(self.__params.cropped_reads):
-            self._log.info("ERROR: Compressed reads " + self.__params.cropped_reads + " were not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+        self.__params.io.CheckCroppedReadsExistance()
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.compressed_reads):
-            self._log.info("ERROR: File containing compressed reads was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def RestoreParamsFromPreviousPoint(self):
-        if not 'vj_finder_output' in self.__params:
-            self.__params.vj_finder_output = os.path.join(self.__params.output, 'vj_finder_output')
-        if not 'cropped reads' in self.__params:
-            self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, 'cropped.fa')
+        self.__params.io.CheckCompressedReadsExistance()
+        self.__params.io.CheckCroppedCompressedMapExistance()
+        self.__params.io.CheckSupernodesExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__params.compressed_reads = os.path.join(self.__params.output, "compressed.fa")
-        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
-        self.__params.supernodes_file = os.path.join(self.__params.output, "supernodes.fa")
-        command_line = IgBinaryConfig().run_trie_compressor + " -i " + self.__params.cropped_reads + " -o " + \
-                       self.__params.compressed_reads + " -m " + self.__params.map_file
+        command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
+                       " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
         support.sys_call(command_line, self._log)
-        command_line = "%s %s %s --limit=%d" % (IgBinaryConfig().run_report_supernodes,
-                                                self.__params.compressed_reads,
-                                                self.__params.supernodes_file,
+        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
+                                                self.__params.io.compressed_reads,
+                                                self.__params.io.supernodes_file,
                                                 5)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * Compressed reads were written to " + self.__params.compressed_reads)
+        self._log.info("  * Compressed reads were written to " + self.__params.io.compressed_reads)
+        self._log.info("  * Supernode sequences were written to " + self.__params.io.supernodes_file)
 
 ###########
 class GraphConstructionPhase(Phase):
@@ -270,34 +335,22 @@ class GraphConstructionPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not 'compressed_reads' in self.__params or not os.path.exists(self.__params.compressed_reads):
-            self._log.info("ERROR: File containing compressed reads was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+        self.__params.io.CheckCompressedReadsExistance()
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.sw_graph):
-            self._log.info("ERROR: File containing Smith-Waterman graph was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def RestoreParamsFromPreviousPoint(self):
-        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
-        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
-        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
+        self.__params.io.CheckSWGraphExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
-        command_line = IgBinaryConfig().run_graph_constructor + " -i " + self.__params.compressed_reads + " -o " + \
-                       self.__params.sw_graph + " -t " + str(self.__params.num_threads) + " --tau=" + str(self.__params.max_mismatches)
+        command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
+                       " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
+                       " --tau=" + str(self.__params.max_mismatches)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing Smith-Waterman graph was " + self.__params.sw_graph)
+        self._log.info("  * File containing Smith-Waterman graph was written to " + self.__params.io.sw_graph)
 
 ###########
 class DSFPhase(Phase):
@@ -306,17 +359,11 @@ class DSFPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not "sw_graph" in self.__params or not os.path.exists(self.__params.sw_graph):
-            self._log.info("ERROR: File containing Smith-Waterman graph was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def __AddOutputToParams(self):
-        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
-        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
+        self.__params.io.CheckSWGraphExistance()
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.sw_graph, '-o', self.__params.dsf_output, '-t', str(self.__params.num_threads)]
+        dsf_params = ['-g', self.__params.io.sw_graph, '-o', self.__params.io.dsf_output, '-t',
+                      str(self.__params.num_threads)]
         if self.__params.create_trivial_decomposition:
             dsf_params.append('--create-triv-dec')
         if self.__params.save_aux_files:
@@ -324,26 +371,17 @@ class DSFPhase(Phase):
         return dsf_params
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.dense_sgraph_decomposition):
-            self._log("ERROR: File containing dense subgraph decomposition was not found")
-
-    def RestoreParamsFromPreviousPoint(self):
-        self.__params.sw_graph = os.path.join(self.__params.output, "sw.graph")
-        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
-        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
-        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
+        self.__params.io.CheckDenseSubgraphDecompositionExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__AddOutputToParams()
         dense_subgraph_finder.main(self.__GetDSFParams(), self.__params.log_filename)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * File containing dense subgraph decomposition was written to " +
-                       self.__params.dense_sgraph_decomposition)
+                       self.__params.io.dense_sgraph_decomposition)
 
 ###########
 class ConsensusConstructionPhase(Phase):
@@ -352,61 +390,27 @@ class ConsensusConstructionPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not 'compressed_reads' in self.__params or not os.path.exists(self.__params.compressed_reads):
-            self._log.info("ERROR: File containing compressed reads was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not "dsf_output" in self.__params or not os.path.exists(self.__params.dsf_output):
-            self._log.info("ERROR: DSF output directory was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not "dense_sgraph_decomposition" in self.__params or \
-                not os.path.exists(self.__params.dense_sgraph_decomposition):
-            self._log.info("ERROR: File containing dense subgraph decomposition was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not "cropped_reads" in self.__params or not os.path.exists(self.__params.cropped_reads):
-            self._log.info("ERROR: File contaning cropped reads was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not "map_file" in self.__params or not os.path.exists(self.__params.map_file):
-            self._log.info("ERROR: File contaning read map was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+        self.__params.io.CheckCompressedReadsExistance()
+        self.__params.io.CheckDenseSubgraphDecompositionExistance()
+        self.__params.io.CheckCroppedReadsExistance()
+        self.__params.io.CheckCroppedCompressedMapExistance()
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.repertoire_clusters_fa):
-            self._log.info("ERROR: CLUSTERS.FA file containing final repertoire was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not os.path.exists(self.__params.cropped_rcm):
-            self._log.info("ERROR: RCM file containing final repertoire was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def RestoreParamsFromPreviousPoint(self):
-        self.__params.dsf_output = os.path.join(self.__params.output, "dense_sgraph_finder")
-        self.__params.dense_sgraph_decomposition = os.path.join(self.__params.dsf_output, 'dense_subgraphs.txt')
-        self.__params.compressed_reads = os.path.join(self.__params.output, 'compressed.fa')
-        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        self.__params.cropped_reads = os.path.join(self.__params.vj_finder_output, "cropped.fa")
-        self.__params.map_file = os.path.join(self.__params.output, "map.txt")
+        self.__params.io.CheckFinalClustersExistance()
+        self.__params.io.CheckFinalRCMExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
-        self.__params.cropped_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
-        # Restore RCM file
-        command_line = "%s -i %s -c %s -q %s -o %s" % (IgBinaryConfig().run_rcm_recoverer,
-                                                       self.__params.cropped_reads,
-                                                       self.__params.map_file,
-                                                       self.__params.dense_sgraph_decomposition,
-                                                       self.__params.cropped_rcm)
+        command_line = "%s -i %s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
+                                                       self.__params.io.cropped_reads,
+                                                       self.__params.io.map_file,
+                                                       self.__params.io.dense_sgraph_decomposition,
+                                                       self.__params.io.final_rcm)
         support.sys_call(command_line, self._log)
-        command_line = IgBinaryConfig().run_consensus_constructor + \
-                       " -i " + self.__params.cropped_reads + \
-                       " -R " + self.__params.cropped_rcm + \
-                       " -o " + self.__params.repertoire_clusters_fa + \
+        command_line = IgRepConConfig().run_consensus_constructor + \
+                       " -i " + self.__params.io.cropped_reads + \
+                       " -R " + self.__params.io.final_rcm + \
+                       " -o " + self.__params.io.final_clusters_fa + \
                        " -H " + " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
 
@@ -414,10 +418,10 @@ class ConsensusConstructionPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * CLUSTERS.FA file containing final repertoire was written to " +
-                       self.__params.repertoire_clusters_fa)
-        self._log.info("  * RCM file containing final repertoire was written to " +
-                       self.__params.cropped_rcm)
+        self._log.info("  * File containing clusters of final repertoire was written to " +
+                       self.__params.io.final_clusters_fa)
+        self._log.info("  * File containing read-cluster map of final repertoire was written to " +
+                       self.__params.io.final_rcm)
 
 class RemoveLowAbundanceReadsPhase(Phase):
     def __init__(self, params, log):
@@ -425,35 +429,25 @@ class RemoveLowAbundanceReadsPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not os.path.exists(self.__params.repertoire_clusters_fa):
-            self._log.info("ERROR: CLUSTERS.FA file containing final repertoire was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+        self.__params.io.CheckFinalClustersExistance()
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.repertoire_clusters_stripped_fa):
-            self._log.info("ERROR: CLUSTERS_STRIPPED.FA file containing final repertoire was not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-
-    def RestoreParamsFromPreviousPoint(self):
-        self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
+        self.__params.io.CheckFinalStrippedClustersExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__params.repertoire_clusters_stripped_fa = os.path.join(self.__params.output, 'final_repertoire_stripped.fa')
-        command_line = "%s %s %s --limit=%d" % (IgBinaryConfig().run_remove_low_abundance_reads,
-                                                self.__params.repertoire_clusters_fa,
-                                                self.__params.repertoire_clusters_stripped_fa,
-                                                IgBinaryConfig().cluster_size_limit)
+        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
+                                                self.__params.io.final_clusters_fa,
+                                                self.__params.io.final_stripped_clusters_fa,
+                                                IgRepConConfig().cluster_size_limit)
         support.sys_call(command_line, self._log)
 
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * CLUSTERS_STRIPPED.FA file containing final repertoire was written to " +
-                       self.__params.repertoire_clusters_stripped_fa)
+        self._log.info("  * File containing stripped clusters of final repertoire was written to " +
+                       self.__params.io.final_stripped_clusters_fa)
 
 ###########
 class PhaseFactory:
@@ -505,7 +499,6 @@ class PhaseManager:
         self.__log.info("\n============================================\n")
 
     def Run(self):
-        self.__phases[0].RestoreParamsFromPreviousPoint()
         self.__RunSinglePhase(0)
         for i in range(1, len(self.__phases) - 1):
             self.__PrintPhaseDelimeter()
@@ -598,7 +591,8 @@ def ParseCommandLineParams():
                           help="_Show hidden help")
     parser.set_defaults(config_dir="configs",
                         config_file="config.info")
-    return parser, parser.parse_args()
+    params = parser.parse_args()
+    return parser, params
 
 def CheckParamsCorrectness(parser, params, log):
     if not "output" in params or params.output == "":
@@ -646,7 +640,7 @@ def PrintCommandLine(log):
 #           Main
 #######################################################################################
 def main():
-    binary_config = IgBinaryConfig()
+    binary_config = IgRepConConfig()
     log = CreateLogger()
     binary_config.CheckBinaries(log)
     parser, params = ParseCommandLineParams()
@@ -655,6 +649,7 @@ def main():
     CreateFileLogger(params, log)
     PrintParams(params, log)
     PrintCommandLine(log)
+    params.io = IgRepConIO(params.output, log)
 
     try:
         ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
