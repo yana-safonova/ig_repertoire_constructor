@@ -181,7 +181,10 @@ def main(argv, external_logger = ""):
     log.addHandler(log_handler)
 
     # print command line
-    command_line = "Command line: " + " ".join(sys.argv)
+    command_line = "Command_line: "
+    if argv[0] != "dense_subgraph_finder.py":
+        command_line += "dense_subgraph_finder.py "
+    command_line += " ".join(argv)
     log.info(command_line + "\n")
     PrintParams(params, log)
     log.info("Log will be written to " + params.log_filename + "\n")
