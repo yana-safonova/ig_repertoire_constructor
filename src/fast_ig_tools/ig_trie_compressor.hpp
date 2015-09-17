@@ -143,27 +143,26 @@ class Trie {
     std::unique_ptr<TrieNode> root;
 
   public:
-    Trie() = default;
+    Trie() {
+        root.reset(new TrieNode);
+    }
     Trie(const Trie&) = delete;
     Trie& operator=(const Trie&) = delete;
     Trie(Trie&&) = default;
     Trie& operator=(Trie&&) = default;
 
     template<typename Tcont>
-      Trie(const Tcont &cont) {
+    Trie(const Tcont &cont) {
+        root.reset(new TrieNode);
         size_t i = 0;
         for (const auto &s : cont) {
-          add(s, i);
-          ++i;
+            add(s, i);
+            ++i;
         }
-      }
+    }
 
     template<typename T, typename Tf>
       void add(const T &s, size_t id, const Tf &toIndex) {
-        if (!root) {
-          root.reset(new TrieNode);
-        }
-
         typename TrieNode::pointer_type p = this->root.get();
 
         for (size_t i = 0; i < length(s); ++i) {
