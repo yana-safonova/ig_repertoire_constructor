@@ -585,7 +585,7 @@ def ParseCommandLineParams():
                                type=str,
                                dest="chain",
                                default="all",
-                               help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda) "
+                               help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda chains) "
                                     "/ lambda / kappa [default: %(default)s]")
 
     dev_args = parser.add_argument_group("_Developer arguments")
