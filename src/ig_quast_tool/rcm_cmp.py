@@ -1,14 +1,11 @@
 #!/usr/bin/env python2
 
-from Bio import SeqIO
 from argparse import ArgumentParser
 from barcode_cleaner import smart_open
 
 from ig_basic import extract_barcode, most_popular_element
 from collections import defaultdict
 import numpy as np
-from Levenshtein import distance as levenshtein
-import sys
 
 
 def consensus(reads):
@@ -149,38 +146,27 @@ if __name__ == "__main__":
     print "Bad barcodes: %d" % len(bad_barcodes)
     print_barcode_abundance(barcode2abundance, bad_barcodes)
 
-    sys.exit()
-
-
-    print "Reading input reads..."
-    with smart_open(args.reads, "r") as fh:
-        id2read = {str(record.id): str(record.seq)
-                   for record in SeqIO.parse(fh, "fasta")}
-
-    barcode2ids = defaultdict(list)
-    for id in id2clique.keys():
-        barcode = extract_barcode(id)
-        barcode2ids[barcode].append(id)
-
-    barcode2consensus = {}
-    barcode2dists = {}
-    for barcode, ids in barcode2ids.iteritems():
-        cons = barcode2consensus[barcode] = consensus([id2read[id] for id in ids])
-        dists = [levenshtein(cons, id2read[id]) for id in ids]
-        barcode2dists[barcode] = dists
-
-    for barcode in good_barcodes:
-        print barcode2dists[barcode]
-    for barcode in bad_barcodes:
-        print barcode2dists[barcode]
-
-
-
-
-
-
-
-
-
-
-
+    # sys.exit()
+    #
+    #
+    # print "Reading input reads..."
+    # with smart_open(args.reads, "r") as fh:
+    #     id2read = {str(record.id): str(record.seq)
+    #                for record in SeqIO.parse(fh, "fasta")}
+    #
+    # barcode2ids = defaultdict(list)
+    # for id in id2clique.keys():
+    #     barcode = extract_barcode(id)
+    #     barcode2ids[barcode].append(id)
+    #
+    # barcode2consensus = {}
+    # barcode2dists = {}
+    # for barcode, ids in barcode2ids.iteritems():
+    #     cons = barcode2consensus[barcode] = consensus([id2read[id] for id in ids])
+    #     dists = [levenshtein(cons, id2read[id]) for id in ids]
+    #     barcode2dists[barcode] = dists
+    #
+    # for barcode in good_barcodes:
+    #     print barcode2dists[barcode]
+    # for barcode in bad_barcodes:
+    #     print barcode2dists[barcode]
