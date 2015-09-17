@@ -395,7 +395,7 @@ class ConsensusConstructionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.repertoire_clusters_fa = os.path.join(self.__params.output, 'final_repertoire.fa')
-        self.__params.cropped_rcm = os.path.join(self.__params.output, 'cropped.rcm')
+        self.__params.cropped_rcm = os.path.join(self.__params.output, 'final_repertoire.rcm')
         # Restore RCM file
         command_line = "%s -i %s -c %s -q %s -o %s" % (IgBinaryConfig().run_rcm_recoverer,
                                                        self.__params.cropped_reads,
