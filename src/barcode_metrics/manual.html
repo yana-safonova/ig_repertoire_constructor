@@ -136,14 +136,15 @@ To evaluate constructed repertoire with barcodes
 BarcodeQUAST creates working directory (which name was specified using option <code>--out</code>) and outputs there the following files:
 <ul>
     <li><b>metrics.txt</b> - file with computed metrics.</li>
-    <li><b>cluster_sizes_distr.png</b> - graph with distribution of cluster sizes (number of reads with the same barcode/in one constructed cluster).</li>
-    <li><b>cluster_sizes_distr_nt.png</b> - graph with distribution of cluster sizes (number of reads with the same barcode/in one constructed cluster) for non-trivial clusters (size &gt; 1).</li>
-    <li><b>isolated_cluster_sizes_distr.png</b> - graph with distribution of cluster sizes (number of reads with the same barcode/in one constructed cluster) for isolated clusters (isolated cluster is a cluster that don't have a match in the second repertoire, a match is a cluster with sequence on distance &lt;= tau).</li>
-    <li><b>isolated_cluster_sizes_distr_nt.png</b> - graph with distribution cluster sizes for isolated non-trivial clusters.</li>
-	<li><b>lengths_distr.png</b> - graph with cluster sequence lengths distribution</li>
+    <li><b>cluster_sizes_distr.png</b> - graph with distribution of cluster sizes (size is number of reads with the same barcode or in one constructed cluster).</li>
+    <li><b>cluster_sizes_distr_nt.png</b> - graph with distribution of cluster sizes (size is number of reads with the same barcode or in one constructed cluster) for non-trivial clusters (size &gt; 1).</li>
+    <li><b>isolated_cluster_sizes_distr.png</b> - graph with distribution of cluster sizes (size is number of reads with the same barcode or in one constructed cluster) for isolated clusters (isolated cluster is a cluster that don't have any matches in the second repertoire, a match is a cluster with sequence on distance &lt;= tau).</li>
+    <li><b>isolated_cluster_sizes_distr_nt.png</b> - graph with distribution of cluster sizes for isolated non-trivial clusters.</li>
+	<li><b>lengths_distr.png</b> - graph with cluster sequence length's distribution</li>
 	<li><b>isolated_lengths_distr.png</b> - graph with sequence lengths distribution for isolated clusters</li>
     <li><b>barcode_quast.log</b> - full log of barcodeQUAST run.</li>
 </ul>
+Also you can find some auxiliary files in output directory like <code>*.match</code> files and directories corresponding to each match file. They are used to store some information from intermediate steps of application.
 <br>
 
 <!--- ---------------------------------------------------------------- --->
@@ -153,8 +154,8 @@ BarcodeQUAST creates working directory (which name was specified using option <c
 Metrics computed for each provided repertoire:
 <ul>
     <li><b>#clusters</b> - number of clusters (sequences) in repertoire.</li>
-    <li><b>#isolated clusters</b> - number of clusters in repertoire that don't have similar cluster in the second repertoire (isolated cluster is a cluster that don't have a match in the second repertoire, a match is a cluster with sequence on distance &lt;= tau).</li>
-    <li><b>#clusters (&gt;= sz)</b> - number of clusters of size &gt;= sz (size of cluster is number of reads included to this cluster) in repertoire.</li>
+    <li><b>#isolated clusters</b> - number of clusters in repertoire that don't have similar cluster in the second repertoire (isolated cluster is a cluster that don't have any matches in the second repertoire, a match is a cluster with sequence on distance &lt;= tau).</li>
+    <li><b>#clusters (&gt;= sz)</b> - number of clusters of size &gt;= sz (size of cluster is number of reads included in this cluster) in repertoire.</li>
     <li><b>Min sequence length</b> - minimal cluster sequence length.</li>
     <li><b>Avg sequence length</b> - average cluster sequence length.</li>
     <li><b>Max sequence length</b> - maximal cluster sequence length.</li>
@@ -168,25 +169,16 @@ Metrics computed for each provided repertoire:
 
 General metrics:
 <ul>
-    <li><b>#good barcodes</b> - number of barcodes having &gt;= rate * barcode_size reads included to the same cluster in evaluated repertoire (barcodes covered by a single cluster in evaluated repertoire).
+    <li><b>#good barcodes</b> - number of barcodes having &gt;= rate * barcode_size reads included to the same cluster in evaluated repertoire (barcodes mostly covered by a single cluster in evaluated repertoire).
       This metric shows quality of reads clusterization in evaluated repertoire.</li>
     <li><b>#bad barcodes</b> - (#all barcodes - #good barcodes)</li>
-    <li><b>Min gap distance to good barcodes</b> - minimal gap distance to good barcode computed among all clusters that share reads with this barcode.
+    <li><b>Min distance to good barcodes</b> - minimal distance (number of gaps + mismatches in sequence alignment) to good barcode computed among all clusters that share reads with this barcode.
       Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
       This metric is computed only if flag --deep-rcm-cmp is on.</li>
-    <li><b>Avg gap distance to good barcodes</b> - average gap distance to good barcode computed among all clusters that share reads with this barcode.
+    <li><b>Avg distance to good barcodes</b> - average distance to good barcode computed among all clusters that share reads with this barcode.
       Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
       This metric is computed only if flag --deep-rcm-cmp is on.</li>
-    <li><b>Max gap distance to good barcodes</b> - maximal gap distance to good barcode computed among all clusters that share reads with this barcode.
-      Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
-      This metric is computed only if flag --deep-rcm-cmp is on.</li>
-    <li><b>Min mismatches distance to good barcodes</b> - minimal mismatches distance to good barcode computed among all clusters that share reads with this barcode.
-      Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
-      This metric is computed only if flag --deep-rcm-cmp is on.</li>
-    <li><b>Avg mismatches distance to good barcodes</b> - average mismatches distance to good barcode computed among all clusters that share reads with this barcode.
-      Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
-      This metric is computed only if flag --deep-rcm-cmp is on.</li>
-    <li><b>Max mismatches distance to good barcodes</b> - maximal mismatches distance to good barcode computed among all clusters that share reads with this barcode.
+    <li><b>Max distance to good barcodes</b> - maximal distance to good barcode computed among all clusters that share reads with this barcode.
       Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
       This metric is computed only if flag --deep-rcm-cmp is on.</li>
 
