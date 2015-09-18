@@ -169,11 +169,10 @@ int main(int argc, char **argv) {
         assert(rcm.first.count(id));
         component_indices[i] = rcm.first[id];
     }
-    size_t max_index = input_reads.size() ? *std::max_element(component_indices.cbegin(), component_indices.cend()) : 0;
-    INFO((max_index + 1) << " clusters were extracted from " << rcm_file);  // TODO Compute #of cmps more carefully
 
+    INFO(rcm.second.size() << " clusters were extracted from " << rcm_file);
 
-    std::vector<std::vector<size_t>> component2id(max_index + 1);
+    std::vector<std::vector<size_t>> component2id(rcm.second.size());
     for (size_t i = 0; i < component_indices.size(); ++i) {
         component2id[component_indices[i]].push_back(i);
     }
