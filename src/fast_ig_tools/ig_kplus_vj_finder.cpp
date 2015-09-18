@@ -371,7 +371,7 @@ struct Ig_KPlus_Finder_Parameters {
     bool silent = true;
     bool fill_prefix_by_germline = true;
     bool compress = false;
-    bool pseudogenes = false;
+    bool pseudogenes = true;
     std::string config_file = "";
     std::string output_filename;
     std::string bad_output_filename;
@@ -523,9 +523,9 @@ struct Ig_KPlus_Finder_Parameters {
         }
 
         if (vm.count("pseudogenes")) {
-            compress = true;
+            pseudogenes = true;
         } else if (vm.count("no-pseudogenes")) {
-            compress = false;
+            pseudogenes = false;
         }
 
         if (vm.count("no-fill-prefix-by-germline")) {
