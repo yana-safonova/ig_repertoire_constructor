@@ -45,7 +45,12 @@ void DecompositionStatsCalculator::ComputeShortStats() {
         }
     }
     average_fillin_ /= double(num_nontrivial_classes);
-    fillin_of_max_class_ = class_edge_fillin_[max_class_id];
+    if(num_nontrivial_classes == 0)
+        average_fillin_ = 0.0;
+    if(max_class_id == size_t(-1))
+        fillin_of_max_class_ = 0.0;
+    else
+        fillin_of_max_class_ = class_edge_fillin_[max_class_id];
 }
 
 double DecompositionStatsCalculator::ComputeClassFillin(size_t class_id) {
@@ -68,6 +73,8 @@ void DecompositionStatsCalculator::WriteAllStats(ostream &out) {
 void DecompositionStatsCalculator::WriteShortStats(ostream &) {
     INFO("Decomposition contains " << decomposition_->Size() << " classes");
     float trivial_classes_perc = float(num_trivial_classes_ * 100) / float(decomposition_->Size());
+    if(decomposition_->Size() == 0)
+        trivial_classes_perc = 0.0;
     INFO("# trivial classes: " << num_trivial_classes_ << " (" << trivial_classes_perc << "%)");
     INFO("Size of maximal class: " << decomposition_->MaxClassSize());
     INFO("Edge fillin of maximal class: " << fillin_of_max_class_);

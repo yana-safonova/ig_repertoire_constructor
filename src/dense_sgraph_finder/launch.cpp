@@ -101,8 +101,12 @@ namespace {
             }
             INFO("Largest component contains " << max_vertex_size << " vertices & " << max_edge_size << " edges");
             float singleton_perc = float(num_singletons * 100) / float(connected_components.size());
+            if(connected_components.size() == 0)
+                singleton_perc = 0.0;
             INFO("# singleton components: " << num_singletons << " (" << singleton_perc << "%)");
             float small_comp_perc = float(num_small_components * 100) / float(connected_components.size());
+            if(connected_components.size() == 0)
+                small_comp_perc = 0.0;
             INFO("# small components (# vertices < " << dsf_params_.min_graph_size << "): " <<
                  num_small_components << " (" << small_comp_perc << "%)");
         }
