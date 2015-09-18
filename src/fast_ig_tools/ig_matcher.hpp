@@ -167,6 +167,14 @@ void remove_duplicates(std::vector<T> &v) {
 
 
 template<typename T>
+size_t count_unique(std::vector<T> v) {
+   remove_duplicates(v);
+
+   return v.size();
+}
+
+
+template<typename T>
 std::vector<size_t> find_candidates(const T &read,
                                     const KmerIndex &kmer2reads,
                                     size_t target_size,
