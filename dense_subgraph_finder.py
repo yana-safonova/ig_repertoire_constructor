@@ -106,7 +106,13 @@ def main(argv, external_logger = ""):
     input_args.add_argument("-g", "--graph",
                             type=str,
                             default="",
+                            dest="graph",
                             help="Input graph in GRAPH format")
+    input_args.add_argument("--test",
+                            action="store_const",
+                            const="test_dataset/test.graph",
+                            dest="graph",
+                            help="Running test dataset")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
@@ -141,11 +147,6 @@ def main(argv, external_logger = ""):
                                dest="save_aux_files",
                                help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
                                     "[default: False]")
-    optional_args.add_argument("--test",
-                            action="store_const",
-                            const="test_dataset/test.graph",
-                            dest="graph",
-                            help="Running test dataset")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
