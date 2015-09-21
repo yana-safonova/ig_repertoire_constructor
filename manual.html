@@ -189,14 +189,37 @@ To construct antibody repertoire from Illumina reads, covering variable regions 
 <a id="repertoire_constructor_output"></a>
 <h3>3.4. Output files</h3>
 IgRepertoireConstructor creates working directory (which name was specified using option <code>-o</code>) and outputs there the following files:
+
 <ul>
+  <li>Final repertoire files:</li>
+  <ul>
     <li><b>final_repertoire.fa</b> &mdash; CLUSTERS.FASTA file with constructed repertoire (see details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
     <li><b>final_repertoire.rcm</b> &mdash; RCM file with constructed repertoire (see details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
     <li><b>final_repertoire_stripped.fa</b> &mdash; CLUSTERS.FASTA file with constructed repertoire filtered by component size (component size >= 5)</li>
     <li><b>supernodes.fa</b> &mdash; FASTA file with naive repertoire builded using supernodes (reads with abundance >= 5)</li>
-    <li><b>vj_finder/cropped.fa</b> &mdash; FASTA file with initial reads, which were correctly reversed, aligned on V- and J- genes and cropped using VJ-aligner</li>
-    <li><b>vj_finder/bad.fa</b> &mdash; FASTA file with initial reads, which were filtered by aligning on V- and J- genes</li>
-    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgRepertoireConstructor run.</li>
+  </ul>
+  <li>VJ finder output files:</li>
+  <ul>
+    <li><b>vj_finder/cropped.fa</b> &mdash; FASTA file with initial reads, which were correctly reversed, aligned on V and J genes and cropped using VJ finder</li>
+    <li><b>vj_finder/bad.fa</b> &mdash; FASTA file with initial reads, which were filtered by aligning on V and J genes</li>
+    <li><b>vj_finder/add_info.csv</b> &mdash; CSV file with alignment info (consistent with <b>cropped.fa</b>); for each read it stores read ID, best hit V gene position, score and ID and the same for best hit J gene
+  </ul>
+  <li>Dense subgraph finder files:</li>
+  <ul>
+    <li><b>dense_subgraph_finder/dense_subgraph_finder.log</b> &mdash; log of DenseSubgraphFinder run</li>
+    <li><b>dense_subgraph_finder/dense_subgraphs.txt</b> &mdash; dense subgraph decomposition in simple format: each line contains cluster label</li>
+  </ul>
+  <li>Auxiliary files:</li>
+<ul>
+    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgRepertoireConstructor run</li>
+    <li><b>compressed.fa</b> &mdash; FASTA file, which contains compressed reads, result of IgTrieCompressor; each cropped read collapsed to minimal presented prefix.
+      Thus it's guarantied that each read is not prefix of any other read, only unique prefixes are extracted.
+      For each unique prefix-read its <i>abundance</i> (the number of joined reads) is added to its ID
+    </li>
+    <li><b>map.txt</b> &mdash; file, which stores read compression map provided by igTrieCompressor.
+      This file is consistent with <b>cropped.fa</b>, each line contains the number (zero based) of target prefix-read in <b>compressed.fa</b> file</li>
+    <li><b>sw.graph</b> &mdash; Smith-Waterman graph constructed on compressed reads from <b>compressed.fa</b> in METIS *.graph format (see <a href="http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf">METIS 5.1.x Manual</a> for format description)
+</ul>
 </ul>
 <br>
 
