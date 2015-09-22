@@ -68,6 +68,12 @@ pairs.plots <- function(barcodes) {
   print(pairs(barcodes[["D right"]], xlim = c(0.5, 1), ylim = c(0.5, 1), main = "D right"))
   print(pairs(barcodes[["J"]], xlim = c(0.8, 1), ylim = c(0.8, 1), main = "J"))
 }
+
+permutation.test <- function(a, b, df.length) {
+  tmp <- matrix( c(a, sample(b)), nrow = length(a), ncol = df.length )
+  #print(tmp)
+  cor(tmp[,1], tmp[,2])
+}
 ```
 
 ```{r}
@@ -100,6 +106,19 @@ lapply(corr, corrplot, method="number")
 
 corr <- lapply(cleaned.barcodes.reduced.eq, cor, method = "spearman")
 lapply(corr, corrplot, method="number")
+```
+
+```{r}
+N <- 1000
+out <- lapply(cleaned.barcodes.reduced.eq, function(x) {
+      c(cor(x[,1], x[,2]), replicate(N, permutation.test(x[,1], x[,2], length(df)))) 
+    }
+  )
+lapply(out, function(x) {
+    print(hist(x))
+    print(abline(v=x[1], col='red'))
+  }
+)
 ```
 
 ```{r}
@@ -139,28 +158,5 @@ corr <- lapply(cleaned.sam.datasets, cor, method = "spearman")
 corr
 lapply(corr, corrplot, method="number")
 ```
-
-
-```{r}
-df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
-df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
-df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:9]))
-
-
-
-sam.dataset
-
-pairs.plots(sam.dataset)
-
-corr <- lapply(sam.dataset, cor)
-corr
-lapply(corr, corrplot, method="number")
-
-corr <- lapply(sam.dataset, cor, method = "spearman")
-corr
-lapply(corr, corrplot, method="number")
-```
-
-
 
 
