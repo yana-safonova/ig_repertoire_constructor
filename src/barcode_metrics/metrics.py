@@ -42,6 +42,8 @@ class BarcodeMetrics():
         self.sep_metrics_dict = {}
         self.gen_metric_names = ["#good barcodes", "#bad barcodes", 
             "Min distance to good barcodes", "Avg distance to good barcodes", "Max distance to good barcodes"]
+        for i in range(10):
+            self.gen_metric_names.append("Barcodes on distance " + str(i))
         self.gen_metrics_dict = {}
 
     def calculate_distances(self, log):
@@ -82,6 +84,9 @@ class BarcodeMetrics():
             cnt = distances.count(dist)
             if cnt:
                 self.distances_dict[dist] = cnt
+        for dist, count in self.distances_dict.items():
+            self.gen_metrics_dict["Barcodes on distance " + str(dist)] = "{:d} ({:.2f}%)".format(count, 
+                100.0 * count / self.barcodes_number)
 
     def calculate_good_barcodes_number(self, log):
         good_barcodes = 0

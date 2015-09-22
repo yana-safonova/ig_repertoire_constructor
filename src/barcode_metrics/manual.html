@@ -185,6 +185,7 @@ General metrics:
     <li><b>Max distance to good barcodes</b> - maximal distance to good barcode computed among all clusters that share reads with this barcode.
       Cluster that covers &gt; rate portion of reads in good barcode is excluded from the comparison.
       This metric is computed only if flag --deep-rcm-cmp is on.</li>
+    <li><b>Barcodes reconstructed with distance &lt;dist&gt;</b> - number of barcodes for which we can find cluster with sequence on distance equal to &lt;dist&gt; in evaluated repertoire (distance is number of gaps and mismatches in alignment).</li>
 
 </ul>
 
