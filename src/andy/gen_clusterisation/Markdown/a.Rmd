@@ -1,0 +1,166 @@
+---
+title: "Gen Statistics"
+author: "Andy"
+date: "September 20, 2015"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, messages=FALSE, cache=T)
+```
+
+```{r}
+library("lattice")
+library("parallel")
+library("corrplot")
+```
+
+
+```{r}
+cor.clavage.gen <- function(df, Type.segment, threshold, left.b = 0, right.b = 1) {
+  df_length = length(df)
+  v.df <- lapply(df, function(x) { droplevels(subset(x, x$Type == Type.segment)) })
+  v.df_true <- lapply(v.df, function(x) droplevels(subset(x, x$Clavage)))
+  
+  #t_full <- lapply(v.df, function(x) { table(x$subject_id)})
+  t_full <- lapply(v.df, function(x) { unlist(by(x, x$subject_id, function(y) sum(y$abundance), simplify=FALSE)) })
+  #t_full <- t_full[-(length(t_full) - 2)]
+  #t_true <- lapply(v.df_true, function(x) table(x$subject_id))
+  t_true <- lapply(v.df_true, function(x) { unlist(by(x, x$subject_id, function(y) sum(y$abundance), simplify=FALSE)) })
+  #t_true <- t_true[-(length(t_true) - 2)]
+  
+  #ind <- lapply(t_true, function(x) which(x > threshold))
+  #t_full <- mapply(function(x, i) { x[i] }, t_full, ind, SIMPLIFY = FALSE)
+  t_true <- lapply(t_true, function(x) { x[x > threshold] })
+  t_full <- mapply(function(x, y) { x[names(y)] }, t_full, t_true, SIMPLIFY = FALSE)
+  #mapply(function(x, y) { sort(x / y) }, t_true, t_full)
+    
+  intersectSeveral <- function(...) { Reduce(function(x, y) { intersect(x, y) }, list(...)[[1]]) }
+  t_full_intersected <- lapply(t_full, function(x) x[intersectSeveral(lapply(t_true, names))])
+  t_true_intersected <- lapply(t_true, function(x) x[intersectSeveral(lapply(t_true, names))])
+  #print(t_full_intersected)
+  #mapply(function(x, y) sort(x / y), t_true_intersected, t_full_intersected, SIMPLIFY = FALSE)
+  
+  p_clavage <- mapply(function(x, y) x / y, t_true_intersected, t_full_intersected, SIMPLIFY = FALSE)
+  #apply(simplify2array(p_clavage), 1, mean)
+  #apply(simplify2array(p_clavage), 1, sd)
+  
+  s2a_p_clavage <- simplify2array(p_clavage)
+  s2a_p_clavage
+}
+
+cor.clavage.gen.all <- function(df, threshold = 1000) {
+  df <- mclapply(df, function(x) {x$Clavage <- toupper(x$Clavage); x }, mc.cores = detectCores())
+  df <- mclapply(df, function(x) {x$Clavage <- as.logical(x$Clavage); x}, mc.cores = detectCores())
+  df <- mclapply(df, function(x) {x$subject_id <- as.factor(x$subject_id); x}, mc.cores = detectCores())
+  df <- mclapply(df, function(x) {x$Type <- as.factor(x$Type); x}, mc.cores = detectCores())
+  
+  #df <- mclapply(df, function(x) {x[rep(row.names(x), x$abundance),]}, mc.cores = detectCores())
+  list("V"       = cor.clavage.gen(df, "V", threshold = threshold),
+       "D left"  = cor.clavage.gen(df, "D left", left.b = 0.5, threshold = threshold),
+       "D right" = cor.clavage.gen(df, "D right", left.b = 0.5, threshold = threshold),
+       "J"       = cor.clavage.gen(df, "J", left.b = 0.8, threshold = threshold)
+  )
+}
+
+pairs.plots <- function(barcodes) {
+  print(pairs(barcodes[["V"]], xlim = c(0, 1), ylim = c(0, 1), main = "V"))
+  print(pairs(barcodes[["D left"]], xlim = c(0.5, 1), ylim = c(0.5, 1), main = "D left"))
+  print(pairs(barcodes[["D right"]], xlim = c(0.5, 1), ylim = c(0.5, 1), main = "D right"))
+  print(pairs(barcodes[["J"]], xlim = c(0.8, 1), ylim = c(0.8, 1), main = "J"))
+}
+```
+
+```{r}
+df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+
+cleaned.barcodes <- cor.clavage.gen.all(df)
+cleaned.barcodes
+pairs.plots(cleaned.barcodes)
+
+corr <- lapply(cleaned.barcodes, cor)
+lapply(corr, corrplot, method="number")
+
+corr <- lapply(cleaned.barcodes, cor, method = "spearman")
+lapply(corr, corrplot, method="number")
+```
+
+```{r}
+df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:8]))
+
+cleaned.barcodes.reduced.eq  <- cor.clavage.gen.all(df)
+cleaned.barcodes.reduced.eq
+
+pairs.plots(cleaned.barcodes.reduced.eq)
+
+corr <- lapply(cleaned.barcodes.reduced.eq, cor)
+lapply(corr, corrplot, method="number")
+
+corr <- lapply(cleaned.barcodes.reduced.eq, cor, method = "spearman")
+lapply(corr, corrplot, method="number")
+```
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../2_SAM13306970.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+lapply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+lapply(corr, corrplot, method="number")
+```
+
+```{r}
+df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:8]))
+
+cleaned.sam.datasets  <- cor.clavage.gen.all(df)
+cleaned.sam.datasets
+
+pairs.plots(cleaned.sam.datasets)
+
+corr <- lapply(cleaned.sam.datasets, cor)
+corr
+lapply(corr, corrplot, method="number")
+
+corr <- lapply(cleaned.sam.datasets, cor, method = "spearman")
+corr
+lapply(corr, corrplot, method="number")
+```
+
+
+```{r}
+df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:9]))
+
+
+
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+lapply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+lapply(corr, corrplot, method="number")
+```
+
+
+
+
