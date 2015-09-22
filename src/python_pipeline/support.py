@@ -29,19 +29,17 @@ current_tmp_dir = None
 
 
 def error(err_str, log=None, dipspades=False, prefix=SPADES_PY_ERROR_MESSAGE):
-    if not dipspades:
-        binary_name = "SPAdes"
-    else:
-        binary_name = "dipSPAdes"
+    binary_name = "IG Repertoire constructor"
+
     if log:
         log.info("\n\n" + prefix + " " + err_str)
         log_warnings(log)
         log.info("\nIn case you have troubles running " + binary_name + ", you can write to spades.support@bioinf.spbau.ru")
-        log.info("Please provide us with params.txt and " + binary_name.lower() + ".log files from the output directory.")
+        log.info("Please provide us with .log files from the output directory.")
     else:
         sys.stderr.write("\n\n" + prefix + " " + err_str + "\n\n")
-        sys.stderr.write("\nIn case you have troubles running " + binary_name + ", you can write to spades.support@bioinf.spbau.ru\n")
-        sys.stderr.write("Please provide us with params.txt and " + binary_name.lower() + ".log files from the output directory.\n")
+        sys.stderr.write("\nIn case you have troubles running " + binary_name + ", you can write to igtools_support@googlegroups.com\n")
+        sys.stderr.write("Please provide us .log files from the output directory.\n")
         sys.stderr.flush()
     if current_tmp_dir and os.path.isdir(current_tmp_dir):
         shutil.rmtree(current_tmp_dir)
@@ -63,16 +61,12 @@ def check_python_version():
 
 
 def get_spades_binaries_info_message():
-    return "You can obtain SPAdes binaries in one of two ways:" +\
-           "\n1. Download them from http://bioinf.spbau.ru/content/spades-download" +\
-           "\n2. Build source code with ./spades_compile.sh script"
+    return "You can obtain IG Repertoire Consructor binaries by the following way:" +\
+           "\nBuild source code by runing  ./prepare_cfg; make"
 
 
 def check_binaries(binary_dir, log):
-    for binary in ["hammer", "ionhammer", "spades", "bwa-spades", "dipspades"]:
-        binary_path = os.path.join(binary_dir, binary)
-        if not os.path.isfile(binary_path):
-            error("SPAdes binaries not found: " + binary_path + "\n" + get_spades_binaries_info_message(), log)
+    pass
 
 
 def check_file_existence(filename, message="", log=None, dipspades=False):
