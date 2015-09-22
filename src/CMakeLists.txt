@@ -71,6 +71,7 @@ add_subdirectory(io)
 #add_subdirectory(ig_repertoire_constructor)
 add_subdirectory(fast_ig_tools)
 add_subdirectory(dense_sgraph_finder)
+add_subdirectory(paired_read_merger)
 
 # Main pipeline script
 #install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/../spades.py"

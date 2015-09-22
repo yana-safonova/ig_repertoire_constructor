@@ -1,4 +1,5 @@
 #include "reads_merger.hpp"
+#include <utils/string_tools.hpp>
 
 merger_setting parse_settings(int argc, char *argv[]) {
 	merger_setting setting;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../utils/fastq_reader.hpp"
-#include "../utils/include_me.hpp"
-#include "../utils/sequence_tools.hpp"
-#include "../utils/string_tools.hpp"
+#include <utils/fastq_reader.hpp>
+#include <utils/include_me.hpp>
+#include <utils/sequence_tools.hpp>
+#include <utils/string_tools.hpp>
 
 struct merger_setting {
 	size_t min_overlap;
