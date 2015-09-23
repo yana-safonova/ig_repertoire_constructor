@@ -16,7 +16,7 @@ home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + 
 ig_bin_directory = os.path.join(home_directory, "build/release/bin/")
 python_src_directory = os.path.join(home_directory, "src/ig_tools/python_utils/")
 config_directory = os.path.join(home_directory, "configs/ig_tools/")
-spades_py_scripts_directory = os.path.join(home_directory, "src/spades_pipeline/")
+spades_py_scripts_directory = os.path.join(home_directory, "src/python_pipeline/")
 igblast_directory = os.path.join(home_directory, "src/tools/igblast/")
 ms_utils_directory = os.path.join(home_directory, "src/mass_spectra_analysis/")
 
