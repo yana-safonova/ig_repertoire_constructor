@@ -1,4 +1,4 @@
-#include "../utils/include_me.hpp"
+#include <utils/include_me.hpp>
 using namespace std;
 
 int main(int argc, char * argv[]){

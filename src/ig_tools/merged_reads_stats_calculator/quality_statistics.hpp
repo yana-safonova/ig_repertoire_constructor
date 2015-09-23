@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../utils/fastq_reader.hpp"
+#include <utils/fastq_reader.hpp>
 
 struct QualityStatistics {
 	double aver_read_qual;
