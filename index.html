@@ -36,8 +36,24 @@
 
         <h2 id = "motivation">Motivation</h2>
         <p align = "justify">
-            Construction of antibody repertoire is a very preliminary step of any immunological analysis based on immunosequencing reads.
+            Construction of antibody repertoire is a very preliminary step of any immunological analysis based on sequencing reads.
             Accurate construction of antibody repertoire avoids erroneous analysis of natural variations and antibody abundances.
+        </p>
+
+        <p align = justify>
+            Modern sequencing technologies (e.g., Illumina MiSeq) allow biologists to perform full-length scanning of
+            antibody repertoire.
+            For example, overlapping paired-end Illumina MiSeq reads cover variable regions of antibody:
+        </p>
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/antibody_sequencing.png" width = 50% alt = "antibody_sequencing">
+                </td>
+            </tr>
+        </table>
+
+        <p align = justify>
             Problem of construction of antibody repertoire can be formulated as following:
         </p>
         <table align = center>
@@ -88,14 +104,14 @@
 
         <h2 id = "ig_repertoire_constructor">IgRepertoireConstructor</h2>
         <p align = justify>
-            IgRepertoireConstructor takes as an input reads covering variable region of antibodies and
+            IgRepertoireConstructor takes as an input reads (paired-end or single) covering variable region of antibodies and
             corrects sequencing and amplification errors.
         </p>
         Algorithm performs the following steps:
             <ul>
-                <li><b>VJ Finder: </b>an algorithm for V, J labeling and cleaning input reads.</li>
+                <li><b>VJ Finder: </b>V, J labeling and cleaning input reads.</li>
                 <li><b>Construction & clusterization of SW graph: </b>representation of cleaned reads as a Smith-Waterman graph and finding of groups of highly similar antibodies.</li>
-                <li><b>Antibody construction:</b> </li>
+                <li><b>Antibody construction:</b> reconstruction of antibody sequences from the constructed groups, cleaning amplification errors.</li>
             </ul>
 
         <h3 id = "vj_finder">VJ Finder</h3>
@@ -164,11 +180,6 @@
         </tr>
         </table>
 
-        <h3 id = "antibody_construction">Antibody Construction</h3>
-        <p align = justify>
-        TODO: add description
-        </p>
-
     <h2 id = "mass_spectra_analysis">Mass Spectra Analyzer</h2>
     <p align = "justify">
         This step performs immunoproteogenomics analysis to validate constructed repertoire using mass spectra.
@@ -194,7 +205,7 @@
         Search for <i>dense subgraphs</i> (or <i>corrupted cliques</i>) is a very common problem arising in bioinformatics
         (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
         We decided to make an algorithm for dense subgraph search available as an independent tool.
-        One can download IgRepertoireConstructor archive and run DSF for search of dense subgraph.
+        One can download IgRepertoireConstructor archive and run DSF for search of dense subgraphs.
         DSF takes as an input indirected graph in
             <a href = "http://people.sc.fsu.edu/~jburkardt/data/metis_graph/metis_graph.html">GRAPH format</a> and outputs
             decomposition where the identical ids were assigned for vertices from the same dense subgraph.
@@ -268,8 +279,13 @@
                     </small>
                 </td>
             </tr>
-        </table></br>
+        </table>
 
+        <p align = "justify">
+            Here is an example of DSF work for finding recommendations.
+            Graph <a href = "http://www.cise.ufl.edu/research/sparse/matrices/Newman/polbooks"><i>polbooks</i></a> shows books about USA politics that were bought by the same customer on Amazon.
+            Dense subgraphs in such graph present books that can be recommended together.
+        </p>
         <table>
             <tr>
                 <td align = center>
@@ -299,9 +315,30 @@
                     <b><small>Minimal edge fill-in = 0.7</small></b>
                 </td>
             </tr>
+            <tr>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = ?</br>
+                    # trivial subgraphs = ?</br>
+                    size of maximal subgraph = ?
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = ?</br>
+                    # trivial subgraphs = ?</br>
+                    size of maximal subgraph = ?
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = ?</br>
+                    # trivial subgraphs = ?</br>
+                    size of maximal subgraph = ?
+                    </small>
+                </td>
+            </tr>
         </table>
-    </br></br>
-
 
         <h2 id = "references">Manual and citations</h2>
         <p align = "center">
@@ -315,7 +352,8 @@
             <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
             Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
             IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
-            Bioinformatics. 2015 Jun 15; 31(12): i53-i61. doi: 10.1093/bioinformatics/btv238.
+            Bioinformatics. 2015 Jun 15; 31(12): i53-i61.
+            <a href = http://bioinformatics.oxfordjournals.org/content/31/12/i53.long>doi: 10.1093/bioinformatics/btv238.</a>
         </p>
 
       <footer class="site-footer">
@@ -328,7 +366,7 @@
       <footer class="site-footer">
         <span class="site-footer-owner">
             <a href="https://github.com/yana-safonova/ig_simulator">IgRepertoireConstructor</a> is maintained by
-            <a href="https://github.com/yana-safonova">Yana Safonova</a> (Center for Algorithmic Biotechnology, Saint Petersburg State University).
+            Center for Algorithmic Biotechnology, Saint Petersburg State University.
         </span>
       </footer>
 
