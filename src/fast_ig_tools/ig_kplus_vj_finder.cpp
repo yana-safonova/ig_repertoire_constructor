@@ -552,9 +552,9 @@ struct Ig_KPlus_Finder_Parameters {
 private:
     void prepare_output() {
         make_dirs(output_dir);
-        output_filename = output_dir + "/cropped.fa";
-        bad_output_filename = output_dir + "/bad.fa";
-        add_info_filename = output_dir + "/add_info.csv";
+        output_filename = output_dir + "/cleaned_reads.fa";
+        bad_output_filename = output_dir + "/filtered_reads.fa";
+        add_info_filename = output_dir + "/alignment_info.csv";
 
         if (compress) {
             output_filename += ".gz";

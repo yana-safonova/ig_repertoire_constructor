@@ -124,7 +124,6 @@ class IgRepConConfig:
 
     def __init__(self):
         self.__initBinaryPaths()
-        self.cluster_size_limit = 5
 
     def CheckBinaries(self, log):
         phase_names = PhaseNames()
@@ -156,13 +155,13 @@ class IgRepConConfig:
 class IgRepConIO:
     def __initVJFinderOutput(self, output_dir):
         self.vj_finder_output = os.path.join(output_dir, "vj_finder")
-        self.cropped_reads = os.path.join(self.vj_finder_output, "cropped.fa")
-        self.bad_reads = os.path.join(self.vj_finder_output, "bad.fa")
-        self.vj_alignment_info = os.path.join(self.vj_finder_output, "add_info.csv")
+        self.cropped_reads = os.path.join(self.vj_finder_output, "cleaned_reads.fa")
+        self.bad_reads = os.path.join(self.vj_finder_output, "filtered_reads.fa")
+        self.vj_alignment_info = os.path.join(self.vj_finder_output, "alignment_info.csv")
 
     def __initCompressorOutput(self, output_dir):
-        self.compressed_reads = os.path.join(output_dir, "compressed.fa")
-        self.map_file = os.path.join(output_dir, "map.txt")
+        self.compressed_reads = os.path.join(output_dir, "compressed_reads.fa")
+        self.map_file = os.path.join(output_dir, "cleaned_compressed_map.txt")
         self.supernodes_file = os.path.join(output_dir, "supernodes.fa")
 
     def __initDSFOutput(self, output_dir):
@@ -180,11 +179,11 @@ class IgRepConIO:
         self.sw_graph = os.path.join(output_dir, "sw.graph")
         self.__initDSFOutput(output_dir)
         self.__initFinalOutput(output_dir)
-        self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_stripped.fa')
+        self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_large.fa')
 
     def CheckCroppedReadsExistance(self):
         if not os.path.exists(self.cropped_reads):
-            self.__log.info("ERROR: File containing cropped reads was not found")
+            self.__log.info("ERROR: File containing cleaned Ig-Seq reads was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -208,7 +207,7 @@ class IgRepConIO:
 
     def CheckCroppedCompressedMapExistance(self):
         if not os.path.exists(self.map_file):
-            self.__log.info("ERROR: File containing map from cropped reads to compressed reads was not found")
+            self.__log.info("ERROR: File containing map from cleaned reads to compressed reads was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -244,7 +243,7 @@ class IgRepConIO:
 
     def CheckFinalStrippedClustersExistance(self):
         if not os.path.exists(self.final_stripped_clusters_fa):
-            self.__log("ERROR: File containing stripped clusters of final repertoire was not found")
+            self.__log("ERROR: File containing large clusters of final repertoire was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -298,7 +297,7 @@ class VJAlignmentPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files: ")
-        self._log.info("  * Cropped reads were written to " + self.__params.io.cropped_reads)
+        self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
         self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
         self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
 
@@ -324,7 +323,7 @@ class TrieCompressionPhase(Phase):
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
                                                 self.__params.io.compressed_reads,
                                                 self.__params.io.supernodes_file,
-                                                5)
+                                                self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
@@ -444,14 +443,14 @@ class RemoveLowAbundanceReadsPhase(Phase):
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
                                                 self.__params.io.final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
-                                                IgRepConConfig().cluster_size_limit)
+                                                self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
 
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing stripped clusters of final repertoire was written to " +
+        self._log.info("  * File containing large clusters of final repertoire was written to " +
                        self.__params.io.final_stripped_clusters_fa)
 
 ###########
@@ -570,7 +569,7 @@ def ParseCommandLineParams():
                                action="help",
                                help="Show this help message and exit")
 
-    vj_align_args = parser.add_argument_group("VJ alignment arguments")
+    vj_align_args = parser.add_argument_group("Algorithm arguments")
     vj_align_args.add_argument("--no-pseudogenes",
                                action="store_const",
                                const=True,
@@ -587,6 +586,11 @@ def ParseCommandLineParams():
                                default="all",
                                help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda chains) "
                                     "/ lambda / kappa [default: %(default)s]")
+    vj_align_args.add_argument("--min-size",
+                               type=int,
+                               dest="min_cluster_size",
+                               default=5,
+                               help="Minimal size of antibody cluster using for output of large clusters [default: %(default)d]")
 
     dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
