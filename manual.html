@@ -1,4 +1,4 @@
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>IgRepertoireConstructor 2.0 Manual</title>
     <style type="text/css">
         .code {
@@ -12,6 +12,8 @@
 <br>
 <h1>IgRepertoireConstructor 2.0 manual</h1>
 1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrepcon">About IgRepertoireConstructor</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.2 <a href = "#about_ms_analyzer">About MassSpectraAnalyzer</a><br>
 
 2. <a href="#install">Installation</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
@@ -33,6 +35,7 @@
 6.  <a href="#repertoire_files">Antibody repertoire representation</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;6.1. <a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;6.2. <a href="#read_cluster_map">RCM file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.3. <a href="#alignment_info">Alignment Info file format</a><br>
 
 7. <a href="#feedback">Feedback and bug reports</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;7.1. <a href="#citation">Citation</a><br>
@@ -47,18 +50,56 @@ IgRepertoireConstructor includes two parts:
     <li><b>IgRepertoireConstructor</b> &mdash; a tool for construction of antibody repertoire from Illumina Ig-Seq library.</li>
     <li><b>MassSpectraAnalyzer</b> &mdash; a tool for analysis of matching mass spectra against constructed repertoire.</li>
 </ul>
-IgRepertoireConstructor pipeline is shown below:<br>
+
+<!--- ---------------------------------------------------------------- -->
+
+<h3 id = "about_igrepcon">About IgRepertoireConstructor</h3>
+IgRepertoireConstructor pipeline in shown below:<br>
 <p align = center>
-<img src="docs/immunogenomics_pipeline.svg" alt="immunogenomics_pipeline" width = 40%>
+    <img src="docs/ig_repertoire_constructor.png" alt="ig_repertoire_constructor_pipeline" width = 70%>
 </p>
 
-IgRepertoireConstructor pipeline by stages is shown below:<br>
-<p align = center>
-<img src="docs/ig_repertoire_constructor.png" alt="ig_repertoire_constructor_pipeline" width = 50%>
+<p align="justify">
+    IgRepertoireConstructor takes as an input paired-end or single Illumina reads.
 </p>
 
-TODO: write shortly about stages of IgRepertoireConstructor.
-Add reference to DSF manual.
+<p align = justify>
+    <b>Please note that IgRepertoireConstructor constructs full-length repertoire and
+        expects that input reads cover variable region of antibody.</b>
+</p>
+
+<p align = justify>
+    IgRepertoireConstructor corrects sequencing and amplification errors and
+    joins together reads corresponding to identical antibodies.
+    Thus, constructed repertoire is a set of <i>antibody clusters</i> characterizing by
+    <i>sequence</i> and <i>abundance</i>.
+    IgRepertoireConstructor provides user with the following information about constructed repertoire:
+</p>
+
+<ul>
+    <li>all antibody clusters,</li>
+    <li>highly abundant antibody clusters,</li>
+    <li>information showing how reads form antibody clusters</li>
+    <li><i>supernodes</i> - groups of identical input reads with high coverage.</li>
+</ul>
+
+IgRepertoireConstructor pipeline consists of the following steps:
+<ol>
+    <li><b>VJ Finder</b>: todo write</li>
+    <li><b>SW Graph Constructor</b>: todo write</li>
+    <li><b>Dense Subgraph Finder</b>: todo write</li>
+    <li><b>VJ Finder</b>: todo write</li>
+</ol>
+
+<p align="justify">
+    If you are interested in details of IgRepertoireConstructor algorithm,
+    please address to our <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">paper</a>.
+</p>
+
+<!--- ---------------------------------------------------------------- -->
+
+<h3 id = "about_ms_analyzer">About MassSpectraAnalyzer</h3>
+TODO: write me!
 <!--- ---------------------------------------------------------------- -->
 <!--- ---------------------------------------------------------------- -->
 
@@ -87,7 +128,7 @@ To install IgRepertoireConstructor, type:
     ./prepare_cfg
     </code>
 </pre>
-and after type:
+and:
 <pre class="code">
     <code>
     make
@@ -124,7 +165,7 @@ If the installation of MassSpectraAnalyzer is successful, you will find the foll
 
 <pre class="code">
     <code>
-    Spectras processed: example_HC_chymo_CID.mzid.spectra, example_HC_trypsin_CID.mzid.spectra
+    Spectra processed: example_HC_chymo_CID.mzid.spectra, example_HC_trypsin_CID.mzid.spectra
     Metrics written to &lt;your_installation_directory>/ms_analyzer_test/metrics.txt
     Covered CRDs written to &lt;your_installation_directory>/ms_analyzer_test/covered_cdrs.txt
     PSM on IG regions written to &lt;your_installation_directory>/ms_analyzer_test/psm_on_ig_regions.txt
@@ -155,13 +196,19 @@ To run IgRepertoireConstructor, type:
 <h3>3.1. Basic options:</h3>
 
 <code>-s &lt;filename&gt;</code><br>
-FASTQ file with merged Illumina reads (required). <br><br>
+FASTQ file with merged Illumina reads (required).
+
+<br><br>
 
 <code>-o/--output &lt;output_dir&gt;</code><br>
-Output directory (required). <br><br>
+Output directory (required).
+
+<br><br>
 
 <code>-t/--threads &lt;int&gt;</code><br>
-The number of parallel threads. The default value is 16.<br><br>
+The number of parallel threads. The default value is <code>16</code>.
+
+<br><br>
 
 <code>--test</code><br>
 Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
@@ -182,7 +229,7 @@ Printing help.<br><br>
 <code>--tau &lt;int&gt;</code><br>
 Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default value is 4.<br>
 <b>NOTE:</b> Be careful, using of large value can significantly slow up construction of repertoire or even can be inappropriate.
-Reasonable value of <code>tau</code> option lies between 1 and 6.
+Reasonable value of <code>tau</code> option lies between <code>1</code> and <code>6</code>.
 
 <br><br>
 
@@ -214,7 +261,7 @@ Default value is <code>5</code>.
 
 <a id="repertoire_constructor_examples"></a>
 <h3>3.3. Examples</h3>
-To construct antibody repertoire from Illumina reads <code>reads.fastq</code>, type:
+To construct antibody repertoire from single reads <code>reads.fastq</code>, type:
 <pre class="code">
     <code>
     ./ig_repertoire_constructor.py -s reads.fastq -o output_dir
@@ -232,40 +279,35 @@ and outputs the following files there:
   <ul>
     <li><b>final_repertoire.fa</b> &mdash; CLUSTERS.FASTA file for all antibody clusters of the constructed repertoire
         (details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
-    <li><b>final_repertoire_large.fa</b> &mdash; CLUSTERS.FASTA file for large antibody clusters of the constructed repertoire
+    <li><b>final_repertoire_large.fa</b> &mdash; CLUSTERS.FASTA file for highly abundant antibody clusters of the constructed repertoire
         (minimal cluster size is defined by option <code>--min-size</code>)</li>
     <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
     <li><b>supernodes.fa</b> &mdash; FASTA file with naive repertoire built using supernodes
-        (minimal size of supernode is defined by option <code>--min-size</code>)</li>
-  </ul>
+        (minimal size supernode is defined by option <code>--min-size</code>)</li>
+  </ul><br>
 
-  <li>VJ finder output output:</li>
-  <ul>
-    <li><b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with initial reads, which were correctly reversed, aligned on V and J genes and cropped using VJ finder</li>
-    <li><b>vj_finder/filtered_reads.fa</b> &mdash; FASTA file with initial reads, which were filtered by aligning on V and J genes</li>
-    <li><b>vj_finder/alignment_info.csv</b> &mdash; CSV file with alignment info (consistent with <b>cropped.fa</b>); for each read it stores read ID, best hit V gene position, score and ID and the same for best hit J gene
-  </ul>
-
-  <li>Dense Subgraph Finder output:</li>
-  <ul>
-    <li><b>dense_subgraph_finder/dense_subgraphs.txt</b> &mdash; dense subgraph decomposition in simple format: each line contains cluster label</li>
-    <li><b>dense_subgraph_finder/dense_subgraph_finder.log</b> &mdash; log of DenseSubgraphFinder run</li>
-  </ul>
-
-  <li>Auxiliary files:</li>
+  <li>VJ finder output:</li>
     <ul>
-        <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgRepertoireConstructor run</li>
-        <li><b>compressed_reads.fa</b> &mdash; FASTA file where identical reads are groupped together.
-            Thus it's guarantied that each read is not prefix of any other read, only unique prefixes are extracted.
-            For each unique prefix-read its <i>abundance</i> (the number of joined reads) is added to its ID.
-            <b>TODO: rewrite it!!! It's very cryptic.</b>
-    </li>
-    <li>
-        <b>cleaned_compressed_map.txt</b> &mdash; file, which stores read compression map provided by igTrieCompressor.
-        This file is consistent with <b>cropped.fa</b>, each line contains the number (zero based) of target prefix-read in <b>compressed.fa</b> file</li>
-        <li><b>sw.graph</b> &mdash; Smith-Waterman graph constructed on compressed reads from <b>compressed.fa</b> in METIS *.graph format
-            (see <a href="http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf">METIS 5.1.x Manual</a> for format description)
-</ul>
+      <li>
+          <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed by VJ Finder step.
+          Cleaned reads have forward direction (from V to J),
+          surely contain V and J gene segments and
+          cropped by the left bound of V gene segments.
+      </li>
+
+      <li>
+          <b>vj_finder/filtered_reads.fa</b> &mdash; FASTA file with filtered reads.
+          Filtered reads have bad alignment to Ig germline gene segments and likely present contaminations.
+      </li>
+
+      <li>
+          <b>vj_finder/alignment_info.csv</b> &mdash; CSV file containing information about alignment of cleaned reads to
+          V and J gene segments. Details of <b>alignment_info.csv</b> format are given in
+          <a href="#alignment_info">Alignment Info file format</a>.
+      </li>
+    </ul><br>
+
+    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgRepertoireConstructor run.</li>
 </ul>
 <br>
 
@@ -436,5 +478,6 @@ Address for communications: <a href="mailto:igtools_support@googlegroups.com">ig
 
 <a id = "citation"></a>
 <h3>7.1. Citation</h3>
-If you use IgRepertoireConstructor in your research, please refer to <a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
+If you use IgRepertoireConstructor in your research, please refer to
+<a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
 </body></html>
