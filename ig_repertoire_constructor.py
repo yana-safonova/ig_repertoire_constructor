@@ -577,6 +577,34 @@ def CreateLogger():
     log.addHandler(console)
     return log
 
+def HelpString():
+    return "Usage: ig_repertoire_constructor.py (-s SINGLE_READS | -1 LEFT_READS -2 RIGHT_READS | --test) [-o OUTPUT]\n" +\
+    "\t\t\t[-t NUM_THREADS] [--tau MAX_MISMATCHES]\n" +\
+    "\t\t\t[-C CHAIN] [--no-pseudogenes]\n" +\
+    "\t\t\t[--organism ORGANISM] [--min-size MIN_CLUSTER_SIZE]\n" +\
+    "\t\t\t[-h]\n\n" +\
+    "IgRepertoireConstructor: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
+    "Input parameters:\n" +\
+    "  -s\t\tSINGLE_READS\t\tSingle reads in FASTQ format\n" +\
+    "  -1\t\tLEFT_READS\t\tLeft paired-end reads in FASTQ format\n" +\
+    "  -2\t\tRIGHT_READS\t\tRight paired-end reads in FASTQ format\n" +\
+    "  --test\t\t\t\tRunning of test dataset\n\n" +\
+    "Output:\n" +\
+    "  -o / --output\tOUTPUT\t\t\tOutput directory [default: \"igrepcon_test\"]\n\n" +\
+    "Optional arguments:\n" +\
+    "  -t / --threads\tNUM_THREADS\t\tThread number [default: 16]\n" +\
+    "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
+    "  -h / --help\t\t\t\t\tShowing help message and exit\n\n" +\
+    "Algorithm arguments:\n" +\
+    "  -C / --chain\t\tCHAIN_TYPE\t\tIg chain type: all (for both heavy and light chains)/\n" +\
+    "\t\t\t\t\t\theavy / light (for both kappa and lambda chains)\n" +\
+    "\t\t\t\t\t\tlambda / kappa [default: all]\n" +\
+    "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
+    "  --organism\t\tORGANISM\t\tOrganism (human and mouse only are supported for this moment) [default: human]\n" +\
+    "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large clusters [default: 5]\n\n" +\
+    "In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.\n" +\
+    "Please provide us with ig_repertoire_constructor.log file from the output directory."
+
 def ParseCommandLineParams(log):
     from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="IgRepertoireConstructor: an algorithm for construction of "
@@ -631,7 +659,9 @@ def ParseCommandLineParams(log):
                                     "[default: %(default)d]")
 
     optional_args.add_argument("-h", "--help",
-                               action="help",
+                               action="store_const",
+                               const=True,
+                               dest="show_help",
                                help="Showing help message and exit")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
@@ -689,6 +719,11 @@ def ParseCommandLineParams(log):
                         config_file="config.info")
     params = parser.parse_args()
 
+    # process help
+    if params.show_help:
+        log.info(HelpString())
+        sys.exit(0)
+
     # Process pair reads
     if params.left_reads or params.right_reads:
         if not params.left_reads or not params.right_reads:
@@ -706,15 +741,15 @@ def EnsureAbsPath(s):
 def CheckParamsCorrectness(parser, params, log):
     if not "output" in params or params.output == "":
         log.info("ERROR: Output directory (-o) was not specified\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not "single_reads" in params or params.single_reads == "":
         log.info("ERROR: Reads (-s) were not specified\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not os.path.exists(params.single_reads):
         log.info("ERROR: File with reads " + params.single_reads + " were not found\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not os.path.isabs(params.single_reads):
         params.single_reads = os.path.abspath(params.single_reads)
@@ -722,23 +757,23 @@ def CheckParamsCorrectness(parser, params, log):
 def CheckParamsCorrectnessPairReads(parser, params, log):
     if not "output" in params or params.output == "":
         log.info("ERROR: Output directory (-o) was not specified\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not "left_reads" in params or params.left_reads == "":
         log.info("ERROR: Left reads (-1) were not specified\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not "right_reads" in params or params.right_reads == "":
         log.info("ERROR: Right reads (-2) were not specified\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not os.path.exists(params.left_reads):
         log.info("ERROR: File with left reads " + params.left_reads + " were not found\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     if not os.path.exists(params.right_reads):
         log.info("ERROR: File with right reads " + params.right_reads + " were not found\n")
-        parser.print_help()
+        HelpString()
         sys.exit(-1)
     params.left_reads = EnsureAbsPath(params.left_reads)
     params.right_reads = EnsureAbsPath(params.right_reads)
