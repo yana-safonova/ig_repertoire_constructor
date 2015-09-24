@@ -297,8 +297,8 @@ class PairReadMerger(Phase):
             sys.exit(1)
 
     def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.reads):
-            self._log.info("ERROR: Input reads " + self.__params.reads + " were not found")
+        if not os.path.exists(self.__params.single_reads):
+            self._log.info("ERROR: Input reads " + self.__params.single_reads + " were not found")
             SupportInfo(self._log)
             sys.exit(1)
 
@@ -307,13 +307,13 @@ class PairReadMerger(Phase):
         command_line = "%s %s %s %s" % (IgRepConConfig().run_pair_reads_merger,
                                         self.__params.left_reads,
                                         self.__params.right_reads,
-                                        self.__params.reads)
+                                        self.__params.single_reads)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files: ")
-        self._log.info("  * Merged reads were written to " + self.__params.reads)
+        self._log.info("  * Merged reads were written to " + self.__params.single_reads)
 
 ###########
 class VJAlignmentPhase(Phase):
@@ -322,8 +322,8 @@ class VJAlignmentPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        if not os.path.exists(self.__params.reads):
-            self._log.info("ERROR: Input reads " + self.__params.reads + " were not found")
+        if not os.path.exists(self.__params.single_reads):
+            self._log.info("ERROR: Input reads " + self.__params.single_reads + " were not found")
             SupportInfo(self._log)
             sys.exit(1)
 
@@ -335,7 +335,7 @@ class VJAlignmentPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.reads + \
+        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.single_reads + \
                        " -o " + self.__params.io.vj_finder_output + \
                        " --db-directory " + IgRepConConfig().path_to_germline + \
                        " -t " + str(self.__params.num_threads) + \
@@ -589,24 +589,27 @@ def ParseCommandLineParams(log):
 
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=False)
-    input_args.add_argument("-s", "--reads",
+    input_args.add_argument("-s",
+                            dest="single_reads",
                             type=str,
                             default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
-                            help="Immunosequencing reads in FASTQ format")
+                            help="Single reads in FASTQ format")
+
     input_args.add_argument("--test",
                             action="store_const",
                             const="test_dataset/merged_reads.fastq",
-                            dest="reads",
+                            dest="single_reads",
                             help="Running of test dataset")
-    pair_reads = parser.add_argument_group("Pair reads")
+
+    pair_reads = parser.add_argument_group("Paired-end reads")
     pair_reads.add_argument("-1",
                             type=str,
                             dest="left_reads",
-                            help="Left pair reads")
+                            help="Left paired-end reads in FASTQ format")
     pair_reads.add_argument("-2",
                             type=str,
                             dest="right_reads",
-                            help="Right pair reads")
+                            help="Right paired-end reads in FASTQ format")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
@@ -629,25 +632,28 @@ def ParseCommandLineParams(log):
 
     optional_args.add_argument("-h", "--help",
                                action="help",
-                               help="Show this help message and exit")
+                               help="Showing help message and exit")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
-    vj_align_args.add_argument("--no-pseudogenes",
-                               action="store_const",
-                               const=True,
-                               dest="no_pseudogenes",
-                               help="Do not use pseudogenes along with normal gene segments for VJ alignment [default: False]")
-    vj_align_args.add_argument("--organism",
-                               type=str,
-                               default="human",
-                               dest="organism",
-                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
     vj_align_args.add_argument("-C", "--chain",
                                type=str,
                                dest="chain",
                                default="all",
                                help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda chains) "
                                     "/ lambda / kappa [default: %(default)s]")
+
+    vj_align_args.add_argument("--no-pseudogenes",
+                               action="store_const",
+                               const=True,
+                               dest="no_pseudogenes",
+                               help="Do not use pseudogenes along with normal gene segments for VJ alignment [default: False]")
+
+    vj_align_args.add_argument("--organism",
+                               type=str,
+                               default="human",
+                               dest="organism",
+                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
+
     vj_align_args.add_argument("--min-size",
                                type=int,
                                dest="min_cluster_size",
@@ -686,9 +692,9 @@ def ParseCommandLineParams(log):
     # Process pair reads
     if params.left_reads or params.right_reads:
         if not params.left_reads or not params.right_reads:
-            log.info("ERROR: Both left pair reads (-1) and right pair reads (-2) should be specified\n")
+            log.info("ERROR: Both left (-1) and right (-2) paired-end reads should be specified\n")
             sys.exit(-1)
-        params.reads = "%s/merged_reads.fastq" % params.output
+        params.single_reads = "%s/merged_reads.fastq" % params.output
 
     return parser, params
 
@@ -702,16 +708,16 @@ def CheckParamsCorrectness(parser, params, log):
         log.info("ERROR: Output directory (-o) was not specified\n")
         parser.print_help()
         sys.exit(-1)
-    if not "reads" in params or params.reads == "":
+    if not "single_reads" in params or params.single_reads == "":
         log.info("ERROR: Reads (-s) were not specified\n")
         parser.print_help()
         sys.exit(-1)
-    if not os.path.exists(params.reads):
-        log.info("ERROR: File with reads " + params.reads + " were not found\n")
+    if not os.path.exists(params.single_reads):
+        log.info("ERROR: File with reads " + params.single_reads + " were not found\n")
         parser.print_help()
         sys.exit(-1)
-    if not os.path.isabs(params.reads):
-        params.reads = os.path.abspath(params.reads)
+    if not os.path.isabs(params.single_reads):
+        params.single_reads = os.path.abspath(params.single_reads)
 
 def CheckParamsCorrectnessPairReads(parser, params, log):
     if not "output" in params or params.output == "":
@@ -745,7 +751,7 @@ def PrepareOutputDir(params):
 
 def PrintParams(params, log):
     log.info("IgRepertoireConstructor parameters:")
-    log.info("  Input reads:\t\t\t" + params.reads)
+    log.info("  Input reads:\t\t\t" + params.single_reads)
     log.info("  Output directory:\t\t" + params.output)
     log.info("  Number of threads:\t\t" + str(params.num_threads))
     log.info("  Maximal number of mismatches:\t" + str(params.max_mismatches))
