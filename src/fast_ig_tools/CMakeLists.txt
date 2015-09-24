@@ -32,7 +32,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
-link_libraries(pthread)
+# link_libraries(pthread)
 
 link_libraries(boost_program_options)
 
