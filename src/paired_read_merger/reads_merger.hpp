@@ -5,6 +5,8 @@
 #include <utils/sequence_tools.hpp>
 #include <utils/string_tools.hpp>
 
+#include "logger/log_writers.hpp"
+
 struct merger_setting {
     size_t min_overlap;
     double max_mismatch_rate;
@@ -15,12 +17,11 @@ struct merger_setting {
         max_mismatch_rate(.1),
         simulated_mode(false) { }
 
-    void print(ostream &out) {
-        out << "Sequence merger settings:" << endl;
-        out << "Min overlap size\t" << min_overlap << endl;
-        out << "Max mismatch rate\t" << max_mismatch_rate << endl;
+    void print() {
+        INFO("Min overlap size: " << min_overlap);
+        INFO("Max mismatch rate: " << max_mismatch_rate);
         if(simulated_mode)
-            out << "Simulated mode is ON" << endl;
+            INFO("Simulated mode is ON");
     }
 };
 
@@ -132,11 +133,11 @@ public:
             if(!merged_read.is_empty())
                 merged_reads.push_back(merged_read);
             if(static_cast<double>(i) / static_cast<double>(reads.size()) * 100. > processed_rate) {
-                cout << processed_rate << "% reads were processed" << endl;
+                INFO(processed_rate << "% reads were processed");
                 processed_rate += 10;
             }
         }
-        cout << "100% reads were processed" << endl;
+        INFO("100% reads were processed");
         return merged_reads;
     }
 };

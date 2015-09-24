@@ -1,6 +1,8 @@
 #include "reads_merger.hpp"
 #include <utils/string_tools.hpp>
 
+#include "logger/log_writers.hpp"
+
 merger_setting parse_settings(int argc, char *argv[]) {
 	merger_setting setting;
 	string min_overlap_str = "--min-overlap=";
@@ -20,9 +22,17 @@ merger_setting parse_settings(int argc, char *argv[]) {
 			setting.simulated_mode = true;
 
 	}
-	setting.print(cout);
+	setting.print();
 	return setting;
 }
+
+void create_console_logger(string log_filename) {
+    using namespace logging;
+    logger *lg = create_logger(path::FileExists(log_filename) ? log_filename : "");
+    lg->add_writer(std::make_shared<console_writer>());
+    attach_logger(lg);
+}
+
 
 int main(int argc, char *argv[]) {
 	/*
@@ -30,18 +40,20 @@ int main(int argc, char *argv[]) {
 	 * argv[2] - right fastq reads
 	 * argv[3] - prefix of output files (prefix.fastq prefix.stats)
 	 */
+	create_console_logger("");
+
 	if(argc < 4) {
-		cout << "paired_read_merger left_reads.fq right_reads.fq output_prefix [--min-overlap=N1 --max-mismatch=N2 --simulated-mode]" << endl;
+		ERROR("paired_read_merger left_reads.fq right_reads.fq output_prefix [--min-overlap=N1 --max-mismatch=N2 --simulated-mode]");
 		return 1;
 	}
 
 	vector<paired_fastq_read> paired_reads = PairedFastqReader(argv[1],
 			argv[2]).Read();
-	cout << paired_reads.size() << " paired reads were read from " << argv[1] <<
-			" and " << argv[2] << endl;
+	INFO(paired_reads.size() << " paired reads were read from " << argv[1] <<
+			" and " << argv[2]);
 	vector<fastq_read> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
-	cout << merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged" << endl;
+	INFO(merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged");
 	FastqWriter(string(argv[3])).Write(merged_reads);
-	cout << "Merged reads were written to " << string(argv[3]) + ".fastq" << endl; 
+	INFO("Merged reads were written to " << string(argv[3]));
 	return 0;
 }
