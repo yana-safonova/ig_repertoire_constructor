@@ -381,7 +381,7 @@ class TrieCompressionPhase(Phase):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * Compressed reads were written to " + self.__params.io.compressed_reads)
-        self._log.info("  * Supernode sequences were written to " + self.__params.io.supernodes_file)
+        self._log.info("  * Super-reads were written to " + self.__params.io.supernodes_file)
 
 ###########
 class GraphConstructionPhase(Phase):
@@ -405,7 +405,7 @@ class GraphConstructionPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing Smith-Waterman graph was written to " + self.__params.io.sw_graph)
+        self._log.info("  * Smith-Waterman graph was written to " + self.__params.io.sw_graph)
 
 ###########
 class DSFPhase(Phase):
@@ -435,7 +435,7 @@ class DSFPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing dense subgraph decomposition was written to " +
+        self._log.info("  * Dense subgraph decomposition was written to " +
                        self.__params.io.dense_sgraph_decomposition)
 
 ###########
@@ -473,9 +473,9 @@ class ConsensusConstructionPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing antibody clusters of final repertoire was written to " +
+        self._log.info("  * Antibody clusters of final repertoire were written to " +
                        self.__params.io.final_clusters_fa)
-        self._log.info("  * File containing read-cluster map of final repertoire was written to " +
+        self._log.info("  * Read-cluster map of final repertoire was written to " +
                        self.__params.io.final_rcm)
 
 class RemoveLowAbundanceReadsPhase(Phase):
@@ -501,7 +501,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing large antibody clusters of final repertoire was written to " +
+        self._log.info("  * Highly abundant antibody clusters of final repertoire were written to " +
                        self.__params.io.final_stripped_clusters_fa)
 
 ###########
@@ -811,7 +811,7 @@ def PrintCommandLine(log):
 
 def RemoveAuxFiles(params):
     if params.debug_mode:
-        return 
+        return
     if os.path.exists(params.io.map_file):
         os.remove(params.io.map_file)
     if os.path.exists(params.io.compressed_reads):
@@ -820,6 +820,26 @@ def RemoveAuxFiles(params):
         os.remove(params.io.sw_graph)
     if os.path.exists(params.io.dsf_output):
         shutil.rmtree(params.io.dsf_output)
+    #if os.path.exists(params.io.merged_reads)
+
+def PrintOutputFiles(params, log):
+    log.info("\nIgRepertoireConstructor output:")
+    if os.path.exists(params.io.cropped_reads):
+        log.info("  * Cleaned Ig-Seq reads were written to " + params.io.cropped_reads)
+    if os.path.exists(params.io.bad_reads):
+        log.info("  * Contaminated (not Ig-Seq) reads were written to " + params.io.bad_reads)
+    if os.path.exists(params.io.vj_alignment_info):
+        log.info("  * VJ alignment output was written to " + params.io.vj_alignment_info)
+
+    if os.path.exists(params.io.supernodes_file):
+        log.info("  * Super-reads were written to " + params.io.supernodes_file)
+
+    if os.path.exists(params.io.final_clusters_fa):
+        log.info("  * Antibody clusters of final repertoire were written to " + params.io.final_clusters_fa)
+    if os.path.exists(params.io.final_rcm):
+        log.info("  * Read-cluster map of final repertoire was written to " + params.io.final_rcm)
+    if os.path.exists(params.io.final_stripped_clusters_fa):
+        log.info("  * Highly abundant antibody clusters of final repertoire were written to " + params.io.final_stripped_clusters_fa)
 
 #######################################################################################
 #           Main
@@ -847,6 +867,7 @@ def main():
         else:
             ig_repertoire_constructor.Run(start_phase=1)
         RemoveAuxFiles(params)
+        PrintOutputFiles(params, log)
         log.info("\nThank you for using IgRepertoireConstructor!")
     except (KeyboardInterrupt):
         log.info("\nIgRepertoireConstructor was interrupted!")
