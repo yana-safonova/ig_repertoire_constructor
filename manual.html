@@ -1,4 +1,4 @@
-<><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title>IgRepertoireConstructor 2.0 Manual</title>
     <style type="text/css">
         .code {
@@ -9,7 +9,6 @@
     </style>
 </head>
 
-<br>
 <h1>IgRepertoireConstructor 2.0 manual</h1>
 1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrepcon">About IgRepertoireConstructor</a><br>
@@ -59,15 +58,14 @@ IgRepertoireConstructor pipeline in shown below:<br>
     <img src="docs/ig_repertoire_constructor.png" alt="ig_repertoire_constructor_pipeline" width = 70%>
 </p>
 
+<h4>Input:</h4>
 <p align="justify">
     IgRepertoireConstructor takes as an input paired-end or single Illumina reads.
-</p>
-
-<p align = justify>
     <b>Please note that IgRepertoireConstructor constructs full-length repertoire and
         expects that input reads cover variable region of antibody.</b>
 </p>
 
+<h4>Output:</h4>
 <p align = justify>
     IgRepertoireConstructor corrects sequencing and amplification errors and
     joins together reads corresponding to identical antibodies.
@@ -80,26 +78,38 @@ IgRepertoireConstructor pipeline in shown below:<br>
     <li>all antibody clusters,</li>
     <li>highly abundant antibody clusters,</li>
     <li>information showing how reads form antibody clusters</li>
-    <li><i>supernodes</i> - groups of identical input reads with high coverage.</li>
+    <li><i>super reads</i>, i.e., groups of identical input reads with high coverage.</li>
 </ul>
 
+<h4>Stages:</h4>
 IgRepertoireConstructor pipeline consists of the following steps:
 <ol>
-    <li><b>VJ Finder</b>: todo write</li>
-    <li><b>SW Graph Constructor</b>: todo write</li>
-    <li><b>Dense Subgraph Finder</b>: todo write</li>
-    <li><b>VJ Finder</b>: todo write</li>
+    <li><b>VJ Finder</b>: cleaning input reads using alignment against Ig germline genes</li>
+    <li><b>SW Graph Constructor</b>: construction of Smith-Waterman graph on cleaned reads showing their similarity</li>
+    <li><b>Dense Subgraph Finder</b>: finding dense structures (or corrupted cliques) in the constructed SW graph.
+        This allows us to decompose cleaned reads into highly similar groups.
+        DSF algorithm is also available as a separate tool.
+        Please find DSF manual <a href = "dsf_manual.html">here</a>.</li>
+    <li><b>Antibody Constructor</b>: construction of antibody clusters based on graph decomposition found at the previous stage.</li>
 </ol>
 
 <p align="justify">
     If you are interested in details of IgRepertoireConstructor algorithm,
-    please address to our <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">paper</a>.
+    please address to <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
 </p>
 
 <!--- ---------------------------------------------------------------- -->
 
 <h3 id = "about_ms_analyzer">About MassSpectraAnalyzer</h3>
-TODO: write me!
+Some immunological experiments include prepartion both seqiencing reads and mass spectra (see examples in ).
+In this case, mass spectra datasets can be user for validation of repetoire constructed from sequencing reads.
+Repertoire constructed by IgRepertoireConstructor can be used as a database for
+identification of mass spectra using some standard tool, e.g., <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>.
+MassSpectraAnalyzer takes as an input <a href = "http://www.psidev.info/mzidentml">mzIdentML file</a> and
+computes similary between constructed repertoire and mass spectra.
+
+
+
 <!--- ---------------------------------------------------------------- -->
 <!--- ---------------------------------------------------------------- -->
 
@@ -279,20 +289,25 @@ and outputs the following files there:
   <ul>
     <li><b>final_repertoire.fa</b> &mdash; CLUSTERS.FASTA file for all antibody clusters of the constructed repertoire
         (details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
+
     <li><b>final_repertoire_large.fa</b> &mdash; CLUSTERS.FASTA file for highly abundant antibody clusters of the constructed repertoire
         (minimal cluster size is defined by option <code>--min-size</code>)</li>
-    <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
-    <li><b>supernodes.fa</b> &mdash; FASTA file with naive repertoire built using supernodes
-        (minimal size supernode is defined by option <code>--min-size</code>)</li>
+
+    <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire
+        (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
+
+    <li><b>super_reads.fa</b> &mdash; FASTA file containing highly abundant <i>super-reads</i>,
+        i.e., groups of identical reads with high coverage,
+        Minimal size of super read is defined by option <code>--min-size</code>.</li>
   </ul><br>
 
   <li>VJ finder output:</li>
     <ul>
       <li>
-          <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed by VJ Finder step.
+          <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed at the VJ Finder stage.
           Cleaned reads have forward direction (from V to J),
           surely contain V and J gene segments and
-          cropped by the left bound of V gene segments.
+          cropped by the left bound of V gene segment.
       </li>
 
       <li>
@@ -316,7 +331,8 @@ and outputs the following files there:
 
 <a id="immunoproteogenomics_usage"></a>
 <h2>4. MassSpectraAnalyzer usage</h2>
-MassSpectraAnalyzer takes as an input result of matching of mass spectra against the constructed repertoire in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> (e.g., generated by <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>) and computes multiple statistics showing coverage of the constructed repertoire by mass spectra. </br></br>
+MassSpectraAnalyzer takes as an input result of matching of mass spectra against the constructed repertoire in
+<a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> (e.g., generated by <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>) and computes multiple statistics showing coverage of the constructed repertoire by mass spectra. </br></br>
 
 &#9658; To run MassSpectraAnalyzer, type:
 <pre class="code">
