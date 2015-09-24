@@ -14,11 +14,13 @@ else()
 endif()
 
 find_package(OpenMP REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(BZip2 REQUIRED)
+# find_package(ZLIB REQUIRED)
+# find_package(BZip2 REQUIRED)
 # find_package(Readline QUIET)
 # set(CURSES_NEED_NCURSES TRUE)
 # find_package(Curses QUIET)
+link_libraries(z)
+link_libraries(bz2)
 
 # Use included boost unless explicitly specified
 if (NOT SPADES_BOOST_ROOT)

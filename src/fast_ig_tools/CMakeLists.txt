@@ -9,12 +9,14 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 
-if(ZLIB_FOUND)
-  add_definitions(-DSEQAN_HAS_ZLIB=1)
-  link_libraries(${ZLIB_LIBRARIES})
-else()
-  add_definitions(-DSEQAN_HAS_ZLIB=0)
-endif()
+# if(ZLIB_FOUND)
+#   add_definitions(-DSEQAN_HAS_ZLIB=1)
+#   link_libraries(${ZLIB_LIBRARIES})
+# else()
+#   add_definitions(-DSEQAN_HAS_ZLIB=0)
+# endif()
+
+add_definitions(-DSEQAN_HAS_ZLIB=1)
 
 # This checking performed BEFORE compilation, so boost_po is not available at this moment
 # find_package(Boost REQUIRED program_options)
@@ -34,13 +36,15 @@ link_libraries(pthread)
 
 link_libraries(boost_program_options)
 
-find_package(BZip2 QUIET)
-if(BZIP2_FOUND)
-  add_definitions(-DSEQAN_HAS_BZIP2=1)
-  link_libraries(${BZIP2_LIBRARIES})
-else()
-  add_definitions(-DSEQAN_HAS_BZIP2=0)
-endif()
+# find_package(BZip2 QUIET)
+# if(BZIP2_FOUND)
+#   add_definitions(-DSEQAN_HAS_BZIP2=1)
+#   link_libraries(${BZIP2_LIBRARIES})
+# else()
+#   add_definitions(-DSEQAN_HAS_BZIP2=0)
+# endif()
+
+add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 # Enable compilation in debug mode
 # See http://stackoverflow.com/questions/19729036/boost-program-options-wont-work-with-glibcxx-debug
