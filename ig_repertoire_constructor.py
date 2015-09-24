@@ -34,19 +34,22 @@ def SupportInfo(log):
 #######################################################################################
 class PhaseNames:
     def __init__(self):
+        self.__pair_reads_merger = 'pair_reads_merger'
         self.__vj_alignment = 'vj_alignment'
         self.__trie_compressor = 'trie_compressor'
         self.__graph_construction = 'graph_constructor'
         self.__dsf = 'dsf'
         self.__consensus_constructor = 'consensus_constructor'
         self.__remove_low_abundance_reads = 'remove_low_abundance_reads'
-        self.__phase_order = [self.__vj_alignment,
+        self.__phase_order = [self.__pair_reads_merger,
+                              self.__vj_alignment,
                               self.__trie_compressor,
                               self.__graph_construction,
                               self.__dsf,
                               self.__consensus_constructor,
                               self.__remove_low_abundance_reads]
-        self.__long_names = {'vj_alignment' : 'VJ Alignment',
+        self.__long_names = {'pair_reads_merger': 'Pair reads merging',
+                             'vj_alignment' : 'VJ Alignment',
                              'trie_compressor' : 'Trie Compressor',
                              'graph_constructor' : 'Graph Constructor',
                              'dsf' : 'Dense Subgraph Finder',
@@ -68,6 +71,12 @@ class PhaseNames:
             if self.GetPhaseNameBy(i) == phase_name:
                 return i
         return -1
+
+    def PhaseIsPairReadsMerger(self, phase_name):
+        return phase_name == self.__pair_reads_merger
+
+    def GetPairReadMergerLongName(self):
+        return self.__long_names[self.__pair_reads_merger]
 
     def PhaseIsVJAlignment(self, phase_name):
         return phase_name == self.__vj_alignment
@@ -108,6 +117,8 @@ class PhaseNames:
 ###########
 class IgRepConConfig:
     def __initBinaryPaths(self):
+        self.path_to_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/paired_read_merger')
+        self.run_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/./paired_read_merger')
         self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/ig_kplus_vj_finder')
         self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
@@ -127,6 +138,10 @@ class IgRepConConfig:
 
     def CheckBinaries(self, log):
         phase_names = PhaseNames()
+        if not os.path.exists(self.path_to_pair_reads_merger):
+            log.info("ERROR: Binary file of " + phase_names.GetPairReadMergerLongName() + " was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
         if not os.path.exists(self.path_to_vj_aligner):
             log.info("ERROR: Binary file of " + phase_names.GetVJAlignmentLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
@@ -263,6 +278,42 @@ class Phase:
 
     def PrintFinishMessage(self):
         self._log.info("\n==== " + self._long_name + " finished")
+
+###########
+
+class PairReadMerger(Phase):
+    def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetPairReadMergerLongName(), log)
+        self.__params = params
+
+    def __CheckInputExistance(self):
+        if not os.path.exists(self.__params.left_reads):
+            self._log.info("ERROR: Input left reads " + self.__params.left_reads + " were not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+        if not os.path.exists(self.__params.right_reads):
+            self._log.info("ERROR: Input right reads " + self.__params.right_reads + " were not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def __CheckOutputExistance(self):
+        if not os.path.exists(self.__params.reads):
+            self._log.info("ERROR: Input reads " + self.__params.reads + " were not found")
+            SupportInfo(self._log)
+            sys.exit(1)
+
+    def Run(self):
+        self.__CheckInputExistance()
+        command_line = "%s %s %s %s" % (IgRepConConfig().run_pair_reads_merger,
+                                        self.__params.left_reads,
+                                        self.__params.right_reads,
+                                        self.__params.reads.replace(".fastq", ""))
+        support.sys_call(command_line, self._log)
+
+    def PrintOutputFiles(self):
+        self.__CheckOutputExistance()
+        self._log.info("\nOutput files: ")
+        self._log.info("  * Merged reads were written to " + self.__params.reads)
 
 ###########
 class VJAlignmentPhase(Phase):
@@ -462,7 +513,9 @@ class PhaseFactory:
         self.__log = log
 
     def __CreatePhaseByName(self, phase_name):
-        if self.__phase_names.PhaseIsVJAlignment(phase_name):
+        if self.__phase_names.PhaseIsPairReadsMerger(phase_name):
+            return PairReadMerger(self.__params, self.__log)
+        elif self.__phase_names.PhaseIsVJAlignment(phase_name):
             return VJAlignmentPhase(self.__params, self.__log)
         elif self.__phase_names.PhaseIsTrieCompressor(phase_name):
             return TrieCompressionPhase(self.__params, self.__log)
@@ -502,12 +555,12 @@ class PhaseManager:
     def __PrintPhaseDelimeter(self):
         self.__log.info("\n============================================\n")
 
-    def Run(self):
-        self.__RunSinglePhase(0)
-        for i in range(1, len(self.__phases) - 1):
+    def Run(self, start_phase=0):
+        self.__RunSinglePhase(start_phase)
+        for i in range(start_phase + 1, len(self.__phases) - 1):
             self.__PrintPhaseDelimeter()
             self.__RunSinglePhase(i)
-        if len(self.__phases) != 1:
+        if len(self.__phases) - start_phase != 1:
             self.__PrintPhaseDelimeter()
             self.__RunSinglePhase(len(self.__phases) - 1)
 
@@ -524,7 +577,7 @@ def CreateLogger():
     log.addHandler(console)
     return log
 
-def ParseCommandLineParams():
+def ParseCommandLineParams(log):
     from src.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="IgRepertoireConstructor: an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
@@ -535,7 +588,7 @@ def ParseCommandLineParams():
                                   add_help=False)
 
     req_args = parser.add_argument_group("Input")
-    input_args = req_args.add_mutually_exclusive_group(required=True)
+    input_args = req_args.add_mutually_exclusive_group(required=False)
     input_args.add_argument("-s", "--reads",
                             type=str,
                             default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
@@ -545,6 +598,15 @@ def ParseCommandLineParams():
                             const="test_dataset/merged_reads.fastq",
                             dest="reads",
                             help="Running of test dataset")
+    pair_reads = parser.add_argument_group("Pair reads")
+    pair_reads.add_argument("-1",
+                            type=str,
+                            dest="left_reads",
+                            help="Left pair reads")
+    pair_reads.add_argument("-2",
+                            type=str,
+                            dest="right_reads",
+                            help="Right pair reads")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
@@ -620,7 +682,20 @@ def ParseCommandLineParams():
     parser.set_defaults(config_dir="configs",
                         config_file="config.info")
     params = parser.parse_args()
+
+    # Process pair reads
+    if params.left_reads or params.right_reads:
+        if not params.left_reads or not params.right_reads:
+            log.info("ERROR: Both left pair reads (-1) and right pair reads (-2) should be specified\n")
+            sys.exit(-1)
+        params.reads = "%s/merged_reads.fastq" % params.output
+
     return parser, params
+
+def EnsureAbsPath(s):
+    if not os.path.isabs(s):
+        s = os.path.abspath(s)
+    return s
 
 def CheckParamsCorrectness(parser, params, log):
     if not "output" in params or params.output == "":
@@ -637,6 +712,30 @@ def CheckParamsCorrectness(parser, params, log):
         sys.exit(-1)
     if not os.path.isabs(params.reads):
         params.reads = os.path.abspath(params.reads)
+
+def CheckParamsCorrectnessPairReads(parser, params, log):
+    if not "output" in params or params.output == "":
+        log.info("ERROR: Output directory (-o) was not specified\n")
+        parser.print_help()
+        sys.exit(-1)
+    if not "left_reads" in params or params.left_reads == "":
+        log.info("ERROR: Left reads (-1) were not specified\n")
+        parser.print_help()
+        sys.exit(-1)
+    if not "right_reads" in params or params.right_reads == "":
+        log.info("ERROR: Right reads (-2) were not specified\n")
+        parser.print_help()
+        sys.exit(-1)
+    if not os.path.exists(params.left_reads):
+        log.info("ERROR: File with left reads " + params.left_reads + " were not found\n")
+        parser.print_help()
+        sys.exit(-1)
+    if not os.path.exists(params.right_reads):
+        log.info("ERROR: File with right reads " + params.right_reads + " were not found\n")
+        parser.print_help()
+        sys.exit(-1)
+    params.left_reads = EnsureAbsPath(params.left_reads)
+    params.right_reads = EnsureAbsPath(params.right_reads)
 
 def PrepareOutputDir(params):
     if params.entry_point == "vj_alignment" and os.path.exists(params.output):
@@ -671,8 +770,11 @@ def main():
     binary_config = IgRepConConfig()
     log = CreateLogger()
     binary_config.CheckBinaries(log)
-    parser, params = ParseCommandLineParams()
-    CheckParamsCorrectness(parser, params, log)
+    parser, params = ParseCommandLineParams(log)
+    if params.left_reads:
+        CheckParamsCorrectnessPairReads(parser, params, log)
+    else:
+        CheckParamsCorrectness(parser, params, log)
     PrepareOutputDir(params)
     CreateFileLogger(params, log)
     PrintParams(params, log)
@@ -682,7 +784,10 @@ def main():
     try:
         ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
         ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
-        ig_repertoire_constructor.Run()
+        if params.left_reads:
+            ig_repertoire_constructor.Run(start_phase=0)
+        else:
+            ig_repertoire_constructor.Run(start_phase=1)
         log.info("\nThank you for using IgRepertoireConstructor!")
     except (KeyboardInterrupt):
         log.info("\nIgRepertoireConstructor was interrupted!")
