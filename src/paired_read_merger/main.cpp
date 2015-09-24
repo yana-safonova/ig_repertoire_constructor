@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 			" and " << argv[2] << endl;
 	vector<fastq_read> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
 	cout << merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged" << endl;
-	FastqWriter(string(argv[3]) + ".fastq").Write(merged_reads);
+	FastqWriter(string(argv[3])).Write(merged_reads);
 	cout << "Merged reads were written to " << string(argv[3]) + ".fastq" << endl; 
 	return 0;
 }

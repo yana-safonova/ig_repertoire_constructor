@@ -307,7 +307,7 @@ class PairReadMerger(Phase):
         command_line = "%s %s %s %s" % (IgRepConConfig().run_pair_reads_merger,
                                         self.__params.left_reads,
                                         self.__params.right_reads,
-                                        self.__params.reads.replace(".fastq", ""))
+                                        self.__params.reads)
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
