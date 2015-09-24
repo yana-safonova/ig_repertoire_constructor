@@ -710,6 +710,11 @@ def ParseCommandLineParams(log):
                           dest="save_aux_files",
                           help="_Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
                                     "[default: False]")
+    dev_args.add_argument("--debug",
+                          action="store_const",
+                          const=True,
+                          dest="debug_mode",
+                          help="_Save auxiliary files, [default: False]")
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
@@ -804,6 +809,18 @@ def PrintCommandLine(log):
     command_line = "Command line: " + " ".join(sys.argv)
     log.info("\n" + command_line + "\n")
 
+def RemoveAuxFiles(params):
+    if params.debug_mode:
+        return 
+    if os.path.exists(params.io.map_file):
+        os.remove(params.io.map_file)
+    if os.path.exists(params.io.compressed_reads):
+        os.remove(params.io.compressed_reads)
+    if os.path.exists(params.io.sw_graph):
+        os.remove(params.io.sw_graph)
+    if os.path.exists(params.io.dsf_output):
+        shutil.rmtree(params.io.dsf_output)
+
 #######################################################################################
 #           Main
 #######################################################################################
@@ -829,6 +846,7 @@ def main():
             ig_repertoire_constructor.Run(start_phase=0)
         else:
             ig_repertoire_constructor.Run(start_phase=1)
+        RemoveAuxFiles(params)
         log.info("\nThank you for using IgRepertoireConstructor!")
     except (KeyboardInterrupt):
         log.info("\nIgRepertoireConstructor was interrupted!")
