@@ -195,7 +195,15 @@ If the installation of MassSpectraAnalyzer is successful, you will find the foll
 To run IgRepertoireConstructor, type:
 <pre class="code">
     <code>
-    ./ig_repertoire_constructor.py [options] -s &lt;filename&gt; -o &lt;output_dir&gt;
+    ./ig_repertoire_constructor.py [options] -s &lt;single_reads.fastq&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+OR
+
+<pre class="code">
+    <code>
+    ./ig_repertoire_constructor.py [options] -1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt; -o &lt;output_dir&gt;
     </code>
 </pre>
 
@@ -205,7 +213,12 @@ To run IgRepertoireConstructor, type:
 <h3>3.1. Basic options:</h3>
 
 <code>-s &lt;filename&gt;</code><br>
-FASTQ file with merged Illumina reads (required).
+FASTQ file with single Illumina reads (required).
+
+<br><br>
+
+<code>-1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt;</code><br>
+FASTQ files with paired-end Illumina reads (required).
 
 <br><br>
 
