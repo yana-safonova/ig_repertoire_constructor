@@ -206,14 +206,16 @@
 
         <h2 id="dsf">DSF (Dense Subgraph Finder)</h2>
         <p align = "justify">
-        Search for <i>dense subgraphs</i> (or <i>corrupted cliques</i>) is a very common problem arising in bioinformatics
-        (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
-        We decided to make an algorithm for dense subgraph search available as an independent tool.
-        One can download IgRepertoireConstructor archive and run DSF for search of dense subgraphs.
-        DSF takes as an input indirected graph in
+            Search for <i>dense subgraphs</i> (or <i>corrupted cliques</i>) is a very common problem arising in bioinformatics
+            (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
+        </p>
+        <p align = justify>
+            We decided to make an algorithm for dense subgraphs search available as an independent tool.
+            One can download IgRepertoireConstructor archive and run DSF for search of dense subgraphs.
+            DSF takes as an input indirected graph in
             <a href = "http://people.sc.fsu.edu/~jburkardt/data/metis_graph/metis_graph.html">GRAPH format</a> and outputs
-            decomposition where the identical ids were assigned for vertices from the same dense subgraph.
-        Density of constructed subgraph can be tuned via parameter <code>-f</code> (minimum edge fill-in in dense subgraphs).
+            decomposition where the identical ids are assigned for vertices from the same dense subgraph.
+            Density of constructed subgraph can be tuned via parameter <code>-f</code> (minimum edge fill-in in dense subgraphs).
             Table below shows how dense subgraph decomposition varies depending of minimal edge fill-in value.
         </p>
 
