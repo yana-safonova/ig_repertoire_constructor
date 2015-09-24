@@ -34,7 +34,7 @@ link_libraries(pthread)
 
 link_libraries(boost_program_options)
 
-find_package(BZip2)
+find_package(BZip2 QUIET)
 if(BZIP2_FOUND)
   add_definitions(-DSEQAN_HAS_BZIP2=1)
   link_libraries(${BZIP2_LIBRARIES})
