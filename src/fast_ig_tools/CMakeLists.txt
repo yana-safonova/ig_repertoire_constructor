@@ -16,7 +16,8 @@ else()
   add_definitions(-DSEQAN_HAS_ZLIB=0)
 endif()
 
-find_package(Boost REQUIRED program_options)
+# This checking performed BEFORE compilation, so boost_po is not available at this moment
+# find_package(Boost REQUIRED program_options)
 
 find_path(SEQAN_INCLUDE_DIR seqan/seq_io.h
   HINTS ../../ext/include ${EXT_DIR}/include)
