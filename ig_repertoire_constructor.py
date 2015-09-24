@@ -714,7 +714,7 @@ def ParseCommandLineParams(log):
                           action="store_const",
                           const=True,
                           dest="debug_mode",
-                          help="_Save auxiliary files, [default: False]")
+                          help="_Save auxiliary files [default: False]")
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
