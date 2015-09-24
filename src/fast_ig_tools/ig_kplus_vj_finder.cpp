@@ -140,6 +140,7 @@ class KmerIndex {
         int start, finish;
         size_t needle_index;
         int overlap_length;
+        double score;
 
         bool operator< (const Alignment& b) const {
             return this->kp_coverage < b.kp_coverage;
@@ -321,6 +322,7 @@ private:
 
                 Alignment align;
                 align.kp_coverage = coverage_length;
+                align.score = static_cast<double>(coverage_length) / static_cast<double>(length(queries[needle_index]));
                 align.path = std::move(path);
                 align.start = start;
                 align.finish = finish;
@@ -738,12 +740,12 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        bformat bf("%s, %d, %d, %d, %s, %d, %d, %d, %s");
+                        bformat bf("%s, %d, %d, %1.2f, %s, %d, %d, %1.2f, %s");
                         bf % read_id
                            % (align.start+1)             % end_of_v
-                           % align.kp_coverage           % toCString(v_ids[align.needle_index])
+                           % align.score                 % toCString(v_ids[align.needle_index])
                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
-                           % jalign.kp_coverage          % toCString(j_ids[jalign.needle_index]);
+                           % jalign.score                % toCString(j_ids[jalign.needle_index]);
 
                         add_info_strings[j] = bf.str();
 
