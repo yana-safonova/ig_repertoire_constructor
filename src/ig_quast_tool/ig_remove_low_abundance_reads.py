@@ -67,17 +67,21 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print "Low abundance reads remover started..."
     print "Command line: %s" % " ".join(sys.argv)
 
     result = []
+    num_all_clusters = 0
     with smart_open(args.input, "r") as fin:
         for record in SeqIO.parse(fin, "fasta"):
             abundance = parse_abundance(str(record.id))
+            num_all_clusters += 1
             if abundance >= args.limit:
                 result.append(record)
+
+    print str(len(result)) + " antibody clusters have abundance >= " + str(args.limit)
+    print str(num_all_clusters - len(result)) + " lowly abundant antibody clusters will be discarded"
 
     with smart_open(args.output, "w") as fout:
         SeqIO.write(result, fout, "fasta")
 
-    print "Low abundance reads remover done"
+    print "Highly abundant clusters were written to " + args.output

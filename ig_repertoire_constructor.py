@@ -246,7 +246,7 @@ class IgRepConIO:
 
     def CheckFinalClustersExistance(self):
         if not os.path.exists(self.final_clusters_fa):
-            self.__log("ERROR: File containing clusters of final repertoire was not found")
+            self.__log("ERROR: File containing antibody clusters of final repertoire was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -258,7 +258,7 @@ class IgRepConIO:
 
     def CheckFinalStrippedClustersExistance(self):
         if not os.path.exists(self.final_stripped_clusters_fa):
-            self.__log("ERROR: File containing large clusters of final repertoire was not found")
+            self.__log("ERROR: File containing large antibody clusters of final repertoire was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -473,7 +473,7 @@ class ConsensusConstructionPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing clusters of final repertoire was written to " +
+        self._log.info("  * File containing antibody clusters of final repertoire was written to " +
                        self.__params.io.final_clusters_fa)
         self._log.info("  * File containing read-cluster map of final repertoire was written to " +
                        self.__params.io.final_rcm)
@@ -501,7 +501,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * File containing large clusters of final repertoire was written to " +
+        self._log.info("  * File containing large antibody clusters of final repertoire was written to " +
                        self.__params.io.final_stripped_clusters_fa)
 
 ###########
@@ -601,7 +601,7 @@ def HelpString():
     "\t\t\t\t\t\tlambda / kappa [default: all]\n" +\
     "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
     "  --organism\t\tORGANISM\t\tOrganism (human and mouse only are supported for this moment) [default: human]\n" +\
-    "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large clusters [default: 5]\n\n" +\
+    "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
     "In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with ig_repertoire_constructor.log file from the output directory."
 
@@ -688,7 +688,7 @@ def ParseCommandLineParams(log):
                                type=int,
                                dest="min_cluster_size",
                                default=5,
-                               help="Minimal size of antibody cluster using for output of large clusters [default: %(default)d]")
+                               help="Minimal size of antibody cluster using for output of large antibody clusters [default: %(default)d]")
 
     dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
