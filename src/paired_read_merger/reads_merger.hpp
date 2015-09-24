@@ -44,7 +44,7 @@ class SequenceMerger {
                 string subseq1 = seq1.substr(i, overlap_size);
                 string subseq2 = seq2.substr(0, overlap_size);
                 size_t dist = HammingDistance(subseq1, subseq2);
-                double mism_rate = double(dist) / overlap_size;
+                double mism_rate = static_cast<double>(dist) / static_cast<double>(overlap_size);
                 if(mism_rate <= setting_.max_mismatch_rate) {
                     if(best_overlap.first > dist) {
                         best_overlap.first = dist;
@@ -71,7 +71,6 @@ class SequenceMerger {
         string overlap_qual = qual1.substr(overlap.second,
                 overlap_size);
 
-        size_t mismatch_number = 0;
         if(!setting_.simulated_mode)
             for(size_t i = 0; i < overlap_size; i++)
                 if(qual1[overlap.second + i] < qual2[i]) {
@@ -98,6 +97,7 @@ class SequenceMerger {
     }
 
     string MergeNames(size_t index, string name1, string name2) {
+        name2 == ""; // Prevent warning
         if(name1[0] == '@')
             name1 = name1.substr(1, name1.size() - 1);
         stringstream ss;
@@ -131,7 +131,7 @@ public:
             fastq_read merged_read = seq_merger_.Merge(i, reads[i]);
             if(!merged_read.is_empty())
                 merged_reads.push_back(merged_read);
-            if(double(i) / reads.size() * 100 > processed_rate) {
+            if(static_cast<double>(i) / static_cast<double>(reads.size()) * 100. > processed_rate) {
                 cout << processed_rate << "% reads were processed" << endl;
                 processed_rate += 10;
             }

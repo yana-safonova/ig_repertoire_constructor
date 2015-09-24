@@ -6,7 +6,7 @@ merger_setting parse_settings(int argc, char *argv[]) {
 	string min_overlap_str = "--min-overlap=";
 	string max_mismatch_str = "--max-mismatch=";
 	string simulated_mode_str = "--simulated-mode";
-	for(size_t i = 4; i < argc; i++) {
+	for(size_t i = 4; i < static_cast<size_t>(argc); i++) {
 		string tmp(argv[i]);
 		if(tmp.substr(0, min_overlap_str.size()) == min_overlap_str) {
 			tmp = tmp.substr(min_overlap_str.size(), tmp.size() - min_overlap_str.size());
