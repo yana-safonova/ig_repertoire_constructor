@@ -499,7 +499,36 @@ MISEQ@:53:000000000-A2BMW:1:2114:14393:28886<br><br>
 
 <a id = "alignment_info"></a>
 <h3 >6.3 Alignment Info file format</h3>
-TODO: write me!!!
+File <b>alignment_info.csv</b> contains the following information about the closest V and J gene segments
+in tab-separated view.<br>
+Read ids are consistent with headers in file <b>cleaned_reads.fastq</b>.<br>
+Ids of V and J gene segments are taken with IMGT database.
+
+        <table width = 100%>
+            <tr align="center">
+                <td><b>Read id</b></td>
+                <td><b>V start</b></td>
+                <td><b>V end</b></td>
+                <td><b>V score </br>(% identity)</b></td>
+                <td><b>V id</b></td>
+                <td><b>J start</b></td>
+                <td><b>J end</b></td>
+                <td><b>J score </br>(% identity)</b></td>
+                <td><b>J id</b></td>
+            </tr>
+            <tr align="center">
+                <td>read1</td> <td>1</td> <td>296</td> <td>100.0</td> <td>IGHV3-20*01</td> <td>321</td>
+                <td>366</td> <td>89.0</td> <td>IGHJ5*02</td>
+            </tr>
+            <tr align="center">
+                <td>read2</td> <td>1</td> <td>294</td> <td>98.64</td> <td>IGHV3-9*01</td> <td>309</td>
+                <td>354</td> <td>100.0</td> <td>IGHJ2*01</td>
+            </tr>
+            <tr align="center">
+                <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td>
+                <td>...</td> <td>...</td> <td>...</td>
+            </tr>
+        </table>
 
 <!--- -------------------------------------------------------------------- --->
 <a id="feedback"></a>
