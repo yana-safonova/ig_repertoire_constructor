@@ -21,7 +21,7 @@ def ErrorMessagePrepareCfg(log):
     log.info("Probably you forgot to prepare IgRepertoireConstructor. Please follow instructions:")
     log.info("  (1) remove build/ directory")
     log.info("  (2) type command \'./prepare cfg\' to check all dependencies")
-    log.info("  (3) type \'make\' to compile IgRepertoireConstrictor")
+    log.info("  (3) type \'make\' to compile IgRepertoireConstructor")
     log.info("  (4) rerun IgRepertoireConstructor")
 
 def SupportInfo(log):
@@ -584,12 +584,12 @@ def HelpString():
     "\t\t\t[--organism ORGANISM] [--min-size MIN_CLUSTER_SIZE]\n" +\
     "\t\t\t[-h]\n\n" +\
     "IgRepertoireConstructor: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
-    "Input parameters:\n" +\
+    "Input arguments:\n" +\
     "  -s\t\tSINGLE_READS\t\tSingle reads in FASTQ format\n" +\
     "  -1\t\tLEFT_READS\t\tLeft paired-end reads in FASTQ format\n" +\
     "  -2\t\tRIGHT_READS\t\tRight paired-end reads in FASTQ format\n" +\
     "  --test\t\t\t\tRunning of test dataset\n\n" +\
-    "Output:\n" +\
+    "Output arguments:\n" +\
     "  -o / --output\tOUTPUT\t\t\tOutput directory [default: \"igrepcon_test\"]\n\n" +\
     "Optional arguments:\n" +\
     "  -t / --threads\tNUM_THREADS\t\tThread number [default: 16]\n" +\
@@ -720,7 +720,7 @@ def ParseCommandLineParams(log):
     params = parser.parse_args()
 
     # process help
-    if params.show_help:
+    if params.show_help or len(sys.argv) == 1:
         log.info(HelpString())
         sys.exit(0)
 
