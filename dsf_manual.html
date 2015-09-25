@@ -30,9 +30,9 @@
 <!-- -------- --->
 <h2 id = "intro">1. What is Dense Subgraph Finder?</h2>
 <p>
-    Problem of finding corrupted cluqies is formulated as follows:
+    Problem of finding corrupted cliques is formulated as follows:
     <i>to find minimal number of edge additions and removals to convert graph into a set of cliques.</i>
-    Search for <i>corrupted cliques</i> (or <i>dense subgraphs</i>) of some graph is a very common problem arising in bioinformatics
+    Search for corrupted cliques (or <i>dense subgraphs</i>) of some graph is a very common problem arising in bioinformatics
     (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
     DSF tool takes as an input indirected graph in <a href = "#files_format">GRAPH format</a> and
     outputs decomposition where the identical ids are assigned for vertices from the same dense subgraph.
@@ -46,7 +46,7 @@ See <a href = manual.html#install>IgRepertoireConstructor manual</a> for install
 Please verify your DSF installation prior to initiate the DSF:
 <pre class="code">
 <code>
-    &lt;dsf_installation_dir&gt;/./dense_subgraph_finder.py --test
+    ./dense_subgraph_finder.py --test
 </code>
 </pre>
 If the installation is successful, you will find the following information at the end of the log:
@@ -154,11 +154,12 @@ and outputs the following files there:
 <h2 id = "files_format">4. GRAPH file format</h2>
 DSF takes undirected edge weighted or unweigthed graphs in GRAPH format.
 Below are examples representation of unweigthed (left) and edge weighted (right) graphs in GRAPH format:
-<table width = 80% align = center>
+<table width = 70% align = center>
     <tr>
         <td width="50%" align = center>
             <img src = docs/unweighted_graph.png width = 60%>
         </td>
+        <td width = 5%></td>
         <td width="50%" align = center>
             <img src = docs/weighted_graph.png width = 60%>
         </td>
@@ -174,6 +175,7 @@ Below are examples representation of unweigthed (left) and edge weighted (right)
             3 4 7 <br>
             3 4 6
         </td>
+        <td width = 5%></td>
         <td align = center>
             7 9 001<br>
             2 20 3 -3 <br>
@@ -186,14 +188,14 @@ Below are examples representation of unweigthed (left) and edge weighted (right)
         </td>
     </tr>
     <tr>
-        <td align = center>
+        <td align = justify>
         The first line shows number of vertices (7) and number of edges (9).
         The next lines note neighbours for each vertices.
         E.g., the second line notes that vertex 1 is connected with vertices 2 and 3.
         Numeration of vertices is 1-based.
         </td>
-
-        <td align = center>
+        <td width = 5%></td>
+        <td align = justify>
         The first line shows number of vertices (7), number of edges (9) and description for parser meaning edge weighted graph (001).
         The next lines note neighbours and edge weights for each vertices.
         E.g., the second line notes that vertex 1 is connected with vertex 2 by edge of weigth <i>20</i> and
