@@ -1,1 +1,162 @@
-Write me, Yana!
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Dense Subgraph Finder 1.0 Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <style>
+    </style>
+</head>
+<body>
+
+<h1>DSF (Dense Subgraph Finder) 1.0 manual</h1>
+
+1. <a href="#intro">What is Dense Subgraph Finder?</a><br>
+
+2. <a href="#install">Installation</a><br>
+
+3. <a href="#dsf_usage">DSF usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#dsf_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#dsf_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#dsf_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#dsf_output">Output files</a><br>
+
+4.  <a href="#files_format">GRAPH file format</a><br>
+
+5. <a href="#feedback">Feedback and bug reports</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;5.1. <a href="#citation">Citation</a><br>
+
+<!-- -------- --->
+<h2 id = "intro">1. What is Dense Subgraph Finder?</h2>
+TODO: write me
+
+<!-- -------- --->
+<h2 id = "install">2. Installation</h2>
+DSF comes as a part of IgRepertoireConstructor package.</br>
+See <a href = manual.html#install>IgRepertoireConstructor manual</a> for installation instructions.</br>
+Please verify your DSF installation prior to initiate the DSF:
+<pre class="code">
+<code>
+    &lt;dsf_installation_dir&gt;/./dense_subgraph_finder.py --test
+</code>
+</pre>
+If the installation is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+<code>
+  Thank you for using Dense Subgraph Finder!
+  Log was written to &lt;dsf_installation_dir&gt;/dsf_test/dense_subgraph_finder.log
+</code>
+</pre>
+
+<!-- -------- --->
+<h2 id = "dsf_usage">3. DSF usage</h2>
+<p>
+    DSF takes as an input undirected (weighted or unweighted) graph in GRAPH format and
+    constructs dense subgraph decomposition.
+</p>
+
+To run DSF, type:
+<pre class="code">
+    <code>
+    ./dense_subgraph_finder.py [options] -g &lt;input.graph&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+<!-- --->
+<h3 id = "dsf_basic">3.1. Basic options</h3>
+
+<code>-g &lt;input.graph&gt;</code><br>
+undirected graph in GRAPH format (required).
+
+<br><br>
+
+<code>-o / --output &lt;output_dir&gt;</code><br>
+output directory (required).
+
+<br><br>
+
+<code>-t/--threads &lt;int&gt;</code><br>
+The number of parallel threads. The default value is <code>16</code>.
+
+<br><br>
+
+<code>--test</code><br>
+Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./dense_subgraph_finder.py -g test_dataset/test.graph -o dsf_test
+    </code>
+</pre>
+
+<code>--help</code><br>
+Printing help.
+
+<br><br>
+
+<!-- --->
+<h3 id = "dsf_advanced">3.2. Advanced options</h3>
+
+<code>-f / --min-fillin &lt;float&gt;</code><br>
+Expected minimal edge fill-in of the constructed dense subgraphs.
+Default value is <code>0.6</code>.
+
+<br><br>
+
+<code>-s / --min-size &lt;int&gt;</code><br>
+Minimal size of vertices in connected components of input graph where dense subgraphs will be computed.
+Connected components of size < <code>min-size</code> will be decomposed trivially (all vertices are in the same dense subgraph).
+Default value is <code>5</code>.
+
+<br><br>
+
+<code>--save-aux-files</code><br>
+Saving dense subgraph decompositions for connected components.
+
+<br><br>
+
+<!-- --->
+
+<h3 id = "dsf_examples">3.3. Examples</h3>
+To construct dense subgraph decomposition for graph <code>input.graph</code> with
+minimal edge fill-in value <code>0.9</code>, type:
+<pre class="code">
+    <code>
+    ./dense_subgraph_finder.py -g input.graph -f 0.9 -o dsf_test
+    </code>
+</pre>
+
+<!-- --->
+
+<h3 id = "dsf_output">3.4. Output files</h3>
+DSF creates working directory (which name was specified using option <code>-o</code>)
+and outputs the following files there:
+
+<ul>
+    <li><b>dense_subgraphs.txt</b> &mdash; dense subgraph decomposition in TXT format,
+        <i>i</i>-th line of <b>dense_subgraphs.txt</b> file corresponds to <i>i</i>-th vertex and contains index (zero-based) of dense subgraph contaning this vertex.
+    </li>
+    <li>
+        <b>dense_subgraph_finder.log</b> &mdash; full log of DSF.
+    </li>
+</ul>
+
+<!-- -------- --->
+<h2 id = "files_format">4. GRAPH file format</h2>
+TODO: write me!
+
+<!-- -------- --->
+<h2 id = "feedback">5. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcome.
+They will help us to further improving on DSF.
+<br><br>
+If you have any troubles with running DSF, please send us the log file from the output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
+
+<h3 id = "citation">5.1. Citation</h3>
+If you use DSF in your research, please refer to
+<a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
+
+</body>

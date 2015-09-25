@@ -126,7 +126,7 @@ def main(argv, external_logger = ""):
                                default=16,
                                dest="num_threads",
                                help="Threads number [default: %(default)d]")
-    optional_args.add_argument("-f", '--min_fillin',
+    optional_args.add_argument("-f", '--min-fillin',
                                type=float,
                                default=0.6,
                                dest="min_fillin",
