@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../utils/fastq_reader.hpp"
+#include <utils/fastq_reader.hpp>
 
 struct QualityStatistics {
 	double aver_read_qual;
@@ -33,7 +33,7 @@ class QualityStatisticsCalculator {
 		size_t sum_qual = 0;
 		for(size_t i = 0; i < quality.size(); i++)
 			sum_qual += quality[i];
-		return double(sum_qual) / quality.size();
+		return static_cast<double>(sum_qual) / static_cast<double>(quality.size());
 	}
 
 	void Initialize() {
@@ -56,7 +56,7 @@ public:
 	}
 
 	void AddReadQuality(fastq_read read) {
-		stats_.aver_read_qual += AverageQuality(read.quality) / read_number_;
+		stats_.aver_read_qual += AverageQuality(read.quality) / static_cast<double>(read_number_);
 	}
 
 	QualityStatistics Stats() { return stats_; }

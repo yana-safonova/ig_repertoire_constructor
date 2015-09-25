@@ -26,7 +26,13 @@
 
 #define BOOST_FUNCTION_PARMS BOOST_PP_ENUM(BOOST_FUNCTION_NUM_ARGS,BOOST_FUNCTION_PARM,BOOST_PP_EMPTY)
 
-#define BOOST_FUNCTION_ARGS BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS, a)
+#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
+#   define BOOST_FUNCTION_ARGS BOOST_PP_ENUM_PARAMS(BOOST_FUNCTION_NUM_ARGS, a)
+#else
+#   include <boost/move/utility_core.hpp>
+#   define BOOST_FUNCTION_ARG(J,I,D) ::boost::forward< BOOST_PP_CAT(T,I) >(BOOST_PP_CAT(a,I))
+#   define BOOST_FUNCTION_ARGS BOOST_PP_ENUM(BOOST_FUNCTION_NUM_ARGS,BOOST_FUNCTION_ARG,BOOST_PP_EMPTY)
+#endif
 
 #define BOOST_FUNCTION_ARG_TYPE(J,I,D) \
   typedef BOOST_PP_CAT(T,I) BOOST_PP_CAT(BOOST_PP_CAT(arg, BOOST_PP_INC(I)),_type);
@@ -677,7 +683,7 @@ namespace boost {
 
     vtable_type* get_vtable() const {
       return reinterpret_cast<vtable_type*>(
-               reinterpret_cast<std::size_t>(vtable) & ~static_cast<size_t>(0x01));
+               reinterpret_cast<std::size_t>(vtable) & ~static_cast<std::size_t>(0x01));
     }
 
     struct clear_type {};
@@ -711,9 +717,8 @@ namespace boost {
     template<typename Functor>
     BOOST_FUNCTION_FUNCTION(Functor BOOST_FUNCTION_TARGET_FIX(const &) f
 #ifndef BOOST_NO_SFINAE
-                            ,typename enable_if_c<
-                            (boost::type_traits::ice_not<
-                             (is_integral<Functor>::value)>::value),
+                            ,typename boost::enable_if_c<
+                             !(is_integral<Functor>::value),
                                         int>::type = 0
 #endif // BOOST_NO_SFINAE
                             ) :
@@ -724,9 +729,8 @@ namespace boost {
     template<typename Functor,typename Allocator>
     BOOST_FUNCTION_FUNCTION(Functor BOOST_FUNCTION_TARGET_FIX(const &) f, Allocator a
 #ifndef BOOST_NO_SFINAE
-                            ,typename enable_if_c<
-                            (boost::type_traits::ice_not<
-                             (is_integral<Functor>::value)>::value),
+                            ,typename boost::enable_if_c<
+                              !(is_integral<Functor>::value),
                                         int>::type = 0
 #endif // BOOST_NO_SFINAE
                             ) :
@@ -748,7 +752,14 @@ namespace boost {
     {
       this->assign_to_own(f);
     }
-
+    
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    BOOST_FUNCTION_FUNCTION(BOOST_FUNCTION_FUNCTION&& f) : function_base()
+    {
+      this->move_assign(f);
+    }
+#endif
+    
     ~BOOST_FUNCTION_FUNCTION() { clear(); }
 
     result_type operator()(BOOST_FUNCTION_PARMS) const
@@ -767,9 +778,8 @@ namespace boost {
     // construct.
     template<typename Functor>
 #ifndef BOOST_NO_SFINAE
-    typename enable_if_c<
-               (boost::type_traits::ice_not<
-                 (is_integral<Functor>::value)>::value),
+    typename boost::enable_if_c<
+                  !(is_integral<Functor>::value),
                BOOST_FUNCTION_FUNCTION&>::type
 #else
     BOOST_FUNCTION_FUNCTION&
@@ -830,6 +840,26 @@ namespace boost {
       BOOST_CATCH_END
       return *this;
     }
+    
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+    // Move assignment from another BOOST_FUNCTION_FUNCTION
+    BOOST_FUNCTION_FUNCTION& operator=(BOOST_FUNCTION_FUNCTION&& f)
+    {
+      
+      if (&f == this)
+        return *this;
+
+      this->clear();
+      BOOST_TRY {
+        this->move_assign(f);
+      } BOOST_CATCH (...) {
+        vtable = 0;
+        BOOST_RETHROW;
+      }
+      BOOST_CATCH_END
+      return *this;
+    }
+#endif
 
     void swap(BOOST_FUNCTION_FUNCTION& other)
     {
@@ -887,10 +917,10 @@ namespace boost {
     template<typename Functor>
     void assign_to(Functor f)
     {
-      using detail::function::vtable_base;
+      using boost::detail::function::vtable_base;
 
-      typedef typename detail::function::get_function_tag<Functor>::type tag;
-      typedef detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
+      typedef typename boost::detail::function::get_function_tag<Functor>::type tag;
+      typedef boost::detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
       typedef typename get_invoker::
                          template apply<Functor, R BOOST_FUNCTION_COMMA 
                         BOOST_FUNCTION_TEMPLATE_ARGS>
@@ -908,11 +938,12 @@ namespace boost {
 
       if (stored_vtable.assign_to(f, functor)) {
         std::size_t value = reinterpret_cast<std::size_t>(&stored_vtable.base);
+        // coverity[pointless_expression]: suppress coverity warnings on apparant if(const).
         if (boost::has_trivial_copy_constructor<Functor>::value &&
             boost::has_trivial_destructor<Functor>::value &&
-            detail::function::function_allows_small_object_optimization<Functor>::value)
-          value |= static_cast<size_t>(0x01);
-        vtable = reinterpret_cast<detail::function::vtable_base *>(value);
+            boost::detail::function::function_allows_small_object_optimization<Functor>::value)
+          value |= static_cast<std::size_t>(0x01);
+        vtable = reinterpret_cast<boost::detail::function::vtable_base *>(value);
       } else 
         vtable = 0;
     }
@@ -920,10 +951,10 @@ namespace boost {
     template<typename Functor,typename Allocator>
     void assign_to_a(Functor f,Allocator a)
     {
-      using detail::function::vtable_base;
+      using boost::detail::function::vtable_base;
 
-      typedef typename detail::function::get_function_tag<Functor>::type tag;
-      typedef detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
+      typedef typename boost::detail::function::get_function_tag<Functor>::type tag;
+      typedef boost::detail::function::BOOST_FUNCTION_GET_INVOKER<tag> get_invoker;
       typedef typename get_invoker::
                          template apply_a<Functor, R BOOST_FUNCTION_COMMA 
                          BOOST_FUNCTION_TEMPLATE_ARGS,
@@ -942,11 +973,12 @@ namespace boost {
 
       if (stored_vtable.assign_to_a(f, functor, a)) { 
         std::size_t value = reinterpret_cast<std::size_t>(&stored_vtable.base);
+        // coverity[pointless_expression]: suppress coverity warnings on apparant if(const).
         if (boost::has_trivial_copy_constructor<Functor>::value &&
             boost::has_trivial_destructor<Functor>::value &&
-            detail::function::function_allows_small_object_optimization<Functor>::value)
+            boost::detail::function::function_allows_small_object_optimization<Functor>::value)
           value |= static_cast<std::size_t>(0x01);
-        vtable = reinterpret_cast<detail::function::vtable_base *>(value);
+        vtable = reinterpret_cast<boost::detail::function::vtable_base *>(value);
       } else 
         vtable = 0;
     }
@@ -1033,9 +1065,8 @@ public:
   template<typename Functor>
   function(Functor f
 #ifndef BOOST_NO_SFINAE
-           ,typename enable_if_c<
-                            (boost::type_traits::ice_not<
-                          (is_integral<Functor>::value)>::value),
+           ,typename boost::enable_if_c<
+                          !(is_integral<Functor>::value),
                        int>::type = 0
 #endif
            ) :
@@ -1045,9 +1076,8 @@ public:
   template<typename Functor,typename Allocator>
   function(Functor f, Allocator a
 #ifndef BOOST_NO_SFINAE
-           ,typename enable_if_c<
-                            (boost::type_traits::ice_not<
-                          (is_integral<Functor>::value)>::value),
+           ,typename boost::enable_if_c<
+                           !(is_integral<Functor>::value),
                        int>::type = 0
 #endif
            ) :
@@ -1063,17 +1093,30 @@ public:
 
   function(const base_type& f) : base_type(static_cast<const base_type&>(f)){}
 
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+  // Move constructors
+  function(self_type&& f): base_type(static_cast<base_type&&>(f)){}
+  function(base_type&& f): base_type(static_cast<base_type&&>(f)){}
+#endif
+  
   self_type& operator=(const self_type& f)
   {
     self_type(f).swap(*this);
     return *this;
   }
 
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+  self_type& operator=(self_type&& f)
+  {
+    self_type(static_cast<self_type&&>(f)).swap(*this);
+    return *this;
+  }
+#endif  
+
   template<typename Functor>
 #ifndef BOOST_NO_SFINAE
-  typename enable_if_c<
-                            (boost::type_traits::ice_not<
-                         (is_integral<Functor>::value)>::value),
+  typename boost::enable_if_c<
+                         !(is_integral<Functor>::value),
                       self_type&>::type
 #else
   self_type&
@@ -1097,6 +1140,14 @@ public:
     self_type(f).swap(*this);
     return *this;
   }
+  
+#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
+  self_type& operator=(base_type&& f)
+  {
+    self_type(static_cast<base_type&&>(f)).swap(*this);
+    return *this;
+  }
+#endif 
 };
 
 #undef BOOST_FUNCTION_PARTIAL_SPEC
@@ -1125,6 +1176,9 @@ public:
 #undef BOOST_FUNCTION_TEMPLATE_ARGS
 #undef BOOST_FUNCTION_PARMS
 #undef BOOST_FUNCTION_PARM
+#ifdef BOOST_FUNCTION_ARG
+#   undef BOOST_FUNCTION_ARG
+#endif
 #undef BOOST_FUNCTION_ARGS
 #undef BOOST_FUNCTION_ARG_TYPE
 #undef BOOST_FUNCTION_ARG_TYPES

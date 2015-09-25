@@ -1,5 +1,3 @@
-# -*- cmake -*-
-
 # Handle OpenMP flags
 if (OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
@@ -8,9 +6,9 @@ if (OPENMP_FOUND)
 # Use parallel libstdc++ if possible
   add_definitions(-DUSE_GLIBCXX_PARALLEL=1)
 else ()
-  if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-    message(FATAL_ERROR "SPAdes requires OpenMP to be available")
-  endif()
+  # if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+  #   message(FATAL_ERROR "SPAdes requires OpenMP to be available")
+  # endif()
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -Wno-deprecated")

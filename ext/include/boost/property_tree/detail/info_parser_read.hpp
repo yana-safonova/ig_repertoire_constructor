@@ -60,13 +60,24 @@ namespace boost { namespace property_tree { namespace info_parser
         }
         return result;
     }
+    
+    // Detect whitespace in a not very smart way.
+    template <class Ch>
+    bool is_ascii_space(Ch c)
+    {
+        // Everything outside ASCII is not space.
+        unsigned n = c;
+        if (n > 127)
+            return false;
+        return isspace(c) != 0;
+    }
 
     // Advance pointer past whitespace
     template<class Ch>
     void skip_whitespace(const Ch *&text)
     {
         using namespace std;
-        while (isspace(*text))
+        while (is_ascii_space(*text))
             ++text;
     }
 
@@ -77,7 +88,7 @@ namespace boost { namespace property_tree { namespace info_parser
         using namespace std;
         skip_whitespace(text);
         const Ch *start = text;
-        while (!isspace(*text) && *text != Ch(';') && *text != Ch('\0'))
+        while (!is_ascii_space(*text) && *text != Ch(';') && *text != Ch('\0'))
             ++text;
         return expand_escapes(start, text);
     }
@@ -91,7 +102,7 @@ namespace boost { namespace property_tree { namespace info_parser
         const Ch *start = text;
         while (*text != Ch('\0') && *text != Ch(';'))
             ++text;
-        while (text > start && isspace(*(text - 1)))
+        while (text > start && is_ascii_space(*(text - 1)))
             --text;
         return expand_escapes(start, text);
     }
@@ -227,11 +238,7 @@ namespace boost { namespace property_tree { namespace info_parser
                         str_t s = read_string(text, NULL);
                         std::string inc_name =
                             convert_chtype<char, Ch>(s.c_str());
-                        // SPADES LOCAL BEGIN
-                        size_t pos = filename.find_last_of("\\/");
-                        std::string dir = (std::string::npos == pos) ? "" : filename.substr(0, pos + 1);
-                        std::basic_ifstream<Ch> inc_stream(dir + inc_name.c_str());
-                        // SPADES LOCAL END
+                        std::basic_ifstream<Ch> inc_stream(inc_name.c_str());
                         if (!inc_stream.good())
                             BOOST_PROPERTY_TREE_THROW(info_parser_error(
                                 "cannot open include file " + inc_name,

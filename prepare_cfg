@@ -23,7 +23,7 @@ echo "/**************************************/"
 
 mkdir -p $build/debug
 cd $build/debug
-cmake $src -DCMAKE_BUILD_TYPE="Debug"
+cmake $src -DCMAKE_BUILD_TYPE="Debug" -Wno-dev
 
 echo "/**************************************/"
 echo "/********  preparing release **********/"
@@ -31,5 +31,5 @@ echo "/**************************************/"
 
 mkdir -p $build/release
 cd $build/release
-cmake $src -DCMAKE_BUILD_TYPE="RelWithAsserts"
+cmake $src -DCMAKE_BUILD_TYPE="RelWithAsserts" -Wno-dev
 cd $assembler

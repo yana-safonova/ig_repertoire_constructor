@@ -1,7 +1,8 @@
 # -*- cmake -*-
 
 ############################################################################
-# Copyright (c) 2011-2014 Saint-Petersburg Academic University
+# Copyright (c) 2015 Saint Petersburg State University
+# Copyright (c) 2011-2014 Saint Petersburg Academic University
 # All Rights Reserved
 # See file LICENSE for details.
 ############################################################################
@@ -122,9 +123,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif()
 
 add_definitions(-D_REENTRANT)
-add_definitions(-O3 -funroll-loops)
-
-remove_definitions(-Wall -Wextra -Wconversion -Wno-long-long -Wwrite-strings -pedantic)
+add_compile_options(-O3 -funroll-loops)
 
 # TLS on Darwin is "fake". We cannot use it with jemalloc, because
 # emulated tls wants to use calloc() and friends

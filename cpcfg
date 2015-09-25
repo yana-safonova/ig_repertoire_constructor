@@ -27,11 +27,18 @@ for arg; do
 case $arg in
   'ig') $cmd configs/ig_repertoire_constructor/config.info.template configs/ig_repertoire_constructor/config.info;;
   'logig') $cmd configs/ig_repertoire_constructor/log.properties.template configs/ig_repertoire_constructor/log.properties;;
+  'dsf') $cmd configs/dense_sgraph_finder/config.info.template configs/dense_sgraph_finder/config.info;;
+  'logdsf') $cmd configs/dense_sgraph_finder/log.properties.template configs/dense_sgraph_finder/log.properties;;
   '-all')
 		echo -----------configs/ig_repertoire_constructor/config.info--------
 		$cmd configs/ig_repertoire_constructor/config.info.template configs/ig_repertoire_constructor/config.info
 		echo ----------configs/ig_repertoire_constructor/log.properties------
-		$cmd configs/ig_repertoire_constructor/log.properties.template configs/ig_repertoire_constructor/log.properties 
+		$cmd configs/ig_repertoire_constructor/log.properties.template configs/ig_repertoire_constructor/log.properties
+                echo -------------configs/dense_sgraph_finder/config.info------------
+                $cmd configs/dense_sgraph_finder/config.info.template configs/dense_sgraph_finder/config.info
+                echo -------------configs/dense_sgraph_finder/log.properties---------
+                $cmd configs/dense_sgraph_finder/log.properties.template configs/dense_sgraph_finder/log.properties
+ 
 esac
 
 done

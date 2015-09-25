@@ -94,8 +94,7 @@ namespace policies{
 #define BOOST_MATH_MAX_ROOT_ITERATION_POLICY 200
 #endif
 
-#if !defined(__BORLANDC__) \
-   && !(defined(__GNUC__) && (__GNUC__ == 3) && (__GNUC_MINOR__ <= 2))
+#if !defined(__BORLANDC__)
 #define BOOST_MATH_META_INT(type, name, Default)\
    template <type N = Default> struct name : public boost::mpl::int_<N>{};\
    namespace detail{\
@@ -431,7 +430,7 @@ public:
    //
    // Mathematically undefined properties:
    //
-   typedef typename detail::find_arg<arg_list, is_assert_undefined<mpl::_1>, discrete_quantile<> >::type assert_undefined_type;
+   typedef typename detail::find_arg<arg_list, is_assert_undefined<mpl::_1>, assert_undefined<> >::type assert_undefined_type;
    //
    // Max iterations:
    //
@@ -537,12 +536,12 @@ private:
    //
    // Mathematically undefined properties:
    //
-   typedef typename detail::find_arg<arg_list, is_assert_undefined<mpl::_1>, discrete_quantile<> >::type assert_undefined_type;
+   typedef typename detail::find_arg<arg_list, is_assert_undefined<mpl::_1>, typename Policy::assert_undefined_type >::type assert_undefined_type;
    //
    // Max iterations:
    //
-   typedef typename detail::find_arg<arg_list, is_max_series_iterations<mpl::_1>, max_series_iterations<> >::type max_series_iterations_type;
-   typedef typename detail::find_arg<arg_list, is_max_root_iterations<mpl::_1>, max_root_iterations<> >::type max_root_iterations_type;
+   typedef typename detail::find_arg<arg_list, is_max_series_iterations<mpl::_1>, typename Policy::max_series_iterations_type>::type max_series_iterations_type;
+   typedef typename detail::find_arg<arg_list, is_max_root_iterations<mpl::_1>, typename Policy::max_root_iterations_type>::type max_root_iterations_type;
    //
    // Define a typelist of the policies:
    //
@@ -813,6 +812,16 @@ struct precision
 
 #endif
 
+#ifdef BOOST_MATH_USE_FLOAT128
+
+template <class Policy>
+struct precision<BOOST_MATH_FLOAT128_TYPE, Policy>
+{
+   typedef mpl::int_<113> type;
+};
+
+#endif
+
 namespace detail{
 
 template <class T, class Policy>
@@ -840,6 +849,11 @@ inline int digits(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
 {
    typedef mpl::bool_< std::numeric_limits<T>::is_specialized > tag_type;
    return detail::digits_imp<T, Policy>(tag_type());
+}
+template <class T, class Policy>
+inline int digits_base10(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE(T))
+{
+   return boost::math::policies::digits<T, Policy>() * 301 / 1000L;
 }
 
 template <class Policy>
