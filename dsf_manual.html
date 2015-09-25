@@ -29,8 +29,16 @@
 
 <!-- -------- --->
 <h2 id = "intro">1. What is Dense Subgraph Finder?</h2>
-TODO: write me
-
+<p>
+    Problem of finding corrupted cluqies is formulated as follows:
+    <i>to find minimal number of edge additions and removals to convert graph into a set of cliques.</i>
+    Search for <i>corrupted cliques</i> (or <i>dense subgraphs</i>) of some graph is a very common problem arising in bioinformatics
+    (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
+    DSF tool takes as an input indirected graph in <a href = "#files_format">GRAPH format</a> and
+    outputs decomposition where the identical ids are assigned for vertices from the same dense subgraph.
+    Density of subgraph on N vertices and M edges is computed as ratio of M to maximal possible number of edges (N * (N - 1) / 2) and
+    can be tuned by user.
+</p>
 <!-- -------- --->
 <h2 id = "install">2. Installation</h2>
 DSF comes as a part of IgRepertoireConstructor package.</br>
@@ -53,7 +61,7 @@ If the installation is successful, you will find the following information at th
 <!-- -------- --->
 <h2 id = "dsf_usage">3. DSF usage</h2>
 <p>
-    DSF takes as an input undirected (weighted or unweighted) graph in GRAPH format and
+    DSF takes as an input indirected (weighted or unweighted) graph in GRAPH format and
     constructs dense subgraph decomposition.
 </p>
 
@@ -68,7 +76,7 @@ To run DSF, type:
 <h3 id = "dsf_basic">3.1. Basic options</h3>
 
 <code>-g &lt;input.graph&gt;</code><br>
-undirected graph in GRAPH format (required).
+indirected graph in GRAPH format (required).
 
 <br><br>
 
@@ -144,8 +152,57 @@ and outputs the following files there:
 
 <!-- -------- --->
 <h2 id = "files_format">4. GRAPH file format</h2>
-TODO: write me!
+DSF takes undirected edge weighted or unweigthed graphs in GRAPH format.
+Below are examples representation of unweigthed (left) and edge weighted (right) graphs in GRAPH format:
+<table width = 80% align = center>
+    <tr>
+        <td width="50%" align = center>
+            <img src = docs/unweighted_graph.png width = 60%>
+        </td>
+        <td width="50%" align = center>
+            <img src = docs/weighted_graph.png width = 60%>
+        </td>
+    </tr>
+    <tr>
+        <td align = center>
+            7 9 <br>
+            2 3 <br>
+            1 3 <br>
+            1 2 4 6 7 <br>
+            3 6 7 <br>
+            <br>
+            3 4 7 <br>
+            3 4 6
+        </td>
+        <td align = center>
+            7 9 001<br>
+            2 20 3 -3 <br>
+            1 20 3 4.5<br>
+            1 -3 2 4.5 4 1 6 0.7 7 0.8<br>
+            3 1 6 -1.5 7 43<br>
+            <br>
+            3 0.7 4 -1.5 7 7.8<br>
+            3 0.8 4 43 6 7.8
+        </td>
+    </tr>
+    <tr>
+        <td align = center>
+        The first line shows number of vertices (7) and number of edges (9).
+        The next lines note neighbours for each vertices.
+        E.g., the second line notes that vertex 1 is connected with vertices 2 and 3.
+        Numeration of vertices is 1-based.
+        </td>
 
+        <td align = center>
+        The first line shows number of vertices (7), number of edges (9) and description for parser meaning edge weighted graph (001).
+        The next lines note neighbours and edge weights for each vertices.
+        E.g., the second line notes that vertex 1 is connected with vertex 2 by edge of weigth <i>20</i> and
+            vertex 3 by the edge of weigth <i>-3</i>.
+        </td>
+    </tr>
+</table>
+Please note that numeration of vertices is 1-based.
+Isolated vertices (vertices without neighbours) are denoted by empty lines.
 <!-- -------- --->
 <h2 id = "feedback">5. Feedback and bug reports</h2>
 Your comments, bug reports, and suggestions are very welcome.
