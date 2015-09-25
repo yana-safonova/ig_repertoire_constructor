@@ -11,9 +11,10 @@ else()
   message(WARNING "Unsupported compiler is detected. SPAdes compilation was not tested on it and may fail")
 endif()
 
-find_package(OpenMP REQUIRED)
+find_package(OpenMP QUIET)
 link_libraries(z)
 link_libraries(bz2)
+link_libraries(pthread)
 
 set(BOOST_ROOT "${EXT_DIR}/include")
 set(Boost_USE_MULTITHREADED ON)

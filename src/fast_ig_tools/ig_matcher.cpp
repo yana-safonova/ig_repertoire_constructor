@@ -20,6 +20,8 @@ using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::CharString;
 
+#include <openmp_wrapper.h>
+
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
 #include "fast_ig_tools.hpp"

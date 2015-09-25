@@ -1,4 +1,4 @@
-#include <omp.h>
+#include <openmp_wrapper.h>
 #include "launch.hpp"
 #include "graph_utils/graph_splitter.hpp"
 
