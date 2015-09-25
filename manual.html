@@ -94,15 +94,14 @@ IgRepertoireConstructor pipeline consists of the following steps:
 </ol>
 
 <p align="justify">
-    If you are interested in details of IgRepertoireConstructor algorithm,
-    please address to <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
+    You can find details of IgRepertoireConstructor algorithm in <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
 </p>
 
 <!--- ---------------------------------------------------------------- -->
 
 <h3 id = "about_ms_analyzer">About MassSpectraAnalyzer</h3>
 Some immunological experiments include prepartion both seqiencing reads and mass spectra (see examples in ).
-In this case, mass spectra datasets can be user for validation of repetoire constructed from sequencing reads.
+In this case, mass spectra datasets can be used for validation of repetoire constructed from sequencing reads.
 Repertoire constructed by IgRepertoireConstructor can be used as a database for
 identification of mass spectra using some standard tool, e.g., <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>.
 MassSpectraAnalyzer takes as an input <a href = "http://www.psidev.info/mzidentml">mzIdentML file</a> and
@@ -118,7 +117,7 @@ computes similary between constructed repertoire and mass spectra.
 <a id="install"></a>
 <h2>2. Installation</h2>
 
-IgRepertoireConstructor requires the following pre-installed dependencies:
+IgRepertoireConstructor has the following dependencies:
 <ul>
     <li>64-bit Linux system</li>
     <li>g++ (version 4.7 or higher)</li>
@@ -252,9 +251,9 @@ Printing help.
 <h3>3.2. Advanced options:</h3>
 
 <code>--tau &lt;int&gt;</code><br>
-Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default value is 4.<br>
-<b>NOTE:</b> Be careful, using of large value can significantly slow up construction of repertoire or even can be inappropriate.
-Reasonable value of <code>tau</code> option lies between <code>1</code> and <code>6</code>.
+Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default (and recommended) value is 4.
+Higher values give higher sencitivity but increase running time.
+Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</code>.
 
 <br><br>
 
@@ -312,7 +311,7 @@ and outputs the following files there:
         (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
 
     <li><b>super_reads.fa</b> &mdash; FASTA file containing highly abundant <i>super-reads</i>,
-        i.e., groups of identical reads with high coverage,
+        i.e., large groups of identical reads,
         Minimal size of super read is defined by option <code>--min-size</code>.</li>
   </ul><br>
 
@@ -321,13 +320,13 @@ and outputs the following files there:
       <li>
           <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed at the VJ Finder stage.
           Cleaned reads have forward direction (from V to J),
-          surely contain V and J gene segments and
-          cropped by the left bound of V gene segment.
+          contain V and J gene segments and
+          are cropped by the left bound of V gene segment.
       </li>
 
       <li>
           <b>vj_finder/filtered_reads.fa</b> &mdash; FASTA file with filtered reads.
-          Filtered reads have bad alignment to Ig germline gene segments and likely present contaminations.
+          Filtered reads have bad alignment to Ig germline gene segments and are likely to <re></re>present contaminations.
       </li>
 
       <li>
@@ -360,7 +359,7 @@ MassSpectraAnalyzer takes as an input result of matching of mass spectra against
 <a id = "msanalyzer_basic"></a>
 <h3>4.1. Basic options:</h3>
 
-<code>inputs</code></br>
+<code>input_file_1.mzid ... input_file_N.mzid</code></br>
 Input files with mass spectra alignment to protein database in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a>.</br></br>
 
 <code>-o &lt;output_dir></code></br>
@@ -534,9 +533,9 @@ Ids of V and J gene segments are taken with IMGT database.
 <a id="feedback"></a>
 <h2>7. Feedback and bug reports</h2>
 Your comments, bug reports, and suggestions are very welcome.
-They will help us to further improving on IgRepertoireConstructor.
+They will help us to further improve IgRepertoireConstructor.
 <br><br>
-If you have any troubles with running IgRepertoireConstructor, please send us the log file from the output directory.
+If you have any trouble running IgRepertoireConstructor, please send us the log file from the output directory.
 <br><br>
 Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
 
