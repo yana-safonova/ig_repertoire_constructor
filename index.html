@@ -12,88 +12,368 @@
   <body>
     <section class="page-header">
       <h1 class="project-name" align=center>IgRepertoireConstructor</h1>
-      <h2 class="project-tagline" align=center>An algorithm for error-correction of immunosequencing Illumina MiSeq reads and immunoproteogenomics analysis</h2>
+      <h2 class="project-tagline" align=center>An algorithm for error-correction of
+          immunosequencing Illumina MiSeq reads and
+          immunoproteogenomics analysis</h2>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub</b></a>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip</b></a>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz</b></a>
     </section>
 
     <section class="main-content">
-    
-    <p><b>IgRepertoireConstructor</b> performs error-correction of immunosequencing reads and uses mass spectra to validate the constructed antibody repertoires. IgRepertoireConstructor pipeline includes the following steps:
-    <ul>
-            <li> <b>IgDataCleaner:</b> merging paired-end Illumina MiSeq reads and cleaning contaminations.</li>
-            <li> <b>IgRepertoireConstructor:</b> construction of antibody repertoire from cleaned reads. Constructed antibody repertoire can be used as a database for matching of mass spectra, e.g., using MS-GF+ tool.</li> 
-            <li> <b>MassSpectraAnalyzer:</b> analysis of results of MS matching.</li>
-    </ul>
-    <table align = center>
-    <tr><td align = center><img src="figures/pipeline.png" width = "80%" alt="pipeline"></td></tr>
-    </table></br>
 
-    <ul>
-        <li><b>IgDataCleaner</b>. 
-            IgDataCleaner takes Illumina MiSeq paired end reads as an input and expect that each left and right reads overlap and cover variable region of antibody. 
-            IgDataCleaner stitches paired-end reads and removes contaminations using alignment of stitched reads against Ig germline database. 
-            This procedure significantly improves quality of input reads (left) and allows one to constructs reads covering variable region of antibody (right):</li>
-        <table align = center border = "0">
-        <tr> 
-            <td align = center><img src="figures/dataset_preparation/7_SAM15574987_aver_quality.png" alt = "read_quality_comparison"></td> 
-            <td align = center><img src="figures/dataset_preparation/7_SAM15574987_merged_read_length.png" alt = "merged_read_length"></td>
-        </tr>
-        <tr>
-            <td><small>Average quality of reads before (red) and after (blue) merging</small></td>
-            <td><small>Histogram of merged read length distribution (human, heavy chain repertoire of IgM)</small></td>
-        </tr>
-        </table></br>
+        <h2>Content</h2>
+        <p align = "center">
+        <ul>
+            <li><a href = "#motivation">Motivation</a></li>
+            <li><a href = "#approach">Our approach</a></li>
+            <li><a href = "#ig_repertoire_constructor">IgRepertoireConstructor</a></li>
+            <li><a href = "#mass_spectra_analysis">Mass Spectra Analyzer</a></li>
+            <li><a href = "#dsf">DSF (Dense Subgraph Finder)</a></li>
+            <li><a href = "#references">Manual and citations</a></li>
+        </ul>
+        </p>
 
-        <li><b>IgRepertoireConstructor.</b> 
-            IgRepertoireConstructor takes as an input reads covering variable region of antibodies and corrects Illumina sequencing errors. 
-            Algorithm constructs Hamming graph on input reads and uses accurate clustering techniques for reconstruction of original antibody clusters:</li>
+
+        <h2 id = "motivation">Motivation</h2>
+        <p align = "justify">
+            Construction of antibody repertoire is a preliminary step of any immunological analysis based on sequencing reads.
+            Accurate construction of antibody repertoire avoids erroneous analysis of natural variations and antibody abundances.
+        </p>
+
+        <p align = justify>
+            Modern sequencing technologies (e.g., Illumina MiSeq) allow biologists to perform full-length scanning of
+            antibody repertoire.
+            For example, overlapping paired-end Illumina MiSeq reads cover variable regions of antibody:
+        </p>
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/antibody_sequencing.png" width = 50% alt = "antibody_sequencing">
+                </td>
+            </tr>
+        </table>
+
+        <p align = justify>
+            Problem of construction of antibody repertoire can be formulated as follows:
+        </p>
+        <table align = center width = "100%">
+            <tr>
+                <td align = center width = "10000000px"><img src="docs/problem_antibody_repertoire_construction.svg" width = "80%" alt="pipeline"></td>
+            </tr>
+        </table>
+        <p align = justify>
+            Antibody repertoire construction tool takes as an input sequencing reads (result of RNA-sequencing of some B-cells)
+            and constructs antibody repertoire as a set of <i>antibody clusters</i>.
+            Each antibody cluster represent a group of identical antibodies and is characterized by its sequence and abundance.
+        </p>
+
+        <h2 id = "approach">Our approach</h2>
+        <p align = "justify">
+            <b>IgRepertoireConstructor</b> constructs antibody repertoire from immunosequencing reads and
+            uses mass spectra to validate the constructed antibody repertoires.
+            The whole pipeline includes two parts:
+        </p>
+        <ul>
+            <li> <b>IgRepertoireConstructor</b> performs construction of antibody repertoire from immunosequencing reads:
+                it corrects sequencing and amplification errors and joins together reads corresponding
+                to identical antibodies.
+                Constructed repertoire can be used as a highly accurate input for various immunological applications, e.g.,
+                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.
+                Details of IgRepertoireConstructor algorithm can be found <a href = "#ig_repertoire_constructor">below</a>.
+            </li>
+            <li>
+                <b>Mass Spectra Analyzer</b> is a tool for immunoproteogenomics analysis.
+                Repertoire constructed by IgRepertoireConstructor can be converted into a
+                database and used for mass spectra identifications (using some standard tool, e.g., MS-GF+).
+                Mass Spectra Analyzer performs analysis of the computed matches and computes various statistics
+                showing similarity of the constructed repertoire and mass spectra.
+                Mass Spectra Analyzer details are described <a href = "#mass_spectra_analysis">below</a>.
+            </li>
+        </ul>
+        <table align = "center" width = "100%">
+            <tr>
+                <td align = center width="1000000px"><img src="docs/immunogenomics_pipeline.svg" width = "90%" alt="pipeline"></td>
+            </tr>
+            <tr>
+                <td align = center><small>Pipeline of antibody repertoire analysis.</small></td>
+            </tr>
+        </table>
+
+
+        <h2 id = "ig_repertoire_constructor">IgRepertoireConstructor</h2>
+        <p align = justify>
+            IgRepertoireConstructor takes as an input reads (paired-end or single) covering variable region of antibodies and
+            corrects sequencing and amplification errors.
+        </p>
+        Algorithm performs the following steps:
+            <ul>
+                <li><b>VJ Finder: </b>V, J labeling, cleaning and cropping input reads.</li>
+                <li><b>Construction & clusterization of SW graph: </b>representation of cleaned reads as a Smith-Waterman graph and finding of groups of highly similar antibodies.</li>
+                <li><b>Antibody construction:</b> reconstruction of antibody sequences from the constructed groups, cleaning amplification errors.</li>
+            </ul>
+
+        <h3 id = "vj_finder">VJ Finder</h3>
+        <p align = justify>
+        The main goals of VJ Finder tool are:
+
+        <ol>
+            <li>Finding and discarding contaminated reads.</li>
+            <li>Cropping remaining immunosequencing reads by the start position of the closest V gene segment and the end position of the closest J gene segment.
+            VJ Finder also discards reads covering V gene segment only since they can not be unambiguously assigned to antibody cluster.</li>
+        </ol>
+
+        <p align = justify>
+            VJ Finder outputs information about the closest V and J gene segments in tab-separated view:
+        </p>
+
+        <small>
+        <table>
+            <tr align="center">
+                <td><b>Read id</b></td>
+                <td><b>V start</b></td>
+                <td><b>V end</b></td>
+                <td><b>V score </br>(% identity)</b></td>
+                <td><b>V id</b></td>
+                <td><b>J start</b></td>
+                <td><b>J end</b></td>
+                <td><b>J score </br>(% identity)</b></td>
+                <td><b>J id</b></td>
+            </tr>
+            <tr align="center">
+                <td>read1</td> <td>1</td> <td>296</td> <td>100.0</td> <td>IGHV3-20*01</td> <td>321</td>
+                <td>366</td> <td>89.0</td> <td>IGHJ5*02</td>
+            </tr>
+            <tr align="center">
+                <td>read2</td> <td>1</td> <td>294</td> <td>98.64</td> <td>IGHV3-9*01</td> <td>309</td>
+                <td>354</td> <td>100.0</td> <td>IGHJ2*01</td>
+            </tr>
+            <tr align="center">
+                <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td>
+                <td>...</td> <td>...</td> <td>...</td>
+            </tr>
+        </table>
+        </small>
+
+
+        <h3 id = "graph_algos">Construction and clusterizarion of Smith-Waterman graph</h3>
+        <p align = justify>
+            We use Smith-Waterman graph to show similarity between reads.
+            Idea of Smith-Waterman graph is close to Hamming graph: vertices represent reads remaining after VJ Finder,
+            edge connects <i>read1</i> and <i>read2</i> if global edit distance between these them is relatively small.
+
+            After construction of graph, we use clustering techniques that allow us to find dense structures (corrupted cliques) in the graph (see figure below).
+            These dense structures present groups of highly similar antibodies.
+            Algorithm for search of corrupted cliques is also implemented as a separate tool and
+            is described in <a href = "#dsf">Dense Subgraph Finder</a> section.
+        </p>
 
         <table align = center border = "0">
         <tr>
             <td align = center><img src="figures/graph_357134_default.jpg" alt = "hamming_graph_before_clusterization" width = 300px ></td>
-            <td align = center><img src="figures/graph_357134_colored.jpg" alt = "hamming_graph_after_clusterization" width = 300px></td> 
+            <td align = center><img src="figures/graph_357134_colored.jpg" alt = "hamming_graph_after_clusterization" width = 300px></td>
         </tr>
         <tr>
             <td><small>Example of connected component of Hamming graph constructed from immunosequencing reads (human, heavy chain repertoire of IgM).</small></td>
-            <td><small>Clusterization of Hamming graph performed by IgRepertoireConstructor. Each color corresponds to single antibody.</small></td>
+            <td><small>Clusterization of Hamming graph performed by IgRepertoireConstructor. Each color corresponds to single antibody cluster.</small></td>
         </tr>
-        </table></br>
+        </table>
 
-        <li><b>MassSpectraAnalyzer.</b> This step performs immunoproteogenomics analysis to validate constructed repertoire using mass spectra. 
-            It takes alignment of mass spectra against constructed repertoire in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> (e.g., generated by MS-GF+) as an input and outputs a set of metrics and graphs that show how close are the constructed repertoire and provided mass spectra:</li>
+    <h2 id = "mass_spectra_analysis">Mass Spectra Analyzer</h2>
+    <p align = "justify">
+        This step performs immunoproteogenomics analysis to validate constructed repertoire using mass spectra.
+        It takes alignment of mass spectra against constructed repertoire in
+        <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a>
+        (e.g., generated by <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>) as an input and
+        outputs a set of metrics and graphs that show
+        how close are the constructed repertoire and provided mass spectra:
+    </p>
 
         <table align = center border = "0">
         <tr>
             <td align = center><img src="figures/ms_analysis/peptide_length_Total.png" alt = "peptide_length_distribution"></td>
-            <td align = center><img src="figures/ms_analysis/PSM_cov_Total.png" alt = "psm_coverage_histogram"></td> 
+            <td align = center><img src="figures/ms_analysis/PSM_cov_Total.png" alt = "psm_coverage_histogram"></td>
         </tr>
         <tr>
             <td align = center><small>Histogram of peptide length distribution.</small></td>
-            <td><small>Histogram of variable region coverage by PSMs. Grey bars corresponds to expected positions of CDRs.</small></td>
+            <td>
+                <small>Histogram of variable region coverage by PSMs.
+                    Grey bars correspond to expected positions of CDRs.
+                </small>
+            </td>
         </tr>
         </table></br>
-    </ul>
-    </p>
 
-<p align = "justify">
-    IgRepertoireConstructor manual can be found <a href = 'ig_repertoire_constructor_manual.html'>here</a>.</br></br>
+        <h2 id="dsf">DSF (Dense Subgraph Finder)</h2>
+        <p align = "justify">
+            Search for <i>dense subgraphs</i> (or <i>corrupted cliques</i>) is a very common problem arising in bioinformatics
+            (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
+        </p>
+        <p align = justify>
+            We decided to make an algorithm for dense subgraphs search available as an independent tool.
+            One can download IgRepertoireConstructor archive and run DSF for search of dense subgraphs.
+            DSF takes as an input indirected graph in
+            <a href = "http://people.sc.fsu.edu/~jburkardt/data/metis_graph/metis_graph.html">GRAPH format</a> and outputs
+            decomposition where the identical ids are assigned for vertices from the same dense subgraph.
+            Density of constructed subgraph can be tuned via parameter <code>-f</code> (minimum edge fill-in in dense subgraphs).
+            Table below shows how dense subgraph decomposition varies depending of minimal edge fill-in value.
+        </p>
 
-    <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus, Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner. IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis. Bioinformatics. 2015 Jun 15;31(12):i53-i61. doi: 10.1093/bioinformatics/btv238.
-</p>
+        <table align = center border="0">
+            <tr>
+                <td align = center>
+                    <div style="width: 380px">
+                        <img src = "docs/dsf_0.3.png" alt = "dsf_example_edge_fill-in_0.3" width = 250px>
+                    </div>
+                </td>
+                <td align = center>
+                    <div style="width: 380px">
+                        <img src = "docs/dsf_0.4.png" alt = "dsf_example_edge_fill-in_0.4" width = 250px>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td align = center><b><small>Minimal edge fill-in = 0.3</small></b></td>
+                <td align = center><b><small>Minimal edge fill-in = 0.4</small></b></td>
+            </tr>
+
+            <tr>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 55</br>
+                    # trivial subgraphs = 40</br>
+                    size of maximal subgraph = 157
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 61</br>
+                    # trivial subgraphs = 46</br>
+                    size of maximal subgraph = 104
+                    </small>
+                </td>
+            </tr>
+
+            <tr>
+                <td align = center>
+                    <img src = "docs/dsf_0.5.png" alt = "dsf_example_edge_fill-in_0.5" width = 250px>
+                </td>
+                <td align = center>
+                    <img src = "docs/dsf_0.7.png" alt = "dsf_example_edge_fill-in_0.7" width = 250px>
+                </td>
+            </tr>
+
+            <tr>
+                <td align = center><b><small>Minimal edge fill-in = 0.5</small></b></td>
+                <td align = center><b><small>Minimal edge fill-in = 0.7</small></b></td>
+            </tr>
+
+            <tr>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 60</br>
+                    # trivial subgraphs = 43</br>
+                    size of maximal subgraph = 87
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 68</br>
+                    # trivial subgraphs = 42</br>
+                    size of maximal subgraph = 43
+                    </small>
+                </td>
+            </tr>
+        </table>
+
+        <p align = "justify">
+            Here is an example of DSF work for finding recommendations.
+            Graph <a href = "http://www.cise.ufl.edu/research/sparse/matrices/Newman/polbooks"><i>polbooks</i></a> shows books about USA politics that were bought by the same customer on Amazon.
+            Dense subgraphs in such graph present books that can be recommended together.
+        </p>
+        <table>
+            <tr>
+                <td align = center>
+                    <div style="width: 242px">
+                        <img src = "docs/polbooks/polbooks_dsf_f0.2.png" alt = "polbooks_fill-in_0.2" width = 235px>
+                    </div>
+                </td>
+                <td align = center>
+                    <div style="width: 242px">
+                        <img src = "docs/polbooks/polbooks_dsf_f0.5.png" alt = "polbooks_fill-in_0.2" width = 235px>
+                    </div>
+                </td>
+                <td align = center>
+                    <div style="width: 243px">
+                        <img src = "docs/polbooks/polbooks_dsf_f0.7.png" alt = "polbooks_fill-in_0.2" width = 235px>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td align = center>
+                    <b><small>Minimal edge fill-in = 0.2</small></b>
+                </td>
+                <td align = center>
+                    <b><small>Minimal edge fill-in = 0.5</small></b>
+                </td>
+                <td align = center>
+                    <b><small>Minimal edge fill-in = 0.7</small></b>
+                </td>
+            </tr>
+            <tr>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 17</br>
+                    # trivial subgraphs = 8</br>
+                    size of maximal subgraph = 28
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 30</br>
+                    # trivial subgraphs = 11</br>
+                    size of maximal subgraph = 16
+                    </small>
+                </td>
+                <td align = center>
+                    <small>
+                    # dense subgraphs = 45</br>
+                    # trivial subgraphs = 16</br>
+                    size of maximal subgraph = 6
+                    </small>
+                </td>
+            </tr>
+        </table>
+
+        <h2 id = "references">Manual and citations</h2>
+        <p align = "center">
+            <ul>
+                <li>IgRepertoireConstructor manual can be found <a href = 'ig_repertoire_constructor_manual.html'>here</a>.</li>
+                <li>DSF manual can be found <a href = 'dsf_manual.html'>here</a>.</li>
+            </ul>
+        </p>
+
+        <p align = "justify">
+            <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
+            Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
+            IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
+            Bioinformatics. 2015 Jun 15; 31(12): i53-i61.
+            <a href = http://bioinformatics.oxfordjournals.org/content/31/12/i53.long>doi: 10.1093/bioinformatics/btv238.</a>
+        </p>
 
       <footer class="site-footer">
             <p align = center>
-                <big>You possibly also will be interested in other our immunogenomics tools:</br> <a href = 'http://yana-safonova.github.io/ig_simulator/'><b>IgSimulator, a versatile immunosequencing simulator</b></a>.<big>
+                <big>You cound also be interested in other immunogenomics tools created in our lab:</br>
+                    <a href = 'http://yana-safonova.github.io/ig_simulator/'><b>IgSimulator, a versatile immunosequencing simulator</b></a>.</big>
             </p>            
       </footer>
 
       <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/yana-safonova/ig_simulator">IgRepertoireConstructor</a> is maintained by <a href="https://github.com/yana-safonova">Yana Safonova</a> (Center for Algorithmic Biotechnology, Saint Petersburg State University).</span>
-
-<!--        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span> 
--->
+        <span class="site-footer-owner">
+            <a href="https://github.com/yana-safonova/ig_simulator">IgRepertoireConstructor</a> is maintained by
+            Center for Algorithmic Biotechnology, Saint Petersburg State University.
+        </span>
       </footer>
 
     </section>
