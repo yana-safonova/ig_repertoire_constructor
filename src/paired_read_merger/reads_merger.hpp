@@ -98,7 +98,7 @@ class SequenceMerger {
     }
 
     string MergeNames(size_t index, string name1, string name2) {
-        name2 == ""; // Prevent warning
+        name2 = ""; // Prevent warning
         if(name1[0] == '@')
             name1 = name1.substr(1, name1.size() - 1);
         stringstream ss;
