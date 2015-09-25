@@ -1,5 +1,3 @@
-# -*- cmake -*-
-
 # Collect all the necessary common libraries
 set(COMMON_LIBRARIES  ${ZLIB_LIBRARIES} ${SYSTEM_LIBRARIES})
 

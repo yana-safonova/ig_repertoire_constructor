@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 2.8.8)
 
 # allow more human readable "if then else" constructs
-set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE) 
+set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
 # modules to find additional libraries (like zlib, boost and etc)
 # Add path for custom modules
@@ -31,7 +31,7 @@ set(SPADES_CFG_DIR "${CMAKE_SOURCE_DIR}/../configs")
 include(options)
 
 # Sanity check our source directory to make sure that we are not trying to
-# generate an in-tree build 
+# generate an in-tree build
 if ((CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR) OR
     (CMAKE_SOURCE_DIR STREQUAL "${CMAKE_BINARY_DIR}/src"))
   message(FATAL_ERROR "In-source builds are not allowed.
@@ -62,28 +62,11 @@ add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
 
 # sub projects
 add_subdirectory(io)
-#add_subdirectory(mph_index)
-#add_subdirectory(debruijn)
-#add_subdirectory(hammer)
-#add_subdirectory(ionhammer)
-#add_subdirectory(spades_pipeline)
-#add_subdirectory(dipspades)
-#add_subdirectory(ig_repertoire_constructor)
 add_subdirectory(fast_ig_tools)
 add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
 
-# Main pipeline script
-#install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/../spades.py"
-#        DESTINATION bin
-#        COMPONENT runtime)
-#install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/../dipspades.py"
-#        DESTINATION bin
-#        COMPONENT runtime)
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../spades_init.py"
-#        DESTINATION bin
-#        COMPONENT runtime)
 # FIXME: Should we just configure spades_init instead?
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
         DESTINATION share/spades
@@ -104,9 +87,3 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../GPLv2.txt"
         DESTINATION share/spades
         COMPONENT runtime)
-
-# Random stuff
-#include(CMakeListsInternal.txt)
-
-# Packaging
-include(pack)
