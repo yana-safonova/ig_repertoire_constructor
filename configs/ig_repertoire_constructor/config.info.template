@@ -1,0 +1,54 @@
+; input-output parameters ;
+io {
+	log_filename 	log.properties
+    output_dir      ig_repertoire_constructor_test
+	dataset         ig_test_dataset/dataset.yaml
+	output_saves	ig_repertoire_constructor_test/saves
+	load_from		ig_repertoire_constructor_test/saves
+	temp_files		ig_repertoire_constructor_test/temp_files
+}
+
+; run params ;
+rp {
+	developer_mode	true
+    threads_count   16
+    max_memory      250
+	entry_point		ig_repertoire_constructor
+    ;entry_point    ig_repertoire_constructor:hamming_graph_building
+	;entry_point	ig_repertoire_constructor:read_clustering
+	;entry_point	ig_repertoire_constructor:read_overlaps_clustering
+	;entry_point	ig_repertoire_constructor:primary_repertoire_construction
+	;entry_point	ig_repertoire_constructor:repertoire_postprocessing
+}
+
+aligning_params {
+    min_overlap_length  320
+    overlap_mismatches_threshold 3
+    threshold_for_single_shift  100
+}
+
+hgc_params {
+    edge_perc_threshold				0.2
+    class_joining_edge_threshold	0.3
+	min_recessive_abs_size			4
+	min_recessive_rel_size			0.01
+
+	hgc_io_params {
+		hg_output_dir			hamming_graphs
+		path_to_metis			build/release/bin/
+		run_metis				./metis
+		trash_output			metis.output
+		output_dense_subgraphs	false
+		dense_subgraphs_dir		dense_subgraphs
+	}
+}
+
+; singleton gluer params ;
+sg {
+	k					60
+	max_kmer_occurences	5000
+	max_distance		4
+	min_overlap			200
+	common_mismatches_threshold		2
+	diverse_mismatches_threshold	1
+}

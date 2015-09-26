@@ -1,0 +1,2 @@
+add_subdirectory(fastq_to_fasta)
+add_subdirectory(merged_reads_stats_calculator)

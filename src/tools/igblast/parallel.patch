@@ -1,0 +1,27 @@
+--- c++/src/algo/blast/igblast/igblast.cpp 2014-01-28 23:44:58.000000000 +0400
++++ c++/src/algo/blast/igblast/igblast.fixed.cpp 2015-09-14
+22:59:52.000000000 +0300
+@@ -143,6 +143,7 @@
+     {
+         x_SetupVSearch(qf, opts_hndl);
+         CLocalBlast blast(qf, opts_hndl, m_IgOptions->m_Db[0]);
++        blast.SetNumberOfThreads(m_NumThreads);
+         results[0] = blast.Run();
+         x_ConvertResultType(results[0]);
+         s_SortResultsByEvalue(results[0]);
+@@ -153,6 +154,7 @@
+     {
+         opts_hndl->SetHitlistSize(20);  // use a larger number to ensure annotation
+         CLocalBlast blast(qf, opts_hndl, m_IgOptions->m_Db[3]);
++        blast.SetNumberOfThreads(m_NumThreads);
+         results[3] = blast.Run();
+         s_SortResultsByEvalue(results[3]);
+         x_AnnotateDomain(results[0], results[3], annots);
+@@ -165,6 +167,7 @@
+         for (int gene = 1; gene < num_genes; ++gene) {
+             x_SetupDJSearch(annots, qf, opts_hndl, gene);
+             CLocalBlast blast(qf, opts_hndl, m_IgOptions->m_Db[gene]);
++            blast.SetNumberOfThreads(m_NumThreads);
+             try {
+                 results[gene] = blast.Run();
+                 x_ConvertResultType(results[gene]);

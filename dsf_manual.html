@@ -1,0 +1,221 @@
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Dense Subgraph Finder 1.0 Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <style>
+    </style>
+</head>
+<body>
+
+<h1>DSF (Dense Subgraph Finder) 1.0 manual</h1>
+
+1. <a href="#intro">What is Dense Subgraph Finder?</a><br>
+
+2. <a href="#install">Installation</a><br>
+
+3. <a href="#dsf_usage">DSF usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#dsf_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#dsf_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#dsf_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#dsf_output">Output files</a><br>
+
+4.  <a href="#files_format">GRAPH file format</a><br>
+
+5. <a href="#feedback">Feedback and bug reports</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;5.1. <a href="#citation">Citation</a><br>
+
+<!-- -------- --->
+<h2 id = "intro">1. What is Dense Subgraph Finder?</h2>
+<p>
+    Problem of finding corrupted cliques is formulated as follows:
+    <i>to find minimal number of edge additions and removals to convert graph into a set of cliques.</i>
+    Search for corrupted cliques (or <i>dense subgraphs</i>) of some graph is a very common problem arising in bioinformatics
+    (e.g., co-expression of genes) and studies of social interactions (e.g., recommendation services).
+    DSF tool takes as an input indirected graph in <a href = "#files_format">GRAPH format</a> and
+    outputs decomposition where the identical ids are assigned for vertices from the same dense subgraph.
+    Density of subgraph on N vertices and M edges is computed as ratio of M to maximal possible number of edges (N * (N - 1) / 2) and
+    can be tuned by user.
+</p>
+<!-- -------- --->
+<h2 id = "install">2. Installation</h2>
+DSF comes as a part of IgRepertoireConstructor package.</br>
+See <a href = manual.html#install>IgRepertoireConstructor manual</a> for installation instructions.</br>
+Please verify your DSF installation prior to initiate the DSF:
+<pre class="code">
+<code>
+    ./dense_subgraph_finder.py --test
+</code>
+</pre>
+If the installation is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+<code>
+  Thank you for using Dense Subgraph Finder!
+  Log was written to &lt;dsf_installation_dir&gt;/dsf_test/dense_subgraph_finder.log
+</code>
+</pre>
+
+<!-- -------- --->
+<h2 id = "dsf_usage">3. DSF usage</h2>
+<p>
+    DSF takes as an input indirected (weighted or unweighted) graph in GRAPH format and
+    constructs dense subgraph decomposition.
+</p>
+
+To run DSF, type:
+<pre class="code">
+    <code>
+    ./dense_subgraph_finder.py [options] -g &lt;input.graph&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+<!-- --->
+<h3 id = "dsf_basic">3.1. Basic options</h3>
+
+<code>-g &lt;input.graph&gt;</code><br>
+indirected graph in GRAPH format (required).
+
+<br><br>
+
+<code>-o / --output &lt;output_dir&gt;</code><br>
+output directory (required).
+
+<br><br>
+
+<code>-t/--threads &lt;int&gt;</code><br>
+The number of parallel threads. The default value is <code>16</code>.
+
+<br><br>
+
+<code>--test</code><br>
+Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./dense_subgraph_finder.py -g test_dataset/test.graph -o dsf_test
+    </code>
+</pre>
+
+<code>--help</code><br>
+Printing help.
+
+<br><br>
+
+<!-- --->
+<h3 id = "dsf_advanced">3.2. Advanced options</h3>
+
+<code>-f / --min-fillin &lt;float&gt;</code><br>
+Expected minimal edge fill-in of the constructed dense subgraphs.
+Default value is <code>0.6</code>.
+
+<br><br>
+
+<code>-s / --min-size &lt;int&gt;</code><br>
+Minimal size of vertices in connected components of input graph where dense subgraphs will be computed.
+Connected components of size < <code>min-size</code> will be decomposed trivially (all vertices are in the same dense subgraph).
+Default value is <code>5</code>.
+
+<br><br>
+
+<code>--save-aux-files</code><br>
+Saving dense subgraph decompositions for connected components.
+
+<br><br>
+
+<!-- --->
+
+<h3 id = "dsf_examples">3.3. Examples</h3>
+To construct dense subgraph decomposition for graph <code>input.graph</code> with
+minimal edge fill-in value <code>0.9</code>, type:
+<pre class="code">
+    <code>
+    ./dense_subgraph_finder.py -g input.graph -f 0.9 -o dsf_test
+    </code>
+</pre>
+
+<!-- --->
+
+<h3 id = "dsf_output">3.4. Output files</h3>
+DSF creates working directory (which name was specified using option <code>-o</code>)
+and outputs the following files there:
+
+<ul>
+    <li><b>dense_subgraphs.txt</b> &mdash; dense subgraph decomposition in TXT format,
+        <i>i</i>-th line of <b>dense_subgraphs.txt</b> file corresponds to <i>i</i>-th vertex and contains index (zero-based) of dense subgraph contaning this vertex.
+    </li>
+    <li>
+        <b>dense_subgraph_finder.log</b> &mdash; full log of DSF.
+    </li>
+</ul>
+
+<!-- -------- --->
+<h2 id = "files_format">4. GRAPH file format</h2>
+DSF takes undirected edge weighted or unweigthed graphs in GRAPH format.
+Below are examples representation of unweigthed (left) and edge weighted (right) graphs in GRAPH format:
+<table width = 80% align = center>
+    <tr>
+        <td width="48%" align = center>
+            <img src = docs/unweighted_graph.png width = 60%>
+        </td>
+        <td width = 4%></td>
+        <td width="48%" align = center>
+            <img src = docs/weighted_graph.png width = 60%>
+        </td>
+    </tr>
+    <tr>
+        <td align = center>
+            7 9 <br>
+            2 3 <br>
+            1 3 <br>
+            1 2 4 6 7 <br>
+            3 6 7 <br>
+            <br>
+            3 4 7 <br>
+            3 4 6
+        </td>
+        <td width = 4%></td>
+        <td align = center>
+            7 9 001<br>
+            2 20 3 -3 <br>
+            1 20 3 4.5<br>
+            1 -3 2 4.5 4 1 6 0.7 7 0.8<br>
+            3 1 6 -1.5 7 43<br>
+            <br>
+            3 0.7 4 -1.5 7 7.8<br>
+            3 0.8 4 43 6 7.8
+        </td>
+    </tr>
+    <tr>
+        <td align = justify>
+        The first line shows number of vertices (7) and number of edges (9).
+        The next lines note neighbours for each vertices.
+        E.g., the second line notes that vertex 1 is connected with vertices 2 and 3.
+        Numeration of vertices is 1-based.
+        </td>
+        <td width = 4%></td>
+        <td align = justify>
+        The first line shows number of vertices (7), number of edges (9) and description for parser meaning edge weighted graph (001).
+        The next lines note neighbours and edge weights for each vertices.
+        E.g., the second line notes that vertex 1 is connected with vertex 2 by edge of weigth <i>20</i> and
+            vertex 3 by the edge of weigth <i>-3</i>.
+        </td>
+    </tr>
+</table><br>
+Please note that numeration of vertices is 1-based.
+Isolated vertices (vertices without neighbours) are denoted by empty lines.
+<!-- -------- --->
+<h2 id = "feedback">5. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcome.
+They will help us to further improving on DSF.
+<br><br>
+If you have any troubles with running DSF, please send us the log file from the output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
+
+<h3 id = "citation">5.1. Citation</h3>
+If you use DSF in your research, please refer to
+<a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
+
+</body>

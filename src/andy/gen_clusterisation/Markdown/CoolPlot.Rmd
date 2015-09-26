@@ -1,0 +1,42 @@
+---
+title: "Cool Plot"
+author: "Andy"
+date: "September 26, 2015"
+output: html_document
+---
+
+```{r}
+library("lattice")
+library("latticeExtra")
+library("parallel")
+```
+
+```{r}
+df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- mclapply(df, function(x) {x$Clavage <- toupper(x$Clavage); x }, mc.cores = detectCores())
+df <- mclapply(df, function(x) {x$Clavage <- as.logical(x$Clavage); x}, mc.cores = detectCores())
+df <- mclapply(df, function(x) {x$subject_id <- as.factor(x$subject_id); x}, mc.cores = detectCores())
+df <- mclapply(df, function(x) {x$Type <- as.factor(x$Type); x}, mc.cores = detectCores())
+
+df <- dplyr::bind_rows(df)
+df.cl.t <- subset(df, df$Clavage)
+df.cl.f <- subset(df, !df$Clavage)
+
+a <- unlist(by(df.cl.t, df.cl.t$palindrome_len, function(y) sum(as.numeric(y$abundance)), simplify=FALSE))
+b <- unlist(by(df.cl.f, df.cl.f$palindrome_len, function(y) sum(as.numeric(y$abundance)), simplify=FALSE))
+  
+
+p1 <- xyplot(log(a / sum(a)) ~ 0:(length(a)-1), col = "red", type = "b", xlab = "Palindrome Length", ylab = "Ln of Frequency", 
+             main = "Distribution of the Palindrome Length. Clavaged Gens",
+             auto.key = list(text=c("Sample", "Theoretical"), cex = 1.2, columns = 2 ))
+p2 <- xyplot(log(dgeom(0:(length(a) - 3), prob = 3/4)) ~ 0:(length(a)-3), col = "blue", type = "b")
+p1 + as.layer(p2)
+
+
+p1 <- xyplot(log(b / sum(b)) ~ 0:(length(b)-1), col = "red", type = "b", xlab = "Palindrome Length", ylab = "Ln of Frequency", 
+             main = "Distribution of the Palindrome Length. No Clavage",
+             auto.key = list(text=c("Sample", "Theoretical"), cex = 1.2, columns = 2 ))
+p2 <- xyplot(log(dgeom(0:(length(b)-2), prob = 3/4)) ~ 0:(length(b)-2), col = "blue", type = "b")
+p1 + as.layer(p2)
+```

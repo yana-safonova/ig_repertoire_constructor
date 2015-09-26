@@ -1,0 +1,190 @@
+---
+title: "Pallindrome 1"
+author: "Andy"
+date: "August 28, 2015"
+output:
+  html_document:
+    pandoc_args:
+    - +RTS
+    - -K64m
+    - -RTS
+  pdf_document:
+    highlight: pygments
+header-includes: \usepackage[russian]{babel}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, messages=FALSE, cache=T)
+```
+
+Формат входных данных:
+  
+  1. `Clavage` --- TRUE, если произошло отрезание;
+  2. `Length` --- полудлина палиндрома;
+  3. `N` --- номер рида в исходных входных данных для скрипта на Python;
+  4. `Type` --- тип сегмента: V, D, J; для D палиндромы бывают с двух сторон.
+  
+```{r}
+df <- read.csv("palindrome_test/statistics.csv", header = T, sep = "\t")
+df$Clavage <- toupper(df$Clavage)
+df$Clavage <- as.logical(df$Clavage)
+df$Type <- as.factor(df$Type)
+head(df, 12) 
+```
+
+Одно из основных редположений заключается в том, что палиндромы бывают двух видов: "случайные" и "биологические". 
+Под первыми подразумеваются те, которые могут образоваться "случайно" вне зависимости от того, произошел ли `Clavage`.
+Под "биологическими" подразумеваются палиндромы, которые могут образоваться только как альтернатива `Clavage` и потому имеют биологическую основу.
+
+Значимая разница в средней длине палиндрома в зависимости от `Clavage`
+-----------------------------------------------------
+
+Делим датасет по типу (Type) и каждого рида оставляем только первый вариант сегмента (как наиболее вероятный, согласно логу Ig_Blast) каждого из 4х возможных типов.
+
+```{r}
+df_type_split <- split(df, df$Type)
+df_unique <- lapply(df_type_split, function(x) { 
+           aggregate(x, list(x$N), function(y) { y[[1]] } ) 
+    }
+)
+head(df_unique[[1]], 12)
+```
+
+Иллюстрируем разницу в средних для группы, где `Clavage` произошел, и где не произошел: `mean` -- среднее в соответствующей группе, а `sd` -- это среднеквадратическое отклонение среднего.
+Ясно, что разница в средних для двух групп является значимой (очевидно, из получающихся доверительных интервалов).
+```{r}
+precision <- 8
+mean_distr <- lapply(df_unique, function(x) { by(x, x$Clavage, function(y) { 
+  list(mean = round(mean(y$Length), precision), sd_of_mean = round(sd(y$Length) / sqrt(length(y$Length)), 2) ) 
+}) } )
+mean_distr
+```
+
+Прямая проверка равновероятности нуклеотидов
+--------------------------------------------
+
+Рассмотрим нулевую гипотезу, заключающуюся в том, что появление нуклеотидов в строке равновероятно (и независимо). 
+В предположении истинности такой гипотезы вероятность того, что в строке встретится палиндром длины $n$ равна $1 / |\Sigma|^n$, где $|\Sigma| = 4$ --- мощность алфавита. Иными словами, длина палиндрома имеет геометрическое распределение с параметром $p = 3/4$. 
+Cчитаем, что геометрическое распределение определяет число "неудач" до первого "успеха", то есть носитель --- $\{0, 1, 2, \ldots\}$. 
+Это естественно, так как в этом случае именно полудлина палиндрома и будет реализацией случайной величины.
+
+Проверим с помощью критерия Пирсона, что длина палиндрома имеет геометрическое распределение с параметром $3/4$ для группы, когда `Clavage` произошел, и когда выполнено противоположное.
+
+```{r}
+GeomComp <- function(temp, Clavage) {
+  if (Clavage) {
+    temp <- subset(temp, temp$Clavage)
+  } else {
+    temp <- subset(temp, !temp$Clavage)
+  }
+  #print(head(temp))
+  temp.freq <- as.vector(table(temp$Length))
+  
+  quantiles <- dgeom(seq(0, length(temp.freq) - 1), prob = 1 / (1 + mean(temp$Length)))
+  #quantiles <- dpois(seq(0, length(temp.freq) - 1), lambda = mean(temp$Length))
+  #print(quantiles)
+  quantiles <- c(quantiles, 1 - sum(quantiles))
+  max_index <- max(which(quantiles * length(temp$Length) >= 5))
+  quantiles <- c(quantiles[1:max_index - 1], 1 - sum(quantiles[1:max_index - 1]))
+  
+  temp.freq <- c(temp.freq[1:length(quantiles) - 1], length(temp$Length) - sum(temp.freq[1:length(quantiles) - 1]))
+  
+  #print(quantiles * length(temp$Length))
+  stopifnot(all(quantiles * length(temp$Length) >= 5))
+  stat <- sum((temp.freq - length(temp$Length) * quantiles)^2 / (length(temp$Length) * quantiles))
+  list(Chisq_stat = stat, pvalue = 1 - pchisq(stat, df = length(quantiles) - 2))
+}
+```
+
+```{r}
+sapply(df_unique, function(x) { GeomComp(x, Clavage = TRUE)  })
+sapply(df_unique, function(x) { GeomComp(x, Clavage = FALSE) })
+```
+
+Гипотеза отвергается с любым разумным уровнем значимости для всех типов. 
+Таким образом, выбор критерия Пирсона не очень удачен в силу специфики области.
+
+Однако следует учитывать установленную выше статистически значимую разницу между средними длин палиндромов, в зависимости от `Clavage`.
+
+Сравнение моделей для "биологических палиндромов" в первом приближении
+----------------------------------------------------------------------
+
+Так как знания о точном распределении нуклеотидов отсутствует, то несмотря на формальную неточность модели с равновероятными нуклеотидами, будем рассматривать именно ее, из-за ее простоты и еще чего-то. В таком случае длина "случайных" палиндромов распределена геометрически с параметром $3/4$. 
+
+Будем подбирать наиболее удачную модель для длин "биологических" палиндромов. В частности, будем максимизировать функционал правдоподобия и использовать байессовский информационный критерий (BIC).
+Уже была показана статистически значимая разница в длине нуклеотидов в зависимости от параметра `Clavage`, поэтому очевидно, что распределение длин "биологических" палиндромов отлично от геометрического с параметром $3/4$. Будем использовать значение максимума функционала правдоподобия и BIC'a в таком случае, как некоторый baseline --- нижнюю границу на адеватность модели.
+
+Выберем только "биологическую" часть из датасета.
+```{r}
+df_unique_FALSE <- lapply(df_unique, function(x) {subset(x, !x$Clavage) } )
+```
+**Geom(3/4)**
+
+Функционал правдоподобия. `lambda` --- тот параметр, по которому будем в дальнейшем максимизировать, `p` --- параметр геометического распределения длины "случайного" палиндрома (равен $3/4$), `density` --- плотность распределения:
+```{r}
+lh <- function(lambda, p, samp, density) {
+  sum(sapply(samp, function(y) { density(lambda, p, y) } ) )
+}
+```
+
+Плотность Geom(3/4):
+```{r}
+prob_mix <- function(lambda, p, x) {
+  x_v <- 0:x
+  log(p * (1 - p)^x) # Geom
+}
+```
+
+Максимизируем функционал правдоподобия и считаем bic:
+```{r}
+lh_value <- sapply(df_unique_FALSE, function(x) {  lh(1, 3/4, x$Length, prob_mix) })
+lh_value
+estimated_parameters <- 0
+bic <- -2 * unlist(lh_value) + estimated_parameters * 
+  log(sapply(df_unique_FALSE, function(x) { length(x$Length) } ))
+bic
+```
+
+**Geom(3/4) + Geom(lambda)**
+
+Аналогично, но для другого распределения.
+
+```{r}
+prob_mix <- function(lambda, p, x) {
+  x_v <- 0:x
+  log(sum(lambda * p * (1 - lambda)^x_v * (1 - p)^(x - x_v))) # Geom + Geom
+}
+```
+
+```{r}
+lh_value <- sapply(df_unique_FALSE, function(x) { 
+  optimize(f = function(lambda) { lh(lambda, 3/4, x$Length, prob_mix) }, interval = c(0, 1), maximum = TRUE) 
+})
+lh_value
+estimated_parameters <- 1
+bic <- -2 * unlist(lh_value[2,]) + estimated_parameters * 
+  log(sapply(df_unique_FALSE, function(x) { length(x$Length) } ))
+bic
+```
+
+**Geom(3/4) + Pois(lambda)**
+
+```{r}
+prob_mix <- function(lambda, p, x) {
+  x_v <- 0:x
+  log(sum((1 - p)^(x-x_v) * lambda^x_v / factorial(x_v)) * (p * exp(-lambda))) # Geom + Pois
+}
+```
+
+
+```{r}
+lh_value <- sapply(df_unique_FALSE, function(x) { 
+  optimize(f = function(lambda) { lh(lambda, 3/4, x$Length, prob_mix) }, interval = c(0, 1000), maximum = TRUE) 
+})
+lh_value
+estimated_parameters <- 1
+bic <- -2 * unlist(lh_value[2,]) + estimated_parameters * 
+  log(sapply(df_unique_FALSE, function(x) { length(x$Length) } ))
+bic
+```
+
