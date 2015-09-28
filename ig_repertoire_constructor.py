@@ -879,6 +879,7 @@ def main():
             log.exception(exc_value)
             log.info("\nERROR: Exception caught.")
             SupportInfo(log)
+            sys.exit(exc_value)
     except BaseException:
         exc_type, exc_value, _ = sys.exc_info()
         if exc_type == SystemExit:
@@ -887,6 +888,7 @@ def main():
             log.exception(exc_value)
             log.info("\nERROR: Exception caught.")
             SupportInfo(log)
+            sys.exit(exc_value)
 
     log.info("Log was written to " + params.log_filename)
 
