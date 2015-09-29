@@ -85,8 +85,11 @@ class BarcodeMetrics():
             if cnt:
                 self.distances_dict[dist] = cnt
         for dist, count in self.distances_dict.items():
+            '''
             self.gen_metrics_dict["Barcodes on distance " + str(dist)] = "{:d} ({:.2f}%)".format(count, 
                 100.0 * count / self.barcodes_number)
+            '''
+            self.gen_metrics_dict["Barcodes on distance " + str(dist)] = count
 
     def calculate_good_barcodes_number(self, log):
         good_barcodes = 0
@@ -115,8 +118,9 @@ class BarcodeMetrics():
                 self.good_barcode_matches.append(match)
             else:
                 bad_barcodes += 1
-        self.gen_metrics_dict["#good barcodes"] = "{:d} ({:.2f}%)".format(good_barcodes, 100.0 * good_barcodes / (good_barcodes + bad_barcodes))
-        self.gen_metrics_dict["#bad barcodes"] = "{:d} ({:.2f}%)".format(bad_barcodes, 100.0 * bad_barcodes / (good_barcodes + bad_barcodes))
+        # self.gen_metrics_dict["#good barcodes"] = "{:d} ({:.2f}%)".format(good_barcodes, 100.0 * good_barcodes / (good_barcodes + bad_barcodes))
+        self.gen_metrics_dict["#good barcodes"] = good_barcodes
+        self.gen_metrics_dict["#bad barcodes"] = bad_barcodes
 
     def get_distance_for_alignment(self, barcode_seq, data_seq):
         distance = 0
@@ -175,12 +179,12 @@ class BarcodeMetrics():
         self.barcode_lengths = self.barcode_rep.get_all_cluster_seq_lengths()
         self.sep_metrics_dict["barcodes"]["Min sequence length"] = min(self.barcode_lengths)
         self.sep_metrics_dict["barcodes"]["Avg sequence length"] = \
-            str(round(float(sum(self.barcode_lengths)) / len(self.barcode_lengths), 2))
+            round(float(sum(self.barcode_lengths)) / len(self.barcode_lengths), 3)
         self.sep_metrics_dict["barcodes"]["Max sequence length"] = max(self.barcode_lengths)
         self.data_clusters_lengths = self.data_rep.get_all_cluster_seq_lengths()
         self.sep_metrics_dict["data"]["Min sequence length"] = min(self.data_clusters_lengths)
         self.sep_metrics_dict["data"]["Avg sequence length"] = \
-            str(round(float(sum(self.data_clusters_lengths)) / len(self.data_clusters_lengths), 2))
+            round(float(sum(self.data_clusters_lengths)) / len(self.data_clusters_lengths), 3)
         self.sep_metrics_dict["data"]["Max sequence length"] = max(self.data_clusters_lengths)
 
     def compute_clusters_number_metrics(self):
@@ -207,11 +211,15 @@ class BarcodeMetrics():
         self.sep_metrics_dict["data"]["#clusters (>=1000)"] = len([s for s in 
             self.data_rep.get_all_cluster_sizes() if s >= 1000])
         isolated_barcodes = len(self.compressed_barcode_rep.get_isolated_cluster_sizes(self.barcode_cluster_matches))
-        self.sep_metrics_dict["barcodes"]["#isolated clusters"] = "{:d} ({:.2f}%)".format(
-            isolated_barcodes, float(isolated_barcodes) / self.barcodes_number * 100.0)
+        # self.sep_metrics_dict["barcodes"]["#isolated clusters"] = "{:d} ({:.2f}%)".format(
+        #     isolated_barcodes, float(isolated_barcodes) / self.barcodes_number * 100.0)
+        self.sep_metrics_dict["barcodes"]["#isolated clusters"] = isolated_barcodes
         isolated_data_clusters = len(self.compressed_data_rep.get_isolated_cluster_sizes(self.data_cluster_matches))
+        self.sep_metrics_dict["data"]["#isolated clusters"] = isolated_data_clusters
+        '''
         self.sep_metrics_dict["data"]["#isolated clusters"] = "{:d} ({:.2f}%)".format(
             isolated_data_clusters, float(isolated_data_clusters) / self.data_clusters_number * 100.0)
+        '''
 
     def compute_cluster_size_metrics(self):
         self.sep_metrics_dict["barcodes"]["Min size of cluster"] = \
@@ -276,6 +284,17 @@ class BarcodeMetrics():
             if metric_name not in self.gen_metrics_dict:
                 continue
             handler.write(fmt.format(metric_name, str(self.gen_metrics_dict[metric_name])))
+        handler.close()
+
+    def write_json(self, filename):
+        import json
+        json_data = {}
+        json_data['barcodes_filename'] = self.barcode_rep.clusters_filename
+        json_data['data_filename'] = self.data_rep.clusters_filename
+        json_data['individual_metrics'] = self.sep_metrics_dict
+        json_data['general_metrics'] = self.gen_metrics_dict
+        handler = open(filename, 'w') 
+        json.dump(json_data, handler)
         handler.close()
 
     '''
