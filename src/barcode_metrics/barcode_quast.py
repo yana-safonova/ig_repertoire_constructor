@@ -59,7 +59,7 @@ def ReadRepertoires(params, log):
                                        params.data_clusters, params.data_rcm)
 
 def RunIgMatcherPreparations(params, log, rep, working_dir):
-    vj_aln_file = os.path.join(working_dir, 'cropped.fa')
+    vj_aln_file = os.path.join(working_dir, 'cleaned_reads.fa')
     command_line = params.ig_kplus_vj_finder + \
             ' -i ' + rep.clusters_filename + \
             ' -o ' + working_dir + \
