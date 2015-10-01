@@ -58,7 +58,7 @@ def run_test(compile=False):
         if exit_code != 0:
             print('Compilation finished abnormally with exit code ' + str(exit_code))
             sys.exit(2)
-    cmd = './ig_repertoire_constructor.py -s ' + Params.reads_filename + ' -o ' + Params.assembly_dir + ' -t 8 -C heavy'
+    cmd = "./ig_repertoire_constructor.py -s %s -o %s -t 8 -C heavy --debug" % (Params.reads_filename, Params.assembly_dir)
     exit_code = os.system(cmd)
     if exit_code != 0:
         print('IgRepCon finished abnormally with exit code ' + str(exit_code))
