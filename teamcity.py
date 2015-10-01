@@ -42,21 +42,22 @@ def assess_barcode_quast_results():
         print('Barcodes representation is too low, ' + str(barcodes_representation))
         sys.exit(7)
 
-def run_test():
-    if os.path.exists('build'):
-        shutil.rmtree('build', True)
-    if os.path.exists(Params.assembly_dir):
-        shutil.rmtree(Params.assembly_dir)
-    if os.path.exists(Params.metrics_dir):
-        shutil.rmtree(Params.metrics_dir)
-    exit_code = os.system('./prepare_cfg')
-    if exit_code != 0:
-        print('Preparing configuration files finished abnormally with exit code ' + str(exit_code))
-        sys.exit(1)
-    exit_code = os.system('make -j 8')
-    if exit_code != 0:
-        print('Compilation finished abnormally with exit code ' + str(exit_code))
-        sys.exit(2)
+def run_test(compile=False):
+    if compile:
+        if os.path.exists('build'):
+            shutil.rmtree('build', True)
+        if os.path.exists(Params.assembly_dir):
+            shutil.rmtree(Params.assembly_dir)
+        if os.path.exists(Params.metrics_dir):
+            shutil.rmtree(Params.metrics_dir)
+        exit_code = os.system('./prepare_cfg')
+        if exit_code != 0:
+            print('Preparing configuration files finished abnormally with exit code ' + str(exit_code))
+            sys.exit(1)
+        exit_code = os.system('make -j 8')
+        if exit_code != 0:
+            print('Compilation finished abnormally with exit code ' + str(exit_code))
+            sys.exit(2)
     cmd = './ig_repertoire_constructor.py -s ' + Params.reads_filename + ' -o ' + Params.assembly_dir + ' -t 8 -C heavy'
     exit_code = os.system(cmd)
     if exit_code != 0:
