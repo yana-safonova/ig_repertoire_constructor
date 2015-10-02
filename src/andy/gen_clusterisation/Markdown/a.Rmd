@@ -12,6 +12,17 @@ knitr::opts_chunk$set(warning=FALSE, messages=FALSE, cache=T)
 library("lattice")
 library("parallel")
 library("corrplot")
+library("plyr")
+```
+
+```{r}
+z.prop = function(x1,x2,n1,n2){
+  numerator = (x1/n1) - (x2/n2)
+  p.common = (x1+x2) / (n1+n2)
+  denominator = sqrt(p.common * (1-p.common) * (1/n1 + 1/n2))
+  z.prop.ris = numerator / denominator
+  return(z.prop.ris)
+}
 ```
 
 
@@ -48,13 +59,16 @@ cor.clavage.gen <- function(df, Type.segment, threshold, left.b = 0, right.b = 1
   s2a_p_clavage
 }
 
-cor.clavage.gen.all <- function(df, threshold = 1000) {
+df.processing <- function(df, threshold.perc.identity = 100) {
   df <- mclapply(df, function(x) {x$Clavage <- toupper(x$Clavage); x }, mc.cores = detectCores())
   df <- mclapply(df, function(x) {x$Clavage <- as.logical(x$Clavage); x}, mc.cores = detectCores())
   df <- mclapply(df, function(x) {x$subject_id <- as.factor(x$subject_id); x}, mc.cores = detectCores())
   df <- mclapply(df, function(x) {x$Type <- as.factor(x$Type); x}, mc.cores = detectCores())
-  
-  #df <- mclapply(df, function(x) {x[rep(row.names(x), x$abundance),]}, mc.cores = detectCores())
+  df <- mclapply(df, function(x) subset(x, perc_identity >= threshold.perc.identity), mc.cores = detectCores())
+  df
+}
+
+cor.clavage.gen.all <- function(df, threshold = 1000) {
   list("V"       = cor.clavage.gen(df, "V", threshold = threshold),
        "D left"  = cor.clavage.gen(df, "D left", left.b = 0.5, threshold = threshold),
        "D right" = cor.clavage.gen(df, "D right", left.b = 0.5, threshold = threshold),
@@ -74,43 +88,66 @@ permutation.test <- function(a, b, df.length) {
   #print(tmp)
   cor(tmp[,1], tmp[,2])
 }
+
+z.test <- function(df, Type.segment, threshold, left.b = 0, right.b = 1) {
+  df_length = length(df)
+  stopifnot(length(df) == 2)
+  v.df <- lapply(df, function(x) { droplevels(subset(x, x$Type == Type.segment)) })
+  v.df_true <- lapply(v.df, function(x) droplevels(subset(x, x$Clavage)))
+  
+  t_full <- lapply(v.df, function(x) { unlist(by(x, x$subject_id, function(y) sum(y$abundance), simplify=FALSE)) })
+  t_true <- lapply(v.df_true, function(x) { unlist(by(x, x$subject_id, function(y) sum(y$abundance), simplify=FALSE)) })
+  t_true <- lapply(t_true, function(x) { x[x > threshold] })
+  t_full <- mapply(function(x, y) { x[names(y)] }, t_full, t_true, SIMPLIFY = FALSE)
+    
+  intersectSeveral <- function(...) { Reduce(function(x, y) { intersect(x, y) }, list(...)[[1]]) }
+  t_full_intersected <- lapply(t_full, function(x) x[intersectSeveral(lapply(t_true, names))])
+  t_true_intersected <- lapply(t_true, function(x) x[intersectSeveral(lapply(t_true, names))])
+  
+  mapply(z.prop, t_true_intersected[[1]], t_true_intersected[[2]], t_full_intersected[[1]], t_full_intersected[[2]])
+}
+```
+
+# AGE
+## 9 AGE
+
+```{r}
+df <- lapply((1:9), function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- df.processing(df)
+#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+
+age.barcodes <- cor.clavage.gen.all(df)
+age.barcodes
+pairs.plots(age.barcodes)
+
+corr <- lapply(age.barcodes, cor)
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(age.barcodes, cor, method = "spearman")
+l_ply(corr, corrplot, method="number")
 ```
 
 ```{r}
-df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- lapply((1:9), function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
 #df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:9]))
+df <- df.processing(df)
 
-cleaned.barcodes <- cor.clavage.gen.all(df)
-cleaned.barcodes
-pairs.plots(cleaned.barcodes)
+age.barcodes.reduced.eq  <- cor.clavage.gen.all(df)
+age.barcodes.reduced.eq
 
-corr <- lapply(cleaned.barcodes, cor)
-lapply(corr, corrplot, method="number")
+pairs.plots(age.barcodes.reduced.eq)
 
-corr <- lapply(cleaned.barcodes, cor, method = "spearman")
-lapply(corr, corrplot, method="number")
-```
+corr <- lapply(age.barcodes.reduced.eq, cor)
+l_ply(corr, corrplot, method="number")
 
-```{r}
-df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
-#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
-df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:8]))
-
-cleaned.barcodes.reduced.eq  <- cor.clavage.gen.all(df)
-cleaned.barcodes.reduced.eq
-
-pairs.plots(cleaned.barcodes.reduced.eq)
-
-corr <- lapply(cleaned.barcodes.reduced.eq, cor)
-lapply(corr, corrplot, method="number")
-
-corr <- lapply(cleaned.barcodes.reduced.eq, cor, method = "spearman")
-lapply(corr, corrplot, method="number")
+corr <- lapply(age.barcodes.reduced.eq, cor, method = "spearman")
+l_ply(corr, corrplot, method="number")
 ```
 
 ```{r}
 N <- 1000
-out <- lapply(cleaned.barcodes.reduced.eq, function(x) {
+out <- lapply(age.barcodes.reduced.eq, function(x) {
       c(cor(x[,1], x[,2]), replicate(N, permutation.test(x[,1], x[,2], length(df)))) 
     }
   )
@@ -122,9 +159,17 @@ lapply(out, function(x) {
 ```
 
 ```{r}
+zt <- z.test(df = df, Type.segment = "V", threshold = 1000)
+shapiro.test(zt)
+```
+
+# SAM
+
+```{r}
 #df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
 df <- list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../2_SAM13306970.csv", header = T, sep = "\t"))
 #df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 95)
 
 sam.dataset  <- cor.clavage.gen.all(df)
 sam.dataset
@@ -133,30 +178,113 @@ pairs.plots(sam.dataset)
 
 corr <- lapply(sam.dataset, cor)
 corr
-lapply(corr, corrplot, method="number")
+l_ply(corr, corrplot, method="number")
 
 corr <- lapply(sam.dataset, cor, method = "spearman")
 corr
-lapply(corr, corrplot, method="number")
+l_ply(corr, corrplot, method="number")
+```
+
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../7_SAM15574987.csv", header = T, sep = "\t"), read.csv("../8_SAM15574988.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 95)
+
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+l_ply(corr, corrplot, method="number")
 ```
 
 ```{r}
-df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
-df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../2_SAM13306970.csv", header = T, sep = "\t")))
-#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:8]))
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../7_SAM15574987.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 98)
 
-cleaned.sam.datasets  <- cor.clavage.gen.all(df)
-cleaned.sam.datasets
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
 
-pairs.plots(cleaned.sam.datasets)
+pairs.plots(sam.dataset)
 
-corr <- lapply(cleaned.sam.datasets, cor)
+corr <- lapply(sam.dataset, cor)
 corr
-lapply(corr, corrplot, method="number")
+l_ply(corr, corrplot, method="number")
 
-corr <- lapply(cleaned.sam.datasets, cor, method = "spearman")
+corr <- lapply(sam.dataset, cor, method = "spearman")
 corr
-lapply(corr, corrplot, method="number")
+l_ply(corr, corrplot, method="number")
 ```
 
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../8_SAM15574988.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 98)
+
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+l_ply(corr, corrplot, method="number")
+```
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../2_SAM13306970.csv", header = T, sep = "\t"), read.csv("../7_SAM15574987.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 98)
+
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+l_ply(corr, corrplot, method="number")
+```
+
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../2_SAM13306970.csv", header = T, sep = "\t"), read.csv("../8_SAM15574988.csv", header = T, sep = "\t"))
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 98)
+
+sam.dataset  <- cor.clavage.gen.all(df)
+sam.dataset
+
+pairs.plots(sam.dataset)
+
+corr <- lapply(sam.dataset, cor)
+corr
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(sam.dataset, cor, method = "spearman")
+corr
+l_ply(corr, corrplot, method="number")
+```
 
