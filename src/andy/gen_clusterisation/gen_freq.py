@@ -22,6 +22,7 @@ sys.path.append(repo_directory)
 import igblast_utils
 import init
 import pandas
+import copy
     
 class BaseOptions:
     long_options = "threads= max-mismatch= min-overlap= species= test skip-drawing only-merging help".split()
@@ -58,7 +59,7 @@ def usage(log):
 
 def CheckForParams(params, log):
     if params.formatting.lower() != "fasta" and params.formatting.lower() != "fastq":
-        log.info("ERROR: input format was not specified")
+        log.info("ERROR: input format was not specified : " + str(params.formatting.lower()))
         usage(log)
         sys.exit(1)
     if params.merged_fastq_reads == "":
@@ -99,6 +100,18 @@ def parse_command_line(options, log):
             sys.exit(0)
     return params
 
+def comp_let(a, b):
+    str = 'ATCG'
+    return str.find(a) == str.find(b) ^ 1
+
+def GetPalindromeLen(seq, left):
+    right = left + 1
+    #log.info(str(left) + " " + str(right))
+    while left >= 0 and right < len(seq) and comp_let(seq[left], seq[right]):
+        left -= 1 
+        right += 1
+    return (right - left - 1) / 2
+
 def GenFrequences(params, log):
     igblast_output = igblast_utils.ParseIgBlastOutput(params.igblast_align_output, log) 
     log.info("IgBlast output was parsed")   
@@ -112,8 +125,8 @@ def GenFrequences(params, log):
         name = record.name
         #abundance = int(name[name.find('size') + 7:])
         #print name
-        abundance = int(name[name.rfind(":") + 1 : name.rfind("_")])
-        #abundance = int(name[name.rfind("_") + 1:])
+        #abundance = int(name[name.rfind(":") + 1 : name.rfind("_")])
+        abundance = int(name[name.rfind("_") + 1:])
         #print abundance
         #seq = merged_fastq_lines[i * len_format + 1].strip() # for fastq
         seq = record.seq
@@ -125,17 +138,29 @@ def GenFrequences(params, log):
             subject_id = hit_row.subject_id
             if len(subject_id) >= 3 and subject_id[-3] == '*':
                 subject_id = subject_id[:-3]
+            stat = {'N' : k, 'Type' : hit_row.type, 'subject_id' : subject_id, 'abundance' : abundance, 'gen_length' : hit_row.subject_length, 'perc_identity' : hit_row.perc_identity}
+
             if hit_row.type == 'V':
                 clavage = hit_row.s_end != hit_row.subject_length - 1
-                stats.append({'N' : k, 'Clavage' : clavage, 'Type' : hit_row.type, 'subject_id' : subject_id, 'abundance' : abundance, 'gen_length' : hit_row.subject_length})
+                stat['Clavage'] = clavage
+                stat['palindrome_len'] = GetPalindromeLen(seq, hit_row.q_end)
+                stats.append(stat)
             elif hit_row.type == 'D':
                 clavage = hit_row.s_start != 0
-                stats.append({'N' : k, 'Clavage' : clavage, 'Type' : hit_row.type + " left", 'subject_id' : subject_id, 'abundance' : abundance, 'gen_length' : hit_row.subject_length})
+                stat['Clavage'] = clavage
+                stat['Type'] = "D left" 
+                stat['palindrome_len'] = GetPalindromeLen(seq, hit_row.q_start - 1)
+                stats.append(stat.copy())
                 clavage = hit_row.s_end != hit_row.subject_length - 1
-                stats.append({'N' : k, 'Clavage' : clavage, 'Type' : hit_row.type + " right", 'subject_id' : subject_id, 'abundance' : abundance, 'gen_length' : hit_row.subject_length})
+                stat['Clavage'] = clavage
+                stat['Type'] = "D right" 
+                stat['palindrome_len'] = GetPalindromeLen(seq, hit_row.q_end)
+                stats.append(stat)
             else:
                 clavage = hit_row.s_start != 0
-                stats.append({'N' : k, 'Clavage' : clavage, 'Type' : hit_row.type, 'subject_id' : subject_id, 'abundance' : abundance, 'gen_length' : hit_row.subject_length})
+                stat['Clavage'] = clavage
+                stat['palindrome_len'] = GetPalindromeLen(seq, hit_row.q_start - 1)
+                stats.append(stat)
             prev_hit_row_type = hit_row.type
     return stats
 

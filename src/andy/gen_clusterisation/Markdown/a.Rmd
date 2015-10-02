@@ -142,7 +142,7 @@ lapply(corr, corrplot, method="number")
 
 ```{r}
 df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
-df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../2_SAM13306970.csv", header = T, sep = "\t")))
 #df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:8]))
 
 cleaned.sam.datasets  <- cor.clavage.gen.all(df)
