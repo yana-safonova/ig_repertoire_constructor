@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  10 OCT 2015 19:45
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  10 OCT 2015 20:36
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -980,7 +980,7 @@ Package pdftex.def Info: Pictures/vdj3_DJ_aligned.pdf used on input line 134.
  [5
 
  <./Pictures/vdj3_DJ_aligned.pdf>]
-<Pictures/somatic_mutations.pdf, id=143, 364.19528pt x 204.765pt>
+<Pictures/somatic_mutations.pdf, id=145, 364.19528pt x 204.765pt>
 File: Pictures/somatic_mutations.pdf Graphic file (type pdf)
 
 <use Pictures/somatic_mutations.pdf>
@@ -1004,7 +1004,7 @@ LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
 
 [8
 
-] <Pictures/igsimulator.pdf, id=225, 364.19528pt x 80.3pt>
+] <Pictures/igsimulator.pdf, id=227, 364.19528pt x 80.3pt>
 File: Pictures/igsimulator.pdf Graphic file (type pdf)
 
 <use Pictures/igsimulator.pdf>
@@ -1013,7 +1013,7 @@ Package pdftex.def Info: Pictures/igsimulator.pdf used on input line 184.
  [9
 
  <./Pictures/igsimulator.pdf>]
-<Pictures/clonal_trees1.pdf, id=254, 364.19528pt x 160.6pt>
+<Pictures/clonal_trees1.pdf, id=256, 364.19528pt x 160.6pt>
 File: Pictures/clonal_trees1.pdf Graphic file (type pdf)
 
 <use Pictures/clonal_trees1.pdf>
@@ -1027,7 +1027,7 @@ Overfull \hbox (92.71013pt too wide) in paragraph at lines 191--191
 [10
 
  <./Pictures/clonal_trees1.pdf>]
-<Pictures/clonal_trees2.pdf, id=277, 364.19528pt x 200.75pt>
+<Pictures/clonal_trees2.pdf, id=279, 364.19528pt x 200.75pt>
 File: Pictures/clonal_trees2.pdf Graphic file (type pdf)
 
 <use Pictures/clonal_trees2.pdf>
@@ -1045,7 +1045,7 @@ Overfull \vbox (24.64836pt too high) detected at line 198
 [11
 
  <./Pictures/clonal_trees2.pdf>]
-<Pictures/igRepConstr1.pdf, id=300, 200.75pt x 184.69pt>
+<Pictures/igRepConstr1.pdf, id=302, 200.75pt x 184.69pt>
 File: Pictures/igRepConstr1.pdf Graphic file (type pdf)
 
 <use Pictures/igRepConstr1.pdf>
@@ -1072,7 +1072,7 @@ Overfull \hbox (9.30576pt too wide) in paragraph at lines 213--213
 [12
 
  <./Pictures/igRepConstr1.pdf>]
-<Pictures/igRepConstr2.pdf, id=337, 200.75pt x 184.69pt>
+<Pictures/igRepConstr2.pdf, id=339, 200.75pt x 184.69pt>
 File: Pictures/igRepConstr2.pdf Graphic file (type pdf)
 
 <use Pictures/igRepConstr2.pdf>
@@ -1097,11 +1097,11 @@ Overfull \hbox (46.35507pt too wide) in paragraph at lines 228--228
 
 ] (./PP_bzikadze.toc) [19
 
-] <Pictures/downsampling.pdf, id=424, 160.6pt x 204.765pt>
+] <Pictures/downsampling.pdf, id=426, 160.6pt x 204.765pt>
 File: Pictures/downsampling.pdf Graphic file (type pdf)
 
 <use Pictures/downsampling.pdf>
-Package pdftex.def Info: Pictures/downsampling.pdf used on input line 318.
+Package pdftex.def Info: Pictures/downsampling.pdf used on input line 316.
 (pdftex.def)             Requested size: 120.0pt x 153.0047pt.
  [20
 
@@ -1109,24 +1109,24 @@ Package pdftex.def Info: Pictures/downsampling.pdf used on input line 318.
 File: Pictures/downsampling.pdf Graphic file (type pdf)
 
 <use Pictures/downsampling.pdf>
-Package pdftex.def Info: Pictures/downsampling.pdf used on input line 318.
+Package pdftex.def Info: Pictures/downsampling.pdf used on input line 316.
 (pdftex.def)             Requested size: 120.0pt x 153.0047pt.
  [21
 
 ]
-<Vgen_cleavage_age.pdf, id=474, 722.7pt x 505.89pt>
+<Vgen_cleavage_age.pdf, id=476, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 337.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 
-<Vgen_cleavage_age_correlation.pdf, id=475, 722.7pt x 505.89pt>
+<Vgen_cleavage_age_correlation.pdf, id=477, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-37.
+35.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
  [22
 
@@ -1137,12 +1137,12 @@ ion: multiple pdfs with page group included in a single page
 >]
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 337.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-37.
+35.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
  [23
 
@@ -1150,12 +1150,12 @@ Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 337.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-37.
+35.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
  [24
 
@@ -1165,7 +1165,7 @@ Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
 ] (./PP_bzikadze.toc) [26
 
 ]
-<Pictures/two_types_palindromes.pdf, id=542, 240.9pt x 60.225pt>
+<Pictures/two_types_palindromes.pdf, id=544, 240.9pt x 60.225pt>
 File: Pictures/two_types_palindromes.pdf Graphic file (type pdf)
 
 <use Pictures/two_types_palindromes.pdf>
@@ -1176,14 +1176,14 @@ Package pdftex.def Info: Pictures/two_types_palindromes.pdf used on input line
 
  <./Pictures/two_types_palindromes.pdf>] [28
 
-] <distr_pal_len_cl.pdf, id=587, 722.7pt x 615.29875pt>
+] <distr_pal_len_cl.pdf, id=588, 722.7pt x 615.29875pt>
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_cl.pdf>
 Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 387.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 
-<distr_pal_len_nocl.pdf, id=588, 722.7pt x 615.29875pt>
+<distr_pal_len_nocl.pdf, id=589, 722.7pt x 615.29875pt>
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_nocl.pdf>
@@ -1249,28 +1249,28 @@ Here is how much of TeX's memory you used:
  957 hyphenation exceptions out of 8191
  55i,16n,64p,465b,2297s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mex10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.
-pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texliv
-e/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texm
-f-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmssi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr
-/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/share/
-texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/t
-exmf/fonts/type1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/public/
-tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
-Output written on PP_bzikadze.pdf (31 pages, 767523 bytes).
+mmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.p
+fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/
+texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texliv
+e/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></usr/share/texlive/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmssi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmssi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt
+10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb
+></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/
+share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/s
+hare/texmf/fonts/type1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/p
+ublic/tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
+
+Output written on PP_bzikadze.pdf (31 pages, 789580 bytes).
 PDF statistics:
- 705 PDF objects out of 1000 (max. 8388607)
- 507 compressed objects within 6 object streams
+ 703 PDF objects out of 1000 (max. 8388607)
+ 505 compressed objects within 6 object streams
  66 named destinations out of 1000 (max. 500000)
  184 words of extra memory for PDF output out of 10000 (max. 10000000)
 
