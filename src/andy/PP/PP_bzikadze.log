@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  10 OCT 2015 20:36
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  10 OCT 2015 20:44
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1176,14 +1176,14 @@ Package pdftex.def Info: Pictures/two_types_palindromes.pdf used on input line
 
  <./Pictures/two_types_palindromes.pdf>] [28
 
-] <distr_pal_len_cl.pdf, id=588, 722.7pt x 615.29875pt>
+] <distr_pal_len_cl.pdf, id=590, 722.7pt x 615.29875pt>
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_cl.pdf>
 Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 387.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 
-<distr_pal_len_nocl.pdf, id=589, 722.7pt x 615.29875pt>
+<distr_pal_len_nocl.pdf, id=591, 722.7pt x 615.29875pt>
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_nocl.pdf>
@@ -1267,10 +1267,10 @@ share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/s
 hare/texmf/fonts/type1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/p
 ublic/tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
 
-Output written on PP_bzikadze.pdf (31 pages, 789580 bytes).
+Output written on PP_bzikadze.pdf (31 pages, 819074 bytes).
 PDF statistics:
- 703 PDF objects out of 1000 (max. 8388607)
- 505 compressed objects within 6 object streams
+ 705 PDF objects out of 1000 (max. 8388607)
+ 506 compressed objects within 6 object streams
  66 named destinations out of 1000 (max. 500000)
  184 words of extra memory for PDF output out of 10000 (max. 10000000)
 
