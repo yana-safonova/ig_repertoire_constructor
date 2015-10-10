@@ -88,7 +88,7 @@
 
 \setbeamertemplate{headline}{}
 \setbeamertemplate{itemize items}[circle]
-\title{Statistical Analysis of \texttt{Illumina} merged pair reads}
+\title{Statistical Analysis of an antibody repertoire}
 
 \author [Andrew Bzikadze]{Andrew Bzikadze\\ \texttt{\small{\href{mailto:seryrzu@gmail.com}{seryrzu@gmail.com}}}}
 %\institute{Saint Petersburg State University, Russia \\
@@ -111,25 +111,140 @@ September 13, 2015
 \end{frame}
 
 \section{Introduction}
-\begin{frame}{Introduction}
-  \textbf{Research direction:} analysis of input merged pair reads using statistical and simulation methods.
-  
-  \pause 
-  \textbf{Questions:}
-  \begin{itemize}
-    \item What is the distribution law of nucleotide subsequences of merged pair reads?
-    \item Is there any correlation between biological events (for instance, between \textit{cleavage} / \textit{palindromes} and specific gene segments)?
-    \item What model describes biological events the best (for example, \textit{insertions} at the \texttt{VD}-, \texttt{DJ}- junction)? 
-  \end{itemize}
+
+\begin{frame}{Introduction: \texttt{V(D)J-recombination}}
+  \texttt{B} cells gene locus:
+  \begin{figure}[h]
+    \center\includegraphics[width=300pt]{Pictures/vdj1.pdf}
+ \end{figure}
 \end{frame}
 
-\begin{frame}{Motivation}
-  \textbf{Motivation:} knowledge of the distribution of nucleotide sequences potentially helps with
+\begin{frame}{Introduction: \texttt{V(D)J-recombination}}
+  Segment of each type is selected: 
+  \begin{figure}[h]
+    \center\includegraphics[width=300pt]{Pictures/vdj2_select_genes.pdf}
+ \end{figure}
+\end{frame}
+
+\begin{frame}{Introduction: \texttt{V(D)J-recombination}}
+  3 types of biochemical events: \textit{palindrome}, \textit{cleavage}, \textit{insertions}. 
+  \begin{figure}[h]
+    \center\includegraphics[width=300pt]{Pictures/vdj3_DJ_aligned.pdf}
+ \end{figure}
+\end{frame}
+
+\begin{frame}{Introduction: \texttt{V(D)J-recombination}}
+  Further optimization of antibody affinity is achieved through extensive mutations referred as \textit{somatic hypermutations}:
+  \begin{figure}[h]
+    \center\includegraphics[width=300pt]{Pictures/somatic_mutations.pdf}
+ \end{figure}
+\end{frame}
+
+\begin{frame}{Introduction: \texttt{V(D)J-recombination}}
+  Because we do not know the determenistic nature of the \texttt{V(D)J-recombination}, it is reasonable
+  to consider this transform as a {\color{blue} random} (stochastic) process.
+
+  \bigskip
+  Hence the analysis of somatic recombination can be done in statistical and simulation terms. 
+\end{frame}
+
+\begin{frame}{Motivation: comparing different antibody repertoires}
+  \texttt{B}-cells:
+  {\small
   \begin{itemize}
-    \item Simulation of pair reads: improvements of \texttt{IgSimulator}.
-    \item Dealing with Clonal Trees. ???
-    \item Comparison of different antibody repertoires.
-    \item String metrics for measuring the difference between two sequences: improvements of \texttt{IgRepertoireConstructor}.
+    \item \href{http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1065207/}{Comparison of Antibody Repertoires against \texttt{Staphylococcus aureus} in 
+  Healthy Individuals and in Acutely Infected Patients}.
+  
+\item \href{http://www.ncbi.nlm.nih.gov/pubmed/9882391}{Comparison of the antibody repertoire generated in healthy volunteers following immunization with a monomeric recombinant \texttt{gp120} 
+  construct derived from a \texttt{CCR5/CXCR4}-using human immunodeficiency virus type 1 isolate with sera from naturally infected individuals.} 
+  \end{itemize}
+
+  \bigskip
+  \texttt{T}-cells:
+  \begin{itemize}
+    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/26297792}{Donor Unrestricted \texttt{T} Cells: A Shared Human \texttt{T} Cell Response}.
+    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/21349924}{Exhaustive \texttt{T}-cell repertoire sequencing of human peripheral blood samples reveals signatures of antigen selection and a directly measured repertoire size of at least 1 million clonotypes}.
+  \end{itemize}
+}
+  %\textbf{Motivation:} knowledge of the distribution of nucleotide sequences potentially helps with a lot of things.
+  %\begin{itemize}
+  %  \item Simulation of pair reads: improvements of \texttt{IgSimulator}.
+  %  \item Dealing with Clonal Trees. ???
+  %  \item Comparison of different antibody repertoires.
+  %  \item String metrics for measuring the difference between two sequences: improvements of \texttt{IgRepertoireConstructor}.
+  %\end{itemize}
+\end{frame}
+
+\begin{frame}{Motivation: simulation of a repertoire}
+  Appropriate statistical model of somatic recombinations potentially improves \texttt{IgSimulator}, making it more ``realistic''.
+  
+  \begin{figure}[h]
+    \center\includegraphics[width=300pt]{Pictures/igsimulator.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Motivation: Clonal trees}
+  Clear situation:
+  \begin{figure}[h]
+    \includegraphics[width=400pt]{Pictures/clonal_trees1.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Motivation: Clonal trees}
+  Arguable situation:
+  \begin{figure}[h]
+    \includegraphics[width=400pt]{Pictures/clonal_trees2.pdf}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Motivation: \texttt{IgRepertoireConstructor}}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{figure}[h]
+        \includegraphics[width=200pt]{Pictures/igRepConstr1.pdf}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{center}
+        The current release of the \texttt{IgRepertoireConstructor} uses Levenstein distance to construct edges in the graph.
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Motivation: \texttt{IgRepertoireConstructor}}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{figure}[h]
+        \includegraphics[width=200pt]{Pictures/igRepConstr2.pdf}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \begin{center}
+        The statistical model could suggest more a delicate approach.
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%\begin{frame}{Introduction}
+%  \textbf{Research direction:} analysis of input merged pair reads using statistical and simulation methods.
+%  
+%  \pause 
+%  \textbf{Questions:}
+%  \begin{itemize}
+%    \item What is the distribution law of nucleotide subsequences of merged pair reads?
+%    \item Is there any correlation between biological events (for instance, between \textit{cleavage} / \textit{palindromes} and specific gene segments)?
+%    \item What model describes biological events the best (for example, \textit{insertions} at the \texttt{VD}-, \texttt{DJ}- junction)? 
+%  \end{itemize}
+%\end{frame}
+
+\begin{frame}{Tasks}
+  There are lots of tasks. To name a few:
+  \begin{itemize}
+    \item What is the correlation between \texttt{D-J} and \texttt{V-DJ} joining?
+    \item Is there any correlation between \textit{cleavage} / \textit{palindromes} and specific gene segments?  
+    \item What are the properties of the \textit{insertions}?
   \end{itemize}
 \end{frame}
 
@@ -139,8 +254,8 @@ September 13, 2015
   \href{http://www.pnas.org/content/109/40/16161.full}{%Statistical inference of the generation probability of \texttt{T}-cell receptors from sequence repertoires (
   Anand Murugana, Thierry Morab, Aleksandra M. Walczakc and Curtis G. Callan --- 2012}:
   \begin{itemize}
-    \item Analysis is focused on nonproductive \texttt{CDR3}.
-    \item Suggested model sets joint distribution over the set of discrete variables: \textit{identities} of \texttt{V-, D-, J-} gens, number of \textit{deletions} from the end of a segment, \textit{palindromic} nucleotides and \textit{insertions} at the end of a gen.
+    \item Analysis is focused on nonproductive \texttt{CDR3}s.
+    \item Suggested model sets joint distribution over the set of discrete variables: \textit{identities} of \texttt{V-, D-, J-} genes, number of \textit{deletions} from the end of a segment, \textit{palindromic} nucleotides and \textit{insertions} at the end of a gen.
     \pause
   \item {\color{blue} 2865(!) parametrs to estimate.}
   \end{itemize}
@@ -153,24 +268,24 @@ September 13, 2015
     \item Are the results statistically significant?
     \item Are similar results true for \texttt{B}-cells?
   \end{itemize}
- 
-  \pause
-  \bigskip
-  {\color{blue} Difficult to answer, should start with something simpler.}
+% 
+%  \pause
+%  \bigskip
+%  {\color{blue} Difficult to answer, should start with something simpler.}
 \end{frame}
 
 \begin{frame}{Two types of events}
-  It is reasonable to classify events (palindromes, cleavage, etc.) into ``{\color{blue} biological}'' and ``{\color{blue} accidental}''.
+ % It is reasonable to classify events (palindromes, cleavage, etc.) into ``{\color{blue} biological}'' and ``{\color{blue} accidental}''.
   
-  \textbf{Example:} if we detect a palindrome at the end of a segment, while clavage has also happened, then we defenitely detect an \textit{accidental} (noise) palindrome.
-\bigskip
+%  \textbf{Example:} if we detect a palindrome at the end of a segment, while clavage has also happened, then we defenitely detect an \textit{accidental} (noise) palindrome.
+%\bigskip
 
   The goals 
   \begin{itemize}
-    \item correlations between palindromes and specific gene segments;
-    \item distribution law of nucleotide subsequences
+    \item correlations between \textit{palindromes} and specific gene segments,
+    \item properties of the \textit{insertions}
   \end{itemize}
-  include the task of classification the events into two types and hence require some additional knowledge about the structure of the repertoire.
+  include the task of distinguishing ``accidental'' and ``biological'' events and hence require some additional knowledge about the structure of the repertoire.
  
   \bigskip
   Considering that and the questions about the article let's firstly concentrate on a simplier problem of seeking \textbf{correlation between cleavage and specific gene segments.} 
@@ -181,24 +296,28 @@ September 13, 2015
   \textbf{Problem:} In the datasets not only \texttt{V(D)J}-recombinations effects are reflected, but also the result of ????.
  
   \pause
-  %\textbf{Idea:} Let's take only gens, that align to the germline with  level at least $C$, where $0 \leqslant C \leqslant 1$.
+  %\textbf{Idea:} Let's take only genes, that align to the germline with  level at least $C$, where $0 \leqslant C \leqslant 1$.
   \bigskip 
-  \textbf{Scheme:}
-  \begin{itemize}
-    \item Consider a merged pair dataset.
-    \pause
-    \item Use \texttt{IgRepertoireConstructor} for this dataset and consider {\color{blue} highly abundant antibody clusters} of the constructed repertoire.
-    \pause
-    \item Apply \texttt{IgBlast} to reads from highly abundant clusters.
-    \pause
-    \item {\color{blue} Downsampling}: consider only such reads, that have alignment score of their segments not less than a {\color{blue} threshold} according to \texttt{IgBlast}.
-  \end{itemize}
-
-  \bigskip
-  {\color{blue} Scheme is invariant of biological event we are interested in.}
+  \small{
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      \begin{itemize}
+        \item Consider a merged pair dataset.
+        \item Use \texttt{IgRepertoireConstructor} for this dataset and consider {\color{blue} highly abundant antibody clusters} of the constructed repertoire.
+        \item Apply \texttt{IgBlast} to reads from highly abundant clusters.
+        \item {\color{blue} Downsampling}: consider only such reads, that have alignment score of their segments not less than a {\color{blue} threshold} according to \texttt{IgBlast}.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{figure}[h]
+        \includegraphics[width=120pt]{Pictures/downsampling.pdf}
+      \end{figure}
+    \end{column}
+  \end{columns}
+  }
 \end{frame}
 
-\begin{frame}{Cleavage and specific gene segments: \texttt{V}-gens}
+\begin{frame}{Cleavage and specific gene segments: \texttt{V}-genes}
  \begin{figure}[h]
   \begin{minipage}[h]{0.49\linewidth}
     \center\includegraphics[width=150pt]{Vgen_cleavage_age.pdf}
@@ -214,34 +333,39 @@ September 13, 2015
  {\color{blue} Hence reads in the dataset are dependent standart pooled $Z$-test for equal propotions is not applicable.}
  \pause
  
- \textbf{Remark:} No obvious way to clusterize $V$-gens effectively.
+ \textbf{Remark:} No obvious way to clusterize $V$-genes effectively.
 \end{frame}
 
-\begin{frame}{Further goals to clusterize gens}
-  As long as the probabilities of cleavage for gens don't introduce an obvious way to clusterize $V$-gens (and hence to reduce the number of parameters in the model for distribution)
-  the next steps will be correlations between the gen and
+\begin{frame}{Further goals to clusterize genes}
+  It is reasonable to seek a way to clusterize $V$-genes by
   \begin{itemize}
     \item \textit{palindromes} length;
     \item \texttt{GC}-content;
-    \item different type of gens (\texttt{V} vs \texttt{J} \textit{etc}.)
-    \item ???
+    \item different type of genes (\texttt{V} vs \texttt{J} \textit{etc\ldots}).
   \end{itemize}
 \end{frame}
 
 \section{Two types of palindromes}
 \begin{frame}{Two types of palindromes}
-  It is known that if cleavage took place, then no palindrome can happen. This is only partially true. 
-  ``{\color{blue} Accidental}'' palindrome can still happen, but it won't have ``{\color{blue} biological}'' nature.
+  If a \textit{cleavage} took place, then no {\color{blue} ``biological''} \textit{palindrome} can happen. 
+  An {\color{blue} ``accidental''} \textit{palindrome} can still happen due to the \textit{insertions}.
   
-  \bigskip
+ \begin{figure}[h]
+   \includegraphics[width=300pt]{Pictures/two_types_palindromes.pdf}
+ \end{figure}
+\end{frame}
+
+\begin{frame}{Two types of palindromes}
   \begin{itemize}
-    \item The simplest model is that nucletides are distributed \textbf{uniformly}.
-    \item In that model the length of ``accidental'' palindrome has $\mathrm{Geom}(3/4)$ distribution.
+    \item The simplest model is that any nucletide $\xi$ in the sequence is distributed \textbf{uniformly}:
+    \begin{gather*}
+      \mathbb P(\xi = x) = \frac{1}{4} \, \mbox{ where } x \in \{'A', 'C', 'G','T'\}.
+    \end{gather*}
+    \item In that model the length $\eta$ of an ``accidental'' palindrome has $\mathrm{Geom}(3/4)$ distribution, so
+    \begin{gather*}
+      \mathbb P(\eta = n) = \frac{3}{4} \left(\frac{1}{4}\right)^n \, \mbox { for all } n \in \mathbb N_0.
+    \end{gather*}
   \end{itemize}
-  
-  %\bigskip
-  %\pause
-  %{\color{blue} If ``biological'' palindrome has different distribution, maybe it will be possible to construct one.}
 \end{frame}
 
 \begin{frame}{Two types of palindromes}
@@ -267,26 +391,25 @@ September 13, 2015
   \begin{itemize}
     \item To find out the distribution of ``biological'' palindrome.
     \item To construct more adequate model for nucleotide distribution.
-    \item ???
   \end{itemize}
 \end{frame}
 
-\section{}
-\begin{frame}{Next steps}
-  To sum up let's revisit main important questions:
-  \begin{itemize}
-    \item What is the distribution of the nucleotides?
-    \item What events are correlated strongly / weakly with each other?
-    \item How to distinguish ``biological'' and ``accidental'' events?
-  \end{itemize}
-  \bigskip
-  Also checking whether the model advised in the \href{http://www.pnas.org/content/109/40/16161.full}{%Statistical inference of the generation probability of \texttt{T}-cell receptors from sequence repertoires (
-  article} is adequate for \texttt{B}-cells (and trying to reduce the number of the parametrs) seems to be reasonable.
+%\section{}
+%\begin{frame}{Next steps}
+%  To sum up let's revisit main important questions:
+%  \begin{itemize}
+%    \item What is the distribution of the nucleotides?
+%    \item What events are correlated strongly / weakly with each other?
+%    \item How to distinguish ``biological'' and ``accidental'' events?
+%  \end{itemize}
+%  \bigskip
+%  Also checking whether the model advised in the \href{http://www.pnas.org/content/109/40/16161.full}{%Statistical inference of the generation probability of \texttt{T}-cell receptors from sequence repertoires (
+%  article} is adequate for \texttt{B}-cells (and trying to reduce the number of the parametrs) seems to be reasonable.
 
 
-  \bigskip
-  Further analysis will be concentrated on this problems.
-\end{frame}
+%  \bigskip
+%  Further analysis will be concentrated on this problems.
+%\end{frame}
 
 
 \end{document}

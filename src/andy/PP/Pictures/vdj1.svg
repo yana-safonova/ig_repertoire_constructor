@@ -115,8 +115,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
-     inkscape:cx="176.54151"
-     inkscape:cy="143.85904"
+     inkscape:cx="157.7418"
+     inkscape:cy="129.7169"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:window-width="2880"
@@ -186,7 +186,7 @@
        height="4.3561363"
        x="107.76243"
        y="727.71942"
-       style="fill:#ff5a00;fill-opacity:1" />
+       style="fill:#ffdc00;fill-opacity:1" />
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.57138944px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -329,7 +329,7 @@
    id="tspan4830-4-8-1-6-61">6</tspan></tspan></text>
     <rect
        transform="scale(1,-1)"
-       style="fill:#00966e;fill-opacity:1"
+       style="fill:#00963c;fill-opacity:1"
        y="-754.09912"
        x="108.59876"
        height="4.3561368"
@@ -479,24 +479,24 @@
        height="4.3561368"
        x="78.625"
        y="727.7865"
-       style="fill:#ff5a00;fill-opacity:1" />
+       style="fill:#ffdc00;fill-opacity:1" />
     <rect
        id="rect3336"
        width="12.057163"
        height="4.7371798"
        x="32.867714"
        y="727.71942"
-       style="fill:#ff5a00;fill-opacity:1" />
+       style="fill:#ffdc00;fill-opacity:1" />
     <rect
        id="rect3336-3"
        width="12.057163"
        height="4.7371798"
        x="51.169048"
        y="727.71942"
-       style="fill:#ff5a00;fill-opacity:1" />
+       style="fill:#ffdc00;fill-opacity:1" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#00966e;fill-opacity:1"
+       style="fill:#00963c;fill-opacity:1"
        y="-754.09912"
        x="46.013771"
        height="4.3561363"
@@ -504,7 +504,7 @@
        id="rect3336-0-7-4" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#00966e;fill-opacity:1"
+       style="fill:#00963c;fill-opacity:1"
        y="-754.09912"
        x="58.757389"
        height="4.3561368"
@@ -512,7 +512,7 @@
        id="rect3336-0-7-4-7" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="47.038979"
        height="5.2273073"
@@ -520,7 +520,7 @@
        id="rect3336-0-7-4-2" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="60.149635"
        height="5.2273092"
@@ -528,7 +528,7 @@
        id="rect3336-0-7-4-7-4" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="73.783188"
        height="5.2273092"
@@ -536,7 +536,7 @@
        id="rect3336-0-7-4-3-1" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="87.000298"
        height="5.2273092"
@@ -544,7 +544,7 @@
        id="rect3336-0-7-4-9-7" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="98.714386"
        height="5.2273092"
@@ -552,7 +552,7 @@
        id="rect3336-0-7-4-9-7-9" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#006eff;fill-opacity:1"
+       style="fill:#0096ff;fill-opacity:1"
        y="-776.3894"
        x="110.76478"
        height="5.2273092"
@@ -560,7 +560,7 @@
        id="rect3336-0-7-4-9-7-8" />
     <rect
        transform="scale(1,-1)"
-       style="fill:#00966e;fill-opacity:1"
+       style="fill:#00963c;fill-opacity:1"
        y="-754.24109"
        x="80.640129"
        height="4.3561368"
