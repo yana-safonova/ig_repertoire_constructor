@@ -374,8 +374,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="214.49711"
-     inkscape:cy="66.985786"
+     inkscape:cx="195.86117"
+     inkscape:cy="25.608152"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      inkscape:window-width="2880"
@@ -430,7 +430,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -528,32 +528,32 @@
        y="51.073345" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.3931942px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="17.584496"
-       y="65.978722"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.39314175px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="29.437815"
+       y="64.849831"
        id="text4370"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4372"
-         x="17.584496"
-         y="65.978722">IgSimulator</tspan></text>
+         x="29.437815"
+         y="64.849831">IgSimulator</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.3931942px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="99.547066"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.39314175px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="101.2404"
        y="62.973061"
        id="text4374"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4376"
-         x="99.547066"
+         x="101.2404"
          y="62.973061"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.3931942px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Statistical</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.39314175px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Statistical</tspan><tspan
          sodipodi:role="line"
-         x="99.547066"
-         y="68.464554"
+         x="101.2404"
+         y="68.464485"
          id="tspan4378"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.3931942px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Model</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.39314175px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Model</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.19694233px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

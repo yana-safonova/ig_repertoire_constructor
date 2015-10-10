@@ -405,8 +405,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="4"
-     inkscape:cx="78.83093"
-     inkscape:cy="155.85366"
+     inkscape:cx="87.694638"
+     inkscape:cy="102.99264"
      inkscape:document-units="mm"
      inkscape:current-layer="layer2"
      inkscape:window-width="2880"
@@ -461,7 +461,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -568,18 +568,18 @@
        y="63.482338" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.04815125px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="22.837957"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
+       x="34.691284"
        y="24.717035"
        id="text4370"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan4372"
-         x="22.837957"
+         x="34.691284"
          y="24.717035">IgRepertoireConstructor</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.04815125px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="58.499706"
        y="68.92247"
        id="text4374"
@@ -588,12 +588,12 @@
          id="tspan4376"
          x="58.499706"
          y="68.92247"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.04815125px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Statistical</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;">Statistical</tspan><tspan
          sodipodi:role="line"
          x="58.499706"
          y="71.482658"
          id="tspan4378"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.04815125px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Model</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;">Model</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.49044669px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -613,7 +613,7 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.04815125px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="34.942802"
        y="51.049416"
        id="text4370-0"
@@ -622,11 +622,11 @@
          id="tspan4372-5"
          x="34.942802"
          y="51.049416"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.0481267px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Graph constructor</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;">Graph constructor</tspan><tspan
          sodipodi:role="line"
          x="34.942802"
          y="53.609573"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.0481267px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;"
          id="tspan9949" /></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.13157482;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.13157483, 0.13157483;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker9823)"
@@ -650,7 +650,7 @@
        y="52.276649" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.49044669px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="10.985971"
        y="68.963081"
        id="text9970"
@@ -659,11 +659,11 @@
          x="10.985971"
          y="68.963081"
          id="tspan9974"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.82509589px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle">Levenstein</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;">Levenstein</tspan><tspan
          sodipodi:role="line"
          x="10.985971"
          y="71.244453"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.82509589px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944446px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:center;writing-mode:lr;text-anchor:middle;"
          id="tspan13146">distance</tspan></text>
     <rect
        style="opacity:0.447;fill:#000000;fill-opacity:0;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:1, 1;stroke-dashoffset:0"

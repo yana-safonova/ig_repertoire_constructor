@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  10 OCT 2015 20:44
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  11 OCT 2015 00:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -980,7 +980,7 @@ Package pdftex.def Info: Pictures/vdj3_DJ_aligned.pdf used on input line 134.
  [5
 
  <./Pictures/vdj3_DJ_aligned.pdf>]
-<Pictures/somatic_mutations.pdf, id=145, 364.19528pt x 204.765pt>
+<Pictures/somatic_mutations.pdf, id=139, 364.19528pt x 204.765pt>
 File: Pictures/somatic_mutations.pdf Graphic file (type pdf)
 
 <use Pictures/somatic_mutations.pdf>
@@ -1004,7 +1004,7 @@ LaTeX Font Warning: Font shape `OMS/cmss/m/n' undefined
 
 [8
 
-] <Pictures/igsimulator.pdf, id=227, 364.19528pt x 80.3pt>
+] <Pictures/igsimulator.pdf, id=221, 364.19528pt x 80.3pt>
 File: Pictures/igsimulator.pdf Graphic file (type pdf)
 
 <use Pictures/igsimulator.pdf>
@@ -1013,7 +1013,7 @@ Package pdftex.def Info: Pictures/igsimulator.pdf used on input line 184.
  [9
 
  <./Pictures/igsimulator.pdf>]
-<Pictures/clonal_trees1.pdf, id=256, 364.19528pt x 160.6pt>
+<Pictures/clonal_trees1.pdf, id=248, 364.19528pt x 160.6pt>
 File: Pictures/clonal_trees1.pdf Graphic file (type pdf)
 
 <use Pictures/clonal_trees1.pdf>
@@ -1027,7 +1027,7 @@ Overfull \hbox (92.71013pt too wide) in paragraph at lines 191--191
 [10
 
  <./Pictures/clonal_trees1.pdf>]
-<Pictures/clonal_trees2.pdf, id=279, 364.19528pt x 200.75pt>
+<Pictures/clonal_trees2.pdf, id=271, 364.19528pt x 200.75pt>
 File: Pictures/clonal_trees2.pdf Graphic file (type pdf)
 
 <use Pictures/clonal_trees2.pdf>
@@ -1045,7 +1045,7 @@ Overfull \vbox (24.64836pt too high) detected at line 198
 [11
 
  <./Pictures/clonal_trees2.pdf>]
-<Pictures/igRepConstr1.pdf, id=302, 200.75pt x 184.69pt>
+<Pictures/igRepConstr1.pdf, id=294, 200.75pt x 184.69pt>
 File: Pictures/igRepConstr1.pdf Graphic file (type pdf)
 
 <use Pictures/igRepConstr1.pdf>
@@ -1072,7 +1072,7 @@ Overfull \hbox (9.30576pt too wide) in paragraph at lines 213--213
 [12
 
  <./Pictures/igRepConstr1.pdf>]
-<Pictures/igRepConstr2.pdf, id=339, 200.75pt x 184.69pt>
+<Pictures/igRepConstr2.pdf, id=329, 200.75pt x 184.69pt>
 File: Pictures/igRepConstr2.pdf Graphic file (type pdf)
 
 <use Pictures/igRepConstr2.pdf>
@@ -1097,7 +1097,7 @@ Overfull \hbox (46.35507pt too wide) in paragraph at lines 228--228
 
 ] (./PP_bzikadze.toc) [19
 
-] <Pictures/downsampling.pdf, id=426, 160.6pt x 204.765pt>
+] <Pictures/downsampling.pdf, id=414, 160.6pt x 204.765pt>
 File: Pictures/downsampling.pdf Graphic file (type pdf)
 
 <use Pictures/downsampling.pdf>
@@ -1114,19 +1114,19 @@ Package pdftex.def Info: Pictures/downsampling.pdf used on input line 316.
  [21
 
 ]
-<Vgen_cleavage_age.pdf, id=476, 722.7pt x 505.89pt>
+<Vgen_cleavage_age.pdf, id=464, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 334.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 
-<Vgen_cleavage_age_correlation.pdf, id=477, 722.7pt x 505.89pt>
+<Vgen_cleavage_age_correlation.pdf, id=465, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-35.
+34.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
  [22
 
@@ -1137,59 +1137,44 @@ ion: multiple pdfs with page group included in a single page
 >]
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 334.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-35.
+34.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
  [23
 
 ]
-File: Vgen_cleavage_age.pdf Graphic file (type pdf)
-
-<use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 335.
-(pdftex.def)             Requested size: 150.0pt x 104.99722pt.
-File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
- <use Vgen_cleavage_age_correlation.pdf>
-Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-35.
-(pdftex.def)             Requested size: 150.0pt x 104.99722pt.
- [24
+(./PP_bzikadze.toc) [24
 
 ]
-[25
-
-] (./PP_bzikadze.toc) [26
-
-]
-<Pictures/two_types_palindromes.pdf, id=544, 240.9pt x 60.225pt>
+<Pictures/two_types_palindromes.pdf, id=519, 240.9pt x 60.225pt>
 File: Pictures/two_types_palindromes.pdf Graphic file (type pdf)
 
 <use Pictures/two_types_palindromes.pdf>
 Package pdftex.def Info: Pictures/two_types_palindromes.pdf used on input line 
-356.
+355.
 (pdftex.def)             Requested size: 300.0pt x 75.00719pt.
- [27
+ [25
 
- <./Pictures/two_types_palindromes.pdf>] [28
+ <./Pictures/two_types_palindromes.pdf>] [26
 
-] <distr_pal_len_cl.pdf, id=590, 722.7pt x 615.29875pt>
+] <distr_pal_len_cl.pdf, id=560, 722.7pt x 615.29875pt>
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_cl.pdf>
-Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 387.
+Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 386.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 
-<distr_pal_len_nocl.pdf, id=591, 722.7pt x 615.29875pt>
+<distr_pal_len_nocl.pdf, id=561, 722.7pt x 615.29875pt>
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_nocl.pdf>
-Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 387.
+Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 386.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
- [29
+ [27
 
  <./distr_pal_len_cl.pdf> <./distr_pal_len_nocl.pdf
 
@@ -1198,15 +1183,17 @@ le pdfs with page group included in a single page
 >]
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
  <use distr_pal_len_cl.pdf>
-Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 387.
+Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 386.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
  <use distr_pal_len_nocl.pdf>
-Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 387.
+Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 386.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
- [30
+ [28
 
-] [31
+] [29
+
+] [30
 
 ]
 \tf@nav=\write6
@@ -1218,12 +1205,12 @@ Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 387.
 \tf@snm=\write8
 \openout8 = `PP_bzikadze.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 415.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 415.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 431.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 431.
 
 (./PP_bzikadze.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 415.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 415.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 431.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 431.
 Package rerunfilecheck Info: File `PP_bzikadze.out' has not changed.
 (rerunfilecheck)             Checksum: D5AB4879983302C5103AE49925CFF526;176.
 
@@ -1234,20 +1221,20 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 415.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 431.
  )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 73 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 16640 strings out of 493304
- 307894 string characters out of 6139871
- 395362 words of memory out of 5000000
- 19586 multiletter control sequences out of 15000+600000
+ 16636 strings out of 493304
+ 307841 string characters out of 6139871
+ 395359 words of memory out of 5000000
+ 19584 multiletter control sequences out of 15000+600000
  16215 words of font info for 61 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
- 55i,16n,64p,465b,2297s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,16n,64p,465b,2285s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
 mmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.p
 fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
@@ -1264,13 +1251,13 @@ cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt
 10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 ></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/s
-hare/texmf/fonts/type1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/p
-ublic/tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
-
-Output written on PP_bzikadze.pdf (31 pages, 819074 bytes).
+hare/texlive/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb></usr/share/texmf/f
+onts/type1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/public/tex-gy
+re/qhvb.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
+Output written on PP_bzikadze.pdf (30 pages, 822708 bytes).
 PDF statistics:
- 705 PDF objects out of 1000 (max. 8388607)
- 506 compressed objects within 6 object streams
- 66 named destinations out of 1000 (max. 500000)
+ 680 PDF objects out of 1000 (max. 8388607)
+ 490 compressed objects within 5 object streams
+ 64 named destinations out of 1000 (max. 500000)
  184 words of extra memory for PDF output out of 10000 (max. 10000000)
 

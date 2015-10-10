@@ -456,9 +456,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.12"
-     inkscape:cx="121.37004"
-     inkscape:cy="15.461379"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="118.86191"
+     inkscape:cy="65.116292"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      inkscape:window-width="2880"
@@ -490,7 +490,7 @@
        id="guide3573" />
     <sodipodi:guide
        orientation="horizontal"
-       position="40,4"
+       position="64,3.9999999"
        id="guide3579" />
     <sodipodi:guide
        orientation="horizontal"
@@ -545,7 +545,7 @@
        style="fill:#ffdc00;fill-opacity:1" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.01504135px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="1.1311144"
        y="782.11523"
        id="text6509-1"
@@ -555,10 +555,10 @@
          id="tspan6511-6"
          x="1.1311144"
          y="782.11523"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666679px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Palindrome</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;">Palindrome</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.6116693px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="20.687906"
        y="779.55225"
        id="text4719-3-4-2-4"
@@ -569,7 +569,7 @@
          x="20.687906"
          y="779.55225"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.30555058px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5-8" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4-3"
@@ -593,37 +593,24 @@
        x="22.640139"
        y="777.0954" />
     <path
-       style="opacity:0.447;fill:#000000;fill-opacity:1;stroke-width:0.99999994;stroke-miterlimit:4;stroke-dasharray:0.99999994, 2.99999982;stroke-dashoffset:0"
+       style="opacity:0.447;fill:#000000;fill-opacity:1;stroke-width:0.99999994;stroke-miterlimit:4;stroke-dasharray:0.99999994, 2.99999982000000021;stroke-dashoffset:0"
        d="m 28.627158,780.13785 0.328082,-1.40484 -0.337046,-1.53254 c 2.352801,-0.11583 2.925029,2.85185 0.009,2.93738 z"
        id="rect6622"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.33784556px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="24.122501"
-       y="781.55664"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.90972424px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="24.114454"
+       y="781.56079"
        id="text6644"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6646"
-         x="24.122501"
-         y="781.55664"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80584419px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.33784556px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="24.136719"
-       y="783.26495"
-       id="text6648"
-       sodipodi:linespacing="125%"
-       transform="scale(1.0039695,0.9960462)"><tspan
-         sodipodi:role="line"
-         id="tspan6650"
-         x="24.136719"
-         y="783.26495"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80584419px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">TGA</tspan></text>
+         x="24.114454"
+         y="781.56079"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.90972424px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
     <rect
        style="opacity:1;fill:#ea0c08;fill-opacity:1;stroke-width:1.0629921;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0"
        id="rect5936-2-6-4"
@@ -632,7 +619,7 @@
        x="22.640139"
        y="778.8075" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18909077;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Lstart-6-0);marker-mid:url(#marker6757)"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18909077;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 39.874997,778.82941 -8.549245,-0.0589"
        id="path6045-3-5"
        inkscape:path-effect="#path-effect6047-5-6"
@@ -671,7 +658,7 @@
        width="2.9367139" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.25105619px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="47.211586"
        y="779.99365"
        id="text4719-3-4-2-4-6"
@@ -682,7 +669,7 @@
          x="47.211586"
          y="779.99365"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.98720515px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5-8-6" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4-3-3"
@@ -707,33 +694,33 @@
        y="777.44989" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.24533963px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="51.192726"
-       y="781.85809"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.87542939px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="51.218822"
+       y="781.86273"
        id="text6644-0"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6646-8"
-         x="51.192726"
-         y="781.85809"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.73438871px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
+         x="51.218822"
+         y="781.86273"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.87542939px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.24533963px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="55.043259"
-       y="781.83441"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.7702533px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="55.031166"
+       y="781.8407"
        id="text6648-5"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6650-7"
-         x="55.043259"
-         y="781.83441"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.73438871px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
+         x="55.031166"
+         y="781.8407"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.7702533px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.0763557px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="20.856619"
        y="789.55298"
        id="text4719-3-4-2"
@@ -744,7 +731,7 @@
          x="20.856619"
          y="789.55298"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.83298182px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4"
@@ -762,7 +749,7 @@
        y="787.25537" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944451px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.11999808px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        id="text6490"
        sodipodi:linespacing="125%"
        x="-64.7089"
@@ -770,7 +757,7 @@
        transform="matrix(0.70103313,0,0,0.70103313,-30.709473,266.56713)"><textPath
          xlink:href="#path6502"
          id="textPath6504"><tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.46944451px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.11999808px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan6492">GCTTAGC</tspan></textPath></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18623379px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -780,7 +767,7 @@
        sodipodi:nodetypes="cc" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.8586576px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="1.3537052"
        y="792.00708"
        id="text6509"
@@ -790,10 +777,10 @@
          id="tspan6511"
          x="1.3537052"
          y="792.00708"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666679px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Cleavage</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;">Cleavage</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.19694257px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722202px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="7.6146255"
        y="788.48969"
        id="text9519"
@@ -804,17 +791,17 @@
          y="788.48969" /></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.35972476px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="24.397121"
-       y="774.97113"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.87834346px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="24.403917"
+       y="774.97577"
        id="text6644-1"
        sodipodi:linespacing="125%"
        transform="scale(0.99333631,1.0067084)"><tspan
          sodipodi:role="line"
          id="tspan6646-83"
-         x="24.397121"
-         y="774.97113"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.82274401px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">TGA</tspan></text>
+         x="24.403917"
+         y="774.97577"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.87834346px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">TGA</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.67000669;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Lstart-6-0-6);marker-mid:url(#marker6757-8)"
        d="M 31.423796,62.772775 1.1311968,62.564074"
@@ -839,7 +826,7 @@
        style="fill:#ffdc00;fill-opacity:1" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.97618341px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="57.853962"
        y="56.193756"
        id="text4719-3-4-2-4-6-3"
@@ -850,7 +837,7 @@
          x="57.853962"
          y="56.193756"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.04127789px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5-8-6-2" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4-3-3-8"
@@ -875,7 +862,7 @@
        y="57.884899" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.95592785px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="71.960358"
        y="62.800014"
        id="text6644-0-0"
@@ -885,10 +872,10 @@
          id="tspan6646-8-6"
          x="71.960358"
          y="62.800014"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.14547157px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;">ACT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.95592785px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="85.603973"
        y="62.716106"
        id="text6648-5-5"
@@ -898,7 +885,7 @@
          id="tspan6650-7-6"
          x="85.603973"
          y="62.716106"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.14547157px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;">AGT</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.67000669;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Lstart-6-0-9);marker-mid:url(#marker6757-4)"
        d="M 31.423796,62.772775 1.1311968,62.564074"
@@ -923,7 +910,7 @@
        style="fill:#ffdc00;fill-opacity:1" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.97618341px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="57.853962"
        y="56.193756"
        id="text4719-3-4-2-4-6-4"
@@ -934,7 +921,7 @@
          x="57.853962"
          y="56.193756"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.04127789px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5-8-6-26" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4-3-3-64"
@@ -959,7 +946,7 @@
        y="57.884899" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.95592785px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="71.960358"
        y="62.800014"
        id="text6644-0-8"
@@ -969,10 +956,10 @@
          id="tspan6646-8-2"
          x="71.960358"
          y="62.800014"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.14547157px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;">ACT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:7.95592785px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="85.603973"
        y="62.716106"
        id="text6648-5-6"
@@ -982,9 +969,9 @@
          id="tspan6650-7-0"
          x="85.603973"
          y="62.716106"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.14547157px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;">AGT</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18909077;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Lstart-6-0-1);marker-mid:url(#marker6757-83)"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.18909077;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 40.002497,788.80219 -8.549245,-0.0589"
        id="path6045-3-5-2"
        inkscape:path-effect="#path-effect6047-5-6-6"
@@ -1007,7 +994,7 @@
        style="fill:#ffdc00;fill-opacity:1" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.25105619px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="47.338581"
        y="790.00604"
        id="text4719-3-4-2-4-6-9"
@@ -1018,7 +1005,7 @@
          x="47.338581"
          y="790.00604"
          dy="0">V<tspan
-   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.98720515px;line-height:125%;font-family:'TeX Gyre Schola';-inkscape-font-specification:'TeX Gyre Schola, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722201px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr;text-anchor:start;"
    id="tspan4830-4-8-5-8-6-7" /></tspan></text>
     <rect
        id="rect3336-0-7-5-0-4-3-3-2"
@@ -1043,49 +1030,49 @@
        y="787.42267" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.24533963px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="51.319721"
-       y="791.87048"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.85609984px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="51.31012"
+       y="791.87543"
        id="text6644-0-4"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6646-8-5"
-         x="51.319721"
-         y="791.87048"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.73438871px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
+         x="51.31012"
+         y="791.87543"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.85609984px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">ACT</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.24533963px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="60.157948"
-       y="791.8479"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80704463px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="60.146923"
+       y="791.85358"
        id="text6648-5-4"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6650-7-8"
-         x="60.157948"
-         y="791.8479"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.73438871px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
+         x="60.146923"
+         y="791.85358"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.80704463px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1">AGT</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.12326012;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0;stroke-dasharray:0.12326012, 0.12326012;stroke-dashoffset:0;stroke-opacity:1"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.12326012;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:0;stroke-dasharray:0.12326012, 0.12326012000000000;stroke-dashoffset:0;stroke-opacity:1"
        d="m 55.234928,788.07494 4.926907,0"
        id="path9756"
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.19694257px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="58.036613"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="56.563766"
        y="790.78754"
        id="text9758"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan9760"
-         x="58.036613"
+         x="56.563766"
          y="790.78754"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388896px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Insertions</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start">Insertions</tspan></text>
     <rect
-       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ff0000;stroke-width:0.1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:0;stroke-dasharray:0.1, 0.1;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter10168)"
+       style="opacity:1;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#ff0000;stroke-width:0.1;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:0;stroke-dasharray:0.1, 0.10000000000000001;stroke-dashoffset:0;stroke-opacity:1;filter:url(#filter10168)"
        id="rect9766"
        width="26.491751"
        height="17.71106"
@@ -1093,25 +1080,25 @@
        y="774.20538" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.01504135px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="75.677231"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="70.898422"
        y="780.63605"
        id="text6509-1-0"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6511-6-8"
-         x="75.677231"
+         x="70.898422"
          y="780.63605"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#0000ff">``Biological''</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#0000ff">``Biological''</tspan><tspan
          sodipodi:role="line"
-         x="75.677231"
-         y="783.28186"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle"
+         x="70.898422"
+         y="783.37006"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan10210">Palindrome</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.19694233px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722202px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="69.567772"
        y="777.83893"
        id="text10212"
@@ -1122,25 +1109,25 @@
          y="777.83893" /></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.01504135px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="76.09684"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="71.318031"
        y="790.96741"
        id="text6509-1-0-1"
        sodipodi:linespacing="125%"
        transform="scale(1.0039695,0.9960462)"><tspan
          sodipodi:role="line"
          id="tspan6511-6-8-6"
-         x="76.09684"
+         x="71.318031"
          y="790.96741"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle;fill:#0000ff">``Accidental''</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#0000ff">``Accidental''</tspan><tspan
          sodipodi:role="line"
-         x="76.09684"
-         y="793.61322"
-         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.11666656px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:center;writing-mode:lr-tb;text-anchor:middle"
+         x="71.318031"
+         y="793.70142"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.187222px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;writing-mode:lr-tb;text-anchor:start"
          id="tspan10210-5">Palindrome</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.19694233px;line-height:125%;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.18722202px;line-height:125%;font-family:Utopia;-inkscape-font-specification:'Utopia, Normal';text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
        x="81.352509"
        y="788.73907"
        id="text10265"

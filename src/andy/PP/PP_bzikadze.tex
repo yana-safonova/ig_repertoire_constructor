@@ -127,7 +127,7 @@ September 13, 2015
 \end{frame}
 
 \begin{frame}{Introduction: \texttt{V(D)J-recombination}}
-  3 types of biochemical events: \textit{palindrome}, \textit{cleavage}, \textit{insertions}. 
+  3 types of biochemical events: \textit{palindrome}, \textit{cleavage}, \textit{non-genomic insertion}. 
   \begin{figure}[h]
     \center\includegraphics[width=300pt]{Pictures/vdj3_DJ_aligned.pdf}
  \end{figure}
@@ -235,7 +235,7 @@ September 13, 2015
 %  \begin{itemize}
 %    \item What is the distribution law of nucleotide subsequences of merged pair reads?
 %    \item Is there any correlation between biological events (for instance, between \textit{cleavage} / \textit{palindromes} and specific gene segments)?
-%    \item What model describes biological events the best (for example, \textit{insertions} at the \texttt{VD}-, \texttt{DJ}- junction)? 
+%    \item What model describes biological events the best (for example, \textit{non-genomic insertion} at the \texttt{VD}-, \texttt{DJ}- junction)? 
 %  \end{itemize}
 %\end{frame}
 
@@ -244,7 +244,7 @@ September 13, 2015
   \begin{itemize}
     \item What is the correlation between \texttt{D-J} and \texttt{V-DJ} joining?
     \item Is there any correlation between the \textit{cleavage} / \textit{palindromes} and specific gene segments?  
-    \item What are the properties of the \textit{insertions}?
+    \item What are the properties of the \textit{non-genomic insertion}?
   \end{itemize}
 \end{frame}
 
@@ -255,7 +255,7 @@ September 13, 2015
   Anand Murugana, Thierry Morab, Aleksandra M. Walczakc and Curtis G. Callan --- 2012}:
   \begin{itemize}
     \item Analysis is focused on nonproductive \texttt{CDR3}s.
-    \item Suggested model sets joint distribution over the set of discrete variables: \textit{identities} of \texttt{V-, D-, J-} genes, number of \textit{deletions} from the end of a segment, \textit{palindromic} nucleotides and \textit{insertions} at the end of a gen.
+    \item Suggested model sets joint distribution over the set of discrete variables: \textit{identities} of \texttt{V-, D-, J-} genes, number of \textit{deletions} from the end of a segment, \textit{palindromic} nucleotides and \textit{non-genomic insertion} at the end of a gen.
     \pause
   \item {\color{blue} 2865(!) parametrs to estimate.}
   \end{itemize}
@@ -281,7 +281,7 @@ September 13, 2015
   The goals 
   \begin{itemize}
     \item correlations between \textit{palindromes} and specific gene segments,
-    \item properties of the \textit{insertions}
+    \item properties of the \textit{non-genomic insertion}
   \end{itemize}
   include the task of distinguishing {\color{blue}``accidental''} and {\color{blue}``biological''} events and hence require some additional knowledge about the structure of the repertoire.
  
@@ -328,27 +328,26 @@ September 13, 2015
   \end{minipage}
  \end{figure}
  \pause
- {\color{blue} Hence reads in the dataset are dependent standart pooled $Z$-test for equal propotions is not applicable.}
- \pause
+ {\color{blue} Hence reads in the dataset are dependent standard pooled $Z$-test for equal propotions is not applicable.}
  
- \textbf{Remark:} No obvious way to clusterize $V$-genes effectively.
+% textbf{Remark:} No obvious way to clusterize $V$-genes effectively due the connection.
 \end{frame}
 
-\begin{frame}{Further goals to clusterize genes}
-  It is reasonable to seek a way to clusterize $V$-genes by
-  \begin{itemize}
-    \item \textit{palindromes} length;
-    \item \texttt{GC}-content;
-    \item different type of genes (\texttt{V} vs \texttt{J} \textit{etc\ldots}).
-  \end{itemize}
-\end{frame}
+%\begin{frame}{Further goals to clusterize genes}
+%  It is reasonable to seek a way to clusterize $V$-genes by
+%  \begin{itemize}
+%    \item \textit{palindromes} length;
+%    \item \texttt{GC}-content;
+%    \item different type of genes (\texttt{V} vs \texttt{J} \textit{etc\ldots}).
+%  \end{itemize}
+%\end{frame}
 
 \section{Two types of palindromes}
 \begin{frame}{Two types of palindromes}
   If a \textit{cleavage} took place, then no {\color{blue} ``biological''} \textit{palindrome} can happen. 
   
   \vspace{1mm}
-  An {\color{blue} ``accidental''} \textit{palindrome} can still happen due to the \textit{insertions}.
+  An {\color{blue} ``accidental''} \textit{palindrome} can still happen due to the \textit{non-genomic insertions}.
   
  \begin{figure}[h]
    \includegraphics[width=300pt]{Pictures/two_types_palindromes.pdf}
@@ -389,7 +388,7 @@ September 13, 2015
 
 \begin{frame}{Next steps}
   \begin{itemize}
-    \item To find out the distribution of ``biological'' palindrome.
+    \item To find out the distribution of ``biological'' palindrome length.
     \item To construct more adequate model for nucleotide distribution.
   \end{itemize}
 \end{frame}
@@ -411,5 +410,22 @@ September 13, 2015
 %  Further analysis will be concentrated on this problems.
 %\end{frame}
 
+\begin{frame}{Summary}
+  Statistical analysis of an antibody repeitore is very promising research with lots of applications. Some of them:
+  \begin{itemize}
+    \item Comparing antibodies repertoires.
+    \item Simulation of a repertoire.
+    \item Edges in clonal trees.
+    \item Improvement of \texttt{IgRepertoireConstructor}.
+  \end{itemize}
+
+  \bigskip
+ Our goals: 
+  \begin{itemize}
+    \item Construct an adequate statistical model of the \texttt{V(D)J}-recombination.
+    \item Find out correlations between segments of genes.
+    \item Find out correlations between various biological events, including \textit{cleavage}, \textit{palindromes} and \textit{non-genomic-insertions}.
+  \end{itemize}
+\end{frame}
 
 \end{document}
