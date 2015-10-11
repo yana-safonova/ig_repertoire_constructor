@@ -48,11 +48,11 @@
       "togglers": [
         {
           "toggleOnValue": 1,
-          "toggleFields": "input-reads-file"
+          "toggleFields": "reads-file"
         },
         {
           "toggleOnValue": 0,
-          "toggleFields": "input-reads-sample"
+          "toggleFields": "reads-sample"
         }
       ]
     },
@@ -66,7 +66,7 @@
       "label": "Input IG reads sample",
       "required": true,
       "requiredMessage": "Please choose a sample with input reads",
-      "id": "input-reads-sample"
+      "id": "reads-sample"
     },
     {
       "$type": "FileChooser",
@@ -77,7 +77,7 @@
       "required": true,
       "extensionFilters": ".fa,.fq,.fasta,.fastq,.fa.gz,.fq.gz,.fasta.gz,.fastq.gz",
       "requiredMessage": "Please choose a file with input reads",
-      "id": "input-reads-file"
+      "id": "reads-file"
     },
 
 
