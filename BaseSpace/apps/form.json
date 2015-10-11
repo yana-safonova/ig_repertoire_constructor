@@ -1,0 +1,170 @@
+{
+  "$type": "Form",
+  "fields": [
+
+    {
+      "$type": "SectionBreak",
+      "title": "Output"
+    },
+    {
+      "$type": "TextBox",
+      "size": 300,
+      "value": "default value!",
+      "label": "App Session Name",
+      "required": true,
+      "requiredMessage": "Please enter name for your app session.",
+      "id": "app-session-name"
+    },
+    {
+      "$type": "ProjectChooser",
+      "size": 250,
+      "valueType": "Output",
+      "allowedPermissions": "owner",
+      "label": "Output Project",
+      "required": true,
+      "requiredMessage": "Please choose a project",
+      "id": "project-id"
+    },
+    {
+      "$type": "SectionBreak",
+      "title": "Input"
+    },
+
+    {
+      "$type": "RadioButton",
+      "id": "input-type",
+      "label": "Input data type",
+      "value": 1,
+      "choices": [
+        {
+          "value": 0,
+          "label": "sample"
+        },
+        {
+          "value": 1,
+          "label": "file"
+        }
+      ],
+      "togglers": [
+        {
+          "toggleOnValue": 1,
+          "toggleFields": "input-reads-file"
+        },
+        {
+          "toggleOnValue": 0,
+          "toggleFields": "input-reads-sample"
+        }
+      ]
+    },
+
+
+    {
+      "$type": "SampleChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Input IG reads sample",
+      "required": true,
+      "requiredMessage": "Please choose a sample with input reads",
+      "id": "input-reads-sample"
+    },
+    {
+      "$type": "FileChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Input IG reads file",
+      "required": true,
+      "extensionFilters": ".fa,.fq,.fasta,.fastq,.fa.gz,.fq.gz,.fasta.gz,.fastq.gz",
+      "requiredMessage": "Please choose a file with input reads",
+      "id": "input-reads-file"
+    },
+
+
+    {
+      "$type": "SectionBreak",
+      "title": "Options"
+    },
+
+    {
+      "$type": "Select",
+      "id": "tau-id",
+      "label": "Tau",
+      "multiselect": false,
+      "helpText" : "Specifies the maximal edge length in SW graph",
+      "choices": [
+        {
+          "value": 1,
+          "text": "1",
+          "selected": false
+        },
+        {
+          "value": 2,
+          "text": "2",
+          "selected": false
+        },
+        {
+          "value": 3,
+          "text": "3",
+          "selected": false
+        },
+        {
+          "value": 4,
+          "text": "4",
+          "selected": true
+        },
+        {
+          "value": 5,
+          "text": "5",
+          "selected": false
+        },
+        {
+          "value": 6,
+          "text": "6",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "$type": "RadioButton",
+      "id": "chain-id",
+      "label": "chain",
+      "multiselect": false,
+      "helpText" : "Specifies IG chain",
+      "value": "all",
+      "choices": [
+        {
+          "value": "all",
+          "text": "all",
+          "label": "all",
+          "selected": true
+        },
+        {
+          "value": "heavy",
+          "text": "heavy",
+          "label": "heavy",
+          "selected": false
+        },
+        {
+          "value": "light",
+          "text": "light",
+          "label": "light",
+          "selected": false
+        },
+        {
+          "value": "lambda",
+          "text": "lambda",
+          "label": "lambda",
+          "selected": false
+        },
+        {
+          "value": "kappa",
+          "text": "kappa",
+          "label": "kappa",
+          "selected": false
+        }
+      ]
+    }
+  ],
+  "id": "form-container"
+}
