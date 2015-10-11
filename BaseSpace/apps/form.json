@@ -63,7 +63,7 @@
       "size": 300,
       "allowedPermissions": "read",
       "multiselect": false,
-      "label": "Input IG reads sample",
+      "label": "Input IG reads sample (pair-end, two files)",
       "required": true,
       "requiredMessage": "Please choose a sample with input reads",
       "id": "reads-sample"
@@ -73,9 +73,9 @@
       "size": 300,
       "allowedPermissions": "read",
       "multiselect": false,
-      "label": "Input IG reads file",
+      "label": "Input IG reads file (merged, one file)",
       "required": true,
-      "extensionFilters": ".fa,.fq,.fasta,.fastq,.fa.gz,.fq.gz,.fasta.gz,.fastq.gz",
+      "extensionFilters": ".fa,.fq,.fasta,.fastq,.fa.gz,.fq.gz,.fasta.gz,.fastq.gz,.gz",
       "requiredMessage": "Please choose a file with input reads",
       "id": "reads-file"
     },
@@ -88,11 +88,16 @@
 
     {
       "$type": "Select",
-      "id": "tau-id",
-      "label": "Tau",
+      "id": "tau",
+      "label": "Maximum allowed mismatches",
       "multiselect": false,
-      "helpText" : "Specifies the maximal edge length in SW graph",
+      "helpText" : "Maximum allowed mismatches between identical error-prone reads",
       "choices": [
+        {
+          "value": 0,
+          "text": "0",
+          "selected": false
+        },
         {
           "value": 1,
           "text": "1",
@@ -126,11 +131,20 @@
       ]
     },
     {
+    "$type": "TextBox",
+    "size": 300,
+  "value": 5,
+  "label": "Minimal cluster size",
+  "required": true,
+  "id": "min-size",
+  "helpText": "Minimal size of antibody cluster using for output of large antibody clusters"
+    },
+    {
       "$type": "RadioButton",
-      "id": "chain-id",
-      "label": "chain",
+      "id": "chain",
+      "label": "Ig locus (chain type)",
       "multiselect": false,
-      "helpText" : "Specifies IG chain",
+      "helpText" : "Ig locus used for alignment and filtering",
       "value": "all",
       "choices": [
         {
@@ -164,6 +178,32 @@
           "selected": false
         }
       ]
+    },
+    {
+    "$type": "CheckBox",
+  "id": "pseudogenes",
+  "label": "Pseudogenes",
+    "helpText": "Use pseudogenes along with normal gene segments for VJ alignment",
+  "choices": [
+    {
+      "value": "pseudogenes",
+      "label": "Use pseudogenes for VJ alignment",
+            "checked": true
+    }
+  ]
+    },
+    {
+    "$type": "CheckBox",
+    "id": "additionalfiles",
+  "label": "Additional files",
+    "helpText": "Save additional pipeline files (useful for debug and extra analisys)",
+  "choices": [
+    {
+      "value": "save",
+      "label": "Save additional files",
+            "checked": true
+    }
+  ]
     }
   ],
   "id": "form-container"
