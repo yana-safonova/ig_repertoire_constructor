@@ -4,7 +4,6 @@ import os
 import fnmatch
 import sys
 import json
-import urllib
 
 
 def metadatajson():
@@ -37,9 +36,15 @@ def showDir(dir):
             print "..." + items
             print ""
 
+
+def safe_cast(val, to_type, default=None):
+    try:
+        return to_type(val)
+    except ValueError:
+        return default
+
+
 if __name__ == "__main__":
-    #app specific definitions (not needed for personal app)
-    parameter_list = []
     # load json file
     jsonfile = open('/data/input/AppSession.json')
     jsonObject = json.load(jsonfile)
@@ -48,12 +53,14 @@ if __name__ == "__main__":
     runName = jsonObject['Name']
     runName = runName.replace(' ', '_')
 
-    print jsonObject
-    showDir("/data")
+    # print jsonObject
+    # showDir("/data")
 
-    # loop over properties
 
     param = {}
+    param["threads"] = 32
+
+    # loop over properties
     for item in jsonObject['Properties']['Items']:
         name = item['Name']
 
@@ -79,10 +86,16 @@ if __name__ == "__main__":
             param['readtype'] = 'paired'
             param['reads'] = [os.path.join(sampleDir, R1files[0]),
                               os.path.join(sampleDir, R2files[0])]
-        elif name == 'Input.tau-id':
+        elif name == 'Input.tau':
             param['tau'] = int(item['Content'])
-        elif name == 'Input.chain-id':
+        elif name == 'Input.chain':
             param['chain'] = item['Content']
+        elif name == 'Input.min-size':
+            param["min-size"] = safe_cast(item['Content'], int, 5)
+        elif name == 'Input.additionalfiles':
+            param["additionalfiles"] = "save" in item['Items']
+        elif name == 'Input.pseudogenes':
+            param["pseudogenes"] = "pseudogenes" in item['Items']
         elif name == 'Input.Projects':
             projectID = item['Items'][0]['Id']
 
@@ -100,7 +113,12 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
-    command += "--tau=%(tau)d --chain=%(chain)s -o %(outdir)s --debug" % param
+    command += " --tau=%(tau)d --chain=%(chain)s -o %(outdir)s --threads %(threads)d" % param
+    if not param["pseudogenes"]:
+        command += " --no-pseudogenes"
+    if param["additionalfiles"]:
+        command += " --debug"
+
 
     print "Command line: %s" % command
     os.system('cd %s; %s' % (igrc_dir, command))
