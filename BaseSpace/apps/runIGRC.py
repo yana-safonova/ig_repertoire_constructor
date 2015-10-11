@@ -96,9 +96,9 @@ if __name__ == "__main__":
     showDir("/data")
 
 
-    igrc_path = "/igrc/ig_repertoire_constructor.py"
+    igrc_path = "/ig_repertoire_constructor/ig_repertoire_constructor.py"
 
-    if param['readatype'] == "merged":
+    if param['readtype'] == "merged":
         command = "%s -s %s " % (igrc_path, param["reads"])
     else:
         command = "%s -1 %s -2 %s " % (igrc_path, param["reads"][0], param["reads"][1])
