@@ -244,7 +244,7 @@ September 13, 2015
 %\end{frame}
 
 \begin{frame}{Tasks}
-  There are lots of tasks. To name a few:
+  There are plenty of tasks. To name a few:
   \begin{itemize}
     \item What is the correlation between \texttt{D-J} and \texttt{V-DJ} joining?
     \item Is there any correlation between the \textit{cleavage} / \textit{palindromes} and specific gene segments?  
@@ -258,7 +258,7 @@ September 13, 2015
   \href{http://www.pnas.org/content/109/40/16161.full}{%Statistical inference of the generation probability of \texttt{T}-cell receptors from sequence repertoires (
   Anand Murugana, Thierry Morab, Aleksandra M. Walczakc and Curtis G. Callan --- 2012}:
   \begin{itemize}
-    \item Analysis is focused on nonproductive \texttt{CDR3}s.
+    \item Analysis is focused on non-productive \texttt{CDR3}s.
     \item Suggested model sets joint distribution over the set of discrete variables: \textit{identities} of \texttt{V-, D-, J-} genes, number of \textit{deletions} from the end of a segment, \textit{palindromic} nucleotides and \textit{non-genomic insertion} at the end of a gene.
     \pause
   \item {\color{blue} 2865(!) parameters to estimate.}
@@ -287,18 +287,20 @@ September 13, 2015
     \item correlations between \textit{palindromes} and specific gene segments,
     \item properties of the \textit{non-genomic insertion}
   \end{itemize}
-  include the task of distinguishing {\color{blue} ``biological''} (meaningful) from {\color{blue} ``accidental''} (random) observations and hence require additional knowledge about repertoire structure.
+  include the task of distinguishing {\color{blue} ``biological''} (meaningful) events from {\color{blue} ``accidental''} (random) observations and hence require additional knowledge about repertoire structure.
   
   \bigskip
   Considering that first we decided to concentrate on a problem of computation of correlation between \textbf{cleavage and specific gene segments}.
-  
+ 
+  \pause
   \bigskip
-  Unlike two problems above \textit{cleavage} can always be detected precisely according to the alignment.
+  {\color{blue} Unlike two problems above \textit{cleavage} can always be detected precisely according to the alignment.}
 \end{frame}
 
 \section{Cleavage and specific gene segments}
 \begin{frame}{Cleavage and specific gene segments}
-  \textbf{Problem:} In the datasets not only \texttt{V(D)J}-recombinations effects are reflected, but also the result of secondary mutations.
+
+Antibody repertoire is a result of V(D)J recombination and secondary diversification. To analyze properties of V(D)J recombination only we perform the following steps:
  
   \pause
   %\textbf{Idea:} Let's take only genes, that align to the germline with  level at least $C$, where $0 \leqslant C \leqslant 1$.
@@ -307,10 +309,10 @@ September 13, 2015
   \begin{columns}[T]
     \begin{column}{0.6\textwidth}
       \begin{itemize}
-        \item Consider a full-length dataset.
-        \item Use \texttt{IgRepertoireConstructor} for this dataset and consider {\color{blue} highly abundant antibody clusters} of the constructed repertoire.
-        \item Apply \texttt{IgBlast} to reads from highly abundant clusters.
-        \item {\color{blue} Downsampling}:  reads with alignment score of the segments not less than a {\color{blue} threshold}.
+        \item Constuct a full-length antibody repertoire using \texttt{IgRepertoireConstructor}.
+        \item Consider {\color{blue} highly abundant antibody clusters} of the constructed repertoire.
+        \item Apply \texttt{IgBlast} to reads corresponding to selected clusters.
+        \item To avoid effects of the secondary diversification filter out reads with \textit{low} alignment score.
       \end{itemize}
     \end{column}
     \begin{column}{0.5\textwidth}

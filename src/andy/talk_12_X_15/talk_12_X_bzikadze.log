@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  12 OCT 2015 00:46
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.8.29)  12 OCT 2015 16:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1101,42 +1101,44 @@ Overfull \hbox (46.35507pt too wide) in paragraph at lines 232--232
 
 ] [18
 
-]
-(./talk_12_X_bzikadze.toc) [19
+] [19
 
 ]
-<Pictures/downsampling.pdf, id=428, 160.6pt x 204.765pt>
+(./talk_12_X_bzikadze.toc) [20
+
+]
+<Pictures/downsampling.pdf, id=434, 160.6pt x 204.765pt>
 File: Pictures/downsampling.pdf Graphic file (type pdf)
 
 <use Pictures/downsampling.pdf>
-Package pdftex.def Info: Pictures/downsampling.pdf used on input line 323.
+Package pdftex.def Info: Pictures/downsampling.pdf used on input line 325.
 (pdftex.def)             Requested size: 120.0pt x 153.0047pt.
- [20
+ [21
 
  <./Pictures/downsampling.pdf>]
 File: Pictures/downsampling.pdf Graphic file (type pdf)
 
 <use Pictures/downsampling.pdf>
-Package pdftex.def Info: Pictures/downsampling.pdf used on input line 323.
+Package pdftex.def Info: Pictures/downsampling.pdf used on input line 325.
 (pdftex.def)             Requested size: 120.0pt x 153.0047pt.
- [21
+ [22
 
 ]
-<Vgen_cleavage_age.pdf, id=478, 722.7pt x 505.89pt>
+<Vgen_cleavage_age.pdf, id=484, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 341.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 343.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 
-<Vgen_cleavage_age_correlation.pdf, id=479, 722.7pt x 505.89pt>
+<Vgen_cleavage_age_correlation.pdf, id=485, 722.7pt x 505.89pt>
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
 
 <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-41.
+43.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
- [22
+ [23
 
  <./Vgen_cleavage_age.pdf> <./Vgen_cleavage_age_correlation.pdf
 
@@ -1145,44 +1147,44 @@ ion: multiple pdfs with page group included in a single page
 >]
 File: Vgen_cleavage_age.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age.pdf>
-Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 341.
+Package pdftex.def Info: Vgen_cleavage_age.pdf used on input line 343.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
 File: Vgen_cleavage_age_correlation.pdf Graphic file (type pdf)
  <use Vgen_cleavage_age_correlation.pdf>
 Package pdftex.def Info: Vgen_cleavage_age_correlation.pdf used on input line 3
-41.
+43.
 (pdftex.def)             Requested size: 150.0pt x 104.99722pt.
- [23
+ [24
 
 ]
-(./talk_12_X_bzikadze.toc) [24
+(./talk_12_X_bzikadze.toc) [25
 
 ]
-<Pictures/two_types_palindromes.pdf, id=531, 240.9pt x 60.225pt>
+<Pictures/two_types_palindromes.pdf, id=538, 240.9pt x 60.225pt>
 File: Pictures/two_types_palindromes.pdf Graphic file (type pdf)
 
 <use Pictures/two_types_palindromes.pdf>
 Package pdftex.def Info: Pictures/two_types_palindromes.pdf used on input line 
-362.
+364.
 (pdftex.def)             Requested size: 300.0pt x 75.00719pt.
- [25
+ [26
 
- <./Pictures/two_types_palindromes.pdf>] [26
+ <./Pictures/two_types_palindromes.pdf>] [27
 
-] <distr_pal_len_cl.pdf, id=572, 722.7pt x 615.29875pt>
+] <distr_pal_len_cl.pdf, id=578, 722.7pt x 615.29875pt>
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_cl.pdf>
-Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 393.
+Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 395.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 
-<distr_pal_len_nocl.pdf, id=573, 722.7pt x 615.29875pt>
+<distr_pal_len_nocl.pdf, id=579, 722.7pt x 615.29875pt>
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
 
 <use distr_pal_len_nocl.pdf>
-Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 393.
+Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 395.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
- [27
+ [28
 
  <./distr_pal_len_cl.pdf> <./distr_pal_len_nocl.pdf
 
@@ -1191,17 +1193,17 @@ le pdfs with page group included in a single page
 >]
 File: distr_pal_len_cl.pdf Graphic file (type pdf)
  <use distr_pal_len_cl.pdf>
-Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 393.
+Package pdftex.def Info: distr_pal_len_cl.pdf used on input line 395.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
 File: distr_pal_len_nocl.pdf Graphic file (type pdf)
  <use distr_pal_len_nocl.pdf>
-Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 393.
+Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 395.
 (pdftex.def)             Requested size: 150.0pt x 127.70497pt.
- [28
-
-] [29
+ [29
 
 ] [30
+
+] [31
 
 ]
 \tf@nav=\write6
@@ -1213,12 +1215,12 @@ Package pdftex.def Info: distr_pal_len_nocl.pdf used on input line 393.
 \tf@snm=\write8
 \openout8 = `talk_12_X_bzikadze.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 438.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 438.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 440.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 440.
 
 (./talk_12_X_bzikadze.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 438.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 438.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 440.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 440.
 Package rerunfilecheck Info: File `talk_12_X_bzikadze.out' has not changed.
 (rerunfilecheck)             Checksum: 614B7A2F99A82C83D2B3E3008D3D5C54;191.
 
@@ -1229,20 +1231,20 @@ LaTeX Font Warning: Size substitutions with differences
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 438.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 440.
  )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 73 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 16636 strings out of 493304
- 308004 string characters out of 6139871
- 395485 words of memory out of 5000000
- 19584 multiletter control sequences out of 15000+600000
- 16215 words of font info for 61 fonts, out of 8000000 for 9000
+ 16639 strings out of 493304
+ 308039 string characters out of 6139871
+ 395487 words of memory out of 5000000
+ 19585 multiletter control sequences out of 15000+600000
+ 16571 words of font info for 62 fonts, out of 8000000 for 9000
  957 hyphenation exceptions out of 8191
- 55i,16n,64p,472b,2285s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,16n,64p,472b,2289s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/c
 mmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.p
 fb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></us
@@ -1263,10 +1265,10 @@ texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/adobe/utopia/putr8a.pfb></usr/share/texmf/fonts/t
 ype1/public/tex-gyre/qcsr.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhv
 b.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qhvr.pfb>
-Output written on talk_12_X_bzikadze.pdf (30 pages, 838086 bytes).
+Output written on talk_12_X_bzikadze.pdf (31 pages, 839578 bytes).
 PDF statistics:
- 696 PDF objects out of 1000 (max. 8388607)
- 501 compressed objects within 6 object streams
- 64 named destinations out of 1000 (max. 500000)
+ 703 PDF objects out of 1000 (max. 8388607)
+ 507 compressed objects within 6 object streams
+ 66 named destinations out of 1000 (max. 500000)
  184 words of extra memory for PDF output out of 10000 (max. 10000000)
 
