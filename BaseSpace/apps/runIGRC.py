@@ -126,4 +126,5 @@ if __name__ == "__main__":
         command += " --debug"
 
     print "Command line: %s" % command
-    os.system('cd %s; %s' % (igrc_dir, command))
+    # os.system('cd %s; %s' % (igrc_dir, command))
+    os.system(command)
