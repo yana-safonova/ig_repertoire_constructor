@@ -59,6 +59,12 @@ if __name__ == "__main__":
 
     param = {}
     param["threads"] = 32
+    param["min-size"] = 5
+    param["tau"] = 4
+    param["chain"] = "all"
+    param["additionalfiles"] = True
+    param["pseudogenes"] = True
+
 
     # loop over properties
     for item in jsonObject['Properties']['Items']:
@@ -113,12 +119,11 @@ if __name__ == "__main__":
     else:
         sys.exit(1)
 
-    command += " --tau=%(tau)d --chain=%(chain)s -o %(outdir)s --threads %(threads)d" % param
+    command += " --tau=%(tau)d --chain=%(chain)s -o %(outdir)s --threads=%(threads)d --min-size=%(min-size)d" % param
     if not param["pseudogenes"]:
         command += " --no-pseudogenes"
     if param["additionalfiles"]:
         command += " --debug"
-
 
     print "Command line: %s" % command
     os.system('cd %s; %s' % (igrc_dir, command))
