@@ -1,11 +1,14 @@
 #!/bin/bash
 
-docker run -it -v /:/mnt eodus/mydock bash -c "cd /ig_repertoire_constructor; git pull"
+REPO=eodus/mydock
+REPO=docker.illumina.com/ig_repertoire_constructor/igrc
+
+docker run -it -v /:/mnt ${REPO} bash -c "cd /ig_repertoire_constructor; git pull"
 
 
 ID=`docker ps -l -q`
-docker commit $ID eodus/mydock
+docker commit $ID ${REPO}
 
-docker push eodus/mydock
+docker push ${REPO}
 
 
