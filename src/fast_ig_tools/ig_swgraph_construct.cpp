@@ -204,9 +204,10 @@ int main(int argc, char **argv) {
         discarded_reads_single += length(read) < required_read_length_for_single_stratagy;
     }
 
-    if (discarded_reads_single < discarded_reads) {
+    int saved_reads = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_single);
+    if (saved_reads > 0.05 * static_cast<double>(input_reads.size())) {
         INFO(bformat("Choosing <<single>> strategy for saving %d reads")
-             % (discarded_reads - discarded_reads_single));
+             % saved_reads);
         strategy_int = 1;
         discarded_reads = discarded_reads_single;
     }
