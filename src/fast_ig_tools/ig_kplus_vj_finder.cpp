@@ -374,6 +374,7 @@ struct Ig_KPlus_Finder_Parameters {
     bool fill_prefix_by_germline = true;
     bool compress = false;
     bool pseudogenes = true;
+    bool fix_spaces = true;
     std::string config_file = "";
     std::string output_filename;
     std::string bad_output_filename;
@@ -445,6 +446,10 @@ struct Ig_KPlus_Finder_Parameters {
              "fill truncated V-gene prefix by germline content")
             ("no-fill-prefix-by-germline (default)",
              "fill truncated V-gene prefix by 'N'-s")
+            ("fix-spaces",
+             "replace spaces in read ids by underline symbol '_' (default)")
+            ("no-fix-spaces",
+             "save spaces in read ids, do not replace them")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -538,6 +543,14 @@ struct Ig_KPlus_Finder_Parameters {
             fill_prefix_by_germline = true;
         }
 
+        if (vm.count("no-fix-spaces")) {
+            fix_spaces = false;
+        }
+
+        if (vm.count("fix-spaces")) {
+            fix_spaces = true;
+        }
+
         INFO(bformat("Input FASTQ reads: %s") % input_file);
         INFO(bformat("Output directory: %s") % output_dir);
         INFO("Short k-mer size: " << K);
@@ -617,6 +630,18 @@ private:
     }
 };
 
+template<typename T>
+size_t replace_spaces(T &s, char target = '_') {
+    size_t count = 0;
+    for(size_t i = 0, l = length(s); i < l; ++i) {
+        if (s[i] == ' ') {
+            s[i] = target;
+            ++count;
+        }
+    }
+
+    return count;
+}
 
 int main(int argc, char **argv) {
     segfault_handler sh;
@@ -646,6 +671,11 @@ int main(int argc, char **argv) {
     vector<Dna5String> reads;
     readRecords(read_ids, reads, seqFileIn_reads);
     INFO(reads.size() << " reads were extracted from " << param.input_file);
+
+    // Fix spaces if asked
+    for (auto &id : read_ids) {
+        replace_spaces(id);
+    }
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
