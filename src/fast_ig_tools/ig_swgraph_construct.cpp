@@ -196,20 +196,32 @@ int main(int argc, char **argv) {
     INFO("Read length checking");
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
     size_t required_read_length_for_single_stratagy =  K * (tau + 1);
+    size_t required_read_length_for_double_stratagy =  K * (tau + 2);
 
     size_t discarded_reads = 0;
     size_t discarded_reads_single = 0;
+    size_t discarded_reads_double = 0;
     for (const auto &read : input_reads) {
         discarded_reads += length(read) < required_read_length;
         discarded_reads_single += length(read) < required_read_length_for_single_stratagy;
+        discarded_reads_double += length(read) < required_read_length_for_double_stratagy;
     }
 
-    int saved_reads = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_single);
-    if (saved_reads > 0.05 * static_cast<double>(input_reads.size())) {
-        INFO(bformat("Choosing <<single>> strategy for saving %d reads")
-             % saved_reads);
-        strategy_int = 1;
-        discarded_reads = discarded_reads_single;
+    int saved_reads_single = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_single);
+    int saved_reads_double = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_double);
+
+    if (saved_reads_single > 0.05 * static_cast<double>(input_reads.size())) {
+        if (saved_reads_single - saved_reads_double < 0.05 * static_cast<double>(input_reads.size())) {
+            INFO(bformat("Choosing <<double>> strategy for saving %d reads")
+                 % saved_reads_double);
+            strategy_int = 2;
+            discarded_reads = discarded_reads_double;
+        } else {
+            INFO(bformat("Choosing <<single>> strategy for saving %d reads")
+                 % saved_reads_single);
+            strategy_int = 1;
+            discarded_reads = discarded_reads_single;
+        }
     }
 
     if (discarded_reads) {
