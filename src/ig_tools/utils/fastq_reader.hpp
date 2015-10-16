@@ -1,6 +1,8 @@
 #pragma once
 
 #include "include_me.hpp"
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
 
 struct fastq_read {
 	string name;
@@ -42,11 +44,25 @@ struct paired_fastq_read {
 };
 
 class SingleFastqReader {
-	ifstream src_;
+    boost::iostreams::filtering_streambuf<boost::iostreams::input> fb;
+    ifstream file;
+    std::istream src_;
+
+    static bool has_suffix(const std::string &str, const std::string &suffix) {
+        return str.size() >= suffix.size() &&
+            str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
 
 public:
-	SingleFastqReader(string fname) :
-		src_(fname.c_str()) {
+	SingleFastqReader(string fname) : file(fname.c_str(), ios_base::in | ios_base::binary), src_(&fb) {
+        if (has_suffix(fname, ".gz")) {
+            fb.push(boost::iostreams::gzip_decompressor());
+        } else {
+            // Do nothing
+        }
+
+        fb.push(file);
+
 		assert(!src_.fail());
 	}
 
@@ -74,9 +90,6 @@ public:
         return src_.eof();
     }
 
-    void close() {
-        src_.close();
-    }
     void reset(){
         src_.seekg(0, ios::beg);
     }
