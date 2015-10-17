@@ -87,7 +87,9 @@ if __name__ == "__main__":
                 R1files = fnmatch.filter(files,'*_R1_*')
                 R2files = fnmatch.filter(files,'*_R2_*')
 
-            assert(len(R1files) == len(R2files) == 1)
+            assert(len(R1files) == len(R2files))
+            if len(R1files) != 1:
+                print "WARNING: Samples with multiple files are not supported yet. Onlythe first file pair will be used"
 
             param['readtype'] = 'paired'
             param['reads'] = [os.path.join(sampleDir, R1files[0]),
