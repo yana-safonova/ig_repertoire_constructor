@@ -27,9 +27,20 @@ void IgGeneDatabase::AddGenesFromFile(std::string filename) {
     }
 }
 
-IgGene IgGeneDatabase::GetByIndex(size_t index) const {
+const IgGene& IgGeneDatabase::GetByIndex(size_t index) const {
     assert(index < size());
     return ig_genes_[index];
+}
+
+const IgGene& IgGeneDatabase::GetByName(std::string gene_name) const {
+    return GetByName(CharString(gene_name.c_str()));
+}
+
+const IgGene& IgGeneDatabase::GetByName(CharString gene_name) const {
+    for(auto it = cbegin(); it != cend(); it++)
+        if(it->name() == gene_name)
+            return *it;
+    return IgGene();
 }
 
 std::ostream& operator<<(std::ostream &out, const IgGeneDatabase &ig_gene_db) {

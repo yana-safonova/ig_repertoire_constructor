@@ -10,7 +10,8 @@
 #include "segfault_handler.hpp"
 
 #include "fastq_read_archive.hpp"
-#include "gene_database.hpp"
+#include "vdj_alignments/gene_database.hpp"
+#include "vdj_alignments/vj_alignment_info.hpp"
 
 void create_console_logger() {
     using namespace logging;
@@ -44,6 +45,11 @@ int main(int, char**) {
     INFO(hc_db.VariableGenes().size() << " variable genes were extracted from " << v_germline_genes_fname);
     INFO(hc_db.DiversityGenes().size() << " diversity genes were extracted from " << d_germline_genes_fname);
     INFO(hc_db.JoinGenes().size() << " join genes were extracted from " << j_germline_genes_fname);
+
+    VJAlignmentInfo vj_alignment_info(hc_db.VariableGenes(), hc_db.DiversityGenes());
+    vj_alignment_info.ExtractAlignment(vj_alignment_fname);
+    INFO(vj_alignment_info.size() << " alignment lines were extracted from " << vj_alignment_fname);
+    cout << vj_alignment_info;
 
     INFO("VDJ labeler ends");
     unsigned ms = (unsigned)pc.time_ms();

@@ -24,6 +24,7 @@ INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
 add_executable(vdj_labeler
                 fastq_read_archive.cpp
                 vdj_alignments/gene_database.cpp
+                vdj_alignments/vj_alignment_info.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler input yaml-cpp ${COMMON_LIBRARIES})

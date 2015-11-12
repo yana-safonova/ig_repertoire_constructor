@@ -3,8 +3,8 @@
 #include "gene_database.hpp"
 
 struct Alignment {
-    std::pair<size_t, size_t> subject_pos;
     std::pair<size_t, size_t> query_pos;
+    std::pair<size_t, size_t> subject_pos;
 
     Alignment(std::pair<size_t, size_t> new_query_pos,
               std::pair<size_t, size_t> new_subject_pos) :
@@ -13,10 +13,10 @@ struct Alignment {
 };
 
 struct IgGeneAlignment {
-    const Alignment& alignment;
+    Alignment alignment;
     const IgGene& ig_gene;
 
-    IgGeneDatabase(const Alignment& new_alignment,
+    IgGeneAlignment(Alignment new_alignment,
                    const IgGene& new_ig_gene) :
             alignment(new_alignment),
             ig_gene(new_ig_gene) { }

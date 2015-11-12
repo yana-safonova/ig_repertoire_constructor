@@ -57,6 +57,10 @@ public:
     citerator cbegin() const { return ig_genes_.cbegin(); }
 
     citerator cend() const { return ig_genes_.cend(); }
+
+    const IgGene& GetByName(std::string gene_name) const;
+
+    const IgGene& GetByName(CharString gene_name) const;
 };
 
 std::ostream& operator<<(std::ostream &out, const IgGeneDatabase &ig_gene_db);
