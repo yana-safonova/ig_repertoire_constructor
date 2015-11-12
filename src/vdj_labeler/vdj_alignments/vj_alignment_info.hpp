@@ -36,7 +36,6 @@ public:
     IgGeneAlignment GetJAlignmentByIndex(size_t index) const;
 
     std::string GetReadNameByIndex(size_t index) const;
-
 };
 
 std::ostream& operator<<(std::ostream& out, VJAlignmentInfo& obj);

@@ -73,7 +73,8 @@ std::string VJAlignmentInfo::GetReadNameByIndex(size_t index) const {
 
 std::ostream& operator<<(std::ostream& out, VJAlignmentInfo& obj) {
     for(size_t i = 0; i < obj.size(); i++) {
-        out << obj.GetReadNameByIndex(i) << endl;
+        out << obj.GetReadNameByIndex(i) << " " << obj.GetVAlignmentByIndex(i).alignment.query_pos.second << " " <<
+                obj.GetJAlignmentByIndex(i).alignment.query_pos.first << endl;
     }
     return out;
 }
