@@ -21,5 +21,4 @@ class HCProbabilityRecombinationModel {
 
 public:
     void ExtractFromFile();
-
 };

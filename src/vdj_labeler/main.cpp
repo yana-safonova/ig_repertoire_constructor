@@ -13,6 +13,8 @@
 #include "vdj_alignments/gene_database.hpp"
 #include "vdj_alignments/vj_alignment_info.hpp"
 
+#include "recombination_calculator/hc_model_based_recombination_calculator.hpp"
+
 void create_console_logger() {
     using namespace logging;
     string log_props_file = "";

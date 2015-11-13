@@ -25,6 +25,8 @@ add_executable(vdj_labeler
                 fastq_read_archive.cpp
                 vdj_alignments/gene_database.cpp
                 vdj_alignments/vj_alignment_info.cpp
+                recombination_calculator/hc_model_based_recombination_calculator.cpp
+                recombination_generation/base_hc_recombination_generator.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler input yaml-cpp ${COMMON_LIBRARIES})
