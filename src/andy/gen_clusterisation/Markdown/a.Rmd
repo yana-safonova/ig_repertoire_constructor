@@ -10,6 +10,7 @@ knitr::opts_chunk$set(warning=FALSE, messages=FALSE, cache=T)
 
 ```{r}
 library("lattice")
+library("latticeExtra")
 library("parallel")
 library("corrplot")
 library("plyr")
@@ -138,6 +139,23 @@ age.barcodes.reduced.eq
 
 pairs.plots(age.barcodes.reduced.eq)
 
+p1 <- xyplot(age.barcodes.reduced.eq[['V']][,1] ~ age.barcodes.reduced.eq[['V']][,2], xlim = c(0, 1), ylim = c(0, 1), col = "blue", 
+             main = list(label = "V genes: probability of cleavage", fontsize = 25), 
+             xlab = list(label = "Age datasets 1--4", fontsize = 25), 
+             ylab = list(label = "Age datasets 5--9", fontsize = 25), cex = 1.2, pch = 19, par.strip.text = list(cex.title = 5))
+p2 <- xyplot(0:1~0:1, col = "black", type = "l")
+
+p1 + as.layer(p2)
+
+
+p1 <- xyplot(age.barcodes.reduced.eq[['J']][,1] ~ age.barcodes.reduced.eq[['V']][,2], xlim = c(0.7, 1), ylim = c(0.7, 1), col = "blue", 
+             main = list(label = "J genes: probability of cleavage", fontsize = 25), 
+             xlab = list(label = "Age datasets 1--4", fontsize = 25), 
+             ylab = list(label = "Age datasets 5--9", fontsize = 25), cex = 1.2, pch = 19, par.strip.text = list(cex.title = 5))
+p2 <- xyplot(0:1~0:1, col = "black", type = "l")
+
+p1 + as.layer(p2)
+
 corr <- lapply(age.barcodes.reduced.eq, cor)
 l_ply(corr, corrplot, method="number")
 
@@ -152,8 +170,16 @@ out <- lapply(age.barcodes.reduced.eq, function(x) {
     }
   )
 lapply(out, function(x) {
-    print(hist(x))
-    print(abline(v=x[1], col='red'))
+    #print(hist(x))
+    print(histogram(x, col = "aquamarine",
+      main = list(label = "Permutation test: significance of the correlation", fontsize = 25), 
+      xlab = list(label = "Correlation", fontsize = 25), 
+      ylab = list(label = "Frequence", fontsize = 25), cex = 1.2, pch = 19, par.strip.text = list(cex.title = 5),
+      panel = function(x, ...) {
+         panel.histogram(x, ...)
+         panel.abline(v = x[1], col = 'red')
+      }))
+    #print(abline(v=x[1], col='red'))
   }
 )
 ```
@@ -162,6 +188,13 @@ lapply(out, function(x) {
 zt <- z.test(df = df, Type.segment = "V", threshold = 1000)
 shapiro.test(zt)
 ```
+
+```{r}
+#a <- by(df[[1]], df[[1]]$N, function(x) as.vector(x$subject_id[c(1, length(x$subject_id))]))
+#b <- matrix(unlist(a), nrow = 2, ncol = length(unlist(a)) /2)
+#table(b[1,], b[2,])
+```
+
 
 # SAM
 
@@ -286,5 +319,36 @@ l_ply(corr, corrplot, method="number")
 corr <- lapply(sam.dataset, cor, method = "spearman")
 corr
 l_ply(corr, corrplot, method="number")
+```
+
+```{r}
+#df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+df <- list(read.csv("../SAMEA2240927_ERX319432.csv", header = T, sep = "\t"), 
+           read.csv("../SAMEA2240927_ERX319436.csv", header = T, sep = "\t"),
+           read.csv("../SAMEA2240927_ERX319437.csv", header = T, sep = "\t")
+           )
+#df <- list(Reduce(function(...) merge(..., all=T), df[1:4]), Reduce(function(...) merge(..., all=T), df[5:10]))
+df <- df.processing(df, threshold.perc.identity = 0)
+
+SAMEA  <- cor.clavage.gen.all(df)
+SAMEA
+
+pairs.plots(SAMEA)
+
+corr <- lapply(SAMEA, cor)
+corr
+l_ply(corr, corrplot, method="number")
+
+corr <- lapply(SAMEA, cor, method = "spearman")
+corr
+l_ply(corr, corrplot, method="number")
+```
+
+```{r}
+df <- list(read.csv("../BSSE_QGF_20433_naive.csv", header = T, sep = "\t"))
+df <- df.processing(df, threshold.perc.identity = 0)
+
+BSSE  <- cor.clavage.gen.all(df)
+BSSE
 ```
 

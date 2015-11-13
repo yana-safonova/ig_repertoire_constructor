@@ -152,11 +152,11 @@ September 13, 2015
   \texttt{B}-cells:
   {\footnotesize
   \begin{itemize}
-    \item \href{http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1065207/}{Comparison of Antibody Repertoires against \texttt{Staphylococcus aureus} in 
-      Healthy Individuals and in Acutely Infected Patients --- Agnieszka Dryla \textit{et al.}, CVI, 2005}.
+    \item \href{http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1065207/}{Agnieszka Dryla \textit{et al.}, Comparison of Antibody Repertoires against \texttt{Staphylococcus aureus} in 
+      Healthy Individuals and in Acutely Infected Patients --- CVI, 2005}.
   
-    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/9882391}{Comparison of the antibody repertoire generated in healthy volunteers following immunization with a monomeric recombinant \texttt{gp120} 
-      construct derived from a \texttt{CCR5/CXCR4}-using human immunodeficiency virus type 1 isolate with sera from naturally infected individuals --- Beddows S. \textit{et al.}, Journal of Virology, 1999}. 
+    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/9882391}{Beddows S. \textit{et al.}, Comparison of the antibody repertoire generated in healthy volunteers following immunization with a monomeric recombinant \texttt{gp120} 
+      construct derived from a \texttt{CCR5/CXCR4}-using human immunodeficiency virus type 1 isolate with sera from naturally infected individuals ---  Journal of Virology, 1999}. 
   \end{itemize}
   }
 
@@ -165,9 +165,9 @@ September 13, 2015
   
   { \footnotesize
   \begin{itemize}
-    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/26297792}{Donor Unrestricted \texttt{T} Cells: A Shared Human \texttt{T} Cell Response --- Van Rhijn I, Moody DB, Journal of Immunology, 2015}.
-    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/21349924}{Exhaustive \texttt{T}-cell repertoire sequencing of human peripheral blood samples reveals 
-      signatures of antigen selection and a directly measured repertoire size of at least 1 million clonotypes --- Warren RL \textit{et al.}, Genome Research, 2011}.
+    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/26297792}{Van Rhijn I, Moody DB, Donor Unrestricted \texttt{T} Cells: A Shared Human \texttt{T} Cell Response --- Journal of Immunology, 2015}.
+    \item \href{http://www.ncbi.nlm.nih.gov/pubmed/21349924}{Warren RL \textit{et al.}, Exhaustive \texttt{T}-cell repertoire sequencing of human peripheral blood samples reveals 
+      signatures of antigen selection and a directly measured repertoire size of at least 1 million clonotypes --- Genome Research, 2011}.
   \end{itemize}
   }
   %\textbf{Motivation:} knowledge of the distribution of nucleotide sequences potentially helps with a lot of things.
@@ -294,7 +294,7 @@ September 13, 2015
  
   \pause
   \bigskip
-  {\color{blue} Unlike two problems above \textit{cleavage} can always be detected precisely according to the alignment.}
+  {\color{blue} Unlike two problems above \textit{cleavage} can be detected precisely according to the alignment.}
 \end{frame}
 
 \section{Cleavage and specific gene segments}
@@ -325,10 +325,11 @@ Antibody repertoire is a result of V(D)J recombination and secondary diversifica
 \end{frame}
 
 \begin{frame}{Cleavage and specific gene segments: \texttt{V}-genes}
- \begin{figure}[h]
+  \texttt{Age} datasets --- 9 heavy chain datasets sequenced from human serum samples without cell sorting. 
+  \begin{figure}[h]
   \begin{minipage}[h]{0.49\linewidth}
-    \center\includegraphics[width=150pt]{Vgen_cleavage_age.pdf}
-    \caption{\footnotesize{\texttt{Age} datasets. The point --- is the gene. Pearson correlation is $0.98$.}} 
+  \center\includegraphics[width=150pt]{Vgen_cleavage_age.pdf}
+    \caption{\footnotesize{\texttt{Age} datasets. The point is the \texttt{V} gene segments. Pearson correlation is $0.98$.}} 
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\linewidth}
@@ -342,18 +343,23 @@ Antibody repertoire is a result of V(D)J recombination and secondary diversifica
 % textbf{Remark:} No obvious way to clusterize $V$-genes effectively due the connection.
 \end{frame}
 
-%\begin{frame}{Further goals to clusterize genes}
-%  It is reasonable to seek a way to clusterize $V$-genes by
-%  \begin{itemize}
-%    \item \textit{palindromes} length;
-%    \item \texttt{GC}-content;
-%    \item different type of genes (\texttt{V} vs \texttt{J} \textit{etc\ldots}).
-%  \end{itemize}
-%\end{frame}
+\begin{frame}{Further steps}
+  
+  Find out factors to clusterize $V$ gene segments.
+
+  \bigskip 
+  Probability of \textit{cleavage} is not appropriate.  
+  It is reasonable to seek a way to clusterize $V$ gene segments by
+  \begin{itemize}
+    \item \textit{palindromes} length;
+    \item \texttt{GC}-content;
+    \item different type of genes (\texttt{V} vs \texttt{J} \textit{etc\ldots}).
+  \end{itemize}
+\end{frame}
 
 \section{Two types of palindromes}
 \begin{frame}{Two types of palindromes}
-  If a \textit{cleavage} took place, then no {\color{blue} ``biological''} \textit{palindrome} can happen. 
+  If a \textit{cleavage} took place, then no {\color{blue} ``biological''} \textit{palindrome} could happen. 
   
   \vspace{1mm}
   An {\color{blue} ``accidental''} \textit{palindrome} can still happen due to the \textit{non-genomic insertions}.
@@ -365,7 +371,7 @@ Antibody repertoire is a result of V(D)J recombination and secondary diversifica
 
 \begin{frame}{Two types of palindromes}
   \begin{itemize}
-    \item The simplest model is that any nucletide $\xi$ in the sequence is distributed \textbf{uniformly}:
+    \item The simplest model assumes that every nucleotide $\xi$ in the sequence is distributed \textbf{uniformly}:
     \begin{gather*}
       \mathbb P(\xi = x) = \frac{1}{4} \, \mbox{ where } x \in \{'A', 'C', 'G','T'\}.
     \end{gather*}
@@ -377,7 +383,7 @@ Antibody repertoire is a result of V(D)J recombination and secondary diversifica
 \end{frame}
 
 \begin{frame}{Two types of palindromes}
-  Emperical (\texttt{Age}-datasets) and $\mathrm{Geom}(3/4)$ distribution in $\log$ scale:
+  Emperical (\texttt{Age}-datasets) and $\mathrm{Geom}(3/4)$ distributions in $\log$ scale:
  \begin{figure}[h]
   \begin{minipage}[h]{0.49\linewidth}
     \center\includegraphics[width=150pt]{distr_pal_len_cl.pdf}

@@ -12,31 +12,60 @@ library("parallel")
 ```
 
 ```{r}
-df <- lapply((1:9)[-5], function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
-#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t")))#, read.csv("2_SAM13306970.csv", header = T, sep = "\t")))
+df <- lapply((1:9), function(i) read.csv(paste("../", i, ".csv", sep = ""), header = T, sep = "\t"))
+#df <- list(read.csv("../SAMEA2240927_ERX319432.csv", header = T, sep = "\t"), read.csv("../SAMEA2240927_ERX319436.csv", header = T, sep = "\t"), read.csv("../SAMEA2240927_ERX319437.csv", header = T, sep = "\t"))
+#df <- append(df, list(read.csv("../1_SAM13306969.csv", header = T, sep = "\t"), read.csv("../2_SAM13306970.csv", header = T, sep = "\t")))
 df <- mclapply(df, function(x) {x$Clavage <- toupper(x$Clavage); x }, mc.cores = detectCores())
 df <- mclapply(df, function(x) {x$Clavage <- as.logical(x$Clavage); x}, mc.cores = detectCores())
 df <- mclapply(df, function(x) {x$subject_id <- as.factor(x$subject_id); x}, mc.cores = detectCores())
 df <- mclapply(df, function(x) {x$Type <- as.factor(x$Type); x}, mc.cores = detectCores())
+```
 
+```{r}
 df <- dplyr::bind_rows(df)
-df.cl.t <- subset(df, df$Clavage)
-df.cl.f <- subset(df, !df$Clavage)
+df.v <- subset(df, df$Type =="V")
+df.cl.t <- subset(df.v, df.v$Clavage)
+df.cl.f <- subset(df.v, !df.v$Clavage)
 
 a <- unlist(by(df.cl.t, df.cl.t$palindrome_len, function(y) sum(as.numeric(y$abundance)), simplify=FALSE))
 b <- unlist(by(df.cl.f, df.cl.f$palindrome_len, function(y) sum(as.numeric(y$abundance)), simplify=FALSE))
-  
+```
 
-p1 <- xyplot(log(a / sum(a)) ~ 0:(length(a)-1), col = "red", type = "b", xlab = "Palindrome Length", ylab = "Ln of Frequency", 
-             main = "Distribution of the Palindrome Length. Clavaged Gens",
-             auto.key = list(text=c("Sample", "Theoretical"), cex = 1.2, columns = 2 ))
-p2 <- xyplot(log(dgeom(0:(length(a) - 3), prob = 3/4)) ~ 0:(length(a)-3), col = "blue", type = "b")
+```{r}
+par.settings <- simpleTheme(col = c("red", "blue"), cex = 1.2, pch = 19)
+scales <- list(y = list(log = 2))
+key <- list(text = c("Observed", "Expected"), corner = c(0.96, 0.96), border = FALSE, cex = 2)
+
+k <- 1
+length(a) <- 8
+
+p1 <- xyplot((a / sum(a)) ~ 0:(length(a)-1),
+             type = "b", 
+             xlab = list(label = "Palindrome Length", fontsize = 25), 
+             ylab = list(label = "Frequency", fontsize = 25),
+             par.settings = par.settings,
+             main = list(label = "Pal. length. Cleavaged genes", fontsize = 25),
+             auto.key = key,
+             scales = scales)
+
+p2 <- xyplot((dgeom(0:(length(a) - k), prob = 3/4)) ~ 0:(length(a) - k), col = "blue", type = "b",
+             scales = scales)
 p1 + as.layer(p2)
+```
 
+```{r}
+length(b) <- 8
 
-p1 <- xyplot(log(b / sum(b)) ~ 0:(length(b)-1), col = "red", type = "b", xlab = "Palindrome Length", ylab = "Ln of Frequency", 
-             main = "Distribution of the Palindrome Length. No Clavage",
-             auto.key = list(text=c("Sample", "Theoretical"), cex = 1.2, columns = 2 ))
-p2 <- xyplot(log(dgeom(0:(length(b)-2), prob = 3/4)) ~ 0:(length(b)-2), col = "blue", type = "b")
+p1 <- xyplot((b / sum(b)) ~ 0:(length(b)-1),
+             type = "b", 
+             xlab = list(label = "Palindrome Length", fontsize = 25), 
+             ylab = list(label = "Frequency", fontsize = 25),
+             par.settings = par.settings,
+             main = list(label = "Pal. length. No cleavage", fontsize = 25),
+             auto.key = key,
+             scales = scales)
+
+p2 <- xyplot((dgeom(0:(length(b) - k - 1), prob = 3/4)) ~ 0:(length(b) - k - 1), col = "blue", type = "b",
+             scales = scales)
 p1 + as.layer(p2)
 ```
