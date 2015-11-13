@@ -59,7 +59,7 @@ def ReadRepertoires(params, log):
                                        params.data_clusters, params.data_rcm)
 
 def RunIgMatcherPreparations(params, log, rep, working_dir):
-    vj_aln_file = os.path.join(working_dir, 'cropped.fa')
+    vj_aln_file = os.path.join(working_dir, 'cleaned_reads.fa')
     command_line = params.ig_kplus_vj_finder + \
             ' -i ' + rep.clusters_filename + \
             ' -o ' + working_dir + \
@@ -141,7 +141,13 @@ def Evaluate(params, log):
         log.info("ERROR: barcode metrics were not found")
         sys.exit(-1)
     log.info("Barcode metrics were written to " + metrics_file)
-    
+    metrics_json_file = os.path.join(params.output_dir, 'metrics.json')
+    barcode_metrics.write_json(metrics_json_file)
+    if not os.path.exists(metrics_json_file):
+        log.info("ERROR: barcode metrics in JSON were not found")
+        sys.exit(-1)
+    log.info("Barcode metrics in JSON were written to " + metrics_json_file)
+
     distr_filename, distr_nt_filename, isolated_distr_filename, isolated_distr_nt_filename = \
         barcode_metrics.draw_all_sizes_distributions(params.output_dir)
     if os.path.exists(distr_filename):

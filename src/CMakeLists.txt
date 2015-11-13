@@ -66,6 +66,7 @@ add_subdirectory(fast_ig_tools)
 add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
+add_subdirectory(vdj_labeler)
 
 # FIXME: Should we just configure spades_init instead?
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"

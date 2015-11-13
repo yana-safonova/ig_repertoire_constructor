@@ -5,6 +5,7 @@ import os
 import init
 import logging
 import shutil
+import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -71,6 +72,7 @@ def CreateParamDict(params):
     param_dict['min_fillin_threshold'] = params.min_fillin
     param_dict['min_graph_size'] = params.min_graph_size
     param_dict['create_trivial_decomposition'] = process_cfg.bool_to_str(params.create_trivial_decomposition)
+    param_dict['path_to_metis'] = os.path.join(home_directory, "build/release/bin/")
     return param_dict
 
 def PrepareConfigs(params, log):
@@ -110,14 +112,14 @@ def main(argv, external_logger = ""):
                             help="Input graph in GRAPH format")
     input_args.add_argument("--test",
                             action="store_const",
-                            const="test_dataset/test.graph",
+                            const=os.path.join(home_directory, "test_dataset/test.graph"),
                             dest="graph",
                             help="Running test dataset")
 
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                             type=str,
-                            default="dsf_test",
+                            default=os.path.join(home_directory, "dsf_test"),
                             help="Output directory")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -165,8 +167,7 @@ def main(argv, external_logger = ""):
         external_log_handler = logging.FileHandler(external_logger, mode = "a")
         log.addHandler(external_log_handler)
 
-    # parse command line
-    args = [arg for arg in argv if arg != './dense_subgraph_finder.py']
+    args = [arg for arg in argv if ntpath.basename(arg) != 'dense_subgraph_finder.py']
     params = parser.parse_args(args)
 
     CheckParamsCorrectness(params, log, parser)
