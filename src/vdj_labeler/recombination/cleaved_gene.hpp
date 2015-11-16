@@ -17,6 +17,8 @@ public:
 
     const IgGeneAlignment& GeneAlignment() const { return gene_alignment_; }
 
+    // negative length of cleavage means existance of the left palindrome of this length
+    // positive length of cleavage shows length of gene cleavage
     int LeftCleavageLength() const { return left_cleavage_length_; }
 
     int RightCleavageLength() const { return right_cleavage_length_; }
