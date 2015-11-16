@@ -48,7 +48,7 @@ int main(int, char**) {
     INFO(hc_db.DiversityGenes().size() << " diversity genes were extracted from " << d_germline_genes_fname);
     INFO(hc_db.JoinGenes().size() << " join genes were extracted from " << j_germline_genes_fname);
 
-    VJAlignmentInfo vj_alignment_info(hc_db.VariableGenes(), hc_db.DiversityGenes());
+    VJAlignmentInfo vj_alignment_info(hc_db.VariableGenes(), hc_db.JoinGenes());
     vj_alignment_info.ExtractAlignment(vj_alignment_fname);
     INFO(vj_alignment_info.size() << " alignment lines were extracted from " << vj_alignment_fname);
     cout << vj_alignment_info;

@@ -1,37 +1,43 @@
 #include "vj_alignment_info.hpp"
-#include "../../ig_tools/utils/string_tools.hpp"
+#include <boost/algorithm/string.hpp>
+#include <../ig_tools/utils/string_tools.hpp>
 
 using namespace std;
+using namespace boost;
 
 void VJAlignmentInfo::AddReadName(const vector<string> &splits) {
-    string read_name = splits[0].substr(0, splits[0].size() - 1);
+    string read_name = splits[VJFinderMagicConsts::read_name_index];
     read_names_.push_back(read_name);
 }
 
 void VJAlignmentInfo::AddVAlignment(const std::vector<std::string> &splits) {
-    size_t start_query_pos = string_to_number<size_t>(splits[1].substr(0, splits[1].size() - 1));
-    size_t end_query_pos = string_to_number<size_t>(splits[2].substr(0, splits[2].size() - 1));
-    string v_gene_name = splits[4].substr(0, splits[4].size() - 1);
-    v_segments_.push_back(
-            IgGeneAlignment(
-                    Alignment(pair<size_t, size_t>(start_query_pos, end_query_pos),
-                              pair<size_t, size_t>(0, 0)),
+    size_t start_read_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::first_v_match_pos_on_read]);
+    size_t end_read_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_v_match_pos_on_read]);
+    size_t start_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::first_v_match_pos_on_gene]);
+    size_t end_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_v_match_pos_on_gene]);
+    string v_gene_name = splits[VJFinderMagicConsts::v_gene_name_index];
+    v_segments_.push_back(IgGeneAlignment(
+                    Alignment(pair<size_t, size_t>(start_read_pos, end_read_pos),
+                              pair<size_t, size_t>(start_gene_pos, end_gene_pos)),
                     v_gene_db_.GetByName(v_gene_name)));
 }
 
 void VJAlignmentInfo::AddJAlignment(const std::vector<std::string> &splits) {
-    size_t start_query_pos = string_to_number<size_t>(splits[5].substr(0, splits[5].size() - 1));
-    size_t end_query_pos = string_to_number<size_t>(splits[6].substr(0, splits[6].size() - 1));
-    string j_gene_name = splits[8].substr(0, splits[8].size() - 1);
-    j_segments_.push_back(
-            IgGeneAlignment(
-                    Alignment(pair<size_t, size_t>(start_query_pos, end_query_pos),
-                              pair<size_t, size_t>(0, 0)),
-                    j_gene_db_.GetByName(j_gene_name)));
+    size_t start_read_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::first_j_match_pos_on_read]);
+    size_t end_read_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_j_match_pos_on_read]);
+    size_t start_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::first_j_match_pos_on_gene]);
+    size_t end_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_j_match_pos_on_gene]);
+    string j_gene_name = splits[VJFinderMagicConsts::j_gene_name_index];
+    cout << j_gene_name << endl;
+    j_segments_.push_back(IgGeneAlignment(
+            Alignment(pair<size_t, size_t>(start_read_pos, end_read_pos),
+                      pair<size_t, size_t>(start_gene_pos, end_gene_pos)),
+            j_gene_db_.GetByName(j_gene_name)));
 }
 
 void VJAlignmentInfo::ParseLine(std::string line) {
-    vector<std::string> splits = split(line, ' ');
+    vector<std::string> splits;
+    split(splits, line, is_any_of(" ,"), token_compress_on);
     AddReadName(splits);
     AddVAlignment(splits);
     AddJAlignment(splits);
@@ -71,10 +77,12 @@ std::string VJAlignmentInfo::GetReadNameByIndex(size_t index) const {
     return read_names_[index];
 }
 
-std::ostream& operator<<(std::ostream& out, VJAlignmentInfo& obj) {
+std::ostream& operator<<(std::ostream& out, const VJAlignmentInfo& obj) {
     for(size_t i = 0; i < obj.size(); i++) {
-        out << obj.GetReadNameByIndex(i) << " " << obj.GetVAlignmentByIndex(i).alignment.query_pos.second << " " <<
-                obj.GetJAlignmentByIndex(i).alignment.query_pos.first << endl;
+        out << "Read name: " << obj.GetReadNameByIndex(i) << endl;
+        out << "V. " << obj.GetVAlignmentByIndex(i) << endl;
+        out << "J. " << obj.GetJAlignmentByIndex(i) << endl;
+        out << "----" << endl;
     }
     return out;
 }
