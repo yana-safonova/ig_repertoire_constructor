@@ -2,6 +2,7 @@
 
 #include "gene_database.hpp"
 #include "alignment_structs.hpp"
+#include "../fastq_read_archive.hpp"
 
 struct VJFinderMagicConsts {
     static const int read_name_index = 0;
@@ -20,36 +21,36 @@ struct VJFinderMagicConsts {
 class VJAlignmentInfo {
     const IgGeneDatabase& v_gene_db_;
     const IgGeneDatabase& j_gene_db_;
+    const FastqReadArchive& read_archive_;
 
     std::vector<IgGeneAlignmentPositions> v_segments_;
     std::vector<IgGeneAlignmentPositions> j_segments_;
-    std::vector<std::string> read_names_;
 
-    void AddReadName(const std::vector<std::string> &splits);
+    ReadPtr GetReadName(const std::vector<std::string> &splits);
 
-    void AddVAlignment(const std::vector<std::string> &splits);
+    void AddVAlignment(const std::vector<std::string> &splits, ReadPtr read);
 
-    void AddJAlignment(const std::vector<std::string> &splits);
+    void AddJAlignment(const std::vector<std::string> &splits, ReadPtr read);
 
     void ParseLine(std::string line);
 
 public:
     VJAlignmentInfo(const IgGeneDatabase& v_gene_db,
-                    const IgGeneDatabase& j_gene_db) :
+                    const IgGeneDatabase& j_gene_db,
+                    const FastqReadArchive& read_archive) :
         v_gene_db_(v_gene_db),
-        j_gene_db_(j_gene_db) { }
+        j_gene_db_(j_gene_db),
+        read_archive_(read_archive) { }
 
     void ExtractAlignment(std::string filename);
 
     size_t size() const {
-        return read_names_.size();
+        return v_segments_.size();
     }
 
     IgGeneAlignmentPositions GetVAlignmentByIndex(size_t index) const;
 
     IgGeneAlignmentPositions GetJAlignmentByIndex(size_t index) const;
-
-    std::string GetReadNameByIndex(size_t index) const;
 };
 
 std::ostream& operator<<(std::ostream& out, const VJAlignmentInfo& obj);

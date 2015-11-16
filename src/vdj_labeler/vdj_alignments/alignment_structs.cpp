@@ -1,5 +1,7 @@
 #include "alignment_structs.hpp"
 
+#include "seqan/sequence.h"
+
 using namespace std;
 
 ostream& operator<<(ostream &out, const AlignmentPositions& obj) {
@@ -9,7 +11,14 @@ ostream& operator<<(ostream &out, const AlignmentPositions& obj) {
 }
 
 ostream& operator<<(ostream& out, const IgGeneAlignmentPositions& obj) {
-    out << obj.ig_gene << endl;
-    out << obj.alignment;
+    out << "Read. " << *obj.read << endl;
+    out << "Gene. " << *obj.ig_gene << endl;
+    out << obj.alignment << endl;
+    return out;
+}
+
+ostream& operator<<(ostream &out, const IgGeneAlignment& ig_gene_alignment) {
+    out << ig_gene_alignment.positions << endl;
+    out << ig_gene_alignment.alignment;
     return out;
 }

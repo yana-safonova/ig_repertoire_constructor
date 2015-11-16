@@ -14,22 +14,33 @@ struct Read {
 
     Read(CharString new_name, Dna5String new_seq) :
             name(new_name), seq(new_seq) { }
+
+    Read() : name(), seq() { }
 };
 
+std::ostream& operator<<(std::ostream& out, const Read& read);
+
+typedef std::shared_ptr<Read> ReadPtr;
+
+//-----------------------------------------------------------
+
 class FastqReadArchive {
-    std::vector<Read> reads_;
+    std::vector<ReadPtr> reads_;
+    std::map<std::string, ReadPtr> name_read_map_;
 
 public:
     FastqReadArchive(std::string fastq_file_fname);
 
     size_t size() const;
 
-    typedef std::vector<Read>::const_iterator read_iterator;
+    typedef std::vector<ReadPtr>::const_iterator read_iterator;
 
     read_iterator cbegin() const { return reads_.cbegin(); }
 
     read_iterator cend() const { return reads_.cend(); }
 
-    const Read& operator[](size_t index) const;
+    ReadPtr operator[](size_t index) const;
+
+    ReadPtr GetReadByName(std::string read_name) const;
 
 };

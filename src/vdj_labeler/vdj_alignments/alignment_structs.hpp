@@ -1,6 +1,9 @@
 #pragma once
 
+#include <seqan/align.h>
+
 #include "gene_database.hpp"
+#include "../fastq_read_archive.hpp"
 
 // in our context, query is a reads, subject is a gene segment
 struct AlignmentPositions {
@@ -19,16 +22,29 @@ std::ostream& operator<<(std::ostream &out, const AlignmentPositions& obj);
 
 struct IgGeneAlignmentPositions {
     AlignmentPositions alignment;
-    const IgGene& ig_gene;
+    IgGenePtr ig_gene;
+    ReadPtr read;
 
     IgGeneAlignmentPositions(AlignmentPositions new_alignment,
-                   const IgGene& new_ig_gene) :
+                             IgGenePtr new_ig_gene,
+                             ReadPtr new_read) :
             alignment(new_alignment),
-            ig_gene(new_ig_gene) { }
+            ig_gene(new_ig_gene),
+            read(new_read) { }
 };
 
 std::ostream& operator<<(std::ostream& out, const IgGeneAlignmentPositions& obj);
 
 //-----------------------------------------------------------
 
-//struct
+struct IgGeneAlignment {
+    IgGeneAlignmentPositions positions;
+    seqan::Align<Dna5String> alignment;
+
+    IgGeneAlignment(IgGeneAlignmentPositions new_positions,
+                    seqan::Align<Dna5String> new_alignment) :
+            positions(new_positions),
+            alignment(new_alignment) { }
+};
+
+std::ostream& operator<<(std::ostream &out, const IgGeneAlignment& ig_gene_alignment);
