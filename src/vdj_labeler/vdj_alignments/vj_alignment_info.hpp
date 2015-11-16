@@ -21,8 +21,8 @@ class VJAlignmentInfo {
     const IgGeneDatabase& v_gene_db_;
     const IgGeneDatabase& j_gene_db_;
 
-    std::vector<IgGeneAlignment> v_segments_;
-    std::vector<IgGeneAlignment> j_segments_;
+    std::vector<IgGeneAlignmentPositions> v_segments_;
+    std::vector<IgGeneAlignmentPositions> j_segments_;
     std::vector<std::string> read_names_;
 
     void AddReadName(const std::vector<std::string> &splits);
@@ -45,9 +45,9 @@ public:
         return read_names_.size();
     }
 
-    IgGeneAlignment GetVAlignmentByIndex(size_t index) const;
+    IgGeneAlignmentPositions GetVAlignmentByIndex(size_t index) const;
 
-    IgGeneAlignment GetJAlignmentByIndex(size_t index) const;
+    IgGeneAlignmentPositions GetJAlignmentByIndex(size_t index) const;
 
     std::string GetReadNameByIndex(size_t index) const;
 };

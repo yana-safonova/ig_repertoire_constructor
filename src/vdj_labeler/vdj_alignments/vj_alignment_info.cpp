@@ -16,8 +16,8 @@ void VJAlignmentInfo::AddVAlignment(const std::vector<std::string> &splits) {
     size_t start_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::first_v_match_pos_on_gene]);
     size_t end_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_v_match_pos_on_gene]);
     string v_gene_name = splits[VJFinderMagicConsts::v_gene_name_index];
-    v_segments_.push_back(IgGeneAlignment(
-                    Alignment(pair<size_t, size_t>(start_read_pos, end_read_pos),
+    v_segments_.push_back(IgGeneAlignmentPositions(
+                    AlignmentPositions(pair<size_t, size_t>(start_read_pos, end_read_pos),
                               pair<size_t, size_t>(start_gene_pos, end_gene_pos)),
                     v_gene_db_.GetByName(v_gene_name)));
 }
@@ -29,8 +29,8 @@ void VJAlignmentInfo::AddJAlignment(const std::vector<std::string> &splits) {
     size_t end_gene_pos = string_to_number<size_t>(splits[VJFinderMagicConsts::last_j_match_pos_on_gene]);
     string j_gene_name = splits[VJFinderMagicConsts::j_gene_name_index];
     cout << j_gene_name << endl;
-    j_segments_.push_back(IgGeneAlignment(
-            Alignment(pair<size_t, size_t>(start_read_pos, end_read_pos),
+    j_segments_.push_back(IgGeneAlignmentPositions(
+            AlignmentPositions(pair<size_t, size_t>(start_read_pos, end_read_pos),
                       pair<size_t, size_t>(start_gene_pos, end_gene_pos)),
             j_gene_db_.GetByName(j_gene_name)));
 }
@@ -62,12 +62,12 @@ void VJAlignmentInfo::ExtractAlignment(std::string filename) {
     }
 }
 
-IgGeneAlignment VJAlignmentInfo::GetVAlignmentByIndex(size_t index) const {
+IgGeneAlignmentPositions VJAlignmentInfo::GetVAlignmentByIndex(size_t index) const {
     assert(index < v_segments_.size());
     return v_segments_[index];
 }
 
-IgGeneAlignment VJAlignmentInfo::GetJAlignmentByIndex(size_t index) const {
+IgGeneAlignmentPositions VJAlignmentInfo::GetJAlignmentByIndex(size_t index) const {
     assert(index < j_segments_.size());
     return j_segments_[index];
 }
