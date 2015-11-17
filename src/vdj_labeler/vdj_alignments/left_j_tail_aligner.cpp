@@ -16,7 +16,7 @@ IgGeneAlignmentPtr LeftJTailAligner::ComputeAlignment(IgGeneAlignmentPositions a
     cout << "Tail length: " << tail_length << endl;
     auto read_segment = suffix(
             suffix(alignment_positions.read->seq, alignment_positions.alignment.query_pos.first),
-            tail_length);
+            tail_length + left_shift_);
     assignSource(row(align, 0), read_segment);
     assignSource(row(align, 1), prefix(alignment_positions.ig_gene->seq(), tail_length));
     Score<int, Simple> scoringScheme(2, -1, -2, -1);

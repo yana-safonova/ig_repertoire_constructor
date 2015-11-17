@@ -11,7 +11,7 @@
 using namespace std;
 using namespace seqan;
 
-IgGeneAlignmentPtr RightVSegmentTailAligner::ComputeAlignment(IgGeneAlignmentPositions alignment_positions) {
+IgGeneAlignmentPtr RightVTailAligner::ComputeAlignment(IgGeneAlignmentPositions alignment_positions) {
     Align<Dna5String> align;
     resize(rows(align), 2);
     if(length(alignment_positions.ig_gene->seq()) == alignment_positions.alignment.query_pos.second)
@@ -21,7 +21,7 @@ IgGeneAlignmentPtr RightVSegmentTailAligner::ComputeAlignment(IgGeneAlignmentPos
     cout << "Tail length: " << tail_length << endl;
     auto read_segment = prefix(
             suffix(alignment_positions.read->seq, alignment_positions.alignment.query_pos.second),
-            tail_length);
+            tail_length + right_shift_);
     assignSource(row(align, 0), read_segment);
     assignSource(row(align, 1), suffix(alignment_positions.ig_gene->seq(),
                                        alignment_positions.alignment.subject_pos.second));

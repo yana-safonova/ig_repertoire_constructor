@@ -57,7 +57,7 @@ int main(int, char**) {
     INFO(vj_alignment_info);
 
     INFO("Alignment of right tails of V starts");
-    RightVSegmentTailAligner raligner;
+    RightVTailAligner raligner;
     for(size_t i = 0; i < vj_alignment_info.size(); i++) {
         auto v_alignment = raligner.ComputeAlignment(vj_alignment_info.GetVAlignmentByIndex(i));
         std::cout << *v_alignment << std::endl;
