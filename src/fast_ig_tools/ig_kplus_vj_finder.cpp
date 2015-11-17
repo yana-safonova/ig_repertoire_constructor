@@ -162,7 +162,7 @@ class KmerIndex {
 
         size_t last_match_read_pos() const {
             const auto &last = path[path.size() - 1];
-            return last.needle_pos + last.length;
+            return last.read_pos + last.length;
         }
     };
 
