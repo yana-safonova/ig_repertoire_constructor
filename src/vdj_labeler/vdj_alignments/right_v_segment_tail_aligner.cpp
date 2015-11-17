@@ -14,7 +14,8 @@ using namespace seqan;
 IgGeneAlignmentPtr RightVTailAligner::ComputeAlignment(IgGeneAlignmentPositions alignment_positions) {
     Align<Dna5String> align;
     resize(rows(align), 2);
-    if(length(alignment_positions.ig_gene->seq()) == alignment_positions.alignment.query_pos.second)
+    cout << length(alignment_positions.ig_gene->seq()) << " " << alignment_positions.alignment.query_pos.second << endl;
+    if(length(alignment_positions.ig_gene->seq()) == alignment_positions.alignment.subject_pos.second)
         return IgGeneAlignmentPtr(new IgGeneAlignment(alignment_positions, align));
     size_t tail_length = length(alignment_positions.ig_gene->seq()) -
             alignment_positions.alignment.subject_pos.second;
