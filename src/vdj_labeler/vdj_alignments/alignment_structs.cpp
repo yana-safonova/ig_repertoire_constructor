@@ -1,6 +1,7 @@
 #include "alignment_structs.hpp"
 
 #include "seqan/sequence.h"
+#include <seqan/stream.h>
 
 using namespace std;
 
