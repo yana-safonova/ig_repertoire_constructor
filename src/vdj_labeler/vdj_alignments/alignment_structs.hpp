@@ -48,3 +48,5 @@ struct IgGeneAlignment {
 };
 
 std::ostream& operator<<(std::ostream &out, const IgGeneAlignment& ig_gene_alignment);
+
+typedef std::shared_ptr<IgGeneAlignment> IgGeneAlignmentPtr;
