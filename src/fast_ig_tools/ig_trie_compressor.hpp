@@ -21,13 +21,27 @@ public:
     ~Trie() = default;
 
     template<typename Tcont>
-    Trie(const Tcont &cont) {
-        root.reset(new TrieNode);
+    Trie(const Tcont &cont) : Trie() {
         size_t i = 0;
         for (const auto &s : cont) {
             add(s, i);
             ++i;
         }
+    }
+
+    template<typename TcontRead, typename TcontAbun>
+    Trie(const TcontRead &cont_read, const TcontAbun &cont_abun) : Trie() {
+        size_t i = 0;
+        // Zip!!! I badly need zip!
+
+        auto it_read = cont_read.cbegin(), end_read = cont_read.cend();
+        auto it_abun = cont_abun.cbegin(), end_abun = cont_abun.cend();
+        for (; it_read != end_read && it_abun != end_abun; ++it_read, ++it_abun) {
+            add(*it_read, i, *it_abun);
+            ++i;
+        }
+
+        assert(it_read == end_read && it_abun == end_abun); // contairners should have the same length
     }
 
     template<typename T, typename Tf>
