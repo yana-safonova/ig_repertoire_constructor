@@ -32,6 +32,8 @@ public:
 
     template<typename T, typename Tf>
     void add(const T &s, size_t id, const Tf &toIndex) {
+        assert(!isCompressed());
+
         typename TrieNode::pointer_type p = this->root.get();
 
         for (size_t i = 0; i < length(s); ++i) {
@@ -58,9 +60,23 @@ public:
         add(s, id, to_size_t);
     }
 
-    std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
-        // root->compress_to_longest();
-        root->compress_to_shortest();
+    bool isCompressed() const {
+        return compressed;
+    }
+
+    void compress() {
+        if (!isCompressed()) {
+            // root->compress_to_longest();
+            root->compress_to_shortest();
+        }
+    }
+
+    std::unordered_map<size_t, size_t> checkout(size_t nbucket = 0) {
+        if (nbucket == 0) {
+            nbucket = root->leaves_count();
+        }
+
+        if (!isCompressed()) compress();
 
         std::unordered_map<size_t, size_t> result(nbucket);
         root->checkout(result);
@@ -68,24 +84,17 @@ public:
         return result;
     }
 
-    std::unordered_map<size_t, size_t> checkout() {
-        size_t nleaves = root->leaves_count();
-        return checkout(nleaves);
-    }
+    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket = 0) {
+        if (nbucket == 0) {
+            nbucket = root->leaves_count();
+        }
 
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
-        // root->compress_to_longest();
-        root->compress_to_shortest();
+        if (!isCompressed()) compress();
 
         std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
         root->checkout(result);
 
         return result;
-    }
-
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids() {
-        size_t nleaves = root->leaves_count();
-        return checkout(nleaves);
     }
 
 private:
@@ -216,6 +225,7 @@ private:
     };
 
     std::unique_ptr<TrieNode> root;
+    bool compressed = false;
 };
 
 // vim: ts=4:sw=4
