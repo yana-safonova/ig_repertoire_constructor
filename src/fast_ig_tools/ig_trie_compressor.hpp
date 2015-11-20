@@ -12,6 +12,83 @@ using seqan::length;
 
 template<typename Tletter = seqan::Dna5>
 class Trie {
+public:
+    Trie() {
+        root.reset(new TrieNode);
+    }
+    Trie(const Trie&) = delete;
+    Trie& operator=(const Trie&) = delete;
+    Trie(Trie&&) = default;
+    Trie& operator=(Trie&&) = default;
+
+    template<typename Tcont>
+    Trie(const Tcont &cont) {
+        root.reset(new TrieNode);
+        size_t i = 0;
+        for (const auto &s : cont) {
+            add(s, i);
+            ++i;
+        }
+    }
+
+    template<typename T, typename Tf>
+    void add(const T &s, size_t id, const Tf &toIndex) {
+        typename TrieNode::pointer_type p = this->root.get();
+
+        for (size_t i = 0; i < length(s); ++i) {
+            size_t el = toIndex(s[i]);
+            assert((0 <= el) && (el < p->children.size()));
+
+            if (!p->children[el]) {
+                p->children[el] = new TrieNode();
+            }
+
+            p = p->children[el];
+        }
+
+        if (!p->ids) {
+            p->ids = new std::vector<size_t>;
+        }
+
+        p->ids->push_back(id);
+    }
+
+    template<typename T>
+    void add(const T &s, size_t id) {
+        auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
+        add(s, id, to_size_t);
+    }
+
+    std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
+        // root->compress_to_longest();
+        root->compress_to_shortest();
+
+        std::unordered_map<size_t, size_t> result(nbucket);
+        root->checkout(result);
+
+        return result;
+    }
+
+    std::unordered_map<size_t, size_t> checkout() {
+        size_t nleaves = root->leaves_count();
+        return checkout(nleaves);
+    }
+
+    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
+        // root->compress_to_longest();
+        root->compress_to_shortest();
+
+        std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
+        root->checkout(result);
+
+        return result;
+    }
+
+    std::unordered_map<size_t, std::vector<size_t>> checkout_ids() {
+        size_t nleaves = root->leaves_count();
+        return checkout(nleaves);
+    }
+
 private:
     static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
 
@@ -22,9 +99,9 @@ private:
         std::array<pointer_type, card> children;
 
         TrieNode() : target_node{nullptr},
-            target_node_distance{INFu}, ids{nullptr} {
-                children.fill(nullptr);
-            }
+        target_node_distance{INFu}, ids{nullptr} {
+            children.fill(nullptr);
+        }
 
         pointer_type target_node;
 
@@ -141,83 +218,6 @@ private:
     };
 
     std::unique_ptr<TrieNode> root;
-
-public:
-    Trie() {
-        root.reset(new TrieNode);
-    }
-    Trie(const Trie&) = delete;
-    Trie& operator=(const Trie&) = delete;
-    Trie(Trie&&) = default;
-    Trie& operator=(Trie&&) = default;
-
-    template<typename Tcont>
-        Trie(const Tcont &cont) {
-            root.reset(new TrieNode);
-            size_t i = 0;
-            for (const auto &s : cont) {
-                add(s, i);
-                ++i;
-            }
-        }
-
-    template<typename T, typename Tf>
-        void add(const T &s, size_t id, const Tf &toIndex) {
-            typename TrieNode::pointer_type p = this->root.get();
-
-            for (size_t i = 0; i < length(s); ++i) {
-                size_t el = toIndex(s[i]);
-                assert((0 <= el) && (el < p->children.size()));
-
-                if (!p->children[el]) {
-                    p->children[el] = new TrieNode();
-                }
-
-                p = p->children[el];
-            }
-
-            if (!p->ids) {
-                p->ids = new std::vector<size_t>;
-            }
-
-            p->ids->push_back(id);
-        }
-
-    template<typename T>
-        void add(const T &s, size_t id) {
-            auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
-            add(s, id, to_size_t);
-        }
-
-    std::unordered_map<size_t, size_t> checkout(size_t nbucket) {
-        // root->compress_to_longest();
-        root->compress_to_shortest();
-
-        std::unordered_map<size_t, size_t> result(nbucket);
-        root->checkout(result);
-
-        return result;
-    }
-
-    std::unordered_map<size_t, size_t> checkout() {
-        size_t nleaves = root->leaves_count();
-        return checkout(nleaves);
-    }
-
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket) {
-        // root->compress_to_longest();
-        root->compress_to_shortest();
-
-        std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
-        root->checkout(result);
-
-        return result;
-    }
-
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids() {
-        size_t nleaves = root->leaves_count();
-        return checkout(nleaves);
-    }
 };
 
 // vim: ts=4:sw=4
