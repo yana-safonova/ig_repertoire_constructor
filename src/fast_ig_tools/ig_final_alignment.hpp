@@ -88,43 +88,40 @@ seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads,
 template<typename T = seqan::Dna5>
 seqan::String<T> consensus_hamming_limited_coverage(const std::vector<seqan::String<T>> &reads,
                                                     const std::vector<size_t> &indices,
-                                                    int coverage_limit = 5) {
+                                                    size_t coverage_limit = 5) {
     using namespace seqan;
+    using std::vector;
+    using std::max;
+    using std::min;
     using _String = seqan::String<T>;
 
-    String<ProfileChar<T>> profile;
-
+    // Compute result length
     size_t len = 0;
     for (size_t i : indices) {
-        len = std::max(len, length(reads[i]));
+        len = max(len, length(reads[i]));
     }
 
+    String<ProfileChar<T>> profile;
     resize(profile, len);
+    vector<size_t> coverage(len);
 
     for (size_t i : indices) {
         const auto &read = reads[i];
         for (size_t j = 0; j < length(read); ++j) {
             profile[j].count[ordValue(read[j])] += 1;
+            coverage[j] += 1;
         }
     }
 
-    // Compute result length
-    std::vector<size_t> lengths;
-    lengths.reserve(indices.size());
-    for (size_t i : indices) {
-        lengths.push_back(length(reads[i]));
-    }
-
-    size_t ii = lengths.size() - std::min<size_t>(lengths.size(), std::max<size_t>(coverage_limit, 1));
-    std::nth_element(lengths.begin(), lengths.begin() + ii, lengths.end());
-    size_t result_len = lengths[ii];
-
+    coverage_limit = min(coverage_limit, coverage[0]);
 
     _String consensus;
-    for (size_t i = 0; i < result_len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
+        if (coverage[i] < coverage_limit) break;
+
         size_t idx = getMaxIndex(profile[i]);
         if (idx < ValueSize<T>::VALUE) {  // is not gap  TODO Check it!!
-            appendValue(consensus, T(getMaxIndex(profile[i])));
+            appendValue(consensus, T(idx));
         }
     }
 
