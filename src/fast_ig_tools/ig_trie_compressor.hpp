@@ -31,7 +31,7 @@ public:
     }
 
     template<typename T, typename Tf>
-    void add(const T &s, size_t id, const Tf &toIndex) {
+    void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
         assert(!isCompressed());
 
         typename TrieNode::pointer_type p = this->root.get();
@@ -48,10 +48,10 @@ public:
         }
 
         if (!p->ids) {
-            p->ids = new std::vector<size_t>;
+            p->ids = new IdCounter;
         }
 
-        p->ids->push_back(id);
+        p->ids->add(id, abundance);
     }
 
     template<typename T>
@@ -100,6 +100,30 @@ public:
 private:
     static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
 
+    struct IdCounter {
+        std::vector<size_t> id_vector;
+        size_t count = 0;
+
+        void add(size_t id, size_t abundance = 1) {
+            id_vector.push_back(id);
+            count += abundance;
+        }
+
+        bool empty() const {
+            return count == 0;
+        }
+
+        size_t size() const {
+            return count;
+        }
+
+        size_t represent() const {
+            assert(!empty());
+
+            return id_vector[0];
+        }
+    };
+
     class TrieNode {
     public:
         using pointer_type = TrieNode*;
@@ -113,7 +137,7 @@ private:
         pointer_type target_node;
 
         size_t target_node_distance;
-        std::vector<size_t> *ids;
+        IdCounter *ids;
 
         void compress_to_longest() {
             target_node_distance = INFu;
@@ -171,8 +195,7 @@ private:
 
         void checkout(std::unordered_map<size_t, size_t> &result) const {
             if (ids && !ids->empty()) {
-                assert(!target_node->ids->empty());
-                size_t id = target_node->ids->at(0);
+                size_t id = target_node->ids->represent();
                 result[id] += ids->size();
             }
 
@@ -185,8 +208,8 @@ private:
         void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
             if (ids && !ids->empty()) {
                 assert(!target_node->ids->empty());
-                size_t id = target_node->ids->at(0);
-                result[id].insert(result[id].end(), ids->cbegin(), ids->cend());
+                size_t id = target_node->ids->represent();
+                result[id].insert(result[id].end(), ids->id_vector.cbegin(), ids->id_vector.cend());
             }
 
             // DFS
