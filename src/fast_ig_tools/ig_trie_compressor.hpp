@@ -13,13 +13,12 @@ using seqan::length;
 template<typename Tletter = seqan::Dna5>
 class Trie {
 public:
-    Trie() {
-        root.reset(new TrieNode);
-    }
+    Trie() : root{new TrieNode} {  }
     Trie(const Trie&) = delete;
     Trie& operator=(const Trie&) = delete;
     Trie(Trie&&) = default;
     Trie& operator=(Trie&&) = default;
+    ~Trie() = default;
 
     template<typename Tcont>
     Trie(const Tcont &cont) {
@@ -98,8 +97,7 @@ private:
         static const size_t INFu = -1u;
         std::array<pointer_type, card> children;
 
-        TrieNode() : target_node{nullptr},
-        target_node_distance{INFu}, ids{nullptr} {
+        TrieNode() : target_node{nullptr}, target_node_distance{INFu}, ids{nullptr} {
             children.fill(nullptr);
         }
 
