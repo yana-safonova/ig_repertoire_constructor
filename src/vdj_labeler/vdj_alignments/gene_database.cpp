@@ -1,5 +1,9 @@
 #include "gene_database.hpp"
 
+#include "seqan/sequence.h"
+
+using namespace std;
+
 std::string IgGeneTypeToString(IgGeneType gene_type) {
     if(gene_type == variable_gene)
         return "variable";
@@ -23,31 +27,27 @@ void IgGeneDatabase::AddGenesFromFile(std::string filename) {
     seqan::SeqFileIn seqFileIn_reads(filename.c_str());
     readRecords(read_headers, read_seqs, seqFileIn_reads);
     for(size_t i = 0; i < read_headers.size(); i++) {
-        ig_genes_.push_back(IgGene(read_headers[i], read_seqs[i]));
+        IgGenePtr ig_gene_ptr(new IgGene(read_headers[i], read_seqs[i]));
+        ig_genes_.push_back(ig_gene_ptr);
+        gene_name_map_[string(toCString(read_headers[i]))] = ig_gene_ptr;
     }
 }
 
-const IgGene& IgGeneDatabase::GetByIndex(size_t index) const {
+IgGenePtr IgGeneDatabase::GetByIndex(size_t index) const {
     assert(index < size());
     return ig_genes_[index];
 }
 
-const IgGene& IgGeneDatabase::GetByName(std::string gene_name) const {
-    return GetByName(CharString(gene_name.c_str()));
-}
-
-const IgGene& IgGeneDatabase::GetByName(CharString gene_name) const {
-    for(auto it = cbegin(); it != cend(); it++)
-        if(it->name() == gene_name)
-            return *it;
-    return IgGene();
+IgGenePtr IgGeneDatabase::GetByName(std::string gene_name) const {
+    assert(gene_name_map_.find(gene_name) != gene_name_map_.end());
+    return gene_name_map_.at(gene_name);
 }
 
 std::ostream& operator<<(std::ostream &out, const IgGeneDatabase &ig_gene_db) {
     out << "Ig genes database. Gene type: " << IgGeneTypeToString(ig_gene_db.GeneType()) << ". # records: " <<
             ig_gene_db.size() << std::endl;
     for(auto it = ig_gene_db.cbegin(); it != ig_gene_db.cend(); it++)
-        out << *it << std::endl;
+        out << *(*it) << std::endl;
     return out;
 }
 
@@ -71,7 +71,7 @@ size_t HC_GenesDatabase::GenesNumber(IgGeneType gene_type) const {
     return join_genes_.size();
 }
 
-IgGene HC_GenesDatabase::GetByIndex(IgGeneType gene_type, size_t index) const {
+IgGenePtr HC_GenesDatabase::GetByIndex(IgGeneType gene_type, size_t index) const {
     if(gene_type == variable_gene)
         return variable_genes_.GetByIndex(index);
     if(gene_type == diversity_gene)
@@ -103,7 +103,7 @@ size_t LC_GenesDatabase::GenesNumber(IgGeneType gene_type) const {
     return join_genes_.size();
 }
 
-IgGene LC_GenesDatabase::GetByIndex(IgGeneType gene_type, size_t index) const {
+IgGenePtr LC_GenesDatabase::GetByIndex(IgGeneType gene_type, size_t index) const {
     if(gene_type == variable_gene)
         return variable_genes_.GetByIndex(index);
     return join_genes_.GetByIndex(index);

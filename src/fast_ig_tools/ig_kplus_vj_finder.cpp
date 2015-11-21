@@ -145,6 +145,25 @@ class KmerIndex {
         bool operator< (const Alignment& b) const {
             return this->kp_coverage < b.kp_coverage;
         }
+
+
+        size_t first_match_read_pos() const {
+            return path[0].read_pos;
+        }
+
+        size_t first_match_needle_pos() const {
+            return path[0].needle_pos;
+        }
+
+        size_t last_match_needle_pos() const {
+            const auto &last = path[path.size() - 1];
+            return last.needle_pos + last.length;
+        }
+
+        size_t last_match_read_pos() const {
+            const auto &last = path[path.size() - 1];
+            return last.read_pos + last.length;
+        }
     };
 
 public:
@@ -770,11 +789,15 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        bformat bf("%s, %d, %d, %1.2f, %s, %d, %d, %1.2f, %s");
+                        bformat bf("%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s");
                         bf % read_id
                            % (align.start+1)             % end_of_v
+                           % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
+                           % (align.last_match_read_pos()) % (align.last_match_needle_pos())
                            % align.score                 % toCString(v_ids[align.needle_index])
                            % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
+                           % (jalign.first_match_read_pos() + 1 + end_of_v) % (jalign.first_match_needle_pos() + 1)
+                           % (jalign.last_match_read_pos() + end_of_v) % (jalign.last_match_needle_pos())
                            % jalign.score                % toCString(j_ids[jalign.needle_index]);
 
                         add_info_strings[j] = bf.str();
@@ -807,11 +830,15 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s, %s\n")
+    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n")
         % "id"
         % "Vstart" % "Vend"
+        % "VfirstTrustfulMatchRead" % "VfirstTrustfulMatchGene"
+        % "VlastTrustfulMatchRead" % "VlastTrustfulMatchGene"
         % "Vscore" % "Vid"
         % "Jstart" % "Jend"
+        % "JfirstTrustfulMatchRead" % "JfirstTrustfulMatchGene"
+        % "JlastTrustfulMatchRead" % "JlastTrustfulMatchGene"
         % "Jscore" % "Jid";
 
     size_t good_reads = 0;

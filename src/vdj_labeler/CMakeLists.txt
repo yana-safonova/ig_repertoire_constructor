@@ -24,7 +24,12 @@ INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
 add_executable(vdj_labeler
                 fastq_read_archive.cpp
                 vdj_alignments/gene_database.cpp
+                vdj_alignments/alignment_structs.cpp
                 vdj_alignments/vj_alignment_info.cpp
+                vdj_alignments/right_v_segment_tail_aligner.cpp
+                vdj_alignments/left_j_tail_aligner.cpp
+                recombination_calculator/hc_model_based_recombination_calculator.cpp
+                recombination_generation/base_hc_recombination_generator.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler input yaml-cpp ${COMMON_LIBRARIES})

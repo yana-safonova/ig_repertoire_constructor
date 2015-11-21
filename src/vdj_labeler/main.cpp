@@ -13,6 +13,11 @@
 #include "vdj_alignments/gene_database.hpp"
 #include "vdj_alignments/vj_alignment_info.hpp"
 
+#include "vdj_alignments/right_v_segment_tail_aligner.hpp"
+#include "vdj_alignments/left_j_tail_aligner.hpp"
+
+#include "recombination_calculator/hc_model_based_recombination_calculator.hpp"
+
 void create_console_logger() {
     using namespace logging;
     string log_props_file = "";
@@ -46,10 +51,28 @@ int main(int, char**) {
     INFO(hc_db.DiversityGenes().size() << " diversity genes were extracted from " << d_germline_genes_fname);
     INFO(hc_db.JoinGenes().size() << " join genes were extracted from " << j_germline_genes_fname);
 
-    VJAlignmentInfo vj_alignment_info(hc_db.VariableGenes(), hc_db.DiversityGenes());
+    VJAlignmentInfo vj_alignment_info(hc_db.VariableGenes(), hc_db.JoinGenes(), reads_archive);
     vj_alignment_info.ExtractAlignment(vj_alignment_fname);
     INFO(vj_alignment_info.size() << " alignment lines were extracted from " << vj_alignment_fname);
-    cout << vj_alignment_info;
+    INFO(vj_alignment_info);
+
+    INFO("Alignment of right tails of V starts");
+    RightVTailAligner raligner;
+    for(size_t i = 0; i < vj_alignment_info.size(); i++) {
+        auto v_alignment = raligner.ComputeAlignment(vj_alignment_info.GetVAlignmentByIndex(i));
+        std::cout << *v_alignment << std::endl;
+        std::cout << "---------" << std::endl;
+    }
+    INFO("Alignment of right tails of V ends");
+
+    INFO("Alignment of left tails of J starts");
+    LeftJTailAligner laligner;
+    for(size_t i = 0; i < vj_alignment_info.size(); i++) {
+        auto j_alignment = laligner.ComputeAlignment(vj_alignment_info.GetJAlignmentByIndex(i));
+        std::cout << *j_alignment << std::endl;
+        std::cout << "---------" << std::endl;
+    }
+    INFO("Alignment of left tails of J ends");
 
     INFO("VDJ labeler ends");
     unsigned ms = (unsigned)pc.time_ms();
