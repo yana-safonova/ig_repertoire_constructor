@@ -12,3 +12,6 @@ dsf:
 
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
+
+vdj:
+	$(MAKE) -C build/release/vdj_labeler vdj_labeler
