@@ -13,8 +13,8 @@
 #include "vdj_alignments/gene_database.hpp"
 #include "vdj_alignments/vj_alignment_info.hpp"
 
-#include "vdj_alignments/right_v_segment_tail_aligner.hpp"
-#include "vdj_alignments/left_j_tail_aligner.hpp"
+#include "vdj_alignments/aligners/right_v_tail_aligner.hpp"
+#include "vdj_alignments/aligners/left_j_tail_aligner.hpp"
 
 #include "recombination_calculator/hc_model_based_recombination_calculator.hpp"
 
@@ -73,6 +73,9 @@ int main(int, char**) {
         std::cout << "---------" << std::endl;
     }
     INFO("Alignment of left tails of J ends");
+
+    INFO("Alignment of D segment starts");
+    INFO("Alignment of D segment ends");
 
     INFO("VDJ labeler ends");
     unsigned ms = (unsigned)pc.time_ms();
