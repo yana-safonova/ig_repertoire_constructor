@@ -30,6 +30,7 @@ add_executable(vdj_labeler
                 vdj_alignments/left_j_tail_aligner.cpp
                 recombination_calculator/hc_model_based_recombination_calculator.cpp
                 recombination_generation/base_hc_recombination_generator.cpp
+                model/recombination_model.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler input yaml-cpp ${COMMON_LIBRARIES})
