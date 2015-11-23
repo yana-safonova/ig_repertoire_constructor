@@ -2,7 +2,7 @@
 // Created by yana on 17.11.15.
 //
 
-#include "right_v_segment_tail_aligner.hpp"
+#include "right_v_tail_aligner.hpp"
 
 #include <seqan/sequence.h>
 #include <seqan/basic.h>
