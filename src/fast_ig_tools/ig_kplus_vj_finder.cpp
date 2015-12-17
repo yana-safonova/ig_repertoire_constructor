@@ -121,7 +121,8 @@ std::string visualize_matches(const std::vector<Match> &matches,
 
     const auto &last_match = matches[matches.size() - 1];
     ss << bformat("%1%") % last_match.length;
-    ss << bformat("(%d)") % std::min(needle_length - last_match.needle_pos, read_length - last_match.read_pos);
+    ss << bformat("(%d)") % std::min(needle_length - last_match.needle_pos - last_match.length,
+                                     read_length - last_match.read_pos - last_match.length);
     ss << bformat("{%d}") % std::max((needle_length - last_match.needle_pos) - (read_length - last_match.read_pos), 0);
 
     return ss.str();
