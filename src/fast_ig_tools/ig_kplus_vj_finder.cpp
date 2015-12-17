@@ -479,6 +479,8 @@ struct Ig_KPlus_Finder_Parameters {
             ("help-hidden", "show all options, including developers' ones")
             ("left-uncoverage-limit", po::value<int>(&left_uncoverage_limit)->default_value(left_uncoverage_limit),
              "uncoverage limit of left end")
+            ("right-uncoverage-limit", po::value<int>(&right_uncoverage_limit)->default_value(right_uncoverage_limit),
+             "uncoverage limit of right end")
             ("max-global-gap", po::value<int>(&max_global_gap)->default_value(max_global_gap),
              "maximal allowed size of global gap")
             ("max-local-insertions", po::value<int>(&max_local_insertions)->default_value(max_local_insertions),
@@ -681,7 +683,9 @@ int main(int argc, char **argv) {
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
     std::mutex stdout_mtx;
-    const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit, param.right_uncoverage_limit,
+    const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
+                          // param.right_uncoverage_limit + param.num_cropped_nucls,
+                          1005000,
                           param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
     const KmerIndex j_index(j_reads, param.word_size_j,
                             param.max_global_gap, 100000, 10000,
