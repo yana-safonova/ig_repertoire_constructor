@@ -1,0 +1,284 @@
+{
+  "$type": "Form",
+  "fields": [
+    {
+      "$type": "SectionBreak",
+      "title": "Output"
+    },
+    {
+      "$type": "TextBox",
+      "size": 300,
+      "value": "default value!",
+      "label": "App Session Name",
+      "required": true,
+      "requiredMessage": "Please enter name for your app session.",
+      "id": "app-session-name"
+    },
+    {
+      "$type": "ProjectChooser",
+      "size": 250,
+      "valueType": "Output",
+      "allowedPermissions": "owner",
+      "label": "Output Project",
+      "required": true,
+      "requiredMessage": "Please choose a project",
+      "id": "project-id",
+      "rules": "is-project-owner, is-project-writeable"
+    },
+    {
+      "$type": "SectionBreak",
+      "title": "Input"
+    },
+
+    {
+      "$type": "RadioButton",
+      "id": "input-type",
+      "label": "Input data type",
+      "value": 1,
+      "choices": [
+        {
+          "value": 0,
+          "label": "sample"
+        },
+        {
+          "value": 1,
+          "label": "file"
+        }
+      ],
+      "togglers": [
+        {
+          "toggleOnValue": 1,
+          "toggleFields": "reads-file"
+        },
+        {
+          "toggleOnValue": 0,
+          "toggleFields": "reads-sample"
+        }
+      ]
+    },
+
+    {
+      "$type": "SampleChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Input IG reads sample (pair-end, two files)",
+      "required": true,
+      "requiredMessage": "Please choose a sample with input reads",
+      "id": "reads-sample",
+      "rules": "sample-reader, is-paired-end, sample-is-not-empty, sample-size-maximum"
+    },
+    {
+      "$type": "FileChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Input IG reads file (merged, one file)",
+      "required": true,
+      "extensionFilters": ".fa,.fq,.fasta,.fastq,.gz",
+      "requiredMessage": "Please choose a file with input reads",
+      "id": "reads-file",
+      "rules": "read-file-format"
+    },
+
+
+    {
+      "$type": "SectionBreak",
+      "title": "Options"
+    },
+
+    {
+      "$type": "Select",
+      "id": "tau",
+      "label": "Maximum allowed mismatches",
+      "multiselect": false,
+      "helpText" : "Maximum allowed mismatches between identical error-prone reads",
+      "choices": [
+        {
+          "value": 0,
+          "text": "0",
+          "selected": false
+        },
+        {
+          "value": 1,
+          "text": "1",
+          "selected": false
+        },
+        {
+          "value": 2,
+          "text": "2",
+          "selected": false
+        },
+        {
+          "value": 3,
+          "text": "3",
+          "selected": false
+        },
+        {
+          "value": 4,
+          "text": "4",
+          "selected": true
+        },
+        {
+          "value": 5,
+          "text": "5",
+          "selected": false
+        },
+        {
+          "value": 6,
+          "text": "6",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "$type": "Numeric",
+      "size": 60,
+      "value": 5,
+      "label": "Minimal cluster size",
+      "required": true,
+      "requiredMessage": "Please specify minimal cluster size",
+      "id": "min-size",
+      "numericType": "Integer",
+      "min": 1,
+      // "max": 999999,
+      "helpText": "Minimal size of antibody cluster using for output of large antibody clusters"
+    },
+    {
+      "$type": "RadioButton",
+      "id": "chain",
+      "label": "Ig locus (chain type)",
+      "multiselect": false,
+      "helpText" : "Ig locus used for alignment and filtering",
+      "value": "all",
+      "choices": [
+        {
+          "value": "all",
+          "text": "all",
+          "label": "all",
+          "selected": true
+        },
+        {
+          "value": "heavy",
+          "text": "heavy",
+          "label": "heavy",
+          "selected": false
+        },
+        {
+          "value": "light",
+          "text": "light",
+          "label": "light",
+          "selected": false
+        },
+        {
+          "value": "lambda",
+          "text": "lambda",
+          "label": "lambda",
+          "selected": false
+        },
+        {
+          "value": "kappa",
+          "text": "kappa",
+          "label": "kappa",
+          "selected": false
+        }
+      ]
+    },
+    {
+      "$type": "CheckBox",
+      "id": "pseudogenes",
+      "label": "Pseudogenes",
+      "helpText": "Use pseudogenes along with normal gene segments for VJ alignment",
+      "choices": [
+        {
+          "value": "pseudogenes",
+          "label": "Use pseudogenes for VJ alignment",
+          "checked": true
+        }
+      ]
+    },
+    {
+      "$type": "CheckBox",
+      "id": "additionalfiles",
+      "label": "Additional files",
+      "helpText": "Save additional pipeline files (useful for debug and extra analisys)",
+      "choices": [
+        {
+          "value": "save",
+          "label": "Save additional files",
+          "checked": true
+        }
+      ]
+    }
+  ],
+  "rulesets":[
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Own",
+      "severity": "Warning",
+      "message": "You aren't the owner of the selected project",
+      "id": "is-project-owner"
+    },
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Write",
+      "severity": "Error",
+      "message": "You have no permission to write into the selected project",
+      "id": "is-project-writeable"
+    },
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Read",
+      "severity": "Error",
+      "message": "You do not have read access to the selected sample",
+      "id": "sample-reader"
+    },
+    {
+      "$type": "PairedEndSampleValidationRule",
+      "message": "This app currently only supports paired-end reads",
+      "relation": "Equals",
+      "value": true,
+      "severity": "Error",
+      "id": "is-paired-end"
+    },
+    {
+      "$type": "EmptySampleValidationRule",
+      "message": "Sample should not be empty",
+      "relation": "GreaterThan",
+      "value": 0,
+      "severity": "Error",
+      "id": "sample-is-not-empty"
+    },
+    {
+      "$type": "MaxSizeSampleValidationRule",
+      "message": "Sample seems too large (more than 1 gigabase)",
+      "relation": "LessThan",
+      "value": 1000000000,
+      "severity": "Warning",
+      "id": "sample-size-maximum"
+    },
+    {
+      "$type": "ScriptValidationRule",
+      "severity": "Error",
+      "callback": "
+        var file = dataProvider.GetProperty('Input.reads-file');
+        if (!file) {
+            return null;
+        }
+        var name = file['Name'];
+        if (!name) {
+            return null;
+        }
+        var re = /.*\\.f(ast)?(a|q)(\\.gz)?$/;
+        if (name.match(re)) {
+          return null;
+        } else {
+          return { Message: 'Input file extension should be one of these: .fa, .fasta, .fq, .fastq, .fa.gz, .fasta.gz, .fq.gz, .fastq.gz' };
+        }
+      ",
+      "message": "Input file extension should be one of these: .fa, .fasta, .fq, .fastq, .fa.gz, .fasta.gz, .fq.gz, .fastq.gz",
+      "id": "read-file-format"
+    }
+  ],
+  "id": "form-container"
+}
