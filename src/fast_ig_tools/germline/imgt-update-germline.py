@@ -15,6 +15,10 @@ def download_fasta(url, filename):
     l = l[:i]
     l = [_ + "\n" for _ in l]
 
+    for i in xrange(len(l)):
+        if l[i][0] != '>':
+            l[i] = l[i].replace("y", "n").replace(".", "n")
+
     with open(filename, "w") as fh:
         fh.writelines(l)
 
