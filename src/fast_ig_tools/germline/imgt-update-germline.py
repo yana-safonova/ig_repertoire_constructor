@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 import urllib
 import os
 
@@ -17,17 +19,17 @@ def download_fasta(url, filename):
         fh.writelines(l)
 
 eng2lat = {"human": "Homo sapiens",
-            "rabbit": "Oryctolagus cuniculus",
-            "mouse": "Mus",
-            "rat": "Rattus norvegicus",
-            "rainbow trout": "Oncorhynchus mykiss",
-            "rhesus monkey": "Macaca mulatta",
-            "pig": "Sus scrofa",
-            "zebrafish": "Danio rerio",
-            "platypus": "Ornithorhynchus anatinus",
-            "bovine": "Bos taurus",
-            "dog": "Canis lupus familiaris",
-            "camel": "Camelus dromedarius"}
+           "rabbit": "Oryctolagus cuniculus",
+           "mouse": "Mus",
+           "rat": "Rattus norvegicus",
+           "rainbow trout": "Oncorhynchus mykiss",
+           "rhesus monkey": "Macaca mulatta",
+           "pig": "Sus scrofa",
+           "zebrafish": "Danio rerio",
+           "platypus": "Ornithorhynchus anatinus",
+           "bovine": "Bos taurus",
+           "dog": "Canis lupus familiaris",
+           "camel": "Camelus dromedarius"}
 TCRs = ["TRAV", "TRAJ", "TRAC",
         "TRBV", "TRBD", "TRBJ", "TRBC",
         "TRGV", "TRGJ", "TRGC",
@@ -37,6 +39,7 @@ BCRs = ["IGHV", "IGHD", "IGHJ", "IGHC",
         "IGKV", "IGKJ", "IGKC",
         "IGLV", "IGLJ", "IGLC",
         "IGIV", "IGIJ", "IGIC"]
+
 
 def download(locus, organism="human", allP=False, filename=""):
     assert locus in TCRs + BCRs
