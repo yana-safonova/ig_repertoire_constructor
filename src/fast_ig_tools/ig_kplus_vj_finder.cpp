@@ -591,7 +591,9 @@ struct Ig_KPlus_Finder_Parameters {
 
         INFO(bformat("Input FASTQ reads: %s") % input_file);
         INFO(bformat("Output directory: %s") % output_dir);
-        INFO("Short k-mer size: " << K);
+        INFO(bformat("Lymphocyte type: %s") % type);
+        INFO("Word size for V-gene: " << K);
+        INFO("Word size for J-gene: " << word_size_j);
 
         prepare_output();
 
