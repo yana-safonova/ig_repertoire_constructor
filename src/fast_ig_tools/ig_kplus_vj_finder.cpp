@@ -399,6 +399,7 @@ struct Ig_KPlus_Finder_Parameters {
     int min_k_coverage_j = 9;
     int max_candidates = 3;
     int max_candidates_j = 3;
+    std::string type = "bcr";
     std::string chain = "all";
     std::string db_directory = "./germline";
     std::string output_dir;
@@ -455,8 +456,10 @@ struct Ig_KPlus_Finder_Parameters {
             ("no-pseudogenes", "don't use pseudogenes along with normal genes")
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
+            ("type,T", po::value<std::string>(&type)->default_value(type),
+             "CR chain type: 'bcr' (default) or 'tcr'")
             ("chain,C", po::value<std::string>(&chain)->default_value(chain),
-             "IG chain: 'all' (default), 'heavy', 'lambda', 'kappa' or 'light' ('lambda' + 'kappa')")
+             "CR chain; for BCRs(Ig): 'all' (default), 'heavy', 'lambda', 'kappa' or 'light' ('lambda' + 'kappa'); for TCRs(B-cell): 'all' (default), 'alpha', 'beta', 'gamma', 'delta', 'heavy' (the same as 'beta') or 'light' (the same as 'alpha')")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
              "directory with germline database")
             ("threads,t", po::value<int>(&threads)->default_value(threads),
@@ -610,24 +613,43 @@ private:
 
     std::string gene_file_name(const std::string &chain_letter,
                                const std::string &gene,
-                               bool pseudo = false) {
-        return db_directory + "/" + organism + "/IG" + chain_letter + gene + (pseudo ? "-allP" : "") + ".fa";
+                               bool pseudo = false) const {
+        return db_directory + "/" + organism + "/" + (type == "bcr" ? "IG" : "TR") + chain_letter + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
-    std::vector<std::string> chain_letters() {
-        if (chain == "heavy") {
-            return { "H" };
-        } else if (chain == "lambda") {
-            return { "L" };
-        } else if (chain == "kappa") {
-            return { "K" };
-        } else if (chain == "light") {
-            return { "K", "L" };
-        } else if (chain == "all") {
-            return { "K", "L", "H" };
+    std::vector<std::string> chain_letters() const {
+        if (type == "bcr") {
+            if (chain == "heavy") {
+                return { "H" };
+            } else if (chain == "lambda") {
+                return { "L" };
+            } else if (chain == "kappa") {
+                return { "K" };
+            } else if (chain == "light") {
+                return { "K", "L" };
+            } else if (chain == "all") {
+                return { "K", "L", "H" };
+            } else {
+                throw "Unknown BCR chain type";
+                return {};
+            }
+        } else if (type == "tcr") {
+            if (chain == "beta" || chain == "heavy") {
+                return { "B" };
+            } else if (chain == "alpha" || chain == "light") {
+                return { "A" };
+            } else if (chain == "delta") {
+                return { "D" };
+            } else if (chain == "gamma") {
+                return { "G" };
+            } else if (chain == "all") {
+                return { "A", "B", "D", "G"};
+            } else {
+                throw "Unknown TCR chain type";
+                return {};
+            }
         } else {
-            throw "Unknown chain type";
-            return {};
+            throw "Unknown lymphocyte type";
         }
     }
 
