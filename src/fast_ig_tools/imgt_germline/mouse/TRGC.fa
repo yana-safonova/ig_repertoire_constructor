@@ -1,0 +1,67 @@
+>M13340|TRGC1*01|Mus musculus_BALB/c|F|EX1|g,29..357|330 nt|1|+1|-1| | |330+0=330| | |
+gacaaaaggcttgatgcagacatttcccccaagcccactattttccttccttctgttgct
+gaaacaaatctccataagactgggacatacctttgtctccttgaaaagttctttccagat
+gttataagggtgtattggaaagaaaaggatggcaatactatcctggactcccaggaaggg
+gatacgctgaagactaacgacacatacatgaagtttagctggcttacagtgcctgaaagg
+gcaatggggaaagagcacagatgtattgtcaaacatgagaacaacaaaggaggagcagat
+caagagattttctttccttcaataaagaaa
+>M13341|TRGC1*01|Mus musculus_BALB/c|F|EX2|g,26..69|45 nt|1|+1|-1| | |45+0=45| | |
+gttgctgtgagtaccaagcctacaacttgctggcaagataaaaat
+>M13342|TRGC1*01|Mus musculus_BALB/c|F|EX3|g,18..157|141 nt|1|+1| | | |141+0=141| | |
+gatgtgctgcagctccagttcacgatcacctctgcctactacacctaccttctcctgctc
+ctcaagagtgtgatctacttggccatcatcagcttctctctgcttagaagaacatctgtc
+tgtggcaatgagaagaaatcc
+>M12834|TRGC2*01|Mus musculus_BALB/c|F|EX1|g,115..443|330 nt|1|+1|-1| | |330+0=330| | |
+gacaaaaggcttgatgcagacatttcccccaagcccactatttttcttccttctgttgct
+gaaacaaatctccataagactgggacatacctttgtctccttgaaaagttctttcccgat
+gtcataagggtgtattggaaagaaaagaatggcaatactatcctggactcccaggaaggg
+gatacgctgaagactaagggcacatacatgaagtttagctggcttactgtgcctgaaagg
+gcaatggggaaagagcacagttgtattgtcaaacatgagaacaacaaaggaggagcagat
+caagagattttcttcccttcaataaagaaa
+>M12835|TRGC2*01|Mus musculus_BALB/c|F|EX2|g,92..120|30 nt|1|+1|-1| | |30+0=30| | |
+gttgctacaacttgctggcaagataaaaat
+>M12836|TRGC2*01|Mus musculus_BALB/c|F|EX3|g,52..191|141 nt|1|+1| | | |141+0=141| | |
+gatgtgctgcagttccagttcacgagcacctctgcctactacacctacctcctcctgctc
+ctcaagagtgtgatctacttggccatcatcagcttctctctgcttagaagaacatctgtc
+tgtggcaatgagaagaagtcc
+>M12837|TRGC3*01|Mus musculus_BALB/c|ORF|EX1|g,16..344|330 nt|1|+1|-1| | |330+0=330| | |
+gacaaaaagcttgatgcagacatttcccccaagcccactatttttcttccttctgttgct
+gaaacaaatctccataagactgggacatacctttgtgtccttgaaaagttctttcccgat
+gtcataagggtgtattggaaagaaaagaaaggcaataccatcctggactcccaggaaggt
+gatatgctgaagactaatgacacatacatgaagtttagctggcttactgtgcctgaaagg
+tcaatggggaaagagcacagatgtattgtcaaacatgagaacaacaaaggaggagcagat
+caagagattttctttccaacaataaagaaa
+>M12838|TRGC3*01|Mus musculus_BALB/c|ORF|EX2|g,98..141|45 nt|1|+1|-1| | |45+0=45| | |
+gttgccgtgagtaccaagcctacaacttgctggcaagataaaaat
+>M12839|TRGC3*01|Mus musculus_BALB/c|ORF|EX3|g,52..191|141 nt|1|+1| | | |141+0=141| | |
+gatgtgctgcagctccagttcacgatcacctctgcctactacacctaccttctcctgctc
+ctcaagagtgtgatctacttggccatcatcagcttctctctgcttagaagaacatctgtc
+tgttgcaatgagaagaagtcc
+>AF037352|TRGC3*02|Mus musculus_BALB/c|P|EX1|g,84146..84476|332 nt|1|+1|-1| | |332+0=332| | |
+gacaaaaagcttgatgcagacatttcccccaagcccactatttttcttccttctgttgct
+gaaacaaatctccataagactgggacatacctttgtgtccttgaaaagttctttcccgat
+gtcataagggtgtattggaaagaaaagaaaggcaataccatcctggactcccaggaaggt
+gatatgctgaagactaatgacacatacatgaagtttagctggcttactgtgcctgaaagg
+tcaatggggcaaagagcacagatgtattgtcaaaccatgagaccaacaaaggaggagcag
+atcaagagattttcttccctccaataaagaaa
+>AF037352|TRGC3*02|Mus musculus_BALB/c|P|EX2|g,85930..85972|44 nt|1|+1|-1|| |44+0=44| | |
+gttgccgtgagtaccaagcctacaacttgctggcaagataaaaa
+>AF037352|TRGC3*02|Mus musculus_BALB/c|P|EX3|g,86541..86680|141 nt|1|+1| | | |141+0=141| | |
+gatgtgctgcagctccagttcacgatcacctctgcctactacacctaccttctcctgctc
+ctcaagagtgtgatctacttggccatcatcagcttctctctgcttagaagaacatctgtc
+tgttgcaatgagaagaagtcc
+>AF021335|TRGC4*01|Mus musculus_BALB/c|F|EX1|g,44314..44642|330 nt|1|+1|-1|| |330+0=330| | |
+gacaaacgcactgactcagacttttctcccaagcctactattttccttccttctgctgct
+gaaacaaatctccataaggctgggacctacctttgtctccttgaaaagttctttcctgaa
+gtcataagggtgtattggaaagaaaaggatggtgaaaagattctggaatcccaggaagga
+aacaccataaaaactaatgacagatacatgaaatttagttggctgacggtgactgaagat
+tcaatggctaaagaacatagttgcattgtcaaacacgaaaacaacaaaagaggagttgac
+caagagattctgtttcctcccataggtaaa
+>AF021335|TRGC4*01|Mus musculus_BALB/c|F|EX3|g,51956..52095|141 nt|1|+1| | | |141+0=141| | |
+gatatgttgcagcttcaggtcaccaccacctatgcattctacacctacctcatcctgttc
+ttcaagagcatggtccacttggccttcgttgtattctgtctattcagaagagcagccatg
+tcctgtgatgatcaacgttca
+>L02340|TRGC4*01|Mus musculus_BALB/c|F|EX2A|g,140..192|54 nt|1|+1|-1|| |54+0=54| | |
+gctttcacaactattaatgttaatcccagagatagtgttttgcggcatgaaaat
+>L02341|TRGC4*01|Mus musculus_BALB/c|F|EX2B|g,100..143|45 nt|1|+1|-1| | |45+0=45| | |
+gttaacaatgctactgatctggaagattgcatgaaaggaagaaag

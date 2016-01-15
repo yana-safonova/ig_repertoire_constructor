@@ -1,0 +1,42 @@
+>M64239|TRAC*01|Mus musculus_B10.D2-H2dm1|F|EX1|n,86100..86359|261 nt|1|+1|-1| | |261+0=261| | |
+nacatccagaacccagaacctgctgtgtaccagttaaaagatcctcggtctcaggacagc
+accctctgcctgttcaccgactttgactcccaaatcaatgtgccgaaaaccatggaatct
+ggaacgttcatcactgacaaaactgtgctggacatgaaagctatggattccaagagcaat
+ggggccattgcctggagcaaccagacaagcttcacctgccaagatatcttcaaagagacc
+aacgccacctaccccagttca
+>M64239|TRAC*01|Mus musculus_B10.D2-H2dm1|F|EX2|g,87683..87726|45 nt|1|+1|-1| | |45+0=45| | |
+gacgttccctgtgatgccacgttgactgagaaaagctttgaaaca
+>M64239|TRAC*01|Mus musculus_B10.D2-H2dm1|F|EX3|g,88567..88673|108 nt|1|+1|-1| | |108+0=108| | |
+gatatgaacctaaactttcaaaacctgtcagttatgggactccgaatcctcctgctgaaa
+gtagccggatttaacctgctcatgacgctgaggctgtggtccagttga
+>M64239|TRAC*01|Mus musculus_B10.D2-H2dm1|F|EX4(untranslated)| |514 nt|1|+1| | | |514+0=514| | |
+ggtctgcaagactgacagagcctgactcccaagctccatcctcctcacccctccgctcct
+tcttcaagccaaaaggagccctcccacctcgtcaagacggctgtctggggtctggttggc
+cctgattcacaatcccacctggatctcccagatttgtgaggaaggttgctggagagctaa
+gcactgctgccgcacccactcagctccctcactgctgctgaccattcacaaaaaacggca
+ggggcggggcttctcctggatctgaagacccctcccccatggcagactcccctgtaaaat
+ctcttggagaatgttgtaaaaaaaatatcggttgttttttgttttttttttttttgcggg
+tttatttttttaagcatccatgaagaaatgcatattactctttcatcaaggtgtagaaat
+tatctcattgtctagaccctcctgctactgtgtgtattgagccacattgtatattattct
+gctgtccatgacatcattaaaggtgattcagaaa
+>X67127|TRAC*02|Mus musculus_BALB/c|(F)|EX1|443..703|261 nt|1| | || |261+0=261| | |
+gacatccagaacccagaacctgctgtgtaccagttaaaagatcctcggtctcaggacagc
+accctctgcctgttcaccgactttgactcccaaatcaatgtgccgaaaaccatggaatct
+ggaacgttcatcactgacaaaactgtgctggacatgaaagctatggattccaagagcaat
+ggggccattgcctggagcaaccagacaagcttcacctgccaagatatcttcaaagagacc
+aacgccacctaccccagttca
+>X67127|TRAC*02|Mus musculus_BALB/c|(F)|EX2|704..748|45 nt|1| | || |45+0=45| | |
+gacgttccctgtgatgccacgttgaccgagaaaagctttgaaaca
+>X67127|TRAC*02|Mus musculus_BALB/c|(F)|EX3|749..857|109 nt|1| | || |109+0=109| | |
+gatatgaacctaaactttcaaaacctgtcagttatgggactccgaatcctcctgctgaaa
+gtagcgggatttaacctgctcatgacgctgaggctgtggtccagttgag
+>X67127|TRAC*02|Mus musculus_BALB/c|(F)|EX4(untranslated)| |489 nt|1|+1| | | |489+0=489| | |
+ggtctgcaagactgacagagcctgactcccaagttccgtcctcctcacccctccgctccc
+tcttcaagccaaaaggagccggctgtctggggtctggttggccctgattcacaatcccac
+ctggatctcccagatttgtgaggaaggttgctagagagctaagcgctgctgccgcaccca
+ctcagctccctcactgctgctgaccattcacaaaaaaaaaaaacggcaggggcggggctt
+ctcctggatctgaagacccctcccccatggcagactcccctataaaatctcttggagaat
+gttgtaaaaaatatgggttttttttttttggcgggtttacttttttaagcatccataaag
+aaatgcatattactctttcatcaaggtgtagaaattatctcattgtctagaccctcctgc
+tactgtgtgtattgagccacattgtatattattctgctgcccatgacatcattaaaggtg
+attcagaaa

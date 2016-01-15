@@ -1,0 +1,806 @@
+>AB699687|IGHA*01|Sus scrofa_Landrace boar|F|CH1|g,99230..99528|300 nt|1|+1|-1|| |300+0=300| | |
+gtgtctgaaaccagccccaaaatcttcccactgactctggggagcagcgagcctgccgga
+tatgtggtcatcgcctgcctggtccgggacttcttcccgtcagagcccctgacagtaacc
+tggagccctagtcgcgagggcgttattgtcagaaacttcccccctgcgcaggccgggggc
+ctgtacaccatgagcagccagctgaccttgccagtcgagcagtgcccagccgatcagatc
+ctgaagtgccaagtgcagcacctctccaaatccagccagtccgtgaacgtgccctgcaaa
+>AB699687|IGHA*01|Sus scrofa_Landrace boar|F|H-CH2|g,99677..100008|333 nt|1|+1|-1| | |333+0=333| | |
+gttttaccttcagatccatgtccccagtgctgcaagcccagcctgtccctgcagccacca
+gcccttgcagacctgctcctgggctccaatgccagcctcacctgcacactcagtggcctg
+aaaaaatccgagggtgtcagcttcacctggcagccctcaggtgggaaggatgccgtccag
+gcgtcccccacgcgtgattcctgtggctgctacagcgtgtccagcatcctgccaggctgt
+gctgatccttggaacaaaggagagacattctcctgcaccgccgcccactctgagttgaag
+agcgcgctaaccgccaccatcaccaaacccaaa
+>AB699687|IGHA*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,100182..100573|393 nt|1|+1| | | |393+0=393| | |
+gtgaacacgttccggccccaggtccacctgctgccgccgccgtcggaggagctggccctc
+aatgagctggtgacactgacatgcctggtgcggggcttcagccccaaggatgtgctggtg
+cgatggctgcaagggggccaggaactgccccgtgacaagtacctcgtctgggaatccctg
+ccagagcctggccaggccatccccacctacgccgtgaccagcgtgctgcgcgtggacgcc
+gaggactggaagcagggagacaccttctcctgcatggtgggccacgaggccctgcccctg
+gccttcacccagaagaccatcgaccgcctggcgggtaaacccacccacgtcaacgtgtcc
+gtggtcatggcggaggcagagggcatctgctac
+>AB699687|IGHA*01|Sus scrofa_Landrace boar|F|M|g,102904..103115|213 nt|1|+1| | | |213+0=213| | |
+ggccctctgtgtcttacaggtcaccgggacccatttccctggctggtgctggacctgctg
+cgggagggcccggaggaagagaccccagaggccagcctctggcccaccaccgtcacgctg
+ctcaccctcttcctgctgagcctcttctacagcacagcactgacagtgacaagcatccgg
+ggcccagctgacagcagagagggcccccagtac
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|CH1|g,53325..53641|318 nt|1|+1|-1| | |318+0=318| | |
+gagcgccagtctgccccgagtctcttccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gtgtccatctctgggcca
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|H1|g,53832..53920|90 nt|1|+1|-1| | |90+0=90| | |
+gcatctcggcagctcccagcccctgcagggacccctgggccaaccctgtcaacggtctcc
+accaaagccctcaccacgccaaggatccca
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|H2|g,55412..55476|66 nt|1|+1|-1| | |66+0=66| | |
+gtgcggtccactgtccgcggccagccaggagcccagacacaggagcccccagagggcccc
+cgcgga
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|CH2|g,55728..56050|324 nt|1|+1|-1|| |324+0=324| | |
+gcgtgtcagaaccacacccgccctcccagcgtctacctgctcctccccccgctgcagggc
+ctgtggctgcgggctgaggctacattcacctgcctggcggtggggcaggacctgcaggag
+gcccgcctgtcctgggccgtggccgaggagccccaaggggggcgcatggaggaggggccc
+acggaacataccaacggctcctggagcctgagcagccgccttgccctgcccaggtcctcg
+tgggccgcgggcgcccccgtcacctgcaggctgagcggccccggcctgcggtccctggtg
+accgcggaggctcggagagaacat
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|CH3|g,56244..56572|330 nt|1|+1|-1| | |330+0=330| | |
+gccgccttggcgcccagcaacctggccgtccgtgtcctgacagcacccggcccgctcgct
+ttcaccaaggccgcctcctggctcctgtgcgaggtgtccagcttctcgcccctggacatc
+ctcctcacctggctggagggccagcaagaggtagacccgtcttggtttgccaccgcgcgg
+cccgcggcccagcctgggaaccccacgttccgtacctggagcgtcctgcgcgtcccggcc
+tccccgggccatcaggacgccacctacacctgtgtggtcgggcacgaggcctcccggacg
+ctgctcaacgcaagctggagactggacaca
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|CHS|g,58569..58642|75 nt|1|+1| | | |75+0=75| | |
+ggacctctgctgatccagcagcggctaggagcagaatggaaagccagcaagagagctcca
+gcctcgcctgaggct
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|M1|g,60312..60454|144 nt|1|+1| | | |144+0=144| | |
+ggtctggccaccttgaccccaggcagccaggacgagggcagcgatgactacgtggacctg
+gaggacgcgggccgcctgtggctcaccttcacagtcctcttcctcgtcactctgctctac
+agcggcttcgtcaccttcctcaag
+>AB699686|IGHD*01|Sus scrofa_Landrace boar|F|M2|60735..60740|6 nt|1| | | | |6+0=6| | |
+gtgaag
+>AF515674|IGHD*02|Sus scrofa|F|CH1|412..729|318 nt|1| | | | |318+0=318| | |
+gagcgccagtctgccccgagtctcttccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gtgtccatctctgggcca
+>AF515674|IGHD*02|Sus scrofa|F|H|730..819|90 nt|1| | | | |90+0=90| | |
+gcatctcggcagctcccagcccctgcagggacccctgggccaaccctgtcaacggtctcc
+accaaagccctcaccacgccaaggatccca
+>AF515674|IGHD*02|Sus scrofa|F|CH2|820..1143|324 nt|1| | || |324+0=324| | |
+gcgtgtcagaaccacacccgccctcccagcgtctacctgctcctccccccgctgcagggc
+ctgtggctgcgggctgaggctacattcacctgcctggcggtggggcaggacctgcaggag
+gcccgcctgtcttgggccgtggccgaggagccccaagaggggcgcatggaggaggggccc
+acggaacataccaacggctcctggagcctgagcagccgccttgccctgcccaggtcctcg
+tgggccgcgggcgcccccgtcacctgcaggctgagcggccccggcctgcggtccctggtg
+accgcggaggctcggagagaacat
+>AF515674|IGHD*02|Sus scrofa|F|CH3|1144..1473|330 nt|1| | | | |330+0=330| | |
+gccgccttggcgcccagcaacctggccgtccgtgtcctgacagcacccggcccgctcgct
+ttcaccaaggccgcctcctggctcctgtgcgaggtgtccagcttctcgcccctggacatc
+ctcctcacctggctggagggccagcaagaggtagacccgtcttggtttgccaccgcgcgg
+cccgcggcccagcctgggaaccccacgttccgtacctggagcgtcctgcgcgtcccggcc
+tccccgggccatcaggacgccacctacacctgtgtggtcgggcacgaggcctcccggacg
+ctgctcaacgcaagctggagactggacaca
+>AF515674|IGHD*02|Sus scrofa|F|M1|1474..1617|144 nt|1| | | | |144+0=144| | |
+ggtctggccaccttgaccccaggcagccaggacgagggcagcgatgactacgtggacctg
+gaggacgcgggccgcctgtggctcaccttcacagtcctcttcctcgtcactctgctctac
+agcggcttcgtcaccttcctcaag
+>AF515674|IGHD*02|Sus scrofa|F|M2|1618..1623|6 nt|1| | | | |6+0=6| | |
+gtgaag
+>AF411239|IGHD*03|Sus scrofa|F|CH1|1..318|318 nt|1| | | | |318+0=318| | |
+gagagccagtctgccccgaatctctaccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gtgtccatctctgggcca
+>AF411239|IGHD*03|Sus scrofa|F|H|319..408|90 nt|1| | | | |90+0=90| | |
+gcatctcggcagctcccagcccctgcagggacccctgggccaaccctgtcaacggtctcc
+accaaagccctcaccacgccaaggatccca
+>AF411239|IGHD*03|Sus scrofa|F|CH2|409..732|324 nt|1| | || |324+0=324| | |
+gcgtgtcagaaccacacccgccctcccagcgtctacctgctcctccccccgctgcagggc
+ctgtggctgcgggctgaggctacattcacctgcctggcggtggggcaggacctgcaggag
+gcccgcctgtcctgggccgtggccgaggacccccaaggggggcgcatggaggaggggccc
+acggaacataccaacggctcctggagcctgagcagccgccttgccctgcccaggtcctcg
+tgggccgcgggcgcccccgtcacctgcaggctgagcggccccggcctgcggtccctggtg
+accgcggaggctcggagagaacat
+>AF411239|IGHD*03|Sus scrofa|F|CH3|733..1062|330 nt|1| | | | |330+0=330| | |
+gccgccttggcgcccagcaacctggccgtccgtgtcctgacagcacccggcccgctcgct
+ttcaccaaggccgcctcctggctcctgtgcgaggtgtccagcttctcgcccctggacatc
+ctcctcacctggctggagggccagcaagaggtagacccgtcttggtttgccaccgcgcgg
+cccgcggcccagcctgggaaccccacgttccgtacctggagcgtcctgcgcgtcccggcc
+tccccgggccatcaggacgccacctacacctgtgtggtcgggcacgaggcctcccggacg
+ctgctcaacgcaagctggagactggacaca
+>AF411239|IGHD*03|Sus scrofa|F|CHS|1063..1137|75 nt|1| | | | |75+0=75| | |
+ggacctctgctgatccagcagcggctaggagcagaatggaaagccagcaagagagctcca
+gcctcgcctgaggct
+>AY228505|IGHD*04|Sus scrofa|F|CH1|g,3790..4106|318 nt|1|+1|-1|| |318+0=318| | |
+gagcgccagtctgccccgagtctcttccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gcgtccatctctgggcca
+>AY228505|IGHD*04|Sus scrofa|F|H1|g,4300..4388|90 nt|1|+1|-1| | |90+0=90| | |
+gcatctcggcagctcccagcccctgcagggacccctgggccaaccctgtcaacggtctcc
+accaaagccctcaccacgccaaggatccca
+>AY228505|IGHD*04|Sus scrofa|F|H2|g,5880..5944|66 nt|1|+1|-1| | |66+0=66| | |
+gtgcggtccactgtccgcggccagccaggagcccagacacaggagcccccagagggcccc
+cgcgga
+>AY228505|IGHD*04|Sus scrofa|F|CH2|g,6196..6518|324 nt|1|+1|-1|| |324+0=324| | |
+gcgtgtcagaaccacacccgccctcccagcgtctacctgctcctccccccgctgcagggc
+ctgtggctgcgggctgaggctacattcacctgcctggcggtggggcaggacctgcaggag
+gcccgcctgtcctgggccgtggccgaggagccccaaggggggcgcatggaggaggggccc
+acggaacataccaacggctcctggagcctgagcagccgccttgccctgcccaggtcctcg
+tgggccgcgggcgcccccgtcacctgcaggctgagcggccccggcctgcggtccctggtg
+accgcggaggctcggagagaacat
+>AY228505|IGHD*04|Sus scrofa|F|CH3|g,6712..6790|80 nt|1|+1| | | |80+0=80|partial in 3'| |
+gccgccttggcgcccagcaacctggccgtccgtgtcctgacagcacccggcccgctcgct
+ttcaccaaggccgcctcctg
+>AY228506|IGHD*04|Sus scrofa|F|CH3|1..87|87 nt|1| |-1| | |87+0=87|partial in 5'| |
+ccgggccatcaagacgccacctacacctgtgtggtcgggcacgaggcctcccggacgctg
+ctcaacgcaagctggagactggacaca
+>AY228507|IGHD*04|Sus scrofa|F|CHS|g,388..461|75 nt|1|+1| | | |75+0=75| | |
+ggacctctgctgatccagcagcggctaggagcagaatggaaagccagcaagagagctcca
+gcctcgcctgaggct
+>AY228508|IGHD*04|Sus scrofa|F|M1|g,347..489|144 nt|1|+1| | | |144+0=144| | |
+ggtctggccaccttgaccccaggcagccaggacgagggcagcgatgactacgtggacctg
+gaggacgcgggccgcctgtggctcaccttcacagtcctcttcctcgtcactctgctctac
+agcggcttcgtcaccttcctcaag
+>AY228508|IGHD*04|Sus scrofa|F|M2|770..775|6 nt|1| | | | |6+0=6| | |
+gtgaag
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|CH1|g,87311..87597|288 nt|1|+1|-1|| |288+0=288| | |
+gcctccatccagggcccactggtctaccccttgacttcttgttgcaaaaccggcgccacc
+tccaagacgctgggctgcctggtcaggggctacttcccagagccagtgaccgtgacctgg
+gacacaggatccctgaatagtagcaccctgaccttccctgctgtccaagactcgagctcc
+agcctctacacggtcaccagccaggtgaccatcttgggcgagtggaccaaccagaagctc
+acctgcagtgtggctcacgctgcaaacaccaccatccggaccatcaca
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|CH2|g,87702..88024|324 nt|1|+1|-1| | |324+0=324| | |
+gggtgcaccaagaatttcaccgacccctccttgaggttcttctactcctcctgcgacccc
+cacggtgacgcccaagccaccatccatctccgatgctatatctccggctacacccccggc
+aaaatgaaggtcacctggctggtggacgggcaggaggatagaaacctgttctcgtacacc
+gcccccgaccagctggagggcaagctggcctccacctacagcgaggtcaacatcacgcag
+ggccagtgggcgtctcagatcacgtacacctgccaggtctcctattacggcttcatctat
+gaaaaacacgccctcaggtgcaca
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|CH3|g,88113..88444|333 nt|1|+1|-1| | |333+0=333| | |
+gcggagtccgagccccgtggggtgagcgcttacctgagtccgcccacgcccctcgacctg
+tacgtccacaagtcgcccaagctcacctgcctggtggtggacctggccagctcggagaac
+gtgaacctgttgtggtccagggagaacaaggggggcgtgattctcccgcctccgggcccg
+cccgtcatcaagccccagttcaacggcacgttcagcgccacgtccacactgccggtgaat
+gtcagcgactggattgagggcgagacctactattgcaacgtgacccacccggacttgccc
+aagcccatcctgcgctccatctccaagggccct
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|CH4-CHS|g,88520..88848|330 nt|1|+1| | | |330+0=330| | |
+ggcaagcgcgtgacccccgaggtctatgtgctctggagccctgacgagctcaagaagggc
+aggctcaccctcacctgcctgatccagaacttctttcccgcggacatctctgtgctgtgg
+ctgcggaacgacgccccggtgcaggcagaccggcactccaccaccaggccccacaaggcc
+agcgactccctcccctccttcttcgtctacagccgcctggtggtcagccagtccgactgg
+gagcagaacaaatttgcctgcgaggtgatccacgaggcactgcccggctctaggaccctc
+cagaaagaggtgtccaaaaaccccggtaaa
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|M1|g,90539..90672|135 nt|1|+1| | | |135+0=135| | |
+gagctggccctggaggacctgtgtgcggaggaggccgagagccaggagctggaggccatg
+tggacgggcctcctcgtcttcaccacgctcttcctgctcagcgtgagctacggtgctgcc
+atcaccctctgcaag
+>AB699687|IGHE*01|Sus scrofa_Landrace boar|F|M2|90769..90849|81 nt|1| | | | |81+0=81| | |
+gtgaaatgggtcctggccgccatcctgcaggagcagcccccagcctcccatgactacacc
+aacgtccaggagccggctgcc
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|CH1|g,159314..159606|294 nt|1|+1|-1| | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccatgacc
+tggaactcgggcgccctgaccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|H|g,159933..159967|36 nt|1|+1|-1| | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|CH2|g,160096..160421|327 nt|1|+1|-1| | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccagacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggccgagacgagacca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcaccag
+gactggctgaaggggaaggagttcaagtgcaaggtcaacaacgtagacctcccagccccc
+atcacgaggaccatctccaaggctata
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,160514..160839|327 nt|1|+1| | | |327+0=327| | |
+gggcagagccgggagccgcaggtgtacaccctgcccccacccgccgaggagctgtccagg
+agcaaagtcaccgtaacctgcctggtcattggcttctacccacctgacatccatgttgag
+tggaagagcaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggaccttcttcctgtacagcaagctcgcggtggacaaggcaagatgggac
+catggagaaacatttgagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatctccaagactcagggtaaa
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|M1|g,162348..162478|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699686|IGHG1*01|Sus scrofa_Landrace boar|F|M2|162706..162786|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>M81770|IGHG1*02|Sus scrofa_Minnesota miniature swine|F|CH1|3..296|294 nt|1| | | | |294+0=294| | |
+acccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccatgacc
+tggaactcgggcgccctgaccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccacacccaaggtggacaagcgtgtt
+>M81770|IGHG1*02|Sus scrofa_Minnesota miniature swine|F|H|297..332|36 nt|1| | | | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>M81770|IGHG1*02|Sus scrofa_Minnesota miniature swine|F|CH2|333..659|327 nt|1| | | | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccagacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggccgagacgagacca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcaccag
+gactggctgaaggggaaggagttcaagtgcaaggtcaacaacgtagacctcccagccccc
+atcacgaggaccatctccaaggctata
+>M81770|IGHG1*02|Sus scrofa_Minnesota miniature swine|F|CH3-CHS|660..986|327 nt|1| | | | |327+0=327| | |
+gggcagagccgggagccgcaggtgtacaccctgcccccacccgccgaggagctgtccagg
+agcaaagtcaccgtaacctgcctggtcattggcttctacccacctgacatccatgttgag
+tggaagagcaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggaccttcttcctgtacagcaagctcgcggtggacaaggcaagatgggac
+catggagaaacatttgagtgtgcggtgatgcacgaggctctgcacaaccacgacacccag
+aagtccatctccaagactcagggtaaa
+>U03778|IGHG1*03|Sus scrofa_Yorkshire|F|CH1|1..294|294 nt|1| | | | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcggcagggacgtgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>U03778|IGHG1*03|Sus scrofa_Yorkshire|F|H|295..330|36 nt|1| | | | |36+0=36| | |
+ggaatacaccagccgcaaacatgtcccatatgccca
+>U03778|IGHG1*03|Sus scrofa_Yorkshire|F|CH2|331..657|327 nt|1| | | | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccagacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggccgagacgagacca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcaccag
+gactggctgaaggggaaggagttcaagtgcaaggtcaacaacgtagacctcccagccccc
+atcacgaggaccatctccaaggctata
+>U03778|IGHG1*03|Sus scrofa_Yorkshire|F|CH3-CHS|658..984|327 nt|1| | | | |327+0=327| | |
+gggcagagccgggagccgcaggtgtacaccctgcccccacccgccgaggagctgtccagg
+agcaaagtcacgctaacctgcctggtcattggcttctacccacctgacatccatgttgag
+tggaagagcaacggacagccggagccagagaacacataccgcaccaccccgccccagcag
+gacgtggacgggaccttcttcctgtacagcaaactcgcggtggacaaggcaagatgggac
+catggagacaaatttgagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatctccaagactcagggtaaa
+>EU263977|IGHG1*04|Sus scrofa|P|CH1|1054..1283|230 nt|1| |-1|| |230+0=230|partial in 5'| |
+acgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacctgga
+actcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtcagggc
+tctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagctaca
+cctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>EU263977|IGHG1*04|Sus scrofa|P|CH2|g,148..351|205 nt|1|+1| || |205+0=205|partial in 3'| |
+gcctgtgaagtgcccgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggaccccccaggtcacgtgcgtggtggtggatgtcagccaggagcacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagtcaacagcaccta
+>U03779|IGHG2*01|Sus scrofa_Yorkshire|F|CH1|1..294|294 nt|1| | | | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcagcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgtccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>U03779|IGHG2*01|Sus scrofa_Yorkshire|F|H|295..330|36 nt|1| | | | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>U03779|IGHG2*01|Sus scrofa_Yorkshire|F|CH2|331..657|327 nt|1| | | | |327+0=327| | |
+gcctgtgaatcaccagggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacaccccaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctacccatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>U03779|IGHG2*01|Sus scrofa_Yorkshire|F|CH3-CHS|658..984|327 nt|1| | | | |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacacgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcattggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagttctcggtggacaaggccagctggcag
+ggtggaggcatattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtctatctccaagactccgggtaaa
+>M81769|IGHG2*02|Sus scrofa_Minnesota miniature swine|F|CH1|471..764|294 nt|1| | | | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcagcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggacctcgggcgccctgtccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacagctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>M81769|IGHG2*02|Sus scrofa_Minnesota miniature swine|F|H|765..800|36 nt|1| | | | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>M81769|IGHG2*02|Sus scrofa_Minnesota miniature swine|F|CH2|801..1127|327 nt|1| | | | |327+0=327| | |
+gcctgtgaatcaccagggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacaccccaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctacccatccagcaccag
+gactggctgaacgggccggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>M81769|IGHG2*02|Sus scrofa_Minnesota miniature swine|F|CH3-CHS|1128..1454|327 nt|1| | | | |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacacgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcattggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagctagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagttctcggtggacaaggccagctggcag
+ggtggaggcatattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtctatctccaagactccgggtaaa
+>U03780|IGHG2*03|Sus scrofa_Yorkshire|F|CH1|1..294|294 nt|1| | | | |294+0=294| | |
+gcccccaagacggccccattggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>U03780|IGHG2*03|Sus scrofa_Yorkshire|F|H|295..330|36 nt|1| | | | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>U03780|IGHG2*03|Sus scrofa_Yorkshire|F|CH2|331..657|327 nt|1| | | | |327+0=327| | |
+gcctgtgaatcgccagggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacaccccaggtcacgtgcgtggtagttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>U03780|IGHG2*03|Sus scrofa_Yorkshire|F|CH3-CHS|658..984|327 nt|1| | | | |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacacgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcattggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagttctcggtggacaaggccagctggcag
+ggtggaggcatattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtctatctccaagactccgggtaaa
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|CH1|g,94685..94977|294 nt|1|+1|-1| | |294+0=294| | |
+gcctacaacacagctccatcggtctaccctctggccccctgtggcagggacgtgtctgat
+cataacgtggccttgggctgcctggtctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggtgccctgtccagagtcgtgcataccttcccatctgtcctgcagccgtca
+gggctctactccctcagcagcatggtgatcgtggcggccagcagcctgtccaccctgagc
+tacacgtgcaacgtctaccacccggccaccaacaccaaggtggacaagcgtgtt
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|H|g,95285..95331|48 nt|1|+1|-1| | |48+0=48| | |
+gacatcgaaccccccacacccatctgtcccgaaatttgctcatgccca
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|CH2|g,95461..95789|330 nt|1|+1|-1| | |330+0=330| | |
+gctgcagaggtcctgggagcaccgtcggtcttcctcttccctccaaaacccaaggacatc
+ctcatgatctcccggacacccaaggtcacgtgcgtggtggtggacgtgagccaggaggag
+gctgaagtccagttctcctggtacgtggacggcgtacagttgtacacggcccagacgagg
+ccaatggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcac
+caggactggctgaaggggaaggagttcaagtgcaaggtcaacaacaaagacctcctttcc
+cccatcacgaggaccatctccaaggctaca
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,95873..96198|327 nt|1|+1| | | |327+0=327| | |
+gggccgagccgggtgccgcaggtgtacaccctgcccccagcctgggaagagctgtccaag
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggcagagcaacggacaacaagagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggatgggacctacttcctgtacagcaagctcgcggtggacaaggtcaggtggcag
+cgtggagacctattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccgtctcccagactccgggtaaa
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|M1|g,97700..97830|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699686|IGHG3*01|Sus scrofa_Landrace boar|F|M2|98058..98138|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgccggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>AB513625|IGHG3*02|Sus scrofa|F|CH1|g,100124..100416|294 nt|1|+1|-1| | |294+0=294| | |
+gcctacaacacagctccatcggtctaccctctggccccctgtggcagggacgtgtctgat
+cataacgtggccttgggctgcctggtctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggtgccctgtccagagtcgtgcataccttcccatctgtcctgcagccgtca
+gggctctactccctcagcagcatggtgatcgtggcggccagcagcctgtccaccctgagc
+tacacgtgcaacgtctaccacccggccaccaacaccaaggtggacaagcgtgtt
+>AB513625|IGHG3*02|Sus scrofa|F|H|g,100724..100770|48 nt|1|+1|-1| | |48+0=48| | |
+gacatcgaaccccccacacccatctgtcccgaaatttgctcatgccca
+>AB513625|IGHG3*02|Sus scrofa|F|CH2|g,100900..101228|330 nt|1|+1|-1| | |330+0=330| | |
+gctgcagaggtcctgggagcaccgtcggtcttcctcttccctccaaaacccaaggacatc
+ctcatgatctcccggacacccaaggtcacgtgcgtggtggtggacgtgagccaggaggag
+gctgaagtccagttctcctggtacgtggacggcgtacagttgtacacggcccagacgagg
+ccaatggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcac
+caggactggctgaaggggaaggagttcaagtgcaaggtcaacaacaaagacctcctttcc
+cccatcacgaggaccatctccaaggctaca
+>AB513625|IGHG3*02|Sus scrofa|F|CH3-CHS|g,101312..101637|327 nt|1|+1| | | |327+0=327| | |
+gggccgagccgggtgccgcaggtgtacaccctgcccccagcctgggaagagctgtccaag
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggcagagcaacggacaacaagagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggatgggacctacttcctgtacagcaagctcgcggtggacaaggtcaggtggcag
+cgtggagacctattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccgtctcccagactccgggtaaa
+>AB513625|IGHG3*02|Sus scrofa|F|M1|g,103139..103269|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB513625|IGHG3*02|Sus scrofa|F|M2|103497..103577|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>EU372658|IGHG3*03|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncctacaacacagctccatcggtctaccctctggccccctgtggcagggacgtgtctgat
+cataacgtggccttgggctgccttgtctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggtgccctgtccagagtcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgatcgtggcggccagcagcctgtccaccctgagc
+tacacgtgcaacgtctaccacccggccaccaacaccaaggtggacaagcgtgtt
+>EU372658|IGHG3*03|Sus scrofa|F|H|g,602..648|48 nt|1|+1|-1| | |48+0=48| | |
+gacatcgaaccccccacacccatctgtcccgaaatttgctcatgccca
+>EU372658|IGHG3*03|Sus scrofa|F|CH2|g,777..1105|330 nt|1|+1|-1| | |330+0=330| | |
+gctgcagaggtcctgggagcaccgtcggtcttcctcttccctccaaaacccaaggacatc
+ctcatgatctcccggacacccaaggtcacgtgcgtggtggtggacgtgagccaggaggag
+gctgaagtccagttctcctggtacgtggacggcgtacagttgtacacggcccagacgagg
+ccaatggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcac
+caggactggctgaaggggaaggagttcaagtgcaaggtcaacaacaaagacctcctttcc
+cccatcacgaggaccatctccaaggctaca
+>EU372658|IGHG3*03|Sus scrofa|F|CH3-CHS|g,1189..1514|327 nt|1|+1| | | |327+0=327| | |
+gggccgagccgggtgccgcaggtgtacaccctgcccccagcctgggaagagctgtccaag
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggcagagcaacggacaacaagagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggatgggacctacttcctgtacagcaagctcgcggtggacaaggtcaggtggcag
+cgtggagacctattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatctccaagactcagggtaaa
+>EU372654|IGHG4*01|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcggcagggacgtgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>EU372654|IGHG4*01|Sus scrofa|F|H|g,621..655|36 nt|1|+1|-1| | |36+0=36| | |
+ggaatacaccagccgcaaacatgtcccatatgccca
+>EU372654|IGHG4*01|Sus scrofa|F|CH2|g,783..1108|327 nt|1|+1|-1| | |327+0=327| | |
+gcctgtgaagggcccgggccctcggccttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacccccaaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgctcatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>EU372654|IGHG4*01|Sus scrofa|F|CH3-CHS|g,1193..1489|298 nt|1|+1| | | |298+0=298|partial in 3'| |
+gggcagacccgggagccgcaggtgtacaccctgcccccacccaccgaggagctgtccagg
+agcaaagtcacgctaacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacacattccagtgtgcggtgatgcacgaggctctgcacaaccactacaccc
+>U03782|IGHG4*02|Sus scrofa_Yorkshire|F|CH1|1..143|143 nt|1| | | | |143+0=143|partial in 5'| |
+ataccttcccatccgtcctgcagccgtcagggctctactccctcagcagcatggtgaccg
+tgccggccagcagcctgtccagcaagagctacacctgcaatgtcaaccacccggccacca
+ccaccaaggtggacaagcgtgtt
+>U03782|IGHG4*02|Sus scrofa_Yorkshire|F|H|144..179|36 nt|1| | | | |36+0=36| | |
+ggaacaaagaccaaaccaccatgtcccatatgccca
+>U03782|IGHG4*02|Sus scrofa_Yorkshire|F|CH2|180..506|327 nt|1| | | | |327+0=327| | |
+gcctgtgaagggcccgggccctcggccttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacccccaaggtcacgtgcgtggtggtagatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>U03782|IGHG4*02|Sus scrofa_Yorkshire|F|CH3-CHS|507..833|327 nt|1| | || |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacccaccgaggagctgtccagg
+agcaaagtcacgctaacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacacattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatcttcaagactccgggtaaa
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|CH1|g,115724..116016|294 nt|1|+1|-1| | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcggcagggacgtgtctgat
+cataacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactggggcgcccagaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcacggtgaccgtgccggcccacagcttgtccagcaagtgc
+ttcacgtgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|H|g,116317..116351|36 nt|1|+1|-1| | |36+0=36| | |
+ggaaaaaagaccaagcctcgatgtcccatatgccca
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|CH2|g,116489..116805|318 nt|1|+1|-1| | |318+0=318| | |
+gtggccgggccctcggtcttcatcttccctccaaaacccaaggacatcctcatgatctcc
+cggacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgccgaggtccag
+ttctcctggtacgtggacggcgaagaggtgcacacggccgagacgagaccaaaggaggag
+cagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcacgaggactggctg
+aaggggaaggagttcgagtgcaaggtcaacaacgaagacctcccaggccccatcacgagg
+accatctccaaggccaaa
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,116890..117212|324 nt|1|+1| | | |324+0=324| | |
+ggggtggtacggagcccggaggtgtacaccctgcccccacccgccgaggagctgtccaag
+agcatagtcacgctaacctgcctggtcaaaagcttcttcccgcctttcatccatgttgag
+tggaaaatcaacggaaaaccagagccagagaacgcataccgcaccaccccgccccaggag
+gacgaggacgggacctacttcctgtacagcaagttctcggtggaaaagttcaggtggcac
+agtggaggcatccactgtgcggtgatgcacgaggctctgcacaaccactacaccgagaag
+tccgtctcccagactccgggtaaa
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|M1|g,118713..118843|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699686|IGHG5-1*01|Sus scrofa_Landrace boar|F|M2|119071..119151|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>AB513625|IGHG5-1*02|Sus scrofa|F|CH1|g,121160..121452|294 nt|1|+1|-1| | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcggcagggacgtgtctgat
+cataacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactggggcgcccagaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcacggtgaccgtgccggcccacagcttgtccagcaagtgc
+ttcacgtgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>AB513625|IGHG5-1*02|Sus scrofa|F|H|g,121753..121787|36 nt|1|+1|-1| | |36+0=36| | |
+ggaaaaaagaccaagcctcgatgtcccatatgccca
+>AB513625|IGHG5-1*02|Sus scrofa|F|CH2|g,121925..122241|318 nt|1|+1|-1| | |318+0=318| | |
+gtggccgggccctcggtcttcatcttccctccaaaacccaaggacatcctcatgatctcc
+cggacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgccgaggtccag
+ttctcctggtacgtggacggcgaagaggtgcacacggccgagacgagaccaaaggaggag
+cagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcacgaggactggctg
+aaggggaaggagttcgagtgcaaggtcaacaacgaagacctcccaggccccatcacgagg
+accatctccaaggccaaa
+>AB513625|IGHG5-1*02|Sus scrofa|F|CH3-CHS|g,122326..122648|324 nt|1|+1| | | |324+0=324| | |
+ggggtggtacggagcccggaggtgtacaccctgcccccacccgccgaggagctgtccaag
+agcatagtcacgctaacctgcctggtcaaaagcttcttcccgcctttcatccatgttgag
+tggaaaatcaacggaaaaccagagccagagaacgcataccgcaccaccccgccccaggag
+gacgaggacgggacctacttcctgtacagcaagttctcggtggaaaagttcaggtggcac
+agtggaggcatccactgtgcggtgatgcacgaggctctgcacaaccactacaccgagaag
+tccgtctcccagactccgggtaaa
+>AB513625|IGHG5-1*02|Sus scrofa|F|M1|g,124150..124280|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB513625|IGHG5-1*02|Sus scrofa|F|M2|124508..124588|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgccggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>EU372656|IGHG5-1*03|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncctacaacacagctccatcggtctaccctctggccccctgtggcagggacgtgtctgat
+cataacgtggccttgggctgcctggtctcaagctacttccccgagccagtgaccgtgacc
+tggaactggggcgcccagaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcacggtgaccgtgccggcccacagcttgtccagcaagtgc
+ttcacgtgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>EU372656|IGHG5-1*03|Sus scrofa|F|H|g,596..630|36 nt|1|+1|-1| | |36+0=36| | |
+ggaaaaaagaccaagcctcgatgtcccatatgccca
+>EU372656|IGHG5-1*03|Sus scrofa|F|CH2|g,759..1084|327 nt|1|+1|-1| | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacatcctc
+atgatctcccggacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgaagaggtgcacacggccgagacgagacca
+aaggaggagcagttcaacagcacttaccgcgtggtcagcgtcctgcccatccagcacgag
+gactggctgaaggggaaggagttcgagtgcaaggtcaacaacgaagacctcccaggcccc
+atcacgaggaccatctccaaggccaaa
+>EU372656|IGHG5-1*03|Sus scrofa|F|CH3-CHS|g,1169..1462|295 nt|1|+1| | | |295+0=295|partial in 3'| |
+ggggtggtacggagcccggaggtgtacaccctgcccccacccgccgaggagctgtccaag
+agcatagtcacgctaacctgcctggtcaaaagcttcttcccgcctttcatccatgttgag
+tggaaaatcaacggaaaaccagagccagagaacgcataccgcaccaccccgccccaggag
+gacgaggacgggacctacttcctgtacagcaagttctcggtggaaaagttcaggtggcac
+agtggaggcatccactgtgcggtgatgcacgaggctctgcacaaccactacaccc
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|CH1|g,137106..137398|294 nt|1|+1|-1| | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcagcagggacacgtctggc
+cctaacgtggccttgggctgcctggtctcaagctacttccccgagctagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggcccacagcttgtccagcaagcgc
+tatacgtgcaatgtcaaccacccagccaccaaaaccaaggtggacctgtgtgtt
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|H|g,137700..137722|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|CH2|g,137851..138176|327 nt|1|+1|-1| | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacatcctc
+atgatctcccggacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggccgagacgagacca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcacgag
+gactggctgaaggggaaggagttcgagtgcaaggtcaacaacgaagacctcccaggcccc
+atcacgaggaccatctccaaggccaaa
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,138270..138592|324 nt|1|+1| | | |324+0=324| | |
+ggggtggtacggagcccggaggtgtacaccctgcccccacccgccgaggagctgtccaag
+agcaaagtcacgctaacctgcctggtcaaaagcttcttcccgcctttcatccatgttggg
+tggaaaatcaacggacagctggagccagagggcaattaccacaccaccccgccccaggag
+gacgaggacgggacctacttcctgtacagcaaactcgcggtggacaaggcgaggttgcag
+agtggaggcatccactgtgcggtgatgcacgaggctctgcacaaccactacaccgagaag
+tccgtctccctgactccgggtaaa
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|M1|g,140094..140224|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699686|IGHG5-2*01|Sus scrofa_Landrace boar|F|M2|140452..140532|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcggacaggaggcc
+>EU372657|IGHG5-2*02|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcagcagggacacgtctggc
+cctaacgtggccttgggctgcctggtctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggcccacagcttgtccagcaagcgc
+tatacgtgcaatgtcaaccacccagccaccaaaaccaaggtggacctgtgtgtt
+>EU372657|IGHG5-2*02|Sus scrofa|F|H|g,596..618|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>EU372657|IGHG5-2*02|Sus scrofa|F|CH2|g,747..1072|327 nt|1|+1|-1| | |327+0=327| | |
+ggctgtgaagtggccgggccctcggtcttcatcttccctccaaaacccaaggacatcctc
+atgatctcccggacccccgaggtcacgtgcgtggtggtggacgtcagcaaggagcacgcc
+gaggtccagttctcctggtacgtggacggcgaagaggtgcacacggccgagacgaggcca
+aaggaggagcagttcaacagcacctaccgcgtggtcagcgtcctgcccatccagcacgag
+gactggctgaaggggaaggagttcgagtgcaaggtcaacaacgaagacctcccaggcccc
+atcacgaggaccatctccaaggccaaa
+>EU372657|IGHG5-2*02|Sus scrofa|F|CH3-CHS|g,1157..1482|327 nt|1|+1| | | |327+0=327| | |
+ggggtggtacggagcccggaggtgtacaccctgcccccacccgccgaggagctgtccaag
+agcatagtcacgctaacctgcctggtcaaaagcatcttcccgnctttcatccatgttgag
+tggaaaatcaacggaaaaccagagccagagaacgcatatcgcaccaccccgcctcaggag
+gacgaggacaggacctacttcctgtacagcaagctcgcggtggacaaggcaagatgggac
+catggagaaacatttgagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatctccaagactcagggtaaa
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|CH1|n,49046..49338|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|H|g,49665..49687|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|CH2|g,49815..50140|327 nt|1|+1|-1| | |327+0=327| | |
+gcctgtgaagggcccgggccctcggccttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacccccaaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctaccaatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,50234..50559|327 nt|1|+1| | | |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacccaccgaggagctgtccagg
+agcaaactcagtgtaacctgcctgatcactggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacccattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatcttcaagactccgggtaat
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|M1|g,52062..52192|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699687|IGHG6-1*01|Sus scrofa_Landrace boar|F|M2|52420..52500|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>M81771|IGHG6-1*02|Sus scrofa_Minnesota miniature swine|F|CH1|477..770|294 nt|1| | | | |294+0=294| | |
+gcccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagcctgca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacaagcgtgtt
+>M81771|IGHG6-1*02|Sus scrofa_ Minnesota miniature swine|F|H|771..794|24 nt|1| | | | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>M81771|IGHG6-1*02|Sus scrofa_Minnesota miniature swine|F|CH2|795..1121|327 nt|1| | | | |327+0=327| | |
+gcctgtgaagggcccgggccctcggccttcatcttccctccaaaacccaaggacaccttc
+atgatctcccggacccccaaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtacgtggacggcgtagaggtgcacacggcccagacgaggcca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctaccaatccagcaccag
+gactggctgaacgggaaggagttcaagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>M81771|IGHG6-1*02|Sus scrofa_Minnesota miniature swine|F|CH3-CHS|1122..1448|327 nt|1| | | | |327+0=327| | |
+gggcagacccgggagccgcaggtgtacaccctgcccccacccaccgaggagctgtccagg
+agcaaactcagtgtaacctgcctgatcactggcttctacccacctgacatcgatgtcgag
+tggcaaagaaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gatgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacccattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatcttcaagactccgggtaat
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|CH1|n,67442..67734|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgactgtgccggccaggagctcgtccagaaagtgc
+ttcacgtgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|H|g,68036..68058|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|CH2|g,68187..68512|327 nt|1|+1|-1| | |327+0=327| | |
+gcctgtgaagggcccgggccctcggccttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacaccccaggtcacgtgcgtggtggttgatgtgagccaggagaacccg
+gaggtccagttctcctggtatgtggacggtgtagaggtgcacacggcccagacgaggcca
+aaggaggcgcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcacgag
+gactggctgaaggggaaggagttcgagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|CH3-CHS|g,68606..68931|327 nt|1|+1| | | |327+0=327| | |
+gggccgagccgggagccgcaggtgtacaccctgtccccatccgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggaagagcaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacccattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccgtctccaagactcagggtaaa
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|M1|g,70432..70562|132 nt|1|+1| | | |132+0=132| | |
+gaactgctcctggaggagagctgtgccgacgcccaggacggggagctggacgggctctgg
+accaccatctccatcttcatcacgctcttcctgctcagcgtgtgctacagcgccaccgtg
+acgctcttcaag
+>AB699687|IGHG6-2*01|Sus scrofa_Landrace boar|F|M2|70790..70870|81 nt|1| | | | |81+0=81| | |
+gtgaagtggatcttctcgtcggtggtggagctgaagcggaccattgtccccgactacaga
+aacatgatcgggcagggggcc
+>EU372655|IGHG6-2*02|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccctgacc
+tggaactcgggcgccctgaccagtggcgtgcataccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcatggtgaccgtgccggccagcagcctgtccagcaagagc
+tacacctgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>EU372655|IGHG6-2*02|Sus scrofa|F|H|g,596..618|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>EU372655|IGHG6-2*02|Sus scrofa|F|CH2|g,747..1072|327 nt|1|+1|-1| | |327+0=327| | |
+gcctgtgaagggcccgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacaccccaggtcacgtgcgtggtggtagatgtgagccaggaaaacccg
+gaggtccagttctcctggtatgtggacggtgtagaggtgcacacggcccagacgaggcca
+aaggaggcgcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcacgag
+gactggctgaaggggaaggagttcgagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>EU372655|IGHG6-2*02|Sus scrofa|F|CH3-CHS|g,1166..1491|327 nt|1|+1| | | |327+0=327| | |
+gggccgagccgggagccgcaggtgtacaccctgtccccatccgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggaagagcaacggacagccggagccagagggcaattaccgcaccaccccgccccagcag
+gacgtggacgggacctacttcctgtacagcaagctcgcggtggacaaggccagctggcag
+cgtggagacccattccagtgtgcggtgatgcacgaggctctgcacaaccactacacccag
+aagtccatcttcaagactccgggtaaa
+>EU372653|IGHG6-2*03|Sus scrofa|F|CH1|n,2..294|294 nt|1|+1|-1| | |294+0=294| | |
+ncccccaagacggccccatcggtctaccctctggccccctgcggcagggacacgtctggc
+cctaacgtggccttgggctgcctggcctcaagctacttccccgagccagtgaccgtgacc
+tggaactcgggcgccctgaccagtggcgtgcacaccttcccatccgtcctgcagccgtca
+gggctctactccctcagcagcacggtgaccgtgccggccaggagctcgtccagaaagtgc
+ttcacgtgcaatgtcaaccacccggccaccaccaccaaggtggacctgtgtgtt
+>EU372653|IGHG6-2*03|Sus scrofa|F|H|g,596..618|24 nt|1|+1|-1| | |24+0=24| | |
+ggacgaccatgtcccatatgccca
+>EU372653|IGHG6-2*03|Sus scrofa|F|CH2|g,747..1072|327 nt|1|+1|-1| | |327+0=327| | |
+gcctgtgaagggaacgggccctcggtcttcatcttccctccaaaacccaaggacaccctc
+atgatctcccggacccccgaggtcacgtgcgtggtggtagatgtgagccaggaaaacccg
+gaggtccagttctcctggtacgtggacggcgaagaggtgcacacggccgagacgaggcca
+aaggaggagcagttcaacagcacctaccgtgtggtcagcgtcctgcccatccagcaccag
+gactggctgaagggaaaggagttcgagtgcaaggtcaacaacaaagacctcccagccccc
+atcacaaggatcatctccaaggccaaa
+>EU372653|IGHG6-2*03|Sus scrofa|F|CH3-CHS| |315 nt|1|+1| | | |315+0=315|partial in 3'| |
+gggccgagccgggagccgcaggtgtacaccctgtccccatccgccgaggagctgtccagg
+agcaaagtcagcataacctgcctggtcactggcttctacccacctgacatcgatgtcgag
+tggaagagcaacggacagccggagccagagggcaattaccgctccaccccgccccaggag
+gacgaggacgggacctacttcctgtacagcaaactcgcggtggacaaggcgaggttgcag
+agtggaggcatccactgtgcggtgatgcacgaggctctgcacaaccactacacccagaag
+tccatctccaagact
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|CH1|g,45608..45924|318 nt|1|+1|-1| | |318+0=318| | |
+gagagccagtctgccccgaatctcttccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gtgtccatctctgggcca
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|CH2|g,46008..46339|333 nt|1|+1|-1| | |333+0=333| | |
+gtcgtagaggagcagccccccgtcttgaacatcttcgtccccacccgggagtccttctcc
+agtactccccagcgcacgtccaagctcatctgccaggcctcagacttcagccccaagcag
+atctccatggcctggttccgtgatgggaaacgggtggtgtctggcgtcagcacaggcccc
+gtggagaccctacagtccagtccggtgacctacaggctccacagcatgctgaccgtcacg
+gagtccgagtggctcagccagagcgtcttcacctgccaggtggagcacaaagggctgaac
+tacgagaagaacgcgtcctctctgtgcacctcc
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|CH3|a,46609..46925|318 nt|1|+1|-1| | |318+0=318| | |
+aatcccaactctcccatcaccgtcttcgccatcgccccctccttcgctggcatcttcctc
+accaagtcggccaagctttcctgcctggtcacgggcctcgtcaccagggagagcctcaac
+atctcctggacccgccaggacggcgaggttctgaagaccagtatcgtcttctctgagatc
+tacgccaacggcaccttcggcgccaggggcgaagcctccgtctgcgtggaggactgggag
+tcgggcgacaggttcacgtgcacggtgacccacacggacctgccctcgccgctgaagcag
+agcgtctccaagcccaga
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|CH4-CHS|g,47063..47460|399 nt|1|+1| | | |399+0=399| | |
+gggatcgccaggcacatgccgtccgtgtacgtgctgccgccggccccggaggagctgagc
+ctgcaggagtgggcctcggtcacctgcctggtgaagggcttctccccggcggacgtgttc
+gtgcagtggctgcagaagggggagcccgtgtccgccgacaagtacgtgaccagcgcgccg
+gtgcccgagcccgagcccaaggcccccgcctcctacttcgtgcagagcgtcctgacggtg
+agcgccaaggactggagcgacggggagacctacacctgcgtcgtgggccacgaggccctg
+ccccacacggtgaccgagaggaccgtggacaagtccaccggtaaacccaccctgtacaac
+gtctccctggtcctgtccgacacggccagcacctgctac
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|M1|g,49430..49545|117 nt|1|+1| | | |117+0=117| | |
+gagggggaggtgagcgctgaggaggaaggcttcgagaacctcaacaccatggcctccacc
+ttcatcgtgctcttcctcctgagcctcttctacagcaccaccgtcacgctgttcaag
+>AB699686|IGHM*01|Sus scrofa_Landrace boar|F|M2|49619..49624|6 nt|1| | | | |6+0=6| | |
+gtgaag
+>U50149|IGHM*02|Sus scrofa|F|CH1|n,4025..4341|318 nt|1|+1|-1| | |318+0=318| | |
+nagagccagtctgccccgaatctctaccccctcgtctcctgcgtcagccccccgtccgat
+gagagcctggtggccctgggctgcctggcccgggacttcctgcccagctccgtcaccttc
+tcctggaactacaagaacagcagcaaggtcagcagccagaacatccaggacttcccgtcc
+gtcctgagaggcggcaagtacttggcctcctcccgggtgctcctaccctctgtgagcatc
+ccccaggacccagaggccttcctggtgtgcgaggtccagcaccccagtggcaccaagtcc
+gtgtccatctctgggcca
+>U50149|IGHM*02|Sus scrofa|F|CH2|g,4424..4755|333 nt|1|+1|-1| | |333+0=333| | |
+gtcgtagaggagcagccccccgtcttgaacatcttcgtccccacccgggagtccttctcc
+agtactccccagcgcacgtccaagctcatctgccaggcctcagacttcagccccaagcag
+atctccatggcctggttccgtgatgggaaacgggtggtgtctggcgtcagcacaggcccc
+gtggagaccctacagtccagtccggtgacctacaggctccacagcatgctgaccgtcacg
+gagtccgagtggctcagccagagcgtcttcacctgccaggtggagcacaaagggctgaac
+tacgagaagaacgcgtcctctctgtgcacctcc
+>U50149|IGHM*02|Sus scrofa|F|CH3|a,5024..5340|318 nt|1|+1|-1| | |318+0=318| | |
+aatcccaactctcccatcaccgtcttcgccatcgccccctccttcgctggcatcttcctc
+accaagtcggccaagctttcctgcctggtcacgggcctcgtcaccagggagagcctcaac
+atctcctggacccgccaggacggcgaggttctgaagaccagtatcgtcttctctgagatc
+tacgccaacggcaccttcggcgccaggggcgaagcctccgtctgcgtggaggactgggag
+tcgggcgacaggttcacgtgcacggtgacccacacggacctgccctcgccgctgaagcag
+agcgtctccaagcccaga
+>U50149|IGHM*02|Sus scrofa|F|CH4-CHS|g,5472..5869|399 nt|1|+1| | | |399+0=399| | |
+gggatcgccaggcacatgccgtccgtgtacgtgctgccgccggccccggaggagctgagc
+ctgcaggagtgggcctcggtcacctgcctggtgaagggcttctccccggcggacgtgttc
+gtgcagtggctgcagaagggggagcccgtgtccgccgacaagtacgtgaccagcgcgccg
+gtgcccgagcccgagcccaaggcccccgcctcctacttcgtgcagagcgtcctgacggtg
+agcgccaaggactggagcgacggggagacctacacctgcgtcgtgggccacgaggccctg
+ccccacacggtgaccgagaggaccgtggacaagtccaccggtaaacccaccctgtacaac
+gtctccctggtcctgtccgacacggccagcacctgctac
+>U50148|IGHM*02|Sus scrofa|F|M1|2..117|116 nt|1| | || |116+0=116| | |
+agggggaggtgagcgctgaggaggaaggcttcgagaacctcaacaccatggcctccacct
+tcatcgtgctcttcctcctgagcctcttctacagcaccaccgtcacgctgttcaag
+>U50148|IGHM*02|Sus scrofa|F|M2|191..196|6 nt|1| | | | |6+0=6| | |
+gtgaag
+>M92050|IGHM*03|Sus scrofa|(P)|CH1|1..164|164 nt|1| | | | |164+0=164|partial in 5'| |
+gccagaacatccaggacttcccgtccgtcctgagaggcggcaagtacttggcctcctccc
+gggtgctcctaccctctgtgagcatcccccaggacccagaggccttcctggtgtgcgagg
+tccagcaccccagtggcaccaagtccgtgtccatctctgggcca
+>M92050|IGHM*03|Sus scrofa|(P)|CH2|165..497|333 nt|1| | | | |333+0=333| | |
+gtcgtagaggagcagccccccgtcttgaacatcttcgtccccacccgggagtccttctcc
+agtactccccagcgcacgtccaagctcatctgccaggcctcagacttcagccccaagcag
+atctccatggcctggttccgtgatgggaaacgggtggtgtctggcgtcagcacagccccc
+gtggagaccctacagtccagtccggtgacctacaggctccacagcatgctgaccgtcacg
+gagtccgagtggctcagccagagcgtcttcacctgccaggtggagcacaaagggctgaac
+tacgagaagaacgcgtcctctctgtgcacctcc
+>M92050|IGHM*03|Sus scrofa|(P)|CH3|498..812|315 nt|1| | | | |315+0=315| | |
+aatcccaactctcccatcaccgtcttcgccatcgccccctccttcgctggcatcttcctc
+accaagtcggccaagctttcctgcctggtcacgggcctcgtcaccagggagagcctcaac
+atctcctggacccgccaggacggcgaggttctgaagaccagtatcgtcttctctgagatc
+tacgccaaccgagccttcggccagggcgaagcctccgtctgcgtggaggactgggagtcg
+ggcgacaggttcacgtgcacggtgacccacacggacctgccctcgccgctgaagcagagc
+gtctccaagcccaga
+>M92050|IGHM*03|Sus scrofa|(P)|CH4-CHS|813..1211|399 nt|1| | | | |399+0=399| | |
+gggatcgccaggcacatgccgtccgtgtacgtgctgccgccggccccggaggagctgagc
+ctgcaggagtgggcctcggtcacctgcctggtgaagggcttctccccggcggacgtgttc
+gtgcagtggctgcagaagggggagcccgtgtccgccgacaagtacgtgaccagcgcgccg
+gtgcccgagcccgagcccaaggcccccgcctcctacttcgtgcagagcgtcctgacggtg
+agcgccaaggactggagcgacggggagacctacacctgcgtcgtgggccacgaggccctg
+ccccacacggtgaccgagaggaccgtggacaagtccaccggtaaacccaccctgtacaac
+gtctccctggtcctgtccgacacggccagcacctgctac
