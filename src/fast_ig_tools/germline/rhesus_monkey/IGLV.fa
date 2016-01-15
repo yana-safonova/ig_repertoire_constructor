@@ -1,0 +1,605 @@
+>NW_001095158|IGLV1-10*01|Macaca mulatta|F|V-REGION|2067544..2067839|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgactcaaccaccctcagcgtctggggcccccgggcagagtgtcaccatc
+tcctgttctggaagcagctccaacatcggaagtaattatgtatactggtaccagcagctc
+tcaggaaaggcccccaaactcctcatctataataataatcagcgaccctcaggggtccct
+gatcgattctctggctccaagtctggcacgtcagcctccctggccatcagtgggctccag
+tccgaggatgaggctgattattactgcgcagcatgggatagcagcctgagcggtcc
+>NW_001095158|IGLV1-11*01|Macaca mulatta|F|V-REGION|2098953..2099182|230 nt|1| | | | |230+0=230|partial in 3'| |
+cagtctgtgctgacgcagccgccctcagtgtctgcggccccaggacagagggtcaccatc
+tcctgctctggaagcagctccaacatcgggagaagttatgtatcctggtaccagcaggtc
+ccaggaacagcccccaaactcctcatctatcaagataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctggccatcac
+>NW_001095158|IGLV1-12*01|Macaca mulatta|F|V-REGION|2103022..2103317|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgacgcagccgccctcagtgtctggggaccccgggcagagggtcaccatc
+tcctgcactgggagcagctccaacattggaggttatgatgtatactggtaccagcagctc
+ccaggaacagcccccaaactcctcatctatgaaaataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctgaccatcactggactccag
+tctgaggatgaggctgaatattactgcgaaacatgggataacagtctgaatggtcc
+>NW_001095158|IGLV1-13*01|Macaca mulatta|F|V-REGION|2108030..2108325|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgacgcagccgccctcagtgtctggggaccccgggcagagggtcaccatc
+tcgtgcactgggagcagctccaacattggaggttattatgtatactggtaccagcagttc
+ccaggaacagcccccaaactcctcatctatgacaataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctgaccatcactgggctccag
+cctggggatgaggctgattattactgcggagcatgggatagcagcctgagtgctca
+>NW_001095158|IGLV1-14*01|Macaca mulatta|F|V-REGION|2113854..2114149|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgacacagccgccctcagtgtctggggccccagggcagagggtcaccatc
+tcgtgcactgggagcagctccaacattggaggttattatgtatcctggtaccagcagctc
+ccaggaacgacccccaaactcctcatctatcaagataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctgaccatcactgggctccag
+actgaggatgaggctgattattactgcctgtcctatgacagcagcctgagtgctca
+>NW_001095158|IGLV1-15*01|Macaca mulatta|F|V-REGION|2141169..2141464|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgactcagcctccctcagcgtctgaggccgccaggaagagtgtcaccatc
+tcctgttctggaagcagctccaacatcggaagtaatagtgtatcctggtaccagcagctc
+ccaggaacagctcccaaactcctcatctattataatgatcaacgagcctcaggtgtctct
+gaccgattctctggctccaagtctggcacgtcagcctccctggccatcagtgggctccag
+accgaggatgaggctgattattactgcgcagcatgggatgatagcctgagcggtcc
+>NW_001095158|IGLV1-2*01|Macaca mulatta|P|V-REGION|1621470..1621768|299 nt|1| | | | |299+0=299| | |
+cagtctgtactgactcagctgccctcagtgcctggggctcagggtcatagggtcaccgtc
+tcctgcactggaagcaactccaacatggagggtggctgtaatgtgaaccagtatcagtaa
+ctcccaggtgctgacctcagactcctcatggatagtgataggaattggccttccatggtc
+cctgaccagttctctggctccaagactggcaactcggcctccctgaccattactgggctc
+tgagttgaggatgaggctgctgatcactgccagtcctttgacagcaatgcaagtacttg
+>AC215787|IGLV1-2*02|Macaca mulatta|P|V-REGION|43203..43501|299 nt|1| | | | |299+0=299| | |
+cagtctgtactgactcagctgccctcagtgcctggggctcagggtcatagggtcaccgtc
+tcctgcactggaagcaactccaacatggagggtggctgtaatgtgaaccagtatcagtaa
+ctcccaggtgctgacctcagactcctcatggatagtgataggaattggccttccatggtc
+cctgaccagttctctggctccaaggctggcaactcggcttccctgaccgttactgggctc
+tgagttgaggatgaggctgatgatcactgccagtcctttgacagcaatgcaagtacttg
+>NW_001095158|IGLV1-6*01|Macaca mulatta|F|V-REGION|1994522..1994817|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgacgcagccgccctcagtgtctgcggccccaggacagagggtcaccatc
+tcctgctctggaagcagcttcaacttcaggaggtattatgtgtcctggtaccagcagctc
+ccaggagcagcccccaaactcctcatctatgatgttaataagcgaccctcaggggtttct
+gaccgattctctggctcccagtctggcacctcagccaccctgggcatcagtggactccgg
+cctgaggatgaggccgattattactgctcagcatgggatagcagcctgagcactca
+>AC214063|IGLV1-6*02|Macaca mulatta|F|V-REGION|34808..35103|296 nt|1| | | | |296+0=296| |rev-compl|
+cagtctgtgctgacgcagccgccctcagtgtctgcggccccaggacagagggtcaccatc
+tcctgctctggaagcagcttcaacttcaggaggtattatgtgtcctggtaccagcagctc
+ccaggaacggcccccaaactcctcatctatgatgttaataagcaaccctcaggggtttct
+gaccgattctctggctcccagtctggcacctcagccaccctgggcatcagtggactccgg
+cctgaggatgaggccgattattactgctcagcatgggataacagcctgagtgctca
+>NW_001095158|IGLV1-7*01|Macaca mulatta|F|V-REGION|1999861..2000156|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgacgcagccgccctcagtgtctggggcgcccgggcagagggtcaccatc
+tcctgcactgggagcagctccaacattggaggttattatgtgcagtggtaccagcagctt
+ccaggaacggcccccaaactcctcatctatgaaaataataagcgaccctcaggggtttct
+gatcgattctctggctcccagtctggtacctcagcctccctgaccatcactggactccag
+tctgaggatgaggctgattattactgccagtcctatgacagcagcttgagtgctca
+>NW_001095158|IGLV1-8*01|Macaca mulatta|F|V-REGION|2027507..2027802|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgactcagccaccctcagcgtctggggctcccgggcagagtgtcaccatc
+tcttgctctggaagcagctccaacattggaagtaattatgtatactggtaccagcagctc
+ccaggaacggcccccaaactcctcatctattatagtaatcagcgaccctcaggggtccct
+gaccgattctctggctctaagtctggcacctcagcctccctggccatcactggtctccga
+tctgaggatgaggctgattattactgtgcagcatgggataacagcctgagcagtcc
+>NW_001095158|IGLV1-9*01|Macaca mulatta|F|V-REGION|2046273..2046568|296 nt|1| | | | |296+0=296| | |
+cagtctgtgctgactcagccaccctcagcgtctggggcccccgggcagagtgtcaccatc
+tcttgctctggaagcagctccaacatcagaggtaatggtgtacactggtaccagcagctc
+tcaggaatggcccccaaactcctcatctataataataatcagcgaccctcaggggtccct
+gaccgattctctggctccaagtctggcacctcagcctccctggccatcactggtctccag
+tctgaggatgaggccgattattactgcgaagcatgggataacagcctgagcggtcc
+>NW_001095158|IGLV10-1*01|Macaca mulatta|F|V-REGION|1692836..1693131|296 nt|1| | | | |296+0=296| | |
+caggcagggctgactcagccaccctcagtgtccaagggcttgagacagacggccacgctc
+acctgcactggaaacagcaacaatgttggcaaccagggagcagcttggctgcagcagcac
+cagggccaccctcccaaactgctgtcctacaggaataacaaccggccctcggggatctca
+gagagattctctgcatccaggtcaggaaacacagcctccctgaccatcaccggactccaa
+cctgaggatgaggctgactattactgctcagcatgggacagcagcctcagtgctca
+>NW_001095158|IGLV11-1*01|Macaca mulatta|F|V-REGION|1669543..1669854|312 nt|1| | | | |312+0=312| | |
+cagcctgtgctgactcagccaccctccctgtctgcatccccgggagcatcggccagactc
+ccctgcaccctgagcagtgacctcagtgttggtagtaaaaacatgtactggtaccagcag
+aagccagggagcgctcccaggttattcctgtactactactccgactcagacaagcagctg
+ggacctggggtccccaatcgagtctctggctccaaggagacctcaagtaacacagcgttt
+ttgctcatctctgggctccagcctgaggacgaggccgattattactgtcaggtgtatgac
+agtagtgctaat
+>AM055970|IGLV1S1*01|Macaca mulatta|F|V-REGION|144..440|297 nt|1| | | | |297+0=297| | |
+cagtctgtgctgacgcagccgccctcagtgtctggggcccccgggcagagggtcaccatc
+tcctgcactgggagcagctccaacatcggggcgggttattatgtgcagtggtaccagcag
+cttccaggaacggcccccaaactcctcatctatgaaaataataagcgaccctcaggggtt
+tctgatcgattctctggctccaagtctggtacctcagcctccctgaccatcactggactc
+cagtctgaggatgaggctgattattactgccagtcctatgacagcagcctgagtgct
+>AM055971|IGLV1S2*01|Macaca mulatta|F|V-REGION|144..440|297 nt|1| | | | |297+0=297| | |
+cagtctgtgctgacgcagccgccctcagtgtctggggcgcccgggcagagggtcaccatc
+tcctgcactgggagcagctccaacattggggcgggttatggtgtgcagtggtaccagcag
+cttccaggaacggcccccaaactcctcatctatgaaaataataagcgaccctcaggggtt
+tctgatcgattctctggctcccagtctggtacctcagcctccctgaccatcactggactc
+cagtctgaggatgaggctgattattactgcctgtcctatgacagcagcctgagtgct
+>AM055972|IGLV1S3*01|Macaca mulatta|F|V-REGION|144..437|294 nt|1| | | | |294+0=294| | |
+cagtctgtgctgacacagccaccctcagtgtctggggccccagggcagagggtcaccatc
+tcgtgcactgggagcagctccaacattggaggttattatgtatcctggtaccagcagctc
+ccaggaacgacccccaaactcctcatctatcaagataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctgaccatcactgggctccag
+actgaggatgaggctgattattactgcctgtcctatgacagcagcctgagtgct
+>AM055973|IGLV1S4*01|Macaca mulatta|F|V-REGION|150..443|294 nt|1| | | | |294+0=294| | |
+cagtctgtgctgactcagccaccctcagcgtctggggctcccgggcagagtgtcaccatc
+tcttgctctggaagcagctccaacattggaggtaataatgtatattggtaccagcagttg
+ccaggaacggcccccaaactcctcatctattatagtaatcagcgaccctcaggggtccct
+gaccgattctctggctccaagtctggcacctcagcctccctggccatcactggtctccgg
+tctgaggatgaggctgattattactgtgcagcatgggatgacagcctgagcagt
+>AM056014|IGLV1S5*01|Macaca mulatta|P|V-REGION|137..433|297 nt|1| | | | |297+0=297| | |
+cagtctgtactgactcagctgccctcagtgcctggggctcagggtcatagggtcaccgtc
+tcctgcactggaagcaactccaacatggagggtggctgtaatgtgaaccagtatcagtaa
+ctcccaggtgctgacctcagactcctcatggatagtgataggaattggccttccatggtc
+cctgaccagttctctggctccaaggctggcaactcggcttccctgaccgttactgggctc
+tgagttgaggatgaggctgctgatcactgccagtcctttgacagcaatgcaagtact
+>AM056015|IGLV1S6*01|Macaca mulatta|F|V-REGION|143..436|294 nt|1| | | | |294+0=294| | |
+cagtctgtgctgacgcagccgccctcagtgtctgcggccccagggcagaaggtcaccatc
+tcctgctctggaagcagctccaacatcgggagaagttatgtatcctggtaccagcaggtc
+ccaggaacggcccccaaactcctcatctatgacaataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctggccatcactggactccag
+actggagatgaggctgattattactgcggagcatgggatagcagcctgagtgct
+>AM056016|IGLV1S7*01|Macaca mulatta|F|V-REGION|143..436|294 nt|1| | | | |294+0=294| | |
+cagtctgtgctgacgcagccgccctcagtgtctgcggccccaggacagaaggtcaccatc
+tcctgctctggaagcagctccaacatcgggagaagttatgtatcctggtaccagcaggtc
+ccaggaacggcccccaaactcctcatctatcaagataataagcgaccctcaggggtttct
+gaccgattctctggctccaagtctggtacctcagcctccctggccatcactggactccag
+actggagatgaggctgattattactgctcagcatgggatagcagcctgagtgct
+>NW_001095158|IGLV2-10*01|Macaca mulatta|F|V-REGION|2595702..2595830|129 nt|1| | | | |129+0=129|partial in 3'| |
+cagtctgccccgattcagtctccctctgtgtctgggtctcttggacagtcggtcaccatc
+tcctgcactggaaacagcagtgacattgggcgttataactatgtctcctggtaccgacag
+cagccaggc
+>NW_001095158|IGLV2-3*01|Macaca mulatta|F|V-REGION|2454122..2454418|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctcgctcagtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacatcggtggttataactatgtctcctggtaccaacag
+catccaggcacagcccccaaactcatgatttatgcggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgctgctcatatgcaggcagctacactttc
+>NW_001095158|IGLV2-5*01|Macaca mulatta|ORF|V-REGION|2498366..2498662|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctccctcagtgtccaagtctcttggacagtcggtcaccatc
+tcctgcgctggaaccagcagtggcattgctagttatagtgacgtctcctggtaccagcag
+cacccaggcacagcccccagactcctgatttaccgtgtcagtaatcgaccctcaggggtc
+tctgatcgcttctctggcttcaagtctggcagcacagcctccctgaccatctctgggctc
+caggctgaggacgaggctatttattactgctgctcatataggagtggaagcactttc
+>NW_001095158|IGLV2-7*01|Macaca mulatta|F|V-REGION|2518939..2519235|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctccctcaatgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacattggtggttataaccgtgtctcctggtaccaacag
+cacccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggatgaggctgattattactgcagctcatatgcaggcagcaacactttc
+>NW_001095158|IGLV2-8*01|Macaca mulatta|F|V-REGION|2542757..2543053|297 nt|1| | | | |297+0=297| | |
+caggctgccccgactcagtctccctctgtgtctgggtctgctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgatattgggtattataatgctgtgtcttggtaccaacag
+catccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgcagctcatatgcaggtagtggtactttc
+>NW_001095158|IGLV2-9*01|Macaca mulatta|F|V-REGION|2577111..2577407|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagtctccctctgtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacattggtggttataaccgtgtctcctggtaccaacag
+cacccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggttccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgcagctcatacgcaagcagtagcactttc
+>AM055976|IGLV2S1*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctccctctgtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacatcggtggttataactatgtctcctggtaccagcag
+cacccaggcaaagcccccaaactcatgatttatgatgtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaaatctggcaacacggcctccctgaccatctctgggctc
+caggctgaggatgaggctgattattactgcagctcatatgcaggcagcaacactttc
+>AM055985|IGLV2S10*01|Macaca mulatta|F|V-REGION|139..435|297 nt|1| | | | |297+0=297| | |
+cagtctgccccgattcagtctccctctgtgtctgggtctcttggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacattgggcgttataactatgtctcctggtaccgacag
+cagccaggcacgaccaccaaactcatgatgtacaaagtcaatatgcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctggactc
+caggctgaggacaaggctgattattactgtagctcatatgaggccagcgacactttc
+>AM055986|IGLV2S11*01|Macaca mulatta|F|V-REGION|139..435|297 nt|1| | | | |297+0=297| | |
+cagtctgccccgattcagtctccctctgtgtctgggtctcttggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacattgggcgttataactatgtctcctggtaccgacag
+cagccaggcacgaccaccaaactcatgatgtacaaagtcaatatgcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctggactc
+caggctgaggacgaggctgattattactgtagctcatatgaggccagcgacactttc
+>AM055977|IGLV2S2*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccccgactcagcctccctctgtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacatcggtggttataactatgtctcctggtaccaacag
+cacccaggcaaagcccccaaactcatgatttatgatgtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaaatctggcaacacggcctccctgaccatctctgggctc
+caggctgaggatgaggctgattattactgcagctcatatgcaggcagcaacactttc
+>AM055978|IGLV2S3*01|Macaca mulatta|F|V-REGION|149..445|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctcgctcagtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacatcggtggttataactatgtctcctggtaccaacag
+catccaggcacagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgcagctcatatgcaggcagcaacactttc
+>AM055979|IGLV2S4*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccccgactcagtctccctctgtgtctgggtctcctggacagtcggtcaccatt
+tcctgcactggaaccagcagtgacattggtggttataaccgtgtctcctggtaccaacag
+cacccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggttccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgcagctcatatgcaggtagtggtactttc
+>AM055980|IGLV2S5*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccccgactcagtctccctctgtgtctgggtctcctggacagtcggtcaccatt
+tcctgcactggaaccagcagtgacattggtggttataaccgtgtctcctggtaccaacag
+cacccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggttccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgcagctcatacgcaagcagtagcactttc
+>AM055981|IGLV2S6*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccccgactcagcctccctctgtgtccgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgatattgggtattataatgctgtgtcttggtaccaacag
+catccaggcaaagcccccaaactcatgatttatgaggtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggatgaggctgattattactgcagctcatatgcaggcagcaacactttc
+>AM055982|IGLV2S7*01|Macaca mulatta|F|V-REGION|147..443|297 nt|1| | | | |297+0=297| | |
+cagtctgccccgactcagcctccctctgtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacgttggtggttataactatgtctcctggtaccagcag
+cacccaggcaaagcccccaaactcatgatttatggtgtcagtaatcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgttgttcatatacaaccagtagcactttc
+>AM055983|IGLV2S8*01|Macaca mulatta|P|V-REGION|147..443|297 nt|1| | | | |297+0=297| | |
+cagtctgccccgactcagcctccctctgtgtctgggtctcctggacagtcggtcaccatc
+tcctgcactggaaccagcagtgacgttggtggttataactatgtctcctggtaccagcag
+cacccaggcaaagcccccaaactcatgatttatgatgtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgttgttcatatacaaccagtagcactttc
+>AM055984|IGLV2S9*01|Macaca mulatta|F|V-REGION|151..447|297 nt|1| | | | |297+0=297| | |
+caggctgccctgactcagcctccctcagtgtccaagtctcttggacagtcggtcaccatc
+tcctgcactggaaccagcaatgacgttggtggttataatgacgtctcctggtaccagcag
+cacccaggcacagcccccagactcctgatttatgatgtcagtaagcggccctcaggggtc
+tctgatcgcttctctggctccaagtctggcaacacggcctccctgaccatctctgggctc
+caggctgaggacgaggctgattattactgctgctcatataggagtggaagcactttc
+>NW_001095158|IGLV3-1*01|Macaca mulatta|F|V-REGION|2443152..2443441|290 nt|1| | | | |290+0=290| | |
+tcctatgagctgactcagccaccctcggtgtcagtgtccccaggacagacggccaggatc
+acctgtgggggagacaaccttggaagtaaatatgtgcactggtaccagcagaagccagcg
+caggcccctgtgctggtcatctattatgatagtgaccggccctcagggatccctgagcga
+ttctctggctccaaatcagggaacaccgccaccctgaccatcagcggggtcgaggccggg
+gatgaggctgactattactgtcaggtgtgggacagtagtagtgatcatcc
+>NW_001095158|IGLV3-10*01|Macaca mulatta|F|V-REGION|2566486..2566775|290 nt|1| | | | |290+0=290| | |
+tcctatgagctgacacagccaccctcggtgtcagtgtccccaggacagacggccaggatc
+acctgctctggagatgcattgccaaaaaaatatgcttattggttccagcagaagccaggc
+cagtcccctgtgctgatcatctatgaggacagcaaacggccctctgggatccctgagaga
+ttctctggctccagctcagggacagtggccaccttgactatcagtggggcccaggtggag
+gatgaagctgactactactgttactcaacagatagcagtggtaatcatag
+>NW_001095158|IGLV3-12*01|Macaca mulatta|F|V-REGION|2573924..2573970|47 nt|1| | | | |47+0=47|partial in 3'| |
+tcctatgagctgactcagccactctcagtgtcagtggccctgggaca
+>NW_001095158|IGLV3-19*01|Macaca mulatta|F|V-REGION|2748519..2748817|299 nt|1| | | | |299+0=299| | |
+tcctatgagctgactcagtcaccctcagtgtcagtgtccccaggacagccagccagcatc
+acctgctctggagataaatttgggaatgcatatgcttactggtaccagcagaagccaggc
+caggtccctgtactggtcatctataaaaatagcaaccggccctcagggatccctgagcga
+ttctctggctccaactcggggaacacggccaccctgaccatcagcggggtcgaggctggg
+gatgaggccgactattactgtgctacaagctatggcagtgggagcagctggcagtgact
+>NW_001095158|IGLV3-2*01|Macaca mulatta|F|V-REGION|2447630..2447919|290 nt|1| | | | |290+0=290| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcaggatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccatct
+>NW_001095158|IGLV3-3*01|Macaca mulatta|F|V-REGION|2463351..2463634|284 nt|1| | | | |284+0=284| | |
+tcctatgagctgacacagccacccttggtgtcagtgtccccaggacagacagccaggatc
+acctgctctggagatgtactgaaggaaaattatgctgactggtaccagcagaagcccggc
+caggcccctgtgctgctgatacatgaagatagtaagcgaccctctggaatccctgagcga
+ttctctgggtccacctcaggggacacgaccaccctgaccatcagcagcaccctgagtgaa
+gatgaggctgactattcctgtttttctgggaatgagaacaatcc
+>NW_001095158|IGLV3-4*01|Macaca mulatta|F|V-REGION|2471646..2471935|290 nt|1| | | | |290+0=290| | |
+tcctatgatgtgactcagccacgctcagtgtctgtgtccccaggacagacggccaggatc
+acctgtgggggagacaacattggaagtaaagttgtgcactggtaccagcagaagccagcg
+caggcccctgtgctggtcatctatagagatagcaaacggccctcagggatccctgagcga
+ttctctggctccaactcagggaacacggccaccctgaccatcagcggggtcgaggccggg
+gatgaggctgactattactgtcaggtgtgggacagtagtagtgatcatcc
+>NW_001095158|IGLV3-5*01|Macaca mulatta|F|V-REGION|2479287..2479576|290 nt|1| | | | |290+0=290| | |
+tcttctgagctgactcaggaccctgcagtgtctgtggccttgggacagacagtcaggatc
+acttgccaaggagacagcctcagaagctattatgcaagctggtaccagcagaagccaggc
+caggcccctgtgctggtcgtctatggtaacaacaaccggccctcagggatcccagagcga
+ttctctggctccagctcaggaaacacagcttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtgactcctgggacagcagcggtacccatcc
+>NW_001095158|IGLV3-6*01|Macaca mulatta|F|V-REGION|2506775..2507064|290 nt|1| | | | |290+0=290| | |
+tcctatgagctgactcagccaccctcggtgtcagcggcctcaggacagacggccaggatc
+acctgtgggggagacaacattggaagtaaaaatgtgcactggtaccagcagaagccagcg
+caggcccctgtgctggtcatctatgctgatagcaaacggccctcagggatccctgagcga
+ttctctggctccaactcagggaacaccgccaccctgaccatcagcagggtcgaggccggg
+gatgaggctgactattactgtcaggtgtgggacagtagtagtaaatacgc
+>NW_001095158|IGLV3-9*01|Macaca mulatta|ORF|V-REGION|2552275..2552559|285 nt|1| | | | |285+0=285| | |
+tcctctgagctggctcaggagtctgcggtgtctgtggccttgttacagatggccaggatc
+acctgccagggagatggcataggaaactactacacaaactggtgccagcagaagccaggc
+cgagccctagtaggggtcacctgtggtaacaactgtccctcagggatcccagacaaattc
+tctggctccaaatcagagaagaaggccatcctgaccatcactgggactcaggttgaagat
+gaagccgactattactttctatcacgacagcagtggtactcatcc
+>AM055987|IGLV3S1*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccat
+>AM055997|IGLV3S10*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgggctgactcaggagcctgcattgtctgtggccttgggacatacagtcaggatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaccaataggccctcagggatcccaggccga
+ttctctggctcctggtcaggaaacacgggttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtggctcctgggataacagtggtaaccat
+>AM055998|IGLV3S11*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgggctgactcaggagcctgcattgtctgtggccttgggacatacagtcaggatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaccaataggccctcagggatcccaggccga
+ttctctggctcctggtcaggaaacacaggttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtggctcctgggataacagtggtaaccat
+>AM055999|IGLV3S12*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcagaagcctgcattgtctgtggccttgggacatacagtcaggatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggttatctatggtaacaccaataggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacagcttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtggctcctgggataacagtggtaaccat
+>AM056000|IGLV3S13*01|Macaca mulatta|F|V-REGION|179..466|288 nt|1| | | | |288+0=288| | |
+tcttctgagctgactcaggaccctgcagtgtctgtggccttgggacagacagtcaggatc
+acctgccaaggagacagcctcagaagctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtggctcctgggataacagtggtaaccat
+>AM056001|IGLV3S14*01|Macaca mulatta|F|V-REGION|176..457|282 nt|1| | | | |282+0=282| | |
+tcctatgagctgacacagccaccctcggtgtcagtgtctcccggacagacggccaagatc
+acctgctctggagaaatactggcaaaaaaatatgctcggtggttccagcagaagccaggc
+caggcccctgtgctggtgatttataaagacagtgagcgcccctcagggattcctgaacgt
+ttctctggctccagctcagggaccacagtcaccctgaccgtcagtggggcccaggctgag
+gatgaggctgactattactgttactctggggatgacaacaat
+>AM056002|IGLV3S15*01|Macaca mulatta|F|V-REGION|181..462|282 nt|1| | | | |282+0=282| | |
+tcctatgagctgacacagccaccctcggtgtcagtgtctcccggacagacggccaagatc
+acctgctctggagaaatactggcaaaaaaatatgctcggtggttccagcagaagccaggc
+caggcccctgtgctggtgatttataaagacagtgagcgcccctcagggattcctgaacgt
+ttctctggctccagctcagggaccacagtcaccctgaccgtcagtggggcccaggctgag
+gatgaggctgactattactgttactctggggatgacaacaat
+>AM056003|IGLV3S16*01|Macaca mulatta|F|V-REGION|176..457|282 nt|1| | | | |282+0=282| | |
+tcctatgagctgacacagccaccctcggtgtcagtgtcccttggacagacggccaagatt
+acctgctctggagatgtactggcaaaatattatgctcattggttccagcagaagccaggc
+caggcgcctgtgctggtgatttataaagacagtgagaggccctcagggatccctgagcga
+ttctctggctccagctcagggaccacagtcaccctgaccatcagcggggcccaggctgag
+gatgaggctgactattactgttactctggggatgacaacaat
+>AM056018|IGLV3S18*01|Macaca mulatta|ORF|V-REGION|180..467|288 nt|1| | || |288+0=288| | |
+tcctctgagctggctcaggagtctgcggtgtctgtggccttgttacagatggccaggagg
+atcacctgccagggagatggcataggaaacaactacacaaactggtgccagcagaagcca
+ggccgagccctagtaggggtcacctgtggtaacaactgtccctcaggaatcccagacaaa
+ttctctggctccaaatcagagaagaaggccatcctgaccatcactgggactcaggttgaa
+gatgaagccaactattactttctatcacgacagcagtggtactcatcc
+>AM056019|IGLV3S19*01|Macaca mulatta|P|V-REGION|178..468|291 nt|1| | | | |291+0=291| | |
+tcctctcagctgactcaggagccttcagtgtctgtggccttgggacagatggccagaatc
+acctgccagggagatggcataggaacctattatgcaaactggtatgagcagaagcctcgg
+taccagaagccctgtgctgatcatctgtggtaacaacaaccagcccttagaatcccagac
+tgattctctggctccaaatcagggaacacggccactctgatcatctccaggactcagact
+gaagacaaggctgactgttactgacaatcaccagacagcagtggtactcat
+>AM055988|IGLV3S2*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggcattgggacatacagtcagcatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccat
+>AM056020|IGLV3S20*01|Macaca mulatta|P|V-REGION|178..468|291 nt|1| | | | |291+0=291| | |
+tcctctcagctgactcaggagccttcagtgtctgtggccttgggacagatggccagaatc
+acctgccagggagatggcataggaacctattatgcaaactggtatgagcagaagcctcgg
+taccagaagccctgtgctgatcatctgtggtaacaacaaccagccctcagaatcccagac
+tgattctctggctccaaatcagggaacatggccactctgaccatctctgggactcagact
+gaagacaaggccgactgttactgacaatcaccagacagcagtggtactcat
+>AM055989|IGLV3S3*01|Macaca mulatta|F|V-REGION|177..464|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatctcagagcga
+ttctctggctccagctcaggaaacacagcttccttgaccatcactggggctcaggtggaa
+gatgaggctgactattactgtgactcctgggacagcagcggtacccat
+>AM055991|IGLV3S4*01|Macaca mulatta|F|V-REGION|177..464|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagatagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacagaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccat
+>AM055992|IGLV3S5*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagtatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccat
+>AM055993|IGLV3S6*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagtggtacccat
+>AM055994|IGLV3S7*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgggctgactcaggagcctgcattgtctgtggccttgggacatacagtcaggatg
+acctgccaaggagacagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaccaataggccctcagggatcccaggccga
+ttctctggctcctggtcaggaaacagaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagcggtacccat
+>AM055995|IGLV3S8*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgagctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagatagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacacaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtaactcctgggacagcagtggtacccat
+>AM055996|IGLV3S9*01|Macaca mulatta|F|V-REGION|178..465|288 nt|1| | | | |288+0=288| | |
+tcctctgggctgactcaggagcctgcattgtctgtggccttgggacatacagtcagcatg
+acctgccaaggagatagcctcaaaacctattatgcaagctggtaccagcagaagccaggc
+caggtccctgtgctggtcatctatggtaacaactaccggccctcagggatcccaggccga
+ttctctgtctcctggtcaggaaacagaggttccttgaccatcactgcggctcaggtggaa
+gatgaggctgactattactgtggctcctgggataacagtggtaaccat
+>NW_001095158|IGLV4-2*01|Macaca mulatta|F|V-REGION|1781658..1781956|299 nt|1| | | | |299+0=299| | |
+cagcctgtgctgactcagtcgccctctgcctctgcctccctgggagcctcggtcaagctc
+acctgcactctgagcagtgggcacagcagctacgccatcgcatggcatcagcagcagcaa
+gggaaggcccctcggtacttaatgaggcttaacagtgatggcagccacagcaagggggac
+gggatccctgatcgcttctcaggctccagctccggggctgagcgctacctcaccatctcc
+aacctccagtctgaggatgaggctgattattactgtcagacctgggatactggcattca
+>NW_001095158|IGLV4-3*01|Macaca mulatta|ORF|V-REGION|2562321..2562640|320 nt|1| | || |320+0=320| | |
+ctgtctgtgctgactcagcccccgtctgcatctgccttgctgtcagcctcggccaagctc
+acctgcaccctcagcagtgagcacagcacctacaccactgaacggtatcaacagagacca
+gggaggtccccctcctcccagtgtataacgaaggttaagagtgatggcagccacagcaag
+gggaacaggatccccaatcacttattgggctccagctctggggctgaatgctacttaatt
+atcttcaacctccaatctcaggatgaggccaaatatcactgtggagacagccacatgttt
+gatggtgaggatgggtgagc
+>NW_001095158|IGLV4-4*01|Macaca mulatta|F|V-REGION|2616733..2617046|314 nt|1| | | | |314+0=314| | |
+ctgcctgtgctgactcagcccccgtctgcatctgcctcgttgggagcctctgtcaagctc
+acctgcaccctgagcagtgagcacagcaactactttattttctggtatcaacagagaccg
+gggaggtctccccggtatataatgaaggttaacagtgatggcacccagagcaagggggat
+gggatccccgatcgcttcttgggctccagctctggggctgaccgctacctcaccatctcc
+aacctccagtctgacgacgaggctgagtattactgtggagagtgccacacgattgatggc
+cagtacggttgagc
+>AM056004|IGLV4S1*01|Macaca mulatta|F|V-REGION|161..457|297 nt|1| | | | |297+0=297| | |
+cagcctgtgctgactcagtcgccttctgcctctgcctccctgggagcctcgatcaagctc
+acctgcactctgagcagtgggcacagcagctacaccatcgcatggcatcagcagcagcaa
+gggaaggcccctcggtacttgatgtggcttaaaagtgatggcagccacagcaagggggac
+gggatccctgatcgcttctcaggctccagctccggggctgagcgctacctcaccatctcc
+aacctccagtctgaggatgaggctgattattactgtcagacctgggatactggcatt
+>AM056005|IGLV4S2*01|Macaca mulatta|F|V-REGION|161..457|297 nt|1| | | | |297+0=297| | |
+cagcctgtgctgactcagtcgccttctgcctctgcctccctgggagcctcggtcaagctc
+acctgcactctgagcagtgggcacagcagctacaccatcgcatggcatcagcagcagcaa
+gggaaggcccctcggtacttgatgtggcttaaaagtgatggcagccacagcaagggggac
+gggatccctgatcgcttctcaggctccagctccggggctgagcgctacctcaccatctcc
+aacctccagtctgaggatgaggctgattattactgtcagacctgggatactggcatt
+>AM056006|IGLV4S3*01|Macaca mulatta|F|V-REGION|161..457|297 nt|1| | | | |297+0=297| | |
+cagcctgtgctgactcagtcgccttctgcctctgcctccctgggagcctcggtcaagctc
+acctgcactctgagcagtgggcacagcagctacaccatcgcatggcatcagcagcagcaa
+gggaaggcccctcggtacttgatgtggcttaaaagtgatggcagccacagcaagggggac
+gggatccctgatcgcttctcaggctccagctccggggctgagcgctacctcaccatctcc
+aacctccagtctgaggatgaggctgattattactgtcagacctgggatactggcatt
+>AM056007|IGLV4S4*01|Macaca mulatta|F|V-REGION|161..457|297 nt|1| | | | |297+0=297| | |
+cagcctgtgctgactcagtcgccctctgcctctgcctccctgggagcctcggtcaagctc
+acctgcactctgagcagtgggcacagcagctacgccatcgcatggcatcagcagcagcaa
+gggaaggccccacggtacttaatgaggcttaacagtgttggcagccacagcaagggggac
+gggatccctgatcgcttctcaggctccagctccggggctgagcgctacctcaccatctcc
+aacctccagtctgaggatgaggctgattattactgtcagacctggactactggcatt
+>NW_001095158|IGLV5-1*01|Macaca mulatta|P|V-REGION|1633847..1634163|317 nt|1| | | | |317+0=317| | |
+cagtcttgcgctgactcagtcacccttgctcttgaatccccgggagcatcagccagactc
+acctgcaccctgagtagtgacatcaatgtcaatgcaaaaagtatatcttggtaccagcag
+aagccagggaatcatttccagtatctcctgagctactactcagactcagttaagcaccag
+ggctatggggtccccggccgcttctctggatccaaagatgcctcgactaactgagggatt
+ctgcacatctctgggctgcagcctgaggacgaggctgatcatcattgtaagatacggcat
+gacagcattaatggtta
+>NW_001095158|IGLV5-10*01|Macaca mulatta|F|V-REGION|1989709..1990020|312 nt|1| | || |312+0=312| | |
+cagcctgtgctgactcagccagcctccctctcagcatctcctggagcatcagccagtctc
+acatgcaccttcagtggtggcaccaatgttggtgactacactatacactggtaccagcag
+aagccagggagtcctccccggtatcttctgaagtacaaatcagactcagataagcaccag
+ggctctggagtccccagtcgcttctctggatccaaagatgcttcagcgaacacagggatt
+ttacgcatctctgggctccagtctgaggatgaggctgactattactgtgccattgggcgc
+agcagcgcttct
+>AC214063|IGLV5-10*02|Macaca mulatta|F|V-REGION|39599..39910|312 nt|1| | || |312+0=312| | |
+cagcctgtgctgactcagccagcctccgtctcagcatctcctggagcatcagccagtctc
+acatgcaccttcagtggtggcaccaatgttggtgactacactatacactggtaccagcag
+aagccagggagtcctccccggtatcttctaaagtacaaatcagactcagataagcaccag
+ggctctggagtccccagtcgcttctctggatccaaagatgcttcagcgaacacagggatt
+ttacgcatctctgggctccagtctgaggatgaggctgactattactgtgccattgggcgc
+agcagcgcttct
+>NW_001095158|IGLV5-11*01|Macaca mulatta|F|V-REGION|2022867..2023178|312 nt|1| | | | |312+0=312| | |
+cagcctgtgctgactcagccaacctccctctcagcatctcctggagcatcagccagactc
+acctgcaccttgcgcagtggcatcagtgttggtagttacaggatattctggtaccagcag
+aagccagggagtcctccccggtatcttctgaactaccacacagactcagataagcaccag
+ggatctggagtccccagccgcttctctggatccaaagatgcttcggccaatgcagggatt
+ttactcatctctgggctccagtctgaggatgaggctgactattactgtatgatttggcac
+aacaatgcttct
+>NW_001095158|IGLV5-13*01|Macaca mulatta|F|V-REGION|2062967..2063278|312 nt|1| | | | |312+0=312| | |
+cagcctgtgctgactcagccaacctccctctcagcatctcctggagcatcagtcagactc
+acctgcaccttgcgcagtggcatcagtgttggtggctacaatatacactggtaccagcag
+aagccagggagtcctccccggtacctactgtactactactcagactcaaataagggccag
+ggctctggagtccccagccgcttctctggatccaaagatgcttcggccaatgcagggatt
+ttactcatctctgggttccagtctgaggatgaggctgactattactgtacgacttggcac
+aacaatgcttct
+>NW_001095158|IGLV5-14*01|Macaca mulatta|F|V-REGION|2136620..2136931|312 nt|1| | | | |312+0=312| | |
+aagcctatgctgactcagccggcctccctctcagcatctcctggagcatcagccagtctc
+acatgcaccttcagcggtggcatcaatgttgctggctaccacatattctggtaccagcag
+aagccagggagtcctccccggtatcttctgaggtacaaatcagactcagataagggccag
+ggctctggagtccccagccgcttctctggatccaaagatgcttcagcgaacacagggatt
+ttacgcatctctgggctccagtctgaggatgaggctgactattactgtgccattgggcac
+agcagcggtcct
+>NW_001095158|IGLV5-15*01|Macaca mulatta|P|V-REGION|2179123..2179431|309 nt|1| | | | |309+0=309| | |
+cagcctgtgctgacccagcctccttccttttctacatctggagcatcagccagtttcacc
+tgcactttgcgcagcgacatcaatgttagtagataccgagtatattggtaccagcagaag
+ccagagagccctcccaggtatctcctgagctactactcagactcatataagcaccagggc
+tctggagtccccagccgcttctctggatccaaagatgcctcggtcaatgcagggctttta
+ctcatctctggactccagcctgaggatgaggctgactattattgtaagactgggtatggc
+aatgcttct
+>NW_001095158|IGLV5-5*01|Macaca mulatta|F|V-REGION|1754414..1754725|312 nt|1| | | | |312+0=312| | |
+cagcctgtgctgactcagccgccctccctctctgcatctcagggagcatcagccagactc
+tcctgcaccctgagcagtggcttcagtgctgatctctactggatatactggtaccagcat
+aagccagggagccctccccggtatctcctgagcctctaccaaaattcacttcatgacctg
+ggctccggggtccccaggcgcatctctggattgatggaagactggtccaataaagggctc
+ttgctcatatctgatctccagcctgaggatgaggctgactattactgtatgattgagcac
+ggcagagcttct
+>NW_001095158|IGLV5-6*01|Macaca mulatta|F|V-REGION|1773732..1774048|317 nt|1| | | | |317+0=317| | |
+cagtctgtgctgactcagccaccctccctctctgcatccctggaagcattagccagactc
+acctgcaccctgagcagtggcatcagtgttggtggaaaaattgtatactggtaccagcag
+aagccagggagcaatccccggtatctcctgagctactactcagagtcaagtaagcaccag
+ggctctggagtccccggccgcttctctggatccaaagatgcctcaactaactcagggatt
+ctgcacgtctctgggctgcagcctgaggatgaggctgactattattgtaagatatggcat
+gacagcattaatgctta
+>NW_001095158|IGLV5-7*01|Macaca mulatta|F|V-REGION|1801725..1802041|317 nt|1| | | | |317+0=317| | |
+cagcctgtgctgactcagccatcttcccattccgcatctcctggagcgccagccagactc
+acctgcacgctgagcagtggcttcagtgttggtgacttctggatacggtggtaccaacaa
+aagccagggagccctccccggtatctcctgtactaccactcagactcagataagcaccaa
+ggctctggagttcccagccgcttctctggatccaatgatgcatcagccaatgcagggatt
+ctgcatatctctgggctccagcctgaggatgaggctgactattactgttgtacatggcat
+ggcaactctaagactca
+>AC214063|IGLV5-8*01|Macaca mulatta|P|V-REGION|92344..92658|315 nt|1| | | | |315+0=315| |rev-compl|
+cagccggtgctgactcagcctctctccctctctgcatctctgggagcaagggccacactc
+ccctgcaccctgggcagtggcctcaaagttgaatactatttgatatggtggtaccaacac
+gagccagggagcactcccaggcatctcctgaatttcaaataagactcagataagcaccag
+ggctctggggttcccacctgctcctcaggatccaacagtgctctttccagtgcaggaatt
+ccacacatcacggggctgcagtctgaggacaaggttgactattaccgtactacatgacat
+gacagctgtaagact
+>AM056011|IGLV5S2*01|Macaca mulatta|F|V-REGION|157..468|312 nt|1| | | | |312+0=312| | |
+aagcctatgctgactcagccggcctccctctcagcatctcctggagcatcagccagtctc
+acatgcaccttcagcggtggcatcaatgttgctggctaccacatattctggtaccagcag
+aagccagggagtcctccccggtatcttctgaggtacaaatcagactcagataagggccag
+ggctctggagtccccagccgcttctctggatccaaagatgcttcagcgaacgcagggatt
+ttacgcatctctgggctccagtctgaggatgaggctgactattactgtgccattgggcgc
+agcagcgcttct
+>AM056012|IGLV5S3*01|Macaca mulatta|F|V-REGION|156..467|312 nt|1| | | | |312+0=312| | |
+cagcctgtgctgactcagccagcctccctctcagcatctcctggagcatcagccagactc
+acctgcaccttgagcagtggcatcagtgttggtagttacaggatattctggtaccagcag
+aagccagggagtcctccccggtatcttctgaactaccacacagactcagataagcaccag
+ggctctggagtccccagccgcttctctggatccaaagatgcttcggccaatgcagggatt
+ttactcatctctgggctccagtctgaggatgaggctgactattactgtatgatttggcac
+aacaatgcttct
+>AM056013|IGLV5S4*01|Macaca mulatta|F|V-REGION|162..470|309 nt|1| | | | |309+0=309| | |
+cagcctgtgctgacccagcctccttccttttctacatctggagcatcagccagtctcacc
+tgcactttgcgcagcgacatcaatgttagtagataccgaatatattggtaccagcagaag
+ccagagagccctcccaggtatctcctgagctactactcagactcatataagcaccagggc
+tctggagtccccagccgcttctctggatccaaagatgcctcggtcaatgcagggctttta
+ctcatctctggactccagcctgaggatgaggctgactattattgtaagactgggtatggc
+aatgcttct
+>NW_001095158|IGLV6-1*01|Macaca mulatta|F|V-REGION|1702671..1702966|296 nt|1| | | | |296+0=296| | |
+gaggttgtgttcactcagccccattctgtgtcggggtctccggggcagacggtcaccatc
+tcctgcacccgcagcagtggcagcattgacagtgaatatgtgcagtggtaccagcagcgc
+ccgggcagtgcccccaccacagtgatttacaaagataaccaaagaccctctggggtccct
+gatcggttctctggctccatcgacagctcctccaactctgcctccctcgccatctctggg
+ctgaagtctgaggacgaggctgactactactgtcagtcttatgacagctacaatcc
+>NW_001095158|IGLV6-2*01|Macaca mulatta|F|V-REGION|1713703..1714001|299 nt|1| | | | |299+0=299| | |
+gaggttgtgttcactcagccccattctgtgtcggggtctccggggcagacggtcaccatc
+tcctgcacccgcagcagtggcagcattgacagtgaatatgtgcagtggtaccagcagcgc
+ccgggcaatgcccccaccacagtgatttacaaagataaccaaagaccctctggggtccct
+gatcggttctctggctccattgacagctcctccaactctgcctccctcgccatctctggg
+ctaaagtctgaggacgaggctgactactactgtcagtctgctgatggcagctacaatcc
+>NW_001095158|IGLV6-5*01|Macaca mulatta|F|V-REGION|1946917..1947215|299 nt|1| | | | |299+0=299| | |
+gaggttgtgttcactcagccccattctgtgtcggggtctccggggcagacggtcaccatc
+tcctgcacccacagcagtggcagcattgacaacagctatgtgtactggtaccagcagcgc
+ccgggcagcgcccccaccactgtgatctacaatgatgaccaaagaccctctggggtccct
+gatcggtcctctggctccatcgacagctcctccaactctgcctccctcaccatctctgga
+ctgaagtctgaggacgaggctgactattactgtcagtcttatgacagcagcggttatca
+>NW_001095158|IGLV7-1*01|Macaca mulatta|F|V-REGION|1985195..1985488|294 nt|1| | | | |294+0=294| | |
+caggctgtagtgactcaggagccctcactgactgtgtccccaggagggacagtcactctc
+acttgtggctccagtgctggagcagtcactgggagtcattatccctactggttccagcag
+aagcctggccaagcccctagaacactgatttatgatacaagcaacaagctctcctggacc
+cctgcccggttctcaggctccctccttgggggtaaagctgccctgacactgtcaggtgcg
+cagcctgaggatgaagctgagtattactgctggctgcactatagtggtgctcag
+>NW_001095158|IGLV7-2*01|Macaca mulatta|F|V-REGION|2036747..2037040|294 nt|1| | | | |294+0=294| | |
+caggctgtagtgactcaggagccctcactgactgtgtccccaggagggacagtcactctc
+acctgtgcttccagtactggagcagtcaccagtggtcactatccacactggttccagcag
+aaacctggacaagcccccaagacactgatttatgatacaagcaacaagctctcctggacc
+cctgcccggttctcaggctcccttgctgggggtaaagctgccctgacactttcgggtgcg
+cagcccgaggacgaggctgagtattactgctggctgtactacagtggtgctcag
+>NW_001095158|IGLV7-3*01|Macaca mulatta|F|V-REGION|2055344..2055637|294 nt|1| | | | |294+0=294| | |
+caggctgtagtgactcaggagccctcaatgactgtgtccccaggagggacagtcactctc
+acctgtgcttccagcactggagcagtcaccagtggtcactctccacactggttccagcag
+aaacctggacaagcccccaagacactgatttataatacaaactacaaacactcctggact
+cctgcccggttctcaggctccctccttgggggtaaagctgccctgacactgtcaggtgcg
+cagcctgaggataaggctgagtattactgctggctgtactatagtggtgctcag
+>NW_001095158|IGLV7-4*01|Macaca mulatta|F|V-REGION|2080930..2081223|294 nt|1| | | | |294+0=294| | |
+caggctgtagtgactcaggagccctcactgactgtgtccccaggagggacagtcactctc
+acctgtgcttccagcactggagcagtcaccagtggtcactctccacactggtgccagcag
+aagcctggccaagcccccaggacactgatttataatacaagcttcaaacactcctggact
+cctgcccggttctcaggctccctccttgggggcaaagctgccctgatactgtcaggtgca
+cagcctgaggacgaggctgagtattactgcttgctgcactatagtggtgctcag
+>NW_001095158|IGLV7-5*01|Macaca mulatta|P|V-REGION|2159202..2159495|294 nt|1| | | | |294+0=294| | |
+caggctgtggtgacttaggaaccctcactgactgtgttcccaggagggacagtcactctc
+gtctgtgcctccagtgctggagcagtcactgggggtcattatccctactgggtccatcag
+aagcctggccaagcccccaggacactgatttatcatgcaagcaacaaacactcctggatc
+cctgcccagttctcaggctccttccttgggggcaaagctgccctgacactctcaggtgtg
+cagcccaaggacgaagctgagtattactgcttactgcaccatagtggtgcttgg
+>NW_001095158|IGLV8-1*01|Macaca mulatta|F|V-REGION|1566501..1566796|296 nt|1| | | | |296+0=296| | |
+gagactgtggtgacccaggagccatcgttgtcagtgtaccctggaggaacagtcacactc
+acctgtggcctgagctctggctcagtctctaccagtaactaccccagctggtaccagcag
+accccaggccaggctccacgcacgctcatctacagcacaaacactcgcccttctggggtc
+cctgatcgcttctctggctccatccttgggaacaaagctgccctcaccatcacgggggct
+caggcagacgatgaatctgattattactgtacgctctacatgggtagtggcatttc
+>NW_001095158|IGLV9-1*01|Macaca mulatta|F|V-REGION|2016121..2016437|317 nt|1| | | | |317+0=317| | |
+cagcctgtgctgactcagccatcctctgcatcggcctccctgggagcctcggtcacactc
+acctgcaccctgagtagcggctacagtaattatgcggtggactggcaccagcagagacca
+gggaagggccctcagtttgtgatgcgagtgggcacaggtgggattgtgggatccaagggg
+gatggcatccctgatcgcttctcaggctcgggctccggcctgaatcggtacctgaccatc
+aagaacattcaggaagaggatgagagtgactaccactgtggggcagaccacggcactggg
+agcagcttcgtgtaacc

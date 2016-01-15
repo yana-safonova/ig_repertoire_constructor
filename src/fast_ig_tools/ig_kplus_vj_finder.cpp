@@ -474,7 +474,7 @@ struct Ig_KPlus_Finder_Parameters {
             ("max-candidates-j", po::value<int>(&max_candidates_j)->default_value(max_candidates_j),
              "maximal number of J-gene candidates for each query")
             ("organism", po::value<std::string>(&organism)->default_value(organism),
-             "organism ('human' and 'mouse' are supported for this moment)")
+             "organism ('human', 'mouse', 'pig', 'rabbit', 'rat' and 'rhesus_monkey' are supported for this moment)")
             ("fill-prefix-by-germline",
              "fill truncated V-gene prefix by germline content")
             ("no-fill-prefix-by-germline (default)",
@@ -592,11 +592,7 @@ struct Ig_KPlus_Finder_Parameters {
 
         prepare_output();
 
-        read_genes();
-        if (pseudogenes) {
-            // Read pseudogenes
-            read_genes(true);
-        }
+        read_genes(pseudogenes);
     }
 
 private:
@@ -615,7 +611,7 @@ private:
     std::string gene_file_name(const std::string &chain_letter,
                                const std::string &gene,
                                bool pseudo = false) {
-        return db_directory + "/" + organism + "/IG" + chain_letter + gene + (pseudo ? "-pseudo" : "") + ".fa";
+        return db_directory + "/" + organism + "/IG" + chain_letter + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
     std::vector<std::string> chain_letters() {
