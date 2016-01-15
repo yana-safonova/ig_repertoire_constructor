@@ -692,7 +692,7 @@ private:
 template<typename T>
 size_t replace_spaces(T &s, char target = '_') {
     size_t count = 0;
-    for(size_t i = 0, l = length(s); i < l; ++i) {
+    for (size_t i = 0, l = length(s); i < l; ++i) {
         if (s[i] == ' ') {
             s[i] = target;
             ++count;
