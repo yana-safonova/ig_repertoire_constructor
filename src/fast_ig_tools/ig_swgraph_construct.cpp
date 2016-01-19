@@ -61,6 +61,106 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     return g;
 }
 
+bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, std::string &output_file, int &K, int &tau,
+                              int &nthreads, int &strategy_int, int &max_indels, bool &export_abundances) {
+    std::string config_file = "";
+
+    // Declare a group of options that will be
+    // allowed only on command line
+    po::options_description generic("Generic options");
+    generic.add_options()
+            ("version,v", "print version string")
+            ("help,h", "produce help message")
+            ("config,c", po::value<std::string>(&config_file)->default_value(config_file),
+             "name of a file of a configuration")
+            ("input-file,i", po::value<std::string>(&input_file),
+             "name of an input file (FASTA|FASTQ)")
+            ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
+             "file for outputted truncated dist-graph in METIS format")
+            ("export-abundances,A", "export read abundances to output graph file")
+            ("no-export-abundances", "don't export read abundances to output graph file (default)")
+            ;
+
+    // Declare a group of options that will be
+    // allowed both on command line and in
+    // config file
+    po::options_description config("Configuration");
+    config.add_options()
+            ("word-size,k", po::value<int>(&K)->default_value(K),
+             "word size for k-mer index construction")
+            ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
+             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
+            ("tau", po::value<int>(&tau)->default_value(tau),
+             "maximum distance value for truncated dist-graph construction")
+            ("max-indels", po::value<int>(&max_indels)->default_value(max_indels),
+             "maximum number of indels in Levenshtein distance")
+            ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
+             "the number of parallel threads")
+            ;
+
+    // Hidden options, will be allowed both on command line and
+    // in config file, but will not be shown to the user.
+    po::options_description hidden("Hidden options");
+    hidden.add_options()
+            ("help-hidden", "show all options, including developers' ones")
+            ;
+
+    po::options_description cmdline_options("All command line options");
+    cmdline_options.add(generic).add(config).add(hidden);
+
+    po::options_description config_file_options;
+    config_file_options.add(config).add(hidden);
+
+    po::options_description visible("Allowed options");
+    visible.add(generic).add(config);
+
+    po::positional_options_description p;
+    p.add("input-file", -1);
+    // p.add("output-file", -1);
+
+    po::variables_map vm;
+    store(po::command_line_parser(argc, argv).
+            options(cmdline_options).positional(p).run(), vm);
+    notify(vm);
+
+    if (config_file != "") {
+        std::ifstream ifs(config_file.c_str());
+        if (!ifs) {
+            cout << "can not open config file: " << config_file << "\n";
+            return false;
+        } else {
+            store(parse_config_file(ifs, config_file_options), vm);
+            // reparse cmd line again for update config defaults
+            store(po::command_line_parser(argc, argv).
+                    options(cmdline_options).positional(p).run(), vm);
+            notify(vm);
+        }
+    }
+
+    if (vm.count("help-hidden")) {
+        cout << cmdline_options << std::endl;
+        return false;
+    }
+
+    if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
+        cout << visible << "\n";
+        return false;
+    }
+
+    if (vm.count("version")) {
+        cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
+        return false;
+    }
+
+    if (vm.count("export-abundances")) {
+        export_abundances = true;
+    }
+
+    if (vm.count("no-export-abundances")) {
+        export_abundances = false;
+    }
+    return true;
+}
 
 int main(int argc, char **argv) {
     segfault_handler sh;
@@ -73,108 +173,14 @@ int main(int argc, char **argv) {
     int tau = 3;
     int nthreads = 4;
     std::string input_file = "cropped.fa";
-    std::string output_filename = "output.graph";
+    std::string output_file = "output.graph";
     int strategy_int = Strategy::TRIPLE;
     int max_indels = 0;
     bool export_abundances = false;
 
-    // Parse cmd-line arguments
     try {
-        std::string config_file = "";
-
-        // Declare a group of options that will be
-        // allowed only on command line
-        po::options_description generic("Generic options");
-        generic.add_options()
-            ("version,v", "print version string")
-            ("help,h", "produce help message")
-            ("config,c", po::value<std::string>(&config_file)->default_value(config_file),
-             "name of a file of a configuration")
-            ("input-file,i", po::value<std::string>(&input_file),
-             "name of an input file (FASTA|FASTQ)")
-            ("output-file,o", po::value<std::string>(&output_filename)->default_value(output_filename),
-             "file for outputted truncated dist-graph in METIS format")
-            ("export-abundances,A", "export read abundances to output graph file")
-            ("no-export-abundances", "don't export read abundances to output graph file (default)")
-            ;
-
-        // Declare a group of options that will be
-        // allowed both on command line and in
-        // config file
-        po::options_description config("Configuration");
-        config.add_options()
-            ("word-size,k", po::value<int>(&K)->default_value(K),
-             "word size for k-mer index construction")
-            ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
-             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
-            ("tau", po::value<int>(&tau)->default_value(tau),
-             "maximum distance value for trancated dist-graph construction")
-            ("max-indels", po::value<int>(&max_indels)->default_value(max_indels),
-             "maximum number of indels in Levenshtein distance")
-            ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
-             "the number of parallel threads")
-            ;
-
-        // Hidden options, will be allowed both on command line and
-        // in config file, but will not be shown to the user.
-        po::options_description hidden("Hidden options");
-        hidden.add_options()
-            ("help-hidden", "show all options, including developers' ones")
-            ;
-
-        po::options_description cmdline_options("All command line options");
-        cmdline_options.add(generic).add(config).add(hidden);
-
-        po::options_description config_file_options;
-        config_file_options.add(config).add(hidden);
-
-        po::options_description visible("Allowed options");
-        visible.add(generic).add(config);
-
-        po::positional_options_description p;
-        p.add("input-file", -1);
-        // p.add("output-file", -1);
-
-        po::variables_map vm;
-        store(po::command_line_parser(argc, argv).
-              options(cmdline_options).positional(p).run(), vm);
-        notify(vm);
-
-        if (config_file != "") {
-            std::ifstream ifs(config_file.c_str());
-            if (!ifs) {
-                cout << "can not open config file: " << config_file << "\n";
-                return 0;
-            } else {
-                store(parse_config_file(ifs, config_file_options), vm);
-                // reparse cmd line again for update config defaults
-                store(po::command_line_parser(argc, argv).
-                      options(cmdline_options).positional(p).run(), vm);
-                notify(vm);
-            }
-        }
-
-        if (vm.count("help-hidden")) {
-            cout << cmdline_options << std::endl;
+        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, K, tau, nthreads, strategy_int, max_indels, export_abundances)) {
             return 0;
-        }
-
-        if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
-            cout << visible << "\n";
-            return 0;
-        }
-
-        if (vm.count("version")) {
-            cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
-            return 0;
-        }
-
-        if (vm.count("export-abundances")) {
-            export_abundances = true;
-        }
-
-        if (vm.count("no-export-abundances")) {
-            export_abundances = false;
         }
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
@@ -195,16 +201,16 @@ int main(int argc, char **argv) {
 
     INFO("Read length checking");
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
-    size_t required_read_length_for_single_stratagy =  K * (tau + 1);
-    size_t required_read_length_for_double_stratagy =  K * (tau + 2);
+    size_t required_read_length_for_single_strategy = K * (tau + 1);
+    size_t required_read_length_for_double_strategy = K * (tau + 2);
 
     size_t discarded_reads = 0;
     size_t discarded_reads_single = 0;
     size_t discarded_reads_double = 0;
     for (const auto &read : input_reads) {
         discarded_reads += length(read) < required_read_length;
-        discarded_reads_single += length(read) < required_read_length_for_single_stratagy;
-        discarded_reads_double += length(read) < required_read_length_for_double_stratagy;
+        discarded_reads_single += length(read) < required_read_length_for_single_strategy;
+        discarded_reads_double += length(read) < required_read_length_for_double_strategy;
     }
 
     int saved_reads_single = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_single);
@@ -255,12 +261,12 @@ int main(int argc, char **argv) {
     if (export_abundances) {
         INFO("Saving graph (with abundances)");
         auto abundances = find_abundances(input_ids);
-        write_metis_graph(dist_graph, abundances, output_filename);
+        write_metis_graph(dist_graph, abundances, output_file);
     } else {
         INFO("Saving graph (without abundances)");
-        write_metis_graph(dist_graph, output_filename);
+        write_metis_graph(dist_graph, output_file);
     }
-    INFO("Graph was written to " << output_filename);
+    INFO("Graph was written to " << output_file);
 
     INFO("Running time: " << running_time_format(pc));
 
