@@ -10,13 +10,17 @@
 class SparseGraph {
     CrsMatrixPtr direct_matrix_;
     CrsMatrixPtr trans_matrix_;
+    // weights of vertices
+    vector<size_t> weight_;
     GraphComponentMap component_map_;
 
 public:
-    SparseGraph(size_t N, const vector<GraphEdge> &edges) :
-            direct_matrix_(new CrsMatrix(N, edges)) {
+    SparseGraph(size_t N, const vector<GraphEdge> &edges, const vector<size_t>& weight) :
+            direct_matrix_(new CrsMatrix(N, edges)), weight_(weight) {
         trans_matrix_ = direct_matrix_->Transpose();
     }
+
+    SparseGraph(size_t N, const vector<GraphEdge> &edges) : SparseGraph(N, edges, vector<size_t>(N, 1)) {}
 
     size_t N() const { return direct_matrix_->N(); }
 
@@ -39,6 +43,8 @@ public:
     const vector<size_t>& Dist() const { return direct_matrix_->Dist(); }
 
     const vector<size_t>& DistT() const { return trans_matrix_->Dist(); }
+
+    const vector<size_t>& Weight() const { return weight_; }
 
     const CrsMatrixPtr DirectMatrix() const { return direct_matrix_; }
 
