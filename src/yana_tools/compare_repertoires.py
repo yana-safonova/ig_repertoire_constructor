@@ -2,7 +2,7 @@ import os
 import sys
 import shutil
 
-graph_utils = "src/graph_utils"
+graph_utils = "src/graph_utils_py"
 sys.path.append(graph_utils)
 
 import graph_structs
