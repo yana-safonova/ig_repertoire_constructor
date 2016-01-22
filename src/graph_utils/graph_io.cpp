@@ -1,5 +1,5 @@
 #include "graph_io.hpp"
-#include "../../ig_tools/utils/string_tools.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 vector<string> SplitGraphString(string str) {
     vector<string> final_splits;

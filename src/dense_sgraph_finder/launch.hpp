@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graph_utils/sparse_graph.hpp"
-#include "graph_utils/graph_io.hpp"
+#include "../graph_utils/sparse_graph.hpp"
+#include "../graph_utils/graph_io.hpp"
 #include "graph_decomposer/dense_subgraph_constructor.hpp"
 
 namespace dense_subgraph_finder {

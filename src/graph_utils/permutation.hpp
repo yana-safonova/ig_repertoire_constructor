@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../include_me.hpp"
+#include "include_me.hpp"
 
 class Permutation {
     size_t num_vertices_;

@@ -8,16 +8,9 @@ project(dense_sgraph_finder CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${GRAPH_UTILS})
 
 add_executable(dense_sgraph_finder
-               graph_utils/crs_matrix.cpp
-               graph_utils/graph_component_map.cpp
-               graph_utils/sparse_graph.cpp
-               graph_utils/graph_collapsed_structure.cpp
-               graph_utils/graph_io.cpp
-               graph_utils/permutation.cpp
-               graph_utils/decomposition.cpp
-               graph_utils/graph_splitter.cpp
                graph_decomposer/metis_permutation_constructor.cpp
                graph_decomposer/greedy_joining_decomposition_constructor.cpp
                graph_decomposer/simple_decomposition_constructor.cpp
@@ -27,7 +20,7 @@ add_executable(dense_sgraph_finder
                launch.cpp
                main.cpp)
 
-target_link_libraries(dense_sgraph_finder input yaml-cpp ${COMMON_LIBRARIES})
+target_link_libraries(dense_sgraph_finder input yaml-cpp graph_utils ${COMMON_LIBRARIES})
 
 if (SPADES_STATIC_BUILD)
   set_target_properties(dense_sgraph_finder PROPERTIES LINK_SEARCH_END_STATIC 1)

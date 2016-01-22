@@ -1,6 +1,6 @@
 #include <openmp_wrapper.h>
 #include "launch.hpp"
-#include "graph_utils/graph_splitter.hpp"
+#include "../graph_utils/graph_splitter.hpp"
 
 namespace {
     class NonParallelDenseSubgraphFinder {

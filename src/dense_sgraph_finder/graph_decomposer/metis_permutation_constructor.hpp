@@ -1,8 +1,8 @@
 #pragma once
 
 #include <dsf_config.hpp>
-#include "graph_utils/permutation.hpp"
-#include "graph_utils/sparse_graph.hpp"
+#include "../graph_utils/permutation.hpp"
+#include "../graph_utils/sparse_graph.hpp"
 
 namespace dense_subgraph_finder {
 

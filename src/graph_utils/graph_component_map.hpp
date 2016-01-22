@@ -1,4 +1,4 @@
-#include "../include_me.hpp"
+#include "include_me.hpp"
 
 class GraphComponentMap {
     map<size_t, size_t> old_vertex_to_subgraph_;
