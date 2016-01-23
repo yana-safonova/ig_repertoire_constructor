@@ -32,6 +32,8 @@ public:
                trans_matrix_->RowIndex()[i + 1] - trans_matrix_->RowIndex()[i];
     }
 
+    bool HasEdge(size_t from, size_t to) const;
+
     const vector<size_t>& RowIndex() const { return direct_matrix_->RowIndex(); }
 
     const vector<size_t>& RowIndexT() const { return trans_matrix_->RowIndex(); }
@@ -57,6 +59,9 @@ public:
     bool VertexIsIsolated(size_t vertex) const {
         return RowIndex()[vertex + 1] - RowIndex()[vertex] + RowIndexT()[vertex + 1] - RowIndexT()[vertex] == 0;
     }
+
+private:
+    size_t get_edge_at_index(size_t from, size_t idx) const;
 };
 
 ostream& operator<<(ostream &out, const SparseGraph &graph);
