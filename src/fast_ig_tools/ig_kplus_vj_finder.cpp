@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <chrono>
 
@@ -421,6 +422,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::vector<Dna5String> v_reads;
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
+    std::string separator = "comma";
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -486,6 +488,8 @@ struct Ig_KPlus_Finder_Parameters {
              "replace spaces in read ids by underline symbol '_' (default)")
             ("no-fix-spaces",
              "save spaces in read ids, do not replace them")
+            ("separator", po::value<std::string>(&separator)->default_value(separator),
+             "separator for alignment info file: 'comma' (default), 'semicolon', 'tab' (or 'tabular') or custom string)")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -587,6 +591,16 @@ struct Ig_KPlus_Finder_Parameters {
 
         if (vm.count("fix-spaces")) {
             fix_spaces = true;
+        }
+
+        if (separator == "comma") {
+            separator = ",";
+        } else if (separator == "semicolon") {
+            separator = ";";
+        } else if (separator == "tab" || separator == "tabular") {
+            separator = "\t";
+        } else {
+            // Let it be. Do nothing
         }
 
         INFO(bformat("Input FASTQ reads: %s") % input_file);
@@ -740,6 +754,8 @@ int main(int argc, char **argv) {
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
+    std::string output_pat = "%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s";
+    boost::replace_all(output_pat, ", ", param.separator);
 
     omp_set_num_threads(param.threads);
     INFO(bformat("Alignment reads using %d threads starts") % param.threads);
@@ -831,7 +847,7 @@ int main(int argc, char **argv) {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        bformat bf("%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s");
+                        bformat bf(output_pat);
                         bf % read_id
                            % (align.start+1)             % end_of_v
                            % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
@@ -872,7 +888,9 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n")
+    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n";
+    boost::replace_all(pat, ", ", param.separator);
+    add_info << bformat(pat)
         % "id"
         % "Vstart" % "Vend"
         % "VfirstTrustfulMatchRead" % "VfirstTrustfulMatchGene"
