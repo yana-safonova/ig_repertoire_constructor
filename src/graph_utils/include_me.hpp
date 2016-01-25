@@ -11,8 +11,6 @@
 #include <set>
 #include <queue>
 
-#include <assert.h>
-
 #include "../include/logger/logger.hpp"
 
 using std::endl;
