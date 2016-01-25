@@ -1,10 +1,10 @@
 #include "sparse_graph.hpp"
 
 
-size_t SparseGraph::get_edge_at_index(size_t from, size_t idx) const {
-    return idx < RowIndex()[from + 1] - RowIndex()[from]
-           ? Col()[RowIndex()[from] + idx]
-           : ColT()[RowIndexT()[from] + idx - (RowIndex()[from + 1] - RowIndex()[from])];
+size_t SparseGraph::get_edge_at_index(size_t vertex, size_t idx) const {
+    return idx < RowIndex()[vertex + 1] - RowIndex()[vertex]
+           ? Col()[RowIndex()[vertex] + idx]
+           : ColT()[RowIndexT()[vertex] + idx - (RowIndex()[vertex + 1] - RowIndex()[vertex])];
 }
 
 bool SparseGraph::HasEdge(size_t from, size_t to) const {
@@ -54,4 +54,27 @@ ostream& operator<<(ostream &out, const SparseGraph &graph) {
     out << "Transposed matrix" << endl;
     out << *(graph.TransposedMatrix());
     return out;
+}
+
+SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++() {
+    current_++;
+    return *this;
+}
+
+SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++(int) {
+    const SparseGraph::EdgesIterator& itr = SparseGraph::EdgesIterator(*this);
+    current_++;
+    return itr;
+}
+
+bool SparseGraph::EdgesIterator::operator==(SparseGraph::EdgesIterator other) const {
+    return &graph_ == &other.graph_ && vertex_.GetIndex() == other.vertex_.GetIndex() && current_ == other.current_;
+}
+
+bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) const {
+    return &graph_ != &other.graph_ || vertex_.GetIndex() != other.vertex_.GetIndex() || current_ != other.current_;
+}
+
+size_t SparseGraph::EdgesIterator::operator*() const {
+    return graph_.get_edge_at_index(vertex_.GetIndex(), current_);
 }
