@@ -8,23 +8,28 @@
     contains upper and lower triangle representation of graph matrix
  */
 class SparseGraph {
+public:
+    class Vertex;
+
+private:
     CrsMatrixPtr direct_matrix_;
     CrsMatrixPtr trans_matrix_;
     // weights of vertices
     vector<size_t> weight_;
+    vector<Vertex> vertex_;
     GraphComponentMap component_map_;
 
 public:
     SparseGraph(size_t N, const vector<GraphEdge> &edges, const vector<size_t>& weight) :
             direct_matrix_(new CrsMatrix(N, edges)), weight_(weight) {
         trans_matrix_ = direct_matrix_->Transpose();
+        vertex_.reserve(N);
+        for (size_t i = 0; i < N; i++) {
+            vertex_.push_back(Vertex(*this, i));
+        }
     }
 
     SparseGraph(size_t N, const vector<GraphEdge> &edges) : SparseGraph(N, edges, vector<size_t>(N, 1)) {}
-
-    class Vertex;
-
-    class EdgesIterator;
 
     size_t N() const { return direct_matrix_->N(); }
 
@@ -65,6 +70,8 @@ public:
     bool VertexIsIsolated(size_t vertex) const {
         return RowIndex()[vertex + 1] - RowIndex()[vertex] + RowIndexT()[vertex + 1] - RowIndexT()[vertex] == 0;
     }
+
+    class EdgesIterator;
 
 private:
     size_t get_edge_at_index(size_t vertex, size_t idx) const;

@@ -1,3 +1,4 @@
+#include <verify.hpp>
 #include "sparse_graph.hpp"
 
 
@@ -68,11 +69,13 @@ SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++(int) {
 }
 
 bool SparseGraph::EdgesIterator::operator==(SparseGraph::EdgesIterator other) const {
-    return &graph_ == &other.graph_ && vertex_.GetIndex() == other.vertex_.GetIndex() && current_ == other.current_;
+    VERIFY_MSG(&vertex_ == &other.vertex_, "Comparing iterators over different vertices edges.");
+    return current_ == other.current_;
 }
 
 bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) const {
-    return &graph_ != &other.graph_ || vertex_.GetIndex() != other.vertex_.GetIndex() || current_ != other.current_;
+    VERIFY_MSG(&vertex_ == &other.vertex_, "Comparing iterators over different vertices edges.");
+    return current_ != other.current_;
 }
 
 size_t SparseGraph::EdgesIterator::operator*() const {
