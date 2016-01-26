@@ -391,7 +391,7 @@ struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
-    int right_uncoverage_limit = 0; // We have to cover (D)J region too. Maybe it should be even negative
+    int right_uncoverage_limit = 9; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
@@ -788,6 +788,10 @@ int main(int argc, char **argv) {
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
             for (const auto &align : result) {
+                if (-align.start > param.left_uncoverage_limit) {
+                    // Discard read
+                    break;
+                }
                 auto last_match = align.path[align.path.size() - 1];
                 int end_of_v = last_match.read_pos + last_match.length;
                 auto suff = suffix(stranded_read, end_of_v);
@@ -843,6 +847,13 @@ int main(int argc, char **argv) {
 
                     const auto &jalign = *jresult.cbegin();
 
+                    if (jalign.finish - int(length(suff)) > param.right_uncoverage_limit) {
+                        // Discard read
+                        // INFO(suff);
+                        // INFO("Read discarded by J gene threshold " << jalign.finish << " " << length(suff));
+                        break;
+                    }
+
                     {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
@@ -853,7 +864,7 @@ int main(int argc, char **argv) {
                            % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
                            % (align.last_match_read_pos()) % (align.last_match_needle_pos())
                            % align.score                 % toCString(v_ids[align.needle_index])
-                           % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
+                           % (first_jalign.read_pos + 1 + end_of_v) % (jalign.finish + end_of_v)
                            % (jalign.first_match_read_pos() + 1 + end_of_v) % (jalign.first_match_needle_pos() + 1)
                            % (jalign.last_match_read_pos() + end_of_v) % (jalign.last_match_needle_pos())
                            % jalign.score                % toCString(j_ids[jalign.needle_index]);
