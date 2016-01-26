@@ -219,7 +219,7 @@ int main(int argc, char **argv) {
 
     std::ofstream out(output_file);
 
-    for (int K = 5; K <= static_cast<int>(min_L) / (tau + 1); K += 5) {
+    for (int K = 5; K <= std::max(static_cast<int>(min_L) / (tau + 1), 100); K += 5) {
         INFO("K-mer index construction. K = " << K);
         auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
