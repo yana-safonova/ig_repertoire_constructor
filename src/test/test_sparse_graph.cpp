@@ -45,6 +45,52 @@ TEST_F(SparseGraphTestFixture, TestHasEdge) {
     }
 }
 
+TEST_F(SparseGraphTestFixture, TestIterateEdges) {
+    for (auto graph : graphs) {
+        auto size = graph.matrix_.size();
+        for (size_t i = 0; i < size; i ++) {
+            size_t j = 0;
+            for (auto v : graph.sparse_->VertexEdges(i)) {
+                while (j < size && !graph.matrix_[i][j]) {
+                    j ++;
+                }
+                ASSERT_EQ(j, v);
+                j ++;
+            }
+            while (j < size && !graph.matrix_[i][j]) {
+                j ++;
+            }
+            ASSERT_EQ(size, j);
+
+            j = 0;
+            for (auto itr = graph.sparse_->VertexEdges(i).begin(); itr != graph.sparse_->VertexEdges(i).end(); ++ itr) {
+                while (j < size && !graph.matrix_[i][j]) {
+                    j ++;
+                }
+                ASSERT_EQ(j, *itr);
+                j ++;
+            }
+            while (j < size && !graph.matrix_[i][j]) {
+                j ++;
+            }
+            ASSERT_EQ(size, j);
+
+            j = 0;
+            for (auto itr = graph.sparse_->VertexEdges(i).begin(); itr != graph.sparse_->VertexEdges(i).end(); itr ++) {
+                while (j < size && !graph.matrix_[i][j]) {
+                    j ++;
+                }
+                ASSERT_EQ(j, *itr);
+                j ++;
+            }
+            while (j < size && !graph.matrix_[i][j]) {
+                j ++;
+            }
+            ASSERT_EQ(size, j);
+        }
+    }
+}
+
 void create_console_logger() {
     using namespace logging;
 
