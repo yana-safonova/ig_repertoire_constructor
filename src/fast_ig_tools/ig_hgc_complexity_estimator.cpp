@@ -24,13 +24,13 @@ using seqan::CharString;
 #include "fast_ig_tools.hpp"
 
 template<typename T>
-size_t find_candidates_num(const T &read,
-                           const KmerIndex &kmer2reads,
-                           int tau, size_t K) {
+std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,
+                                                         const KmerIndex &kmer2reads,
+                                                         int tau, size_t K) {
     int strategy_int = 1;
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
     if (length(read) < required_read_length) {
-        return 0;
+        return { 0, {} };
     }
 
     std::vector<int> costs;
@@ -58,14 +58,15 @@ size_t find_candidates_num(const T &read,
         }
     }
 
-    return result;
+    return { result, ind };
 }
 
 template<typename T>
 size_t complexityEstimation(const std::vector<T> &input_reads,
                             const KmerIndex &kmer2reads,
                             int tau,
-                            int K) {
+                            int K,
+                            std::vector<std::vector<size_t>> &opt_kmers) {
     std::atomic<size_t> result;
     result = 0;
 
@@ -73,7 +74,9 @@ size_t complexityEstimation(const std::vector<T> &input_reads,
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < input_reads.size(); ++j) {
-        result += find_candidates_num(input_reads[j], kmer2reads, tau, K);
+        auto _ = find_candidates_num(input_reads[j], kmer2reads, tau, K);
+        opt_kmers[j] = _.second;
+        result += _.first;
     }
 
     return result;
@@ -207,20 +210,31 @@ int main(int argc, char **argv) {
 
     std::ofstream out(output_file);
 
-    for (int K : {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90}) {
-
+    for (int K = 5; K <= static_cast<int>(min_L) / (tau + 1); K += 5) {
         INFO("K-mer index construction. K = " << K);
         auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
         omp_set_num_threads(nthreads);
-        INFO(bformat("Truncated distance graph construction using %d threads starts") % nthreads);
-        INFO("Construction of candidates graph");
 
+        std::vector<std::vector<size_t>> opt_kmers(input_reads.size());
+
+        INFO(bformat("Complexity estimation using %d threads starts") % nthreads);
         size_t complexity = complexityEstimation(input_reads,
                                                  kmer2reads,
-                                                 tau, K);
+                                                 tau, K,
+                                                 opt_kmers);
 
         // Output
+        bformat fmt("opt_kmers_tau_%d_k_%d.txt");
+        fmt % tau % K;
+        std::ofstream opt_kmers_out(fmt.str());
+        for (size_t j = 0; j < input_reads.size(); ++j) {
+            opt_kmers_out << j + 1 << " " << length(input_reads[j]);
+            for (const auto &k : opt_kmers[j]) {
+                opt_kmers_out << " " << k + 1;
+            }
+            opt_kmers_out << std::endl;
+        }
         out << K << " " << complexity << " " << static_cast<double>(complexity) / input_reads.size() << std::endl;
     }
 
