@@ -23,13 +23,49 @@ using seqan::CharString;
 #include "ig_final_alignment.hpp"
 #include "fast_ig_tools.hpp"
 
+template<typename T>
+size_t find_candidates_num(const T &read,
+                           const KmerIndex &kmer2reads,
+                           int tau, size_t K) {
+    int strategy_int = 1;
+    size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+    if (length(read) < required_read_length) {
+        return 0;
+    }
+
+    std::vector<int> costs;
+
+    auto hashes = polyhashes(read, K);
+
+    costs.reserve(hashes.size());
+    for (size_t hash : hashes) {
+        auto it = kmer2reads.find(hash);
+        if (it != kmer2reads.cend()) // TODO check it
+            costs.push_back(it->second.size());
+        else
+            costs.push_back(0);
+    }
+
+    std::vector<size_t> ind = optimal_coverage(costs, K, tau + 1);
+
+    size_t result = 0;
+
+    for (size_t i : ind) {
+        size_t hash = hashes[i];
+        auto it = kmer2reads.find(hash);
+        if (it != kmer2reads.cend()) {
+            result += it->second.size();
+        }
+    }
+
+    return result;
+}
 
 template<typename T>
 size_t complexityEstimation(const std::vector<T> &input_reads,
                             const KmerIndex &kmer2reads,
                             int tau,
-                            int K,
-                            Strategy strategy = Strategy::SINGLE) {
+                            int K) {
     std::atomic<size_t> result;
     result = 0;
 
@@ -37,9 +73,7 @@ size_t complexityEstimation(const std::vector<T> &input_reads,
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < input_reads.size(); ++j) {
-        auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
-
-        result += cand.size();
+        result += find_candidates_num(input_reads[j], kmer2reads, tau, K);
     }
 
     return result;
@@ -47,9 +81,8 @@ size_t complexityEstimation(const std::vector<T> &input_reads,
 
 bool parse_cmd_line_arguments(int argc, char **argv,
                               std::string &input_file, std::string &output_file,
-                              int &K, int &tau,
-                              int &nthreads,
-                              int &strategy_int) {
+                              int &tau,
+                              int &nthreads) {
     std::string config_file = "";
 
     // Declare a group of options that will be
@@ -71,10 +104,6 @@ bool parse_cmd_line_arguments(int argc, char **argv,
     // config file
     po::options_description config("Configuration");
     config.add_options()
-            ("word-size,k", po::value<int>(&K)->default_value(K),
-             "word size for k-mer index construction")
-            ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
-             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
             ("tau", po::value<int>(&tau)->default_value(tau),
              "maximum distance value for truncated dist-graph construction")
             ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
@@ -145,15 +174,13 @@ int main(int argc, char **argv) {
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
-    int K = 36; // anchor length
     int tau = 3;
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "compl_stats.txt";
-    int strategy_int = Strategy::SINGLE;
 
     try {
-        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, K, tau, nthreads, strategy_int)) {
+        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, tau, nthreads)) {
             return 0;
         }
     } catch(std::exception& e) {
@@ -162,8 +189,6 @@ int main(int argc, char **argv) {
     }
 
     INFO("Input reads: " << input_file);
-
-    // INFO("K = " << K << ", tau = " << tau);
 
     SeqFileIn seqFileIn_input(input_file.c_str());
     std::vector<CharString> input_ids;
@@ -179,64 +204,24 @@ int main(int argc, char **argv) {
     }
 
     INFO("Minimal length: " << min_L);
-    //
-    // INFO("Read length checking");
-    // size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
-    // size_t required_read_length_for_single_strategy = K * (tau + 1);
-    // size_t required_read_length_for_double_strategy = K * (tau + 2);
-    //
-    // size_t discarded_reads = 0;
-    // size_t discarded_reads_single = 0;
-    // size_t discarded_reads_double = 0;
-    // for (const auto &read : input_reads) {
-    //     discarded_reads += length(read) < required_read_length;
-    //     discarded_reads_single += length(read) < required_read_length_for_single_strategy;
-    //     discarded_reads_double += length(read) < required_read_length_for_double_strategy;
-    // }
-    //
-    // int saved_reads_single = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_single);
-    // int saved_reads_double = static_cast<int>(discarded_reads) - static_cast<int>(discarded_reads_double);
-    //
-    // if (saved_reads_single > 0.05 * static_cast<double>(input_reads.size())) {
-    //     if (saved_reads_single - saved_reads_double < 0.05 * static_cast<double>(input_reads.size())) {
-    //         INFO(bformat("Choosing <<double>> strategy for saving %d reads")
-    //              % saved_reads_double);
-    //         strategy_int = 2;
-    //         discarded_reads = discarded_reads_double;
-    //     } else {
-    //         INFO(bformat("Choosing <<single>> strategy for saving %d reads")
-    //              % saved_reads_single);
-    //         strategy_int = 1;
-    //         discarded_reads = discarded_reads_single;
-    //     }
-    // }
-    //
-    // if (discarded_reads) {
-    //     WARN(bformat("Discarded reads %d") % discarded_reads);
-    // }
-
 
     std::ofstream out(output_file);
 
     for (int K : {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90}) {
 
-        INFO("K-mer index construction");
+        INFO("K-mer index construction. K = " << K);
         auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
         omp_set_num_threads(nthreads);
         INFO(bformat("Truncated distance graph construction using %d threads starts") % nthreads);
         INFO("Construction of candidates graph");
 
-        Strategy strategy = Strategy(strategy_int);
-        INFO(toCString(strategy) << " was chosen");
-
         size_t complexity = complexityEstimation(input_reads,
                                                  kmer2reads,
-                                                 tau, K,
-                                                 strategy);
+                                                 tau, K);
 
         // Output
-        out << K << " " << complexity << " " << static_cast<double>(complexity) / input_reads.size() << " " << strategy_int << std::endl;
+        out << K << " " << complexity << " " << static_cast<double>(complexity) / input_reads.size() << std::endl;
     }
 
     INFO("Stats was written to " << output_file);
