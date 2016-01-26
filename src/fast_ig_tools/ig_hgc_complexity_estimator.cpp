@@ -85,7 +85,8 @@ size_t complexityEstimation(const std::vector<T> &input_reads,
 bool parse_cmd_line_arguments(int argc, char **argv,
                               std::string &input_file, std::string &output_file,
                               int &tau,
-                              int &nthreads) {
+                              int &nthreads,
+                              bool &save_opt_kmers) {
     std::string config_file = "";
 
     // Declare a group of options that will be
@@ -100,6 +101,7 @@ bool parse_cmd_line_arguments(int argc, char **argv,
              "name of an input file (FASTA|FASTQ)")
             ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
              "file for outputted stats")
+            ("optimal-kmers,O", "save optimal k-mer positions")
             ;
 
     // Declare a group of options that will be
@@ -157,6 +159,12 @@ bool parse_cmd_line_arguments(int argc, char **argv,
         return false;
     }
 
+    if (vm.count("optimal-kmers")) {
+        save_opt_kmers = true;
+    } else {
+        save_opt_kmers = false;
+    }
+
     if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
         cout << visible << "\n";
         return false;
@@ -181,9 +189,10 @@ int main(int argc, char **argv) {
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "compl_stats.txt";
+    bool save_opt_kmers = false;
 
     try {
-        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, tau, nthreads)) {
+        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, tau, nthreads, save_opt_kmers)) {
             return 0;
         }
     } catch(std::exception& e) {
@@ -224,16 +233,18 @@ int main(int argc, char **argv) {
                                                  tau, K,
                                                  opt_kmers);
 
-        // Output
-        bformat fmt("opt_kmers_tau_%d_k_%d.txt");
-        fmt % tau % K;
-        std::ofstream opt_kmers_out(fmt.str());
-        for (size_t j = 0; j < input_reads.size(); ++j) {
-            opt_kmers_out << j + 1 << " " << length(input_reads[j]);
-            for (const auto &k : opt_kmers[j]) {
-                opt_kmers_out << " " << k + 1;
+        // Optimal k-mers output
+        if (save_opt_kmers) {
+            bformat fmt("opt_kmers_tau_%d_k_%d.txt");
+            fmt % tau % K;
+            std::ofstream opt_kmers_out(fmt.str());
+            for (size_t j = 0; j < input_reads.size(); ++j) {
+                opt_kmers_out << j + 1 << " " << length(input_reads[j]);
+                for (const auto &k : opt_kmers[j]) {
+                    opt_kmers_out << " " << k + 1;
+                }
+                opt_kmers_out << std::endl;
             }
-            opt_kmers_out << std::endl;
         }
         out << K << " " << complexity << " " << static_cast<double>(complexity) / input_reads.size() << std::endl;
     }
