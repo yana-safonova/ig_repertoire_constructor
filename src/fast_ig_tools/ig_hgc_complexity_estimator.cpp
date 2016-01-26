@@ -211,7 +211,7 @@ int main(int argc, char **argv) {
     INFO(input_reads.size() << " reads were extracted from " << input_file);
 
     size_t min_L = 999999999;
-    for (const auto read : input_reads) {
+    for (const auto &read : input_reads) {
         min_L = std::min(min_L, length(read));
     }
 
