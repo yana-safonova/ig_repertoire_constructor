@@ -13,6 +13,7 @@
 
 #include "../include/logger/logger.hpp"
 
+using std::cout;
 using std::endl;
 using std::vector;
 using std::ostream;

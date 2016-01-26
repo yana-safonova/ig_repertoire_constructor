@@ -3,9 +3,9 @@
 
 
 size_t SparseGraph::get_edge_at_index(size_t vertex, size_t idx) const {
-    return idx < RowIndex()[vertex + 1] - RowIndex()[vertex]
-           ? Col()[RowIndex()[vertex] + idx]
-           : ColT()[RowIndexT()[vertex] + idx - (RowIndex()[vertex + 1] - RowIndex()[vertex])];
+    return idx < RowIndexT()[vertex + 1] - RowIndexT()[vertex]
+           ? ColT()[RowIndexT()[vertex] + idx]
+           : Col()[RowIndex()[vertex] + idx - (RowIndexT()[vertex + 1] - RowIndexT()[vertex])];
 }
 
 bool SparseGraph::HasEdge(size_t from, size_t to) const {
@@ -14,12 +14,14 @@ bool SparseGraph::HasEdge(size_t from, size_t to) const {
     size_t to_deg = Degree(to);
     if (to_deg < from_deg) return HasEdge(to, from);
 
+    if (from_deg == 0) return false;
+
     size_t left = 0;
     size_t right = from_deg - 1;
     while (left < right) {
         size_t mid = (left + right) / 2;
         size_t v = get_edge_at_index(from, mid);
-        if (v > to) {
+        if (v < to) {
             left = mid + 1;
         } else {
             right = mid;
