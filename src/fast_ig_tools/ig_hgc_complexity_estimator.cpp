@@ -25,8 +25,8 @@ using seqan::CharString;
 
 template<typename T>
 std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,
-                                                         const KmerIndex &kmer2reads,
-                                                         int tau, size_t K) {
+                                                           const KmerIndex &kmer2reads,
+                                                           int tau, size_t K) {
     int strategy_int = 1;
     size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
     if (length(read) < required_read_length) {
