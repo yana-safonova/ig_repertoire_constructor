@@ -1,5 +1,5 @@
 #include "decomposition.hpp"
-#include "../../ig_tools/utils/string_tools.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 Decomposition::Decomposition(string decomposition_filename) {
     ifstream in(decomposition_filename);

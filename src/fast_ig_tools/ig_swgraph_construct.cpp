@@ -1,4 +1,5 @@
 #include <chrono>
+#include <atomic>
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
@@ -29,12 +30,18 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
                    const Tf &dist_fun,
                    int tau,
                    int K,
-                   Strategy strategy) {
+                   Strategy strategy,
+                   size_t &num_of_dist_computations) {
     Graph g(input_reads.size());
+
+    std::atomic<size_t> atomic_num_of_dist_computations;
+    atomic_num_of_dist_computations = 0;
 
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < input_reads.size(); ++j) {
         auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
+
+        atomic_num_of_dist_computations += cand.size();
 
         for (size_t i : cand) {
             int dist = dist_fun(input_reads[j], input_reads[i]);
@@ -57,6 +64,8 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     for (size_t j = 0; j < g.size(); ++j) {
         remove_duplicates(g[j]);
     }
+
+    num_of_dist_computations = atomic_num_of_dist_computations;
 
     return g;
 }
@@ -249,13 +258,17 @@ int main(int argc, char **argv) {
         return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, max_indels);
     };
 
+    size_t num_of_dist_computations;
     auto dist_graph = tauDistGraph(input_reads,
                                    kmer2reads,
                                    dist_fun,
                                    tau, K,
-                                   strategy);
+                                   strategy,
+                                   num_of_dist_computations);
 
 
+    INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
+         static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
 
     // Output
     if (export_abundances) {

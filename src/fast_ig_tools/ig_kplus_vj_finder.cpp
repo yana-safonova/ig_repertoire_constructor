@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <chrono>
 
@@ -390,7 +391,8 @@ struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
-    int right_uncoverage_limit = 0; // We have to cover (D)J region too. Maybe it should be even negative
+    int right_uncoverage_limit = 9; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+    int min_vsegment_length = 100;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
@@ -421,6 +423,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::vector<Dna5String> v_reads;
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
+    std::string separator = "comma";
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -486,6 +489,8 @@ struct Ig_KPlus_Finder_Parameters {
              "replace spaces in read ids by underline symbol '_' (default)")
             ("no-fix-spaces",
              "save spaces in read ids, do not replace them")
+            ("separator", po::value<std::string>(&separator)->default_value(separator),
+             "separator for alignment info file: 'comma' (default), 'semicolon', 'tab' (or 'tabular') or custom string)")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -505,6 +510,8 @@ struct Ig_KPlus_Finder_Parameters {
              "maximal allowed size of local deletion")
             ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
              "the number left positions which will be filled by germline")
+            ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
+             "minimal allowed length of V gene segment")
             ("right-cropped", po::value<size_t>(&num_cropped_nucls)->default_value(num_cropped_nucls),
              "the number of right positions which will be cropped")
             ;
@@ -587,6 +594,16 @@ struct Ig_KPlus_Finder_Parameters {
 
         if (vm.count("fix-spaces")) {
             fix_spaces = true;
+        }
+
+        if (separator == "comma") {
+            separator = ",";
+        } else if (separator == "semicolon") {
+            separator = ";";
+        } else if (separator == "tab" || separator == "tabular") {
+            separator = "\t";
+        } else {
+            // Let it be. Do nothing
         }
 
         INFO(bformat("Input FASTQ reads: %s") % input_file);
@@ -740,6 +757,8 @@ int main(int argc, char **argv) {
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
+    std::string output_pat = "%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s";
+    boost::replace_all(output_pat, ", ", param.separator);
 
     omp_set_num_threads(param.threads);
     INFO(bformat("Alignment reads using %d threads starts") % param.threads);
@@ -772,6 +791,16 @@ int main(int argc, char **argv) {
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
             for (const auto &align : result) {
+                if (-align.start > param.left_uncoverage_limit) {
+                    // Discard read
+                    break;
+                }
+
+                if (align.last_match_read_pos() - align.start < param.min_vsegment_length) { // TODO check +-1
+                    // Discard read
+                    break;
+                }
+
                 auto last_match = align.path[align.path.size() - 1];
                 int end_of_v = last_match.read_pos + last_match.length;
                 auto suff = suffix(stranded_read, end_of_v);
@@ -827,17 +856,24 @@ int main(int argc, char **argv) {
 
                     const auto &jalign = *jresult.cbegin();
 
+                    if (jalign.finish - int(length(suff)) > param.right_uncoverage_limit) {
+                        // Discard read
+                        // INFO(suff);
+                        // INFO("Read discarded by J gene threshold " << jalign.finish << " " << length(suff));
+                        break;
+                    }
+
                     {
                         const auto &first_jalign = jalign.path[0];
                         const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
-                        bformat bf("%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s");
+                        bformat bf(output_pat);
                         bf % read_id
                            % (align.start+1)             % end_of_v
                            % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
                            % (align.last_match_read_pos()) % (align.last_match_needle_pos())
                            % align.score                 % toCString(v_ids[align.needle_index])
-                           % (first_jalign.read_pos + 1 + end_of_v) % (last_jalign.read_pos + last_jalign.length + end_of_v)
+                           % (first_jalign.read_pos + 1 + end_of_v) % (jalign.finish + end_of_v)
                            % (jalign.first_match_read_pos() + 1 + end_of_v) % (jalign.first_match_needle_pos() + 1)
                            % (jalign.last_match_read_pos() + end_of_v) % (jalign.last_match_needle_pos())
                            % jalign.score                % toCString(j_ids[jalign.needle_index]);
@@ -872,7 +908,9 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    add_info << bformat("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n")
+    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n";
+    boost::replace_all(pat, ", ", param.separator);
+    add_info << bformat(pat)
         % "id"
         % "Vstart" % "Vend"
         % "VfirstTrustfulMatchRead" % "VfirstTrustfulMatchGene"

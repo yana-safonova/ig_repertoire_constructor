@@ -1,5 +1,5 @@
 #pragma once
-#include "../include_me.hpp"
+#include "include_me.hpp"
 
 /*
     struct Edge characterizes edge of graph

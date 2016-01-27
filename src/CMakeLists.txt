@@ -67,6 +67,8 @@ add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
 add_subdirectory(vdj_labeler)
+add_subdirectory(graph_utils)
+add_subdirectory(test)
 add_subdirectory(umi_experiments)
 
 # FIXME: Should we just configure spades_init instead?

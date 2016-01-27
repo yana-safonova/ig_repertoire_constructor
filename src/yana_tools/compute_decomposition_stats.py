@@ -3,7 +3,7 @@ import os
 import random
 import shutil
 
-sys.path.append('../graph_utils/')
+sys.path.append('../graph_utils_py/')
 
 import graph_structs
 from graph_structs import Graph

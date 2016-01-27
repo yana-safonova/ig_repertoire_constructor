@@ -1,5 +1,5 @@
 #include "graph_io.hpp"
-#include "../../ig_tools/utils/string_tools.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 vector<string> SplitGraphString(string str) {
     vector<string> final_splits;
@@ -29,8 +29,7 @@ class WeightedGraphReader {
             cout << endl;
             assert((line_splits.size() - start) % 2 == 0);
         }
-        size_t num_edges = (line_splits.size() - start) / 2;
-        for(size_t i = start; i < num_edges; i += 2) {
+        for(size_t i = start; i < line_splits.size(); i += 2) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
             size_t edge_weight = string_to_number<size_t>(line_splits[i + 1]);
             if(cur_vertex < dst_vertex)
