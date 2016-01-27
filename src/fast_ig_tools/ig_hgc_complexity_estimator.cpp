@@ -86,7 +86,8 @@ bool parse_cmd_line_arguments(int argc, char **argv,
                               std::string &input_file, std::string &output_file,
                               int &tau,
                               int &nthreads,
-                              bool &save_opt_kmers) {
+                              bool &save_opt_kmers,
+                              int &k_step) {
     std::string config_file = "";
 
     // Declare a group of options that will be
@@ -111,6 +112,8 @@ bool parse_cmd_line_arguments(int argc, char **argv,
     config.add_options()
             ("tau", po::value<int>(&tau)->default_value(tau),
              "maximum distance value for truncated dist-graph construction")
+            ("k-step", po::value<int>(&k_step)->default_value(k_step),
+             "step for optimal k-mer size search")
             ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
              "the number of parallel threads")
             ;
@@ -186,13 +189,14 @@ int main(int argc, char **argv) {
     INFO("Command line: " << join_cmd_line(argc, argv));
 
     int tau = 3;
+    int k_step = 5;
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "compl_stats.txt";
     bool save_opt_kmers = false;
 
     try {
-        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, tau, nthreads, save_opt_kmers)) {
+        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, tau, nthreads, save_opt_kmers, k_step)) {
             return 0;
         }
     } catch(std::exception& e) {
@@ -224,7 +228,7 @@ int main(int argc, char **argv) {
     out << "# tau: " << tau << std::endl;
     out << "k\td_count\tav_d_count" << std::endl;
 
-    for (int K = 5; K <= std::max(static_cast<int>(min_L) / (tau + 1), 100); K += 5) {
+    for (int K = 5; K <= std::max(static_cast<int>(min_L) / (tau + 1), 100); K += k_step) {
         INFO("K-mer index construction. K = " << K);
         auto kmer2reads = kmerIndexConstruction(input_reads, K);
 
