@@ -392,6 +392,7 @@ struct Ig_KPlus_Finder_Parameters {
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
     int right_uncoverage_limit = 9; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+    int min_vsegment_length = 100;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
@@ -509,6 +510,8 @@ struct Ig_KPlus_Finder_Parameters {
              "maximal allowed size of local deletion")
             ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
              "the number left positions which will be filled by germline")
+            ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
+             "minimal allowed length of V gene segment")
             ("right-cropped", po::value<size_t>(&num_cropped_nucls)->default_value(num_cropped_nucls),
              "the number of right positions which will be cropped")
             ;
@@ -792,6 +795,12 @@ int main(int argc, char **argv) {
                     // Discard read
                     break;
                 }
+
+                if (align.last_match_read_pos() - align.start < param.min_vsegment_length) { // TODO check +-1
+                    // Discard read
+                    break;
+                }
+
                 auto last_match = align.path[align.path.size() - 1];
                 int end_of_v = last_match.read_pos + last_match.length;
                 auto suff = suffix(stranded_read, end_of_v);
