@@ -218,6 +218,11 @@ int main(int argc, char **argv) {
     INFO("Minimal length: " << min_L);
 
     std::ofstream out(output_file);
+    out << "# Input file: " << input_file << std::endl;
+    out << "# Reads: " << input_reads.size() << std::endl;
+    out << "# Minimal lenght: " << min_L << std::endl;
+    out << "# tau: " << tau << std::endl;
+    out << "k\td_count\tav_d_count" << std::endl;
 
     for (int K = 5; K <= std::max(static_cast<int>(min_L) / (tau + 1), 100); K += 5) {
         INFO("K-mer index construction. K = " << K);
@@ -246,7 +251,7 @@ int main(int argc, char **argv) {
                 opt_kmers_out << std::endl;
             }
         }
-        out << K << " " << complexity << " " << static_cast<double>(complexity) / input_reads.size() << std::endl;
+        out << K << "\t" << complexity << "\t" << static_cast<double>(complexity) / input_reads.size() << std::endl;
     }
 
     INFO("Stats was written to " << output_file);
