@@ -20,16 +20,13 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
-vector<size_t> mark(const SparseGraphPtr& graph, size_t v, vector<bool>& g, size_t& gone) {
-    if (g[v]) return vector<size_t>();
-    vector<size_t> cc { v };
+void mark(const SparseGraphPtr& graph, size_t v, vector<bool>& g, vector<size_t>& cc) {
+    if (g[v]) return;
     g[v] = true;
-    gone ++;
+    cc.push_back(v);
     for (auto u : graph->VertexEdges(v)) {
-        auto tmp = mark(graph, u, g, gone);
-        cc.insert(cc.end(), tmp.begin(), tmp.end());
+        mark(graph, u, g, cc);
     }
-    return cc;
 }
 
 bool is_star(const SparseGraphPtr& graph, size_t v) {
@@ -64,7 +61,9 @@ int main(int argc, char **argv) {
     size_t gone = 0;
     for (size_t i = 0; i < graph->N(); i++) {
         if (g[i]) continue;
-        const vector<size_t>& cc = mark(graph, i, g, gone);
+        vector<size_t> cc;
+        mark(graph, i, g, cc);
+        gone += cc.size();
         size_t size = cc.size();
         if (graph->Degree(i) == 0) {
             single++;
@@ -74,38 +73,40 @@ int main(int argc, char **argv) {
             if (is_star(graph, i)) {
                 stars++;
                 stars_sum += size;
+                if (size < 2) {
+                    ERROR(bformat("star of %d vertex") % size);
+                }
+                continue;
             }
-            if (size < 2) {
-                ERROR(bformat("star of %d vertex") % size);
+        }
+        {
+            size_t v = *graph->VertexEdges(i).begin();
+            if (graph->Weight()[i] > graph->Weight()[v]) {
+                v = i;
             }
-            continue;
-        }
-        size_t v = *graph->VertexEdges(i).begin();
-        if (graph->Weight()[i] > graph->Weight()[v]) {
-            v = i;
-        }
-        if (is_star(graph, v)) {
-            stars++;
-            stars_sum += size;
-            continue;
-        }
-        if (is_doublet(graph, i)) {
-            doublets ++;
-            continue;
+            if (is_star(graph, v)) {
+                stars ++;
+                stars_sum += size;
+                continue;
+            }
+            if (is_doublet(graph, i)) {
+                doublets ++;
+                continue;
+            }
         }
         left += size;
         left_components ++;
-        if (size < size_to_print) continue;
+        if (size < size_to_print || size_to_print == 0) continue;
         stringstream ss;
         ss << endl << "graph" << endl;
-        for (auto v : cc) {
-            ss << graph->Weight()[v] << " ";
+        for (auto u : cc) {
+            ss << graph->Weight()[u] << " ";
         }
         ss << endl;
-        for (size_t i = 0; i < cc.size(); i ++) {
-            for (size_t j = 0; j < i; j ++) {
-                if (graph->HasEdge(cc[j], cc[i])) {
-                    ss << "(" << j << ", " << i << ")  ";
+        for (size_t u = 0; u < cc.size(); u ++) {
+            for (size_t v = 0; v < u; v ++) {
+                if (graph->HasEdge(cc[v], cc[u])) {
+                    ss << "(" << v << ", " << u << ")  ";
                 }
             }
         }
@@ -113,4 +114,5 @@ int main(int argc, char **argv) {
     }
     INFO(bformat("Found %d singletons, %d stars, %d doublets, %d left, average star size %f, average other component size %f") % single % stars % doublets % left
          % (static_cast<double>(stars_sum) / static_cast<double>(stars)) % (static_cast<double>(left) / static_cast<double>(left_components)));
+    assert(single + doublets * 2 + stars_sum + left == graph->N());
 }
