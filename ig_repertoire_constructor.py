@@ -597,7 +597,7 @@ def HelpString():
     "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
     "  -h / --help\t\t\t\t\tShowing help message and exit\n\n" +\
     "Algorithm arguments:\n" +\
-    "  -T / --type\t\tLYMPHOCYTE_TYPE\t\tLympocyte type: bcr or tcr [default: tcr]\n" +\
+    "  -T / --type\t\tLYMPHOCYTE_TYPE\t\tLympocyte type: bcr or tcr [default: bcr]\n" +\
     "  -C / --chain\t\tCHAIN_TYPE\t\tBCR/TCR chain type: all /\n" +\
     "\t\t\t\t\t\theavy / light (for both kappa and lambda chains)\n" +\
     "\t\t\t\t\t\tlambda / kappa [default: all]\n" +\
