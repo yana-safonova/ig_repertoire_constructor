@@ -54,13 +54,13 @@ int half_sw_banded(const Ts1 &s1, const Ts2 &s2,
     }
 
     vector<int> new_base(2*max_indels + 1, -INF);
-    for (auto i1 = len1 - 1; i1 >= 0; --i1) {
-        for (auto i2 = i1 + max_indels; i2 >= i1 - max_indels; --i2) {
-            auto inx = max_indels + i2 - i1;
+    for (int i1 = static_cast<int>(len1) - 1; i1 >= 0; --i1) {
+        for (int i2 = i1 + max_indels; i2 >= i1 - max_indels; --i2) {
+            int inx = max_indels + i2 - i1;
             if ((i2 < 0) || (i2 > len2)) {
                 new_base[inx] = -INF;
             } else if (i2 == len2) {
-                new_base[inx] = lizard_tail(static_cast<int>(len1 - i1));
+                new_base[inx] = lizard_tail(static_cast<int>(len1) - i1);
             } else {
                 int m = (s1[i1] == s2[i2]) ? match : mismatch;
 
