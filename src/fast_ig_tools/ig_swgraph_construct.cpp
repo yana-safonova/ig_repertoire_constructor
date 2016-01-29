@@ -270,6 +270,10 @@ int main(int argc, char **argv) {
     INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
          static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
 
+    size_t num_of_edges = numEdges(dist_graph);
+    INFO("Edges found: " << num_of_edges);
+    INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
+
     // Output
     if (export_abundances) {
         INFO("Saving graph (with abundances)");
