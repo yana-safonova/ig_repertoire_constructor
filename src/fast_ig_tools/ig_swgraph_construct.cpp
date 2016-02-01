@@ -41,12 +41,18 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     for (size_t j = 0; j < input_reads.size(); ++j) {
         auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
 
-        atomic_num_of_dist_computations += cand.size();
+        size_t len_j = length(input_reads[j]);
 
         for (size_t i : cand) {
-            int dist = dist_fun(input_reads[j], input_reads[i]);
-            if (dist <= tau) {
-                g[j].push_back( { i, dist } );
+            size_t len_i = length(input_reads[i]);
+            if (len_j < len_j || (len_i == len_j && j < i)) {
+                int dist = dist_fun(input_reads[j], input_reads[i]);
+
+                atomic_num_of_dist_computations += 1;
+
+                if (dist <= tau) {
+                    g[j].push_back( { i, dist } );
+                }
             }
         }
     }
