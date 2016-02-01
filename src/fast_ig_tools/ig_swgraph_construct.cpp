@@ -45,7 +45,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
 
         for (size_t i : cand) {
             size_t len_i = length(input_reads[i]);
-            if (len_j < len_j || (len_i == len_j && j < i)) {
+            if (len_j < len_i || (len_i == len_j && j < i)) {
                 int dist = dist_fun(input_reads[j], input_reads[i]);
 
                 atomic_num_of_dist_computations += 1;
