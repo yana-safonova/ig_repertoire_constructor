@@ -184,8 +184,8 @@ int main(int argc, char **argv) {
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
-    int K = 16; // anchor length
-    int tau = 3;
+    int K = 10; // anchor length
+    int tau = 4;
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "output.graph";
