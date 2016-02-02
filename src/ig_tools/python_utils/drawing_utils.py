@@ -14,6 +14,8 @@ matplotlib.use('Agg')
 import pylab
 import numpy 
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+matplotlib.rcParams.update({'font.size': 16})
 
 class GraphicalData:
     all_keys = list()
@@ -116,9 +118,11 @@ def DrawHistogram(keys, histogram_setting):
     plt.xlabel(histogram_setting.xlabel)
     plt.ylabel(histogram_setting.ylabel)
     plt.title(histogram_setting.title)
-    plt.savefig(histogram_setting.output_filename)
+    #plt.savefig(histogram_setting.output_filename)
+    pp = PdfPages(histogram_setting.output_filename)
+    plt.savefig(pp, format='pdf')
     plt.gcf().clear()    
-
+    pp.close()
     return n, bins, patches
 
 def DrawClusterSizesHist(histograms, histlabel, basename):
