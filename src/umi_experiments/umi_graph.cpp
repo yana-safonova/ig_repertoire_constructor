@@ -97,7 +97,7 @@ public:
             return true;
         }
         auto dist = [&](const Dna5String& s1, const Dna5String& s2) -> int {
-            return -half_sw_banded(s1, s2, 0, -1, -1, [](int) -> int { return 0; }, ReadGroup::tau_);
+            return -half_sw_banded(s1, s2, 0, -1, -1, [](int) -> int { return 0; }, ReadGroup::indels_);
         };
         if (dist(candidate, center_) > ReadGroup::radius_) {
             return false;
@@ -118,14 +118,14 @@ public:
 
     static void SetRadius(int radius) { radius_ = radius; }
 
-    static void SetTau(int tau) { tau_ = tau; }
+    static void SetTau(int indels) { indels_ = indels; }
 
 private:
     static const size_t FIND_CENTER_EVERY_TIME_THRESHOLD = 5;
     static const size_t REEVALUATE_CENTER_INTERVAL = 5;
 
     static int radius_;
-    static int tau_;
+    static int indels_;
 
     Dna5String center_;
     vector<Dna5String> representatives_;
@@ -162,7 +162,7 @@ private:
 };
 
 int ReadGroup::radius_ = 0;
-int ReadGroup::tau_ = 0;
+int ReadGroup::indels_ = 0;
 
 class UmiReadSet {
 public:
@@ -197,11 +197,11 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
     }
     mean_read_length /= input_reads.size();
 
-    for (int tau = 0; tau <= 10; tau ++) {
-        ReadGroup::SetTau(tau);
+    for (int indels = 0; indels <= 10; indels ++) {
+        ReadGroup::SetTau(indels);
         for (int radius = /*static_cast<int>(mean_read_length) / 4*/static_cast<int>(mean_read_length), ridx = 0; /*ridx < 1*/radius > 0; radius /= 2, ridx ++) {
             ReadGroup::SetRadius(radius);
-            INFO("Calculating for tau = " << tau << " and radius " << radius);
+            INFO("Calculating for indels = " << indels << " and radius " << radius);
             umi_to_reads.clear();
             for (size_t i = 0; i < input_umi.size(); i ++) {
                 umi_to_reads[input_umi[i]].AddRead(input_reads[i]);
@@ -239,7 +239,7 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
 //                if (umi_size >= 2) return;
             }
             VERIFY_MSG(input_umi.size() == total_group_size, "Lost or acquired extra reads. Should be " << input_umi.size() << ", but got " << total_group_size);
-            INFO("Tau " << tau << ", radius " << radius << ": unique UMIs " << umi_to_reads.size() << " max groups in UMI " << max_groups_in_umi <<
+            INFO("Tau " << indels << ", radius " << radius << ": unique UMIs " << umi_to_reads.size() << " max groups in UMI " << max_groups_in_umi <<
                          " max group size " << max_group_size << ", mean group size " << (static_cast<double>(total_group_size) / static_cast<double>(group_count)) <<
                          " min center length " << min_center_length);
             stringstream ss;
