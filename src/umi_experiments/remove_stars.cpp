@@ -44,7 +44,7 @@ bool is_doublet(const SparseGraphPtr& graph, size_t v) {
 int main(int argc, char **argv) {
     create_console_logger();
     string input_file = "";
-    size_t size_to_print;
+    size_t size_to_print = 0;
     if (!readArgs(argc, argv, input_file, size_to_print)) {
         cout << "Usage: <input file> [<size of unclassified components to print>]" << endl;
         return 0;

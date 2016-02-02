@@ -1,16 +1,17 @@
 #include <bits/stringfwd.h>
 #include <iostream>
 #include <logger/log_writers.hpp>
-
-#include <seqan/seq_io.h>
-#include <segfault_handler.hpp>
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 
+#include <seqan/seq_io.h>
+#include <segfault_handler.hpp>
 using seqan::Dna5String;
 using seqan::DnaQString;
 using seqan::SeqFileIn;
 using seqan::CharString;
+
+#include <boost/filesystem.hpp>
 
 using bformat = boost::format;
 
@@ -105,13 +106,15 @@ public:
 //        if (representatives_.size() > FIND_CENTER_EVERY_TIME_THRESHOLD && representatives_.size() % REEVALUATE_CENTER_INTERVAL != 0) {
 //            return true;
 //        }
-        reevaluate_center(candidate, dist);
+        reevaluate_center(/*candidate, dist*/);
         return true;
     }
 
     size_t Size() const { return representatives_.size(); }
 
     vector<Dna5String> GetRepresentatives() const { return representatives_; }
+
+    Dna5String GetCenter() const { return center_; }
 
     static void SetRadius(int radius) { radius_ = radius; }
 
@@ -130,10 +133,10 @@ private:
 //    size_t min_length_;
 //    vector<vector<char>> nt_representation_;
 
-    void reevaluate_center(const Dna5String& candidate, function<int(const Dna5String&, const Dna5String&)> dist) {
+    void reevaluate_center(/*const Dna5String& candidate, function<int(const Dna5String&, const Dna5String&)> dist*/) {
         auto len = length(center_);
         for (size_t i = 0; i < len; i ++) {
-            size_t cnt[4];
+            vector<size_t> cnt(4);
             for (auto repr : representatives_) {
                 if (length(repr) > i) {
                     cnt[repr[i]]++;
@@ -155,20 +158,6 @@ private:
 //                }
 //            }
 //        }
-
-//        Dna5String& best = center_;
-//        int best_dist = static_cast<int>(length(best)) * 2;
-//        for (auto& read : representatives_) {
-//            int max_dist = 0;
-//            for (auto& another : representatives_) {
-//                max_dist = max(max_dist, dist(read, another));
-//            }
-//            if (max_dist < best_dist) {
-//                best = read;
-//                best_dist = max_dist;
-//            }
-//        }
-//        center_ = best;
     }
 };
 
@@ -180,11 +169,6 @@ public:
     UmiReadSet() {}
 
     void AddRead(const Dna5String& read/*, DnaQString& qual*/) {
-//        const auto& readGroupItr = read_to_group_.find(read);
-//        if (readGroupItr != read_to_group_.end() && readGroups_[(*readGroupItr).second].TryAdd(read, true)) {
-//            return;
-//        }
-
         for (size_t i = 0; i < readGroups_.size(); i ++) {
             if (readGroups_[i].TryAdd(read/*, qual*/)) {
 //                read_to_group_[read] = i;
@@ -215,22 +199,12 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
 
     for (int tau = 0; tau <= 10; tau ++) {
         ReadGroup::SetTau(tau);
-        for (int radius = static_cast<int>(mean_read_length) / 4/*static_cast<int>(mean_read_length)*/, ridx = 0; ridx < 1/*radius > 0*/; radius /= 2, ridx ++) {
+        for (int radius = /*static_cast<int>(mean_read_length) / 4*/static_cast<int>(mean_read_length), ridx = 0; /*ridx < 1*/radius > 0; radius /= 2, ridx ++) {
             ReadGroup::SetRadius(radius);
             INFO("Calculating for tau = " << tau << " and radius " << radius);
             umi_to_reads.clear();
             for (size_t i = 0; i < input_umi.size(); i ++) {
-//                size_t total_group_size = 0;
-//                for (auto& entry : umi_to_reads) {
-//                    for (auto& group : entry.second.GetReadGroups()) {
-//                        total_group_size += group.Size();
-//                    }
-//                }
-//                VERIFY_MSG(i == total_group_size, "Lost or acquired extra reads. Should be " << i << ", but got " << total_group_size);
-//                if (i % 1000 == 0) {
-//                    INFO("Adding " << i << " out of " << input_umi.size());
-//                }
-                umi_to_reads[input_umi[i]].AddRead(input_reads[i]/*, input_qual[i]*/);
+                umi_to_reads[input_umi[i]].AddRead(input_reads[i]);
             }
 
             INFO("Counting");
@@ -239,6 +213,7 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
             size_t group_count = 0;
             vector<size_t> group_sizes(10);
             size_t max_groups_in_umi = 0;
+            size_t min_center_length = std::numeric_limits<size_t>::max();
             for (auto& entry : umi_to_reads) {
                 auto read_groups = entry.second.GetReadGroups();
                 size_t umi_size = 0;
@@ -251,22 +226,22 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
                         group_sizes.push_back(0);
                     }
                     group_sizes[group.Size()] ++;
-
-//                    for (auto repr : group.GetRepresentatives()) {
-//                        cout << ">seq" << endl;
-//                        cout << repr << endl;
+                    min_center_length = min(min_center_length, length(group.GetCenter()));
+//                    for (auto read : group.GetRepresentatives()){
+//                        cout << read << endl;
 //                    }
-//                    cout << group.Size() << endl;
+//                    cout << "------------" << endl;
+//                    cout << group.GetCenter() << endl;
+//                    if (group.Size() >= 2) return;
                 }
-//                if (umi_size > 10) {
-//                    return;
-//                }
-//                INFO("----------------")
+//                cout << "-----------------------------" << endl;
                 max_groups_in_umi = max(max_groups_in_umi, read_groups.size());
+//                if (umi_size >= 2) return;
             }
             VERIFY_MSG(input_umi.size() == total_group_size, "Lost or acquired extra reads. Should be " << input_umi.size() << ", but got " << total_group_size);
             INFO("Tau " << tau << ", radius " << radius << ": unique UMIs " << umi_to_reads.size() << " max groups in UMI " << max_groups_in_umi <<
-                         " max group size " << max_group_size << ", mean group size " << (static_cast<double>(total_group_size) / static_cast<double>(group_count)));
+                         " max group size " << max_group_size << ", mean group size " << (static_cast<double>(total_group_size) / static_cast<double>(group_count)) <<
+                         " min center length " << min_center_length);
             stringstream ss;
             for (size_t size = 1; size <= max_group_size; size ++) {
                 ss << bformat("%d,") % group_sizes[size];
