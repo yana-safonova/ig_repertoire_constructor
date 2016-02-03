@@ -104,7 +104,7 @@ bool GreedyJoiningDecomposition::ClassesCanBeGlued(size_t main_class, size_t sec
         return false;
     }
 
-    if(class_has_supernode_[main_class] or class_has_supernode_[sec_class])
+    if(class_has_supernode_[main_class] and class_has_supernode_[sec_class])
         return false;
 
     auto sec_class_set = basic_decomposition_ptr_->GetClass(sec_class);
