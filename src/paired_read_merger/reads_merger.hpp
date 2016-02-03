@@ -57,7 +57,7 @@ class SequenceMerger {
         return best_overlap;
     }
 
-    pair<string, string> MergeQualifiedSeq(paired_fastq_read &paired_read) {
+    pair<string, string> MergeQualifiedSeq(PairedFastqRead &paired_read) {
         string rc_right = reverse_complementary(paired_read.right_read.seq);
         string left = paired_read.left_read.seq;
         pair<size_t, size_t> overlap = FindBestOverlap(left, rc_right);
@@ -110,11 +110,11 @@ public:
     SequenceMerger(merger_setting setting) :
         setting_(setting) { }
 
-    fastq_read Merge(size_t index, paired_fastq_read paired_read) {
+    FastqRead Merge(size_t index, PairedFastqRead paired_read) {
         string merged_name = MergeNames(index, paired_read.left_read.name,
                 paired_read.right_read.name);
         pair<string, string> merged_seq_qual = MergeQualifiedSeq(paired_read);
-        return fastq_read(merged_name, merged_seq_qual.first,
+        return FastqRead(merged_name, merged_seq_qual.first,
                 merged_seq_qual.second);
     }
 };
@@ -125,11 +125,11 @@ public:
     PairedReadsMerger(merger_setting settings) :
         seq_merger_(settings) { }
 
-    vector<fastq_read> Merge(vector<paired_fastq_read> reads) {
-        vector<fastq_read> merged_reads;
+    vector<FastqRead> Merge(vector<PairedFastqRead> reads) {
+        vector<FastqRead> merged_reads;
         double processed_rate = 10;
         for(size_t i = 0; i < reads.size(); i++) {
-            fastq_read merged_read = seq_merger_.Merge(i, reads[i]);
+            FastqRead merged_read = seq_merger_.Merge(i, reads[i]);
             if(!merged_read.is_empty())
                 merged_reads.push_back(merged_read);
             if(static_cast<double>(i) / static_cast<double>(reads.size()) * 100. > processed_rate) {

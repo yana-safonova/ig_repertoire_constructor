@@ -49,13 +49,13 @@ public:
 		Initialize();
 	}
 
-	void AddNuclsQuality(fastq_read read) {
+	void AddNuclsQuality(FastqRead read) {
 		for(size_t i = 0; i < ideal_rl_; i++) {
 			stats_.aver_nucls_qual[i] += double(size_t(read.quality[i])) / double(read_number_);
 		}
 	}
 
-	void AddReadQuality(fastq_read read) {
+	void AddReadQuality(FastqRead read) {
 		stats_.aver_read_qual += AverageQuality(read.quality) / static_cast<double>(read_number_);
 	}
 
@@ -64,7 +64,7 @@ public:
 };
 
 class PairedReadQialityStatsCalculator {
-	vector<paired_fastq_read> &reads_;
+	vector<PairedFastqRead> &reads_;
 	QualityStatisticsCalculator calc_;
 
 	size_t IdealReadLength() {
@@ -78,7 +78,7 @@ class PairedReadQialityStatsCalculator {
 	}
 
 public:
-	PairedReadQialityStatsCalculator(vector<paired_fastq_read> &reads, size_t phred_offset) :
+	PairedReadQialityStatsCalculator(vector<PairedFastqRead> &reads, size_t phred_offset) :
 		reads_(reads),
 		calc_(phred_offset, 2 * reads.size(), IdealReadLength()) {
 	}
@@ -96,7 +96,7 @@ public:
 };
 
 class MergedReadQualityStatsCalculator {
-	vector<fastq_read> &reads_;
+	vector<FastqRead> &reads_;
 	QualityStatisticsCalculator calc_;
 
 	size_t ReadLength() {
@@ -108,7 +108,7 @@ class MergedReadQualityStatsCalculator {
 	}
 
 public:
-	MergedReadQualityStatsCalculator(vector<fastq_read> &reads, size_t phred_offset) :
+	MergedReadQualityStatsCalculator(vector<FastqRead> &reads, size_t phred_offset) :
 		reads_(reads),
 		calc_(phred_offset, reads.size(), ReadLength()) { }
 
