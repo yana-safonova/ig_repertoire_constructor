@@ -33,9 +33,11 @@ bool SparseGraph::HasEdge(size_t from, size_t to) const {
 // vertex set should be sorted
 std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const set<size_t> &vertex_set) {
     vector<GraphEdge> subgraph_edges;
+    vector<size_t> vertex_weights;
     component_map_.AddComponentInMap(subgraph_id, vertex_set);
     for(auto it = vertex_set.begin(); it != vertex_set.end(); it++) {
         size_t vertex1 = *it;
+        vertex_weights.push_back(WeightOfVertex(vertex1));
         for(size_t i = RowIndex()[vertex1]; i < RowIndex()[vertex1 + 1]; i++) {
             size_t vertex2 = Col()[i];
             size_t weight = Dist()[i];
@@ -47,7 +49,7 @@ std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const 
         }
     }
     //INFO("Subgraph contains " << vertex_set.size() << " vertices and " << subgraph_edges.size() << " edges");
-    return std::shared_ptr<SparseGraph>(new SparseGraph(vertex_set.size(), subgraph_edges));
+    return std::shared_ptr<SparseGraph>(new SparseGraph(vertex_set.size(), subgraph_edges, vertex_weights));
 }
 
 ostream& operator<<(ostream &out, const SparseGraph &graph) {
@@ -82,4 +84,9 @@ bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) co
 
 size_t SparseGraph::EdgesIterator::operator*() const {
     return graph_.get_edge_at_index(vertex_.GetIndex(), current_);
+}
+
+size_t SparseGraph::WeightOfVertex(size_t vertex_index) const {
+    VERIFY_MSG(vertex_index < N(), "Vertex index exceeds number of vertices");
+    return weight_[vertex_index];
 }

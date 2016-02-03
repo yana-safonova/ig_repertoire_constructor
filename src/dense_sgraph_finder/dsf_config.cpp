@@ -66,6 +66,7 @@ void load(dsf_config::dense_sgraph_finder_params &params, boost::property_tree::
     using config_common::load;
     load(params.min_graph_size, pt, "min_graph_size");
     load(params.min_fillin_threshold, pt, "min_fillin_threshold");
+    load(params.min_supernode_size, pt, "min_supernode_size");
     load(params.primary_edge_fillin, pt, "primary_edge_fillin");
     load(params.create_trivial_decomposition, pt, "create_trivial_decomposition");
 }

@@ -12,7 +12,8 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(Spars
                                                                            PermutationPtr permutation_ptr) {
     SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr,
                                                       permutation_ptr,
-                                                      dsf_params_.primary_edge_fillin);
+                                                      dsf_params_.primary_edge_fillin,
+                                                      dsf_params_.min_supernode_size);
     return simple_constructor.CreateDecomposition();
 }
 
@@ -20,7 +21,8 @@ DecompositionPtr MetisDenseSubgraphConstructor::ImprovePrimaryDecomposition(Spar
                                                                             DecompositionPtr primary_decomposition_ptr) {
     GreedyJoiningDecomposition decomposition_improver(hamming_graph_ptr,
                                                       primary_decomposition_ptr,
-                                                      dsf_params_.min_fillin_threshold);
+                                                      dsf_params_.min_fillin_threshold,
+                                                      dsf_params_.min_supernode_size);
     return decomposition_improver.ConstructDecomposition();
 }
 

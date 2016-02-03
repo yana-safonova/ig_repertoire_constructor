@@ -49,6 +49,7 @@ struct dsf_config {
     struct dense_sgraph_finder_params {
         size_t          min_graph_size;
         double          primary_edge_fillin;
+        size_t            min_supernode_size;
         double          min_fillin_threshold;
         bool            create_trivial_decomposition;
     };
