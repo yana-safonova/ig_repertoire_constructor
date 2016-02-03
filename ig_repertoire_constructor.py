@@ -399,7 +399,7 @@ class GraphConstructionPhase(Phase):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
-                       " --tau=" + str(self.__params.max_mismatches)
+                       " --tau=" + str(self.__params.max_mismatches) + " -A"
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
