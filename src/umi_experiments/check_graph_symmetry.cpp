@@ -15,7 +15,7 @@ void create_console_logger() {
 int main(int, char **argv) {
     create_console_logger();
     string input_file = argv[1];
-    const SparseGraphPtr& graph = GraphReader(input_file).CreateGraph();
+    const SparseGraphPtr graph = GraphReader(input_file).CreateGraph();
     vector<vector<size_t> > g(graph->N());
     int e = 0;
     for (size_t v = 0; v < graph->N(); v ++) {
