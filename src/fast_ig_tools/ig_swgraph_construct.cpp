@@ -41,12 +41,18 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     for (size_t j = 0; j < input_reads.size(); ++j) {
         auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
 
-        atomic_num_of_dist_computations += cand.size();
+        size_t len_j = length(input_reads[j]);
 
         for (size_t i : cand) {
-            int dist = dist_fun(input_reads[j], input_reads[i]);
-            if (dist <= tau) {
-                g[j].push_back( { i, dist } );
+            size_t len_i = length(input_reads[i]);
+            if (len_j < len_i || (len_i == len_j && j < i)) {
+                int dist = dist_fun(input_reads[j], input_reads[i]);
+
+                atomic_num_of_dist_computations += 1;
+
+                if (dist <= tau) {
+                    g[j].push_back( { i, dist } );
+                }
             }
         }
     }
@@ -178,8 +184,8 @@ int main(int argc, char **argv) {
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
-    int K = 36; // anchor length
-    int tau = 3;
+    int K = 10; // anchor length
+    int tau = 4;
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "output.graph";
@@ -269,6 +275,10 @@ int main(int argc, char **argv) {
 
     INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
          static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
+
+    size_t num_of_edges = numEdges(dist_graph);
+    INFO("Edges found: " << num_of_edges);
+    INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
 
     // Output
     if (export_abundances) {
