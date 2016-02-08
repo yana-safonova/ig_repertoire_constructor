@@ -1,17 +1,19 @@
+#include <boost/filesystem.hpp>
+#include <segfault_handler.hpp>
+
 #include <bits/stringfwd.h>
 #include <iostream>
 #include <logger/log_writers.hpp>
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "../fast_ig_tools/ig_matcher.hpp"
 
-#include <seqan/seq_io.h>
-#include <segfault_handler.hpp>
+//#include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::DnaQString;
 using seqan::SeqFileIn;
+using seqan::SeqFileOut;
 using seqan::CharString;
-
-#include <boost/filesystem.hpp>
 
 using bformat = boost::format;
 
@@ -251,6 +253,48 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
     }
 }
 
+void print_reads_by_umi(string& original_file_name, std::vector<CharString>& input_ids, std::vector<Dna5String>& input_reads,
+                        std::vector<Dna5String>& input_umi, bool group_by_size, size_t group_size_threshold) {
+    INFO("Grouping reads by UMI");
+    unordered_map<Umi, vector<size_t>> umi_to_reads;
+    for (size_t i = 0; i < input_ids.size(); i ++) {
+        umi_to_reads[input_umi[i]].push_back(i);
+    }
+//    map<size_t, size_t> cnt;
+//    for (auto itr : umi_to_reads) {
+//        cnt[itr.second.size()] ++;
+//    }
+//    for (auto itr : cnt) {
+//        INFO("size " << itr.first << ", cnt " << itr.second);
+//    }
+
+    auto file_path = boost::filesystem::absolute(original_file_name);
+    auto out_dir = file_path.parent_path().append(file_path.filename().replace_extension("").string() + "_by_umi");
+    INFO("Removing " << out_dir << " and all its contents");
+    boost::filesystem::remove_all(out_dir);
+    boost::filesystem::create_directory(out_dir);
+    INFO("Storing result in " << out_dir);
+    for (auto entry : umi_to_reads) {
+        auto umi = entry.first;
+        auto reads = entry.second;
+        size_t reads_count = reads.size();
+        if (reads_count < group_size_threshold) continue;
+        auto size_dir = group_by_size ? boost::filesystem::path(out_dir).append(to_string(reads_count)) : out_dir;
+        if (!boost::filesystem::exists(size_dir)) {
+            boost::filesystem::create_directory(size_dir);
+        }
+        const auto umi_file_path = boost::filesystem::path(size_dir).append(seqan_string_to_string(umi.GetString())).replace_extension(".fasta").c_str();
+        SeqFileOut output_file(umi_file_path);
+        vector<CharString> umi_read_ids(reads_count);
+        vector<Dna5String> umi_reads(reads_count);
+        for (size_t i = 0; i < reads_count; i ++) {
+            umi_read_ids[i] = input_ids[i];
+            umi_reads[i] = input_reads[i];
+        }
+        writeRecords(output_file, umi_read_ids, umi_reads);
+    }
+}
+
 int main(int argc, char** argv) {
     segfault_handler sh;
     create_console_logger();
@@ -270,9 +314,12 @@ int main(int argc, char** argv) {
     std::vector<DnaQString> input_umi_qual;
     extract_umi(input_ids, input_umi, input_umi_qual);
 
-    INFO("Grouping by UMI");
-    unordered_map<Umi, UmiReadSet> umi_to_reads;
-    group_by_umi(input_umi, input_umi_qual, input_reads, input_qual, umi_to_reads);
+    INFO("Printing reads by UMI");
+    print_reads_by_umi(input_file, input_ids, input_reads, input_umi, true, 5);
+
+//    INFO("Grouping by UMI");
+//    unordered_map<Umi, UmiReadSet> umi_to_reads;
+//    group_by_umi(input_umi, input_umi_qual, input_reads, input_qual, umi_to_reads);
 
     // construct umi graph split using read list data
 }
