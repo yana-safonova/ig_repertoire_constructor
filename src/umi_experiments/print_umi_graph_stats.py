@@ -46,10 +46,23 @@ class BinaryPaths:
         self.print_graph_decomposition_stats = os.path.join(run_directory, bin_dir, "print_graph_decomposition_stats")
 
 class BinaryRunner:
-    def __init__(self, input_file, output_file, params):
+    def __init__(self, binary, input_file, output_file, params = ""):
+        self.binary = binary
         self.input_file = input_file
         self.output_file = output_file
         self.params = params
+
+    def Run(self, log):
+        if not os.path.exists(self.binary):
+            log.error("Binary %s not found", self.binary)
+            exit(1)
+        if not os.path.exists(self.input_file):
+            log.error("Input file %s for binary %s not found", self.binary, self.input_file)
+            exit(1)
+        os.remove(self.output_file)
+
+        cmdline = "%s -i %s -o %s %s" % (self.binary, self.input_file, self.output_file, self.params)
+        os.system(cmdline)
 
 class WorkflowRunner:
     def Run(self, log, params):
@@ -59,7 +72,19 @@ class WorkflowRunner:
         self.PrintStats(log, umi_graph, params.stats_file)
 
     def ExtractUmi(self, log, input_file, out_dir):
+        output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_umi.fastq")
+        BinaryRunner(BinaryPaths().umi_to_fastq, input_file, output_file).Run(log)
 
+    def CompressFastq(self, log, input_file, out_dir):
+        output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_compressed.fastq")
+        BinaryRunner(BinaryPaths().ig_trie_compressor, input_file, output_file).Run(log)
+
+    def ConstructGraph(self, log, input_file, out_dir):
+        output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + ".graph")
+        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file).Run(log)
+
+    def PrintStats(self, log, input_file, output_file):
+        BinaryRunner(BinaryPaths().print_graph_decomposition_stats, input_file, output_file).Run(log)
 
 def main():
     log = CreateLogger()

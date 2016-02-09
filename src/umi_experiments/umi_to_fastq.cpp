@@ -2,18 +2,18 @@
 #include <ostream>
 #include <iostream>
 #include <fstream>
+#include <string.h>
 
 int main(int argc, char * argv[]){
-    if(argc != 3) {
-        std::cout << "Invalid input parameters" << std::endl <<
-        "\targv[1] - input FASTQ file with barcoded reads" << std::endl <<
-        "\targv[2] - output FASTQ file made from barcodes" << std::endl;
+    if(argc != 5 || strncmp(argv[1], "-i", 3) != 0 || strncmp(argv[3], "-o", 3) != 0) {
+        std::cout << "Extracts UMIs from fastq file into a separate one." << std::endl;
+        std::cout << "Usage: -i <input file> -o <output file>";
         return 1;
     }
-    char *src_name = argv[1];
+    char *src_name = argv[2];
     std::ifstream src(src_name);
     assert(!src.fail());
-    char *dst_name = argv[2];
+    char *dst_name = argv[4];
     std::ofstream dst(dst_name);
     std::size_t num_reads = 0;
     while(!src.eof()){
