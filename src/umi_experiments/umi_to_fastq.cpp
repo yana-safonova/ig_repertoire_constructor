@@ -10,6 +10,7 @@ int main(int argc, char * argv[]){
         std::cout << "Usage: -i <input file> -o <output file>";
         return 1;
     }
+    std::cout << "Extracting barcodes." << std::endl;
     char *src_name = argv[2];
     std::ifstream src(src_name);
     assert(!src.fail());

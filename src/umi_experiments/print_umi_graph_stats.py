@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 
-run_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
+run_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + '/'
 
 def CreateLogger():
     log = logging.getLogger('ig_repertoire_constructor')
@@ -59,13 +59,20 @@ class BinaryRunner:
         if not os.path.exists(self.input_file):
             log.error("Input file %s for binary %s not found", self.binary, self.input_file)
             exit(1)
-        os.remove(self.output_file)
+        if os.path.exists(self.output_file):
+            os.remove(self.output_file)
 
         cmdline = "%s -i %s -o %s %s" % (self.binary, self.input_file, self.output_file, self.params)
         os.system(cmdline)
 
 class WorkflowRunner:
     def Run(self, log, params):
+        if (os.path.exists(params.tmp_dir)):
+            log.info("Removing old tmp directory")
+            import shutil
+            shutil.rmtree(params.tmp_dir)
+        log.info("Creating new tmp directory at " + params.tmp_dir)
+        os.makedirs(params.tmp_dir)
         umi_fastq = self.ExtractUmi(log, params.input_file, params.tmp_dir)
         umi_compressed = self.CompressFastq(log, umi_fastq, params.tmp_dir)
         umi_graph = self.ConstructGraph(log, umi_compressed, params.tmp_dir)
@@ -74,14 +81,17 @@ class WorkflowRunner:
     def ExtractUmi(self, log, input_file, out_dir):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_umi.fastq")
         BinaryRunner(BinaryPaths().umi_to_fastq, input_file, output_file).Run(log)
+        return output_file
 
     def CompressFastq(self, log, input_file, out_dir):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_compressed.fastq")
         BinaryRunner(BinaryPaths().ig_trie_compressor, input_file, output_file).Run(log)
+        return output_file
 
     def ConstructGraph(self, log, input_file, out_dir):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + ".graph")
-        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file).Run(log)
+        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k 6 --tau 1 -A").Run(log)
+        return output_file
 
     def PrintStats(self, log, input_file, output_file):
         BinaryRunner(BinaryPaths().print_graph_decomposition_stats, input_file, output_file).Run(log)
