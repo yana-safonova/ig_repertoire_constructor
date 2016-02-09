@@ -184,9 +184,9 @@ def DrawMultiplePlot(x, y, setting):
         xnew = x[i] #numpy.linspace(MinValue(x[i]), MaxValue(x[i]), 300)
         ynew = y[i] #spline(x[i], y[i], xnew)
         if setting.colors != "":
-            pylab.plot(xnew, ynew, color = setting.colors[i], label = setting.label[i])
+            pylab.plot(xnew, ynew, color = setting.colors[i], label = setting.label[i], lw = 2, marker = '.', ms = 15)
         else:            
-            pylab.plot(xnew, ynew, label = setting.label[i])
+            pylab.plot(xnew, ynew, label = setting.label[i], lw = 2, marker = '.', ms = 15)
         matplotlib.pyplot.xlim(xmin = x_min - 1, xmax = x_max + 1)
 
     pylab.xlim([x_min - setting.xmin_shift, x_max + setting.xmax_shift])
@@ -205,8 +205,12 @@ def DrawMultiplePlot(x, y, setting):
     plt.xlabel(setting.xlabel)
     plt.ylabel(setting.ylabel)
     plt.title(setting.title)
-    plt.savefig(setting.output_filename)
-    plt.gcf().clear()   
+    #plt.savefig(setting.output_filename)
+    #plt.gcf().clear()   
+    pp = PdfPages(setting.output_filename)
+    plt.savefig(pp, format='pdf')
+    plt.gcf().clear()
+    pp.close()
 
 def DrawPlot(x, y, setting):
     if setting.colors != "":
