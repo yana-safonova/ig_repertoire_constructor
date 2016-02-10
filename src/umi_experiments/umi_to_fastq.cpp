@@ -40,9 +40,15 @@ int main(int argc, char * argv[]){
 
     INFO("Extracting barcodes.");
     SeqFileOut outfile(argv[4]);
+    char delim = ' ';
     for (auto& id : input_ids) {
         std::string s = seqan_string_to_string(id);
-        std::size_t space = s.find(' ');
+        std::size_t space = s.find(delim);
+        if (space == std::string::npos) {
+            std::string delims = " _";
+            delim = delims[delims.find(delim) ^ 1];
+            space = s.find(delim);
+        }
         assert(space != std::string::npos);
         space = s.find(' ', space + 1);
         assert(space != std::string::npos);
