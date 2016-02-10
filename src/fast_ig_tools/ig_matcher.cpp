@@ -164,9 +164,9 @@ int main(int argc, char **argv) {
             ("input-file2,I", po::value<std::string>(&input_file2),
              "name of the second input file (FASTA|FASTQ)")
             ("output-file1,o", po::value<std::string>(&output_file1)->default_value(output_file1),
-             "file for outputted match for reads of the first file to reads of the second one")
+             "file for output match for reads of the first file to reads of the second one")
             ("output-file2,O", po::value<std::string>(&output_file2)->default_value(output_file2),
-             "file for outputted match for reads of the second file to reads of the first one")
+             "file for output match for reads of the second file to reads of the first one")
             ;
 
         // Declare a group of options that will be
@@ -179,7 +179,7 @@ int main(int argc, char **argv) {
             ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
              "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
             ("tau", po::value<int>(&tau)->default_value(tau),
-             "maximum distance value for trancated dist-graph construction")
+             "maximum distance value for truncated dist-graph construction")
             ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
              "the number of parallel threads")
             ;
