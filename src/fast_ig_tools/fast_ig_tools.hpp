@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <string>
 #include <path_helper.hpp>
 #include <perfcounter.hpp>
@@ -9,6 +8,8 @@
 #include <logger/logger.hpp>
 #include <segfault_handler.hpp>
 
+#include <boost/format.hpp>
+using bformat = boost::format;
 
 
 std::string join_cmd_line(size_t argc, char **argv) {

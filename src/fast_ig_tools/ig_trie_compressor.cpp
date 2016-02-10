@@ -11,10 +11,6 @@ using seqan::SeqFileOut;
 using seqan::CharString;
 using seqan::length;
 
-
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 

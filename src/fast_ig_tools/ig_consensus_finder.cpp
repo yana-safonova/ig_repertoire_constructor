@@ -11,9 +11,6 @@ using std::cout;
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::SeqFileIn;

@@ -7,7 +7,6 @@
 #include <memory>
 #include <unordered_map>
 #include <fstream>
-#include <boost/format.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <chrono>
@@ -26,7 +25,6 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::make_pair;
-using bformat = boost::format;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
