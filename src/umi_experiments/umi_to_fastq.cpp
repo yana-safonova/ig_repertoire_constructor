@@ -50,7 +50,7 @@ int main(int argc, char * argv[]){
             space = s.find(delim);
         }
         assert(space != std::string::npos);
-        space = s.find(' ', space + 1);
+        space = s.find(delim, space + 1);
         assert(space != std::string::npos);
         std::string meta = s.substr(0, space);
         std::string umi_info = s.substr(space + 1);
