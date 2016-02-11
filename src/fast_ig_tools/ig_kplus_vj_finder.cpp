@@ -764,9 +764,9 @@ int main(int argc, char **argv) {
         int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
 
         int strand = (pscore >= nscore) ? 1 : -1;
-        auto result = (strand == 1) ? result_pstrand : result_nstrand;
         auto stranded_read = (strand == 1) ? read : read_rc;
         stranded_read = prefix(stranded_read, length(stranded_read) - param.num_cropped_nucls);
+        auto result = index.query(stranded_read, param.max_candidates);
 
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
