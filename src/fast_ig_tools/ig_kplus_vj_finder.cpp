@@ -754,7 +754,8 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        Dna5String read = prefix(reads[j], length(reads[j]) - param.num_cropped_nucls);
+        // Dna5String read = prefix(reads[j], length(reads[j]) - param.num_cropped_nucls);
+        Dna5String read = reads[j];
         Dna5String read_rc = read;
         reverseComplement(read_rc);
 
@@ -767,6 +768,7 @@ int main(int argc, char **argv) {
         int strand = (pscore >= nscore) ? 1 : -1;
         auto result = (strand == 1) ? result_pstrand : result_nstrand;
         auto stranded_read = (strand == 1) ? read : read_rc;
+        stranded_read = prefix(stranded_read, length(stranded_read) - param.num_cropped_nucls);
 
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
