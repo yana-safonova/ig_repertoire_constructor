@@ -109,7 +109,11 @@ bool GraphStats::is_doublet(const SparseGraphPtr  graph, const size_t v) {
 
 string GraphStats::ToString(size_t min_unclassified_size) const {
     stringstream ss;
-    ss << endl << "graph stats:" << endl;
+    ss << bformat("Found:\ntotal unique UMIs: %d\nsingletons: %d\nstars: %d\ndoublets: %d\nunclassified vertices: %d\naverage star size: %f\naverage unclassified component size: %f\n\n")
+            % graph->N() % single % stars % doublets % unclassified_vert
+            % (static_cast<double>(vert_in_stars) / static_cast<double>(stars))
+            % (static_cast<double>(unclassified_vert) / static_cast<double>(unclassified_comp.size())) << endl;
+
     for (auto component : unclassified_comp) {
         if (component.size() < min_unclassified_size) continue;
         ss << "component vertex weights: ";
@@ -126,11 +130,5 @@ string GraphStats::ToString(size_t min_unclassified_size) const {
         }
         ss << endl;
     }
-
-    ss << bformat("Found %d singletons, %d stars, %d doublets, %d left, average star size %f, average other component size %f")
-            % single % stars % doublets % unclassified_vert
-            % (static_cast<double>(vert_in_stars) / static_cast<double>(stars))
-            % (static_cast<double>(unclassified_vert) / static_cast<double>(unclassified_comp.size())) << endl;
-
     return ss.str();
 }
