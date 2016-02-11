@@ -11,6 +11,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <chrono>
+#include <stdexcept>
 
 using seqan::Dna5String;
 using seqan::CharString;
@@ -401,8 +402,7 @@ struct Ig_KPlus_Finder_Parameters {
     int min_k_coverage_j = 9;
     int max_candidates = 3;
     int max_candidates_j = 3;
-    std::string type = "bcr";
-    std::string chain = "all";
+    std::string loci = "all";
     std::string db_directory = "./germline";
     std::string output_dir;
     int threads = 4;
@@ -459,10 +459,8 @@ struct Ig_KPlus_Finder_Parameters {
             ("no-pseudogenes", "don't use pseudogenes along with normal genes")
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
-            ("type,T", po::value<std::string>(&type)->default_value(type),
-             "CR chain type: 'bcr' (default) or 'tcr'")
-            ("chain,C", po::value<std::string>(&chain)->default_value(chain),
-             "CR chain; for BCRs(Ig): 'all' (default), 'heavy', 'lambda', 'kappa' or 'light' ('lambda' + 'kappa'); for TCRs(B-cell): 'all' (default), 'alpha', 'beta', 'gamma', 'delta', 'heavy' (the same as 'beta') or 'light' (the same as 'alpha')")
+            ("loci,l", po::value<std::string>(&loci)->default_value(loci),
+             "loci: IGH, IGL, IGK, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
              "directory with germline database")
             ("threads,t", po::value<int>(&threads)->default_value(threads),
@@ -609,8 +607,7 @@ struct Ig_KPlus_Finder_Parameters {
         INFO(bformat("Input FASTQ reads: %s") % input_file);
         INFO(bformat("Output directory: %s") % output_dir);
         INFO(bformat("Organism: %s") % organism);
-        INFO(bformat("Lymphocyte type: %s") % type);
-        INFO(bformat("Chain type: %s") % chain);
+        INFO(bformat("Locus: %s") % loci);
         INFO("Word size for V-gene: " << K);
         INFO("Word size for J-gene: " << word_size_j);
 
@@ -634,54 +631,37 @@ private:
         }
     }
 
-    std::string gene_file_name(const std::string &chain_letter,
+    std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
                                bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + (type == "bcr" ? "IG" : "TR") + chain_letter + gene + (pseudo ? "-allP" : "") + ".fa";
+        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
-    std::vector<std::string> chain_letters() const {
-        if (type == "bcr") {
-            if (chain == "heavy") {
-                return { "H" };
-            } else if (chain == "lambda") {
-                return { "L" };
-            } else if (chain == "kappa") {
-                return { "K" };
-            } else if (chain == "light") {
-                return { "K", "L" };
-            } else if (chain == "all") {
-                return { "K", "L", "H" };
-            } else {
-                throw "Unknown BCR chain type";
-                return {};
-            }
-        } else if (type == "tcr") {
-            if (chain == "beta" || chain == "heavy") {
-                return { "B" };
-            } else if (chain == "alpha" || chain == "light") {
-                return { "A" };
-            } else if (chain == "delta") {
-                return { "D" };
-            } else if (chain == "gamma") {
-                return { "G" };
-            } else if (chain == "all") {
-                return { "A", "B", "D", "G"};
-            } else {
-                throw "Unknown TCR chain type";
-                return {};
-            }
+    std::vector<std::string> parse_loci() const {
+        std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
+        std::vector<std::string> TR = { "TRA", "TRB", "TRD", "TRG" };
+        std::vector<std::string> ALL(IG);
+        ALL.insert(ALL.end(), TR.cbegin(), TR.cend());
+
+        if (loci == "IG") {
+            return IG;
+        } else if (loci == "TR") {
+            return TR;
+        } else if (loci == "all") {
+            return ALL;
+        } else if (std::find(ALL.cbegin(), ALL.cend(), loci) != ALL.cend()) {
+            return { loci };
         } else {
-            throw "Unknown lymphocyte type";
+           throw std::invalid_argument("Invalid loci name: " + loci);
         }
     }
 
     void read_genes(bool pseudo = false) {
-        for (const auto &letter : chain_letters()) {
-            std::string v_file = gene_file_name(letter, "V", pseudo);
+        for (const auto &locus : parse_loci()) {
+            std::string v_file = gene_file_name(locus, "V", pseudo);
             read_gene(v_file, v_ids, v_reads);
 
-            std::string j_file = gene_file_name(letter, "J", pseudo);
+            std::string j_file = gene_file_name(locus, "J", pseudo);
             read_gene(j_file, j_ids, j_reads);
         }
     }
