@@ -652,7 +652,7 @@ private:
         } else if (std::find(ALL.cbegin(), ALL.cend(), loci) != ALL.cend()) {
             return { loci };
         } else {
-           throw std::invalid_argument("Invalid loci name: " + loci);
+           throw std::invalid_argument("Invalid loci value: " + loci);
         }
     }
 
