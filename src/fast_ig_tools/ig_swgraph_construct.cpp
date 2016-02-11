@@ -4,9 +4,6 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 using std::cin;
