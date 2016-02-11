@@ -778,7 +778,7 @@ int main(int argc, char **argv) {
                     break;
                 }
 
-                if (align.last_match_read_pos() - align.start < param.min_vsegment_length) { // TODO check +-1
+                if (static_cast<int>(align.last_match_read_pos()) - align.start < param.min_vsegment_length) { // TODO check +-1
                     // Discard read
                     break;
                 }
