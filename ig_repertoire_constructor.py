@@ -598,7 +598,7 @@ def HelpString():
     "Algorithm arguments:\n" +\
     "  -l / --loci\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
     "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
-    "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported for this moment) [default: human]\n" +\
+    "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
     "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
     "In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with ig_repertoire_constructor.log file from the output directory."
