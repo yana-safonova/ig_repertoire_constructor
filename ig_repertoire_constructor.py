@@ -339,8 +339,7 @@ class VJAlignmentPhase(Phase):
                        " -o " + self.__params.io.vj_finder_output + \
                        " --db-directory " + IgRepConConfig().path_to_germline + \
                        " -t " + str(self.__params.num_threads) + \
-                       " -T " + self.__params.type + \
-                       " -C " + self.__params.chain + \
+                       " --loci " + self.__params.loci + \
                        " --organism " + self.__params.organism
         if self.__params.no_pseudogenes:
             command_line += " --no-pseudogenes"
@@ -597,13 +596,9 @@ def HelpString():
     "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
     "  -h / --help\t\t\t\t\tShowing help message and exit\n\n" +\
     "Algorithm arguments:\n" +\
-    "  -T / --type\t\tLYMPHOCYTE_TYPE\t\tLympocyte type: bcr or tcr [default: bcr]\n" +\
-    "  -C / --chain\t\tCHAIN_TYPE\t\tBCR/TCR chain type: all /\n" +\
-    "\t\t\t\t\t\theavy / light (for both kappa and lambda chains)\n" +\
-    "\t\t\t\t\t\tlambda / kappa [default: all]\n" +\
-    "\t\t\t\t\t\talpha / beta / gamma / delta [default: all]\n" +\
+    "  -l / --loci\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
     "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
-    "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported for this moment) [default: human]\n" +\
+    "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
     "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
     "In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with ig_repertoire_constructor.log file from the output directory."
@@ -668,17 +663,11 @@ def ParseCommandLineParams(log):
                                help="Showing help message and exit")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
-    vj_align_args.add_argument("-T", "--type",
+    vj_align_args.add_argument("-l", "--loci",
                                type=str,
-                               dest="type",
-                               default="bcr",
-                               help="Lymphocyte type: bcr or tcr [default: %(default)s]")
-    vj_align_args.add_argument("-C", "--chain",
-                               type=str,
-                               dest="chain",
+                               dest="loci",
                                default="all",
-                               help="Ig chain type: all (for both heavy and light chains)/ heavy / light (for both kappa and lambda chains) "
-                                    "/ lambda / kappa [default: %(default)s]")
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: %(default)s]")
 
     vj_align_args.add_argument("--no-pseudogenes",
                                action="store_const",

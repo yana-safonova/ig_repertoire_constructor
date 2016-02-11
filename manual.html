@@ -257,10 +257,9 @@ Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</co
 
 <br><br>
 
-<code>--chain/-C &lt;str&gt;</code><br>
-Ig chain type: <code>all</code> (for both heavy and light chains) /
-<code>heavy</code> / <code>light</code> (for both kappa and lambda chains) /
-<code>lambda</code> / <code>kappa</code>.</br>
+<code>--loci/-l &lt;str&gt;</code><br>
+Loci: <code>IGH</code>, <code>IGL</code>, <code>IGK</code>, <code>IG</code> for all BCRs,
+<code>TRA</code>, <code>TRB</code>, <code>TRG</code>, <code>TRD</code>, <code>TR</code> for all TCRs or <code>all</code>.<br>
 IgRepertoireConstructor tries to align input reads to database of selected chain type and discards reads with bad alignment.
 Default value is <code>all</code>.
 
@@ -272,7 +271,8 @@ By default, IgRepertoireConstructor uses pseudogenes for aligning reads.
 <br><br>
 
 <code>--organism &lt;str&gt;</code><br>
-Organism (<code>human</code> and <code>mouse</code> only are supported for this moment).
+Organism (<code>human</code>, <code>mouse</code>, <code>pig</code>, <code>rabbit</code>, <code>rat</code> and <code>rhesus_monkey</code>
+are supported).
 Default value is <code>human</code>.
 <br><br>
 
