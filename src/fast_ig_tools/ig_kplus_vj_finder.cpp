@@ -737,7 +737,7 @@ int main(int argc, char **argv) {
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
-    std::string output_pat = "%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s";
+    std::string output_pat = "%s, %d, %d, %1.2f, %s, %d, %d, %1.2f, %s";
     boost::replace_all(output_pat, ", ", param.separator);
 
     omp_set_num_threads(param.threads);
@@ -845,17 +845,12 @@ int main(int argc, char **argv) {
 
                     {
                         const auto &first_jalign = jalign.path[0];
-                        const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
                         bformat bf(output_pat);
                         bf % read_id
                            % (align.start+1)             % end_of_v
-                           % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
-                           % (align.last_match_read_pos()) % (align.last_match_needle_pos())
                            % align.score                 % toCString(v_ids[align.needle_index])
                            % (first_jalign.read_pos + 1 + end_of_v) % (jalign.finish + end_of_v)
-                           % (jalign.first_match_read_pos() + 1 + end_of_v) % (jalign.first_match_needle_pos() + 1)
-                           % (jalign.last_match_read_pos() + end_of_v) % (jalign.last_match_needle_pos())
                            % jalign.score                % toCString(j_ids[jalign.needle_index]);
 
                         add_info_strings[j] = bf.str();
@@ -888,17 +883,13 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n";
+    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s\n";
     boost::replace_all(pat, ", ", param.separator);
     add_info << bformat(pat)
         % "id"
         % "Vstart" % "Vend"
-        % "VfirstTrustfulMatchRead" % "VfirstTrustfulMatchGene"
-        % "VlastTrustfulMatchRead" % "VlastTrustfulMatchGene"
         % "Vscore" % "Vid"
         % "Jstart" % "Jend"
-        % "JfirstTrustfulMatchRead" % "JfirstTrustfulMatchGene"
-        % "JlastTrustfulMatchRead" % "JlastTrustfulMatchGene"
         % "Jscore" % "Jid";
 
     size_t good_reads = 0;
