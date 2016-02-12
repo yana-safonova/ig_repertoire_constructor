@@ -396,7 +396,7 @@ struct Ig_KPlus_Finder_Parameters {
     int max_local_insertions = 12;
     int max_global_gap = 24;
     int min_k_coverage = 50;
-    int min_k_coverage_j = 9;
+    int min_k_coverage_j = 13;
     int max_candidates = 3;
     int max_candidates_j = 3;
     std::string loci = "all";
