@@ -432,7 +432,7 @@ class DSFPhase(Phase):
 
     def __GetDSFParams(self):
         dsf_params = ['-g', self.__params.io.sw_graph, '-o', self.__params.io.dsf_output, '-t',
-                      str(self.__params.num_threads)]
+                      str(self.__params.num_threads), '-n', str(self.__params.min_snode_size)]
         if self.__params.create_trivial_decomposition:
             dsf_params.append('--create-triv-dec')
         if self.__params.save_aux_files:
@@ -635,6 +635,7 @@ def HelpString():
     "Optional arguments:\n" +\
     "  -t / --threads\tNUM_THREADS\t\tThread number [default: 16]\n" +\
     "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
+    "  --min-snode-size\tMIN_SNODE_SIZE\t\tMinimum supernode size [default: 5]\n" +\
     "  -h / --help\t\t\t\t\tShowing help message and exit\n\n" +\
     "Algorithm arguments:\n" +\
     "  -l / --loci\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
@@ -696,7 +697,11 @@ def ParseCommandLineParams(log):
                                dest="max_mismatches",
                                help="Maximum allowed mismatches between identical error-prone reads "
                                     "[default: %(default)d]")
-
+    optional_args.add_argument("-n", "--min-snode-size",
+                               type=int,
+                               default=5,
+                               dest="min_snode_size",
+                               help="Minimum supernode size [default: %(default)d]")
     optional_args.add_argument("-h", "--help",
                                action="store_const",
                                const=True,
@@ -856,7 +861,7 @@ def RemoveAuxFiles(params):
         os.remove(params.io.compressed_reads)
     if os.path.exists(params.io.sw_graph):
         os.remove(params.io.sw_graph)
-    if os.path.exists(params.io.dsf_output):
+    if os.path.exists(params.io.dsf_output) and not params.save_aux_files:
         shutil.rmtree(params.io.dsf_output)
     #if os.path.exists(params.io.merged_reads)
 
