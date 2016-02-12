@@ -40,6 +40,24 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
     return result;
 }
 
+bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
+                                  const std::vector<int> &costs,
+                                  size_t K, size_t ss_len) {
+    if (!std::is_sorted(answer.cbegin(), answer.cend())) return false;
+
+    if (answer.size() != ss_len) return false;
+
+
+    for (size_t i = 1; i < answer.size(); ++i) {
+        if (answer[i] - answer[i - 1] < K) return false;
+    }
+
+    for (size_t kmer_i : answer) {
+        if (kmer_i >= costs.size()) return false;
+    }
+
+    return true;
+}
 
 // TODO cover by tests
 // and then, refactor it!!!!!!!!111111111111oneoneone
@@ -97,12 +115,13 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, si
 
 
     // Checking
-    assert(result.size() == ss_len);
     int sum = 0;
     for (size_t i : result) {
         sum += costs.at(i);
     }
     assert(ans == sum);
+
+    assert(check_repr_kmers_consistancy(result, costs, K, ss_len));
 
     return result;
 }
