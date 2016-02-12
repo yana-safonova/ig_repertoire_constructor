@@ -40,46 +40,67 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
     return result;
 }
 
+bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
+                                  const std::vector<int> &multiplicities,
+                                  size_t K, size_t n) {
+    if (!std::is_sorted(answer.cbegin(), answer.cend())) return false;
+
+    // Check answer size
+    if (answer.size() != n) return false;
+
+    // Check k-mer overlapping
+    for (size_t i = 1; i < answer.size(); ++i) {
+        if (answer[i] - answer[i - 1] < K) return false;
+    }
+
+    // K-mers should belong interval
+    for (size_t kmer_i : answer) {
+        if (kmer_i >= multiplicities.size()) return false;
+    }
+
+    return true;
+}
 
 // TODO cover by tests
 // and then, refactor it!!!!!!!!111111111111oneoneone
-std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, size_t ss_len = 3) {
-    assert(ss_len >= 1);
-    assert(costs.size() + K - 1 >= ss_len * K);
+std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
+                                     size_t K, size_t n = 3) {
+    assert(n >= 1);
+    assert(multiplicities.size() + K - 1 >= n * K);
 
     const int INF = 1 << 30; // TODO Use exact value
 
-    std::vector<std::vector<int>> icosts(ss_len, std::vector<int>(costs.size()));
+    std::vector<std::vector<int>> imults(n, std::vector<int>(multiplicities.size()));
 
     // Fill by cummin
-    icosts[0][0] = costs[0];
-    for (size_t i = 1; i < icosts[0].size(); ++i) {
-        icosts[0][i] = std::min(costs[i], icosts[0][i - 1]);
+    imults[0][0] = multiplicities[0];
+    for (size_t i = 1; i < imults[0].size(); ++i) {
+        imults[0][i] = std::min(multiplicities[i], imults[0][i - 1]);
     }
 
-    for (size_t j = 1; j < ss_len; ++j) { // ss_len == 1 is useless
+    for (size_t j = 1; j < n; ++j) { // n == 1 is useless
         // Kill first K*j elements
         for (size_t i = 0; i < K*j; ++i) {
-            icosts[j][i] = INF;
+            imults[j][i] = INF;
         }
 
-        for (size_t i = K*j; i < icosts[j].size(); ++i) {
-            icosts[j][i] = std::min(icosts[j][i - 1],
-                                    costs[i] + icosts[j - 1][i - K]);
+        for (size_t i = K*j; i < imults[j].size(); ++i) {
+            imults[j][i] = std::min(imults[j][i - 1],
+                                    multiplicities[i] + imults[j - 1][i - K]);
         }
     }
 
-    auto ans = icosts[ss_len - 1][icosts[ss_len - 1].size() - 1];
+    auto ans = imults[n - 1][imults[n - 1].size() - 1];
 
     assert(ans < INF);
 
-    std::vector<size_t> result(ss_len);
+    std::vector<size_t> result(n);
     // Backward reconstruction
-    size_t i = icosts[ss_len - 1].size() - 1;
-    size_t j = ss_len - 1;
+    size_t i = imults[n - 1].size() - 1;
+    size_t j = n - 1;
 
     while (j > 0) {
-        if (icosts[j][i] == costs[i] + icosts[j - 1][i - K]) { // Take i-th element
+        if (imults[j][i] == multiplicities[i] + imults[j - 1][i - K]) { // Take i-th element
             result[j] = i;
             i -= K;
             j -= 1;
@@ -90,19 +111,20 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, si
     assert(j == 0);
     // Find first element
     size_t ii = i;
-    while (icosts[0][i] != costs[ii]) {
+    while (imults[0][i] != multiplicities[ii]) {
         --ii;
     }
     result[0] = ii;
 
 
     // Checking
-    assert(result.size() == ss_len);
     int sum = 0;
     for (size_t i : result) {
-        sum += costs.at(i);
+        sum += multiplicities.at(i);
     }
     assert(ans == sum);
+
+    assert(check_repr_kmers_consistancy(result, multiplicities, K, n));
 
     return result;
 }
@@ -186,17 +208,17 @@ std::vector<size_t> find_candidates(const T &read,
         return {  };
     }
 
-    std::vector<int> costs;
+    std::vector<int> multiplicities;
 
     auto hashes = polyhashes(read, K);
 
-    costs.reserve(hashes.size());
+    multiplicities.reserve(hashes.size());
     for (size_t hash : hashes) {
         auto it = kmer2reads.find(hash);
         if (it != kmer2reads.cend()) // TODO check it
-            costs.push_back(it->second.size());
+            multiplicities.push_back(it->second.size());
         else
-            costs.push_back(0);
+            multiplicities.push_back(0);
     }
 
     std::vector<size_t> cand;
@@ -205,7 +227,7 @@ std::vector<size_t> find_candidates(const T &read,
         cand.resize(target_size);
         std::iota(cand.begin(), cand.end(), 0);
     } else if (strategy == Strategy::SINGLE) { // basic <<single>> strategy
-        std::vector<size_t> ind = optimal_coverage(costs, K, tau + 1);
+        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 1);
 
         for (size_t i : ind) {
             size_t hash = hashes[i];
@@ -215,7 +237,7 @@ std::vector<size_t> find_candidates(const T &read,
             }
         }
     } else if (strategy == Strategy::PAIR) { // <<pair>> strategy
-        std::vector<size_t> ind = optimal_coverage(costs, K, tau + 2);
+        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 2);
 
         std::vector<const std::vector<size_t>*> reads_set;
 
@@ -236,7 +258,7 @@ std::vector<size_t> find_candidates(const T &read,
             }
         }
     } else if (strategy == Strategy::TRIPLE) { // <<triple>> strategy (fastest, but with complicated preprocessing)
-        std::vector<size_t> ind = optimal_coverage(costs, K, tau + 3);
+        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 3);
 
         std::vector<const std::vector<size_t>*> reads_set;
 
