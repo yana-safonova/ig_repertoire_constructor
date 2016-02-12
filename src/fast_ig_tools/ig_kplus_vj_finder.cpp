@@ -1,4 +1,3 @@
-#include <seqan/seq_io.h>
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -12,12 +11,6 @@
 #include <chrono>
 #include <stdexcept>
 
-using seqan::Dna5String;
-using seqan::CharString;
-using seqan::length;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
-
 using std::vector;
 using std::cout;
 using std::cin;
@@ -30,6 +23,12 @@ using std::make_pair;
 #include "fast_ig_tools.hpp"
 using path::make_dirs;
 
+#include <seqan/seq_io.h>
+using seqan::Dna5String;
+using seqan::CharString;
+using seqan::length;
+using seqan::SeqFileIn;
+using seqan::SeqFileOut;
 
 namespace fast_ig_tools {
 
