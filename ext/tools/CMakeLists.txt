@@ -6,5 +6,4 @@
 ############################################################################
 
 add_definitions(-w)
-add_subdirectory(bwa-0.7.12)
 add_subdirectory(metis-5.1.0)
