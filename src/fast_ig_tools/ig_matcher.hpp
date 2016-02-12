@@ -104,6 +104,16 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, si
     }
     assert(ans == sum);
 
+    std::sort(result.begin(), result.end());
+
+    for (size_t i = 1; i < result.size(); ++i) {
+        assert(result[i] - result[i - 1] >= K);
+    }
+    for (size_t kmer_i : result) {
+        assert(kmer_i < costs.size());
+    }
+    assert(result.size() == ss_len);
+
     return result;
 }
 
