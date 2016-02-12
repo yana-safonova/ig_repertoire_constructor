@@ -13,7 +13,7 @@ endif()
 
 find_package(OpenMP QUIET)
 link_libraries(z)
-# link_libraries(bz2)
+link_libraries(bz2)
 link_libraries(pthread)
 link_libraries(boost_iostreams)
 
