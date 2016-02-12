@@ -17,7 +17,7 @@ int half_hamming(const Ts1 &s1, const Ts2 &s2,
     int len1 = length(s1), len2 = length(s2); // Cache lengths because of length(s) computation maybe not O(1) e.g. for char*-strings
     size_t len = std::min<size_t>(len1, len2);
 
-    size_t res = 0;
+    int res = 0;
     for (size_t i = 0; i < len; ++i) {
         res += (s1[i] == s2[i]) ? match : mismatch;
     }
