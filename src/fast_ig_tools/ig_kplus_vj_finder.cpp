@@ -389,7 +389,7 @@ struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
-    int right_uncoverage_limit = 9; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+    int right_uncoverage_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
     int min_vsegment_length = 100;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
