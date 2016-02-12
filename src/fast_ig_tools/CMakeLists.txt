@@ -44,7 +44,7 @@ link_libraries(boost_program_options)
 #   add_definitions(-DSEQAN_HAS_BZIP2=0)
 # endif()
 
-add_definitions(-DSEQAN_HAS_BZIP2=1)
+# add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 # Enable compilation in debug mode
 # See http://stackoverflow.com/questions/19729036/boost-program-options-wont-work-with-glibcxx-debug
