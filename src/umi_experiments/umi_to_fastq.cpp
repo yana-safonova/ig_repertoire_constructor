@@ -40,31 +40,37 @@ int main(int argc, char * argv[]){
 
     INFO("Extracting barcodes.");
     SeqFileOut outfile(argv[4]);
-    char delim = ' ';
+    int qual_mask = 0;
     for (auto& id : input_ids) {
         std::string s = seqan_string_to_string(id);
-        std::size_t space = s.find(delim);
-        if (space == std::string::npos) {
-            std::string delims = " _";
-            delim = delims[delims.find(delim) ^ 1];
-            space = s.find(delim);
+        auto split_by_umi = split(s, "UMI");
+        VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
+        if (split_by_umi.size() == 1) {
+            split_by_umi = split(s, "BARCODE");
+            VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
+            VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
         }
-        assert(space != std::string::npos);
-        space = s.find(delim, space + 1);
-        assert(space != std::string::npos);
-        std::string meta = s.substr(0, space);
-        std::string umi_info = s.substr(space + 1);
+        std::string meta = trim(split_by_umi[0]);
+        std::string umi_info = split_by_umi[1];
         assert(!umi_info.empty());
         std::size_t colon = umi_info.find(':');
         assert(colon != std::string::npos);
         umi_info = umi_info.substr(colon + 1);
         colon = umi_info.find(':');
-        assert(colon != std::string::npos);
-        assert(colon * 2 + 1 == umi_info.length());
-        auto umi = umi_info.substr(0, colon);
-        auto qual = umi_info.substr(colon + 1);
-        writeRecord(outfile, meta, umi, qual);
+        if (colon == std::string::npos) {
+            qual_mask |= 1;
+            writeRecord(outfile, meta, umi_info);
+        } else {
+            qual_mask |= 2;
+            assert(colon * 2 + 1 == umi_info.length());
+            auto umi = umi_info.substr(0, colon);
+            auto qual = umi_info.substr(colon + 1);
+            writeRecord(outfile, meta, umi, qual);
+        }
     }
-
+    close(outfile);
+    if (qual_mask == 3) {
+        ERROR("Found both UMIs with quality data and without.");
+    }
     INFO(input_ids.size() << " barcodes were extracted from " << argv[2] << " to " << argv[4]);
 }
