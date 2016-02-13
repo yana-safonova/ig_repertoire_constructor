@@ -8,5 +8,6 @@ file(GLOB boost_iostreams_SRC
     "*.cpp"
 )
 
+add_definitions(-DNO_BZIP2=1)
 add_library(boost_iostreams STATIC
             ${boost_iostreams_SRC})

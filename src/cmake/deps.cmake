@@ -13,9 +13,8 @@ endif()
 
 find_package(OpenMP QUIET)
 link_libraries(z)
-link_libraries(bz2)
+# link_libraries(bz2)
 link_libraries(pthread)
-link_libraries(boost_iostreams)
 
 set(BOOST_ROOT "${EXT_DIR}/include")
 set(Boost_USE_MULTITHREADED ON)
