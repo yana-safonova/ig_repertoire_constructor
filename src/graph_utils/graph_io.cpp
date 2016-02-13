@@ -1,3 +1,4 @@
+#include <verify.hpp>
 #include "graph_io.hpp"
 #include "../ig_tools/utils/string_tools.hpp"
 
@@ -13,23 +14,23 @@ vector<string> SplitGraphString(string str) {
 }
 
 /*
- * class WeightedGraphReader
+ * class EdgeWeightedGraphReader
  *      takes as an input file stream starting from the first line of the adjacency list
  *      creates list of weighted edges
- *      returns Hamming graph
+ *      returns graph
  */
-class WeightedGraphReader {
+class EdgeWeightedGraphReader {
     vector<GraphEdge> graph_edges;
 
-    void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits, size_t start) {
-        if((line_splits.size() - start) % 2 != 0) {
+    void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits) {
+        if(line_splits.size() % 2 != 0) {
             WARN("Line for vertex " << cur_vertex << " contains odd number of elements (" << line_splits.size() << "):");
             for(auto it = line_splits.begin(); it != line_splits.end(); it++)
                 cout << *it << " ";
             cout << endl;
-            assert((line_splits.size() - start) % 2 == 0);
+            assert(line_splits.size() % 2 == 0);
         }
-        for(size_t i = start; i < line_splits.size(); i += 2) {
+        for(size_t i = 0; i < line_splits.size(); i += 2) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
             size_t edge_weight = string_to_number<size_t>(line_splits[i + 1]);
             if(cur_vertex < dst_vertex)
@@ -38,24 +39,64 @@ class WeightedGraphReader {
     }
 
 public:
-    WeightedGraphReader() { }
+    EdgeWeightedGraphReader() { }
 
-    SparseGraphPtr ReadGraph(size_t num_vertices, ifstream &graph_stream, bool weightedVertices) {
+    SparseGraphPtr ReadGraph(size_t num_vertices, ifstream &graph_stream) {
+        size_t cur_vertex = 0;
+        while(!graph_stream.eof()) {
+            std::string tmp_line;
+            getline(graph_stream, tmp_line);
+            vector<string> splits = SplitGraphString(tmp_line);
+            if (splits.size() == 0)
+                continue;
+            UpdateGraphEdges(cur_vertex, splits);
+            cur_vertex++;
+        }
+        return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
+    }
+};
+
+/*
+ * class EdgeVertexWeightedGraphReader
+ *      takes as an input file stream starting from the first line of the adjacency list
+ *      creates list of weighted edges and weighted vertices
+ *      returns graph
+ */
+class EdgeVertexWeightedGraphReader {
+    vector<GraphEdge> graph_edges;
+
+    void UpdateGraphEdges(size_t cur_vertex, const vector<string> &line_splits) {
+        if(line_splits.size() % 2 == 0) {
+            WARN("Line for vertex " << cur_vertex << " contains even number of elements (" << line_splits.size() << "):");
+            for(auto it = line_splits.begin(); it != line_splits.end(); it++)
+                cout << *it << " ";
+            cout << endl;
+            assert(line_splits.size() % 2 != 0);
+        }
+        for(size_t i = 1; i < line_splits.size(); i += 2) {
+            size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
+            size_t edge_weight = string_to_number<size_t>(line_splits[i + 1]);
+            if(cur_vertex < dst_vertex)
+                graph_edges.push_back(GraphEdge(cur_vertex, dst_vertex, edge_weight));
+        }
+    }
+
+public:
+    EdgeVertexWeightedGraphReader() { }
+
+    SparseGraphPtr ReadGraph(size_t num_vertices, ifstream &graph_stream) {
         size_t cur_vertex = 0;
         auto weight = vector<size_t>(num_vertices, 1);
         while(!graph_stream.eof()) {
             std::string tmp_line;
             getline(graph_stream, tmp_line);
             vector<string> splits = SplitGraphString(tmp_line);
-            if (splits.size() == 0) continue;
-            if (weightedVertices) {
-                weight[cur_vertex] = string_to_number<size_t>(splits[0]);
-            }
-            UpdateGraphEdges(cur_vertex, splits, weightedVertices ? 1 : 0);
+            if (splits.size() == 0)
+                continue;
+            weight[cur_vertex] = string_to_number<size_t>(splits[0]);
+            UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-//        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
-//            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges, weight));
     }
 };
@@ -64,7 +105,7 @@ public:
  * class UnweightedGraphReader
  *      takes as an input file stream starting from the first line of the adjacency list
  *      creates list of edges of weight 1
- *      returns Hamming graph
+ *      returns graph
  */
 class UnweightedGraphReader {
     vector<GraphEdge> graph_edges;
@@ -91,8 +132,6 @@ public:
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }
-//        for(auto it = graph_edges.begin(); it != graph_edges.end(); it++)
-//            cout << it->i << " " << it->j << " " << it->dist << endl;
         return SparseGraphPtr(new SparseGraph(num_vertices, graph_edges));
     }
 };
@@ -105,16 +144,16 @@ class VersatileGraphReader {
         return header_splits.size() == 2;
     }
 
-    bool GraphIsWeighted(const vector <string> &header_splits) {
+    bool GraphIsEdgeWeighted(const vector <string> &header_splits) {
         if(header_splits.size() != 3 || header_splits[2].length() != 3)
             return false;
-        return header_splits[2][2] == '1';
+        return header_splits[2] == "001";
     }
 
-    bool VerticesAreWeighted(const vector <string> &header_splits) {
+    bool GraphIsEdgeVertexWeighted(const vector <string> &header_splits) {
         if(header_splits.size() != 3 || header_splits[2].length() != 3)
             return false;
-        return header_splits[2][1] == '1';
+        return header_splits[2] == "011";
     }
 
     size_t GetNumVertices(const vector<string> &header_splits) {
@@ -132,11 +171,16 @@ public:
             INFO("Unweighted graph reader was chosen");
             return UnweightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
-        if (GraphIsWeighted(splits)) {
-            INFO("Weighted graph reader was chosen");
-            return WeightedGraphReader().ReadGraph(num_vertices, graph_stream, VerticesAreWeighted(splits));
+        if (GraphIsEdgeWeighted(splits)) {
+            INFO("Edge weighted graph reader was chosen");
+            return EdgeWeightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
-        return WeightedGraphReader().ReadGraph(num_vertices, graph_stream, false);
+        if (GraphIsEdgeVertexWeighted(splits)) {
+            INFO("Edge & vertex graph reader was chosen");
+            return EdgeVertexWeightedGraphReader().ReadGraph(num_vertices, graph_stream);
+        }
+        VERIFY_MSG(false, "Unknown format of graph file!");
+        return SparseGraphPtr(NULL);
     }
 
 private:
