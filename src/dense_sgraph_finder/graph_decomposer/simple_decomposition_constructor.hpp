@@ -13,8 +13,13 @@ namespace dense_subgraph_finder {
         double edge_perc_threshold_;
         size_t min_supernode_size_;
 
+        // auxiliary fields
+        bool current_set_has_snode_;
+
         //output parameters
         DecompositionPtr decomposition_ptr_;
+
+        bool VertexIsSupernode(size_t vertex);
 
         void CreateFirstSet();
 
@@ -31,6 +36,7 @@ namespace dense_subgraph_finder {
                 permutation_prt_(permutation_ptr),
                 edge_perc_threshold_(edge_perc_threshold),
                 min_supernode_size_(min_supernode_size),
+                current_set_has_snode_(false),
                 decomposition_ptr_(new Decomposition(permutation_ptr->Size())) { }
 
         DecompositionPtr CreateDecomposition();
