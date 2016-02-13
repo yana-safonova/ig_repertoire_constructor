@@ -1,8 +1,9 @@
+#include "verify.hpp"
 #include "permutation.hpp"
 
 void Permutation::ReadFromFile(string filename) {
     ifstream perm_fhandler(filename.c_str());
-    assert(!perm_fhandler.fail());
+    VERIFY_MSG(!perm_fhandler.fail(), "Permutation file " << filename << " was not found");
     size_t index1 = 0;
     size_t index2 = 0;
     while(!perm_fhandler.eof()) {
