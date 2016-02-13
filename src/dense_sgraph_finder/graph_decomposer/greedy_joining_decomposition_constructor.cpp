@@ -141,6 +141,10 @@ void GreedyJoiningDecomposition::GlueClasses(size_t main_class, size_t sec_class
     for(auto it = basic_decomposition_ptr_->GetClass(sec_class).begin();
         it != basic_decomposition_ptr_->GetClass(sec_class).end(); it++)
         vertex_class_[*it] = main_class;
+    // updating info about supernodes
+    bool joint_class_has_snode = class_has_supernode_[main_class] or class_has_supernode_[sec_class];
+    class_has_supernode_[main_class] = joint_class_has_snode;
+    class_has_supernode_[sec_class] = joint_class_has_snode;
 }
 
 void GreedyJoiningDecomposition::CreateNewDecomposition() {
