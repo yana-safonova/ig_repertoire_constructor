@@ -113,7 +113,7 @@ def main(argv, external_logger = ""):
                             help="Input graph in GRAPH format")
     input_args.add_argument("--test",
                             action="store_const",
-                            const=os.path.join(home_directory, "test_dataset/test.graph"),
+                            const=os.path.join(home_directory, "test_dataset/dsf/test.graph"),
                             dest="graph",
                             help="Running test dataset")
 

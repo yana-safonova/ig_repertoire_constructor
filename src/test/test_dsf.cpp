@@ -51,7 +51,7 @@ void DsfTest::SetUp() {
     // Yana: boost_filesystem does not compile on mac
     path::make_dir(output_dir);
     // todo: add graph with weighted vertices in test
-    std::string graph_filename = "test_dataset/test.graph";
+    std::string graph_filename = "test_dataset/dsf/weighted_vertices.graph";
     GraphReader graph_reader(graph_filename);
     test_graph = graph_reader.CreateGraph();
 }
