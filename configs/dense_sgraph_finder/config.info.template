@@ -1,7 +1,7 @@
 ; input-output parameters ;
 io {
 	input {
-                graph_filename          test_dataset/test.graph
+                graph_filename          test_dataset/dsf/test.graph
 	}
 
 	output_base {
@@ -33,7 +33,7 @@ rp {
 dsf_params {
 	min_graph_size			5
 	primary_edge_fillin		0.3
-        min_supernode_size		10
+        min_supernode_size		5
 	min_fillin_threshold		0.6
 	create_trivial_decomposition	false
 }
