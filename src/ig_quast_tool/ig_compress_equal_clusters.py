@@ -23,11 +23,11 @@ if __name__ == "__main__":
     parser.add_argument("--tmp-file", "-T",
                         type=str,
                         default="",
-                        help="temporary file for ig_trie_compressor output (default: EMPTY")
+                        help="temporary file for ig_trie_compressor output (default: EMPTY)")
     parser.add_argument("--map-file", "-m",
                         type=str,
                         default="",
-                        help="map file (default: EMPTY")
+                        help="map file (default: EMPTY)")
 
     args = parser.parse_args()
 
