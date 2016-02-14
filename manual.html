@@ -1,5 +1,5 @@
 <head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>IgRepertoireConstructor 2.0 Manual</title>
+    <title>IgRepertoireConstructor 2.1 Manual</title>
     <style type="text/css">
         .code {
             background-color: lightgray;
@@ -9,15 +9,15 @@
     </style>
 </head>
 
-<h1>IgRepertoireConstructor 2.0 manual</h1>
+<h1>IgRepertoireConstructor 2.1 manual</h1>
 1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrepcon">About IgRepertoireConstructor</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrepcon">About IgReC</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.2 <a href = "#about_ms_analyzer">About MassSpectraAnalyzer</a><br>
 
 2. <a href="#install">Installation</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
 
-3. <a href="#ig_repertoire_constructor_usage">IgRepertoireConstructor usage</a><br>
+3. <a href="#ig_repertoire_constructor_usage">IgReC usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#repertoire_constructor_basic">Basic options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#repertoire_constructor_advanced">Advanced options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_examples">Examples</a><br>
@@ -44,45 +44,45 @@
 <a id="intro"></a>
 <h2>1. What is IgRepertoireConstructor?</h2>
 IgRepertoireConstructor is a tool for construction of antibody repertoire and immunoproteogenomics analysis.
-IgRepertoireConstructor includes two parts:
+IgRepertoireConstructor pipeline consists of two parts:
 <ul>
-    <li><b>IgRepertoireConstructor</b> &mdash; a tool for construction of antibody repertoire from Illumina Ig-Seq library.</li>
+    <li><b>IgReC</b> &mdash; a tool for construction of antibody repertoire from Illumina Ig-Seq library.</li>
     <li><b>MassSpectraAnalyzer</b> &mdash; a tool for analysis of matching mass spectra against constructed repertoire.</li>
 </ul>
 
 <!--- ---------------------------------------------------------------- -->
 
-<h3 id = "about_igrepcon">About IgRepertoireConstructor</h3>
-IgRepertoireConstructor pipeline in shown below:<br>
+<h3 id = "about_igrepcon">About IgReC</h3>
+IgReC pipeline in shown below:<br>
 <p align = center>
     <img src="docs/manual_figs/ig_repertoire_constructor.png" alt="ig_repertoire_constructor_pipeline" width = 70%>
 </p>
 
 <h4>Input:</h4>
 <p align="justify">
-    IgRepertoireConstructor takes as an input paired-end or single Illumina reads.
+    IgReC takes as an input paired-end or single Illumina reads.
     <b>Please note that IgRepertoireConstructor constructs full-length repertoire and
         expects that input reads cover variable region of antibody.</b>
 </p>
 
 <h4>Output:</h4>
 <p align = justify>
-    IgRepertoireConstructor corrects sequencing and amplification errors and
+    IgReC corrects sequencing and amplification errors and
     joins together reads corresponding to identical antibodies.
     Thus, constructed repertoire is a set of <i>antibody clusters</i> characterizing by
     <i>sequence</i> and <i>abundance</i>.
-    IgRepertoireConstructor provides user with the following information about constructed repertoire:
+    IgReC provides user with the following information about constructed repertoire:
 </p>
 
 <ul>
     <li>all antibody clusters,</li>
     <li>highly abundant antibody clusters,</li>
     <li>information showing how reads form antibody clusters</li>
-    <li><i>super reads</i>, i.e., groups of identical input reads with high coverage.</li>
+    <li><i>superreads</i>, i.e., groups of identical input reads with high coverage.</li>
 </ul>
 
 <h4>Stages:</h4>
-IgRepertoireConstructor pipeline consists of the following steps:
+IgReC pipeline consists of the following steps:
 <ol>
     <li><b>VJ Finder</b>: cleaning input reads using alignment against Ig germline genes</li>
     <li><b>SW Graph Constructor</b>: construction of Smith-Waterman graph on cleaned reads showing their similarity</li>
@@ -94,7 +94,7 @@ IgRepertoireConstructor pipeline consists of the following steps:
 </ol>
 
 <p align="justify">
-    You can find details of IgRepertoireConstructor algorithm in <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
+    You can find details of IgReC algorithm in <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
 </p>
 
 <!--- ---------------------------------------------------------------- -->
@@ -102,7 +102,7 @@ IgRepertoireConstructor pipeline consists of the following steps:
 <h3 id = "about_ms_analyzer">About MassSpectraAnalyzer</h3>
 Some immunological experiments include preparation both sequencing reads and mass spectra (see examples in Cheung et al, 2012, Nature; Safonova, Bonissone et al, Bioinformatics, 2015).
 In this case, mass spectra datasets can be used for validation of repertoire constructed from sequencing reads.
-Repertoire constructed by IgRepertoireConstructor can be used as a database for
+Repertoire constructed by IgReC can be used as a database for
 identification of mass spectra using some standard tool, e.g., <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>.
 MassSpectraAnalyzer takes as an input <a href = "http://www.psidev.info/mzidentml">mzIdentML file</a> and
 computes similarity between constructed repertoire and mass spectra.
@@ -146,20 +146,20 @@ and:
 
 <a id="test_datasets"></a>
 <h3>2.1. Verifying your installation</h3>
-For testing purposes, IgRepertoireConstructor comes with toy data set. <br><br>
+For testing purposes, IgReC and MassSpectraAnalyzer come with toy data sets. <br><br>
 
-&#9658; To try IgRepertoireConstructor on the test data set, run:
+&#9658; To try IgReC on the test data set, run:
 <pre class="code"><code>
-    ./ig_repertoire_constructor.py --test
+    ./igrec.py --test
 </code>
 </pre>
 
-If the installation of IgRepertoireConstructor is successful, you will find the following information at the end of the log:
+If the installation of IgReC is successful, you will find the following information at the end of the log:
 
 <pre class="code">
     <code>
-    Thank you for using IgRepertoireConstructor!
-    Log was written to igrepcon_test/ig_repertoire_constructor.log
+    Thank you for using IgReC!
+    Log was written to igrec_test/ig_repertoire_constructor.log
     </code>
 </pre>
 
@@ -186,16 +186,16 @@ If the installation of MassSpectraAnalyzer is successful, you will find the foll
 <!--- ---------------------------------------------------------------- -->
 
 <a id="ig_repertoire_constructor_usage"></a>
-<h2>3. IgRepertoireConstructor usage</h2>
+<h2>3. IgReC usage</h2>
 <p>
-    IgRepertoireConstructor takes as an input Illumina reads covering variable region of antibody and constructs repertoire
+    IgReC takes as an input Illumina reads covering variable region of antibody and constructs repertoire
     in <a href = "#repertoire_files">CLUSTERS.FA and RCM format</a>.
 </p>
 
-To run IgRepertoireConstructor, type:
+To run IgReC, type:
 <pre class="code">
     <code>
-    ./ig_repertoire_constructor.py [options] -s &lt;single_reads.fastq&gt; -o &lt;output_dir&gt;
+    ./igrec.py [options] -s &lt;single_reads.fastq&gt; -o &lt;output_dir&gt;
     </code>
 </pre>
 
@@ -203,7 +203,7 @@ OR
 
 <pre class="code">
     <code>
-    ./ig_repertoire_constructor.py [options] -1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt; -o &lt;output_dir&gt;
+    ./igrec.py [options] -1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt; -o &lt;output_dir&gt;
     </code>
 </pre>
 
@@ -236,7 +236,7 @@ The number of parallel threads. The default value is <code>16</code>.
 Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
 <pre class = "code">
     <code>
-    ./ig_repertoire_constructor.py -s test_dataset/merged_reads.fastq -o igrepcon_test
+    ./ig_repertoire_constructor.py -s test_dataset/merged_reads.fastq -o igrec_test
     </code>
 </pre>
 
@@ -258,16 +258,16 @@ Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</co
 <br><br>
 
 <code>--loci/-l &lt;str&gt;</code><br>
-Loci: <code>IGH</code>, <code>IGL</code>, <code>IGK</code>, <code>IG</code> for all BCRs,
-<code>TRA</code>, <code>TRB</code>, <code>TRG</code>, <code>TRD</code>, <code>TR</code> for all TCRs or <code>all</code>.<br>
-IgRepertoireConstructor tries to align input reads to database of selected chain type and discards reads with bad alignment.
+Loci: <code>IGH</code> / <code>IGL</code> / <code>IGK</code> / <code>IG</code> (for all BCRs) /
+<code>TRA</code> / <code>TRB</code> / <code>TRG</code> / <code>TRD</code> / <code>TR</code> (for all TCRs) or <code>all</code>.<br>
+IgReC aligns input reads to database of selected loci type and discards reads with bad alignment.
 Default value is <code>all</code>.
 
 <br><br>
 
 <code>--no-pseudogenes</code><br>
 Do not use pseudogenes along with normal gene segments for VJ alignment.
-By default, IgRepertoireConstructor uses pseudogenes for aligning reads.
+By default, IgReC uses pseudogenes for aligning reads.
 <br><br>
 
 <code>--organism &lt;str&gt;</code><br>
@@ -276,8 +276,15 @@ are supported).
 Default value is <code>human</code>.
 <br><br>
 
+<code>--min-sread-size &lt;int&gt;</code><br>
+Minimum size of superread. Superread is a group of identical input reads with high coverage.
+IgReC considers that superreads present error free clusters and does not glue them together.
+If input data set was highly amplified, we recommend to increase value of this option.
+Default value is <code>5</code>.
+<br><br>
+
 <code>--min-size &lt;int&gt;</code><br>
-Minimal size of antibody cluster used for output of large clusters and supernodes.
+Minimal size of antibody cluster used for output of large clusters.
 Default value is <code>5</code>.
 <br><br>
 
@@ -288,14 +295,14 @@ Default value is <code>5</code>.
 To construct antibody repertoire from single reads <code>reads.fastq</code>, type:
 <pre class="code">
     <code>
-    ./ig_repertoire_constructor.py -s reads.fastq -o output_dir
+    ./igrec.py -s reads.fastq -o output_dir
     </code>
 </pre>
 <!--- --------------------- -->
 
 <a id="repertoire_constructor_output"></a>
 <h3>3.4. Output files</h3>
-IgRepertoireConstructor creates working directory (which name was specified using option <code>-o</code>)
+IgReC creates working directory (which name was specified using option <code>-o</code>)
 and outputs the following files there:
 
 <ul>
@@ -310,9 +317,8 @@ and outputs the following files there:
     <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire
         (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
 
-    <li><b>super_reads.fa</b> &mdash; FASTA file containing highly abundant <i>super-reads</i>,
-        i.e., large groups of identical reads,
-        Minimal size of super read is defined by option <code>--min-size</code>.</li>
+    <li><b>super_reads.fa</b> &mdash; FASTA file containing <i>superreads</i>, i.e., large groups of identical reads,
+        Minimal size of superread is defined by option <code>--min-sread-size</code>.</li>
   </ul><br>
 
   <li>VJ finder output:</li>
@@ -336,7 +342,7 @@ and outputs the following files there:
       </li>
     </ul><br>
 
-    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgRepertoireConstructor run.</li>
+    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgReC run.</li>
 </ul>
 <br>
 
@@ -438,10 +444,10 @@ where Antibody_sequence_1 and Antibody_sequence_2 are sequences from database.
 <a id="examples"></a>
 <h2>5. Examples</h2>
 Example shows IgRepertoireConstructor pipeline in action for merged paired-end Illumina MiSeq library including reads <b>reads.fastq</b> and mass spectra <b>AspN_CID.mzXML</b> corresponding to the same antibody repertoire.<br><br>
-&#9658; To run IgRepertoireConstructor with standard settings, type the following command:
+&#9658; To run IgReC with standard settings, type the following command:
 <pre class = "code">
     <code>
-    ./ig_repertoire_constructor.py -s reads.fastq -o repertoire_constructing
+    ./igrec.py -s reads.fastq -o repertoire_constructing
     </code>
 </pre>
 Sequences of the constructed repertoire are located in <b>repertoire_constructing/constructed_repertoire.clusters.fa</b>. They can be converted into amino acid sequences and used as a database for matching mass spectra <b>AspN_CID.mzXML</b> (e.g., using MS-GF+ tool). Let result of MS-GF+ tool be a file <b>AspN_CID.mzId</b>.<br><br>
@@ -501,7 +507,7 @@ MISEQ@:53:000000000-A2BMW:1:2114:14393:28886<br><br>
 File <b>alignment_info.csv</b> contains the following information about the closest V and J gene segments
 in tab-separated view.<br>
 Read ids are consistent with headers in file <b>cleaned_reads.fastq</b>.<br>
-Ids of V and J gene segments are taken with IMGT database.
+Ids of V and J gene segments are taken from IMGT database.
 
         <table width = 100%>
             <tr align="center">
