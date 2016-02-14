@@ -32,6 +32,10 @@ if __name__ == "__main__":
                         type=str,
                         default="",
                         help="rcm file for fixup, empty for skip this stage (default: <empty>)")
+    parser.add_argument("--output-rcm", "-R",
+                        type=str,
+                        default="",
+                        help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
 
     args = parser.parse_args()
 
@@ -65,15 +69,17 @@ if __name__ == "__main__":
 
     if args.rcm:
         print "Fixing RCM file..."
+        if not args.output_rcm:
+            args.output_rcm = args.rcm
 
         with open(args.rcm, "r") as fin:
-            rcm = [line.strip().split() for line in fin]
+            rcm = [line.strip().split("\t") for line in fin]
             rcm = [(id, int(cluster)) for id, cluster in rcm]
 
-        with open(args.rcm, "w") as fout:
+        with open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
                 target_cluster = targets[cluster]
-                fout.writelines("%s %s\n" % (id, target_cluster))
+                fout.writelines("%s\t%s\n" % (id, target_cluster))
 
 
     print "Remove temporary files: %s %s" % (args.tmp_file, args.map_file)

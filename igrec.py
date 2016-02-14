@@ -198,12 +198,14 @@ class IgRepConIO:
         self.dense_sgraph_decomposition = os.path.join(self.dsf_output, 'dense_subgraphs.txt')
 
     def __initFinalOutput(self, output_dir):
-        self.final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
-        self.final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
+        self.uncompressed_final_clusters_fa = os.path.join(output_dir, 'final_repertoire_uncompressed.fa')
+        self.uncompressed_final_rcm = os.path.join(output_dir, 'final_repertoire_uncompressed.rcm')
 
     def __initCompressEqualClusters(self, output_dir):
         self.tmp_compressed_clusters_fa = os.path.join(output_dir, 'tmp_compressed_clusters.fa')
         self.tmp_compressed_clusters_map = os.path.join(output_dir, 'tmp_compressed_clusters.map')
+        self.compressed_final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
+        self.compressed_final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
     def __init__(self, output_dir, log):
         self.__log = log
@@ -263,15 +265,26 @@ class IgRepConIO:
             SupportInfo(self.__log)
             sys.exit(1)
 
-    def CheckFinalClustersExistance(self):
-        if not os.path.exists(self.final_clusters_fa):
-            self.__log("ERROR: File containing antibody clusters of final repertoire was not found")
+    def CheckUncompressedFinalClustersExistance(self):
+        if not os.path.exists(self.uncompressed_final_clusters_fa):
+            self.__log("ERROR: File containing uncompressed antibody clusters of final repertoire was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
-    def CheckFinalRCMExistance(self):
-        if not os.path.exists(self.final_rcm):
-            self.__log("ERROR: File containing RCM of final repertoire was not found")
+    def CheckCompressedFinalClustersExistance(self):
+        if not os.path.exists(self.compressed_final_clusters_fa):
+            self.__log("ERROR: File containing compressed antibody clusters of final repertoire was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+
+    def CheckUncompressedFinalRCMExistance(self):
+        if not os.path.exists(self.uncompressed_final_rcm):
+            self.__log("ERROR: File containing RCM of uncompressed final repertoire was not found")
+            SupportInfo(self.__log)
+            sys.exit(1)
+    def CheckCompressedFinalRCMExistance(self):
+        if not os.path.exists(self.compressed_final_rcm):
+            self.__log("ERROR: File containing RCM of compressed final repertoire was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -470,8 +483,8 @@ class ConsensusConstructionPhase(Phase):
         self.__params.io.CheckCroppedCompressedMapExistance()
 
     def __CheckOutputExistance(self):
-        self.__params.io.CheckFinalClustersExistance()
-        self.__params.io.CheckFinalRCMExistance()
+        self.__params.io.CheckUncompressedFinalClustersExistance()
+        self.__params.io.CheckUncompressedFinalRCMExistance()
 
     def Run(self):
         self.__CheckInputExistance()
@@ -479,12 +492,12 @@ class ConsensusConstructionPhase(Phase):
                                                        self.__params.io.cropped_reads,
                                                        self.__params.io.map_file,
                                                        self.__params.io.dense_sgraph_decomposition,
-                                                       self.__params.io.final_rcm)
+                                                       self.__params.io.uncompressed_final_rcm)
         support.sys_call(command_line, self._log)
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
-                       " -R " + self.__params.io.final_rcm + \
-                       " -o " + self.__params.io.final_clusters_fa + \
+                       " -R " + self.__params.io.uncompressed_final_rcm + \
+                       " -o " + self.__params.io.uncompressed_final_clusters_fa + \
                        " -H " + " -t " + str(self.__params.num_threads)
         support.sys_call(command_line, self._log)
 
@@ -492,10 +505,10 @@ class ConsensusConstructionPhase(Phase):
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * Antibody clusters of final repertoire were written to " +
-                       self.__params.io.final_clusters_fa)
-        self._log.info("  * Read-cluster map of final repertoire was written to " +
-                       self.__params.io.final_rcm)
+        self._log.info("  * Antibody clusters of uncompressed final repertoire were written to " +
+                       self.__params.io.uncompressed_final_clusters_fa)
+        self._log.info("  * Read-cluster map of uncompressed final repertoire was written to " +
+                       self.__params.io.uncompressed_final_rcm)
 
 class CompressEqualClusters(Phase):
     def __init__(self, params, log):
@@ -503,19 +516,22 @@ class CompressEqualClusters(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        self.__params.io.CheckFinalClustersExistance()
+        self.__params.io.CheckUncompressedFinalClustersExistance()
+        self.__params.io.CheckUncompressedFinalRCMExistance()
 
     def __CheckOutputExistance(self):
-        self.__params.io.CheckFinalClustersExistance()
+        self.__params.io.CheckCompressedFinalClustersExistance()
+        self.__params.io.CheckCompressedFinalRCMExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s -T %s -m %s -r %s" % (IgRepConConfig().run_compress_equal_clusters,
-                                                       self.__params.io.final_clusters_fa,
-                                                       self.__params.io.final_clusters_fa,
-                                                       self.__params.io.tmp_compressed_clusters_fa,
-                                                       self.__params.io.tmp_compressed_clusters_map,
-                                                       self.__params.io.final_rcm)
+        command_line = "%s %s %s -T %s -m %s -r %s -R %s" % (IgRepConConfig().run_compress_equal_clusters,
+                                                             self.__params.io.uncompressed_final_clusters_fa,
+                                                             self.__params.io.compressed_final_clusters_fa,
+                                                             self.__params.io.tmp_compressed_clusters_fa,
+                                                             self.__params.io.tmp_compressed_clusters_map,
+                                                             self.__params.io.uncompressed_final_rcm,
+                                                             self.__params.io.compressed_final_rcm)
         support.sys_call(command_line, self._log)
 
 
@@ -523,7 +539,7 @@ class CompressEqualClusters(Phase):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * Equal output clusters joined " +
-                       self.__params.io.final_clusters_fa)
+                       self.__params.io.compressed_final_clusters_fa)
 
 class RemoveLowAbundanceReadsPhase(Phase):
     def __init__(self, params, log):
@@ -531,7 +547,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
         self.__params = params
 
     def __CheckInputExistance(self):
-        self.__params.io.CheckFinalClustersExistance()
+        self.__params.io.CheckCompressedFinalClustersExistance()
 
     def __CheckOutputExistance(self):
         self.__params.io.CheckFinalStrippedClustersExistance()
@@ -539,7 +555,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
-                                                self.__params.io.final_clusters_fa,
+                                                self.__params.io.compressed_final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
                                                 self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
@@ -871,6 +887,10 @@ def RemoveAuxFiles(params):
         os.remove(params.io.sw_graph)
     if os.path.exists(params.io.dsf_output) and not params.save_aux_files:
         shutil.rmtree(params.io.dsf_output)
+    if os.path.exists(params.io.uncompressed_final_clusters_fa):
+        os.remove(params.io.uncompressed_final_clusters_fa)
+    if os.path.exists(params.io.uncompressed_final_rcm):
+        os.remove(params.io.uncompressed_final_rcm)
     #if os.path.exists(params.io.merged_reads)
 
 def PrintOutputFiles(params, log):
@@ -883,10 +903,10 @@ def PrintOutputFiles(params, log):
         log.info("  * VJ alignment output was written to " + params.io.vj_alignment_info)
     if os.path.exists(params.io.supernodes_file):
         log.info("  * Super-reads were written to " + params.io.supernodes_file)
-    if os.path.exists(params.io.final_clusters_fa):
-        log.info("  * Antibody clusters of final repertoire were written to " + params.io.final_clusters_fa)
-    if os.path.exists(params.io.final_rcm):
-        log.info("  * Read-cluster map of final repertoire was written to " + params.io.final_rcm)
+    if os.path.exists(params.io.compressed_final_clusters_fa):
+        log.info("  * Antibody clusters of final repertoire were written to " + params.io.compressed_final_clusters_fa)
+    if os.path.exists(params.io.compressed_final_rcm):
+        log.info("  * Read-cluster map of final repertoire was written to " + params.io.compressed_final_rcm)
     if os.path.exists(params.io.final_stripped_clusters_fa):
         log.info("  * Highly abundant antibody clusters of final repertoire were written to " + params.io.final_stripped_clusters_fa)
 
