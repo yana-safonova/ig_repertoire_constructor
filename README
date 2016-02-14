@@ -7,14 +7,16 @@ Developed in Center for Algorithmic Biotechnology, Saint-Petersburg State Univer
 Current IgRepertoireConstructor contributors:
 
     Yana Safonova,
-    Ekaterina Starostina,
     Alexander Shlemov,
+    Andrey Bzikadze,
+    Sergey Bankevich,
     Alla Lapidus, and
     Pavel A. Pevzner
 
 Also contributed:
 
-    Eugene Kurpilyansky
+    Eugene Kurpilyansky,
+    Ekaterina Starostina
 
 Installation instructions and manual can be found on the website:
 http://yana-safonova.github.io/ig_repertoire_constructor/
