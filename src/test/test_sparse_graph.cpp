@@ -103,8 +103,8 @@ void SparseGraphTestFixture::SetUp() {
     create_console_logger();
 //    time_t seed = time(NULL);
     time_t seed = 935486;
-    srand(seed);
-    INFO("setting up with rand seed " << seed);
+    srand(unsigned(seed));
+    INFO("setting up with rand seed " << unsigned(seed));
     vector<size_t> sizes { 0, 1, 2, 5, 10, 100 };
     for (auto size : sizes) {
         graphs.push_back(GraphPair(size, 0.0));
