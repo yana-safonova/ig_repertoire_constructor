@@ -18,14 +18,14 @@ import support
 #######################################################################################
 
 def ErrorMessagePrepareCfg(log):
-    log.info("Probably you forgot to prepare IgRepertoireConstructor. Please follow instructions:")
+    log.info("Probably you forgot to prepare IgReC. Please follow instructions:")
     log.info("  (1) remove build/ directory")
     log.info("  (2) type command \'./prepare cfg\' to check all dependencies")
-    log.info("  (3) type \'make\' to compile IgRepertoireConstructor")
-    log.info("  (4) rerun IgRepertoireConstructor")
+    log.info("  (3) type \'make\' to compile IgReC")
+    log.info("  (4) rerun IgReC")
 
 def SupportInfo(log):
-    log.info("\nIn case you have troubles running IgRepertoireConstructor, "
+    log.info("\nIn case you have troubles running IgReC, "
              "you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
 
@@ -619,19 +619,19 @@ def CreateLogger():
     return log
 
 def HelpString():
-    return "Usage: ig_repertoire_constructor.py (-s SINGLE_READS | -1 LEFT_READS -2 RIGHT_READS | --test) [-o OUTPUT]\n" +\
+    return "Usage: igrec.py (-s SINGLE_READS | -1 LEFT_READS -2 RIGHT_READS | --test) [-o OUTPUT]\n" +\
     "\t\t\t[-t NUM_THREADS] [--tau MAX_MISMATCHES]\n" +\
     "\t\t\t[-C CHAIN] [--no-pseudogenes]\n" +\
     "\t\t\t[--organism ORGANISM] [--min-size MIN_CLUSTER_SIZE]\n" +\
     "\t\t\t[-h]\n\n" +\
-    "IgRepertoireConstructor: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
+    "IgReC (IgRepertoireConstructor): an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
     "Input arguments:\n" +\
     "  -s\t\tSINGLE_READS\t\tSingle reads in FASTQ format\n" +\
     "  -1\t\tLEFT_READS\t\tLeft paired-end reads in FASTQ format\n" +\
     "  -2\t\tRIGHT_READS\t\tRight paired-end reads in FASTQ format\n" +\
     "  --test\t\t\t\tRunning of test dataset\n\n" +\
     "Output arguments:\n" +\
-    "  -o / --output\tOUTPUT\t\t\tOutput directory [default: \"igrepcon_test\"]\n\n" +\
+    "  -o / --output\tOUTPUT\t\t\tOutput directory [default: \"igrec_test\"]\n\n" +\
     "Optional arguments:\n" +\
     "  -t / --threads\tNUM_THREADS\t\tThread number [default: 16]\n" +\
     "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
@@ -641,15 +641,15 @@ def HelpString():
     "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
     "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
     "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
-    "In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.\n" +\
+    "In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with ig_repertoire_constructor.log file from the output directory."
 
 def ParseCommandLineParams(log):
     from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="IgRepertoireConstructor: an algorithm for construction of "
+    parser = ArgumentHiddenParser(description="IgReC (IgRepertoireConstructor): an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
                                   epilog="""
-    In case you have troubles running IgRepertoireConstructor, you can write to igtools_support@googlegroups.com.
+    In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
                                   """,
                                   add_help=False)
@@ -681,7 +681,7 @@ def ParseCommandLineParams(log):
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                           type=str,
-                          default="igrepcon_test",
+                          default="igrec_test",
                           help="Output directory [default: \"%(default)s\"]")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -828,7 +828,7 @@ def PrepareOutputDir(params):
         os.makedirs(params.output)
 
 def PrintParams(params, log):
-    log.info("IgRepertoireConstructor parameters:")
+    log.info("IgReC parameters:")
     log.info("  Input reads:\t\t\t" + params.single_reads)
     log.info("  Output directory:\t\t" + params.output)
     log.info("  Number of threads:\t\t" + str(params.num_threads))
@@ -861,7 +861,7 @@ def RemoveAuxFiles(params):
     #if os.path.exists(params.io.merged_reads)
 
 def PrintOutputFiles(params, log):
-    log.info("\nIgRepertoireConstructor output:")
+    log.info("\nIgReC output:")
     if os.path.exists(params.io.cropped_reads):
         log.info("  * Cleaned Ig-Seq reads were written to " + params.io.cropped_reads)
     if os.path.exists(params.io.bad_reads):
@@ -904,9 +904,9 @@ def main():
             ig_repertoire_constructor.Run(start_phase=1)
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
-        log.info("\nThank you for using IgRepertoireConstructor!")
+        log.info("\nThank you for using IgReC!")
     except (KeyboardInterrupt):
-        log.info("\nIgRepertoireConstructor was interrupted!")
+        log.info("\nIgReC was interrupted!")
     except Exception:
         exc_type, exc_value, _ = sys.exc_info()
         if exc_type == SystemExit:
