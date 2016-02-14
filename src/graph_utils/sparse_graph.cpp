@@ -73,17 +73,17 @@ SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++(int) {
 }
 
 bool SparseGraph::EdgesIterator::operator==(SparseGraph::EdgesIterator other) const {
-    VERIFY_MSG(&vertex_ == &other.vertex_, "Comparing iterators over different vertices edges.");
+    VERIFY_MSG(&graph_ == &other.graph_ && vertex_ == other.vertex_, "Comparing iterators over different vertices edges.");
     return current_ == other.current_;
 }
 
 bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) const {
-    VERIFY_MSG(&vertex_ == &other.vertex_, "Comparing iterators over different vertices edges.");
+    VERIFY_MSG(&graph_ == &other.graph_ && vertex_ == other.vertex_, "Comparing iterators over different vertices edges.");
     return current_ != other.current_;
 }
 
 size_t SparseGraph::EdgesIterator::operator*() const {
-    return graph_.get_edge_at_index(vertex_.GetIndex(), current_);
+    return graph_.get_edge_at_index(vertex_, current_);
 }
 
 size_t SparseGraph::WeightOfVertex(size_t vertex_index) const {

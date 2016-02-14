@@ -89,20 +89,20 @@ public:
 
         size_t GetIndex() const { return idx_; }
 
-        EdgesIterator begin() const { return SparseGraph::EdgesIterator(graph_, *this, 0); }
+        EdgesIterator begin() const { return SparseGraph::EdgesIterator(graph_, idx_, 0); }
 
-        EdgesIterator end() const { return SparseGraph::EdgesIterator(graph_, *this, graph_.Degree(idx_)); }
+        EdgesIterator end() const { return SparseGraph::EdgesIterator(graph_, idx_, graph_.Degree(idx_)); }
     };
 
     class EdgesIterator {
         const SparseGraph& graph_;
 
-        const Vertex& vertex_;
+        const size_t vertex_;
 
         size_t current_;
 
     public:
-        EdgesIterator(const SparseGraph& graph, const Vertex& vertex, size_t current) :
+        EdgesIterator(const SparseGraph& graph, const size_t vertex, size_t current) :
                 graph_(graph), vertex_(vertex), current_(current) {}
 
         EdgesIterator operator ++();
