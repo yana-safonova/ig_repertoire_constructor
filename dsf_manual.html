@@ -114,7 +114,7 @@ Default value is <code>0.6</code>.
 
 <code>-s / --min-size &lt;int&gt;</code><br>
 Minimal size of vertices in connected components of input graph where dense subgraphs will be computed.
-Connected components of size < <code>min-size</code> will be decomposed trivially (all vertices are in the same dense subgraph).
+Connected components which size do not exceed <code>min-size</code> will be decomposed trivially (all vertices are in the same dense subgraph).
 Default value is <code>5</code>.
 
 <br><br>
@@ -215,21 +215,20 @@ Below are examples representation of unweigthed (left) and edge weighted (middle
     <tr>
         <td align = justify>
         The first line shows number of vertices (7) and number of edges (9).
-        The next lines note neighbours for each vertices.
+        Each of the next lines contains vertex neighbours.
         E.g., the second line notes that vertex 1 is connected with vertices 2 and 3.
-        Numeration of vertices is 1-based.
         </td>
         <td width = 3%></td>
         <td align = justify>
-        The first line shows number of vertices (7), number of edges (9) and description for parser meaning edge weighted graph (<b>001</b>).
-        The next lines note neighbours and edge weights (highlighted in blue) for each vertices.
+        The first line shows number of vertices (7), number of edges (9) and description <b>001</b> that denotes edge weighted graph.
+        Each of the next lines contains vertex neighbours and weights of corresponding edges (highlighted in blue) for graph vertices.
         E.g., the second line notes that vertex 1 is connected with vertex 2 by edge of weigth <i>20</i> and
             vertex 3 by the edge of weigth <i>-3</i>.
         </td>
         <td width = 3%></td>
         <td align = justify>
-        The first line shows number of vertices (7), number of edges (9) and description for parser meaning edge & vertex weighted graph (<b>011</b>).
-        The next lines note vertex weight (highlighed in red), its neighbours and edge weights (highlighted in blue) for each vertices.
+        The first line shows number of vertices (7), number of edges (9) and description <b>011</b> that denotes edge & vertex weighted graph.
+        Each of the next lines contains vertex weight (highlighed in red), its neighbours and weights of corresponding edges (highlighted in blue).
         E.g., the second line notes that vertex 1 of weight 3 is connected with vertex 2 by edge of weigth <i>20</i> and
             vertex 3 by the edge of weigth <i>-3</i>.
         </td>
