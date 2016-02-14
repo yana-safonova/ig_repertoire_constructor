@@ -510,11 +510,12 @@ class CompressEqualClusters(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s -T %s -m %s" % (IgRepConConfig().run_compress_equal_clusters,
-                                                 self.__params.io.final_clusters_fa,
-                                                 self.__params.io.final_clusters_fa,
-                                                 self.__params.io.tmp_compressed_clusters_fa,
-                                                 self.__params.io.tmp_compressed_clusters_map)
+        command_line = "%s %s %s -T %s -m %s -r %s" % (IgRepConConfig().run_compress_equal_clusters,
+                                                       self.__params.io.final_clusters_fa,
+                                                       self.__params.io.final_clusters_fa,
+                                                       self.__params.io.tmp_compressed_clusters_fa,
+                                                       self.__params.io.tmp_compressed_clusters_map,
+                                                       self.__params.io.final_rcm)
         support.sys_call(command_line, self._log)
 
 
