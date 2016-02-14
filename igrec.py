@@ -201,6 +201,10 @@ class IgRepConIO:
         self.final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
         self.final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
+    def __initCompressEqualClusters(self, output_dir):
+        self.tmp_compressed_clusters_fa = os.path.join(output_dir, 'tmp_compressed_clusters.fa')
+        self.tmp_compressed_clusters_map = os.path.join(output_dir, 'tmp_compressed_clusters.map')
+
     def __init__(self, output_dir, log):
         self.__log = log
         self.__initVJFinderOutput(output_dir)
@@ -209,6 +213,7 @@ class IgRepConIO:
         self.__initDSFOutput(output_dir)
         self.__initFinalOutput(output_dir)
         self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_large.fa')
+        self.__initCompressEqualClusters(output_dir)
 
     def CheckCroppedReadsExistance(self):
         if not os.path.exists(self.cropped_reads):
@@ -505,9 +510,11 @@ class CompressEqualClusters(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s" % (IgRepConConfig().run_compress_equal_clusters,
-                                     self.__params.io.final_clusters_fa,
-                                     self.__params.io.final_clusters_fa)
+        command_line = "%s %s %s -T %s -m %s" % (IgRepConConfig().run_compress_equal_clusters,
+                                                 self.__params.io.final_clusters_fa,
+                                                 self.__params.io.final_clusters_fa,
+                                                 self.__params.io.tmp_compressed_clusters_fa,
+                                                 self.__params.io.tmp_compressed_clusters_map)
         support.sys_call(command_line, self._log)
 
 
