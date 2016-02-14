@@ -40,6 +40,7 @@ class PhaseNames:
         self.__graph_construction = 'graph_constructor'
         self.__dsf = 'dsf'
         self.__consensus_constructor = 'consensus_constructor'
+        self.__compress_equal_clusters = 'compress_equal_clusters'
         self.__remove_low_abundance_reads = 'remove_low_abundance_reads'
         self.__phase_order = [self.__pair_reads_merger,
                               self.__vj_alignment,
@@ -47,6 +48,7 @@ class PhaseNames:
                               self.__graph_construction,
                               self.__dsf,
                               self.__consensus_constructor,
+                              self.__compress_equal_clusters,
                               self.__remove_low_abundance_reads]
         self.__long_names = {'pair_reads_merger': 'Pair reads merging',
                              'vj_alignment' : 'VJ Alignment',
@@ -54,6 +56,7 @@ class PhaseNames:
                              'graph_constructor' : 'Graph Constructor',
                              'dsf' : 'Dense Subgraph Finder',
                              'consensus_constructor' : 'Consensus Constructor',
+                             'compress_equal_clusters' : 'Compress Equal Final Clusters',
                              'remove_low_abundance_reads' : 'Low Abundant Clusters Remover'}
 
     def __iter__(self):
@@ -108,6 +111,12 @@ class PhaseNames:
     def GetConsensusConstructorLongName(self):
         return self.__long_names[self.__consensus_constructor]
 
+    def PhaseIsCompressEqualClusters(self, phase_name):
+        return phase_name == self.__compress_equal_clusters
+
+    def GetCompressEqualClustersName(self):
+        return self.__long_names[self.__compress_equal_clusters]
+
     def PhaseIsRemoveLowAbundanceReads(self, phase_name):
         return phase_name == self.__remove_low_abundance_reads
 
@@ -129,6 +138,7 @@ class IgRepConConfig:
         self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
         self.run_rcm_recoverer = os.path.join(home_directory, 'src/ig_quast_tool/rcm_recoverer.py')
         self.run_remove_low_abundance_reads = os.path.join(home_directory, 'src/ig_quast_tool/ig_remove_low_abundance_reads.py')
+        self.run_compress_equal_clusters = os.path.join(home_directory, 'src/ig_quast_tool/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'src/ig_quast_tool/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
         self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
@@ -160,6 +170,10 @@ class IgRepConConfig:
             sys.exit(1)
         if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_compress_equal_clusters):
+            log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_remove_low_abundance_reads):
@@ -478,6 +492,31 @@ class ConsensusConstructionPhase(Phase):
         self._log.info("  * Read-cluster map of final repertoire was written to " +
                        self.__params.io.final_rcm)
 
+class CompressEqualClusters(Phase):
+    def __init__(self, params, log):
+        Phase.__init__(self, PhaseNames().GetCompressEqualClustersName(), log)
+        self.__params = params
+
+    def __CheckInputExistance(self):
+        self.__params.io.CheckFinalClustersExistance()
+
+    def __CheckOutputExistance(self):
+        self.__params.io.CheckFinalClustersExistance()
+
+    def Run(self):
+        self.__CheckInputExistance()
+        command_line = "%s %s %s" % (IgRepConConfig().run_compress_equal_clusters,
+                                     self.__params.io.final_clusters_fa,
+                                     self.__params.io.final_clusters_fa)
+        support.sys_call(command_line, self._log)
+
+
+    def PrintOutputFiles(self):
+        self.__CheckOutputExistance()
+        self._log.info("\nOutput files:")
+        self._log.info("  * Equal output clusters joined " +
+                       self.__params.io.final_clusters_fa)
+
 class RemoveLowAbundanceReadsPhase(Phase):
     def __init__(self, params, log):
         Phase.__init__(self, PhaseNames().GetRemoveLowAbundanceReadsName(), log)
@@ -525,6 +564,8 @@ class PhaseFactory:
             return DSFPhase(self.__params, self.__log)
         elif self.__phase_names.PhaseIsConsensusConstructor(phase_name):
             return ConsensusConstructionPhase(self.__params, self.__log)
+        elif self.__phase_names.PhaseIsCompressEqualClusters(phase_name):
+            return CompressEqualClusters(self.__params, self.__log)
         elif self.__phase_names.PhaseIsRemoveLowAbundanceReads(phase_name):
             return RemoveLowAbundanceReadsPhase(self.__params, self.__log)
 
@@ -827,10 +868,8 @@ def PrintOutputFiles(params, log):
         log.info("  * Contaminated (not Ig-Seq) reads were written to " + params.io.bad_reads)
     if os.path.exists(params.io.vj_alignment_info):
         log.info("  * VJ alignment output was written to " + params.io.vj_alignment_info)
-
     if os.path.exists(params.io.supernodes_file):
         log.info("  * Super-reads were written to " + params.io.supernodes_file)
-
     if os.path.exists(params.io.final_clusters_fa):
         log.info("  * Antibody clusters of final repertoire were written to " + params.io.final_clusters_fa)
     if os.path.exists(params.io.final_rcm):
