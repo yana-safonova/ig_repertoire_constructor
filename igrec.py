@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import logging
+import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -681,6 +682,14 @@ def ParseCommandLineParams(log):
                                   """,
                                   add_help=False)
 
+    class ActionTest(argparse.Action):
+        def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, "single_reads", "test_dataset/merged_reads.fastq")
+            setattr(namespace, "loci", "all")
+            setattr(namespace, "output", "igrec_test")
+
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=False)
     input_args.add_argument("-s",
@@ -690,9 +699,8 @@ def ParseCommandLineParams(log):
                             help="Single reads in FASTQ format")
 
     input_args.add_argument("--test",
-                            action="store_const",
-                            const="test_dataset/merged_reads.fastq",
-                            dest="single_reads",
+                            action=ActionTest,
+                            default="",
                             help="Running of test dataset")
 
     pair_reads = parser.add_argument_group("Paired-end reads")
