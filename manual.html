@@ -11,17 +11,17 @@
 
 <h1>IgRepertoireConstructor 2.1 manual</h1>
 1. <a href="#intro">What is IgRepertoireConstructor?</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrepcon">About IgReC</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.1 <a href = "#about_igrec">About IgReC</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.2 <a href = "#about_ms_analyzer">About MassSpectraAnalyzer</a><br>
 
 2. <a href="#install">Installation</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
 
-3. <a href="#ig_repertoire_constructor_usage">IgReC usage</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#repertoire_constructor_basic">Basic options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#repertoire_constructor_advanced">Advanced options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#repertoire_constructor_examples">Examples</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#repertoire_constructor_output">Output files</a><br>
+3. <a href="#igrec_usage">IgReC usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igrec_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igrec_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igrec_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igrec_output">Output files</a><br>
 
 4. <a href = "#immunoproteogenomics_usage">MassSpectraAnalyzer usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href = "#msanalyzer_basic">Basic options</a><br>
@@ -46,16 +46,16 @@
 IgRepertoireConstructor is a tool for construction of antibody repertoire and immunoproteogenomics analysis.
 IgRepertoireConstructor pipeline consists of two parts:
 <ul>
-    <li><b>IgReC</b> &mdash; a tool for construction of antibody repertoire from Illumina Ig-Seq library.</li>
+    <li><b>IgReC</b> &mdash; a tool for construction of full-length antibody repertoire from Illumina Ig-Seq library.</li>
     <li><b>MassSpectraAnalyzer</b> &mdash; a tool for analysis of matching mass spectra against constructed repertoire.</li>
 </ul>
 
 <!--- ---------------------------------------------------------------- -->
 
-<h3 id = "about_igrepcon">About IgReC</h3>
+<h3 id = "about_igrec">About IgReC</h3>
 IgReC pipeline in shown below:<br>
 <p align = center>
-    <img src="docs/manual_figs/ig_repertoire_constructor.png" alt="ig_repertoire_constructor_pipeline" width = 70%>
+    <img src="docs/manual_figs/igrec.png" alt="igrec_pipeline" width = 70%>
 </p>
 
 <h4>Input:</h4>
@@ -67,26 +67,25 @@ IgReC pipeline in shown below:<br>
 
 <h4>Output:</h4>
 <p align = justify>
-    IgReC corrects sequencing and amplification errors and
-    joins together reads corresponding to identical antibodies.
+    IgReC corrects sequencing and amplification errors and joins together reads corresponding to identical antibodies.
     Thus, constructed repertoire is a set of <i>antibody clusters</i> characterizing by
-    <i>sequence</i> and <i>abundance</i>.
+    <i>sequence</i> and <i>multiplicity</i>.
     IgReC provides user with the following information about constructed repertoire:
 </p>
 
 <ul>
-    <li>all antibody clusters,</li>
+    <li>antibody clusters: antibody sequences with multiplicities,</li>
+    <li>read-cluster map: information showing how reads form antibody clusters,</li>
     <li>highly abundant antibody clusters,</li>
-    <li>information showing how reads form antibody clusters</li>
-    <li><i>superreads</i>, i.e., groups of identical input reads with high coverage.</li>
+    <li>super reads: groups of identical input reads with high coverage.</li>
 </ul>
 
 <h4>Stages:</h4>
 IgReC pipeline consists of the following steps:
 <ol>
     <li><b>VJ Finder</b>: cleaning input reads using alignment against Ig germline genes</li>
-    <li><b>SW Graph Constructor</b>: construction of Smith-Waterman graph on cleaned reads showing their similarity</li>
-    <li><b>Dense Subgraph Finder</b>: finding dense structures (or corrupted cliques) in the constructed SW graph.
+    <li><b>HG Constructor</b>: construction of Hamming graph on cleaned reads</li>
+    <li><b>Dense Subgraph Finder</b>: finding dense subgraphs (or corrupted cliques) in the constructed Hamming graph.
         This allows us to decompose cleaned reads into highly similar groups.
         DSF algorithm is also available as a separate tool.
         Please find DSF manual <a href = "dsf_manual.html">here</a>.</li>
@@ -185,7 +184,7 @@ If the installation of MassSpectraAnalyzer is successful, you will find the foll
 <!--- ---------------------------------------------------------------- -->
 <!--- ---------------------------------------------------------------- -->
 
-<a id="ig_repertoire_constructor_usage"></a>
+<a id="igrec_usage"></a>
 <h2>3. IgReC usage</h2>
 <p>
     IgReC takes as an input Illumina reads covering variable region of antibody and constructs repertoire
@@ -209,7 +208,7 @@ OR
 
 <!--- --------------------- -->
 
-<a id="repertoire_constructor_basic"></a>
+<a id="igrec_basic"></a>
 <h3>3.1. Basic options:</h3>
 
 <code>-s &lt;single_reads.fastq&gt;</code><br>
@@ -222,12 +221,12 @@ FASTQ files with paired-end Illumina reads (required).
 
 <br><br>
 
-<code>-o/--output &lt;output_dir&gt;</code><br>
+<code>-o / --output &lt;output_dir&gt;</code><br>
 Output directory (required).
 
 <br><br>
 
-<code>-t/--threads &lt;int&gt;</code><br>
+<code>-t / --threads &lt;int&gt;</code><br>
 The number of parallel threads. The default value is <code>16</code>.
 
 <br><br>
@@ -236,7 +235,7 @@ The number of parallel threads. The default value is <code>16</code>.
 Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
 <pre class = "code">
     <code>
-    ./ig_repertoire_constructor.py -s test_dataset/merged_reads.fastq -o igrec_test
+    ./igrec.py -s test_dataset/merged_reads.fastq -l all -o igrec_test
     </code>
 </pre>
 
@@ -247,21 +246,13 @@ Printing help.
 
 <!--- --------------------- -->
 
-<a id="repertoire_constructor_advanced"></a>
+<a id="igrec_advanced"></a>
 <h3>3.2. Advanced options:</h3>
 
-<code>--tau &lt;int&gt;</code><br>
-Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default (and recommended) value is 4.
-Higher values give higher sencitivity but increase running time.
-Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</code>.
-
-<br><br>
-
-<code>--loci/-l &lt;str&gt;</code><br>
-Loci: <code>IGH</code> / <code>IGL</code> / <code>IGK</code> / <code>IG</code> (for all BCRs) /
-<code>TRA</code> / <code>TRB</code> / <code>TRG</code> / <code>TRD</code> / <code>TR</code> (for all TCRs) or <code>all</code>.<br>
-IgReC aligns input reads to database of selected loci type and discards reads with bad alignment.
-Default value is <code>all</code>.
+<code>--loci / -l &lt;str&gt;</code><br>
+Immunological loci to align input reads and discard reads with low score (required). Available values:
+<code>IGH</code> / <code>IGL</code> / <code>IGK</code> / <code>IG</code> (for all BCRs) /
+<code>TRA</code> / <code>TRB</code> / <code>TRG</code> / <code>TRD</code> / <code>TR</code> (for all TCRs) or <code>all</code>.
 
 <br><br>
 
@@ -276,21 +267,30 @@ are supported).
 Default value is <code>human</code>.
 <br><br>
 
-<code>--min-sread-size &lt;int&gt;</code><br>
-Minimum size of superread. Superread is a group of identical input reads with high coverage.
-IgReC considers that superreads present error free clusters and does not glue them together.
-If input data set was highly amplified, we recommend to increase value of this option.
-Default value is <code>5</code>.
+<code>--tau &lt;int&gt;</code><br>
+Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default (and recommended) value is 4.
+Higher values give higher sensitivity of error correction algorithm but increase running time.
+Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</code>.
+
 <br><br>
 
-<code>--min-size &lt;int&gt;</code><br>
+<code>-n / --min-sread-size &lt;int&gt;</code><br>
+Minimum size of super read. Super read is a group of identical input reads with high coverage.
+IgReC considers that super reads present error free clusters and does not glue them together.
+If input data set was highly amplified, we recommend to increase value of this option.
+Default value is <code>5</code>.
+
+<br><br>
+
+<code>--min-cluster-size &lt;int&gt;</code><br>
 Minimal size of antibody cluster used for output of large clusters.
 Default value is <code>5</code>.
+
 <br><br>
 
 <!--- --------------------- -->
 
-<a id="repertoire_constructor_examples"></a>
+<a id="igrec_examples"></a>
 <h3>3.3. Examples</h3>
 To construct antibody repertoire from single reads <code>reads.fastq</code>, type:
 <pre class="code">
@@ -300,7 +300,7 @@ To construct antibody repertoire from single reads <code>reads.fastq</code>, typ
 </pre>
 <!--- --------------------- -->
 
-<a id="repertoire_constructor_output"></a>
+<a id="igrec_output"></a>
 <h3>3.4. Output files</h3>
 IgReC creates working directory (which name was specified using option <code>-o</code>)
 and outputs the following files there:
@@ -317,8 +317,8 @@ and outputs the following files there:
     <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire
         (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
 
-    <li><b>super_reads.fa</b> &mdash; FASTA file containing <i>superreads</i>, i.e., large groups of identical reads,
-        Minimal size of superread is defined by option <code>--min-sread-size</code>.</li>
+    <li><b>super_reads.fa</b> &mdash; FASTA file containing super reads, i.e., large groups of identical input reads,
+        Minimal size of super read is defined by option <code>--min-sread-size</code>.</li>
   </ul><br>
 
   <li>VJ finder output:</li>
@@ -326,8 +326,7 @@ and outputs the following files there:
       <li>
           <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed at the VJ Finder stage.
           Cleaned reads have forward direction (from V to J),
-          contain V and J gene segments and
-          are cropped by the left bound of V gene segment.
+          contain V and J gene segments and are cropped by the left bound of V gene segment.
       </li>
 
       <li>
@@ -337,12 +336,12 @@ and outputs the following files there:
 
       <li>
           <b>vj_finder/alignment_info.csv</b> &mdash; CSV file containing information about alignment of cleaned reads to
-          V and J gene segments. Details of <b>alignment_info.csv</b> format are given in
-          <a href="#alignment_info">Alignment Info file format</a>.
+          V and J gene segments.
+          Details of <b>alignment_info.csv</b> format are given in <a href="#alignment_info">Alignment Info file format</a>.
       </li>
     </ul><br>
 
-    <li><b>ig_repertoire_constructor.log</b> &mdash; full log of IgReC run.</li>
+    <li><b>igrec.log</b> &mdash; full log of IgReC run.</li>
 </ul>
 <br>
 
