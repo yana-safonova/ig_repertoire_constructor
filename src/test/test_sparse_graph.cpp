@@ -103,7 +103,7 @@ void SparseGraphTestFixture::SetUp() {
     create_console_logger();
 //    time_t seed = time(NULL);
     time_t seed = 935486;
-    srand(seed);
+    srand(static_cast<unsigned>(seed));
     INFO("setting up with rand seed " << seed);
     vector<size_t> sizes { 0, 1, 2, 5, 10, 100 };
     for (auto size : sizes) {
