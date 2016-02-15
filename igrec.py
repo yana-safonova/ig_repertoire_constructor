@@ -413,7 +413,7 @@ class TrieCompressionPhase(Phase):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
         self._log.info("  * Compressed reads were written to " + self.__params.io.compressed_reads)
-        self._log.info("  * Super-reads were written to " + self.__params.io.supernodes_file)
+        self._log.info("  * Super reads were written to " + self.__params.io.supernodes_file)
 
 ###########
 class GraphConstructionPhase(Phase):
@@ -643,35 +643,36 @@ def CreateLogger():
     return log
 
 def HelpString():
-    return "Usage: igrec.py (-s SINGLE_READS | -1 LEFT_READS -2 RIGHT_READS | --test) [-o OUTPUT]\n" +\
-    "\t\t\t[-t NUM_THREADS] [--tau MAX_MISMATCHES]\n" +\
-    "\t\t\t[-C CHAIN] [--no-pseudogenes]\n" +\
-    "\t\t\t[--organism ORGANISM] [--min-size MIN_CLUSTER_SIZE]\n" +\
+    return "Usage: igrec.py (-s FILENAME | -1 FILENAME -2 FILENAME | --test) [-o OUTPUT_DIR]\n" +\
+    "\t\t\t[-t / --threads INT]\n" +\
+    "\t\t\t[--organism ORGANISM] [-l LOCI] [--no-pseudogenes]\n" +\
+    "\t\t\t[--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
     "\t\t\t[-h]\n\n" +\
-    "IgReC (IgRepertoireConstructor): an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
+    "IgReC: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
     "Input arguments:\n" +\
-    "  -s\t\tSINGLE_READS\t\tSingle reads in FASTQ format\n" +\
-    "  -1\t\tLEFT_READS\t\tLeft paired-end reads in FASTQ format\n" +\
-    "  -2\t\tRIGHT_READS\t\tRight paired-end reads in FASTQ format\n" +\
-    "  --test\t\t\t\tRunning of test dataset\n\n" +\
+    "  -s\t\t\t\tFILENAME\t\tSingle reads in FASTQ format\n" +\
+    "  -1\t\t\t\tFILENAME\t\tLeft paired-end reads in FASTQ format\n" +\
+    "  -2\t\t\t\tFILENAME\t\tRight paired-end reads in FASTQ format\n" +\
+    "  --test\t\t\t\t\t\tRunning of test dataset\n\n" +\
     "Output arguments:\n" +\
-    "  -o / --output\tOUTPUT\t\t\tOutput directory [default: \"igrec_test\"]\n\n" +\
-    "Optional arguments:\n" +\
-    "  -t / --threads\tNUM_THREADS\t\tThread number [default: 16]\n" +\
-    "  --tau\t\t\tMAX_MISMATCHES\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
-    "  --min-snode-size\tMIN_SNODE_SIZE\t\tMinimum supernode size [default: 5]\n" +\
-    "  -h / --help\t\t\t\t\tShowing help message and exit\n\n" +\
+    "  -o / --output\t\t\tOUTPUT_DIR\t\tOutput directory [default: igrec_test]\n\n" +\
+    "Running arguments:\n" +\
+    "  -t / --threads\t\tINT\t\t\tThread number [default: 16]\n" +\
+    "  -h / --help\t\t\t\t\t\tShowing help message and exit\n\n" +\
+    "Alignment arguments:\n" +\
+    "  --organism\t\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
+    "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
+    "  --no-pseudogenes\t\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n\n" +\
     "Algorithm arguments:\n" +\
-    "  -l / --loci\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
-    "  --no-pseudogenes\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n" +\
-    "  --organism\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
-    "  --min-size\t\tMIN_CLUSTER_SIZE\tMinimal size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
+    "  --tau\t\t\t\tINT\t\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
+    "  --n / --min-sread-size\tINT\t\t\tMinimum size of super reads [default: 5]\n" +\
+    "  --min-cluster-size\t\tINT\t\t\tMinimum size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
     "In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with ig_repertoire_constructor.log file from the output directory."
 
 def ParseCommandLineParams(log):
     from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="IgReC (IgRepertoireConstructor): an algorithm for construction of "
+    parser = ArgumentHiddenParser(description="IgReC: an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
                                   epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
@@ -751,7 +752,7 @@ def ParseCommandLineParams(log):
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
-    vj_align_args.add_argument("--min-size",
+    vj_align_args.add_argument("--min-cluster-size",
                                type=int,
                                dest="min_cluster_size",
                                default=5,
