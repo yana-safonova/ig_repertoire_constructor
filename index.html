@@ -27,7 +27,7 @@
         <ul>
             <li><a href = "#motivation">Motivation</a></li>
             <li><a href = "#approach">Our approach</a></li>
-            <li><a href = "#ig_repertoire_constructor">IgRepertoireConstructor</a></li>
+            <li><a href = "#ig_repertoire_constructor">IgReC</a></li>
             <li><a href = "#mass_spectra_analysis">Mass Spectra Analyzer</a></li>
             <li><a href = "#dsf">DSF (Dense Subgraph Finder)</a></li>
             <li><a href = "#references">Manual and citations</a></li>
@@ -75,12 +75,12 @@
             The whole pipeline includes two parts:
         </p>
         <ul>
-            <li> <b>IgRepertoireConstructor</b> performs construction of antibody repertoire from immunosequencing reads:
+            <li> <b>IgReC</b> performs construction of antibody repertoire from immunosequencing reads:
                 it corrects sequencing and amplification errors and joins together reads corresponding
                 to identical antibodies.
                 Constructed repertoire can be used as a highly accurate input for various immunological applications, e.g.,
                 construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.
-                Details of IgRepertoireConstructor algorithm can be found <a href = "#ig_repertoire_constructor">below</a>.
+                Details of IgReC algorithm can be found <a href = "#ig_repertoire_constructor">below</a>.
             </li>
             <li>
                 <b>Mass Spectra Analyzer</b> is a tool for immunoproteogenomics analysis.
@@ -101,15 +101,15 @@
         </table>
 
 
-        <h2 id = "ig_repertoire_constructor">IgRepertoireConstructor</h2>
+        <h2 id = "ig_repertoire_constructor">IgReC</h2>
         <p align = justify>
-            IgRepertoireConstructor takes as an input reads (paired-end or single) covering variable region of antibodies and
+            IgReC takes as an input reads (paired-end or single) covering variable region of antibodies and
             corrects sequencing and amplification errors.
         </p>
         Algorithm performs the following steps:
             <ul>
                 <li><b>VJ Finder: </b>V, J labeling, cleaning and cropping input reads.</li>
-                <li><b>Construction & clusterization of SW graph: </b>representation of cleaned reads as a Smith-Waterman graph and finding of groups of highly similar antibodies.</li>
+                <li><b>Construction & clustering of Hamming graph: </b>representation of cleaned reads as a Hamming graph and finding of groups of highly similar antibodies.</li>
                 <li><b>Antibody construction:</b> reconstruction of antibody sequences from the constructed groups, cleaning amplification errors.</li>
             </ul>
 
@@ -156,14 +156,15 @@
         </small>
 
 
-        <h3 id = "graph_algos">Construction and clusterizarion of Smith-Waterman graph</h3>
+        <h3 id = "graph_algos">Construction and clustering of Hamming graph</h3>
         <p align = justify>
-            We use Smith-Waterman graph to show similarity between reads.
-            Idea of Smith-Waterman graph is close to Hamming graph: vertices represent reads remaining after VJ Finder,
-            edge connects <i>read1</i> and <i>read2</i> if global edit distance between these them is relatively small.
+            We use Hamming graph to show similarity between reads.
+            Vertices of Hamming graph represent reads remaining after VJ Finder,
+            edge connects <i>read1</i> and <i>read2</i> if Hamming distance between these them is relatively small.
 
-            After construction of graph, we use clustering techniques that allow us to find dense structures (corrupted cliques) in the graph (see figure below).
-            These dense structures present groups of highly similar antibodies.
+            After construction of graph, we use clustering techniques that allow us to find
+            dense subgraphs (corrupted cliques) in the graph (see figure below).
+            These dense subgraphs present groups of highly similar antibodies.
             Algorithm for search of corrupted cliques is also implemented as a separate tool and
             is described in <a href = "#dsf">Dense Subgraph Finder</a> section.
         </p>
@@ -174,8 +175,8 @@
             <td align = center><img src="figures/graph_357134_colored.jpg" alt = "hamming_graph_after_clusterization" width = 300px></td>
         </tr>
         <tr>
-            <td><small>Example of connected component of Hamming graph constructed from immunosequencing reads (human, heavy chain repertoire of IgM).</small></td>
-            <td><small>Clusterization of Hamming graph performed by IgRepertoireConstructor. Each color corresponds to single antibody cluster.</small></td>
+            <td><small>Example of connected component of Hamming graph constructed from immunosequencing reads (heavy chain human repertoire).</small></td>
+            <td><small>Clustering of Hamming graph performed by IgReC. Each color corresponds to antibody cluster in repertoire.</small></td>
         </tr>
         </table>
 
