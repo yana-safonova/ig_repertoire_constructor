@@ -634,7 +634,7 @@ class PhaseManager:
 #######################################################################################
 
 def CreateLogger():
-    log = logging.getLogger('ig_repertoire_constructor')
+    log = logging.getLogger('igrec')
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(sys.stdout)
     console.setFormatter(logging.Formatter('%(message)s'))
@@ -655,12 +655,12 @@ def HelpString():
     "  -2\t\t\t\tFILENAME\t\tRight paired-end reads in FASTQ format\n" +\
     "  --test\t\t\t\t\t\tRunning of test dataset\n\n" +\
     "Output arguments:\n" +\
-    "  -o / --output\t\t\tOUTPUT_DIR\t\tOutput directory [default: igrec_test]\n\n" +\
+    "  -o / --output\t\t\tOUTPUT_DIR\t\tOutput directory. Required\n\n" +\
     "Running arguments:\n" +\
     "  -t / --threads\t\tINT\t\t\tThread number [default: 16]\n" +\
     "  -h / --help\t\t\t\t\t\tShowing help message and exit\n\n" +\
     "Alignment arguments:\n" +\
-    "  --organism\t\t\tORGANISM\t\tOrganism (human, mouse, pig, rabbit, rat, rhesus_monkey are supported) [default: human]\n" +\
+    "  --organism\t\t\tORGANISM\t\tOrganism: human, mouse, pig, rabbit, rat, rhesus_monkey are available [default: human]\n" +\
     "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
     "  --no-pseudogenes\t\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n\n" +\
     "Algorithm arguments:\n" +\
@@ -668,7 +668,7 @@ def HelpString():
     "  --n / --min-sread-size\tINT\t\t\tMinimum size of super reads [default: 5]\n" +\
     "  --min-cluster-size\t\tINT\t\t\tMinimum size of antibody cluster using for output of large antibody clusters [default: 5]\n\n" +\
     "In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.\n" +\
-    "Please provide us with ig_repertoire_constructor.log file from the output directory."
+    "Please provide us with igrec.log file from the output directory."
 
 def ParseCommandLineParams(log):
     from src.python_add.argparse_ext import ArgumentHiddenParser
@@ -707,8 +707,8 @@ def ParseCommandLineParams(log):
     out_args = parser.add_argument_group("Output")
     out_args.add_argument("-o", "--output",
                           type=str,
-                          default="igrec_test",
-                          help="Output directory [default: \"%(default)s\"]")
+                          default="",
+                          help="Output directory. Required")
 
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
@@ -737,8 +737,8 @@ def ParseCommandLineParams(log):
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
                                dest="loci",
-                               default="all",
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: %(default)s]")
+                               default="",
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
 
     vj_align_args.add_argument("--no-pseudogenes",
                                action="store_const",
@@ -811,27 +811,28 @@ def EnsureAbsPath(s):
         s = os.path.abspath(s)
     return s
 
-def CheckParamsCorrectness(parser, params, log):
+def CheckGeneralParamsCorrectness(parser, params, log):
     if not "output" in params or params.output == "":
         log.info("ERROR: Output directory (-o) was not specified\n")
         HelpString()
         sys.exit(-1)
+    if not "loci" in params or params.loci == "":
+        log.info("ERROR: Immunological loci (-l) was not specified\n")
+        HelpString()
+        sys.exit(1)
+
+def CheckSingleReadsCorrectness(parser, params, log):
     if not "single_reads" in params or params.single_reads == "":
-        log.info("ERROR: Reads (-s) were not specified\n")
+        log.info("ERROR: Single reads (-s) were not specified\n")
         HelpString()
         sys.exit(-1)
     if not os.path.exists(params.single_reads):
-        log.info("ERROR: File with reads " + params.single_reads + " were not found\n")
+        log.info("ERROR: File with single reads " + params.single_reads + " were not found\n")
         HelpString()
         sys.exit(-1)
-    if not os.path.isabs(params.single_reads):
-        params.single_reads = os.path.abspath(params.single_reads)
+    params.single_reads = EnsureAbsPath(params.single_reads)
 
-def CheckParamsCorrectnessPairReads(parser, params, log):
-    if not "output" in params or params.output == "":
-        log.info("ERROR: Output directory (-o) was not specified\n")
-        HelpString()
-        sys.exit(-1)
+def CheckPairedReadsCorrectness(parser, params, log):
     if not "left_reads" in params or params.left_reads == "":
         log.info("ERROR: Left reads (-1) were not specified\n")
         HelpString()
@@ -866,7 +867,7 @@ def PrintParams(params, log):
     log.info("  Entry point:\t\t\t" + params.entry_point)
 
 def CreateFileLogger(params, log):
-    params.log_filename = os.path.join(params.output, "ig_repertoire_constructor.log")
+    params.log_filename = os.path.join(params.output, "igrc.log")
     if os.path.exists(params.log_filename):
         os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
@@ -903,11 +904,11 @@ def PrintOutputFiles(params, log):
     if os.path.exists(params.io.vj_alignment_info):
         log.info("  * VJ alignment output was written to " + params.io.vj_alignment_info)
     if os.path.exists(params.io.supernodes_file):
-        log.info("  * Super-reads were written to " + params.io.supernodes_file)
-    if os.path.exists(params.io.compressed_final_clusters_fa):
-        log.info("  * Antibody clusters of final repertoire were written to " + params.io.compressed_final_clusters_fa)
-    if os.path.exists(params.io.compressed_final_rcm):
-        log.info("  * Read-cluster map of final repertoire was written to " + params.io.compressed_final_rcm)
+        log.info("  * Super reads were written to " + params.io.supernodes_file)
+    if os.path.exists(params.io.final_clusters_fa):
+        log.info("  * Antibody clusters of final repertoire were written to " + params.io.final_clusters_fa)
+    if os.path.exists(params.io.final_rcm):
+        log.info("  * Read-cluster map of final repertoire was written to " + params.io.final_rcm)
     if os.path.exists(params.io.final_stripped_clusters_fa):
         log.info("  * Highly abundant antibody clusters of final repertoire were written to " + params.io.final_stripped_clusters_fa)
 
@@ -920,9 +921,10 @@ def main():
     binary_config.CheckBinaries(log)
     parser, params = ParseCommandLineParams(log)
     if params.left_reads:
-        CheckParamsCorrectnessPairReads(parser, params, log)
+        CheckPairedReadsCorrectness(parser, params, log)
     else:
-        CheckParamsCorrectness(parser, params, log)
+        CheckSingleReadsCorrectness(parser, params, log)
+    CheckGeneralParamsCorrectness(parser, params, log)
     PrepareOutputDir(params)
     CreateFileLogger(params, log)
     PrintParams(params, log)
