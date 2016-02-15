@@ -59,6 +59,8 @@ public:
 
     const vector<size_t>& Weight() const { return weight_; }
 
+    size_t WeightOfVertex(size_t vertex_index) const;
+
     const CrsMatrixPtr DirectMatrix() const { return direct_matrix_; }
 
     const CrsMatrixPtr TransposedMatrix() const { return trans_matrix_; }

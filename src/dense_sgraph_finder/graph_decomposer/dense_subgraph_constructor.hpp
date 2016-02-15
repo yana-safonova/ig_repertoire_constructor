@@ -19,6 +19,8 @@ namespace dense_subgraph_finder {
 
         PermutationPtr CreatePermutation(SparseGraphPtr graph_ptr);
 
+        DecompositionPtr CreateDecompositionForSmallGraph(SparseGraphPtr hamming_graph_ptr);
+
         DecompositionPtr CreatePrimaryDecomposition(SparseGraphPtr hamming_graph_ptr,
                                                     PermutationPtr permutation_ptr);
 

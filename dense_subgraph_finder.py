@@ -73,6 +73,7 @@ def CreateParamDict(params):
     param_dict['min_graph_size'] = params.min_graph_size
     param_dict['create_trivial_decomposition'] = process_cfg.bool_to_str(params.create_trivial_decomposition)
     param_dict['path_to_metis'] = os.path.join(home_directory, "build/release/bin/")
+    param_dict['min_supernode_size'] = params.min_snode_size
     return param_dict
 
 def PrepareConfigs(params, log):
@@ -112,7 +113,7 @@ def main(argv, external_logger = ""):
                             help="Input graph in GRAPH format")
     input_args.add_argument("--test",
                             action="store_const",
-                            const=os.path.join(home_directory, "test_dataset/test.graph"),
+                            const=os.path.join(home_directory, "test_dataset/dsf/test.graph"),
                             dest="graph",
                             help="Running test dataset")
 
@@ -133,11 +134,18 @@ def main(argv, external_logger = ""):
                                default=0.6,
                                dest="min_fillin",
                                help='Minimum fill-in of dense subgraphs [default: %(default)f]')
+    optional_args.add_argument("-n", "--min-snode-size",
+                               type=int,
+                               default=5,
+                               dest="min_snode_size",
+                               help="Minimum vertex weight that prevents its gluing with other heavy vertex "
+                                    "[default: %(default)d]")
     optional_args.add_argument("-s", "--min-size",
                                type=int,
                                default=5,
                                dest="min_graph_size",
-                               help="Minimum size of graph where dense subgraphs will be computed [default: %(default)d]")
+                               help="Minimum size of graph where dense subgraphs will be computed "
+                                    "[default: %(default)d]")
     optional_args.add_argument("--create-triv-dec",
                                action="store_const",
                                const=True,

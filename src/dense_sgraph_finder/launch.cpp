@@ -159,6 +159,11 @@ int dense_subgraph_finder::DenseSubgraphFinder::Run() {
         INFO("Dense subgraph finder was unable to extract graph from " << io_.input.graph_filename);
         return 1;
     }
+    INFO("DSF algorithm parameters:");
+    INFO("Minimum size of processed components: " << dsf_params_.min_graph_size);
+    INFO("Minimum weight of vertex that prevents its gluing with other heavy vertices: " <<
+                 dsf_params_.min_supernode_size);
+    INFO("Expected minimum edge fill-in: " << dsf_params_.min_fillin_threshold);
     DecompositionPtr dense_sgraph_decomposition;
     if(run_params_.threads_count == 1) {
         INFO("Nonparallel mode was chosen");
