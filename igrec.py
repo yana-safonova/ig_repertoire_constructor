@@ -643,9 +643,10 @@ def CreateLogger():
     return log
 
 def HelpString():
-    return "Usage: igrec.py (-s FILENAME | -1 FILENAME -2 FILENAME | --test) [-o OUTPUT_DIR]\n" +\
+    return "Usage: igrec.py (-s FILENAME | -1 FILENAME -2 FILENAME | --test)\n" +\
+    "\t\t\t(-o OUTPUT_DIR) (-l LOCI)\n" +\
     "\t\t\t[-t / --threads INT]\n" +\
-    "\t\t\t[--organism ORGANISM] [-l LOCI] [--no-pseudogenes]\n" +\
+    "\t\t\t[--organism ORGANISM] [--no-pseudogenes]\n" +\
     "\t\t\t[--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
     "\t\t\t[-h]\n\n" +\
     "IgReC: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
@@ -660,8 +661,8 @@ def HelpString():
     "  -t / --threads\t\tINT\t\t\tThread number [default: 16]\n" +\
     "  -h / --help\t\t\t\t\t\tShowing help message and exit\n\n" +\
     "Alignment arguments:\n" +\
+    "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required\n" +\
     "  --organism\t\t\tORGANISM\t\tOrganism: human, mouse, pig, rabbit, rat, rhesus_monkey are available [default: human]\n" +\
-    "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all [default: all]\n" +\
     "  --no-pseudogenes\t\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n\n" +\
     "Algorithm arguments:\n" +\
     "  --tau\t\t\t\tINT\t\t\tMaximum allowed mismatches between identical error-prone reads [default: 4]\n" +\
@@ -722,11 +723,17 @@ def ParseCommandLineParams(log):
                                dest="max_mismatches",
                                help="Maximum allowed mismatches between identical error-prone reads "
                                     "[default: %(default)d]")
-    optional_args.add_argument("-n", "--min-snode-size",
+    optional_args.add_argument("--min-cluster-size",
+                               type=int,
+                               dest="min_cluster_size",
+                               default=5,
+                               help="Minimal size of antibody cluster using for output of large antibody clusters [default: %(default)d]")
+    optional_args.add_argument("-n", "--min-sread-size",
                                type=int,
                                default=5,
                                dest="min_snode_size",
-                               help="Minimum supernode size [default: %(default)d]")
+                               help="Minimum super read size [default: %(default)d]")
+
     optional_args.add_argument("-h", "--help",
                                action="store_const",
                                const=True,
@@ -751,12 +758,6 @@ def ParseCommandLineParams(log):
                                default="human",
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
-
-    vj_align_args.add_argument("--min-cluster-size",
-                               type=int,
-                               dest="min_cluster_size",
-                               default=5,
-                               help="Minimal size of antibody cluster using for output of large antibody clusters [default: %(default)d]")
 
     dev_args = parser.add_argument_group("_Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
@@ -905,10 +906,10 @@ def PrintOutputFiles(params, log):
         log.info("  * VJ alignment output was written to " + params.io.vj_alignment_info)
     if os.path.exists(params.io.supernodes_file):
         log.info("  * Super reads were written to " + params.io.supernodes_file)
-    if os.path.exists(params.io.final_clusters_fa):
-        log.info("  * Antibody clusters of final repertoire were written to " + params.io.final_clusters_fa)
-    if os.path.exists(params.io.final_rcm):
-        log.info("  * Read-cluster map of final repertoire was written to " + params.io.final_rcm)
+    if os.path.exists(params.io.compressed_final_clusters_fa):
+        log.info("  * Antibody clusters of final repertoire were written to " + params.io.compressed_final_clusters_fa)
+    if os.path.exists(params.io.compressed_final_rcm):
+        log.info("  * Read-cluster map of final repertoire was written to " + params.io.compressed_final_rcm)
     if os.path.exists(params.io.final_stripped_clusters_fa):
         log.info("  * Highly abundant antibody clusters of final repertoire were written to " + params.io.final_stripped_clusters_fa)
 
