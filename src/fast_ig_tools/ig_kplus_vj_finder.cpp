@@ -390,7 +390,8 @@ struct Ig_KPlus_Finder_Parameters {
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
     int right_uncoverage_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
-    int min_vsegment_length = 100;
+    int min_vsegment_length = 250;
+    int min_jsegment_length = 30;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
@@ -420,7 +421,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
     std::string separator = "comma";
-    int min_len = 300;
+    size_t min_len = 300;
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -486,7 +487,7 @@ struct Ig_KPlus_Finder_Parameters {
              "save spaces in read ids, do not replace them")
             ("separator", po::value<std::string>(&separator)->default_value(separator),
              "separator for alignment info file: 'comma' (default), 'semicolon', 'tab' (or 'tabular') or custom string)")
-            ("min-len", po::value<int>(&min_len)->default_value(min_len),
+            ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
              "minimal length of reported sequence")
             ;
 
@@ -509,6 +510,8 @@ struct Ig_KPlus_Finder_Parameters {
              "the number left positions which will be filled by germline")
             ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
              "minimal allowed length of V gene segment")
+            ("min-jsegment-length", po::value<int>(&min_jsegment_length)->default_value(min_jsegment_length),
+             "minimal allowed length of J gene segment")
             ;
 
         po::options_description cmdline_options("All command line options");
@@ -831,6 +834,11 @@ int main(int argc, char **argv) {
                     }
 
                     const auto &jalign = *jresult.cbegin();
+
+                    if (static_cast<int>(jalign.finish - jalign.first_match_read_pos()) < param.min_jsegment_length) { // TODO check +-1
+                        // Discard read
+                        break;
+                    }
 
                     if (jalign.finish - int(length(suff)) > param.right_uncoverage_limit) {
                         // Discard read
