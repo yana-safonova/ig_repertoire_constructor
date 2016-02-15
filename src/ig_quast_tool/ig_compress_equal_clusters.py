@@ -23,11 +23,19 @@ if __name__ == "__main__":
     parser.add_argument("--tmp-file", "-T",
                         type=str,
                         default="",
-                        help="temporary file for ig_trie_compressor output (default: EMPTY")
+                        help="temporary file for ig_trie_compressor output (default: <empty>)")
     parser.add_argument("--map-file", "-m",
                         type=str,
                         default="",
-                        help="map file (default: EMPTY")
+                        help="map file (default: <empty>)")
+    parser.add_argument("--rcm", "-r",
+                        type=str,
+                        default="",
+                        help="rcm file for fixup, empty for skip this stage (default: <empty>)")
+    parser.add_argument("--output-rcm", "-R",
+                        type=str,
+                        default="",
+                        help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
 
     args = parser.parse_args()
 
@@ -55,8 +63,24 @@ if __name__ == "__main__":
 
     with smart_open(args.tmp_file, "r") as fin, smart_open(args.output, "w") as fout:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
-            record.id = record.description = "cluster___%d___size___%d" % (i + 1, final_mults[i])
+            record.id = record.description = "cluster___%d___size___%d" % (i, final_mults[i])
             SeqIO.write(record, fout, "fasta")
+
+
+    if args.rcm:
+        print "Fixing RCM file..."
+        if not args.output_rcm:
+            args.output_rcm = args.rcm
+
+        with open(args.rcm, "r") as fin:
+            rcm = [line.strip().split("\t") for line in fin]
+            rcm = [(id, int(cluster)) for id, cluster in rcm]
+
+        with open(args.output_rcm, "w") as fout:
+            for id, cluster in rcm:
+                target_cluster = targets[cluster]
+                fout.writelines("%s\t%s\n" % (id, target_cluster))
+
 
     print "Remove temporary files: %s %s" % (args.tmp_file, args.map_file)
     os.remove(args.tmp_file)
