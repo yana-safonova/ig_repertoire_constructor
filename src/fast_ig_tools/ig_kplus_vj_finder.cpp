@@ -415,12 +415,12 @@ struct Ig_KPlus_Finder_Parameters {
     std::string vgenes_filename;
     std::string jgenes_filename;
     int left_fill_germline = 3;
-    size_t num_cropped_nucls = 3;
     std::vector<CharString> v_ids;
     std::vector<Dna5String> v_reads;
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
     std::string separator = "comma";
+    int min_len = 300;
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -486,6 +486,8 @@ struct Ig_KPlus_Finder_Parameters {
              "save spaces in read ids, do not replace them")
             ("separator", po::value<std::string>(&separator)->default_value(separator),
              "separator for alignment info file: 'comma' (default), 'semicolon', 'tab' (or 'tabular') or custom string)")
+            ("min-len", po::value<int>(&min_len)->default_value(min_len),
+             "minimal length of reported sequence")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -507,8 +509,6 @@ struct Ig_KPlus_Finder_Parameters {
              "the number left positions which will be filled by germline")
             ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
              "minimal allowed length of V gene segment")
-            ("right-cropped", po::value<size_t>(&num_cropped_nucls)->default_value(num_cropped_nucls),
-             "the number of right positions which will be cropped")
             ;
 
         po::options_description cmdline_options("All command line options");
@@ -715,7 +715,6 @@ int main(int argc, char **argv) {
 
     std::mutex stdout_mtx;
     const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
-                          // param.right_uncoverage_limit + param.num_cropped_nucls,
                           1005000,
                           param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
     const KmerIndex j_index(j_reads, param.word_size_j,
@@ -745,13 +744,12 @@ int main(int argc, char **argv) {
         CharString read_id = read_ids[j];
 
         // temporary solution - we crop three nucleotides at the end of string
-        if (length(reads[j]) <= param.num_cropped_nucls) {
+        if (length(reads[j]) < param.min_len) {
             // Discard so short read
             output_isok[j] = false;
             continue;
         }
 
-        // Dna5String read = prefix(reads[j], length(reads[j]) - param.num_cropped_nucls);
         Dna5String read = reads[j];
         Dna5String read_rc = read;
         reverseComplement(read_rc);
@@ -763,9 +761,8 @@ int main(int argc, char **argv) {
         int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
 
         int strand = (pscore >= nscore) ? 1 : -1;
-        auto stranded_read = (strand == 1) ? read : read_rc;
-        stranded_read = prefix(stranded_read, length(stranded_read) - param.num_cropped_nucls);
-        auto result = index.query(stranded_read, param.max_candidates);
+        const auto &stranded_read = (strand == 1) ? read : read_rc;
+        const auto &result = (strand == 1) ? result_pstrand : result_nstrand;
 
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
@@ -854,8 +851,13 @@ int main(int argc, char **argv) {
 
                         add_info_strings[j] = bf.str();
 
-                        reads[j] = cropped_read;
-                        output_isok[j] = true;
+                        if (length(cropped_read) >= param.min_len) {
+                            reads[j] = cropped_read;
+                            output_isok[j] = true;
+                        } else {
+                            // Read is too short
+                            output_isok[j] = false;
+                        }
                     }
 
                     aligned = true;
