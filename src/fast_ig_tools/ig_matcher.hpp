@@ -104,6 +104,16 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &costs, size_t K, si
     }
     assert(ans == sum);
 
+    std::sort(result.begin(), result.end());
+
+    for (size_t i = 1; i < result.size(); ++i) {
+        assert(result[i] - result[i - 1] >= K);
+    }
+    for (size_t kmer_i : result) {
+        assert(kmer_i < costs.size());
+    }
+    assert(result.size() == ss_len);
+
     return result;
 }
 
@@ -112,7 +122,7 @@ template<typename T1, typename T2 = T1>
 int hamming_rtrim(const T1& s1, const T2 &s2) {
     size_t len = std::min<size_t>(length(s1), length(s2));
 
-    size_t res = 0;
+    int res = 0;
     for (size_t i = 0; i < len; ++i) {
         res += (s1[i] != s2[i]) ? 1 : 0;
     }
