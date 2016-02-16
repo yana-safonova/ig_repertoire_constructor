@@ -155,54 +155,6 @@ int path_coverage_length(const std::vector<Match> &path) {
 }
 
 
-Alignment path2Alignment(const std::vector<Match> &path,
-                         const Dna5String &query) {
-    int coverage_length = path_coverage_length(path);
-
-    // Just use the most left and most right matches
-    int left_shift = path[0].read_pos - path[0].needle_pos;
-    int right_shift = path[path.size() - 1].read_pos - path[path.size() - 1].needle_pos;
-
-    if (std::abs(left_shift - right_shift) > max_global_gap) {
-        // Omit such match
-        continue;
-    }
-
-    if (coverage_length < min_k_coverage) {
-        // Omit such match
-        continue;
-    }
-
-    int start = left_shift;
-    int finish = right_shift + int(length(queries[needle_index]));
-
-    int shift_min = -left_uncoverage_limit;
-    int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit;
-
-    if (left_shift < shift_min || right_shift > shift_max) {
-        // Omit candidates with unproper final shift
-        // Maybe we should make these limits less strict because of possibility of indels on edges?
-        continue;
-    }
-
-    int over_start = std::max(0, start);
-    int over_finish = std::min(right_shift + length(queries[needle_index]), length(read));
-    int read_overlap_length = over_finish - over_start; // read overlap
-    int needle_overlap_length = read_overlap_length + left_shift - right_shift;
-
-    Alignment align;
-    align.kp_coverage = coverage_length;
-    align.score = static_cast<double>(coverage_length) / static_cast<double>(length(queries[needle_index]));
-    align.path = std::move(path);
-    align.start = start;
-    align.finish = finish;
-    align.needle_index = needle_index;
-    align.overlap_length = needle_overlap_length;
-
-    result.push_back(std::move(align));
-}
-
-
 std::vector<Match> combine_sequential_kmer_matches(std::vector<KmerMatch> &matches,
                                                    size_t K) {
     std::sort(matches.begin(), matches.end(), KmerMatch::less_shift);
@@ -302,6 +254,41 @@ class BlockAligner {
             const auto &last = path[path.size() - 1];
             return last.read_pos + last.length;
         }
+
+        static Alignment path2Alignment(const std::vector<Match> &path,
+                                        const Dna5String &read,
+                                        const Dna5String &query,
+                                        size_t query_index) {
+            int coverage_length = path_coverage_length(path);
+
+            // Just use the most left and most right matches
+            int left_shift = path[0].read_pos - path[0].needle_pos;
+            int right_shift = path[path.size() - 1].read_pos - path[path.size() - 1].needle_pos;
+
+            int start = left_shift;
+            int finish = right_shift + int(length(query));
+
+            // int shift_min = -left_uncoverage_limit;
+            // int shift_max = int(length(read)) - int(length(query)) + right_uncoverage_limit;
+
+            int over_start = std::max(0, start);
+            int over_finish = std::min(right_shift + length(query), length(read));
+            int read_overlap_length = over_finish - over_start; // read overlap
+            int needle_overlap_length = read_overlap_length + left_shift - right_shift;
+
+            Alignment align;
+            align.kp_coverage = coverage_length;
+            align.score = static_cast<double>(coverage_length) / static_cast<double>(length(query));
+            align.path = std::move(path);
+            align.start = start;
+            align.finish = finish;
+            align.needle_index = query_index;
+            align.overlap_length = needle_overlap_length;
+
+            return align;
+        }
+
+
     };
 
 public:
@@ -434,9 +421,6 @@ private:
                 continue;
             }
 
-            int start = left_shift;
-            int finish = right_shift + int(length(queries[needle_index]));
-
             int shift_min = -left_uncoverage_limit;
             int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit;
 
@@ -446,19 +430,7 @@ private:
                 continue;
             }
 
-            int over_start = std::max(0, start);
-            int over_finish = std::min(right_shift + length(queries[needle_index]), length(read));
-            int read_overlap_length = over_finish - over_start; // read overlap
-            int needle_overlap_length = read_overlap_length + left_shift - right_shift;
-
-            Alignment align;
-            align.kp_coverage = coverage_length;
-            align.score = static_cast<double>(coverage_length) / static_cast<double>(length(queries[needle_index]));
-            align.path = std::move(path);
-            align.start = start;
-            align.finish = finish;
-            align.needle_index = needle_index;
-            align.overlap_length = needle_overlap_length;
+            Alignment align = Alignment::path2Alignment(path, read, queries[needle_index], needle_index);
 
             result.push_back(std::move(align));
         }
