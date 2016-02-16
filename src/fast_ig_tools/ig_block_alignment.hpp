@@ -68,6 +68,36 @@ struct Match {
 
 class AlignmentPath : public std::vector<Match> {
     using std::vector<Match>::vector;
+public:
+    int kplus_length() const {
+        int result = 0;
+
+        for (const auto &match : *this) {
+            result += match.length;
+        }
+
+        return result;
+    }
+
+    const Match& first() const {
+        return (*this)[0];
+    }
+
+    const Match& last() const {
+        return (*this)[this->size() - 1];
+    }
+
+    int left_shift() const {
+        return first().read_pos - first().needle_pos;
+    }
+
+    int right_shift() const {
+        return last().read_pos - last().needle_pos;
+    }
+
+    int global_gap() const {
+        return left_shift() - right_shift();
+    }
 };
 
 
@@ -148,17 +178,6 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
 }
 
 
-int path_coverage_length(const std::vector<Match> &path) {
-    int result = 0;
-
-    for (const auto &match : path) {
-        result += match.length;
-    }
-
-    return result;
-}
-
-
 std::vector<Match> combine_sequential_kmer_matches(std::vector<KmerMatch> &matches,
                                                    size_t K) {
     std::sort(matches.begin(), matches.end(), KmerMatch::less_shift);
@@ -230,7 +249,7 @@ class BlockAligner {
 
     struct Alignment {
         int kp_coverage;
-        std::vector<Match> path;
+        AlignmentPath path;
         int start, finish;
         size_t needle_index;
         int overlap_length;
@@ -240,34 +259,30 @@ class BlockAligner {
             return this->kp_coverage < b.kp_coverage;
         }
 
-
         size_t first_match_read_pos() const {
-            return path[0].read_pos;
+            return path.first().read_pos;
         }
 
         size_t first_match_needle_pos() const {
-            return path[0].needle_pos;
+            return path.first().needle_pos;
         }
 
         size_t last_match_needle_pos() const {
-            const auto &last = path[path.size() - 1];
-            return last.needle_pos + last.length;
+            return path.last().needle_pos + path.last().length;
         }
 
         size_t last_match_read_pos() const {
-            const auto &last = path[path.size() - 1];
-            return last.read_pos + last.length;
+            return path.last().read_pos + path.last().length;
         }
 
-        static Alignment path2Alignment(const std::vector<Match> &path,
+        static Alignment path2Alignment(AlignmentPath &path,
                                         const Dna5String &read,
                                         const Dna5String &query,
                                         size_t query_index) {
-            int coverage_length = path_coverage_length(path);
+            int coverage_length = path.kplus_length();
 
-            // Just use the most left and most right matches
-            int left_shift = path[0].read_pos - path[0].needle_pos;
-            int right_shift = path[path.size() - 1].read_pos - path[path.size() - 1].needle_pos;
+            int left_shift = path.left_shift();
+            int right_shift = path.right_shift();
 
             int start = left_shift;
             int finish = right_shift + int(length(query));
@@ -386,7 +401,7 @@ private:
                       [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
             assert(combined.size() > 0);
 
-            auto has_edge = [&](const Match &a, const Match &b) -> bool {
+            auto has_edge = [this](const Match &a, const Match &b) -> bool {
                 int read_gap = b.read_pos - a.read_pos;
                 int needle_gap = b.needle_pos - a.needle_pos;
                 int insert_size = read_gap - needle_gap;
@@ -409,18 +424,12 @@ private:
 
             auto path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
 
-            int coverage_length = path_coverage_length(path);
-
-            // Just use the most left and most right matches
-            int left_shift = path[0].read_pos - path[0].needle_pos;
-            int right_shift = path[path.size() - 1].read_pos - path[path.size() - 1].needle_pos;
-
-            if (std::abs(left_shift - right_shift) > max_global_gap) {
+            if (std::abs(path.global_gap()) > max_global_gap) { // TODO split into 2 args (ins/dels) positive gap is deletion here
                 // Omit such match
                 continue;
             }
 
-            if (coverage_length < min_k_coverage) {
+            if (path.kplus_length() < min_k_coverage) { // TODO Rename kplus_length()
                 // Omit such match
                 continue;
             }
@@ -428,7 +437,7 @@ private:
             int shift_min = -left_uncoverage_limit;
             int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit;
 
-            if (left_shift < shift_min || right_shift > shift_max) {
+            if (path.left_shift() < shift_min || path.right_shift() > shift_max) {
                 // Omit candidates with unproper final shift
                 // Maybe we should make these limits less strict because of possibility of indels on edges?
                 continue;
