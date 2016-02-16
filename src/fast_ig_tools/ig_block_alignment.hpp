@@ -351,12 +351,12 @@ public:
     }
 
 private:
-    std::vector<std::vector<KmerMatch>> needle2matches(const Dna5String &read) const {
-        std::vector<std::vector<KmerMatch>> result(queries.size());
+    std::vector<Alignment> query_unordered(const Dna5String &read) const {
+        std::vector<std::vector<KmerMatch>> needle2matches(queries.size());
 
         if (length(read) < K) {
             // Return empty result
-            return result;
+            return {  };
         }
 
         auto hashes = polyhashes(read, K);
@@ -379,26 +379,21 @@ private:
                 int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
 
                 if (shift >= shift_min && shift <= shift_max) {
-                    result[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
+                    needle2matches[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
                 }
             }
         }
 
-        return result;
-    }
-
-    std::vector<Alignment> query_unordered(const Dna5String &read) const {
         std::vector<Alignment> result;
-        auto n2m = this->needle2matches(read);
 
         for (size_t needle_index = 0; needle_index < queries.size(); ++needle_index) {
-            auto &matches = n2m[needle_index];
+            auto &matches = needle2matches[needle_index];
 
             if (matches.empty()) continue;
 
             std::vector<Match> combined = combine_sequential_kmer_matches(matches, K);
-            std::sort(combined.begin(), combined.end(),
-                      [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
+            // std::sort(combined.begin(), combined.end(),
+            //           [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
             assert(combined.size() > 0);
 
             auto has_edge = [this](const Match &a, const Match &b) -> bool {
@@ -435,7 +430,7 @@ private:
             }
 
             int shift_min = -left_uncoverage_limit;
-            int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit;
+            int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit;
 
             if (path.left_shift() < shift_min || path.right_shift() > shift_max) {
                 // Omit candidates with unproper final shift
