@@ -50,7 +50,8 @@ int main(int argc, char * argv[]){
             VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
             VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
         }
-        std::string meta = trim(split_by_umi[0]);
+        std::string meta = split_by_umi[0];
+        boost::algorithm::trim(meta);
         std::string umi_info = split_by_umi[1];
         assert(!umi_info.empty());
         std::size_t colon = umi_info.find(':');

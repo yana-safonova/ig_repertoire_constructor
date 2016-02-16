@@ -40,18 +40,6 @@ string number_to_string(T n) {
     return ss.str();
 }
 
-string trim(string s) {
-    size_t left = 0;
-    size_t right = s.size();
-    while (left < right && s[left] <= ' ') {
-        left ++;
-    }
-    while (left < right && s[right - 1] <= ' ') {
-        right --;
-    }
-    return s.substr(left, right - left);
-}
-
 // TODO: rename
 inline string delete_spaces(string str) {
     for (size_t i = 0; i < str.size(); i++)
