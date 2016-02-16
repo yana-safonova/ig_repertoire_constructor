@@ -2,17 +2,8 @@
 #include "raw_pairing_data_storage.hpp"
 #include "pairing_fastq_utils.hpp"
 
-void IsotypeUmiSequences::CheckConsistency(const UmiIsotypeSequence &umi_sequence) const {
-    assert(isotype_ == umi_sequence.isotype);
-}
-
-void IsotypeUmiSequences::Update(UmiIsotypeSequence umi_sequence) {
-    CheckConsistency(umi_sequence);
-    sequences_.push_back(umi_sequence);
-}
-
-void RawPairingDataStorage::UpdateRecord(std::string db, std::string header, std::string sequence) {
-    if(db == "" or header == "" or sequence == "")
+void RawPairingDataStorage::UpdateRecord(DropletBarcode db, std::string header, std::string sequence) {
+    if(db.IsEmpty() or header == "" or sequence == "")
         return;
     if(db_index_map_.find(db) == db_index_map_.end()) {
         RawPairingDataPtr pairing_record(new RawPairingData(db));
@@ -20,7 +11,7 @@ void RawPairingDataStorage::UpdateRecord(std::string db, std::string header, std
         db_index_map_[db] = raw_pairing_records_.size() - 1;
     }
     size_t index = db_index_map_[db];
-    raw_pairing_records_[index]->Update(header, sequence);
+    raw_pairing_records_[index]->Update(db, header, sequence);
 }
 
 void RawPairingDataStorage::Update(std::string fastq_fname) {
@@ -28,7 +19,7 @@ void RawPairingDataStorage::Update(std::string fastq_fname) {
     size_t num_lines_before = raw_pairing_records_.size();
     std::ifstream fastq_fhandler(fastq_fname);
     assert(fastq_fhandler.good());
-    std::string db;
+    std::string db_str;
     std::string header;
     std::string sequence;
     bool plus_was_read = false;
@@ -36,8 +27,9 @@ void RawPairingDataStorage::Update(std::string fastq_fname) {
         std::string tmp;
         getline(fastq_fhandler, tmp);
         if(PairingFastqUtils::LineIsHeader(tmp)) {
+            DropletBarcode db = db_factory_.GetDropletBarcodeByFilename(db_str, fastq_fname);
             UpdateRecord(db, header, sequence);
-            db = PairingFastqUtils::ExtractDropletBarcode(tmp);
+            db_str = PairingFastqUtils::ExtractDropletBarcode(tmp);
             header = tmp;
             sequence = "";
             plus_was_read = false;
@@ -56,7 +48,7 @@ RawPairingDataPtr RawPairingDataStorage::operator[](size_t index) {
     return raw_pairing_records_[index];
 }
 
-RawPairingDataPtr RawPairingDataStorage::GetRecordByDb(std::string db) {
+RawPairingDataPtr RawPairingDataStorage::GetRecordByDb(DropletBarcode db) {
     assert(db_index_map_.find(db) != db_index_map_.end());
     return raw_pairing_records_[db_index_map_[db]];
 }

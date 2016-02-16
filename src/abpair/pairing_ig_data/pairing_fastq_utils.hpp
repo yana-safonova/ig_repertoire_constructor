@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ig_isotype.hpp"
+#include "pairing_primitives/ig_isotype.hpp"
 
 #include <string>
 #include "seqan/sequence.h"

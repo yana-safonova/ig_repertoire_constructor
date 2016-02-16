@@ -1,11 +1,12 @@
 #include "logger/logger.hpp"
+#include "verify.hpp"
 #include "abpair_launch.hpp"
 #include "pairing_ig_data/raw_pairing_data_storage.hpp"
 #include "pairing_ig_data/raw_pairing_data_stats_calculator.hpp"
 
 std::vector<std::string> AbPairLauncher::ReadInputFnames(std::string input_sequences) {
     std::ifstream ifhandler(input_sequences);
-    assert(ifhandler.good());
+    VERIFY_MSG(ifhandler.good(), "File " << input_sequences << " was not found");
     std::vector<std::string> fnames;
     while(!ifhandler.eof()) {
         std::string tmp;
@@ -38,7 +39,7 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     INFO("# records with KC & LC: " << stats_calculator.NumberRecordsWithBothLcs());
     INFO("# records with ambiguous HCs and LCs: " << stats_calculator.NumberHcLcAmbiguous());
     stats_calculator.OutputHcAmbiguousRecords();
-    INFO("Output of demultiplexed molecular barcodes");
-    stats_calculator.OutputMolecularBarcodes();
+    //INFO("Output of demultiplexed molecular barcodes");
+    //stats_calculator.OutputMolecularBarcodes();
     INFO("==== AbPair ends");
 }

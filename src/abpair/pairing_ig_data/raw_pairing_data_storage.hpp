@@ -2,12 +2,14 @@
 
 #include <unordered_map>
 #include "raw_pairing_data.hpp"
+#include "db_factory.hpp"
 
 class RawPairingDataStorage {
     std::vector<RawPairingDataPtr> raw_pairing_records_;
-    std::unordered_map<std::string, size_t> db_index_map_;
+    std::map<DropletBarcode, size_t> db_index_map_;
+    DbFactory db_factory_;
 
-    void UpdateRecord(std::string db, std::string header, std::string sequence);
+    void UpdateRecord(DropletBarcode db, std::string header, std::string sequence);
 
 public:
     void Update(std::string fastq_fname);
@@ -16,7 +18,7 @@ public:
 
     RawPairingDataPtr operator[](size_t index);
 
-    RawPairingDataPtr GetRecordByDb(std::string db);
+    RawPairingDataPtr GetRecordByDb(DropletBarcode db);
 
     typedef std::vector<RawPairingDataPtr>::const_iterator pairing_data_citerator;
 

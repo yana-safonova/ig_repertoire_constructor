@@ -27,9 +27,9 @@ class RawPairingDataStatsCalculator {
 
     std::string GetFilenameForRawRecord(RawPairingDataPtr pairing_record);
 
-    std::string GetHeaderForUmiSequence(const UmiIsotypeSequence &umi_sequence);
+    std::string GetHeaderForUmiSequence(const IsotypeUmiSequence &umi_sequence);
 
-    std::string GetBarcodeDir(RawPairingDataPtr pairing_record);
+    std::string GetBarcodeDir(RawPairingDataPtr pairing_record) const;
 
     void OutputBarcodesByIsotype(IsotypeUmiSequencesPtr umi_sequences, std::string barcode_dir, std::string db);
 

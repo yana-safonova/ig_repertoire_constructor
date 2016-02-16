@@ -22,12 +22,12 @@ void RawPairingDataStatsCalculator::ComputeStats() {
 
 std::string RawPairingDataStatsCalculator::GetFilenameForRawRecord(RawPairingDataPtr pairing_record) {
     std::stringstream ss;
-    ss << "record:" << pairing_record->Db() << "_isotypes:" << pairing_record->HcIsotypeNumber() <<
-            "_seqs:" << pairing_record->TotalNumberHcs() << ".fasta";
+    ss << "db_" << pairing_record->Db() << "_isotypes_" << pairing_record->HcIsotypeNumber() <<
+            "_seqs_" << pairing_record->TotalNumberHcs() << ".fasta";
     return path::append_path(output_.hc_ambiguous_dir, ss.str());
 }
 
-std::string RawPairingDataStatsCalculator::GetHeaderForUmiSequence(const UmiIsotypeSequence &umi_sequence) {
+std::string RawPairingDataStatsCalculator::GetHeaderForUmiSequence(const IsotypeUmiSequence &umi_sequence) {
     return std::string("UMI:" + umi_sequence.umi + "|ISOTYPE:" + umi_sequence.isotype.str());
 }
 
@@ -52,8 +52,10 @@ void RawPairingDataStatsCalculator::OutputHcAmbiguousRecords() {
     INFO(num_written_files << " files were written to " << output_.hc_ambiguous_dir);
 }
 
-std::string RawPairingDataStatsCalculator::GetBarcodeDir(RawPairingDataPtr pairing_record) {
-    return path::append_path(output_.barcode_dir, pairing_record->Db());
+std::string RawPairingDataStatsCalculator::GetBarcodeDir(RawPairingDataPtr pairing_record) const {
+    std::stringstream ss;
+    ss << pairing_record->Db();
+    return path::append_path(output_.barcode_dir, ss.str());
 }
 
 std::string RawPairingDataStatsCalculator::GetOutputFnameForIsotypeBarcodes(IgIsotype isotype,
@@ -99,7 +101,7 @@ void RawPairingDataStatsCalculator::OutputMolecularBarcodes() {
             continue;
         std::string barcode_dir = GetBarcodeDir(*it);
         path::make_dir(barcode_dir);
-        std::string db = (*it)->Db();
+        std::string db = (*it)->Db().StrId();
         OutputBarcodesByIsotype((*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype()), barcode_dir, db);
         OutputBarcodesByIsotype((*it)->GetSequencesByIsotype(IgIsotypeHelper::GetLambdaIsotype()), barcode_dir, db);
         auto hc_isotypes = (*it)->HcIsotypes();

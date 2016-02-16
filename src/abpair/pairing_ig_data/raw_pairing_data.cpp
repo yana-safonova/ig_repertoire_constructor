@@ -3,19 +3,19 @@
 #include "raw_pairing_data.hpp"
 #include "pairing_fastq_utils.hpp"
 
-void RawPairingData::CheckDropletBarcodeConsistency(std::string db) {
+void RawPairingData::CheckDropletBarcodeConsistency(DropletBarcode db) {
     assert(droplet_barcode_ == db);
 }
 
-void RawPairingData::UpdateHcSequences(UmiIsotypeSequence hc_sequence) {
+void RawPairingData::UpdateHcSequences(IsotypeUmiSequence hc_sequence) {
     if(hc_isotype_map_.find(hc_sequence.isotype) == hc_isotype_map_.end())
         hc_isotype_map_[hc_sequence.isotype] = IsotypeUmiSequencesPtr(new IsotypeUmiSequences(hc_sequence.isotype));
     hc_isotype_map_[hc_sequence.isotype]->Update(hc_sequence);
 }
 
-void RawPairingData::Update(std::string header, std::string sequence) {
-    CheckDropletBarcodeConsistency(PairingFastqUtils::ExtractDropletBarcode(header));
-    UmiIsotypeSequence umi_sequence(PairingFastqUtils::ExtractIsotypeFromHeader(header),
+void RawPairingData::Update(DropletBarcode db, std::string header, std::string sequence) {
+    CheckDropletBarcodeConsistency(db);
+    IsotypeUmiSequence umi_sequence(PairingFastqUtils::ExtractIsotypeFromHeader(header),
                                     PairingFastqUtils::ExtractUmiFromHeader(header),
                                     PairingFastqUtils::ExtractSizeFromHeader(header),
                                     PairingFastqUtils::ConvertToDnaString(sequence));
