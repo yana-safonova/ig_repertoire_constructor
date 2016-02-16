@@ -57,6 +57,13 @@ struct Match {
     int needle_pos;
     int read_pos;
     size_t length;
+
+    static int overlap(const Match &a,
+                       const Match &b) {
+        return std::max<int>(std::max<int>(a.length - (b.needle_pos - a.needle_pos),
+                                           a.length - (b.read_pos - a.read_pos)),
+                             0);
+    }
 };
 
 
@@ -269,12 +276,6 @@ private:
             std::vector<size_t> next(combined.size());
             std::iota(next.begin(), next.end(), 0);
 
-            auto overlap_length = [](const Match &a, const Match &b) -> int {
-                return std::max<int>(std::max<int>(a.length - (b.needle_pos - a.needle_pos),
-                                                   a.length - (b.read_pos - a.read_pos)),
-                                     0);
-            };
-
             auto has_edge = [&](const Match &a, const Match &b) -> bool {
                 int read_gap = b.read_pos - a.read_pos;
                 int needle_gap = b.needle_pos - a.needle_pos;
@@ -295,7 +296,7 @@ private:
 
                 for (size_t j = i + 1; j < combined.size(); ++j) {
                     if (has_edge(combined[i], combined[j])) {
-                        double new_val = combined[i].length + values[j] - overlap_length(combined[i], combined[j]);
+                        double new_val = combined[i].length + values[j] - Match::overlap(combined[i], combined[j]);
                         if (new_val > values[i]) {
                             next[i] = j;
                             values[i] = new_val;
@@ -320,7 +321,7 @@ private:
 
             // Fix overlaps (truncate tail of left match)
             for (size_t i = 0; i < path.size() - 1; ++i) {
-                path[i].length -= overlap_length(path[i], path[i+1]);
+                path[i].length -= Match::overlap(path[i], path[i+1]);
             }
 
             int coverage_length = path_coverage_length(path);
