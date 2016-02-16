@@ -1,0 +1,6 @@
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx1_Assembled.fastq
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx2_Assembled.fastq
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx3_Assembled.fastq
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx4_Assembled.fastq
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx5_Assembled.fastq
+/Users/yanasafonova/immunology/abvitro/SG3M/SG3M-Fx6_Assembled.fastq
