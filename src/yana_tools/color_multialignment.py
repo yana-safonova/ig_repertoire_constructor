@@ -32,6 +32,16 @@ def AssignColorsDict(column_dict):
         index += 1
     return color_dict
 
+def CreateSpaceDictBySeqName(align):
+    max_rec_id = 0
+    for rec in align:
+        max_rec_id = max(max_rec_id, len(rec.id))
+    name_n_space = max_rec_id + 4
+    seq_dict = dict()
+    for rec in align:
+        seq_dict[rec.id] = name_n_space - len(rec.id)
+    return seq_dict
+
 def main(argv):
     if len(argv) != 3:
         print "Invalid input arguments"
@@ -66,7 +76,7 @@ def main(argv):
     ofhandler.write("</style>\n\n")
 
     ofhandler.write("<p>\n")    
-    space_del = "&nbsp;&nbsp;&nbsp;&nbsp;"
+    seq_dict = CreateSpaceDictBySeqName(align)
     chunk_size = 50
     num_blocks = num_columns / chunk_size
     if num_columns % chunk_size != 0:
@@ -76,7 +86,8 @@ def main(argv):
         end_pos = min(num_columns, (i + 1) * chunk_size)
         rec_ind = 0
         for rec in align:
-            ofhandler.write(rec.id + space_del)
+            num_spaces = seq_dict[rec.id]
+            ofhandler.write(rec.id + "&nbsp;" * num_spaces)
             for j in range(start_pos, end_pos):
                 if j not in pos_color_dict:
                     ofhandler.write(align[rec_ind][j])
