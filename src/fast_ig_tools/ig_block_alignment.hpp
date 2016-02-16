@@ -46,8 +46,8 @@ struct KmerMatch {
         return read_pos - needle_pos;
     }
 
-    bool operator<(const KmerMatch &m) const {
-        return (shift() < m.shift()) || (shift() == m.shift() && read_pos < m.read_pos);
+    static bool less_shift(const KmerMatch &m1, const KmerMatch &m2) {
+        return (m1.shift() < m2.shift()) || (m1.shift() == m2.shift() && m1.read_pos < m2.read_pos);
     }
 };
 
@@ -67,6 +67,83 @@ struct Match {
 };
 
 
+template<class T, typename Tf>
+bool is_topologically_sorted(const T &combined, const Tf &has_edge) {
+    for (size_t i = 0; i < combined.size(); ++i) {
+        for (size_t j = i; j < combined.size(); ++j) {
+            if (has_edge(combined[j], combined[i])) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+
+template<typename Tf1, typename Tf2, typename Tf3>
+std::vector<Match> weighted_longest_path_in_DAG(const std::vector<Match> &combined,
+                                                const Tf1 &has_edge,
+                                                const Tf2 &edge_weight,
+                                                const Tf3 &vertex_weight) {
+    assert(combined.size() > 0);
+
+    assert(std::is_sorted(combined.cbegin(), combined.cend(),
+                          [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; }));
+
+    // Vertices should be topologically sorted
+    assert(is_topologically_sorted(combined, has_edge));
+
+    std::vector<double> values(combined.size(), 0.);
+    std::vector<size_t> next(combined.size());
+    std::iota(next.begin(), next.end(), 0);
+
+    for (size_t i = combined.size() - 1; i + 1 > 0; --i) {
+        // values[i] = combined[i].length;
+        values[i] = vertex_weight(combined[i]);
+
+        for (size_t j = i + 1; j < combined.size(); ++j) {
+            // Check topologically order
+            // TODO remove one of these toposort checkings
+            assert(!has_edge(combined[j], combined[i]));
+
+            if (has_edge(combined[i], combined[j])) {
+                // double new_val = combined[i].length + values[j] - Match::overlap(combined[i], combined[j]);
+                double new_val = vertex_weight(combined[i]) + values[j] + edge_weight(combined[i], combined[j]);
+                if (new_val > values[i]) {
+                    next[i] = j;
+                    values[i] = new_val;
+                }
+            }
+        }
+    }
+
+    std::vector<Match> path;
+    path.reserve(combined.size());
+
+    size_t maxi = std::max_element(values.cbegin(), values.cend()) - values.cbegin();
+
+    while (true) {
+        path.push_back(combined[maxi]);
+        if (next[maxi] == maxi) {
+            break;
+        } else {
+            maxi = next[maxi];
+        }
+    }
+
+    // Fix overlaps (truncate tail of left match)
+    for (size_t i = 0; i < path.size() - 1; ++i) {
+        path[i].length -= Match::overlap(path[i], path[i + 1]);
+    }
+
+    // Path should be correct, all edges should be
+    assert(std::is_sorted(path.cbegin(), path.cend(), has_edge));
+
+    return path;
+}
+
+
 int path_coverage_length(const std::vector<Match> &path) {
     int result = 0;
 
@@ -78,9 +155,57 @@ int path_coverage_length(const std::vector<Match> &path) {
 }
 
 
+Alignment path2Alignment(const std::vector<Match> &path,
+                         const Dna5String &query) {
+    int coverage_length = path_coverage_length(path);
+
+    // Just use the most left and most right matches
+    int left_shift = path[0].read_pos - path[0].needle_pos;
+    int right_shift = path[path.size() - 1].read_pos - path[path.size() - 1].needle_pos;
+
+    if (std::abs(left_shift - right_shift) > max_global_gap) {
+        // Omit such match
+        continue;
+    }
+
+    if (coverage_length < min_k_coverage) {
+        // Omit such match
+        continue;
+    }
+
+    int start = left_shift;
+    int finish = right_shift + int(length(queries[needle_index]));
+
+    int shift_min = -left_uncoverage_limit;
+    int shift_max = int(length(read)) - int(length(queries[needle_index])) + right_uncoverage_limit;
+
+    if (left_shift < shift_min || right_shift > shift_max) {
+        // Omit candidates with unproper final shift
+        // Maybe we should make these limits less strict because of possibility of indels on edges?
+        continue;
+    }
+
+    int over_start = std::max(0, start);
+    int over_finish = std::min(right_shift + length(queries[needle_index]), length(read));
+    int read_overlap_length = over_finish - over_start; // read overlap
+    int needle_overlap_length = read_overlap_length + left_shift - right_shift;
+
+    Alignment align;
+    align.kp_coverage = coverage_length;
+    align.score = static_cast<double>(coverage_length) / static_cast<double>(length(queries[needle_index]));
+    align.path = std::move(path);
+    align.start = start;
+    align.finish = finish;
+    align.needle_index = needle_index;
+    align.overlap_length = needle_overlap_length;
+
+    result.push_back(std::move(align));
+}
+
+
 std::vector<Match> combine_sequential_kmer_matches(std::vector<KmerMatch> &matches,
                                                    size_t K) {
-    std::sort(matches.begin(), matches.end());
+    std::sort(matches.begin(), matches.end(), KmerMatch::less_shift);
 
     std::vector<Match> res;
     res.reserve(matches.size()); // TODO Is it really necessary?
@@ -266,15 +391,9 @@ private:
             if (matches.empty()) continue;
 
             std::vector<Match> combined = combine_sequential_kmer_matches(matches, K);
-
-            assert(combined.size() > 0);
-
             std::sort(combined.begin(), combined.end(),
                       [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
-
-            std::vector<double> values(combined.size(), 0.);
-            std::vector<size_t> next(combined.size());
-            std::iota(next.begin(), next.end(), 0);
+            assert(combined.size() > 0);
 
             auto has_edge = [&](const Match &a, const Match &b) -> bool {
                 int read_gap = b.read_pos - a.read_pos;
@@ -286,47 +405,20 @@ private:
                 // Crossing check
                 if (a.needle_pos >= b.needle_pos || a.read_pos >= b.read_pos) return false;
 
-                // Obsolete overlap checking
-                // return std::min(b.needle_pos - a.needle_pos, b.read_pos - a.read_pos) >= int(a.length); // signed/unsigned comparisson
                 return true;
             };
 
-            for (size_t i = combined.size() - 1; i + 1 > 0; --i) {
-                values[i] = combined[i].length;
+            auto vertex_weight = [](const Match &m) -> double {
+                return m.length;
+            };
 
-                for (size_t j = i + 1; j < combined.size(); ++j) {
-                    if (has_edge(combined[i], combined[j])) {
-                        double new_val = combined[i].length + values[j] - Match::overlap(combined[i], combined[j]);
-                        if (new_val > values[i]) {
-                            next[i] = j;
-                            values[i] = new_val;
-                        }
-                    }
-                }
-            }
+            auto edge_weight = [&](const Match &a, const Match &b) -> double {
+                return -Match::overlap(a, b);
+            };
 
-            std::vector<Match> path;
-            path.reserve(combined.size());
-
-            size_t maxi = std::max_element(values.cbegin(), values.cend()) - values.cbegin();
-
-            while (true) {
-                path.push_back(combined[maxi]);
-                if (next[maxi] == maxi) {
-                    break;
-                } else {
-                    maxi = next[maxi];
-                }
-            }
-
-            // Fix overlaps (truncate tail of left match)
-            for (size_t i = 0; i < path.size() - 1; ++i) {
-                path[i].length -= Match::overlap(path[i], path[i+1]);
-            }
+            auto path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
 
             int coverage_length = path_coverage_length(path);
-
-            assert(std::is_sorted(path.cbegin(), path.cend(), has_edge));
 
             // Just use the most left and most right matches
             int left_shift = path[0].read_pos - path[0].needle_pos;
