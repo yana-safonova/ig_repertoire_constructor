@@ -66,6 +66,10 @@ struct Match {
     }
 };
 
+class AlignmentPath : public std::vector<Match> {
+    using std::vector<Match>::vector;
+};
+
 
 template<class T, typename Tf>
 bool is_topologically_sorted(const T &combined, const Tf &has_edge) {
@@ -82,10 +86,10 @@ bool is_topologically_sorted(const T &combined, const Tf &has_edge) {
 
 
 template<typename Tf1, typename Tf2, typename Tf3>
-std::vector<Match> weighted_longest_path_in_DAG(const std::vector<Match> &combined,
-                                                const Tf1 &has_edge,
-                                                const Tf2 &edge_weight,
-                                                const Tf3 &vertex_weight) {
+AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
+                                           const Tf1 &has_edge,
+                                           const Tf2 &edge_weight,
+                                           const Tf3 &vertex_weight) {
     assert(combined.size() > 0);
 
     assert(std::is_sorted(combined.cbegin(), combined.cend(),
@@ -118,7 +122,7 @@ std::vector<Match> weighted_longest_path_in_DAG(const std::vector<Match> &combin
         }
     }
 
-    std::vector<Match> path;
+    AlignmentPath path;
     path.reserve(combined.size());
 
     size_t maxi = std::max_element(values.cbegin(), values.cend()) - values.cbegin();
