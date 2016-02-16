@@ -3,23 +3,19 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
 
+#include "fast_ig_tools.hpp"
+#include "ig_matcher.hpp"
+
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::CharString;
-
-#include "ig_matcher.hpp"
-#include "fast_ig_tools.hpp"
-
 
 bool parse_cmd_line_arguments(int argc, char **argv,
                               std::string &input_file,

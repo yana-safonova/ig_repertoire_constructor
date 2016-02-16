@@ -1,4 +1,6 @@
 *.pyc
-build/
-.idea/
+igrec_test
+dsf_test
+.idea
 src/.idea/
+build/

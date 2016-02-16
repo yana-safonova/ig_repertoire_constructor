@@ -2,6 +2,22 @@
 
 using namespace dense_subgraph_finder;
 
+// if size of input graph is small, we create trivial decomposition:
+// all heavy vertices will be located to separate decomposition classes
+// light vertiсes will be glued to the first heavy vertex
+DecompositionPtr MetisDenseSubgraphConstructor::CreateDecompositionForSmallGraph(SparseGraphPtr hamming_graph_ptr) {
+    DecompositionPtr small_graph_decomposition(new Decomposition(hamming_graph_ptr->N()));
+    size_t current_class_id = 0;
+    for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
+        if(hamming_graph_ptr->WeightOfVertex(i) >= dsf_params_.min_supernode_size) {
+            small_graph_decomposition->SetClass(i, current_class_id);
+            current_class_id += 1;
+        }
+        else
+            small_graph_decomposition->SetClass(i, 0);
+    return small_graph_decomposition;
+}
+
 PermutationPtr MetisDenseSubgraphConstructor::CreatePermutation(SparseGraphPtr graph_ptr) {
     return MetisPermutationConstructor(graph_ptr,
                                        metis_params_,
@@ -12,7 +28,8 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreatePrimaryDecomposition(Spars
                                                                            PermutationPtr permutation_ptr) {
     SimpleDecompositionConstructor simple_constructor(hamming_graph_ptr,
                                                       permutation_ptr,
-                                                      dsf_params_.primary_edge_fillin);
+                                                      dsf_params_.primary_edge_fillin,
+                                                      dsf_params_.min_supernode_size);
     return simple_constructor.CreateDecomposition();
 }
 
@@ -20,7 +37,8 @@ DecompositionPtr MetisDenseSubgraphConstructor::ImprovePrimaryDecomposition(Spar
                                                                             DecompositionPtr primary_decomposition_ptr) {
     GreedyJoiningDecomposition decomposition_improver(hamming_graph_ptr,
                                                       primary_decomposition_ptr,
-                                                      dsf_params_.min_fillin_threshold);
+                                                      dsf_params_.min_fillin_threshold,
+                                                      dsf_params_.min_supernode_size);
     return decomposition_improver.ConstructDecomposition();
 }
 
@@ -60,11 +78,8 @@ DecompositionPtr MetisDenseSubgraphConstructor::CreateDecomposition(SparseGraphP
     TRACE("== Computation of permutation using METIS");
     TRACE("Input graph contains " << hamming_graph_ptr->N() << " vertices & " << hamming_graph_ptr->NZ() << " edges");
     if(dsf_params_.create_trivial_decomposition or hamming_graph_ptr->N() < dsf_params_.min_graph_size) {
-        TRACE("Graph is tirvial. Trivial decomposition was created");
-        DecompositionPtr trivial_decomposition(new Decomposition(hamming_graph_ptr->N()));
-        for(size_t i = 0; i < hamming_graph_ptr->N(); i++)
-            trivial_decomposition->SetClass(i , 0);
-        return trivial_decomposition;
+        TRACE("Graph is trivial. Trivial decomposition was created");
+        return CreateDecompositionForSmallGraph(hamming_graph_ptr);
     }
     PermutationPtr permutation_ptr = CreatePermutation(hamming_graph_ptr);
     TRACE("Computation of primary dense subgraph decomposition starts");

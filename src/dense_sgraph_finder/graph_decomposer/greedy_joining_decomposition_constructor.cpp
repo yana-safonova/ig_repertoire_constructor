@@ -7,6 +7,16 @@ void GreedyJoiningDecomposition::InitializeClassStructs() {
         class_processed_.push_back(false);
     for(size_t i = 0; i < basic_decomposition_ptr_->Size(); i++)
         class_size_.push_back(basic_decomposition_ptr_->ClassSize(i));
+    for(size_t i = 0; i < basic_decomposition_ptr_->Size(); i++) {
+        auto cur_class = basic_decomposition_ptr_->GetClass(i);
+        bool class_has_snode = false;
+        for(auto it = cur_class.begin(); it != cur_class.end(); it++)
+            if(hamming_graph_ptr_->WeightOfVertex(*it) >= min_supernode_size_) {
+                class_has_snode = true;
+                break;
+            }
+        class_has_supernode_.push_back(class_has_snode);
+    }
 }
 
 void GreedyJoiningDecomposition::InitializeDecompositionGraph() {
@@ -94,6 +104,9 @@ bool GreedyJoiningDecomposition::ClassesCanBeGlued(size_t main_class, size_t sec
         return false;
     }
 
+    if(class_has_supernode_[main_class] and class_has_supernode_[sec_class])
+        return false;
+
     auto sec_class_set = basic_decomposition_ptr_->GetClass(sec_class);
     double average_fillin = 0;
     for(auto it = sec_class_set.begin(); it != sec_class_set.end(); it++) {
@@ -128,6 +141,10 @@ void GreedyJoiningDecomposition::GlueClasses(size_t main_class, size_t sec_class
     for(auto it = basic_decomposition_ptr_->GetClass(sec_class).begin();
         it != basic_decomposition_ptr_->GetClass(sec_class).end(); it++)
         vertex_class_[*it] = main_class;
+    // updating info about supernodes
+    bool joint_class_has_snode = class_has_supernode_[main_class] or class_has_supernode_[sec_class];
+    class_has_supernode_[main_class] = joint_class_has_snode;
+    class_has_supernode_[sec_class] = joint_class_has_snode;
 }
 
 void GreedyJoiningDecomposition::CreateNewDecomposition() {

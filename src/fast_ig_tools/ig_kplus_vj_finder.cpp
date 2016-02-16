@@ -1,4 +1,3 @@
-#include <seqan/seq_io.h>
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -7,16 +6,10 @@
 #include <memory>
 #include <unordered_map>
 #include <fstream>
-#include <boost/format.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <mutex>
 #include <chrono>
-
-using seqan::Dna5String;
-using seqan::CharString;
-using seqan::length;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
+#include <stdexcept>
 
 using std::vector;
 using std::cout;
@@ -25,12 +18,17 @@ using std::cerr;
 using std::endl;
 using std::map;
 using std::make_pair;
-using bformat = boost::format;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
 using path::make_dirs;
 
+#include <seqan/seq_io.h>
+using seqan::Dna5String;
+using seqan::CharString;
+using seqan::length;
+using seqan::SeqFileIn;
+using seqan::SeqFileOut;
 
 namespace fast_ig_tools {
 
@@ -391,18 +389,18 @@ struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
     int left_uncoverage_limit = 16;
-    int right_uncoverage_limit = 9; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
-    int min_vsegment_length = 100;
+    int right_uncoverage_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+    int min_vsegment_length = 250;
+    int min_jsegment_length = 30;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
     int max_global_gap = 24;
     int min_k_coverage = 50;
-    int min_k_coverage_j = 9;
+    int min_k_coverage_j = 13;
     int max_candidates = 3;
     int max_candidates_j = 3;
-    std::string type = "bcr";
-    std::string chain = "all";
+    std::string loci = "all";
     std::string db_directory = "./germline";
     std::string output_dir;
     int threads = 4;
@@ -418,12 +416,12 @@ struct Ig_KPlus_Finder_Parameters {
     std::string vgenes_filename;
     std::string jgenes_filename;
     int left_fill_germline = 3;
-    size_t num_cropped_nucls = 3;
     std::vector<CharString> v_ids;
     std::vector<Dna5String> v_reads;
     std::vector<CharString> j_ids;
     std::vector<Dna5String> j_reads;
     std::string separator = "comma";
+    size_t min_len = 300;
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -459,10 +457,8 @@ struct Ig_KPlus_Finder_Parameters {
             ("no-pseudogenes", "don't use pseudogenes along with normal genes")
             ("silent,S", "suppress output for each query (default)")
             ("no-silent,V", "produce info output for each query")
-            ("type,T", po::value<std::string>(&type)->default_value(type),
-             "CR chain type: 'bcr' (default) or 'tcr'")
-            ("chain,C", po::value<std::string>(&chain)->default_value(chain),
-             "CR chain; for BCRs(Ig): 'all' (default), 'heavy', 'lambda', 'kappa' or 'light' ('lambda' + 'kappa'); for TCRs(B-cell): 'all' (default), 'alpha', 'beta', 'gamma', 'delta', 'heavy' (the same as 'beta') or 'light' (the same as 'alpha')")
+            ("loci,l", po::value<std::string>(&loci)->default_value(loci),
+             "loci: IGH, IGL, IGK, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
              "directory with germline database")
             ("threads,t", po::value<int>(&threads)->default_value(threads),
@@ -491,6 +487,8 @@ struct Ig_KPlus_Finder_Parameters {
              "save spaces in read ids, do not replace them")
             ("separator", po::value<std::string>(&separator)->default_value(separator),
              "separator for alignment info file: 'comma' (default), 'semicolon', 'tab' (or 'tabular') or custom string)")
+            ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
+             "minimal length of reported sequence")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -512,8 +510,8 @@ struct Ig_KPlus_Finder_Parameters {
              "the number left positions which will be filled by germline")
             ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
              "minimal allowed length of V gene segment")
-            ("right-cropped", po::value<size_t>(&num_cropped_nucls)->default_value(num_cropped_nucls),
-             "the number of right positions which will be cropped")
+            ("min-jsegment-length", po::value<int>(&min_jsegment_length)->default_value(min_jsegment_length),
+             "minimal allowed length of J gene segment")
             ;
 
         po::options_description cmdline_options("All command line options");
@@ -609,8 +607,7 @@ struct Ig_KPlus_Finder_Parameters {
         INFO(bformat("Input FASTQ reads: %s") % input_file);
         INFO(bformat("Output directory: %s") % output_dir);
         INFO(bformat("Organism: %s") % organism);
-        INFO(bformat("Lymphocyte type: %s") % type);
-        INFO(bformat("Chain type: %s") % chain);
+        INFO(bformat("Locus: %s") % loci);
         INFO("Word size for V-gene: " << K);
         INFO("Word size for J-gene: " << word_size_j);
 
@@ -634,54 +631,37 @@ private:
         }
     }
 
-    std::string gene_file_name(const std::string &chain_letter,
+    std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
                                bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + (type == "bcr" ? "IG" : "TR") + chain_letter + gene + (pseudo ? "-allP" : "") + ".fa";
+        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
-    std::vector<std::string> chain_letters() const {
-        if (type == "bcr") {
-            if (chain == "heavy") {
-                return { "H" };
-            } else if (chain == "lambda") {
-                return { "L" };
-            } else if (chain == "kappa") {
-                return { "K" };
-            } else if (chain == "light") {
-                return { "K", "L" };
-            } else if (chain == "all") {
-                return { "K", "L", "H" };
-            } else {
-                throw "Unknown BCR chain type";
-                return {};
-            }
-        } else if (type == "tcr") {
-            if (chain == "beta" || chain == "heavy") {
-                return { "B" };
-            } else if (chain == "alpha" || chain == "light") {
-                return { "A" };
-            } else if (chain == "delta") {
-                return { "D" };
-            } else if (chain == "gamma") {
-                return { "G" };
-            } else if (chain == "all") {
-                return { "A", "B", "D", "G"};
-            } else {
-                throw "Unknown TCR chain type";
-                return {};
-            }
+    std::vector<std::string> parse_loci() const {
+        std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
+        std::vector<std::string> TR = { "TRA", "TRB", "TRD", "TRG" };
+        std::vector<std::string> ALL(IG);
+        ALL.insert(ALL.end(), TR.cbegin(), TR.cend());
+
+        if (loci == "IG") {
+            return IG;
+        } else if (loci == "TR") {
+            return TR;
+        } else if (loci == "all") {
+            return ALL;
+        } else if (std::find(ALL.cbegin(), ALL.cend(), loci) != ALL.cend()) {
+            return { loci };
         } else {
-            throw "Unknown lymphocyte type";
+           throw std::invalid_argument("Invalid loci value: " + loci);
         }
     }
 
     void read_genes(bool pseudo = false) {
-        for (const auto &letter : chain_letters()) {
-            std::string v_file = gene_file_name(letter, "V", pseudo);
+        for (const auto &locus : parse_loci()) {
+            std::string v_file = gene_file_name(locus, "V", pseudo);
             read_gene(v_file, v_ids, v_reads);
 
-            std::string j_file = gene_file_name(letter, "J", pseudo);
+            std::string j_file = gene_file_name(locus, "J", pseudo);
             read_gene(j_file, j_ids, j_reads);
         }
     }
@@ -738,7 +718,6 @@ int main(int argc, char **argv) {
 
     std::mutex stdout_mtx;
     const KmerIndex index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
-                          // param.right_uncoverage_limit + param.num_cropped_nucls,
                           1005000,
                           param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
     const KmerIndex j_index(j_reads, param.word_size_j,
@@ -757,7 +736,7 @@ int main(int argc, char **argv) {
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
     std::vector<std::string> add_info_strings(reads.size());
-    std::string output_pat = "%s, %d, %d, %d, %d, %d, %d, %1.2f, %s, %d, %d, %d, %d, %d, %d, %1.2f, %s";
+    std::string output_pat = "%s, %d, %d, %1.2f, %s, %d, %d, %1.2f, %s";
     boost::replace_all(output_pat, ", ", param.separator);
 
     omp_set_num_threads(param.threads);
@@ -768,13 +747,13 @@ int main(int argc, char **argv) {
         CharString read_id = read_ids[j];
 
         // temporary solution - we crop three nucleotides at the end of string
-        if (length(reads[j]) <= param.num_cropped_nucls) {
+        if (length(reads[j]) < param.min_len) {
             // Discard so short read
             output_isok[j] = false;
             continue;
         }
 
-        Dna5String read = prefix(reads[j], length(reads[j]) - param.num_cropped_nucls);
+        Dna5String read = reads[j];
         Dna5String read_rc = read;
         reverseComplement(read_rc);
 
@@ -785,8 +764,8 @@ int main(int argc, char **argv) {
         int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
 
         int strand = (pscore >= nscore) ? 1 : -1;
-        auto result = (strand == 1) ? result_pstrand : result_nstrand;
-        auto stranded_read = (strand == 1) ? read : read_rc;
+        const auto &stranded_read = (strand == 1) ? read : read_rc;
+        const auto &result = (strand == 1) ? result_pstrand : result_nstrand;
 
         bool aligned = false;
         if (!result.empty()) { // If we found at least one alignment
@@ -796,7 +775,7 @@ int main(int argc, char **argv) {
                     break;
                 }
 
-                if (align.last_match_read_pos() - align.start < param.min_vsegment_length) { // TODO check +-1
+                if (static_cast<int>(align.last_match_read_pos()) - align.start < param.min_vsegment_length) { // TODO check +-1
                     // Discard read
                     break;
                 }
@@ -856,6 +835,11 @@ int main(int argc, char **argv) {
 
                     const auto &jalign = *jresult.cbegin();
 
+                    if (static_cast<int>(jalign.finish - jalign.first_match_read_pos()) < param.min_jsegment_length) { // TODO check +-1
+                        // Discard read
+                        break;
+                    }
+
                     if (jalign.finish - int(length(suff)) > param.right_uncoverage_limit) {
                         // Discard read
                         // INFO(suff);
@@ -865,23 +849,23 @@ int main(int argc, char **argv) {
 
                     {
                         const auto &first_jalign = jalign.path[0];
-                        const auto &last_jalign = jalign.path[jalign.path.size() - 1];
 
                         bformat bf(output_pat);
                         bf % read_id
                            % (align.start+1)             % end_of_v
-                           % (align.first_match_read_pos() + 1) % (align.first_match_needle_pos() + 1)
-                           % (align.last_match_read_pos()) % (align.last_match_needle_pos())
                            % align.score                 % toCString(v_ids[align.needle_index])
                            % (first_jalign.read_pos + 1 + end_of_v) % (jalign.finish + end_of_v)
-                           % (jalign.first_match_read_pos() + 1 + end_of_v) % (jalign.first_match_needle_pos() + 1)
-                           % (jalign.last_match_read_pos() + end_of_v) % (jalign.last_match_needle_pos())
                            % jalign.score                % toCString(j_ids[jalign.needle_index]);
 
                         add_info_strings[j] = bf.str();
 
-                        reads[j] = cropped_read;
-                        output_isok[j] = true;
+                        if (length(cropped_read) >= param.min_len) {
+                            reads[j] = cropped_read;
+                            output_isok[j] = true;
+                        } else {
+                            // Read is too short
+                            output_isok[j] = false;
+                        }
                     }
 
                     aligned = true;
@@ -908,17 +892,13 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
-    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n";
+    std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s\n";
     boost::replace_all(pat, ", ", param.separator);
     add_info << bformat(pat)
         % "id"
         % "Vstart" % "Vend"
-        % "VfirstTrustfulMatchRead" % "VfirstTrustfulMatchGene"
-        % "VlastTrustfulMatchRead" % "VlastTrustfulMatchGene"
         % "Vscore" % "Vid"
         % "Jstart" % "Jend"
-        % "JfirstTrustfulMatchRead" % "JfirstTrustfulMatchGene"
-        % "JlastTrustfulMatchRead" % "JlastTrustfulMatchGene"
         % "Jscore" % "Jid";
 
     size_t good_reads = 0;

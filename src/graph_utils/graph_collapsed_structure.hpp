@@ -5,8 +5,6 @@
 class GraphCollapsedStructure {
     SparseGraphPtr hamming_graph_ptr_;
 
-    size_t num_main_vertices_;
-    size_t num_all_vertices_;
     vector<size_t> old_vertices_list_; // old_vertices_list[i] shows old number of new vertex i
     vector<size_t> new_vertices_list_; // new_vertices_list[i] shows new number of old vertex i
     vector<size_t> main_vertices_map_; // main_vertices_map[i] shows index of main vertex (old indices)

@@ -4,14 +4,13 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
+
+#include "fast_ig_tools.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -21,8 +20,6 @@ using seqan::CharString;
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
 #include "ig_final_alignment.hpp"
-#include "fast_ig_tools.hpp"
-
 
 template<typename T, typename Tf>
 Graph tauDistGraph(const std::vector<T> &input_reads,

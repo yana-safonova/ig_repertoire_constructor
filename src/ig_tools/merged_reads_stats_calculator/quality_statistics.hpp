@@ -61,6 +61,7 @@ public:
 
 	QualityStatistics Stats() { return stats_; }
 
+        size_t PhredOffset() const { return phred_offset_; }
 };
 
 class PairedReadQialityStatsCalculator {

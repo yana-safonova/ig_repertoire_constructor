@@ -4,24 +4,21 @@
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
 
+#include "fast_ig_tools.hpp"
+#include "ig_final_alignment.hpp"
+#include "ig_matcher.hpp"
+#include "banded_half_smith_waterman.hpp"
+
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::CharString;
-
-#include "ig_matcher.hpp"
-#include "banded_half_smith_waterman.hpp"
-#include "ig_final_alignment.hpp"
-#include "fast_ig_tools.hpp"
 
 template<typename T>
 std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,

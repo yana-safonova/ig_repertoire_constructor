@@ -4,26 +4,21 @@
 #include <algorithm>
 #include <chrono>
 
-#include <seqan/seq_io.h>
-using seqan::Dna5String;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
-using seqan::CharString;
-using seqan::length;
-
-
-#include <boost/format.hpp>
-using bformat = boost::format;
-
 #include <iostream>
 using std::cout;
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include "ig_trie_compressor.hpp"
 #include "fast_ig_tools.hpp"
+#include "ig_trie_compressor.hpp"
 
+#include <seqan/seq_io.h>
+using seqan::Dna5String;
+using seqan::SeqFileIn;
+using seqan::SeqFileOut;
+using seqan::CharString;
+using seqan::length;
 
 int main(int argc, char **argv) {
     segfault_handler sh;

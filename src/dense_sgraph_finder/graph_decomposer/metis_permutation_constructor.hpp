@@ -1,6 +1,6 @@
 #pragma once
 
-#include <dsf_config.hpp>
+#include "../dsf_config.hpp"
 #include "../graph_utils/permutation.hpp"
 #include "../graph_utils/sparse_graph.hpp"
 

@@ -18,7 +18,7 @@ int half_hamming(const Ts1 &s1, const Ts2 &s2,
     auto len = std::min(len1, len2);
 
     int res = 0;
-    for (auto i = 0; i < len; ++i) {
+    for (size_t i = 0; i < len; ++i) {
         res += (s1[i] == s2[i]) ? match : mismatch;
     }
 

@@ -11,18 +11,14 @@ using std::cout;
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
-#include <boost/format.hpp>
-using bformat = boost::format;
+#include "fast_ig_tools.hpp"
+#include "ig_final_alignment.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::SeqFileOut;
 using seqan::CharString;
-
-#include "ig_final_alignment.hpp"
-#include "fast_ig_tools.hpp"
-
 
 std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> read_rcm_file_string(const std::string &file_name) {
     std::ifstream rcm(file_name.c_str());
