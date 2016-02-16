@@ -38,6 +38,8 @@ case $arg in
                 $cmd configs/dense_sgraph_finder/config.info.template configs/dense_sgraph_finder/config.info
                 echo -------------configs/dense_sgraph_finder/log.properties---------
                 $cmd configs/dense_sgraph_finder/log.properties.template configs/dense_sgraph_finder/log.properties
+                echo --------------------configs/abpair/config.info------------------
+                $cmd configs/abpair/config.info.template configs/abpair/config.info
  
 esac
 
