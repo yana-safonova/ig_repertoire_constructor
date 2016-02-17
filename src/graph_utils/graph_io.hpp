@@ -1,3 +1,5 @@
+#pragma once
+
 #include "sparse_graph.hpp"
 
 class GraphReader {
