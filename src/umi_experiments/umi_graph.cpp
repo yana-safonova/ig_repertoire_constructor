@@ -24,12 +24,13 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
-bool parse_cmdline(int argc, char **argv, std::string& file) {
-    if (argc != 2) {
-        std::cout << "Usage: <input file>" << std::endl;
+bool parse_cmdline(int argc, char **argv, std::string& input_file, std::string& output_dir) {
+    if (argc != 3) {
+        std::cout << "Usage: <input file> <output dir>" << std::endl;
         return false;
     }
-    file = argv[1];
+    input_file = argv[1];
+    output_dir = argv[2];
     return true;
 }
 
@@ -253,26 +254,19 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
     }
 }
 
-void print_reads_by_umi(string& original_file_name, std::vector<CharString>& input_ids, std::vector<Dna5String>& input_reads,
+void print_reads_by_umi(string& output_dir_name, std::vector<CharString>& input_ids, std::vector<Dna5String>& input_reads,
                         std::vector<Dna5String>& input_umi, bool group_by_size, size_t group_size_threshold) {
     INFO("Grouping reads by UMI");
     unordered_map<Umi, vector<size_t>> umi_to_reads;
     for (size_t i = 0; i < input_ids.size(); i ++) {
-        umi_to_reads[input_umi[i]].push_back(i);
+        umi_to_reads[Umi(input_umi[i])].push_back(i);
     }
-//    map<size_t, size_t> cnt;
-//    for (auto itr : umi_to_reads) {
-//        cnt[itr.second.size()] ++;
-//    }
-//    for (auto itr : cnt) {
-//        INFO("size " << itr.first << ", cnt " << itr.second);
-//    }
 
-    auto file_path = boost::filesystem::absolute(original_file_name);
-    auto out_dir = file_path.parent_path().append(file_path.filename().replace_extension("").string() + "_by_umi");
+    auto out_dir = boost::filesystem::absolute(output_dir_name);
     INFO("Removing " << out_dir << " and all its contents");
     boost::filesystem::remove_all(out_dir);
     boost::filesystem::create_directory(out_dir);
+
     INFO("Storing result in " << out_dir);
     for (auto entry : umi_to_reads) {
         auto umi = entry.first;
@@ -288,11 +282,12 @@ void print_reads_by_umi(string& original_file_name, std::vector<CharString>& inp
         vector<CharString> umi_read_ids(reads_count);
         vector<Dna5String> umi_reads(reads_count);
         for (size_t i = 0; i < reads_count; i ++) {
-            umi_read_ids[i] = input_ids[i];
-            umi_reads[i] = input_reads[i];
+            umi_read_ids[i] = input_ids[reads[i]];
+            umi_reads[i] = input_reads[reads[i]];
         }
         writeRecords(output_file, umi_read_ids, umi_reads);
     }
+    INFO("Result written to " << out_dir);
 }
 
 int main(int argc, char** argv) {
@@ -300,7 +295,8 @@ int main(int argc, char** argv) {
     create_console_logger();
 
     std::string input_file;
-    if (!parse_cmdline(argc, argv, input_file)) return 0;
+    std::string output_dir;
+    if (!parse_cmdline(argc, argv, input_file, output_dir)) return 0;
 
     INFO("Reading fastq");
     SeqFileIn seqFileIn_input(input_file.c_str());
@@ -315,7 +311,7 @@ int main(int argc, char** argv) {
     extract_umi(input_ids, input_umi, input_umi_qual);
 
     INFO("Printing reads by UMI");
-    print_reads_by_umi(input_file, input_ids, input_reads, input_umi, true, 5);
+    print_reads_by_umi(output_dir, input_ids, input_reads, input_umi, true, 5);
 
 //    INFO("Grouping by UMI");
 //    unordered_map<Umi, UmiReadSet> umi_to_reads;
