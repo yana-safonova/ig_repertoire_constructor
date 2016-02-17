@@ -25,7 +25,7 @@ class RawPairingDataStatsCalculator {
 
     void ComputeStats();
 
-    std::string GetFilenameForRawRecord(RawPairingDataPtr pairing_record);
+    std::string GetFilenameForRawRecord(RawPairingDataPtr pairing_record, std::string isotype_str);
 
     std::string GetHeaderForUmiSequence(const IsotypeUmiSequence &umi_sequence);
 
@@ -74,4 +74,6 @@ public:
     void OutputHcAmbiguousRecords();
 
     void OutputMolecularBarcodes();
+
+    void OutputDemultiplexedData();
 };

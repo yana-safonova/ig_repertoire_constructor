@@ -1,14 +1,16 @@
 io {
     input {
-        input_sequences		test_dataset/abpair/sg3m_local_2.txt
+        input_sequences		test_dataset/abpair/sg3m_local_full.txt
     }
 
     output {
-        output_dir 		abpair_test
-        log_filename 		log.properties
-	output_statistics 	true
-	hc_ambiguous_dir	ambiguous_hcs
-	output_barcodes		true
-	barcode_dir		molecular_barcodes
+        output_dir 			abpair_test
+        log_filename 			log.properties
+	output_statistics 		true
+	hc_ambiguous_dir		multiple_hcs
+	output_barcodes			false
+	barcode_dir			molecular_barcodes
+        output_demultiplexed_raw_data	true
+        demultiplexed_raw_dir		demultiplexed_raw_data
     }
 }

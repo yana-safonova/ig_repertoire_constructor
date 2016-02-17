@@ -3,6 +3,7 @@
 #include "abpair_launch.hpp"
 #include "pairing_ig_data/raw_pairing_data_storage.hpp"
 #include "pairing_ig_data/raw_pairing_data_stats_calculator.hpp"
+#include "cdr3_computation/simple_cdr3_calculator.hpp"
 
 std::vector<std::string> AbPairLauncher::ReadInputFnames(std::string input_sequences) {
     std::ifstream ifhandler(input_sequences);
@@ -39,7 +40,32 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     INFO("# records with KC & LC: " << stats_calculator.NumberRecordsWithBothLcs());
     INFO("# records with ambiguous HCs and LCs: " << stats_calculator.NumberHcLcAmbiguous());
     stats_calculator.OutputHcAmbiguousRecords();
-    //INFO("Output of demultiplexed molecular barcodes");
-    //stats_calculator.OutputMolecularBarcodes();
+    stats_calculator.OutputMolecularBarcodes();
+    stats_calculator.OutputDemultiplexedData();
+    INFO("CDR3 computation starts");
+    for(auto it = raw_pairing_storage.cbegin(); it != raw_pairing_storage.cend(); it++) {
+        if(!(*it)->Complete())
+            continue;
+        INFO("IGH CDR3");
+        auto hc_isotypes = (*it)->HcIsotypes();
+        for(auto hc = hc_isotypes.begin(); hc != hc_isotypes.end(); hc++) {
+            auto hc_seqs = (*it)->GetSequencesByIsotype(*hc);
+            for(auto hc_seq = hc_seqs->cbegin(); hc_seq != hc_seqs->cend(); hc_seq++)
+                auto pos = SimpleCdr3Calculator().FindCdr3Positions((*hc_seq).sequence);
+        }
+        if((*it)->KappaChainCount() != 0) {
+            INFO("IGK CDR3");
+            auto kappa_seq = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype());
+            for(auto kit = kappa_seq->cbegin(); kit != kappa_seq->cend(); kit++)
+                auto pos = SimpleCdr3Calculator().FindCdr3Positions((*kit).sequence);
+        }
+        if((*it)->LambdaChainCount() != 0) {
+            INFO("IGL CDR3");
+            auto lambda_seq = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetLambdaIsotype());
+            for(auto lit = lambda_seq->cbegin(); lit != lambda_seq->cend(); lit++)
+                auto pos = SimpleCdr3Calculator().FindCdr3Positions((*lit).sequence);
+        }
+        break;
+    }
     INFO("==== AbPair ends");
 }

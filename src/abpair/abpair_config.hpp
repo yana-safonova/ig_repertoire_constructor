@@ -17,6 +17,8 @@ struct abpair_config {
             std::string hc_ambiguous_dir;
             bool output_barcodes;
             std::string barcode_dir;
+            bool output_demultiplexed_raw_data;
+            std::string demultiplexed_raw_dir;
         };
 
         input_config input;

@@ -16,6 +16,9 @@ void load(abpair_config::io_config::output_config &output, boost::property_tree:
     load(output.output_barcodes, pt, "output_barcodes");
     load(output.barcode_dir, pt, "barcode_dir");
     output.barcode_dir = path::append_path(output.output_dir, output.barcode_dir);
+    load(output.output_demultiplexed_raw_data, pt, "output_demultiplexed_raw_data");
+    load(output.demultiplexed_raw_dir, pt, "demultiplexed_raw_dir");
+    output.demultiplexed_raw_dir = path::append_path(output.output_dir, output.demultiplexed_raw_dir);
 }
 
 void load(abpair_config::io_config &io, boost::property_tree::ptree const &pt, bool) {

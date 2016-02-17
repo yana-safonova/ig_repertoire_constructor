@@ -20,6 +20,8 @@ void make_dirs() {
     if(abp_cfg::get().io.output.output_barcodes) {
         make_dir(abp_cfg::get().io.output.barcode_dir);
     }
+    if(abp_cfg::get().io.output.output_demultiplexed_raw_data)
+        make_dir(abp_cfg::get().io.output.demultiplexed_raw_dir);
 }
 
 void copy_configs(std::string cfg_filename, std::string to) {

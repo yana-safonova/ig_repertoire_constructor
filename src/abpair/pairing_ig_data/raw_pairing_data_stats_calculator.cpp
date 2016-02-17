@@ -1,4 +1,5 @@
 #include "logger/logger.hpp"
+#include "verify.hpp"
 #include "raw_pairing_data_stats_calculator.hpp"
 #include <sstream>
 #include <seqan/seq_io.h>
@@ -20,26 +21,43 @@ void RawPairingDataStatsCalculator::ComputeStats() {
     }
 }
 
-std::string RawPairingDataStatsCalculator::GetFilenameForRawRecord(RawPairingDataPtr pairing_record) {
+std::string RawPairingDataStatsCalculator::GetFilenameForRawRecord(RawPairingDataPtr pairing_record,
+                                                                   std::string isotype_str) {
+    VERIFY_MSG(isotype_str == "IGH" or isotype_str == "IGK" or isotype_str == "IGL",
+               "Isotype " << isotype_str << " is unknown");
     std::stringstream ss;
-    ss << "db_" << pairing_record->Db() << "_isotypes_" << pairing_record->HcIsotypeNumber() <<
-            "_seqs_" << pairing_record->TotalNumberHcs() << ".fasta";
-    return path::append_path(output_.hc_ambiguous_dir, ss.str());
+    ss << "db_" << pairing_record->Db() << "_"  << isotype_str <<  "_isotypes_";
+    size_t num_isotypes = 1;
+    if(isotype_str == "IGH")
+        num_isotypes = pairing_record->HcIsotypes().size();
+    ss << num_isotypes << "_seqs_";
+    size_t num_seqs = pairing_record->TotalNumberHcs();
+    if(isotype_str == "IGK")
+        num_seqs = pairing_record->KappaChainCount();
+    if(isotype_str == "IGL")
+        num_seqs = pairing_record->LambdaChainCount();
+    ss << num_seqs << ".fasta";
+    return ss.str();
 }
 
 std::string RawPairingDataStatsCalculator::GetHeaderForUmiSequence(const IsotypeUmiSequence &umi_sequence) {
-    return std::string("UMI:" + umi_sequence.umi + "|ISOTYPE:" + umi_sequence.isotype.str());
+    std::stringstream ss;
+    ss << "UMI:" << umi_sequence.umi << "|ISOTYPE:" << umi_sequence.isotype.str() << "|COUNT:" << umi_sequence.size;
+    return ss.str();
 }
 
 void RawPairingDataStatsCalculator::OutputHcAmbiguousRecords() {
-    INFO("Ambiguous heavy chain sequences will be written to " + output_.hc_ambiguous_dir);
+    if(!output_.output_statistics)
+        return;
+    INFO("Multiple heavy chain sequences will be written to " + output_.hc_ambiguous_dir);
     size_t num_written_files = 0;
     for(auto it = raw_pairing_data_storage_.cbegin(); it != raw_pairing_data_storage_.cend(); it++) {
         if((*it)->HcIsNonAmbiguous() or (*it)->HcIsMissed())
             continue;
-        auto hc_isotypes = (*it)->HcIsotypes();
-        seqan::SeqFileOut out(GetFilenameForRawRecord(*it).c_str());
+        seqan::SeqFileOut out(path::append_path(output_.hc_ambiguous_dir,
+                                                GetFilenameForRawRecord(*it, "IGH")).c_str());
         num_written_files++;
+        auto hc_isotypes = (*it)->HcIsotypes();
         for(auto isotype = hc_isotypes.begin(); isotype != hc_isotypes.end(); isotype++) {
             auto umi_sequences = (*it)->GetSequencesByIsotype(*isotype);
             for(auto umi_seq = umi_sequences->cbegin(); umi_seq != umi_sequences->cend(); umi_seq++) {
@@ -55,7 +73,7 @@ void RawPairingDataStatsCalculator::OutputHcAmbiguousRecords() {
 std::string RawPairingDataStatsCalculator::GetBarcodeDir(RawPairingDataPtr pairing_record) const {
     std::stringstream ss;
     ss << pairing_record->Db();
-    return path::append_path(output_.barcode_dir, ss.str());
+    return ss.str();
 }
 
 std::string RawPairingDataStatsCalculator::GetOutputFnameForIsotypeBarcodes(IgIsotype isotype,
@@ -94,13 +112,15 @@ bool RawPairingDataStatsCalculator::BarcodeShouldBeReported(RawPairingDataPtr pa
 }
 
 void RawPairingDataStatsCalculator::OutputMolecularBarcodes() {
+    if(!output_.output_barcodes)
+        return;
     INFO("Molecular barcodes will be written to " + output_.barcode_dir);
     size_t num_reported = 0;
     for(auto it = raw_pairing_data_storage_.cbegin(); it != raw_pairing_data_storage_.cend(); it++) {
         if(!BarcodeShouldBeReported(*it))
             continue;
         std::string barcode_dir = GetBarcodeDir(*it);
-        path::make_dir(barcode_dir);
+        path::make_dir(path::append_path(output_.barcode_dir, barcode_dir));
         std::string db = (*it)->Db().StrId();
         OutputBarcodesByIsotype((*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype()), barcode_dir, db);
         OutputBarcodesByIsotype((*it)->GetSequencesByIsotype(IgIsotypeHelper::GetLambdaIsotype()), barcode_dir, db);
@@ -110,4 +130,48 @@ void RawPairingDataStatsCalculator::OutputMolecularBarcodes() {
         num_reported++;
     }
     INFO(num_reported << " droplet barcodes were reported");
+}
+
+void RawPairingDataStatsCalculator::OutputDemultiplexedData() {
+    if(!output_.output_demultiplexed_raw_data)
+        return;
+    INFO("Demultiplexed raw & complete data will be written to " + output_.demultiplexed_raw_dir);
+    size_t num_reported = 0;
+    for(auto it = raw_pairing_data_storage_.cbegin(); it != raw_pairing_data_storage_.cend(); it++) {
+        if(!(*it)->Complete())
+            continue;
+        std::string barcode_dir = path::append_path(output_.demultiplexed_raw_dir, GetBarcodeDir(*it));
+        path::make_dir(barcode_dir);
+        // output of heavy chains records
+        seqan::SeqFileOut hc_out(path::append_path(barcode_dir,
+                                                GetFilenameForRawRecord(*it, "IGH")).c_str());
+        auto hc_isotypes = (*it)->HcIsotypes();
+        for(auto isotype = hc_isotypes.begin(); isotype != hc_isotypes.end(); isotype++) {
+            auto umi_sequences = (*it)->GetSequencesByIsotype(*isotype);
+            for (auto umi_seq = umi_sequences->cbegin(); umi_seq != umi_sequences->cend(); umi_seq++) {
+                seqan::writeRecord(hc_out,
+                                   seqan::CharString(GetHeaderForUmiSequence(*umi_seq)),
+                                   umi_seq->sequence);
+            }
+        }
+        // output of kappa chains records
+        if((*it)->KappaChainCount() != 0) {
+            seqan::SeqFileOut kc_out(path::append_path(barcode_dir,
+                                                       GetFilenameForRawRecord(*it, "IGK")).c_str());
+            auto kc_records = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype());
+            for(auto kit = kc_records->cbegin(); kit != kc_records->cend(); kit++)
+                seqan::writeRecord(kc_out, seqan::CharString(GetHeaderForUmiSequence(*kit)), kit->sequence);
+        }
+        if((*it)->LambdaChainCount() != 0) {
+            // output of lambda chains records
+            seqan::SeqFileOut lc_out(path::append_path(barcode_dir,
+                                                       GetFilenameForRawRecord(*it, "IGL")).c_str());
+
+            auto lc_records = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype());
+            for (auto lit = lc_records->cbegin(); lit != lc_records->cend(); lit++)
+                seqan::writeRecord(lc_out, seqan::CharString(GetHeaderForUmiSequence(*lit)), lit->sequence);
+        }
+        num_reported++;
+    }
+    INFO(num_reported << " DBs were written to " << output_.demultiplexed_raw_dir);
 }

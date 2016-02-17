@@ -22,6 +22,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
 
 add_executable(abpair
+        cdr3_computation/simple_cdr3_calculator.cpp
         pairing_ig_data/pairing_primitives/droplet_barcode.cpp
         pairing_ig_data/pairing_primitives/ig_isotype.cpp
         pairing_ig_data/pairing_primitives/umi_isotype_sequences.cpp
