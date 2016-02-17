@@ -7,6 +7,7 @@
 #include "../ig_tools/utils/string_tools.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include "../fast_ig_tools/ig_matcher.hpp"
+#include "umi.hpp"
 
 //#include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -48,39 +49,6 @@ void extract_umi(const std::vector<CharString>& ids, std::vector<Dna5String>& um
         umis.push_back(umi);
         umi_quals.push_back(qual);
     }
-}
-
-class Umi {
-public:
-    Umi(const Dna5String& umi) : umi_(umi) {}
-
-    bool operator==(const Umi &other) const { return umi_ == other.umi_; }
-
-    Dna5String GetString() const { return umi_; }
-
-private:
-    const Dna5String umi_;
-};
-
-namespace std {
-    template<>
-    struct hash<Dna5String> {
-        size_t operator()(const Dna5String& str) const {
-            size_t h = 0;
-            for (auto c : str) {
-                h = h * 31 + seqan::ordValue(c);
-            }
-            return h;
-        }
-    };
-    
-    template<>
-    struct hash<Umi> {
-        size_t operator()(const Umi& umi) const {
-            size_t h = hash<Dna5String>()(umi.GetString());
-            return h;
-        }
-    };
 }
 
 class ReadGroup {
