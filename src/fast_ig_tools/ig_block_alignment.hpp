@@ -98,6 +98,14 @@ public:
     int global_gap() const {
         return left_shift() - right_shift();
     }
+
+    int read_segment_size() const {
+        return last().read_pos - first().read_pos + last().length;
+    }
+
+    int needle_segment_size() const {
+        return last().needle_pos - first().needle_pos + last().length;
+    }
 };
 
 
@@ -133,7 +141,6 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
     std::iota(next.begin(), next.end(), 0);
 
     for (size_t i = combined.size() - 1; i + 1 > 0; --i) {
-        // values[i] = combined[i].length;
         values[i] = vertex_weight(combined[i]);
 
         for (size_t j = i + 1; j < combined.size(); ++j) {
@@ -142,7 +149,6 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
             assert(!has_edge(combined[j], combined[i]));
 
             if (has_edge(combined[i], combined[j])) {
-                // double new_val = combined[i].length + values[j] - Match::overlap(combined[i], combined[j]);
                 double new_val = vertex_weight(combined[i]) + values[j] + edge_weight(combined[i], combined[j]);
                 if (new_val > values[i]) {
                     next[i] = j;
@@ -287,9 +293,6 @@ class BlockAligner {
             int start = left_shift;
             int finish = right_shift + int(length(query));
 
-            // int shift_min = -left_uncoverage_limit;
-            // int shift_max = int(length(read)) - int(length(query)) + right_uncoverage_limit;
-
             int over_start = std::max(0, start);
             int over_finish = std::min(right_shift + length(query), length(read));
             int read_overlap_length = over_finish - over_start; // read overlap
@@ -306,8 +309,6 @@ class BlockAligner {
 
             return align;
         }
-
-
     };
 
 public:
@@ -392,8 +393,8 @@ private:
             if (matches.empty()) continue;
 
             std::vector<Match> combined = combine_sequential_kmer_matches(matches, K);
-            // std::sort(combined.begin(), combined.end(),
-            //           [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
+            std::sort(combined.begin(), combined.end(),
+                      [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
             assert(combined.size() > 0);
 
             auto has_edge = [this](const Match &a, const Match &b) -> bool {
