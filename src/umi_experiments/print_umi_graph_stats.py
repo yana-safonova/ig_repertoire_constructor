@@ -56,13 +56,13 @@ class BinaryRunner:
         if not os.path.exists(self.binary):
             log.error("Binary %s not found", self.binary)
             exit(1)
-        if not os.path.exists(self.input_file):
+        if self.input_file and not os.path.exists(self.input_file):
             log.error("Input file %s for binary %s not found", self.binary, self.input_file)
             exit(1)
         if os.path.exists(self.output_file):
             os.remove(self.output_file)
 
-        cmdline = "%s -i %s -o %s %s" % (self.binary, self.input_file, self.output_file, self.params)
+        cmdline = "%s %s%s -o %s %s" % (self.binary, "-i " if self.input_file else "", self.input_file, self.output_file, self.params)
         os.system(cmdline)
 
 class WorkflowRunner:
@@ -76,7 +76,7 @@ class WorkflowRunner:
         umi_fastq = self.ExtractUmi(log, params.input_file, params.tmp_dir)
         umi_compressed = self.CompressFastq(log, umi_fastq, params.tmp_dir)
         umi_graph = self.ConstructGraph(log, umi_compressed, params.tmp_dir)
-        self.PrintStats(log, umi_graph, params.stats_file)
+        self.PrintStats(log, umi_compressed, umi_graph, params.stats_file)
 
     def ExtractUmi(self, log, input_file, out_dir):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_umi.fastq")
@@ -93,8 +93,8 @@ class WorkflowRunner:
         BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k 6 --tau 1 -A").Run(log)
         return output_file
 
-    def PrintStats(self, log, input_file, output_file):
-        BinaryRunner(BinaryPaths().print_graph_decomposition_stats, input_file, output_file).Run(log)
+    def PrintStats(self, log, reads_file, graph_file, output_file):
+        BinaryRunner(BinaryPaths().print_graph_decomposition_stats, "", output_file, "-r %s -g %s" % (reads_file, graph_file)).Run(log)
 
 def main():
     log = CreateLogger()

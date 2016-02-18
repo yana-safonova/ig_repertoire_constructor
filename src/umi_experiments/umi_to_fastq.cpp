@@ -4,15 +4,9 @@
 #include <fstream>
 #include <string.h>
 #include <logger/log_writers.hpp>
-
 #include <seqan/seq_io.h>
-#include "../ig_tools/utils/string_tools.hpp"
 
-using seqan::Dna5String;
-using seqan::DnaQString;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
-using seqan::CharString;
+#include "../ig_tools/utils/string_tools.hpp"
 
 void create_console_logger() {
     using namespace logging;
@@ -30,16 +24,16 @@ int main(int argc, char * argv[]){
     }
 
     INFO("Reading fastq");
-    SeqFileIn infile(argv[2]);
-    std::vector<CharString> input_ids;
+    seqan::SeqFileIn infile(argv[2]);
+    std::vector<seqan::CharString> input_ids;
     {
-        std::vector<Dna5String> input_reads;
-        std::vector<DnaQString> input_qual;
+        std::vector<seqan::Dna5String> input_reads;
+        std::vector<seqan::DnaQString> input_qual;
         readRecords(input_ids, input_reads, input_qual, infile);
     }
 
     INFO("Extracting barcodes.");
-    SeqFileOut outfile(argv[4]);
+    seqan::SeqFileOut outfile(argv[4]);
     int qual_mask = 0;
     for (auto& id : input_ids) {
         std::string s = seqan_string_to_string(id);

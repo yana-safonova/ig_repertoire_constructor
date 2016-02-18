@@ -9,15 +9,6 @@
 #include "../fast_ig_tools/ig_matcher.hpp"
 #include "umi.hpp"
 
-//#include <seqan/seq_io.h>
-using seqan::Dna5String;
-using seqan::DnaQString;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
-using seqan::CharString;
-
-using bformat = boost::format;
-
 void create_console_logger() {
     using namespace logging;
     logger *lg = create_logger("");
@@ -35,7 +26,7 @@ bool parse_cmdline(int argc, char **argv, std::string& input_file, std::string& 
     return true;
 }
 
-void extract_umi(const std::vector<CharString>& ids, std::vector<Dna5String>& umis, std::vector<DnaQString>& umi_quals) {
+void extract_umi(const std::vector<seqan::CharString>& ids, std::vector<seqan::Dna5String>& umis, std::vector<seqan::DnaQString>& umi_quals) {
     for (auto& id : ids) {
         auto id_string = seqan::toCString(id);
         auto split_by_umi = split(id_string, "UMI");
@@ -53,7 +44,7 @@ void extract_umi(const std::vector<CharString>& ids, std::vector<Dna5String>& um
 
 class ReadGroup {
 public:
-    ReadGroup(const Dna5String& first/*, DnaQString& qual*/) : center_(first)/*, min_length_(length(first)), nt_representation_(length(first))*/ {
+    ReadGroup(const seqan::Dna5String& first/*, seqan::DnaQString& qual*/) : center_(first)/*, min_length_(length(first)), nt_representation_(length(first))*/ {
         representatives_.push_back(first);
 //        for (size_t i = 0; i < nt_representation_.size(); i ++) {
 //            nt_representation_[i] = vector<char>(4);
@@ -62,12 +53,12 @@ public:
 
     ReadGroup() = default;
 
-    bool TryAdd(const Dna5String& candidate/*, DnaQString& quality*/) {
+    bool TryAdd(const seqan::Dna5String& candidate/*, seqan::DnaQString& quality*/) {
         if (length(center_) == 0) {
             center_ = candidate;
             return true;
         }
-        auto dist = [&](const Dna5String& s1, const Dna5String& s2) -> int {
+        auto dist = [&](const seqan::Dna5String& s1, const seqan::Dna5String& s2) -> int {
             return -half_sw_banded(s1, s2, 0, -1, -1, [](int) -> int { return 0; }, ReadGroup::indels_);
         };
         if (dist(candidate, center_) > ReadGroup::radius_) {
@@ -83,9 +74,9 @@ public:
 
     size_t Size() const { return representatives_.size(); }
 
-    vector<Dna5String> GetRepresentatives() const { return representatives_; }
+    vector<seqan::Dna5String> GetRepresentatives() const { return representatives_; }
 
-    Dna5String GetCenter() const { return center_; }
+    seqan::Dna5String GetCenter() const { return center_; }
 
     static void SetRadius(int radius) { radius_ = radius; }
 
@@ -98,13 +89,13 @@ private:
     static int radius_;
     static int indels_;
 
-    Dna5String center_;
-    vector<Dna5String> representatives_;
+    seqan::Dna5String center_;
+    vector<seqan::Dna5String> representatives_;
 
 //    size_t min_length_;
 //    vector<vector<char>> nt_representation_;
 
-    void reevaluate_center(/*const Dna5String& candidate, function<int(const Dna5String&, const Dna5String&)> dist*/) {
+    void reevaluate_center(/*const seqan::Dna5String& candidate, function<int(const seqan::Dna5String&, const seqan::Dna5String&)> dist*/) {
         auto len = length(center_);
         for (size_t i = 0; i < len; i ++) {
             vector<size_t> cnt(4);
@@ -139,7 +130,7 @@ class UmiReadSet {
 public:
     UmiReadSet() {}
 
-    void AddRead(const Dna5String& read/*, DnaQString& qual*/) {
+    void AddRead(const seqan::Dna5String& read/*, seqan::DnaQString& qual*/) {
         for (size_t i = 0; i < readGroups_.size(); i ++) {
             if (readGroups_[i].TryAdd(read/*, qual*/)) {
 //                read_to_group_[read] = i;
@@ -155,11 +146,11 @@ public:
 
 private:
     vector<ReadGroup> readGroups_;
-//    unordered_map<Dna5String, size_t> read_to_group_;
+//    unordered_map<seqan::Dna5String, size_t> read_to_group_;
 };
 
-void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& input_umi_qual,
-                  std::vector<Dna5String>& input_reads, std::vector<DnaQString>& input_qual,
+void group_by_umi(std::vector<seqan::Dna5String>& input_umi, std::vector<seqan::DnaQString>& input_umi_qual,
+                  std::vector<seqan::Dna5String>& input_reads, std::vector<seqan::DnaQString>& input_qual,
                   unordered_map<Umi, UmiReadSet>& umi_to_reads) {
     VERIFY_MSG(input_umi.size() == input_umi_qual.size() && input_umi.size() == input_reads.size() && input_umi.size() == input_qual.size(), "Bad info read");
     size_t mean_read_length = 0;
@@ -175,7 +166,7 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
             INFO("Calculating for indels = " << indels << " and radius " << radius);
             umi_to_reads.clear();
             for (size_t i = 0; i < input_umi.size(); i ++) {
-                umi_to_reads[input_umi[i]].AddRead(input_reads[i]);
+                umi_to_reads[Umi(input_umi[i])].AddRead(input_reads[i]);
             }
 
             INFO("Counting");
@@ -215,15 +206,15 @@ void group_by_umi(std::vector<Dna5String>& input_umi, std::vector<DnaQString>& i
                          " min center length " << min_center_length);
             stringstream ss;
             for (size_t size = 1; size <= max_group_size; size ++) {
-                ss << bformat("%d,") % group_sizes[size];
+                ss << boost::format("%d,") % group_sizes[size];
             }
             INFO(ss.str());
         }
     }
 }
 
-void print_reads_by_umi(string& output_dir_name, std::vector<CharString>& input_ids, std::vector<Dna5String>& input_reads,
-                        std::vector<Dna5String>& input_umi, bool group_by_size, size_t group_size_threshold) {
+void print_reads_by_umi(string& output_dir_name, std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& input_reads,
+                        std::vector<seqan::Dna5String>& input_umi, bool group_by_size, size_t group_size_threshold) {
     INFO("Grouping reads by UMI");
     unordered_map<Umi, vector<size_t>> umi_to_reads;
     for (size_t i = 0; i < input_ids.size(); i ++) {
@@ -246,9 +237,9 @@ void print_reads_by_umi(string& output_dir_name, std::vector<CharString>& input_
             boost::filesystem::create_directory(size_dir);
         }
         const auto umi_file_path = boost::filesystem::path(size_dir).append(seqan_string_to_string(umi.GetString())).replace_extension(".fasta").c_str();
-        SeqFileOut output_file(umi_file_path);
-        vector<CharString> umi_read_ids(reads_count);
-        vector<Dna5String> umi_reads(reads_count);
+        seqan::SeqFileOut output_file(umi_file_path);
+        vector<seqan::CharString> umi_read_ids(reads_count);
+        vector<seqan::Dna5String> umi_reads(reads_count);
         for (size_t i = 0; i < reads_count; i ++) {
             umi_read_ids[i] = input_ids[reads[i]];
             umi_reads[i] = input_reads[reads[i]];
@@ -267,15 +258,15 @@ int main(int argc, char** argv) {
     if (!parse_cmdline(argc, argv, input_file, output_dir)) return 0;
 
     INFO("Reading fastq");
-    SeqFileIn seqFileIn_input(input_file.c_str());
-    std::vector<CharString> input_ids;
-    std::vector<Dna5String> input_reads;
-    std::vector<DnaQString> input_qual;
+    seqan::SeqFileIn seqFileIn_input(input_file.c_str());
+    std::vector<seqan::CharString> input_ids;
+    std::vector<seqan::Dna5String> input_reads;
+    std::vector<seqan::DnaQString> input_qual;
     readRecords(input_ids, input_reads, input_qual, seqFileIn_input);
 
     INFO("Extracting UMI data");
-    std::vector<Dna5String> input_umi;
-    std::vector<DnaQString> input_umi_qual;
+    std::vector<seqan::Dna5String> input_umi;
+    std::vector<seqan::DnaQString> input_umi_qual;
     extract_umi(input_ids, input_umi, input_umi_qual);
 
     INFO("Printing reads by UMI");

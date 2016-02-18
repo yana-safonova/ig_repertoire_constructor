@@ -2,9 +2,6 @@
 #include "../graph_utils/sparse_graph.hpp"
 #include "../graph_utils/graph_io.hpp"
 
-using std::string;
-using bformat = boost::format;
-
 void create_console_logger() {
     using namespace logging;
     logger *lg = create_logger("", L_DEBUG);
@@ -25,9 +22,8 @@ int main(int, char **argv) {
             e ++;
         }
     }
-    INFO(bformat("Read graph with v = %d, e = %d") % graph->N() % graph->NZ());
+    INFO(boost::format("Read graph with v = %d, e = %d") % graph->N() % graph->NZ());
     for (size_t v = 0; v < g.size(); v ++) {
-//        DEBUG("Cheking " << v);
         for (auto u: g[v]) {
             bool found = false;
             for (auto w: g[u]) {
@@ -37,7 +33,7 @@ int main(int, char **argv) {
                 }
             }
             if (!found) {
-                ERROR(bformat("There's an edge %d->%d, but no %d->%d") % v % u % u % v);
+                ERROR(boost::format("There's an edge %d->%d, but no %d->%d") % v % u % u % v);
                 return 0;
             }
         }
