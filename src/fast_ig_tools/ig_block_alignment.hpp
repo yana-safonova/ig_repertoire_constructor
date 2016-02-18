@@ -44,6 +44,14 @@ struct Match {
                                            a.length - (b.read_pos - a.read_pos)),
                              0);
     }
+
+    static bool less_needle_pos(const Match &a, const Match &b) {
+        return a.needle_pos < b.needle_pos;
+    }
+
+    static bool less_read_pos(const Match &a, const Match &b) {
+        return a.read_pos < b.read_pos;
+    }
 };
 
 class AlignmentPath : public std::vector<Match> {
@@ -94,10 +102,8 @@ public:
         // (read/needle)
         std::stringstream ss;
 
-        assert(std::is_sorted(matches.cbegin(), matches.cend(),
-                              [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; }));
-        assert(std::is_sorted(matches.cbegin(), matches.cend(),
-                              [](const Match &a, const Match &b) -> bool { return a.read_pos < b.read_pos; }));
+        assert(std::is_sorted(matches.cbegin(), matches.cend(), Match::less_needle_pos));
+        assert(std::is_sorted(matches.cbegin(), matches.cend(), Match::less_read_pos));
 
         ss << bformat("{%d}") % std::max(matches[0].needle_pos - matches[0].read_pos, 0);
         ss << bformat("(%d)") % std::min(matches[0].needle_pos, matches[0].read_pos);
@@ -147,8 +153,7 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
                                            const Tf3 &vertex_weight) {
     assert(combined.size() > 0);
 
-    assert(std::is_sorted(combined.cbegin(), combined.cend(),
-                          [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; }));
+    assert(std::is_sorted(combined.cbegin(), combined.cend(), Match::less_needle_pos));
 
     // Vertices should be topologically sorted
     assert(is_topologically_sorted(combined, has_edge));
