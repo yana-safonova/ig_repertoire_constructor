@@ -352,6 +352,62 @@ public:
     }
 
 private:
+    Alignment make_align(const std::vector<Match> &combined, const Dna5String &read, const Dna5String &query, size_t needle_index) const {
+        // std::sort(combined.begin(), combined.end(),
+        //           [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
+        // assert(combined.size() > 0);
+        //
+        auto has_edge = [this](const Match &a, const Match &b) -> bool {
+            int read_gap = b.read_pos - a.read_pos;
+            int needle_gap = b.needle_pos - a.needle_pos;
+            int insert_size = read_gap - needle_gap;
+
+            if (insert_size > max_local_insertions || -insert_size > max_local_deletions) return false;
+
+            // Crossing check
+            if (a.needle_pos >= b.needle_pos || a.read_pos >= b.read_pos) return false;
+
+            return true;
+        };
+
+        auto vertex_weight = [](const Match &m) -> double {
+            return m.length;
+        };
+
+        auto edge_weight = [&](const Match &a, const Match &b) -> double {
+            return -Match::overlap(a, b);
+        };
+
+        auto path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
+
+        return Alignment::path2Alignment(path, read, query, needle_index);
+    }
+
+    bool check_alignment(const Alignment &align, const Dna5String &read, const Dna5String &query) const {
+        const auto &path =  align.path; // FIXME
+
+        if (std::abs(path.global_gap()) > max_global_gap) { // TODO split into 2 args (ins/dels) positive gap is deletion here
+            // Omit such match
+            return false;
+        }
+
+        if (path.kplus_length() < min_k_coverage) { // TODO Rename kplus_length()
+            // Omit such match
+            return false;
+        }
+
+        int shift_min = -left_uncoverage_limit;
+        int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(query)) + right_uncoverage_limit;
+
+        if (path.left_shift() < shift_min || path.right_shift() > shift_max) {
+            // Omit candidates with unproper final shift
+            // Maybe we should make these limits less strict because of possibility of indels on edges?
+            return false;
+        }
+
+        return true;
+    }
+
     std::vector<Alignment> query_unordered(const Dna5String &read) const {
         std::vector<std::vector<KmerMatch>> needle2matches(queries.size());
 
@@ -397,51 +453,10 @@ private:
                       [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
             assert(combined.size() > 0);
 
-            auto has_edge = [this](const Match &a, const Match &b) -> bool {
-                int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.needle_pos - a.needle_pos;
-                int insert_size = read_gap - needle_gap;
-
-                if (insert_size > max_local_insertions || -insert_size > max_local_deletions) return false;
-
-                // Crossing check
-                if (a.needle_pos >= b.needle_pos || a.read_pos >= b.read_pos) return false;
-
-                return true;
-            };
-
-            auto vertex_weight = [](const Match &m) -> double {
-                return m.length;
-            };
-
-            auto edge_weight = [&](const Match &a, const Match &b) -> double {
-                return -Match::overlap(a, b);
-            };
-
-            auto path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
-
-            if (std::abs(path.global_gap()) > max_global_gap) { // TODO split into 2 args (ins/dels) positive gap is deletion here
-                // Omit such match
-                continue;
+            Alignment align = make_align(combined, read, queries[needle_index], needle_index);
+            if (check_alignment(align, read, queries[needle_index])) {
+                result.push_back(std::move(align));
             }
-
-            if (path.kplus_length() < min_k_coverage) { // TODO Rename kplus_length()
-                // Omit such match
-                continue;
-            }
-
-            int shift_min = -left_uncoverage_limit;
-            int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit;
-
-            if (path.left_shift() < shift_min || path.right_shift() > shift_max) {
-                // Omit candidates with unproper final shift
-                // Maybe we should make these limits less strict because of possibility of indels on edges?
-                continue;
-            }
-
-            Alignment align = Alignment::path2Alignment(path, read, queries[needle_index], needle_index);
-
-            result.push_back(std::move(align));
         }
 
         return result;
