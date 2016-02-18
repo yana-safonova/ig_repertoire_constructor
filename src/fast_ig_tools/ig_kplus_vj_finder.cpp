@@ -1,14 +1,9 @@
 #include <cassert>
 #include <iostream>
-#include <sstream>
 #include <vector>
-#include <map>
-#include <memory>
-#include <unordered_map>
 #include <fstream>
 #include <boost/algorithm/string/replace.hpp>
 #include <mutex>
-#include <chrono>
 #include <stdexcept>
 
 using std::vector;
@@ -16,8 +11,6 @@ using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
-using std::map;
-using std::make_pair;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
