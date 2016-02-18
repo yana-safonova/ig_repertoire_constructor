@@ -1,3 +1,4 @@
+#include <memory>
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -24,6 +25,7 @@ using seqan::SeqFileIn;
 using seqan::SeqFileOut;
 
 #include "ig_block_alignment.hpp"
+#include "ig_kplus_vj_finder.hpp"
 
 using namespace fast_ig_tools;
 
@@ -61,12 +63,10 @@ struct Ig_KPlus_Finder_Parameters {
     std::string vgenes_filename;
     std::string jgenes_filename;
     int left_fill_germline = 3;
-    std::vector<CharString> v_ids;
-    std::vector<Dna5String> v_reads;
-    std::vector<CharString> j_ids;
-    std::vector<Dna5String> j_reads;
     std::string separator = "comma";
     size_t min_len = 300;
+
+    std::unique_ptr<GermlineDB> db;
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -258,9 +258,10 @@ struct Ig_KPlus_Finder_Parameters {
 
         prepare_output();
 
-        read_genes(pseudogenes);
-        INFO("V-gene germline database size: " << v_reads.size());
-        INFO("J-gene germline database size: " << j_reads.size());
+        db.reset(new GermlineDB(db_directory, organism, pseudogenes, { loci }));
+
+        INFO("V-gene germline database size: " << db->all_v_reads.size());
+        INFO("J-gene germline database size: " << db->all_j_reads.size());
     }
 
 private:
@@ -273,60 +274,6 @@ private:
         if (compress) {
             output_filename += ".gz";
             bad_output_filename += ".gz";
-        }
-    }
-
-    std::string gene_file_name(const std::string &locus,
-                               const std::string &gene,
-                               bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
-    }
-
-    std::vector<std::string> parse_loci() const {
-        std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
-        std::vector<std::string> TR = { "TRA", "TRB", "TRD", "TRG" };
-        std::vector<std::string> ALL(IG);
-        ALL.insert(ALL.end(), TR.cbegin(), TR.cend());
-
-        if (loci == "IG") {
-            return IG;
-        } else if (loci == "TR") {
-            return TR;
-        } else if (loci == "all") {
-            return ALL;
-        } else if (std::find(ALL.cbegin(), ALL.cend(), loci) != ALL.cend()) {
-            return { loci };
-        } else {
-           throw std::invalid_argument("Invalid loci value: " + loci);
-        }
-    }
-
-    void read_genes(bool pseudo = false) {
-        for (const auto &locus : parse_loci()) {
-            std::string v_file = gene_file_name(locus, "V", pseudo);
-            read_gene(v_file, v_ids, v_reads);
-
-            std::string j_file = gene_file_name(locus, "J", pseudo);
-            read_gene(j_file, j_ids, j_reads);
-        }
-    }
-
-    static void read_gene(const std::string &filename,
-                          vector<CharString> &ids, vector<Dna5String> &reads) {
-        vector<CharString> _ids;
-        vector<Dna5String> _reads;
-
-        SeqFileIn seqFileIn(filename.c_str());
-        readRecords(_ids, _reads, seqFileIn);
-
-        ids.reserve(ids.size() + _ids.size());
-        for (const auto &id : _ids) {
-            ids.push_back(id);
-        }
-
-        reads.reserve(reads.size() + _reads.size());
-        for (const auto &read : _reads) {
-            reads.push_back(read);
         }
     }
 };
@@ -354,10 +301,10 @@ int main(int argc, char **argv) {
 
     Ig_KPlus_Finder_Parameters param(argc, argv);
 
-    const auto &v_reads = param.v_reads;
-    const auto &j_reads = param.j_reads;
-    const auto &v_ids = param.v_ids;
-    const auto &j_ids = param.j_ids;
+    const auto &v_reads = param.db->all_v_reads;
+    const auto &j_reads = param.db->all_j_reads;
+    const auto &v_ids = param.db->all_v_ids;
+    const auto &j_ids = param.db->all_j_ids;
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
