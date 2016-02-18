@@ -106,6 +106,43 @@ public:
     int needle_segment_size() const {
         return last().needle_pos - first().needle_pos + last().length;
     }
+
+    std::string visualize_matches(int needle_length, int read_length) const {
+        const std::vector<Match> &matches = *this; // TODO Fixit
+
+        // Draw fancy alignment
+        // (read/needle)
+        std::stringstream ss;
+
+        assert(std::is_sorted(matches.cbegin(), matches.cend(),
+                              [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; }));
+        assert(std::is_sorted(matches.cbegin(), matches.cend(),
+                              [](const Match &a, const Match &b) -> bool { return a.read_pos < b.read_pos; }));
+
+        ss << bformat("{%d}") % std::max(matches[0].needle_pos - matches[0].read_pos, 0);
+        ss << bformat("(%d)") % std::min(matches[0].needle_pos, matches[0].read_pos);
+        for (size_t i = 0; i < matches.size() - 1; ++i) {
+            int read_gap = matches[i+1].read_pos - matches[i].read_pos - matches[i].length;
+            int needle_gap = matches[i+1].needle_pos - matches[i].needle_pos - matches[i].length;
+            unsigned current_match_len = matches[i].length;
+
+            if (needle_gap >=0 || read_gap >= 0) {
+                if (needle_gap != read_gap) {
+                    ss << bformat("%d(%d%+d)") % current_match_len % needle_gap % (read_gap - needle_gap);
+                } else {
+                    ss << bformat("%2%(%1%)") % read_gap % current_match_len;
+                }
+            }
+        }
+
+        const auto &last_match = matches[matches.size() - 1];
+        ss << bformat("%1%") % last_match.length;
+        ss << bformat("(%d)") % std::min(needle_length - last_match.needle_pos - last_match.length,
+                                         read_length - last_match.read_pos - last_match.length);
+        ss << bformat("{%d}") % std::max((needle_length - last_match.needle_pos) - (read_length - last_match.read_pos), 0);
+
+        return ss.str();
+    }
 };
 
 
@@ -207,43 +244,6 @@ std::vector<Match> combine_sequential_kmer_matches(std::vector<KmerMatch> &match
     res.push_back(cur); // save last match
 
     return res;
-}
-
-
-std::string visualize_matches(const std::vector<Match> &matches,
-                              int needle_length, int read_length) {
-    // Draw fancy alignment
-    // (read/needle)
-    std::stringstream ss;
-
-    assert(std::is_sorted(matches.cbegin(), matches.cend(),
-                          [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; }));
-    assert(std::is_sorted(matches.cbegin(), matches.cend(),
-                          [](const Match &a, const Match &b) -> bool { return a.read_pos < b.read_pos; }));
-
-    ss << bformat("{%d}") % std::max(matches[0].needle_pos - matches[0].read_pos, 0);
-    ss << bformat("(%d)") % std::min(matches[0].needle_pos, matches[0].read_pos);
-    for (size_t i = 0; i < matches.size() - 1; ++i) {
-        int read_gap = matches[i+1].read_pos - matches[i].read_pos - matches[i].length;
-        int needle_gap = matches[i+1].needle_pos - matches[i].needle_pos - matches[i].length;
-        unsigned current_match_len = matches[i].length;
-
-        if (needle_gap >=0 || read_gap >= 0) {
-            if (needle_gap != read_gap) {
-                ss << bformat("%d(%d%+d)") % current_match_len % needle_gap % (read_gap - needle_gap);
-            } else {
-                ss << bformat("%2%(%1%)") % read_gap % current_match_len;
-            }
-        }
-    }
-
-    const auto &last_match = matches[matches.size() - 1];
-    ss << bformat("%1%") % last_match.length;
-    ss << bformat("(%d)") % std::min(needle_length - last_match.needle_pos - last_match.length,
-                                     read_length - last_match.read_pos - last_match.length);
-    ss << bformat("{%d}") % std::max((needle_length - last_match.needle_pos) - (read_length - last_match.read_pos), 0);
-
-    return ss.str();
 }
 
 

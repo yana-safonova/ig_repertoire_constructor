@@ -450,7 +450,7 @@ int main(int argc, char **argv) {
                         % (align.start+1)   % end_of_v
                         % align.kp_coverage % v_ids[align.needle_index];
 
-                    cout << " " << visualize_matches(align.path, length(v_reads[align.needle_index]), length(stranded_read)) << endl;
+                    cout << " " << align.path.visualize_matches(length(v_reads[align.needle_index]), length(stranded_read)) << endl;
                     if (!jresult.empty()) {
                         cout << "\tJ-genes:" << endl;
                         for (const auto &jalign : jresult) {
@@ -458,7 +458,7 @@ int main(int argc, char **argv) {
                                 % (jalign.start+1 + end_of_v) % (jalign.finish + end_of_v)
                                 % jalign.kp_coverage          % j_ids[jalign.needle_index];
 
-                            cout << " " << visualize_matches(jalign.path, length(j_reads[jalign.needle_index]), length(suff)) << endl;
+                            cout << " " << jalign.path.visualize_matches(length(j_reads[jalign.needle_index]), length(suff)) << endl;
                         }
                     } else {
                         cout << "J-genes not found" << endl;
