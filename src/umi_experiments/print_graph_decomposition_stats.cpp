@@ -1,6 +1,7 @@
 #include <logger/log_writers.hpp>
 #include "../graph_utils/graph_io.hpp"
 #include "graph_stats.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 #include <segfault_handler.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -33,6 +34,14 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
+void extract_abundances(const std::vector<seqan::CharString>& ids, std::vector<size_t>& abundances) {
+    for (auto& id : ids) {
+        const string& id_string = seqan_string_to_string(id);
+        const string& abundance_string = id_string.substr(id_string.find_last_of(':') + 1);
+        abundances.push_back(stoull(abundance_string));
+    }
+}
+
 int main(int argc, char **argv) {
     segfault_handler sh;
     create_console_logger();
@@ -54,12 +63,14 @@ int main(int argc, char **argv) {
     std::vector<seqan::CharString> input_ids;
     std::vector<seqan::Dna5String> input_reads;
     readRecords(input_ids, input_reads, seqFileIn_input);
+    std::vector<size_t> abundances;
+    extract_abundances(input_ids, abundances);
 
     INFO("Reading graph")
     const SparseGraphPtr graph = GraphReader(graph_file).CreateGraph();
 
     INFO("Analyzing structure");
-    const GraphStats stats = GraphStats::GetStats(input_reads, graph);
+    const GraphStats stats = GraphStats::GetStats(input_reads, abundances, graph);
 
     if (output_file != "") {
         std::ofstream output(output_file);
