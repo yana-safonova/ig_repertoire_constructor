@@ -1,40 +1,20 @@
 #pragma once
 
 #include <cassert>
-#include <iostream>
 #include <sstream>
 #include <vector>
-#include <map>
-#include <memory>
 #include <unordered_map>
-#include <fstream>
-#include <boost/algorithm/string/replace.hpp>
-#include <mutex>
-#include <chrono>
 #include <stdexcept>
 
-using std::vector;
-using std::cout;
-using std::cin;
-using std::cerr;
-using std::endl;
-using std::map;
-using std::make_pair;
-
-#include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
-using path::make_dirs;
 
 #include <seqan/seq_io.h>
-using seqan::Dna5String;
-using seqan::CharString;
-using seqan::length;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
 
 #include "ig_matcher.hpp"
 
 namespace fast_ig_tools {
+using seqan::Dna5String;
+using seqan::length;
 
 // input vector(pair(needle_pos, read_pos))
 // output vector(tuple(needle_pos, read_pos, length))
@@ -462,7 +442,7 @@ private:
         return result;
     }
 
-    vector<Dna5String> queries;
+    std::vector<Dna5String> queries;
     int max_local_insertions;
     int max_local_deletions;
     int min_k_coverage;
