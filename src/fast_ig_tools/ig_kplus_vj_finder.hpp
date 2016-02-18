@@ -3,6 +3,7 @@
 #include <cassert>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 
 using std::vector;
 using std::cout;
@@ -46,6 +47,9 @@ public:
     std::vector<CharString> all_j_ids;
     std::vector<size_t> locus_index;
 
+    std::unique_ptr<BlockAligner> valigner;
+    std::unique_ptr<BlockAligner> jaligner;
+    std::vector<std::unique_ptr<BlockAligner>> jaligners;
 
 
     static std::vector<std::string> expand_loci(const std::vector<std::string> &loci) {
@@ -81,13 +85,11 @@ public:
         return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
-    GermlineDB(const std::string &db_directory,
-               const std::string &organism,
-               bool pseudogenes,
-               const std::vector<std::string> &loci) : db_directory{db_directory},
-                                                       organism{organism},
-                                                       pseudogenes{pseudogenes},
-                                                       locus_names{expand_loci(loci)} {
+    template<typename Tparam>
+    GermlineDB(const Tparam &param) : db_directory{param.db_directory},
+                                      organism{param.organism},
+                                      pseudogenes{param.pseudogenes},
+                                      locus_names{expand_loci({ param.loci })} {
         for (const std::string &locus : locus_names) {
             GermlineLociVJDB db;
 
@@ -125,6 +127,19 @@ public:
             }
         }
 
+        valigner.reset(new BlockAligner(all_v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
+                                        100500,
+                                        param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
+        jaligner.reset(new BlockAligner(all_j_reads, param.word_size_j,
+                                        param.max_global_gap, 100000, 10000,
+                                        param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
+
+        for (const auto db : locus_databases) {
+            BlockAligner *p = new BlockAligner(all_j_reads, param.word_size_j,
+                                               param.max_global_gap, 100000, 10000,
+                                               param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
+            jaligners.push_back(std::unique_ptr<BlockAligner>(p));
+        }
     }
 };
 

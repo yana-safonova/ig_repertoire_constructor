@@ -258,7 +258,7 @@ struct Ig_KPlus_Finder_Parameters {
 
         prepare_output();
 
-        db.reset(new GermlineDB(db_directory, organism, pseudogenes, { loci }));
+        db.reset(new GermlineDB(*this));
 
         INFO("V-gene germline database size: " << db->all_v_reads.size());
         INFO("J-gene germline database size: " << db->all_j_reads.size());
