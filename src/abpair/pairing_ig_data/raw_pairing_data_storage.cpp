@@ -43,7 +43,7 @@ void RawPairingDataStorage::Update(std::string fastq_fname) {
     INFO(num_lines_after - num_lines_before << " new records were added");
 }
 
-RawPairingDataPtr RawPairingDataStorage::operator[](size_t index) {
+RawPairingDataPtr RawPairingDataStorage::operator[](size_t index) const {
     assert(index < raw_pairing_records_.size());
     return raw_pairing_records_[index];
 }

@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "../pairing_ig_data/raw_pairing_data_storage.hpp"
+#include "../pairing_ig_data/pairing_primitives/umi_isotype_sequences.hpp"
 #include <seqan/sequence.h>
 
 class SimpleCdr3Calculator {
@@ -14,8 +14,10 @@ class SimpleCdr3Calculator {
 
     std::vector<size_t> ComputeAaPositions(const seqan::Dna5String &seq, std::string aa);
 
-    bool Cdr3PositionsCanBeRefined(std::pair<size_t, size_t> new_pos, std::pair<size_t, size_t> old_pos);
+    bool Cdr3PositionsCanBeRefined(IgIsotype isotype,
+                                   std::pair<size_t, size_t> new_pos,
+                                   std::pair<size_t, size_t> old_pos);
 
 public:
-    std::pair<size_t, size_t> FindCdr3Positions(const seqan::Dna5String &seq);
+    std::string FindCdr3Positions(const IsotypeUmiSequence& umi_record);
 };

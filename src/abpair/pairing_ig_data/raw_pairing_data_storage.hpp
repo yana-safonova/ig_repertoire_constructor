@@ -16,7 +16,7 @@ public:
 
     size_t size() const { return raw_pairing_records_.size(); }
 
-    RawPairingDataPtr operator[](size_t index);
+    RawPairingDataPtr operator[](size_t index) const;
 
     RawPairingDataPtr GetRecordByDb(DropletBarcode db);
 

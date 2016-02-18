@@ -42,19 +42,24 @@ std::vector<size_t> SimpleCdr3Calculator::ComputeAaPositions(const seqan::Dna5St
     return aa_positions;
 }
 
-bool SimpleCdr3Calculator::Cdr3PositionsCanBeRefined(std::pair<size_t, size_t> new_pos,
+bool SimpleCdr3Calculator::Cdr3PositionsCanBeRefined(IgIsotype isotype,
+                                                     std::pair<size_t, size_t> new_pos,
                                                      std::pair<size_t, size_t> old_pos) {
-    size_t avg_cdr3_length = 45;
+    size_t avg_hc_cdr3_length = 45;
+    size_t avg_lc_cdr3_length = 27;
+    size_t avg_cdr3_length = avg_hc_cdr3_length;
+    if(isotype.IsLightChain())
+        avg_cdr3_length = avg_lc_cdr3_length;
     size_t old_len = old_pos.second - old_pos.first + 1;
     size_t new_len = new_pos.second - new_pos.first + 1;
     return (new_pos.first > old_pos.first) and
         (abs_diff(new_len, avg_cdr3_length) <= abs_diff(old_len, avg_cdr3_length));
 }
 
-std::pair<size_t, size_t> SimpleCdr3Calculator::FindCdr3Positions(const seqan::Dna5String &seq) {
-    auto cys_pos = ComputeAaPositions(seq, "Cys");
-    auto phe_pos = ComputeAaPositions(seq, "Phe");
-    auto trp_pos = ComputeAaPositions(seq, "Trp");
+std::string SimpleCdr3Calculator::FindCdr3Positions(const IsotypeUmiSequence& umi_record) {
+    auto cys_pos = ComputeAaPositions(umi_record.sequence, "Cys");
+    auto phe_pos = ComputeAaPositions(umi_record.sequence, "Phe");
+    auto trp_pos = ComputeAaPositions(umi_record.sequence, "Trp");
     std::pair<size_t, size_t> cdr3_pos(0, 0);
     for(auto cit = cys_pos.begin(); cit != cys_pos.end(); cit++) {
         size_t start_pos = *cit + 3;
@@ -62,22 +67,31 @@ std::pair<size_t, size_t> SimpleCdr3Calculator::FindCdr3Positions(const seqan::D
             size_t end_pos = *pit - 1;
             if(start_pos >= end_pos)
                 continue;
-            if(Cdr3PositionsCanBeRefined(std::make_pair(start_pos, end_pos), cdr3_pos))
+            if(Cdr3PositionsCanBeRefined(umi_record.isotype,
+                                         std::make_pair(start_pos, end_pos),
+                                         cdr3_pos))
                 cdr3_pos = std::make_pair(start_pos, end_pos);
         }
         for(auto tit = trp_pos.begin(); tit != trp_pos.end(); tit++) {
             size_t end_pos = *tit - 1;
             if(start_pos >= end_pos)
                 continue;
-            if(Cdr3PositionsCanBeRefined(std::make_pair(start_pos, end_pos), cdr3_pos))
+            if(Cdr3PositionsCanBeRefined(umi_record.isotype,
+                                         std::make_pair(start_pos, end_pos),
+                                         cdr3_pos))
                 cdr3_pos = std::make_pair(start_pos, end_pos);
         }
     }
 
-    INFO("CDR3 positions for " << seq << " are (" << cdr3_pos.first << ", "
-         << cdr3_pos.second << ")");
-    INFO("CDR3 sequence: " << seqan::infixWithLength(seq,
-                                                     cdr3_pos.first,
-                                                     cdr3_pos.second - cdr3_pos.first + 1));
-    return cdr3_pos;
+    //INFO("CDR3 positions for " << umi_record.sequence << " are (" <<
+    //             cdr3_pos.first << ", " <<
+    //             cdr3_pos.second << ")");
+    //auto cdr3 = seqan::infixWithLength(umi_record.sequence,
+    //                                   cdr3_pos.first,
+    //                                   cdr3_pos.second - cdr3_pos.first + 1);
+    //INFO("CDR3 sequence: " << cdr3);
+    seqan::String<char> cdr3_char;
+    seqan::assign(cdr3_char, umi_record.sequence);
+    return std::string(seqan::toCString(cdr3_char)).substr(cdr3_pos.first,
+                                                                     cdr3_pos.second - cdr3_pos.first + 1);
 }
