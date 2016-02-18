@@ -269,7 +269,7 @@ class BlockAligner {
         static Alignment path2Alignment(AlignmentPath &path,
                                         const Dna5String &read,
                                         const Dna5String &query,
-                                        size_t query_index) {
+                                        size_t needle_index) {
             int coverage_length = path.kplus_length();
 
             int left_shift = path.left_shift();
@@ -289,7 +289,7 @@ class BlockAligner {
             align.path = std::move(path);
             align.start = start;
             align.finish = finish;
-            align.needle_index = query_index;
+            align.needle_index = needle_index;
             align.overlap_length = needle_overlap_length;
 
             return align;
