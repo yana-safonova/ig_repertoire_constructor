@@ -34,29 +34,30 @@ int main(int argc, char * argv[]){
 
     INFO("Extracting barcodes.");
     seqan::SeqFileOut outfile(argv[4]);
-    int qual_mask = 0;
+    bool was_with_quality = false;
+    bool was_without_quality = false;
     for (auto& id : input_ids) {
         std::string s = seqan_string_to_string(id);
         auto split_by_umi = split(s, "UMI");
         VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
+        std::string umi_info;
         if (split_by_umi.size() == 1) {
             split_by_umi = split(s, "BARCODE");
             VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
             VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
+            umi_info = split_by_umi[1].substr(strlen("BARCODE") + 1);
+        } else {
+            umi_info = split_by_umi[1].substr(strlen("UMI") + 1);
         }
         std::string meta = split_by_umi[0];
         boost::algorithm::trim(meta);
-        std::string umi_info = split_by_umi[1];
-        assert(!umi_info.empty());
-        std::size_t colon = umi_info.find(':');
-        assert(colon != std::string::npos);
-        umi_info = umi_info.substr(colon + 1);
-        colon = umi_info.find(':');
+        VERIFY(!umi_info.empty());
+        size_t colon = umi_info.find(':');
         if (colon == std::string::npos) {
-            qual_mask |= 1;
+            was_without_quality = true;
             writeRecord(outfile, meta, umi_info);
         } else {
-            qual_mask |= 2;
+            was_with_quality = true;
             assert(colon * 2 + 1 == umi_info.length());
             auto umi = umi_info.substr(0, colon);
             auto qual = umi_info.substr(colon + 1);
@@ -64,7 +65,7 @@ int main(int argc, char * argv[]){
         }
     }
     close(outfile);
-    if (qual_mask == 3) {
+    if (was_with_quality && was_without_quality) {
         ERROR("Found both UMIs with quality data and without.");
     }
     INFO(input_ids.size() << " barcodes were extracted from " << argv[2] << " to " << argv[4]);
