@@ -18,8 +18,8 @@ def ParseCommandLineParams(log):
     input_group = parser.add_mutually_exclusive_group(required=False)
     input_group.add_argument("-i", "--input", type=str, dest="input_file", help="Input file path")
     pair_reads = input_group.add_argument_group("Paired-end reads")
-    pair_reads.add_argument("-1", type=str, dest="left_reads", help="Left paired-end reads in FASTQ format", required=True)
-    pair_reads.add_argument("-2", type=str, dest="right_reads", help="Right paired-end reads in FASTQ format", required=True)
+    pair_reads.add_argument("-1", type=str, dest="left_reads", help="Left paired-end reads in FASTQ format")
+    pair_reads.add_argument("-2", type=str, dest="right_reads", help="Right paired-end reads in FASTQ format")
     parser.add_argument("-o", "--output", type=str, dest="stats_file", help="Output statistics file path", required=True)
     parser.add_argument("-t", "--tmp", type=str, dest="tmp_dir", default=".", help="Temporary files directory path")
     parser.add_argument("-c", "--clean", dest="clean", action="store_true", help="Will remove all temporary files")
@@ -72,7 +72,9 @@ class BinaryRunner:
             "-o " + self.output_file if self.output_file else "",
             self.params)
         log.info("Running " + cmdline)
-        os.system(cmdline)
+        exit_code = os.system(cmdline)
+        if exit_code != 0:
+            exit(exit_code)
 
 class WorkflowRunner:
     def Run(self, log, params):

@@ -40,17 +40,14 @@ int main(int argc, char * argv[]){
         std::string s = seqan_string_to_string(id);
         auto split_by_umi = split(s, "UMI");
         VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
-        std::string umi_info;
         if (split_by_umi.size() == 1) {
             split_by_umi = split(s, "BARCODE");
             VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
             VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
-            umi_info = split_by_umi[1].substr(strlen("BARCODE") + 1);
-        } else {
-            umi_info = split_by_umi[1].substr(strlen("UMI") + 1);
         }
         std::string meta = split_by_umi[0];
         boost::algorithm::trim(meta);
+        std::string umi_info = split_by_umi[1].substr(1);
         VERIFY(!umi_info.empty());
         size_t colon = umi_info.find(':');
         if (colon == std::string::npos) {
@@ -58,7 +55,7 @@ int main(int argc, char * argv[]){
             writeRecord(outfile, meta, umi_info);
         } else {
             was_with_quality = true;
-            assert(colon * 2 + 1 == umi_info.length());
+            VERIFY_MSG(colon * 2 + 1 == umi_info.length(), boost::format("Colon is at %d position in umi info '%s', which is not the middle") % colon % umi_info);
             auto umi = umi_info.substr(0, colon);
             auto qual = umi_info.substr(colon + 1);
             writeRecord(outfile, meta, umi, qual);
