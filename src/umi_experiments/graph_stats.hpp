@@ -145,8 +145,8 @@ void GraphStats::append_distribution(std::stringstream& ss, const std::string& c
         ss << cnt << " ";
         sum += cnt;
     }
-    if (sum == 0) return;
     ss << std::endl;
+    if (sum == 0) return;
     for (auto cnt : counts) {
         ss << cnt * 100 / sum << " ";
     }
