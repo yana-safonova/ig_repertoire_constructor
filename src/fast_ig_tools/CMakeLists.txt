@@ -65,6 +65,33 @@ add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
 
+# add_executable(test1 test_ig_kplus_vj_finder.cpp)
+# target_link_libraries(test1 gtest_main gtest)
+# add_test(NAME mytest1 COMMAND test1)
+# add_test(NAME mytest2222 COMMAND test1)
+# add_test(NAME mytest3 COMMAND test1)
+#
+# include(CTest)
+
+# make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
+make_test(test1 test_ig_kplus_vj_finder.cpp)
+make_test(test2 test_ig_kplus_vj_finder.cpp)
+make_test(test3 test_ig_kplus_vj_finder.cpp)
+
+# add_custom_target(meow COMMAND ${CMAKE_CTEST_COMMAND} -V)
+# function(new_test test)
+#   if (NOT TARGET ${test})
+#     add_executable(${test} ${ARGN})
+#     target_link_libraries(${test} gtest_main gtest)
+#     add_test(NAME ${test} COMMAND ${test})
+#   endif(NOT TARGET ${test})
+#
+#   add_dependencies(meow ${test})
+#   set_target_properties(${test} PROPERTIES EXCLUDE_FROM_ALL 1)
+# endfunction(make_test)
+
+
+
 add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/germline"

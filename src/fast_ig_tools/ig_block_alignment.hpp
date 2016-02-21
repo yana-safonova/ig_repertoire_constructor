@@ -9,6 +9,7 @@
 #include "fast_ig_tools.hpp"
 
 #include <seqan/seq_io.h>
+#include <seqan/align.h>
 
 #include "ig_matcher.hpp"
 
@@ -129,7 +130,127 @@ public:
 
         return ss.str();
     }
+
+    bool check_overlaps() const {
+        if (size() > 1) {
+            for (size_t i = 0; i < size() -1; ++i) {
+                if (Match::overlap((*this)[i], (*this)[i + 1])) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 };
+
+
+template<typename Tsequence1, typename Tsequence2>
+int find_simple_gap(const Tsequence1 &read, const Tsequence2 &gene) {
+    // Positive if gaps in read (|read| < |gene|)
+    // ggggggggg
+    // rrrrrr
+    //    rrrrrr
+    assert(length(read) < length(gene));
+
+    std::vector<int> cum_matches_forward(length(read) + 1), cum_matches_backward(length(read) + 1);
+
+    for (size_t i = 1; i <= length(read); ++i) { // TODO cache length()
+        cum_matches_forward[i] = read[i - 1] == gene[i - 1];
+        cum_matches_backward[length(read) - i] = read[length(read) - i] == gene[length(gene) - i];
+    }
+
+    // Compute cumsums TODO Join loops
+    for (size_t i = 1; i <= length(read); ++i) { // TODO cache length()
+        cum_matches_forward[i] += cum_matches_forward[i - 1];
+        cum_matches_backward[length(read) - i] += cum_matches_backward[length(read) - i + 1];
+    }
+
+    // for (const auto &_ : cum_matches_forward) {
+    //     std::cout << _ << " ";
+    // }
+    // std::cout << " / ";
+    // for (const auto &_ : cum_matches_backward) {
+    //     std::cout << _ << " ";
+    // }
+    // std::cout << std::endl;
+
+
+    std::vector<int> sum(length(read) + 1);
+    for (size_t i = 0; i <= length(read); ++i) {
+        sum[i] = cum_matches_forward[i] + cum_matches_backward[i];
+    }
+
+    return std::max_element(sum.cbegin(), sum.cend()) - sum.cbegin();
+}
+
+
+void vvv(const AlignmentPath &path, const Dna5String &read, const Dna5String &gene) {
+    assert(path.check_overlaps());
+
+
+    using namespace seqan;
+    using TSequence = seqan::Dna5String;                 // sequence type
+    using TAlign = seqan::Align<TSequence, seqan::ArrayGaps>;     // align type
+    using TRow =  seqan::Row<TAlign>::Type; // gapped sequence type
+
+    TSequence seq1 = "CDFGDC";
+    TSequence seq2 = "CDEFGAHGC";
+
+    TAlign align;
+    resize(rows(align), 2);
+    assignSource(row(align, 0), gene);
+    assignSource(row(align, 1), read);
+
+    TRow & row_gene = row(align, 0);
+    TRow & row_read = row(align, 1);
+
+    if (path.size() > 1) {
+        // Add gaps
+        for (size_t i = 0; i < path.size() - 1; ++i) {
+            const auto &read_edge = infix(read, path[i].read_pos + path[i].length, path[i + 1].read_pos);
+            const auto &gene_edge = infix(gene, path[i].needle_pos + path[i].length, path[i + 1].needle_pos);
+
+            INFO("EDGE: " << read_edge << " - " << gene_edge);
+
+            if (length(read_edge) < length(gene_edge)) {
+                insertGaps(row_read,
+                           path[i].read_pos + path[i].length + find_simple_gap(read_edge, gene_edge),
+                           length(gene_edge) - length(read_edge));
+            } else if (length(gene_edge) < length(read_edge)) {
+                insertGaps(row_gene,
+                           path[i].needle_pos + path[i].length + find_simple_gap(gene_edge, read_edge),
+                           length(read_edge) - length(gene_edge));
+            } else {
+                // Don't add gaps
+            }
+        }
+    }
+
+    // Add starting and finishing gaps
+    int starting_gap = path.first().needle_pos - path.first().read_pos;
+    // INFO("STARTING GAP " << starting_gap);
+    if (starting_gap > 0) {
+        insertGaps(row_read, 0, starting_gap);
+    } else if (starting_gap < 0) {
+        insertGaps(row_gene, 0, -starting_gap);
+    } else {
+        // Do nothing
+    }
+
+    int finishing_gap = (length(gene) - path.last().needle_pos) - (length(read) - path.last().read_pos);
+    INFO("FINISHING GAP " << finishing_gap);
+    if (finishing_gap > 0) {
+        insertGaps(row_read, length(read), finishing_gap);
+    } else if (finishing_gap < 0) {
+        insertGaps(row_gene, length(gene), -finishing_gap);
+    } else {
+        // Do nothing
+    }
+
+
+    std::cout << align;
+}
 
 
 template<class T, typename Tf>
@@ -297,7 +418,7 @@ class BlockAligner {
     };
 
 public:
-    BlockAligner(const vector<Dna5String> &queries,
+    BlockAligner(const std::vector<Dna5String> &queries,
                  size_t K,
                  int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
                  int max_local_insertions,
@@ -322,6 +443,13 @@ public:
     std::vector<Alignment> query(const Dna5String &read, size_t limit) const {
         auto result = query_unordered(read);
 
+        std::cout << "SIZE: " << result.size() << std::endl;
+
+        limit = std::min(limit, result.size());
+        if (limit == 0) {
+            return {  };
+        }
+
         using ctuple_type = decltype(*result.cbegin());
 
         auto score_function = [](const ctuple_type &a) { return a.kp_coverage; };
@@ -332,6 +460,12 @@ public:
         std::nth_element(result.begin(), result.begin() + limit, result.end(), comp);
         result.resize(std::min(result.size(), limit));
         std::sort(result.begin(), result.end(), comp);
+
+        const auto &gene = this->queries[result[0].needle_index];
+        std::cout << read << std::endl;
+        std::cout << gene << std::endl;
+        std::cout << result[0].path.visualize_matches(length(gene), length(read)) << std::endl;
+        vvv(result[0].path, read, gene);
 
         return result;
     }
