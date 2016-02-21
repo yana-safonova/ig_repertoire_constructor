@@ -74,9 +74,9 @@ add_executable(ig_consensus_finder ig_consensus_finder.cpp)
 # include(CTest)
 
 # make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
-make_test(test1 test_ig_kplus_vj_finder.cpp)
-make_test(test2 test_ig_kplus_vj_finder.cpp)
-make_test(test3 test_ig_kplus_vj_finder.cpp)
+# make_test(test1 test_ig_kplus_vj_finder.cpp)
+# make_test(test2 test_ig_kplus_vj_finder.cpp)
+# make_test(test3 test_ig_kplus_vj_finder.cpp)
 
 # add_custom_target(meow COMMAND ${CMAKE_CTEST_COMMAND} -V)
 # function(new_test test)

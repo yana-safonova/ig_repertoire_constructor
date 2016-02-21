@@ -185,17 +185,14 @@ int find_simple_gap(const Tsequence1 &read, const Tsequence2 &gene) {
 }
 
 
-void vvv(const AlignmentPath &path, const Dna5String &read, const Dna5String &gene) {
+using TAlign = seqan::Align<Dna5String, seqan::ArrayGaps>;     // align type
+TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, const Dna5String &gene,
+                           size_t clipped_head = 0) {
     assert(path.check_overlaps());
-
+    assert(!path.empty());
 
     using namespace seqan;
-    using TSequence = seqan::Dna5String;                 // sequence type
-    using TAlign = seqan::Align<TSequence, seqan::ArrayGaps>;     // align type
     using TRow =  seqan::Row<TAlign>::Type; // gapped sequence type
-
-    TSequence seq1 = "CDFGDC";
-    TSequence seq2 = "CDEFGAHGC";
 
     TAlign align;
     resize(rows(align), 2);
@@ -205,13 +202,31 @@ void vvv(const AlignmentPath &path, const Dna5String &read, const Dna5String &ge
     TRow & row_gene = row(align, 0);
     TRow & row_read = row(align, 1);
 
+    // Clip head
+    setBeginPosition(row_read, clipped_head);
+    size_t read_len = length(read) - clipped_head;
+    size_t gene_len = length(gene);
+
+    // Add finishing gaps (reverse order since insert_gaps works with VIEW position!)
+    // TODO Use SeqAn clipping if possible
+    int finishing_gap = (gene_len - path.last().needle_pos) - (read_len - path.last().read_pos);
+    if (finishing_gap > 0) {
+        insertGaps(row_read, read_len, finishing_gap);
+    } else if (finishing_gap < 0) {
+        // insertGaps(row_gene, gene_len, -finishing_gap);
+        // Use clipping:
+        setEndPosition(row_read, clipped_head + read_len + finishing_gap);
+    } else {
+        // Do nothing
+    }
+
+    // Add edge gaps if needed. Reverse order!
     if (path.size() > 1) {
-        // Add gaps
-        for (size_t i = 0; i < path.size() - 1; ++i) {
+        for (size_t i = path.size() - 2; i + 1 > 0; --i) {
             const auto &read_edge = infix(read, path[i].read_pos + path[i].length, path[i + 1].read_pos);
             const auto &gene_edge = infix(gene, path[i].needle_pos + path[i].length, path[i + 1].needle_pos);
 
-            INFO("EDGE: " << read_edge << " - " << gene_edge);
+            // INFO("EDGE: " << read_edge << " - " << gene_edge);
 
             if (length(read_edge) < length(gene_edge)) {
                 insertGaps(row_read,
@@ -227,30 +242,34 @@ void vvv(const AlignmentPath &path, const Dna5String &read, const Dna5String &ge
         }
     }
 
-    // Add starting and finishing gaps
+    // Add starting gaps (reverse order since insert_gaps works with VIEW position!)
     int starting_gap = path.first().needle_pos - path.first().read_pos;
-    // INFO("STARTING GAP " << starting_gap);
     if (starting_gap > 0) {
         insertGaps(row_read, 0, starting_gap);
     } else if (starting_gap < 0) {
-        insertGaps(row_gene, 0, -starting_gap);
+        // insertGaps(row_gene, 0, -starting_gap);
+        // Use clipping:
+        setBeginPosition(row_read, clipped_head - starting_gap);
     } else {
         // Do nothing
     }
 
-    int finishing_gap = (length(gene) - path.last().needle_pos) - (length(read) - path.last().read_pos);
-    INFO("FINISHING GAP " << finishing_gap);
-    if (finishing_gap > 0) {
-        insertGaps(row_read, length(read), finishing_gap);
-    } else if (finishing_gap < 0) {
-        insertGaps(row_gene, length(gene), -finishing_gap);
-    } else {
-        // Do nothing
-    }
-
-
-    std::cout << align;
+    return align;
 }
+
+// void replace_prefix_for_full_read(TAlign &align, const Dna5String &read) {
+//     using namespace seqan;
+//     using TRow =  seqan::Row<TAlign>::Type; // gapped sequence type
+//
+//     TRow & row_gene = row(align, 0);
+//     TRow & row_read = row(align, 1);
+//
+//     size_t old_len = length(source(row_read));
+//     assert(old_len <= length(read));
+//
+//     assignSource(row_read, read);
+//     setBeginPosition(row_read, beginPosition(row_read) + length(read) - old_len);
+// }
 
 
 template<class T, typename Tf>
@@ -465,7 +484,15 @@ public:
         std::cout << read << std::endl;
         std::cout << gene << std::endl;
         std::cout << result[0].path.visualize_matches(length(gene), length(read)) << std::endl;
-        vvv(result[0].path, read, gene);
+        auto align = path2seqanAlignment(result[0].path, read, gene);
+        // replace_prefix_for_full_read(align, "AAAAAAAAAAAAAAAAAA" + read);
+
+        Dna5String long_read = "AAAAAAAAA";
+        int clipped_head = length(long_read);
+        long_read += read;
+        auto align2 = path2seqanAlignment(result[0].path, long_read, gene, clipped_head);
+        std::cout << align;
+        std::cout << align2;
 
         return result;
     }
