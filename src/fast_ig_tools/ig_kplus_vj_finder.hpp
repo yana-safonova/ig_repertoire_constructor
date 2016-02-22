@@ -138,15 +138,18 @@ public:
         }
 
         valigner.reset(new BlockAligner(all_loci_database.v_reads, param.K, param.max_global_gap,
-                                        param.left_uncoverage_limit, 100500,
+                                        // param.left_uncoverage_limit, 100500,
+                                        100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
         jaligner.reset(new BlockAligner(all_loci_database.j_reads, param.word_size_j, param.max_global_gap,
-                                        100500, param.right_uncoverage_limit,
+                                        // 100500, param.right_uncoverage_limit,
+                                        100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
 
         for (const auto db : locus_databases) {
             BlockAligner *p = new BlockAligner(db.j_reads, param.word_size_j, param.max_global_gap,
-                                               100500, param.right_uncoverage_limit,
+                                               // 100500, param.right_uncoverage_limit,
+                                               100500, 100500,
                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
             jaligners.push_back(std::unique_ptr<BlockAligner>(p));
         }
@@ -162,6 +165,18 @@ public:
 
         std::vector<BlockAligner::Alignment> v_hits, j_hits;
 
+        const Dna5String& Read() const {
+            return read;
+        }
+
+        char Strand() const {
+            return strand;
+        }
+
+        const std::string& Locus() const {
+            return locus;
+        }
+
         bool empty() const {
             return v_hits.empty() || j_hits.empty();
         }
@@ -170,16 +185,33 @@ public:
             return !empty();
         }
 
-        Dna5String Fix(size_t fix_left, size_t fix_right,
-                       size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+        size_t VHitsSize() const {
+            return v_hits.size();
+        }
+
+        size_t JHitsSize() const {
+            return j_hits.size();
+        }
+
+        const BlockAligner::Alignment& VHit(size_t v_hit_index = 0) const {
             assert(v_hit_index < v_hits.size());
+
+            return v_hits[v_hit_index];
+        }
+
+        const BlockAligner::Alignment& JHit(size_t j_hit_index = 0) const {
             assert(j_hit_index < j_hits.size());
 
-            const auto &v_hit = v_hits[v_hit_index];
-            const auto &j_hit = j_hits[j_hit_index];
+            return j_hits[j_hit_index];
+        }
 
-            const auto &v_gene = vbase->v_reads[v_hit.needle_index];
-            const auto &j_gene = jbase->j_reads[j_hit.needle_index];
+        Dna5String Fix(size_t fix_left, size_t fix_right,
+                       size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+            const auto &v_hit = VHit(v_hit_index);
+            const auto &j_hit = JHit(j_hit_index);
+
+            const auto &v_gene = VSeq(v_hit_index);
+            const auto &j_gene = JSeq(j_hit_index);
 
             int left_shift = v_hit.path.left_shift();
             int right_shift = j_hit.path.right_shift();
@@ -208,83 +240,152 @@ public:
         Dna5String CropFill(bool crop_left, bool fill_left,
                             bool crop_right, bool fill_right,
                             size_t v_hit_index = 0, size_t j_hit_index = 0) const {
-            assert(v_hit_index < v_hits.size());
-            assert(j_hit_index < j_hits.size());
+            const auto &v_hit = VHit(v_hit_index);
+            const auto &j_hit = JHit(j_hit_index);
 
-            const auto &v_hit = v_hits[v_hit_index];
-            const auto &j_hit = j_hits[j_hit_index];
+            const auto &v_gene = VSeq(v_hit_index);
+            const auto &j_gene = JSeq(j_hit_index);
 
-            const auto &v_gene = vbase->v_reads[v_hit.needle_index];
-            const auto &j_gene = jbase->j_reads[j_hit.needle_index];
+            Dna5String result = this->read;
 
-            Dna5String read = this->read;
-
-            if (crop_right && j_hit.finish < static_cast<int>(length(read))) {
-                read = seqan::prefix(read, j_hit.finish);
-            } else if (fill_right && j_hit.finish > static_cast<int>(length(read))) {
-                read += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(read)));
+            if (crop_right && j_hit.finish < static_cast<int>(length(result))) {
+                result = seqan::prefix(result, j_hit.finish);
+            } else if (fill_right && j_hit.finish > static_cast<int>(length(result))) {
+                result += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(result)));
             }
 
             if (crop_left && v_hit.start > 0) {
-                read = seqan::suffix(read, v_hit.start);
+                result = seqan::suffix(result, v_hit.start);
             } else if (fill_left && v_hit.start < 0) {
                 Dna5String pre = seqan::prefix(v_gene, -v_hit.start);
-                pre += read;
-                read = pre;
+                pre += result;
+                result = pre;
             }
 
-            return read;
+            return result;
+        }
+
+        Dna5String FixCropFill(size_t fix_left, bool crop_left, bool fill_left,
+                               size_t fix_right, bool crop_right, bool fill_right,
+                               size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+            const auto &v_hit = VHit(v_hit_index);
+            const auto &j_hit = JHit(j_hit_index);
+
+            const auto &v_gene = VSeq(v_hit_index);
+            const auto &j_gene = JSeq(j_hit_index);
+
+            int left_shift = v_hit.path.left_shift();
+            int right_shift = j_hit.path.right_shift();
+
+            Dna5String result = read;
+
+            for (size_t i = 0; i < fix_left; ++i) {
+                int gene_pos = static_cast<int>(i) - left_shift;
+
+                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(v_gene))) {
+                    result[i] = v_gene[gene_pos];
+                }
+            }
+
+            for (size_t i = length(read) - fix_right; i < length(read); ++i) {
+                int gene_pos = static_cast<int>(i) - right_shift;
+
+                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(j_gene))) {
+                    result[i] = j_gene[gene_pos];
+                }
+            }
+
+            if (crop_right && j_hit.finish < static_cast<int>(length(result))) {
+                result = seqan::prefix(result, j_hit.finish);
+            } else if (fill_right && j_hit.finish > static_cast<int>(length(result))) {
+                result += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(result)));
+            }
+
+            if (crop_left && v_hit.start > 0) {
+                result = seqan::suffix(result, v_hit.start);
+            } else if (fill_left && v_hit.start < 0) {
+                Dna5String pre = seqan::prefix(v_gene, -v_hit.start);
+                pre += result;
+                result = pre;
+            }
+
+            return result;
         }
 
         const Dna5String& VSeq(size_t v_hit_index = 0) const {
-            assert(v_hit_index < v_hits.size());
-
-            const auto &v_hit = v_hits[v_hit_index];
+            const auto &v_hit = VHit(v_hit_index);
             return vbase->v_reads[v_hit.needle_index];
         }
 
         const Dna5String& JSeq(size_t j_hit_index = 0) const {
-            assert(j_hit_index < j_hits.size());
-
-            const auto &j_hit = j_hits[j_hit_index];
+            const auto &j_hit = JHit(j_hit_index);
             return jbase->j_reads[j_hit.needle_index];
         }
 
+        size_t VSegmentLength(size_t v_hit_index = 0) const {
+            return VHit(v_hit_index).left_half_segment_length();
+        }
+
+        size_t JSegmentLength(size_t j_hit_index = 0) const {
+            return JHit(j_hit_index).right_half_segment_length();
+        }
+
+        size_t LeftUncovered(size_t v_hit_index = 0) const {
+            return std::max(0, -VHit(v_hit_index).start);
+        }
+
+        size_t RightUncovered(size_t j_hit_index = 0) const {
+            return std::max(0, JHit(j_hit_index).finish - static_cast<int>(length(read)));
+        }
+
+        double VScore(size_t v_hit_index = 0) const {
+            return VHit(v_hit_index).score;
+        }
+
+        double JScore(size_t j_hit_index = 0) const {
+            return JHit(j_hit_index).score;
+        }
+
+        size_t VStart(size_t v_hit_index = 0) const {
+            return VHit(v_hit_index).start;
+        }
+
+        size_t JStart(size_t j_hit_index = 0) const {
+            return JHit(j_hit_index).first_match_read_pos();
+        }
+
+        size_t VEnd(size_t v_hit_index = 0) const {
+            return VHit(v_hit_index).last_match_read_pos();
+        }
+
+        size_t JEnd(size_t j_hit_index = 0) const {
+            return JHit(j_hit_index).finish;
+        }
+
+        size_t FinalLength(size_t v_hit_index = 0,
+                           size_t j_hit_index = 0) const {
+            return JEnd(j_hit_index) - VStart(v_hit_index);
+        }
+
         TAlign VAlignmentSeqAn(size_t v_hit_index = 0) const {
-            assert(v_hit_index < v_hits.size());
-
-            const auto &v_hit = v_hits[v_hit_index];
-            const auto &v_gene = vbase->v_reads[v_hit.needle_index];
-
-            return v_hit.seqan_alignment(read, v_gene);
+            return VHit(v_hit_index).seqan_alignment(read, VSeq(v_hit_index));
         }
 
         TAlign JAlignmentSeqAn(size_t j_hit_index = 0) const {
-            assert(j_hit_index < j_hits.size());
-
-            const auto &j_hit = j_hits[j_hit_index];
-            const auto &j_gene = jbase->j_reads[j_hit.needle_index];
-
-            return j_hit.seqan_alignment(read, j_gene);
+            return JHit(j_hit_index).seqan_alignment(read, JSeq(j_hit_index));
         }
 
         std::pair<TAlign, TAlign> AlignmentsSeqan(size_t v_hit_index = 0,
-                                                                              size_t j_hit_index = 0) const {
+                                                  size_t j_hit_index = 0) const {
             return { VAlignmentSeqAn(v_hit_index), JAlignmentSeqAn(j_hit_index) };
         }
 
         const CharString& VId(size_t v_hit_index = 0) const {
-            assert(v_hit_index < v_hits.size());
-
-            const auto &v_hit = v_hits[v_hit_index];
-            return vbase->v_ids[v_hit.needle_index];
+            return vbase->v_ids[VHit(v_hit_index).needle_index];
         }
 
-        const CharString & JId(size_t j_hit_index = 0) const {
-            assert(j_hit_index < j_hits.size());
-
-            const auto &j_hit = j_hits[j_hit_index];
-            return jbase->j_ids[j_hit.needle_index];
+        const CharString& JId(size_t j_hit_index = 0) const {
+            return jbase->j_ids[JHit(j_hit_index).needle_index];
         }
 
     };
