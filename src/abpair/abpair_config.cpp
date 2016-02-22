@@ -19,6 +19,9 @@ void load(abpair_config::io_config::output_config &output, boost::property_tree:
     load(output.output_demultiplexed_raw_data, pt, "output_demultiplexed_raw_data");
     load(output.demultiplexed_raw_dir, pt, "demultiplexed_raw_dir");
     output.demultiplexed_raw_dir = path::append_path(output.output_dir, output.demultiplexed_raw_dir);
+    load(output.output_related_groups, pt, "output_related_groups");
+    load(output.related_groups_dir, pt, "related_groups_dir");
+    output.related_groups_dir = path::append_path(output.output_dir, output.related_groups_dir);
 }
 
 void load(abpair_config::io_config &io, boost::property_tree::ptree const &pt, bool) {

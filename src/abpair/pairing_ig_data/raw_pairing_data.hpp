@@ -4,6 +4,8 @@
 #include "pairing_primitives/droplet_barcode.hpp"
 #include "pairing_primitives/umi_isotype_sequences.hpp"
 
+std::string dna5string_to_stdstring(seqan::Dna5String dna5string);
+
 class RawPairingData {
     DropletBarcode droplet_barcode_;
 
@@ -23,7 +25,8 @@ public:
             kappa_sequences_(new IsotypeUmiSequences(IgIsotypeHelper::GetKappaIsotype())),
             lambda_sequences_(new IsotypeUmiSequences(IgIsotypeHelper::GetLambdaIsotype())) { }
 
-    void Update(DropletBarcode db, std::string header, std::string sequence);
+    void Update(DropletBarcode db, std::string header, std::string sequence,
+                std::string v_gene, std::string j_gene);
 
     DropletBarcode Db() const { return droplet_barcode_; }
 
@@ -60,5 +63,7 @@ public:
 
     size_t TotalNumberHcs() const;
 };
+
+std::ostream& operator<<(std::ostream&, RawPairingData &raw_pairing_data);
 
 typedef std::shared_ptr<RawPairingData> RawPairingDataPtr;

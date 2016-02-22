@@ -12,7 +12,7 @@ import operator
 
 #colors = ['#5BC0EB', '#FDE74C', '#9BC53D', '#E55934', '#FA7921']
 #colors = ["#EF597B", "#FF6D31", "#73B66B", "#FFCB18", "#29A2C6"]
-colors = ["#5BC0EB", "#EF597B", "#FFCB18", "#FF6D31", "#73B66B"]
+colors = ["#5BC0EB", "#EF597B", "#FFCB18", "#FF6D31", "#73B66B", "#FFFFFF"]
 
 
 def CreateColumnDict(align, col_id):

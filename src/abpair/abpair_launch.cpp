@@ -44,7 +44,8 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     stats_calculator.OutputMolecularBarcodes();
     stats_calculator.OutputDemultiplexedData();
     INFO("CDR3 computation starts");
-    Cdr3GraphComputer cdr3_graph_computer(raw_pairing_storage);
+    Cdr3GraphComputer cdr3_graph_computer(io, raw_pairing_storage);
     cdr3_graph_computer.Compute();
+    cdr3_graph_computer.OutputCdr3Graphs();
     INFO("==== AbPair ends");
 }

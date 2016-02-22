@@ -1,6 +1,6 @@
 io {
     input {
-        input_sequences		test_dataset/abpair/sg3m_local_full.txt
+        input_sequences		test_dataset/abpair/sg3m_local_Fx1.txt
     }
 
     output {
@@ -10,7 +10,9 @@ io {
 	hc_ambiguous_dir		multiple_hcs
 	output_barcodes			false
 	barcode_dir			molecular_barcodes
-        output_demultiplexed_raw_data	true
+        output_demultiplexed_raw_data	false
         demultiplexed_raw_dir		demultiplexed_raw_data
+        output_related_groups           true
+        related_groups_dir              related_groups
     }
 }

@@ -3,6 +3,12 @@
 #include "raw_pairing_data.hpp"
 #include "pairing_fastq_utils.hpp"
 
+std::string dna5string_to_stdstring(seqan::Dna5String dna5string) {
+    seqan::String<char> char_string;
+    seqan::assign(char_string, dna5string);
+    return std::string(seqan::toCString(char_string));
+}
+
 void RawPairingData::CheckDropletBarcodeConsistency(DropletBarcode db) {
     assert(droplet_barcode_ == db);
 }
@@ -13,12 +19,18 @@ void RawPairingData::UpdateHcSequences(IsotypeUmiSequence hc_sequence) {
     hc_isotype_map_[hc_sequence.isotype]->Update(hc_sequence);
 }
 
-void RawPairingData::Update(DropletBarcode db, std::string header, std::string sequence) {
+void RawPairingData::Update(DropletBarcode db, std::string header, std::string sequence,
+                            std::string v_gene, std::string j_gene) {
     CheckDropletBarcodeConsistency(db);
     IsotypeUmiSequence umi_sequence(PairingFastqUtils::ExtractIsotypeFromHeader(header),
                                     PairingFastqUtils::ExtractUmiFromHeader(header),
                                     PairingFastqUtils::ExtractSizeFromHeader(header),
                                     PairingFastqUtils::ConvertToDnaString(sequence));
+
+    // temporary stub
+    umi_sequence.v_gene = v_gene;
+    umi_sequence.j_gene = j_gene;
+
     if(umi_sequence.isotype.IsHeavyChain()) {
         UpdateHcSequences(umi_sequence);
     }
@@ -66,4 +78,31 @@ size_t RawPairingData::TotalNumberHcs() const {
     for(auto it = hc_isotype_map_.cbegin(); it != hc_isotype_map_.cend(); it++)
         total_num_hcs += it->second->size();
     return total_num_hcs;
+}
+
+std::ostream& operator<<(std::ostream& out, RawPairingData &raw_pairing_data) {
+    out << "Droplet barcode: " << raw_pairing_data.Db() << std::endl;
+    if(!raw_pairing_data.HcIsMissed()) {
+        out << "# HC isotypes: " << raw_pairing_data.HcIsotypes().size() << std::endl;
+        auto hc_isotypes = raw_pairing_data.HcIsotypes();
+        for (auto hc = hc_isotypes.begin(); hc != hc_isotypes.end(); hc++) {
+            auto hc_seqs = raw_pairing_data.GetSequencesByIsotype(*hc);
+            out << "HC isotype: " << hc->str() << ", # sequences: " << hc_seqs->size() << std::endl;
+            for (auto hc_seq = hc_seqs->cbegin(); hc_seq != hc_seqs->cend(); hc_seq++)
+                out << dna5string_to_stdstring(hc_seq->sequence) << std::endl;
+        }
+    }
+    if(raw_pairing_data.KappaChainCount() != 0) {
+        auto kappa_seqs = raw_pairing_data.GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype());
+        out << "KC isotype, # sequences: " << kappa_seqs->size() << std::endl;
+        for(auto it = kappa_seqs->cbegin(); it != kappa_seqs->cend(); it++)
+            out << dna5string_to_stdstring(it->sequence) << std::endl;
+    }
+    if(raw_pairing_data.LambdaChainCount() != 0) {
+        auto lambda_seqs = raw_pairing_data.GetSequencesByIsotype(IgIsotypeHelper::GetLambdaIsotype());
+        out << "LC isotype, # sequences: " << lambda_seqs->size() << std::endl;
+        for(auto it = lambda_seqs->cbegin(); it != lambda_seqs->cend(); it++)
+            out << dna5string_to_stdstring(it->sequence) << std::endl;
+    }
+    return out;
 }

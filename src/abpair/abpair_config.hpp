@@ -19,6 +19,8 @@ struct abpair_config {
             std::string barcode_dir;
             bool output_demultiplexed_raw_data;
             std::string demultiplexed_raw_dir;
+            bool output_related_groups;
+            std::string related_groups_dir;
         };
 
         input_config input;
