@@ -346,6 +346,12 @@ int main(int argc, char **argv) {
         }
 
         auto RESULT = param.db->query(reads[j], true, true, param);
+        if (RESULT) {
+            std::cout << RESULT.VAlignmentSeqAn();
+            std::cout << RESULT.JAlignmentSeqAn();
+            std::cout << RESULT.CropFill(true, true, true, false) << std::endl;
+            std::cout << RESULT.Fix(3, 0) << std::endl;
+        }
 
         Dna5String read = reads[j];
         Dna5String read_rc = read;

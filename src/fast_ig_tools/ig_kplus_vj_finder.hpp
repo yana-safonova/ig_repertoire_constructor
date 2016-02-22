@@ -148,7 +148,7 @@ public:
         size_t locus_id;
         std::string locus;
 
-        int strand;
+        char strand;
         Dna5String read;
         const GermlineLociVJDB *vbase, *jbase;
 
@@ -156,6 +156,10 @@ public:
 
         bool empty() const {
             return v_hits.empty() || j_hits.empty();
+        }
+
+        operator bool() const {
+            return !empty();
         }
 
         Dna5String Fix(size_t fix_left, size_t fix_right,
@@ -193,8 +197,8 @@ public:
             return result;
         }
 
-        Dna5String CropFill(bool crop_left, size_t fill_left,
-                            bool crop_right, size_t fill_right,
+        Dna5String CropFill(bool crop_left, bool fill_left,
+                            bool crop_right, bool fill_right,
                             size_t v_hit_index = 0, size_t j_hit_index = 0) const {
             assert(v_hit_index < v_hits.size());
             assert(j_hit_index < j_hits.size());
@@ -224,6 +228,20 @@ public:
             return read;
         }
 
+        const Dna5String& VSeq(size_t v_hit_index = 0) const {
+            assert(v_hit_index < v_hits.size());
+
+            const auto &v_hit = v_hits[v_hit_index];
+            return vbase->v_reads[v_hit.needle_index];
+        }
+
+        const Dna5String& JSeq(size_t j_hit_index = 0) const {
+            assert(j_hit_index < j_hits.size());
+
+            const auto &j_hit = j_hits[j_hit_index];
+            return jbase->j_reads[j_hit.needle_index];
+        }
+
         TAlign VAlignmentSeqAn(size_t v_hit_index = 0) const {
             assert(v_hit_index < v_hits.size());
 
@@ -246,7 +264,21 @@ public:
                                                                               size_t j_hit_index = 0) const {
             return { VAlignmentSeqAn(v_hit_index), JAlignmentSeqAn(j_hit_index) };
         }
-        // add various getters
+
+        const CharString& VId(size_t v_hit_index = 0) const {
+            assert(v_hit_index < v_hits.size());
+
+            const auto &v_hit = v_hits[v_hit_index];
+            return vbase->v_ids[v_hit.needle_index];
+        }
+
+        const CharString & JId(size_t j_hit_index = 0) const {
+            assert(j_hit_index < j_hits.size());
+
+            const auto &j_hit = j_hits[j_hit_index];
+            return jbase->j_ids[j_hit.needle_index];
+        }
+
     };
 
 
@@ -295,13 +327,12 @@ public:
         auto result_pstrand = valigner->query(read, param.max_candidates);
         auto result_nstrand = valigner->query(read_rc, param.max_candidates);
 
-        INFO("V queried");
         int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
         int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
 
-        int strand = result_alignment.strand = (pscore >= nscore) ? 1 : -1;
-        const auto &stranded_read = (strand == 1) ? read : read_rc;
-        const auto &result = (strand == 1) ? result_pstrand : result_nstrand;
+        char strand = result_alignment.strand = (pscore >= nscore) ? '+' : '-';
+        const auto &stranded_read = (strand == '+') ? read : read_rc;
+        const auto &result = (strand == '+') ? result_pstrand : result_nstrand;
 
 
         if (result.empty()) {
@@ -330,11 +361,10 @@ public:
 
 
         // Save V
-        result_alignment.v_hits = result;
+        result_alignment.v_hits = result; // FIXME use move()
 
         size_t locus_id = result_alignment.locus_id = locus_ids[0];
         result_alignment.locus = locus_names[locus_id];
-        INFO("Locus " << locus_id << " " << result_alignment.locus);
         result_alignment.jbase = &locus_databases[locus_id];
 
         // Aling V --- already done
@@ -343,8 +373,8 @@ public:
                                [](const BlockAligner::Alignment &align) -> int { return align.last_match_read_pos(); });
 
         // Align J
-        auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
-        INFO("J queried");
+        // auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
+        auto jaligns = jaligners[locus_id]->query(read, param.max_candidates_j, end_of_v);
 
         result_alignment.j_hits = jaligns;
 

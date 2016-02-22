@@ -466,8 +466,8 @@ public:
             }
         }
 
-    std::vector<Alignment> query(const Dna5String &read, size_t limit) const {
-        auto result = query_unordered(read);
+    std::vector<Alignment> query(const Dna5String &read, size_t limit, size_t start = 0, size_t finish = 10005000) const {
+        auto result = query_unordered(read, start, finish);
 
         // std::cout << "SIZE: " << result.size() << std::endl;
 
@@ -561,16 +561,23 @@ private:
         return true;
     }
 
-    std::vector<Alignment> query_unordered(const Dna5String &read) const {
+    std::vector<Alignment> query_unordered(const Dna5String &read, size_t start = 0, size_t finish = 10005000) const {
         std::vector<std::vector<KmerMatch>> needle2matches(queries.size());
 
-        if (length(read) < K) {
+        // if (length(read) < K) {
+        //     // Return empty result
+        //     return {  };
+        // }
+
+        finish = std::min(finish, length(read));
+        assert(start <= finish);
+        if (finish - start < K) {
             // Return empty result
             return {  };
         }
 
         auto hashes = polyhashes(read, K);
-        for (size_t j = 0; j < hashes.size(); ++j) {
+        for (size_t j = start; j < finish - K + 1; ++j) { // Scan k-mers on given interval
             auto kmer = hashes[j];
             auto it = kmer2needle.find(kmer);
 
