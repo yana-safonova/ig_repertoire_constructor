@@ -35,10 +35,10 @@ using std::string;
 struct Ig_KPlus_Finder_Parameters {
     int K = 7; // anchor length
     int word_size_j = 5;
-    int left_uncoverage_limit = 16;
-    int right_uncoverage_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
-    int min_vsegment_length = 250;
-    int min_jsegment_length = 30;
+    size_t left_uncovered_limit = 16;
+    size_t right_uncovered_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+    size_t min_v_segment_length = 250;
+    size_t min_j_segment_length = 30;
     std::string input_file = "", organism = "human";
     int max_local_deletions = 12;
     int max_local_insertions = 12;
@@ -50,7 +50,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::string loci = "all";
     std::string db_directory = "./germline";
     std::string output_dir;
-    int threads = 4;
+    size_t threads = 4;
     bool silent = true;
     bool fill_prefix_by_germline = true;
     bool compress = false;
@@ -105,7 +105,7 @@ struct Ig_KPlus_Finder_Parameters {
              "loci: IGH, IGL, IGK, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
              "directory with germline database")
-            ("threads,t", po::value<int>(&threads)->default_value(threads),
+            ("threads,t", po::value<size_t>(&threads)->default_value(threads),
              "the number of threads")
             ("word-size,k", po::value<int>(&K)->default_value(K),
              "word size for V-genes")
@@ -140,9 +140,9 @@ struct Ig_KPlus_Finder_Parameters {
         po::options_description hidden("Hidden options");
         hidden.add_options()
             ("help-hidden", "show all options, including developers' ones")
-            ("left-uncoverage-limit", po::value<int>(&left_uncoverage_limit)->default_value(left_uncoverage_limit),
+            ("left-uncoverage-limit", po::value<size_t>(&left_uncovered_limit)->default_value(left_uncovered_limit),
              "uncoverage limit of left end")
-            ("right-uncoverage-limit", po::value<int>(&right_uncoverage_limit)->default_value(right_uncoverage_limit),
+            ("right-uncoverage-limit", po::value<size_t>(&right_uncovered_limit)->default_value(right_uncovered_limit),
              "uncoverage limit of right end")
             ("max-global-gap", po::value<int>(&max_global_gap)->default_value(max_global_gap),
              "maximal allowed size of global gap")
@@ -152,9 +152,9 @@ struct Ig_KPlus_Finder_Parameters {
              "maximal allowed size of local deletion")
             ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
              "the number left positions which will be filled by germline")
-            ("min-vsegment-length", po::value<int>(&min_vsegment_length)->default_value(min_vsegment_length),
+            ("min-vsegment-length", po::value<size_t>(&min_v_segment_length)->default_value(min_v_segment_length),
              "minimal allowed length of V gene segment")
-            ("min-jsegment-length", po::value<int>(&min_jsegment_length)->default_value(min_jsegment_length),
+            ("min-jsegment-length", po::value<size_t>(&min_j_segment_length)->default_value(min_j_segment_length),
              "minimal allowed length of J gene segment")
             ;
 
@@ -379,7 +379,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        if (RESULT.RightUncovered() > param.right_uncoverage_limit) {
+        if (RESULT.RightUncovered() > param.right_uncovered_limit) {
             // Discard read
             bformat bf("Right cropped: %d");
             bf % RESULT.RightUncovered();
@@ -387,7 +387,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        if (RESULT.LeftUncovered() > param.left_uncoverage_limit) {
+        if (RESULT.LeftUncovered() > param.left_uncovered_limit) {
             // Discard read
             bformat bf("Left cropped: %d");
             bf % RESULT.LeftUncovered();
@@ -395,7 +395,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        if (RESULT.VSegmentLength() < param.min_vsegment_length) {
+        if (RESULT.VSegmentLength() < param.min_v_segment_length) {
             // Discard read
             bformat bf("V segment is too short: %d");
             bf % RESULT.VSegmentLength();
@@ -403,7 +403,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        if (RESULT.JSegmentLength() < param.min_jsegment_length) {
+        if (RESULT.JSegmentLength() < param.min_j_segment_length) {
             // Discard read
             bformat bf("J segment is too short: %d");
             bf % RESULT.JSegmentLength();
