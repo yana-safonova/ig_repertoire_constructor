@@ -469,7 +469,7 @@ public:
     std::vector<Alignment> query(const Dna5String &read, size_t limit) const {
         auto result = query_unordered(read);
 
-        std::cout << "SIZE: " << result.size() << std::endl;
+        // std::cout << "SIZE: " << result.size() << std::endl;
 
         limit = std::min(limit, result.size());
         if (limit == 0) {

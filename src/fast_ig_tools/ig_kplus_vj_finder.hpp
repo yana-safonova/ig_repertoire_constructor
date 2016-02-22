@@ -193,6 +193,7 @@ public:
     template<typename Tparam>
     void query(const Dna5String &read,
                bool fix_strand, // TODO Naming?
+               bool consistent_loci, // TODO Naming? (needed for reproducability)
                const Tparam &param) const {
         // assert(limit_j > 0);
         // if (limit_j == 0) {
