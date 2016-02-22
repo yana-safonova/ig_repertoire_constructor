@@ -339,49 +339,32 @@ int main(int argc, char **argv) {
         }
 
         auto RESULT = db.Query(reads[j], true, true, param);
-    //             if (!param.silent) {
-    //                 std::lock_guard<std::mutex> lck(stdout_mtx);
-    //
-    //                 cout << "Query: " << read_id << endl;
-    //                 cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
-    //                     % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
-    //
-    //                 cout << "V-genes:" << endl;
-    //
-    //                 cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%")
-    //                     % (align.start+1)   % end_of_v
-    //                     % align.kp_coverage % v_ids[align.needle_index];
-    //
-    //                 cout << " " << align.path.visualize_matches(length(v_reads[align.needle_index]), length(stranded_read)) << endl;
-    //                 if (!jresult.empty()) {
-    //                     cout << "\tJ-genes:" << endl;
-    //                     for (const auto &jalign : jresult) {
-    //                         cout << bformat("\tk+-coverage %3%; %1%:%2%; J-gene: %4%")
-    //                             % (jalign.start+1 + end_of_v) % (jalign.finish + end_of_v)
-    //                             % jalign.kp_coverage          % j_ids[jalign.needle_index];
-    //
-    //                         cout << " " << jalign.path.visualize_matches(length(j_reads[jalign.needle_index]), length(suff)) << endl;
-    //                     }
-    //                 } else {
-    //                     cout << "J-genes not found" << endl;
-    //                 }
-    //                 cout << endl;
-    //             }
-    //     } else if (!param.silent) {
-    //         std::lock_guard<std::mutex> lck(stdout_mtx);
-    //
-    //         cout << "Query: " << read_id << endl;
-    //         cout << bformat("Strand: %s (best V-gene k+-score: +%d/-%d)")
-    //             % ((strand == 1) ? "+" : "-") % pscore % nscore <<  endl; // '?' has less priority
-    //         cout << "V-genes not found" << endl;
-    //         cout << endl;
-    //     }
-        if (RESULT) {
-            std::cout << RESULT.VAlignmentSeqAn();
-            std::cout << "K+ mathces:" << RESULT.JHit(0).kp_coverage << std::endl;
-            std::cout << RESULT.JAlignmentSeqAn(0);
-            std::cout << RESULT.FixCropFill(3, true, true, 0, true, false) << std::endl;
-            std::cout << RESULT.FixCropFill(3, true, true, 3, true, true) << std::endl;
+        if (true || !param.silent) {
+            std::lock_guard<std::mutex> lck(stdout_mtx);
+
+            cout << "Query: " << read_id << endl;
+            cout << "Strand: " << RESULT.Strand() << endl;
+            cout << "V genes:" << endl;
+
+            if (RESULT.VHitsSize()) for (size_t i = 0; i < RESULT.VHitsSize(); ++i) {
+                cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%\n")
+                    % (RESULT.VStart(i) + 1 ) % RESULT.VEnd(i)
+                    % RESULT.VScore(i)        % RESULT.VId(i);
+
+                cout << RESULT.VAlignmentSeqAn(i);
+            } else {
+                cout << "V genes not found" << endl;
+            }
+
+            if (RESULT.JHitsSize()) for (size_t i = 0; i < RESULT.JHitsSize(); ++i) {
+                cout << bformat("k+-score %3%; %1%:%2%; J-gene: %4%\n")
+                    % (RESULT.JStart(i) + 1 )  % RESULT.JEnd(i)
+                    % RESULT.JScore(i)         % RESULT.JId(i);
+
+                cout << RESULT.JAlignmentSeqAn(i);
+            } else {
+                cout << "J genes not found" << endl;
+            }
         }
 
         if (!RESULT.VHitsSize()) {
