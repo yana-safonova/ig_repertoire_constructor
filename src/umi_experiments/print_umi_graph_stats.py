@@ -4,7 +4,7 @@ import os
 import sys
 
 def CreateLogger():
-    log = logging.getLogger('ig_repertoire_constructor')
+    log = logging.getLogger('print_umi_graph_stats')
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(sys.stdout)
     console.setFormatter(logging.Formatter('%(message)s'))
