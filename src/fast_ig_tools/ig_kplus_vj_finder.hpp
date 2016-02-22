@@ -346,19 +346,19 @@ public:
             return JHit(j_hit_index).score;
         }
 
-        size_t VStart(size_t v_hit_index = 0) const {
+        int VStart(size_t v_hit_index = 0) const {
             return VHit(v_hit_index).start;
         }
 
-        size_t JStart(size_t j_hit_index = 0) const {
+        int JStart(size_t j_hit_index = 0) const {
             return JHit(j_hit_index).first_match_read_pos();
         }
 
-        size_t VEnd(size_t v_hit_index = 0) const {
+        int VEnd(size_t v_hit_index = 0) const {
             return VHit(v_hit_index).last_match_read_pos();
         }
 
-        size_t JEnd(size_t j_hit_index = 0) const {
+        int JEnd(size_t j_hit_index = 0) const {
             return JHit(j_hit_index).finish;
         }
 
