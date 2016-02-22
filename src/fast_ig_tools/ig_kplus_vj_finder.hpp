@@ -27,6 +27,17 @@ using seqan::SeqFileOut;
 namespace fast_ig_tools {
 using std::string;
 
+template<typename T, typename Tlist>
+std::vector<T> concatenate(const Tlist &list) {
+    std::vector<T> result;
+    for (const auto &v : list) {
+        result.insert(result.end(), v.cbegin(), v.cend());
+    }
+
+    return result;
+}
+
+
 struct GermlineLociVJDB {
     std::vector<Dna5String> v_reads;
     std::vector<CharString> v_ids;
@@ -34,19 +45,16 @@ struct GermlineLociVJDB {
     std::vector<CharString> j_ids;
 };
 
-class GermlineDB {
+class VJAligner {
 public:
     std::vector<GermlineLociVJDB> locus_databases;
-    GermlineLociVJDB all_loci;
+    GermlineLociVJDB all_loci_database;
 
-    std::vector<std::string> locus_names;
     const std::string db_directory;
     const std::string organism;
     bool pseudogenes;
-    std::vector<Dna5String> &all_v_reads = all_loci.v_reads;
-    std::vector<Dna5String> &all_j_reads = all_loci.j_reads;
-    std::vector<CharString> &all_v_ids = all_loci.v_ids;
-    std::vector<CharString> &all_j_ids = all_loci.j_ids;
+    std::vector<std::string> locus_names;
+
     std::vector<size_t> locus_index;
 
     std::unique_ptr<BlockAligner> valigner;
@@ -88,10 +96,10 @@ public:
     }
 
     template<typename Tparam>
-    GermlineDB(const Tparam &param) : db_directory{param.db_directory},
-                                      organism{param.organism},
-                                      pseudogenes{param.pseudogenes},
-                                      locus_names{expand_loci({ param.loci })} {
+    VJAligner(const Tparam &param) : db_directory{param.db_directory},
+                                     organism{param.organism},
+                                     pseudogenes{param.pseudogenes},
+                                     locus_names{expand_loci({ param.loci })} {
         for (const std::string &locus : locus_names) {
             GermlineLociVJDB db;
 
@@ -114,31 +122,31 @@ public:
         for (size_t i = 0; i < locus_databases.size(); ++i) {
             const auto &db = locus_databases[i];
 
-            all_v_reads.insert(all_v_reads.end(),
-                               db.v_reads.cbegin(), db.v_reads.cend());
-            all_v_ids.insert(all_v_ids.end(),
-                               db.v_ids.cbegin(), db.v_ids.cend());
+            all_loci_database.v_reads.insert(all_loci_database.v_reads.end(),
+                                             db.v_reads.cbegin(), db.v_reads.cend());
+            all_loci_database.v_ids.insert(all_loci_database.v_ids.end(),
+                                           db.v_ids.cbegin(), db.v_ids.cend());
 
-            all_j_reads.insert(all_j_reads.end(),
+            all_loci_database.j_reads.insert(all_loci_database.j_reads.end(),
                                db.j_reads.cbegin(), db.j_reads.cend());
-            all_j_ids.insert(all_j_ids.end(),
-                               db.j_ids.cbegin(), db.j_ids.cend());
+            all_loci_database.j_ids.insert(all_loci_database.j_ids.end(),
+                                           db.j_ids.cbegin(), db.j_ids.cend());
 
-            for (const auto &_ : db.v_reads) {
+            for (size_t _ = 0; _ < db.v_reads.size(); ++_) {
                 locus_index.push_back(i);
             }
         }
 
-        valigner.reset(new BlockAligner(all_v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
-                                        100500,
+        valigner.reset(new BlockAligner(all_loci_database.v_reads, param.K, param.max_global_gap,
+                                        param.left_uncoverage_limit, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
-        jaligner.reset(new BlockAligner(all_j_reads, param.word_size_j,
-                                        param.max_global_gap, 100000, 10000,
+        jaligner.reset(new BlockAligner(all_loci_database.j_reads, param.word_size_j, param.max_global_gap,
+                                        100500, param.right_uncoverage_limit,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
 
         for (const auto db : locus_databases) {
-            BlockAligner *p = new BlockAligner(all_j_reads, param.word_size_j,
-                                               param.max_global_gap, 100000, 10000,
+            BlockAligner *p = new BlockAligner(db.j_reads, param.word_size_j, param.max_global_gap,
+                                               100500, param.right_uncoverage_limit,
                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
             jaligners.push_back(std::unique_ptr<BlockAligner>(p));
         }
@@ -181,7 +189,7 @@ public:
             for (size_t i = 0; i < fix_left; ++i) {
                 int gene_pos = static_cast<int>(i) - left_shift;
 
-                if (gene_pos >= 0 && gene_pos < length(v_gene)) {
+                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(v_gene))) {
                     result[i] = v_gene[gene_pos];
                 }
             }
@@ -189,7 +197,7 @@ public:
             for (size_t i = length(read) - fix_right; i < length(read); ++i) {
                 int gene_pos = static_cast<int>(i) - right_shift;
 
-                if (gene_pos >= 0 && gene_pos < length(j_gene)) {
+                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(j_gene))) {
                     result[i] = j_gene[gene_pos];
                 }
             }
@@ -211,10 +219,10 @@ public:
 
             Dna5String read = this->read;
 
-            if (crop_right && j_hit.finish < length(read)) {
+            if (crop_right && j_hit.finish < static_cast<int>(length(read))) {
                 read = seqan::prefix(read, j_hit.finish);
-            } else if (fill_right && j_hit.finish > length(read)) {
-                read += seqan::suffix(j_gene, length(j_gene) - length(read) + j_hit.finish);
+            } else if (fill_right && j_hit.finish > static_cast<int>(length(read))) {
+                read += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(read)));
             }
 
             if (crop_left && v_hit.start > 0) {
@@ -308,8 +316,34 @@ public:
         return result;
     }
 
+
+    std::tuple<std::vector<BlockAligner::Alignment>, Dna5String, char> correct_strand(const Dna5String &read,
+                                                                                      size_t max_candidates) const {
+        Dna5String read_rc = read;
+        reverseComplement(read_rc);
+
+        auto result_pstrand = valigner->query(read, max_candidates);
+        auto result_nstrand = valigner->query(read_rc, max_candidates);
+
+        int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
+        int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
+
+        char strand  = (pscore >= nscore) ? '+' : '-';
+        const auto &stranded_read = (strand == '+') ? read : read_rc;
+        const auto &result = (strand == '+') ? result_pstrand : result_nstrand;
+
+        return std::make_tuple(result, stranded_read, strand);
+    }
+
+    std::tuple<std::vector<BlockAligner::Alignment>, Dna5String, char> correct_strand_fake(const Dna5String &read,
+                                                                                           size_t max_candidates) const {
+        auto result_pstrand = valigner->query(read, max_candidates);
+
+        return std::make_tuple(result_pstrand, read, '+' );
+    }
+
     template<typename Tparam>
-    VJAlignment query(const Dna5String &read,
+    VJAlignment Query(const Dna5String &read,
                bool fix_strand, // TODO Naming?
                bool consistent_loci, // TODO Naming? (needed for reproducability)
                const Tparam &param) const {
@@ -321,19 +355,11 @@ public:
         VJAlignment result_alignment;
         // Fix strand if asked
 
-        Dna5String read_rc = read;
-        reverseComplement(read_rc);
+        std::vector<BlockAligner::Alignment> result;
+        Dna5String stranded_read;
+        char strand;
 
-        auto result_pstrand = valigner->query(read, param.max_candidates);
-        auto result_nstrand = valigner->query(read_rc, param.max_candidates);
-
-        int pscore = (result_pstrand.size() > 0) ? result_pstrand[0].kp_coverage : 0;
-        int nscore = (result_nstrand.size() > 0) ? result_nstrand[0].kp_coverage : 0;
-
-        char strand = result_alignment.strand = (pscore >= nscore) ? '+' : '-';
-        const auto &stranded_read = (strand == '+') ? read : read_rc;
-        const auto &result = (strand == '+') ? result_pstrand : result_nstrand;
-
+        std::tie(result, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
 
         if (result.empty()) {
             return result_alignment; // Empty TODO Add marker
@@ -341,7 +367,8 @@ public:
 
 
         result_alignment.read = stranded_read;
-        result_alignment.vbase = &all_loci;
+        result_alignment.strand = strand;
+        result_alignment.vbase = &all_loci_database;
         // Aling V --- already done
 
 
@@ -355,7 +382,7 @@ public:
         }
 
         // Check equality
-        if (!all_equal(locus_ids)) {
+        if (consistent_loci && !all_equal(locus_ids)) {
             return result_alignment; // Empty TODO Add marker
         }
 
@@ -374,7 +401,8 @@ public:
 
         // Align J
         // auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
-        auto jaligns = jaligners[locus_id]->query(read, param.max_candidates_j, end_of_v);
+        const auto &jal = consistent_loci ? jaligners[locus_id] : jaligner;
+        auto jaligns = jal->query(stranded_read, param.max_candidates_j, end_of_v);
 
         result_alignment.j_hits = jaligns;
 

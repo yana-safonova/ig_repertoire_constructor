@@ -66,8 +66,6 @@ struct Ig_KPlus_Finder_Parameters {
     std::string separator = "comma";
     size_t min_len = 300;
 
-    std::unique_ptr<GermlineDB> db;
-
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
     Ig_KPlus_Finder_Parameters& operator=(const Ig_KPlus_Finder_Parameters &) = delete;
@@ -257,11 +255,6 @@ struct Ig_KPlus_Finder_Parameters {
         INFO("Word size for J-gene: " << word_size_j);
 
         prepare_output();
-
-        db.reset(new GermlineDB(*this));
-
-        INFO("V-gene germline database size: " << db->all_v_reads.size());
-        INFO("J-gene germline database size: " << db->all_j_reads.size());
     }
 
 private:
@@ -301,20 +294,21 @@ int main(int argc, char **argv) {
 
     Ig_KPlus_Finder_Parameters param(argc, argv);
 
-    const auto &v_reads = param.db->all_v_reads;
-    const auto &j_reads = param.db->all_j_reads;
-    const auto &v_ids = param.db->all_v_ids;
-    const auto &j_ids = param.db->all_j_ids;
+    VJAligner db(param);
+
+    INFO("V-gene germline database size: " << db.all_loci_database.v_reads.size());
+    INFO("J-gene germline database size: " << db.all_loci_database.j_reads.size());
+
+    const auto &v_reads = db.all_loci_database.v_reads;
+    const auto &j_reads = db.all_loci_database.j_reads;
+    const auto &v_ids = db.all_loci_database.v_ids;
+    const auto &j_ids = db.all_loci_database.j_ids;
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
     std::mutex stdout_mtx;
-    const BlockAligner index(v_reads, param.K, param.max_global_gap, param.left_uncoverage_limit,
-                             1005000,
-                             param.max_local_insertions, param.max_local_deletions, param.min_k_coverage);
-    const BlockAligner j_index(j_reads, param.word_size_j,
-                               param.max_global_gap, 100000, 10000,
-                               param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
+    const BlockAligner &index = *db.valigner;
+    const BlockAligner &j_index = *db.jaligner;
 
     vector<CharString> read_ids;
     vector<Dna5String> reads;
@@ -345,11 +339,12 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        auto RESULT = param.db->query(reads[j], true, true, param);
+        auto RESULT = db.Query(reads[j], true, true, param);
         if (RESULT) {
             std::cout << RESULT.VAlignmentSeqAn();
             std::cout << RESULT.JAlignmentSeqAn();
             std::cout << RESULT.CropFill(true, true, true, false) << std::endl;
+            std::cout << RESULT.CropFill(true, true, true, true) << std::endl;
             std::cout << RESULT.Fix(3, 0) << std::endl;
         }
 
