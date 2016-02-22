@@ -63,9 +63,15 @@ struct Ig_KPlus_Finder_Parameters {
     std::string discard_info_filename;
     std::string vgenes_filename;
     std::string jgenes_filename;
-    int left_fill_germline = 3;
     std::string separator = "comma";
     size_t min_len = 300;
+
+    bool fill_left = true;
+    bool fill_right = false;
+    size_t fix_left = 3;
+    size_t fix_right = 0;
+    bool crop_left = true;
+    bool crop_right = true;
 
     Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
     Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
@@ -150,7 +156,7 @@ struct Ig_KPlus_Finder_Parameters {
              "maximal allowed size of local insertion")
             ("max-local-deletions", po::value<int>(&max_local_deletions)->default_value(max_local_deletions),
              "maximal allowed size of local deletion")
-            ("left-fill-germline", po::value<int>(&left_fill_germline)->default_value(left_fill_germline),
+            ("left-fill-germline", po::value<size_t>(&fix_left)->default_value(fix_left),
              "the number left positions which will be filled by germline")
             ("min-vsegment-length", po::value<size_t>(&min_v_segment_length)->default_value(min_v_segment_length),
              "minimal allowed length of V gene segment")
@@ -223,11 +229,11 @@ struct Ig_KPlus_Finder_Parameters {
         }
 
         if (vm.count("no-fill-prefix-by-germline")) {
-            fill_prefix_by_germline = false;
+            fill_left = false;
         }
 
         if (vm.count("fill-prefix-by-germline")) {
-            fill_prefix_by_germline = true;
+            fill_left = true;
         }
 
         if (vm.count("no-fix-spaces")) {
@@ -339,7 +345,7 @@ int main(int argc, char **argv) {
         }
 
         const auto RESULT = db.Query(reads[j], true, true, param);
-        if (true || !param.silent) {
+        if (!param.silent) {
             std::lock_guard<std::mutex> lck(stdout_mtx); //TODO Use OMP critical section
 
             cout << "Query: " << read_id << endl;

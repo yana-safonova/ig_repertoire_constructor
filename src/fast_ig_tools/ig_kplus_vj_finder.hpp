@@ -265,6 +265,14 @@ public:
             return result;
         }
 
+        template<typename Tparam>
+        Dna5String FixCropFill(const Tparam &param,
+                               size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+            return FixCropFill(param.fix_left, param.crop_left, param.fill_left,
+                               param.fix_right, param.crop_right, param.fill_right,
+                               v_hit_index, j_hit_index);
+        }
+
         Dna5String FixCropFill(size_t fix_left, bool crop_left, bool fill_left,
                                size_t fix_right, bool crop_right, bool fill_right,
                                size_t v_hit_index = 0, size_t j_hit_index = 0) const {
