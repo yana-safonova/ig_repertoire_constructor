@@ -1,7 +1,7 @@
 #include <boost/filesystem.hpp>
 #include <segfault_handler.hpp>
 #include <logger/log_writers.hpp>
-#include "umi.hpp"
+#include "umi_utils.hpp"
 
 void create_console_logger() {
     using namespace logging;
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     INFO("Extracting UMI data");
     std::vector<seqan::Dna5String> input_umi;
     std::vector<seqan::DnaQString> input_umi_qual;
-    extract_umi(input_ids, input_umi, input_umi_qual);
+    extract_barcodes_from_read_ids(input_ids, input_umi, input_umi_qual);
 
     INFO("Printing reads by UMI");
     print_reads_by_umi(output_dir, input_ids, input_reads, input_umi, true, 5);

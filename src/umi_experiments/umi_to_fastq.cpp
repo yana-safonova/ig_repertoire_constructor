@@ -1,12 +1,10 @@
-#include <assert.h>
 #include <ostream>
 #include <iostream>
 #include <fstream>
 #include <string.h>
 #include <logger/log_writers.hpp>
 #include <seqan/seq_io.h>
-
-#include "../ig_tools/utils/string_tools.hpp"
+#include "umi_utils.hpp"
 
 void create_console_logger() {
     using namespace logging;
@@ -33,37 +31,19 @@ int main(int argc, char * argv[]){
     }
 
     INFO("Extracting barcodes.");
+    std::vector<seqan::Dna5String> umis;
+    std::vector<seqan::DnaQString> umi_quals;
+    extract_barcodes_from_read_ids(input_ids, umis, umi_quals);
+
+    INFO("Saving barcodes to " << argv[4]);
     seqan::SeqFileOut outfile(argv[4]);
-    bool was_with_quality = false;
-    bool was_without_quality = false;
-    for (auto& id : input_ids) {
-        std::string s = seqan_string_to_string(id);
-        auto split_by_umi = split(s, "UMI");
-        VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
-        if (split_by_umi.size() == 1) {
-            split_by_umi = split(s, "BARCODE");
-            VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
-            VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
-        }
-        std::string meta = split_by_umi[0];
-        boost::algorithm::trim(meta);
-        std::string umi_info = split_by_umi[1].substr(1);
-        VERIFY(!umi_info.empty());
-        size_t colon = umi_info.find(':');
-        if (colon == std::string::npos) {
-            was_without_quality = true;
-            writeRecord(outfile, meta, umi_info);
+    for (size_t i = 0; i < umis.size(); i ++) {
+        if (umi_quals.empty()) {
+            writeRecord(outfile, input_ids[i], umis[i]);
         } else {
-            was_with_quality = true;
-            VERIFY_MSG(colon * 2 + 1 == umi_info.length(), boost::format("Colon is at %d position in umi info '%s', which is not the middle") % colon % umi_info);
-            auto umi = umi_info.substr(0, colon);
-            auto qual = umi_info.substr(colon + 1);
-            writeRecord(outfile, meta, umi, qual);
+            writeRecord(outfile, input_ids[i], umis[i], umi_quals[i]);
         }
     }
     close(outfile);
-    if (was_with_quality && was_without_quality) {
-        ERROR("Found both UMIs with quality data and without.");
-    }
     INFO(input_ids.size() << " barcodes were extracted from " << argv[2] << " to " << argv[4]);
 }

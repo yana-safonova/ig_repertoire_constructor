@@ -2,7 +2,7 @@
 #include <iostream>
 #include <logger/log_writers.hpp>
 #include <seqan/seq_io.h>
-#include "umi.hpp"
+#include "umi_utils.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include <segfault_handler.hpp>
 
@@ -212,7 +212,7 @@ int main(int argc, char** argv) {
     INFO("Extracting UMI data");
     std::vector<seqan::Dna5String> input_umi;
     std::vector<seqan::DnaQString> input_umi_qual;
-    extract_umi(input_ids, input_umi, input_umi_qual);
+    extract_barcodes_from_read_ids(input_ids, input_umi, input_umi_qual);
 
     INFO("Grouping by UMI");
     std::unordered_map<Umi, UmiReadSet> umi_to_reads;

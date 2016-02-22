@@ -1,0 +1,31 @@
+#include <boost/algorithm/string/trim.hpp>
+#include "umi_utils.hpp"
+
+void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
+                                    std::vector<seqan::DnaQString>& umi_quals) {
+    for (auto& id : input_ids) {
+        std::string s = seqan_string_to_string(id);
+        auto split_by_umi = split(s, "UMI");
+        VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
+        if (split_by_umi.size() == 1) {
+            split_by_umi = split(s, "BARCODE");
+            VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
+            VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
+        }
+        std::string meta = split_by_umi[0];
+        boost::algorithm::trim(meta);
+        std::string umi_info = split_by_umi[1].substr(1);
+        VERIFY(!umi_info.empty());
+        size_t colon = umi_info.find(':');
+        if (colon == std::string::npos) {
+            umis.push_back(umi_info);
+        } else {
+            auto umi = umi_info.substr(0, colon);
+            auto qual = umi_info.substr(colon + 1);
+            VERIFY_MSG(umi.length() == qual.length(), "UMI and its quality are of different lengths: " << umi_info);
+            umis.push_back(umi);
+            umi_quals.push_back(qual);
+        }
+        VERIFY_MSG(umis.size() == umi_quals.size(), "Found both UMIs with quality data and without.");
+    }
+}
