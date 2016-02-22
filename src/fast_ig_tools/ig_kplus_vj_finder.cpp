@@ -60,6 +60,7 @@ struct Ig_KPlus_Finder_Parameters {
     std::string output_filename;
     std::string bad_output_filename;
     std::string add_info_filename;
+    std::string discard_info_filename;
     std::string vgenes_filename;
     std::string jgenes_filename;
     int left_fill_germline = 3;
@@ -263,6 +264,7 @@ private:
         output_filename = output_dir + "/cleaned_reads.fa";
         bad_output_filename = output_dir + "/filtered_reads.fa";
         add_info_filename = output_dir + "/alignment_info.csv";
+        discard_info_filename = output_dir + "/discard_info.txt";
 
         if (compress) {
             output_filename += ".gz";
@@ -334,7 +336,10 @@ int main(int argc, char **argv) {
         output_isok[j] = false;
 
         if (length(reads[j]) < param.min_len) {
-            // Discard so short read
+            // Discard read
+            bformat bf("Read too short: %d");
+            bf % length(reads[j]);
+            add_info_strings[j] = bf.str();
             continue;
         }
 
@@ -380,27 +385,24 @@ int main(int argc, char **argv) {
             std::cout << RESULT.VAlignmentSeqAn();
             std::cout << "K+ mathces:" << RESULT.JHit(0).kp_coverage << std::endl;
             std::cout << RESULT.JAlignmentSeqAn(0);
-            // std::cout << "K+ mathces:" << RESULT.JHit(1).kp_coverage << std::endl;
-            // std::cout << RESULT.JAlignmentSeqAn(1);
-            // std::cout << "K+ mathces:" << RESULT.JHit(2).kp_coverage << std::endl;
-            // std::cout << RESULT.JAlignmentSeqAn(2);
-            // std::cout << "K+ mathces:" << RESULT.JHit(3).kp_coverage << std::endl;
-            // std::cout << RESULT.JAlignmentSeqAn(3);
-            // std::cout << RESULT.CropFill(true, true, true, false) << std::endl;
-            // std::cout << RESULT.CropFill(true, true, true, true) << std::endl;
-            // std::cout << RESULT.Fix(3, 0) << std::endl;
             std::cout << RESULT.FixCropFill(3, true, true, 0, true, false) << std::endl;
             std::cout << RESULT.FixCropFill(3, true, true, 3, true, true) << std::endl;
         }
 
-        if (!RESULT) {
+        if (!RESULT.VHitsSize()) {
             // Discard
+            add_info_strings[j] = "No V genes found";
+            continue;
+        }
+
+        if (!RESULT.JHitsSize()) {
+            // Discard
+            add_info_strings[j] = "No J genes found";
             continue;
         }
 
         if (RESULT.RightUncovered() > param.right_uncoverage_limit) {
             // Discard read
-            // INFO("Right cropped: " << RESULT.RightUncovered());
             bformat bf("Right cropped: %d");
             bf % RESULT.RightUncovered();
             add_info_strings[j] = bf.str();
@@ -409,7 +411,6 @@ int main(int argc, char **argv) {
 
         if (RESULT.LeftUncovered() > param.left_uncoverage_limit) {
             // Discard read
-            // INFO("Left cropped: " << RESULT.LeftUncovered());
             bformat bf("Left cropped: %d");
             bf % RESULT.LeftUncovered();
             add_info_strings[j] = bf.str();
@@ -418,7 +419,6 @@ int main(int argc, char **argv) {
 
         if (RESULT.VSegmentLength() < param.min_vsegment_length) {
             // Discard read
-            // INFO("VSegmentLength too short: " << RESULT.VSegmentLength());
             bformat bf("V segment is too short: %d");
             bf % RESULT.VSegmentLength();
             add_info_strings[j] = bf.str();
@@ -427,7 +427,6 @@ int main(int argc, char **argv) {
 
         if (RESULT.JSegmentLength() < param.min_jsegment_length) {
             // Discard read
-            // INFO("JSegmentLength too short: " << RESULT.JSegmentLength());
             bformat bf("J segment is too short: %d");
             bf % RESULT.JSegmentLength();
             add_info_strings[j] = bf.str();
@@ -597,6 +596,7 @@ int main(int argc, char **argv) {
     seqan::SeqFileOut cropped_reads_seqFile(param.output_filename.c_str());
     seqan::SeqFileOut bad_reads_seqFile(param.bad_output_filename.c_str());
     std::ofstream add_info(param.add_info_filename.c_str());
+    std::ofstream discard_info(param.discard_info_filename.c_str());
     std::string pat = "%s, %s, %s, %s, %s, %s, %s, %s, %s\n";
     boost::replace_all(pat, ", ", param.separator);
     add_info << bformat(pat)
@@ -614,6 +614,8 @@ int main(int argc, char **argv) {
             ++good_reads;
         } else {
             seqan::writeRecord(bad_reads_seqFile, read_ids[j], reads[j]);
+            discard_info << read_ids[j] << "\n";
+            discard_info << add_info_strings[j] << "\n";
         }
     }
 
