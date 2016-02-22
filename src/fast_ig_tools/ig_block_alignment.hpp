@@ -378,6 +378,7 @@ class BlockAligner {
         size_t position;
     };
 
+public:
     struct Alignment {
         int kp_coverage;
         AlignmentPath path;
@@ -404,6 +405,12 @@ class BlockAligner {
 
         size_t last_match_read_pos() const {
             return path.last().read_pos + path.last().length;
+        }
+
+        TAlign seqan_alignment(const Dna5String &read,
+                               const Dna5String &gene,
+                               size_t clipped_head = 0) const {
+            return path2seqanAlignment(this->path, read, gene, clipped_head);
         }
 
         static Alignment path2Alignment(AlignmentPath &path,
@@ -480,19 +487,19 @@ public:
         result.resize(std::min(result.size(), limit));
         std::sort(result.begin(), result.end(), comp);
 
-        const auto &gene = this->queries[result[0].needle_index];
-        std::cout << read << std::endl;
-        std::cout << gene << std::endl;
-        std::cout << result[0].path.visualize_matches(length(gene), length(read)) << std::endl;
-        auto align = path2seqanAlignment(result[0].path, read, gene);
-        // replace_prefix_for_full_read(align, "AAAAAAAAAAAAAAAAAA" + read);
-
-        Dna5String long_read = "AAAAAAAAA";
-        int clipped_head = length(long_read);
-        long_read += read;
-        auto align2 = path2seqanAlignment(result[0].path, long_read, gene, clipped_head);
-        std::cout << align;
-        std::cout << align2;
+        // const auto &gene = this->queries[result[0].needle_index];
+        // std::cout << read << std::endl;
+        // std::cout << gene << std::endl;
+        // std::cout << result[0].path.visualize_matches(length(gene), length(read)) << std::endl;
+        // auto align = path2seqanAlignment(result[0].path, read, gene);
+        // // replace_prefix_for_full_read(align, "AAAAAAAAAAAAAAAAAA" + read);
+        //
+        // Dna5String long_read = "AAAAAAAAA";
+        // int clipped_head = length(long_read);
+        // long_read += read;
+        // auto align2 = path2seqanAlignment(result[0].path, long_read, gene, clipped_head);
+        // std::cout << align;
+        // std::cout << align2;
 
         return result;
     }
