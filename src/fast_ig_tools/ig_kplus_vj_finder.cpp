@@ -301,16 +301,9 @@ int main(int argc, char **argv) {
     INFO("V-gene germline database size: " << db.all_loci_database.v_reads.size());
     INFO("J-gene germline database size: " << db.all_loci_database.j_reads.size());
 
-    const auto &v_reads = db.all_loci_database.v_reads;
-    const auto &j_reads = db.all_loci_database.j_reads;
-    const auto &v_ids = db.all_loci_database.v_ids;
-    const auto &j_ids = db.all_loci_database.j_ids;
-
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
     std::mutex stdout_mtx;
-    const BlockAligner &index = *db.valigner;
-    const BlockAligner &j_index = *db.jaligner;
 
     vector<CharString> read_ids;
     vector<Dna5String> reads;
@@ -318,8 +311,10 @@ int main(int argc, char **argv) {
     INFO(reads.size() << " reads were extracted from " << param.input_file);
 
     // Fix spaces if asked
-    for (auto &id : read_ids) {
-        replace_spaces(id);
+    if (param.fix_spaces) {
+        for (auto &id : read_ids) {
+            replace_spaces(id);
+        }
     }
 
     vector<int> output_isok(reads.size());  // Do not use vector<bool> here due to it is not thread-safe
