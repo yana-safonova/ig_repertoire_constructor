@@ -1,3 +1,5 @@
+#pragma once
+
 #include <verify.hpp>
 #include <seqan/seq_io.h>
 #include "../ig_tools/utils/string_tools.hpp"

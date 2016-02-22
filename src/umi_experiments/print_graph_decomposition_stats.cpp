@@ -1,20 +1,20 @@
-#include <logger/log_writers.hpp>
 #include "../graph_utils/graph_io.hpp"
 #include "graph_stats.hpp"
 #include "../ig_tools/utils/string_tools.hpp"
+#include "utils.hpp"
 #include <segfault_handler.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-bool readArgs(int argc, char **argv, string& reads_file, string& graph_file, string& output_file, size_t& size_to_print) {
+bool readArgs(int argc, char **argv, std::string& reads_file, std::string& graph_file, std::string& output_file, size_t& size_to_print) {
     namespace po = boost::program_options;
     po::options_description cmdl_options("Is this needed?");
     cmdl_options.add_options()
             ("help,h", "print help message")
-            ("reads,r", po::value<string>(&reads_file)->required(), "input file with reads")
-            ("graph,g", po::value<string>(&graph_file)->required(), "input file with graph")
-            ("output,o", po::value<string>(&output_file)->default_value(""), "output file with stats")
+            ("reads,r", po::value<std::string>(&reads_file)->required(), "input file with reads")
+            ("graph,g", po::value<std::string>(&graph_file)->required(), "input file with graph")
+            ("output,o", po::value<std::string>(&output_file)->default_value(""), "output file with stats")
             ("size,s", po::value<size_t>(&size_to_print)->default_value(std::numeric_limits<size_t>::max()), "minimal size of printed component")
             ;
     po::variables_map vm;
@@ -27,17 +27,10 @@ bool readArgs(int argc, char **argv, string& reads_file, string& graph_file, str
     return true;
 }
 
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("");
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
-
 void extract_abundances(const std::vector<seqan::CharString>& ids, std::vector<size_t>& abundances) {
     for (auto& id : ids) {
-        const string& id_string = seqan_string_to_string(id);
-        const string& abundance_string = id_string.substr(id_string.find_last_of(':') + 1);
+        const std::string& id_string = seqan_string_to_string(id);
+        const std::string& abundance_string = id_string.substr(id_string.find_last_of(':') + 1);
         abundances.push_back(stoull(abundance_string));
     }
 }
@@ -45,9 +38,9 @@ void extract_abundances(const std::vector<seqan::CharString>& ids, std::vector<s
 int main(int argc, char **argv) {
     segfault_handler sh;
     create_console_logger();
-    string reads_file;
-    string graph_file;
-    string output_file;
+    std::string reads_file;
+    std::string graph_file;
+    std::string output_file;
     size_t size_to_print;
     try {
         if (!readArgs(argc, argv, reads_file, graph_file, output_file, size_to_print)) {

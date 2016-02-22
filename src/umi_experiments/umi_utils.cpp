@@ -1,4 +1,5 @@
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/format.hpp>
 #include "umi_utils.hpp"
 
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
@@ -9,7 +10,7 @@ void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_
         VERIFY_MSG(split_by_umi.size() <= 2, "Too much 'UMI' strings in read id");
         if (split_by_umi.size() == 1) {
             split_by_umi = split(s, "BARCODE");
-            VERIFY_MSG(split_by_umi.size() > 1, "Could not find both 'UMI' and 'BARCODE' in read id");
+            VERIFY_MSG(split_by_umi.size() > 1, boost::format("Could not find both 'UMI' and 'BARCODE' in read id '%s'") % s);
             VERIFY_MSG(split_by_umi.size() < 3, "Too much 'BARCODE' strings in read id");
         }
         std::string meta = split_by_umi[0];

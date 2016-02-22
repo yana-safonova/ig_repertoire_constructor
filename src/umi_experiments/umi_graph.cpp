@@ -2,13 +2,7 @@
 #include <segfault_handler.hpp>
 #include <logger/log_writers.hpp>
 #include "umi_utils.hpp"
-
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("");
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
+#include "utils.hpp"
 
 bool parse_cmdline(int argc, char **argv, std::string& input_file, std::string& output_dir) {
     if (argc != 3) {

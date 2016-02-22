@@ -2,9 +2,10 @@
 #include <iostream>
 #include <logger/log_writers.hpp>
 #include <seqan/seq_io.h>
-#include "umi_utils.hpp"
-#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include <segfault_handler.hpp>
+#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "umi_utils.hpp"
+#include "utils.hpp"
 
 bool parse_cmdline(int argc, char **argv, std::string& input_file, std::string& output_dir) {
     if (argc != 3) {
@@ -14,13 +15,6 @@ bool parse_cmdline(int argc, char **argv, std::string& input_file, std::string& 
     input_file = argv[1];
     output_dir = argv[2];
     return true;
-}
-
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("");
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
 }
 
 class ReadGroup {

@@ -5,13 +5,7 @@
 #include <logger/log_writers.hpp>
 #include <seqan/seq_io.h>
 #include "umi_utils.hpp"
-
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("");
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
+#include "utils.hpp"
 
 int main(int argc, char * argv[]){
     create_console_logger();

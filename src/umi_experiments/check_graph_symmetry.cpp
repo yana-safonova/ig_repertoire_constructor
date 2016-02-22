@@ -1,13 +1,7 @@
 #include <logger/log_writers.hpp>
 #include "../graph_utils/sparse_graph.hpp"
 #include "../graph_utils/graph_io.hpp"
-
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("", L_DEBUG);
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
+#include "utils.hpp"
 
 int main(int, char **argv) {
     create_console_logger();
