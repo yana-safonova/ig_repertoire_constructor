@@ -296,10 +296,10 @@ int main(int argc, char **argv) {
 
     Ig_KPlus_Finder_Parameters param(argc, argv);
 
-    VJAligner db(param);
+    const VJAligner db(param);
 
-    INFO("V-gene germline database size: " << db.all_loci_database.v_reads.size());
-    INFO("J-gene germline database size: " << db.all_loci_database.j_reads.size());
+    INFO("V gene germline database size: " << db.all_loci_database.v_reads.size());
+    INFO("J gene germline database size: " << db.all_loci_database.j_reads.size());
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
 
@@ -338,30 +338,34 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        auto RESULT = db.Query(reads[j], true, true, param);
+        const auto RESULT = db.Query(reads[j], true, true, param);
         if (true || !param.silent) {
-            std::lock_guard<std::mutex> lck(stdout_mtx);
+            std::lock_guard<std::mutex> lck(stdout_mtx); //TODO Use OMP critical section
 
             cout << "Query: " << read_id << endl;
             cout << "Strand: " << RESULT.Strand() << endl;
             cout << "V genes:" << endl;
 
-            if (RESULT.VHitsSize()) for (size_t i = 0; i < RESULT.VHitsSize(); ++i) {
-                cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%\n")
-                    % (RESULT.VStart(i) + 1 ) % RESULT.VEnd(i)
-                    % RESULT.VScore(i)        % RESULT.VId(i);
+            if (RESULT.VHitsSize()) {
+                for (size_t i = 0; i < RESULT.VHitsSize(); ++i) {
+                    cout << bformat("k+-score %3%; %1%:%2%; V-gene: %4%\n")
+                        % (RESULT.VStart(i) + 1 ) % RESULT.VEnd(i)
+                        % RESULT.VScore(i)        % RESULT.VId(i);
 
-                cout << RESULT.VAlignmentSeqAn(i);
+                    cout << RESULT.VAlignmentSeqAn(i);
+                }
             } else {
                 cout << "V genes not found" << endl;
             }
 
-            if (RESULT.JHitsSize()) for (size_t i = 0; i < RESULT.JHitsSize(); ++i) {
-                cout << bformat("k+-score %3%; %1%:%2%; J-gene: %4%\n")
-                    % (RESULT.JStart(i) + 1 )  % RESULT.JEnd(i)
-                    % RESULT.JScore(i)         % RESULT.JId(i);
+            if (RESULT.JHitsSize()) {
+                for (size_t i = 0; i < RESULT.JHitsSize(); ++i) {
+                    cout << bformat("k+-score %3%; %1%:%2%; J-gene: %4%\n")
+                        % (RESULT.JStart(i) + 1 )  % RESULT.JEnd(i)
+                        % RESULT.JScore(i)         % RESULT.JId(i);
 
-                cout << RESULT.JAlignmentSeqAn(i);
+                    cout << RESULT.JAlignmentSeqAn(i);
+                }
             } else {
                 cout << "J genes not found" << endl;
             }
@@ -430,8 +434,6 @@ int main(int argc, char **argv) {
 
         reads[j] = RESULT.FixCropFill(3, true, true, 0, true, false); //TODO Use params
         output_isok[j] = true;
-
-        // TODO Add output
     }
 
     INFO("Saving results");
