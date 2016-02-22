@@ -345,6 +345,8 @@ int main(int argc, char **argv) {
             continue;
         }
 
+        auto RESULT = param.db->query(reads[j], true, true, param);
+
         Dna5String read = reads[j];
         Dna5String read_rc = read;
         reverseComplement(read_rc);
