@@ -438,7 +438,7 @@ int main(int argc, char **argv) {
 
         add_info_strings[j] = bf.str();
 
-        reads[j] = RESULT.FixCropFill(3, true, true, 0, true, false); //TODO Use params
+        reads[j] = RESULT.FixCropFill(param);
         output_isok[j] = true;
     }
 
