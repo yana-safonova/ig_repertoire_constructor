@@ -78,6 +78,8 @@ Stats Stats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const s
 
     std::vector<size_t> hamming_dist_distribution(max_read_length + 1);
     std::vector<size_t> sw_dist_distribution(max_read_length + 1);
+    size_t processed = 0;
+    size_t next_ten = 1;
     for (auto& entry : umi_to_reads) {
         auto& reads = entry.second;
         for (size_t i = 0; i < reads.size(); i++) {
@@ -89,6 +91,11 @@ Stats Stats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const s
                 hamming_dist_distribution[hamming_dist]++;
                 sw_dist_distribution[sw_dist]++;
             }
+        }
+        processed += reads.size();
+        while (processed * 100 >= input_reads.size() * next_ten * 10) {
+            INFO(next_ten * 10 << "% of " << input_reads.size() << " reads processed");
+            next_ten ++;
         }
     }
     return Stats(hamming_dist_distribution, sw_dist_distribution);
@@ -104,13 +111,13 @@ std::string Stats::ToString() {
 
     std::stringstream ss;
     char buf[100];
-    sprintf(buf, "%10s%20s%20s", "dist", "hamming", "sw");
+    sprintf(buf, "%5s%10s%10s", "dist", "hamming", "sw");
     ss << buf << std::endl;
     for (size_t i = 0; i <= max_dist; i ++) {
-        sprintf(buf, "%10d%20d%20d", static_cast<int>(i), static_cast<int>(hamming_dist_distribution_[i]), static_cast<int>(sw_dist_distribution_[i]));
+        sprintf(buf, "%5d%10d%10d", static_cast<int>(i), static_cast<int>(hamming_dist_distribution_[i]), static_cast<int>(sw_dist_distribution_[i]));
         ss << buf << std::endl;
     }
-    return std::string(buf);
+    return ss.str();
 }
 
 int main(int argc, char **argv) {

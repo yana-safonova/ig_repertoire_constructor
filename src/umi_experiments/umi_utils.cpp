@@ -27,6 +27,6 @@ void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_
             umis.push_back(umi);
             umi_quals.push_back(qual);
         }
-        VERIFY_MSG(umis.size() == umi_quals.size(), "Found both UMIs with quality data and without.");
+        VERIFY_MSG(umi_quals.size() == umis.size() || umi_quals.size() == 0, "Found both UMIs with quality data and without.");
     }
 }
