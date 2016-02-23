@@ -61,7 +61,8 @@ struct Ig_KPlus_Finder_Parameters {
     std::string discard_info_filename;
     std::string vgenes_filename;
     std::string jgenes_filename;
-    std::string separator = "comma";
+    const std::string separator_default = "comma";
+    std::string separator = "";
     size_t min_len = 300;
 
     bool fill_left = true;
@@ -92,6 +93,18 @@ struct Ig_KPlus_Finder_Parameters {
             ("output-dir,o", po::value<std::string>(&output_dir)->required(),
              "output directory")
             ;
+
+        auto separator_notifier = [this](const std::string &arg) {
+            if (arg == "comma") {
+                separator = ",";
+            } else if (arg == "semicolon") {
+                separator = ";";
+            } else if (arg == "tab" || arg == "tabular") {
+                separator = "\t";
+            } else {
+                separator = arg;
+            }
+        };
 
         // Declare a group of options that will be
         // allowed both on command line and in
@@ -126,7 +139,7 @@ struct Ig_KPlus_Finder_Parameters {
              "organism ('human', 'mouse', 'pig', 'rabbit', 'rat' and 'rhesus_monkey' are supported)")
             ("fix-spaces", po::value<bool>(&fix_spaces)->default_value(fix_spaces),
              "replace spaces in read ids by underline symbol '_'")
-            ("separator", po::value<std::string>(&separator)->default_value(separator),
+            ("separator", po::value<std::string>()->default_value(separator_default)->notifier(separator_notifier),
              "separator for alignment info file: 'comma', 'semicolon', 'tab' (or 'tabular') or custom string")
             ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
              "minimal length of reported sequence")
@@ -220,15 +233,15 @@ struct Ig_KPlus_Finder_Parameters {
             exit(1);
         }
 
-        if (separator == "comma") {
-            separator = ",";
-        } else if (separator == "semicolon") {
-            separator = ";";
-        } else if (separator == "tab" || separator == "tabular") {
-            separator = "\t";
-        } else {
-            // Let it be. Do nothing
-        }
+        // if (separator == "comma") {
+        //     separator = ",";
+        // } else if (separator == "semicolon") {
+        //     separator = ";";
+        // } else if (separator == "tab" || separator == "tabular") {
+        //     separator = "\t";
+        // } else {
+        //     // Let it be. Do nothing
+        // }
     }
 
     void print_info() const {
