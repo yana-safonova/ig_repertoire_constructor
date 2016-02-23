@@ -55,7 +55,6 @@ struct Ig_KPlus_Finder_Parameters {
     bool compress = false;
     bool pseudogenes = true;
     bool fix_spaces = true;
-    std::string config_file = "";
     std::string output_filename;
     std::string bad_output_filename;
     std::string add_info_filename;
@@ -87,8 +86,7 @@ struct Ig_KPlus_Finder_Parameters {
         generic.add_options()
             ("version,v", "print version string")
             ("help,h", "produce help message")
-            ("config_file,c", po::value<std::string>(&config_file),
-             "name of a file of a configuration")
+            ("config-file,c", "name of a file of a configuration")
             ("input-file,i", po::value<std::string>(&input_file)->required(),
              "name of an input file (FASTA|FASTQ)")
             ("output-dir,o", po::value<std::string>(&output_dir)->required(),
@@ -105,7 +103,7 @@ struct Ig_KPlus_Finder_Parameters {
             ("pseudogenes,P", po::value<bool>(&pseudogenes)->default_value(pseudogenes),
              "use pseudogenes along with normal germline genes")
             ("verbose,V", po::value<bool>(&verbose)->default_value(verbose),
-             "produce alignemnt output for each query")
+             "produce alignment output for each query")
             ("loci,l", po::value<std::string>(&loci)->default_value(loci),
              "loci: IGH, IGL, IGK, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all")
             ("db-directory", po::value<std::string>(&db_directory)->default_value(db_directory),
@@ -125,11 +123,11 @@ struct Ig_KPlus_Finder_Parameters {
             ("max-candidates-j", po::value<int>(&max_candidates_j)->default_value(max_candidates_j),
              "maximal number of J-gene candidates for each query")
             ("organism", po::value<std::string>(&organism)->default_value(organism),
-             "organism ('human', 'mouse', 'pig', 'rabbit', 'rat' and 'rhesus_monkey' are supported for this moment)")
+             "organism ('human', 'mouse', 'pig', 'rabbit', 'rat' and 'rhesus_monkey' are supported)")
             ("fix-spaces", po::value<bool>(&fix_spaces)->default_value(fix_spaces),
              "replace spaces in read ids by underline symbol '_'")
             ("separator", po::value<std::string>(&separator)->default_value(separator),
-             "separator for alignment info file: 'comma', 'semicolon', 'tab' (or 'tabular') or custom string)")
+             "separator for alignment info file: 'comma', 'semicolon', 'tab' (or 'tabular') or custom string")
             ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
              "minimal length of reported sequence")
             ;
@@ -198,8 +196,8 @@ struct Ig_KPlus_Finder_Parameters {
             exit(0);
         }
 
-        if (vm.count("config_file")) {
-            config_file = vm["config_file"].as<std::string>();
+        if (vm.count("config-file")) {
+            std::string config_file = vm["config-file"].as<std::string>();
             std::ifstream ifs(config_file.c_str());
             if (!ifs) {
                 ERROR("Config file " << config_file << " was not found");
@@ -209,11 +207,18 @@ struct Ig_KPlus_Finder_Parameters {
                 // reparse cmd line again for update config defaults
                 store(po::command_line_parser(argc, argv).
                       options(cmdline_options).positional(p).run(), vm);
-                notify(vm);
             }
         }
 
-        notify(vm);
+        try {
+            notify(vm);
+        } catch (const po::error &e) {
+            ERROR("Command-line parser error: " << e.what());
+            exit(1);
+        } catch (const std::exception &e) {
+            ERROR("Unknown exception: " << e.what());
+            exit(1);
+        }
 
         if (separator == "comma") {
             separator = ",";
@@ -224,18 +229,17 @@ struct Ig_KPlus_Finder_Parameters {
         } else {
             // Let it be. Do nothing
         }
+    }
 
+    void print_info() const {
         INFO(bformat("Input FASTQ reads: %s") % input_file);
         INFO(bformat("Output directory: %s") % output_dir);
         INFO(bformat("Organism: %s") % organism);
         INFO(bformat("Locus: %s") % loci);
         INFO("Word size for V-gene: " << K);
         INFO("Word size for J-gene: " << word_size_j);
-
-        prepare_output();
     }
 
-private:
     void prepare_output() {
         make_dirs(output_dir);
         output_filename = output_dir + "/cleaned_reads.fa";
@@ -272,9 +276,11 @@ int main(int argc, char **argv) {
     INFO("Command line: " << join_cmd_line(argc, argv));
 
     Ig_KPlus_Finder_Parameters param(argc, argv);
+    param.prepare_output();
 
     const VJAligner db(param);
 
+    param.print_info();
     INFO("V gene germline database size: " << db.all_loci_database.v_reads.size());
     INFO("J gene germline database size: " << db.all_loci_database.j_reads.size());
 
