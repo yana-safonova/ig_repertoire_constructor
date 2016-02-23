@@ -63,26 +63,24 @@ struct GermlineLociVJDB {
 };
 
 
-struct VJAlignment {
-    Dna5String read;
-    char strand;
-    std::string locus;
-    std::vector<BlockAligner::Alignment> v_hits, j_hits;
-    std::shared_ptr<const GermlineLociVJDB> vbase, jbase;
+class VJAlignment {
+public:
+    VJAlignment(const Dna5String &read,
+                char strand,
+                const std::string &locus,
+                const std::vector<BlockAligner::Alignment> &v_hits,
+                const std::vector<BlockAligner::Alignment> &j_hits,
+                std::shared_ptr<const GermlineLociVJDB> vbase,
+                std::shared_ptr<const GermlineLociVJDB> jbase) : read{read},
+                                                                 strand{strand},
+                                                                 locus{locus},
+                                                                 v_hits{v_hits},
+                                                                 j_hits{j_hits},
+                                                                 vbase{vbase},
+                                                                 jbase{jbase} {
+        ;;;
+    }
 
-    // VJAlignment() {
-    //     // Empty alignment constructor
-    // }
-    //
-    // VJAlignment(const Dna5String &read,
-    //             char strand,
-    //             const std::string &locus,
-    //             std::shared_ptr<const GermlineLociVJDB> vbase,
-    //             std::shared_ptr<const GermlineLociVJDB> jbase,
-    //             std::vector<BlockAligner::Alignment> v_hits,
-    //             std::vector<BlockAligner::Alignment> j_hits) : read{
-    //
-    // }
     static const VJAlignment & EmptyVJAlignment() {
         static VJAlignment empty;
 
@@ -259,6 +257,15 @@ struct VJAlignment {
     const CharString& JId(size_t j_hit_index = 0) const {
         return jbase->j_ids[JHit(j_hit_index).needle_index];
     }
+
+private:
+    VJAlignment() = default;
+
+    Dna5String read;
+    char strand;
+    std::string locus;
+    std::vector<BlockAligner::Alignment> v_hits, j_hits;
+    std::shared_ptr<const GermlineLociVJDB> vbase, jbase;
 };
 
 
@@ -369,7 +376,7 @@ public:
         std::string locus = locus_names[locus_id];
         auto vbase = all_loci_database;
         auto jbase = consistent_loci ? locus_databases[locus_id] : all_loci_database;
-        return { stranded_read, strand, locus, v_hits, j_hits, vbase, jbase };
+        return VJAlignment(stranded_read, strand, locus, v_hits, j_hits, vbase, jbase);
     }
 
 private:
