@@ -60,6 +60,14 @@ struct GermlineLociVJDB {
 
         return *this;
     }
+
+    size_t vsize() const {
+        return v_reads.size();
+    }
+
+    size_t jsize() const {
+        return j_reads.size();
+    }
 };
 
 
@@ -321,13 +329,15 @@ public:
     }
 
     size_t vbase_size() const {
-        return all_loci_database->v_reads.size();
+        return all_loci_database->vsize();
     }
 
     size_t jbase_size() const {
-        return all_loci_database->j_reads.size();
+        return all_loci_database->jsize();
     }
 
+    using Alignment = VJAlignment;
+    using Parameters = VJAlignerParameters;
 
     template<typename Tparam>
     VJAlignment Query(const Dna5String &read,

@@ -15,23 +15,17 @@ using std::endl;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
-using path::make_dirs;
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::CharString;
 using seqan::length;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
 
-#include "ig_block_alignment.hpp"
 #include "ig_kplus_vj_finder.hpp"
 
-using namespace fast_ig_tools;
+using fast_ig_tools::VJAligner;
 
-using std::string;
-
-struct VJFinderParameters : public VJAlignerParameters {
+struct VJFinderParameters : public VJAligner::Parameters {
     size_t left_uncovered_limit = 16;
     size_t right_uncovered_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
     size_t min_v_segment_length = 250;
@@ -219,7 +213,7 @@ struct VJFinderParameters : public VJAlignerParameters {
     }
 
     void prepare_output() {
-        make_dirs(output_dir);
+        path::make_dirs(output_dir); // TODO Try to use boost_filesystem
         output_filename = output_dir + "/cleaned_reads.fa";
         bad_output_filename = output_dir + "/filtered_reads.fa";
         add_info_filename = output_dir + "/alignment_info.csv";
