@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <chrono>
 
+#include <build_info.hpp>
+
 #include <iostream>
 using std::cout;
 
@@ -86,7 +88,7 @@ int main(int argc, char **argv) {
         }
 
         if (vm.count("version")) {
-            cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
+            cout << "<Some cool name> version 0.1; git version: " << build_info::git_hash7 << std::endl;
             return 0;
         }
 
