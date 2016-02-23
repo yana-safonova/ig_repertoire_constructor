@@ -60,6 +60,8 @@ configure_file("${SPADES_MAIN_INCLUDE_DIR}/config.hpp.in"
 add_subdirectory("${EXT_DIR}/src" "${Project_BINARY_DIR}/ext")
 add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
 
+add_subdirectory(build_info)
+
 # sub projects
 add_subdirectory(io)
 add_subdirectory(fast_ig_tools)
