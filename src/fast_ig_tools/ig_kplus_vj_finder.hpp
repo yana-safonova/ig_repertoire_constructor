@@ -27,17 +27,6 @@ using seqan::SeqFileOut;
 namespace fast_ig_tools {
 using std::string;
 
-template<typename T, typename Tlist>
-std::vector<T> concatenate(const Tlist &list) {
-    std::vector<T> result;
-    for (const auto &v : list) {
-        result.insert(result.end(), v.cbegin(), v.cend());
-    }
-
-    return result;
-}
-
-
 struct GermlineLociVJDB {
     std::vector<Dna5String> v_reads;
     std::vector<CharString> v_ids;
@@ -47,53 +36,6 @@ struct GermlineLociVJDB {
 
 class VJAligner {
 public:
-    std::vector<GermlineLociVJDB> locus_databases;
-    GermlineLociVJDB all_loci_database;
-
-    const std::string db_directory;
-    const std::string organism;
-    bool pseudogenes;
-    std::vector<std::string> locus_names;
-
-    std::vector<size_t> locus_index;
-
-    std::unique_ptr<BlockAligner> valigner;
-    std::unique_ptr<BlockAligner> jaligner;
-    std::vector<std::unique_ptr<BlockAligner>> jaligners;
-
-
-    static std::vector<std::string> expand_loci(const std::vector<std::string> &loci) {
-        std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
-        std::vector<std::string> TR = { "TRA", "TRB", "TRD", "TRG" };
-        std::vector<std::string> ALL(IG);
-        ALL.insert(ALL.end(), TR.cbegin(), TR.cend());
-
-        std::vector<std::string> result;
-        for (const std::string &locus : loci) {
-            if (locus == "IG") {
-                result.insert(result.end(), IG.cbegin(), IG.cend());
-            } else if (locus == "TR") {
-                result.insert(result.end(), TR.cbegin(), TR.cend());
-            } else if (locus == "all") {
-                result.insert(result.end(), ALL.cbegin(), ALL.cend());
-            } else if (std::find(ALL.cbegin(), ALL.cend(), locus) != ALL.cend()) {
-                result.push_back(locus);
-            } else {
-                throw std::invalid_argument("Invalid locus name: " + locus);
-            }
-        }
-
-        // Remove duplicates
-        remove_duplicates(result);
-
-        return result;
-    }
-
-    std::string gene_file_name(const std::string &locus,
-                               const std::string &gene,
-                               bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
-    }
 
     template<typename Tparam>
     VJAligner(const Tparam &param) : db_directory{param.db_directory},
@@ -155,6 +97,14 @@ public:
         }
     }
 
+    size_t vbase_size() const {
+        return all_loci_database.v_reads.size();
+    }
+
+    size_t jbase_size() const {
+        return all_loci_database.j_reads.size();
+    }
+
     struct VJAlignment {
         size_t locus_id;
         std::string locus;
@@ -203,66 +153,6 @@ public:
             assert(j_hit_index < j_hits.size());
 
             return j_hits[j_hit_index];
-        }
-
-        Dna5String Fix(size_t fix_left, size_t fix_right,
-                       size_t v_hit_index = 0, size_t j_hit_index = 0) const {
-            const auto &v_hit = VHit(v_hit_index);
-            const auto &j_hit = JHit(j_hit_index);
-
-            const auto &v_gene = VSeq(v_hit_index);
-            const auto &j_gene = JSeq(j_hit_index);
-
-            int left_shift = v_hit.path.left_shift();
-            int right_shift = j_hit.path.right_shift();
-
-            Dna5String result = read;
-
-            for (size_t i = 0; i < fix_left; ++i) {
-                int gene_pos = static_cast<int>(i) - left_shift;
-
-                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(v_gene))) {
-                    result[i] = v_gene[gene_pos];
-                }
-            }
-
-            for (size_t i = length(read) - fix_right; i < length(read); ++i) {
-                int gene_pos = static_cast<int>(i) - right_shift;
-
-                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(j_gene))) {
-                    result[i] = j_gene[gene_pos];
-                }
-            }
-
-            return result;
-        }
-
-        Dna5String CropFill(bool crop_left, bool fill_left,
-                            bool crop_right, bool fill_right,
-                            size_t v_hit_index = 0, size_t j_hit_index = 0) const {
-            const auto &v_hit = VHit(v_hit_index);
-            const auto &j_hit = JHit(j_hit_index);
-
-            const auto &v_gene = VSeq(v_hit_index);
-            const auto &j_gene = JSeq(j_hit_index);
-
-            Dna5String result = this->read;
-
-            if (crop_right && j_hit.finish < static_cast<int>(length(result))) {
-                result = seqan::prefix(result, j_hit.finish);
-            } else if (fill_right && j_hit.finish > static_cast<int>(length(result))) {
-                result += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(result)));
-            }
-
-            if (crop_left && v_hit.start > 0) {
-                result = seqan::suffix(result, v_hit.start);
-            } else if (fill_left && v_hit.start < 0) {
-                Dna5String pre = seqan::prefix(v_gene, -v_hit.start);
-                pre += result;
-                result = pre;
-            }
-
-            return result;
         }
 
         template<typename Tparam>
@@ -399,6 +289,71 @@ public:
     };
 
 
+    template<typename Tparam>
+    VJAlignment Query(const Dna5String &read,
+                      const Tparam &param) const {
+        bool fix_strand = param.fix_strand;
+        bool consistent_loci = param.consistent_loci;
+
+        VJAlignment result_alignment;
+
+        std::vector<BlockAligner::Alignment> result;
+        Dna5String stranded_read;
+        char strand;
+
+        // Fix strand if asked
+        std::tie(result, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
+
+        if (result.empty()) {
+            return result_alignment; // Empty TODO Add marker
+        }
+
+
+        result_alignment.read = stranded_read;
+        result_alignment.strand = strand;
+        result_alignment.vbase = &all_loci_database;
+        // Aling V --- already done
+
+
+        // Identify locus, in case of misconsensus report empty alignment
+        std::vector<size_t> locus_ids;
+        locus_ids.reserve(result.size());
+        for (const auto &align : result) {
+            size_t loc_ind = locus_index[align.needle_index];
+
+            locus_ids.push_back(loc_ind);
+        }
+
+        // Check equality
+        if (consistent_loci && !all_equal(locus_ids)) {
+            return result_alignment; // Empty TODO Add marker
+        }
+
+
+        // Save V
+        result_alignment.v_hits = result; // FIXME use move()
+
+        size_t locus_id = result_alignment.locus_id = locus_ids[0];
+        result_alignment.locus = locus_names[locus_id];
+        result_alignment.jbase = &locus_databases[locus_id];
+
+        // Aling V --- already done
+        // Find minimum suffix after V gene
+        int end_of_v = max_map(result.cbegin(), result.cend(),
+                               [](const BlockAligner::Alignment &align) -> int { return align.last_match_read_pos(); });
+
+        // Align J
+        // auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
+        const auto &jal = consistent_loci ? jaligners[locus_id] : jaligner;
+        auto jaligns = jal->query(stranded_read, param.max_candidates_j, end_of_v);
+
+        result_alignment.j_hits = jaligns;
+
+        // Report
+        return result_alignment;
+    }
+
+private:
     template<typename T>
     static bool all_equal(const T &v) {
         for (size_t i = 1; i < v.size(); ++i) {
@@ -451,76 +406,53 @@ public:
         return std::make_tuple(result_pstrand, read, '+' );
     }
 
-    template<typename Tparam>
-    VJAlignment Query(const Dna5String &read,
-               const Tparam &param) const {
-        bool fix_strand = param.fix_strand;
-        bool consistent_loci = param.consistent_loci;
-        // assert(limit_j > 0);
-        // if (limit_j == 0) {
-        //     limit_j = limit_v;
-        // }
+    static std::vector<std::string> expand_loci(const std::vector<std::string> &loci) {
+        std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
+        std::vector<std::string> TR = { "TRA", "TRB", "TRD", "TRG" };
+        std::vector<std::string> ALL(IG);
+        ALL.insert(ALL.end(), TR.cbegin(), TR.cend());
 
-        VJAlignment result_alignment;
-        // Fix strand if asked
-
-        std::vector<BlockAligner::Alignment> result;
-        Dna5String stranded_read;
-        char strand;
-
-        std::tie(result, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
-
-        if (result.empty()) {
-            return result_alignment; // Empty TODO Add marker
+        std::vector<std::string> result;
+        for (const std::string &locus : loci) {
+            if (locus == "IG") {
+                result.insert(result.end(), IG.cbegin(), IG.cend());
+            } else if (locus == "TR") {
+                result.insert(result.end(), TR.cbegin(), TR.cend());
+            } else if (locus == "all") {
+                result.insert(result.end(), ALL.cbegin(), ALL.cend());
+            } else if (std::find(ALL.cbegin(), ALL.cend(), locus) != ALL.cend()) {
+                result.push_back(locus);
+            } else {
+                throw std::invalid_argument("Invalid locus name: " + locus);
+            }
         }
 
+        // Remove duplicates
+        remove_duplicates(result);
 
-        result_alignment.read = stranded_read;
-        result_alignment.strand = strand;
-        result_alignment.vbase = &all_loci_database;
-        // Aling V --- already done
-
-
-        // Identify locus, in case of misconsensus report empty alignment
-        std::vector<size_t> locus_ids;
-        locus_ids.reserve(result.size());
-        for (const auto &align : result) {
-            size_t loc_ind = locus_index[align.needle_index];
-
-            locus_ids.push_back(loc_ind);
-        }
-
-        // Check equality
-        if (consistent_loci && !all_equal(locus_ids)) {
-            return result_alignment; // Empty TODO Add marker
-        }
-
-
-        // Save V
-        result_alignment.v_hits = result; // FIXME use move()
-
-        size_t locus_id = result_alignment.locus_id = locus_ids[0];
-        result_alignment.locus = locus_names[locus_id];
-        result_alignment.jbase = &locus_databases[locus_id];
-
-        // Aling V --- already done
-        // Find minimum suffix after V gene
-        int end_of_v = max_map(result.cbegin(), result.cend(),
-                               [](const BlockAligner::Alignment &align) -> int { return align.last_match_read_pos(); });
-
-        // Align J
-        // auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
-        const auto &jal = consistent_loci ? jaligners[locus_id] : jaligner;
-        auto jaligns = jal->query(stranded_read, param.max_candidates_j, end_of_v);
-
-        result_alignment.j_hits = jaligns;
-
-        // Report
-        return result_alignment;
+        return result;
     }
+
+    std::string gene_file_name(const std::string &locus,
+                               const std::string &gene,
+                               bool pseudo = false) const {
+        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
+    }
+
+    std::vector<GermlineLociVJDB> locus_databases;
+    GermlineLociVJDB all_loci_database;
+
+    const std::string db_directory;
+    const std::string organism;
+    bool pseudogenes;
+    std::vector<std::string> locus_names;
+
+    std::vector<size_t> locus_index;
+
+    std::unique_ptr<BlockAligner> valigner;
+    std::unique_ptr<BlockAligner> jaligner;
+    std::vector<std::unique_ptr<BlockAligner>> jaligners;
 };
-
-
 
 } // namespace fast_ig_tools
 

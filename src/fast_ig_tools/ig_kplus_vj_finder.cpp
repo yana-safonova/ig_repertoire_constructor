@@ -287,8 +287,8 @@ int main(int argc, char **argv) {
     const VJAligner vjaligner(param);
 
     param.print_info();
-    INFO("V gene germline database size: " << vjaligner.all_loci_database.v_reads.size());
-    INFO("J gene germline database size: " << vjaligner.all_loci_database.j_reads.size());
+    INFO("V gene germline database size: " << vjaligner.vbase_size());
+    INFO("J gene germline database size: " << vjaligner.jbase_size());
 
     seqan::SeqFileIn seqFileIn_reads(param.input_file.c_str());
     std::vector<CharString> read_ids;
