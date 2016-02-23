@@ -32,6 +32,16 @@ struct GermlineLociVJDB {
     std::vector<CharString> v_ids;
     std::vector<Dna5String> j_reads;
     std::vector<CharString> j_ids;
+
+    GermlineLociVJDB& extend(const GermlineLociVJDB &db) {
+        v_reads.insert(v_reads.end(), db.v_reads.cbegin(), db.v_reads.cend());
+        v_ids.insert(v_ids.end(), db.v_ids.cbegin(), db.v_ids.cend());
+
+        j_reads.insert(j_reads.end(), db.j_reads.cbegin(), db.j_reads.cend());
+        j_ids.insert(j_ids.end(), db.j_ids.cbegin(), db.j_ids.cend());
+
+        return *this;
+    }
 };
 
 class VJAligner {
@@ -60,19 +70,10 @@ public:
             locus_databases.push_back(db);
         }
 
-        // Join V genes
         for (size_t i = 0; i < locus_databases.size(); ++i) {
             const auto &db = locus_databases[i];
 
-            all_loci_database.v_reads.insert(all_loci_database.v_reads.end(),
-                                             db.v_reads.cbegin(), db.v_reads.cend());
-            all_loci_database.v_ids.insert(all_loci_database.v_ids.end(),
-                                           db.v_ids.cbegin(), db.v_ids.cend());
-
-            all_loci_database.j_reads.insert(all_loci_database.j_reads.end(),
-                               db.j_reads.cbegin(), db.j_reads.cend());
-            all_loci_database.j_ids.insert(all_loci_database.j_ids.end(),
-                                           db.j_ids.cbegin(), db.j_ids.cend());
+            all_loci_database.extend(db);
 
             for (size_t _ = 0; _ < db.v_reads.size(); ++_) {
                 locus_index.push_back(i);
@@ -80,17 +81,14 @@ public:
         }
 
         valigner.reset(new BlockAligner(all_loci_database.v_reads, param.K, param.max_global_gap,
-                                        // param.left_uncoverage_limit, 100500,
                                         100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
         jaligner.reset(new BlockAligner(all_loci_database.j_reads, param.word_size_j, param.max_global_gap,
-                                        // 100500, param.right_uncoverage_limit,
                                         100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
 
         for (const auto db : locus_databases) {
             BlockAligner *p = new BlockAligner(db.j_reads, param.word_size_j, param.max_global_gap,
-                                               // 100500, param.right_uncoverage_limit,
                                                100500, 100500,
                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
             jaligners.push_back(std::unique_ptr<BlockAligner>(p));
