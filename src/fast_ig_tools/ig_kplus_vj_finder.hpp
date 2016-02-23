@@ -64,14 +64,30 @@ struct GermlineLociVJDB {
 
 
 struct VJAlignment {
-    size_t locus_id;
-    std::string locus;
-
-    char strand;
     Dna5String read;
+    char strand;
+    std::string locus;
+    std::vector<BlockAligner::Alignment> v_hits, j_hits;
     std::shared_ptr<const GermlineLociVJDB> vbase, jbase;
 
-    std::vector<BlockAligner::Alignment> v_hits, j_hits;
+    // VJAlignment() {
+    //     // Empty alignment constructor
+    // }
+    //
+    // VJAlignment(const Dna5String &read,
+    //             char strand,
+    //             const std::string &locus,
+    //             std::shared_ptr<const GermlineLociVJDB> vbase,
+    //             std::shared_ptr<const GermlineLociVJDB> jbase,
+    //             std::vector<BlockAligner::Alignment> v_hits,
+    //             std::vector<BlockAligner::Alignment> j_hits) : read{
+    //
+    // }
+    static const VJAlignment & EmptyVJAlignment() {
+        static VJAlignment empty;
+
+        return empty;
+    }
 
     const Dna5String& Read() const {
         return read;
@@ -312,30 +328,21 @@ public:
         bool fix_strand = param.fix_strand;
         bool consistent_loci = param.consistent_loci;
 
-        VJAlignment result_alignment;
-
-        std::vector<BlockAligner::Alignment> result;
+        std::vector<BlockAligner::Alignment> v_hits;
         Dna5String stranded_read;
         char strand;
 
         // Fix strand if asked
-        std::tie(result, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
+        std::tie(v_hits, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
 
-        if (result.empty()) {
-            return result_alignment; // Empty TODO Add marker
+        if (v_hits.empty()) {
+            return VJAlignment::EmptyVJAlignment(); // Empty TODO Add marker
         }
-
-
-        result_alignment.read = stranded_read;
-        result_alignment.strand = strand;
-        result_alignment.vbase = all_loci_database;
-        // Aling V --- already done
-
 
         // Identify locus, in case of misconsensus report empty alignment
         std::vector<size_t> locus_ids;
-        locus_ids.reserve(result.size());
-        for (const auto &align : result) {
+        locus_ids.reserve(v_hits.size());
+        for (const auto &align : v_hits) {
             size_t loc_ind = locus_index[align.needle_index];
 
             locus_ids.push_back(loc_ind);
@@ -343,30 +350,26 @@ public:
 
         // Check equality
         if (consistent_loci && !all_equal(locus_ids)) {
-            return result_alignment; // Empty TODO Add marker
+            return VJAlignment::EmptyVJAlignment(); // Empty TODO Add marker
         }
 
-        // Save V
-        result_alignment.v_hits = result; // FIXME use move()
 
-        size_t locus_id = result_alignment.locus_id = locus_ids[0];
-        result_alignment.locus = locus_names[locus_id];
-        result_alignment.jbase = consistent_loci ? locus_databases[locus_id] : all_loci_database;
+        size_t locus_id = locus_ids[0];
 
         // Aling V --- already done
         // Find minimum suffix after V gene
-        int end_of_v = max_map(result.cbegin(), result.cend(),
+        int end_of_v = max_map(v_hits.cbegin(), v_hits.cend(),
                                [](const BlockAligner::Alignment &align) -> int { return align.last_match_read_pos(); });
 
         // Align J
-        // auto jaligns = jaligners[locus_id]->query(seqan::suffix(read, end_of_v), param.max_candidates_j);
         const auto &jal = consistent_loci ? jaligners[locus_id] : jaligner;
-        auto jaligns = jal->query(stranded_read, param.max_candidates_j, end_of_v);
-
-        result_alignment.j_hits = jaligns;
+        auto j_hits = jal->query(stranded_read, param.max_candidates_j, end_of_v);
 
         // Report
-        return result_alignment;
+        std::string locus = locus_names[locus_id];
+        auto vbase = all_loci_database;
+        auto jbase = consistent_loci ? locus_databases[locus_id] : all_loci_database;
+        return { stranded_read, strand, locus, v_hits, j_hits, vbase, jbase };
     }
 
 private:
