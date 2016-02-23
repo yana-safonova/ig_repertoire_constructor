@@ -18,6 +18,33 @@ using seqan::length;
 
 namespace fast_ig_tools {
 
+struct VJAlignerParameters {
+    int K = 7;
+    int word_size_j = 5;
+    std::string organism = "human";
+    int max_global_gap = 24;
+    int min_k_coverage = 50;
+    int min_k_coverage_j = 13;
+    int max_local_deletions = 12;
+    int max_local_insertions = 12;
+    std::string loci = "all";
+    std::string db_directory = "./germline";
+    bool pseudogenes = true;
+
+    int max_candidates = 10;
+    int max_candidates_j = 10;
+    bool fix_strand = true; // TODO Naming?
+    bool consistent_loci = true; // TODO Naming? (needed for reproducability)
+
+    bool fill_left = true;
+    bool fill_right = false;
+    size_t fix_left = 3;
+    size_t fix_right = 0;
+    bool crop_left = true;
+    bool crop_right = true;
+};
+
+
 struct GermlineLociVJDB {
     std::vector<Dna5String> v_reads;
     std::vector<CharString> v_ids;
