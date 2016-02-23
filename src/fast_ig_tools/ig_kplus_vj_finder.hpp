@@ -5,18 +5,17 @@
 #include <vector>
 #include <memory>
 
-using std::vector;
 
 #include "fast_ig_tools.hpp"
 
 #include <seqan/seq_io.h>
-using seqan::Dna5String;
-using seqan::CharString;
-using seqan::length;
 
 #include "ig_block_alignment.hpp"
 
 namespace fast_ig_tools {
+using seqan::Dna5String;
+using seqan::CharString;
+using seqan::length;
 
 struct VJAlignerParameters {
     int K = 7;
