@@ -221,7 +221,6 @@ struct VJAlignment {
 
 class VJAligner {
 public:
-
     template<typename Tparam>
     VJAligner(const Tparam &param) : db_directory{param.db_directory},
                                      organism{param.organism},
@@ -266,7 +265,7 @@ public:
             BlockAligner *p = new BlockAligner(db.j_reads, param.word_size_j, param.max_global_gap,
                                                100500, 100500,
                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
-            jaligners.push_back(std::unique_ptr<BlockAligner>(p));
+            jaligners.push_back(std::shared_ptr<BlockAligner>(p));
         }
     }
 
@@ -319,7 +318,6 @@ public:
             return result_alignment; // Empty TODO Add marker
         }
 
-
         // Save V
         result_alignment.v_hits = result; // FIXME use move()
 
@@ -355,6 +353,7 @@ private:
         return true;
     }
 
+
     template<typename Titer, typename Tf>
     static auto max_map(Titer b, Titer e, const Tf &f) -> decltype(f(*b)) { // TODO Add decay
         assert(b != e);
@@ -389,12 +388,14 @@ private:
         return std::make_tuple(result, stranded_read, strand);
     }
 
+
     std::tuple<std::vector<BlockAligner::Alignment>, Dna5String, char> correct_strand_fake(const Dna5String &read,
                                                                                            size_t max_candidates) const {
         auto result_pstrand = valigner->query(read, max_candidates);
 
         return std::make_tuple(result_pstrand, read, '+' );
     }
+
 
     static std::vector<std::string> expand_loci(const std::vector<std::string> &loci) {
         std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
@@ -423,11 +424,13 @@ private:
         return result;
     }
 
+
     std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
                                bool pseudo = false) const {
         return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
+
 
     std::vector<GermlineLociVJDB> locus_databases;
     GermlineLociVJDB all_loci_database;
@@ -439,9 +442,9 @@ private:
 
     std::vector<size_t> locus_index;
 
-    std::unique_ptr<BlockAligner> valigner;
-    std::unique_ptr<BlockAligner> jaligner;
-    std::vector<std::unique_ptr<BlockAligner>> jaligners;
+    std::shared_ptr<BlockAligner> valigner;
+    std::shared_ptr<BlockAligner> jaligner;
+    std::vector<std::shared_ptr<BlockAligner>> jaligners;
 };
 
 } // namespace fast_ig_tools
