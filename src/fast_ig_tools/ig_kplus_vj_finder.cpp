@@ -245,7 +245,6 @@ int main(int argc, char **argv) {
     // create_console_logger("./fast_ig_tools.log");
     create_console_logger("");
 
-
     VJFinderParameters param;
     param.parse_cmd_line(argc, argv);
 

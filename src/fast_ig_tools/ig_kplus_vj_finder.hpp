@@ -301,7 +301,6 @@ public:
             locus_databases.push_back(std::shared_ptr<const GermlineLociVJDB>(db));
         }
 
-
         auto all_db = new GermlineLociVJDB;
         for (size_t i = 0; i < locus_databases.size(); ++i) {
             all_db->extend(*locus_databases[i]);
@@ -400,7 +399,6 @@ private:
         return true;
     }
 
-
     template<typename Titer, typename Tf>
     static auto max_map(Titer b, Titer e, const Tf &f) -> decltype(f(*b)) { // TODO Add decay
         assert(b != e);
@@ -415,7 +413,6 @@ private:
 
         return result;
     }
-
 
     std::tuple<std::vector<BlockAligner::Alignment>, Dna5String, char> correct_strand(const Dna5String &read,
                                                                                       size_t max_candidates) const {
@@ -435,14 +432,12 @@ private:
         return std::make_tuple(result, stranded_read, strand);
     }
 
-
     std::tuple<std::vector<BlockAligner::Alignment>, Dna5String, char> correct_strand_fake(const Dna5String &read,
                                                                                            size_t max_candidates) const {
         auto result_pstrand = valigner->query(read, max_candidates);
 
         return std::make_tuple(result_pstrand, read, '+' );
     }
-
 
     static std::vector<std::string> expand_loci(const std::vector<std::string> &loci) {
         std::vector<std::string> IG = { "IGH", "IGK", "IGL" };
@@ -470,7 +465,6 @@ private:
 
         return result;
     }
-
 
     std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
