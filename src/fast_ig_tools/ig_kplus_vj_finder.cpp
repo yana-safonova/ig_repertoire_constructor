@@ -72,12 +72,7 @@ struct Ig_KPlus_Finder_Parameters {
     bool crop_left = true;
     bool crop_right = true;
 
-    Ig_KPlus_Finder_Parameters(const Ig_KPlus_Finder_Parameters &) = delete;
-    Ig_KPlus_Finder_Parameters(Ig_KPlus_Finder_Parameters &&) = delete;
-    Ig_KPlus_Finder_Parameters& operator=(const Ig_KPlus_Finder_Parameters &) = delete;
-    Ig_KPlus_Finder_Parameters& operator=(Ig_KPlus_Finder_Parameters &&) = delete;
-
-    explicit Ig_KPlus_Finder_Parameters(int argc, char **argv) {
+    void parse_cmd_line(int argc, char **argv) {
         namespace po = boost::program_options;
         using std::exit;
 
@@ -288,7 +283,8 @@ int main(int argc, char **argv) {
 
     INFO("Command line: " << join_cmd_line(argc, argv));
 
-    Ig_KPlus_Finder_Parameters param(argc, argv);
+    Ig_KPlus_Finder_Parameters param;
+    param.parse_cmd_line(argc, argv);
     param.prepare_output();
 
     const VJAligner db(param);
