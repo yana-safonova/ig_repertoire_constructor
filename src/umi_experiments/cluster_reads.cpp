@@ -96,26 +96,31 @@ Stats Stats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const s
 #pragma omp parallel for schedule(dynamic)
     for (size_t group = 0; group < read_groups.size(); group ++) {
         auto& reads = read_groups[group];
+        std::map<size_t, size_t> current_hamming_distribution;
+        std::map<size_t, size_t> current_sw_distribution;
         for (size_t i = 0; i < reads.size(); i++) {
             for (size_t j = 0; j < i; j++) {
                 auto& first = input_reads[reads[i]];
                 auto& second = input_reads[reads[j]];
                 size_t hamming_dist = get_hamming_dist(first, second);
                 size_t sw_dist = get_sw_dist(first, second);
-#pragma omp critical
-                {
-                    hamming_dist_distribution[reads.size()][hamming_dist] ++;
-                    sw_dist_distribution[reads.size()][sw_dist] ++;
-                }
+                current_hamming_distribution[hamming_dist] ++;
+                current_sw_distribution[sw_dist] ++;
             }
         }
-        processed += reads.size();
-        while (processed * 100 >= input_reads.size() * next_percent) {
 #pragma omp critical
-            if (processed * 100 >= input_reads.size() * next_percent) {
-                INFO(next_percent << "% of " << input_reads.size() << " reads processed");
-                next_percent++;
+        {
+            for (auto &entry : current_hamming_distribution) {
+                hamming_dist_distribution[reads.size()][entry.first] += entry.second;
+                sw_dist_distribution[reads.size()][entry.first] += current_sw_distribution[entry.first];
+            }
+            processed += reads.size();
+            while (processed * 100 >= input_reads.size() * next_percent) {
+                if (processed * 100 >= input_reads.size() * next_percent) {
+                    INFO(next_percent << "% of " << input_reads.size() << " reads processed");
+                    next_percent++;
 //                std::cout << Stats(hamming_dist_distribution, sw_dist_distribution).ToString();
+                }
             }
         }
     }
