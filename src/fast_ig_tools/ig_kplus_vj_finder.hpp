@@ -453,9 +453,9 @@ public:
 
     template<typename Tparam>
     VJAlignment Query(const Dna5String &read,
-               bool fix_strand, // TODO Naming?
-               bool consistent_loci, // TODO Naming? (needed for reproducability)
                const Tparam &param) const {
+        bool fix_strand = param.fix_strand;
+        bool consistent_loci = param.consistent_loci;
         // assert(limit_j > 0);
         // if (limit_j == 0) {
         //     limit_j = limit_v;
