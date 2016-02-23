@@ -1,31 +1,22 @@
 #pragma once
 
 #include <cassert>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 #include <memory>
 
 using std::vector;
-using std::cout;
-using std::cin;
-using std::cerr;
-using std::endl;
 
-#include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
-using path::make_dirs;
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::CharString;
 using seqan::length;
-using seqan::SeqFileIn;
-using seqan::SeqFileOut;
 
 #include "ig_block_alignment.hpp"
 
 namespace fast_ig_tools {
-using std::string;
 
 struct GermlineLociVJDB {
     std::vector<Dna5String> v_reads;
@@ -44,6 +35,190 @@ struct GermlineLociVJDB {
     }
 };
 
+
+struct VJAlignment {
+    size_t locus_id;
+    std::string locus;
+
+    char strand;
+    Dna5String read;
+    const GermlineLociVJDB *vbase, *jbase;
+
+    std::vector<BlockAligner::Alignment> v_hits, j_hits;
+
+    const Dna5String& Read() const {
+        return read;
+    }
+
+    char Strand() const {
+        return strand;
+    }
+
+    const std::string& Locus() const {
+        return locus;
+    }
+
+    bool empty() const {
+        return v_hits.empty() || j_hits.empty();
+    }
+
+    operator bool() const {
+        return !empty();
+    }
+
+    size_t VHitsSize() const {
+        return v_hits.size();
+    }
+
+    size_t JHitsSize() const {
+        return j_hits.size();
+    }
+
+    const BlockAligner::Alignment& VHit(size_t v_hit_index = 0) const {
+        assert(v_hit_index < v_hits.size());
+
+        return v_hits[v_hit_index];
+    }
+
+    const BlockAligner::Alignment& JHit(size_t j_hit_index = 0) const {
+        assert(j_hit_index < j_hits.size());
+
+        return j_hits[j_hit_index];
+    }
+
+    template<typename Tparam>
+    Dna5String FixCropFill(const Tparam &param,
+                           size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+        return FixCropFill(param.fix_left, param.crop_left, param.fill_left,
+                           param.fix_right, param.crop_right, param.fill_right,
+                           v_hit_index, j_hit_index);
+    }
+
+    Dna5String FixCropFill(size_t fix_left, bool crop_left, bool fill_left,
+                           size_t fix_right, bool crop_right, bool fill_right,
+                           size_t v_hit_index = 0, size_t j_hit_index = 0) const {
+        const auto &v_hit = VHit(v_hit_index);
+        const auto &j_hit = JHit(j_hit_index);
+
+        const auto &v_gene = VSeq(v_hit_index);
+        const auto &j_gene = JSeq(j_hit_index);
+
+        int left_shift = v_hit.path.left_shift();
+        int right_shift = j_hit.path.right_shift();
+
+        Dna5String result = read;
+
+        for (size_t i = 0; i < fix_left; ++i) {
+            int gene_pos = static_cast<int>(i) - left_shift;
+
+            if (gene_pos >= 0 && gene_pos < static_cast<int>(length(v_gene))) {
+                result[i] = v_gene[gene_pos];
+            }
+        }
+
+        for (size_t i = length(read) - fix_right; i < length(read); ++i) {
+            int gene_pos = static_cast<int>(i) - right_shift;
+
+            if (gene_pos >= 0 && gene_pos < static_cast<int>(length(j_gene))) {
+                result[i] = j_gene[gene_pos];
+            }
+        }
+
+        if (crop_right && j_hit.finish < static_cast<int>(length(result))) {
+            result = seqan::prefix(result, j_hit.finish);
+        } else if (fill_right && j_hit.finish > static_cast<int>(length(result))) {
+            result += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(result)));
+        }
+
+        if (crop_left && v_hit.start > 0) {
+            result = seqan::suffix(result, v_hit.start);
+        } else if (fill_left && v_hit.start < 0) {
+            Dna5String pre = seqan::prefix(v_gene, -v_hit.start);
+            pre += result;
+            result = pre;
+        }
+
+        return result;
+    }
+
+    const Dna5String& VSeq(size_t v_hit_index = 0) const {
+        const auto &v_hit = VHit(v_hit_index);
+        return vbase->v_reads[v_hit.needle_index];
+    }
+
+    const Dna5String& JSeq(size_t j_hit_index = 0) const {
+        const auto &j_hit = JHit(j_hit_index);
+        return jbase->j_reads[j_hit.needle_index];
+    }
+
+    size_t VSegmentLength(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).left_half_segment_length();
+    }
+
+    size_t JSegmentLength(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).right_half_segment_length();
+    }
+
+    size_t LeftUncovered(size_t v_hit_index = 0) const {
+        return std::max(0, -VHit(v_hit_index).start);
+    }
+
+    size_t RightUncovered(size_t j_hit_index = 0) const {
+        return std::max(0, JHit(j_hit_index).finish - static_cast<int>(length(read)));
+    }
+
+    double VScore(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).score;
+    }
+
+    double JScore(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).score;
+    }
+
+    int VStart(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).start;
+    }
+
+    int JStart(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).first_match_read_pos();
+    }
+
+    int VEnd(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).last_match_read_pos();
+    }
+
+    int JEnd(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).finish;
+    }
+
+    size_t FinalLength(size_t v_hit_index = 0,
+                       size_t j_hit_index = 0) const {
+        return JEnd(j_hit_index) - VStart(v_hit_index);
+    }
+
+    TAlign VAlignmentSeqAn(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).seqan_alignment(read, VSeq(v_hit_index));
+    }
+
+    TAlign JAlignmentSeqAn(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).seqan_alignment(read, JSeq(j_hit_index));
+    }
+
+    std::pair<TAlign, TAlign> AlignmentsSeqan(size_t v_hit_index = 0,
+                                              size_t j_hit_index = 0) const {
+        return { VAlignmentSeqAn(v_hit_index), JAlignmentSeqAn(j_hit_index) };
+    }
+
+    const CharString& VId(size_t v_hit_index = 0) const {
+        return vbase->v_ids[VHit(v_hit_index).needle_index];
+    }
+
+    const CharString& JId(size_t j_hit_index = 0) const {
+        return jbase->j_ids[JHit(j_hit_index).needle_index];
+    }
+};
+
+
 class VJAligner {
 public:
 
@@ -57,13 +232,13 @@ public:
 
             {
                 std::string v_file = gene_file_name(locus, "V", pseudogenes);
-                SeqFileIn seqFileIn(v_file.c_str());
+                seqan::SeqFileIn seqFileIn(v_file.c_str());
                 readRecords(db.v_ids, db.v_reads, seqFileIn);
             }
 
             {
                 std::string j_file = gene_file_name(locus, "J", pseudogenes);
-                SeqFileIn seqFileIn(j_file.c_str());
+                seqan::SeqFileIn seqFileIn(j_file.c_str());
                 readRecords(db.j_ids, db.j_reads, seqFileIn);
             }
 
@@ -102,189 +277,6 @@ public:
     size_t jbase_size() const {
         return all_loci_database.j_reads.size();
     }
-
-    struct VJAlignment {
-        size_t locus_id;
-        std::string locus;
-
-        char strand;
-        Dna5String read;
-        const GermlineLociVJDB *vbase, *jbase;
-
-        std::vector<BlockAligner::Alignment> v_hits, j_hits;
-
-        const Dna5String& Read() const {
-            return read;
-        }
-
-        char Strand() const {
-            return strand;
-        }
-
-        const std::string& Locus() const {
-            return locus;
-        }
-
-        bool empty() const {
-            return v_hits.empty() || j_hits.empty();
-        }
-
-        operator bool() const {
-            return !empty();
-        }
-
-        size_t VHitsSize() const {
-            return v_hits.size();
-        }
-
-        size_t JHitsSize() const {
-            return j_hits.size();
-        }
-
-        const BlockAligner::Alignment& VHit(size_t v_hit_index = 0) const {
-            assert(v_hit_index < v_hits.size());
-
-            return v_hits[v_hit_index];
-        }
-
-        const BlockAligner::Alignment& JHit(size_t j_hit_index = 0) const {
-            assert(j_hit_index < j_hits.size());
-
-            return j_hits[j_hit_index];
-        }
-
-        template<typename Tparam>
-        Dna5String FixCropFill(const Tparam &param,
-                               size_t v_hit_index = 0, size_t j_hit_index = 0) const {
-            return FixCropFill(param.fix_left, param.crop_left, param.fill_left,
-                               param.fix_right, param.crop_right, param.fill_right,
-                               v_hit_index, j_hit_index);
-        }
-
-        Dna5String FixCropFill(size_t fix_left, bool crop_left, bool fill_left,
-                               size_t fix_right, bool crop_right, bool fill_right,
-                               size_t v_hit_index = 0, size_t j_hit_index = 0) const {
-            const auto &v_hit = VHit(v_hit_index);
-            const auto &j_hit = JHit(j_hit_index);
-
-            const auto &v_gene = VSeq(v_hit_index);
-            const auto &j_gene = JSeq(j_hit_index);
-
-            int left_shift = v_hit.path.left_shift();
-            int right_shift = j_hit.path.right_shift();
-
-            Dna5String result = read;
-
-            for (size_t i = 0; i < fix_left; ++i) {
-                int gene_pos = static_cast<int>(i) - left_shift;
-
-                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(v_gene))) {
-                    result[i] = v_gene[gene_pos];
-                }
-            }
-
-            for (size_t i = length(read) - fix_right; i < length(read); ++i) {
-                int gene_pos = static_cast<int>(i) - right_shift;
-
-                if (gene_pos >= 0 && gene_pos < static_cast<int>(length(j_gene))) {
-                    result[i] = j_gene[gene_pos];
-                }
-            }
-
-            if (crop_right && j_hit.finish < static_cast<int>(length(result))) {
-                result = seqan::prefix(result, j_hit.finish);
-            } else if (fill_right && j_hit.finish > static_cast<int>(length(result))) {
-                result += seqan::suffix(j_gene, length(j_gene) - (j_hit.finish - length(result)));
-            }
-
-            if (crop_left && v_hit.start > 0) {
-                result = seqan::suffix(result, v_hit.start);
-            } else if (fill_left && v_hit.start < 0) {
-                Dna5String pre = seqan::prefix(v_gene, -v_hit.start);
-                pre += result;
-                result = pre;
-            }
-
-            return result;
-        }
-
-        const Dna5String& VSeq(size_t v_hit_index = 0) const {
-            const auto &v_hit = VHit(v_hit_index);
-            return vbase->v_reads[v_hit.needle_index];
-        }
-
-        const Dna5String& JSeq(size_t j_hit_index = 0) const {
-            const auto &j_hit = JHit(j_hit_index);
-            return jbase->j_reads[j_hit.needle_index];
-        }
-
-        size_t VSegmentLength(size_t v_hit_index = 0) const {
-            return VHit(v_hit_index).left_half_segment_length();
-        }
-
-        size_t JSegmentLength(size_t j_hit_index = 0) const {
-            return JHit(j_hit_index).right_half_segment_length();
-        }
-
-        size_t LeftUncovered(size_t v_hit_index = 0) const {
-            return std::max(0, -VHit(v_hit_index).start);
-        }
-
-        size_t RightUncovered(size_t j_hit_index = 0) const {
-            return std::max(0, JHit(j_hit_index).finish - static_cast<int>(length(read)));
-        }
-
-        double VScore(size_t v_hit_index = 0) const {
-            return VHit(v_hit_index).score;
-        }
-
-        double JScore(size_t j_hit_index = 0) const {
-            return JHit(j_hit_index).score;
-        }
-
-        int VStart(size_t v_hit_index = 0) const {
-            return VHit(v_hit_index).start;
-        }
-
-        int JStart(size_t j_hit_index = 0) const {
-            return JHit(j_hit_index).first_match_read_pos();
-        }
-
-        int VEnd(size_t v_hit_index = 0) const {
-            return VHit(v_hit_index).last_match_read_pos();
-        }
-
-        int JEnd(size_t j_hit_index = 0) const {
-            return JHit(j_hit_index).finish;
-        }
-
-        size_t FinalLength(size_t v_hit_index = 0,
-                           size_t j_hit_index = 0) const {
-            return JEnd(j_hit_index) - VStart(v_hit_index);
-        }
-
-        TAlign VAlignmentSeqAn(size_t v_hit_index = 0) const {
-            return VHit(v_hit_index).seqan_alignment(read, VSeq(v_hit_index));
-        }
-
-        TAlign JAlignmentSeqAn(size_t j_hit_index = 0) const {
-            return JHit(j_hit_index).seqan_alignment(read, JSeq(j_hit_index));
-        }
-
-        std::pair<TAlign, TAlign> AlignmentsSeqan(size_t v_hit_index = 0,
-                                                  size_t j_hit_index = 0) const {
-            return { VAlignmentSeqAn(v_hit_index), JAlignmentSeqAn(j_hit_index) };
-        }
-
-        const CharString& VId(size_t v_hit_index = 0) const {
-            return vbase->v_ids[VHit(v_hit_index).needle_index];
-        }
-
-        const CharString& JId(size_t j_hit_index = 0) const {
-            return jbase->j_ids[JHit(j_hit_index).needle_index];
-        }
-
-    };
 
 
     template<typename Tparam>
