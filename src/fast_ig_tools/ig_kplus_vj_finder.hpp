@@ -42,7 +42,7 @@ struct VJAlignment {
 
     char strand;
     Dna5String read;
-    const GermlineLociVJDB *vbase, *jbase;
+    std::shared_ptr<const GermlineLociVJDB> vbase, jbase;
 
     std::vector<BlockAligner::Alignment> v_hits, j_hits;
 
@@ -227,42 +227,43 @@ public:
                                      pseudogenes{param.pseudogenes},
                                      locus_names{expand_loci({ param.loci })} {
         for (const std::string &locus : locus_names) {
-            GermlineLociVJDB db;
+            auto db = new GermlineLociVJDB;
 
             {
                 std::string v_file = gene_file_name(locus, "V", pseudogenes);
                 seqan::SeqFileIn seqFileIn(v_file.c_str());
-                readRecords(db.v_ids, db.v_reads, seqFileIn);
+                readRecords(db->v_ids, db->v_reads, seqFileIn);
             }
 
             {
                 std::string j_file = gene_file_name(locus, "J", pseudogenes);
                 seqan::SeqFileIn seqFileIn(j_file.c_str());
-                readRecords(db.j_ids, db.j_reads, seqFileIn);
+                readRecords(db->j_ids, db->j_reads, seqFileIn);
             }
 
-            locus_databases.push_back(db);
+            locus_databases.push_back(std::shared_ptr<const GermlineLociVJDB>(db));
         }
 
+
+        auto all_db = new GermlineLociVJDB;
         for (size_t i = 0; i < locus_databases.size(); ++i) {
-            const auto &db = locus_databases[i];
+            all_db->extend(*locus_databases[i]);
 
-            all_loci_database.extend(db);
-
-            for (size_t _ = 0; _ < db.v_reads.size(); ++_) {
+            for (size_t _ = 0; _ < locus_databases[i]->v_reads.size(); ++_) {
                 locus_index.push_back(i);
             }
         }
+        all_loci_database.reset(all_db);
 
-        valigner.reset(new BlockAligner(all_loci_database.v_reads, param.K, param.max_global_gap,
+        valigner.reset(new BlockAligner(all_loci_database->v_reads, param.K, param.max_global_gap,
                                         100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
-        jaligner.reset(new BlockAligner(all_loci_database.j_reads, param.word_size_j, param.max_global_gap,
+        jaligner.reset(new BlockAligner(all_loci_database->j_reads, param.word_size_j, param.max_global_gap,
                                         100500, 100500,
                                         param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
 
         for (const auto db : locus_databases) {
-            BlockAligner *p = new BlockAligner(db.j_reads, param.word_size_j, param.max_global_gap,
+            BlockAligner *p = new BlockAligner(db->j_reads, param.word_size_j, param.max_global_gap,
                                                100500, 100500,
                                                param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
             jaligners.push_back(std::shared_ptr<BlockAligner>(p));
@@ -270,11 +271,11 @@ public:
     }
 
     size_t vbase_size() const {
-        return all_loci_database.v_reads.size();
+        return all_loci_database->v_reads.size();
     }
 
     size_t jbase_size() const {
-        return all_loci_database.j_reads.size();
+        return all_loci_database->j_reads.size();
     }
 
 
@@ -300,7 +301,7 @@ public:
 
         result_alignment.read = stranded_read;
         result_alignment.strand = strand;
-        result_alignment.vbase = &all_loci_database;
+        result_alignment.vbase = all_loci_database;
         // Aling V --- already done
 
 
@@ -323,7 +324,7 @@ public:
 
         size_t locus_id = result_alignment.locus_id = locus_ids[0];
         result_alignment.locus = locus_names[locus_id];
-        result_alignment.jbase = &locus_databases[locus_id];
+        result_alignment.jbase = consistent_loci ? locus_databases[locus_id] : all_loci_database;
 
         // Aling V --- already done
         // Find minimum suffix after V gene
@@ -432,8 +433,8 @@ private:
     }
 
 
-    std::vector<GermlineLociVJDB> locus_databases;
-    GermlineLociVJDB all_loci_database;
+    std::vector<std::shared_ptr<const GermlineLociVJDB>> locus_databases;
+    std::shared_ptr<const GermlineLociVJDB> all_loci_database;
 
     const std::string db_directory;
     const std::string organism;
