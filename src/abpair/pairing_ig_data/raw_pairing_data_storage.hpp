@@ -17,6 +17,10 @@ class RawPairingDataStorage {
     void UpdateRecord(DropletBarcode db, std::string header, std::string sequence);
 
 public:
+    RawPairingDataStorage() {
+        ExtractMap();
+    }
+
     void Update(std::string fastq_fname);
 
     size_t size() const { return raw_pairing_records_.size(); }

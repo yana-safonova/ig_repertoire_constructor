@@ -1,4 +1,4 @@
-#include "logger/logger.hpp"
+#include <logger/logger.hpp>
 #include <verify.hpp>
 #include "raw_pairing_data_storage.hpp"
 #include "pairing_fastq_utils.hpp"
@@ -23,12 +23,12 @@ std::pair<std::string, std::string> get_vj_hit_from_line(std::string line) {
 
 // temporary
 void RawPairingDataStorage::ExtractMap() {
-    std::string fname = "SG3M-Fx1_alignment_info.csv";
+    std::string fname = "SG3M-full_alignment_info.csv";
     std::ifstream vj_fhanlder_(fname);
     std::string line;
     std::getline(vj_fhanlder_, line);
     size_t num = 0;
-    size_t threshold = 50000;
+    size_t threshold = 500000;
     while(!vj_fhanlder_.eof()) {
         std::getline(vj_fhanlder_, line);
         if(line == "")
@@ -39,7 +39,7 @@ void RawPairingDataStorage::ExtractMap() {
         num++;
         if(num > threshold) {
             INFO(num << " records were extracted");
-            threshold += 50000;
+            threshold += 500000;
         }
     }
     INFO(align_record_vj_.size() << " VJ alignment were extracted from " << fname);
@@ -65,7 +65,6 @@ void RawPairingDataStorage::UpdateRecord(DropletBarcode db, std::string header, 
 
 void RawPairingDataStorage::Update(std::string fastq_fname) {
     INFO("Adding pairing data from " << fastq_fname);
-    ExtractMap();
     size_t num_lines_before = raw_pairing_records_.size();
     std::ifstream fastq_fhandler(fastq_fname);
     assert(fastq_fhandler.good());

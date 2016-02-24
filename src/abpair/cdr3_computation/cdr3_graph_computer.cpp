@@ -212,7 +212,7 @@ std::pair<size_t, size_t> Cdr3GraphComputer::ComputeNumberLightCdr3InRelatedGrou
 bool Cdr3GraphComputer::OutputRelatedGroup(size_t index) {
     assert(index < related_records_.size());
     auto related_group = related_records_[index];
-    if(related_group.size() > 20 or related_group.size() < 5)
+    if(related_group.size() > 30 or related_group.size() < 5)
         return false;
     auto num_isotypes = ComputeIsotypesNumberForRelatedGroup(index);
     //if(num_isotypes.second != 2)

@@ -128,9 +128,9 @@ def main():
         edges.append((int(splits[0]), int(splits[1])))
     print str(len(edges)) + " edges were extracted"
 
-    output_dir = "" #"graphs"
+    output_dir = "graphs_all"
     output_pdf = os.path.join(output_dir, ntpath.basename(graph_file).split(".")[0] + ".pdf")
-    draw_with_igraph_nice(vertices_labels, edges, output_pdf)
+    draw_with_igraph(vertices_labels, edges, output_pdf)
     #os.system("open " + output_pdf)
     #draw_with_graph_tools(vertices_labels, edges, output_pdf)
 
