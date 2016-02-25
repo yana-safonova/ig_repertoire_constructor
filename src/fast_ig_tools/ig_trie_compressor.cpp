@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
         }
 
         if (vm.count("version")) {
-            cout << "<Some cool name> version 0.1; git version: " << build_info::git_hash7 << std::endl;
+            cout << bformat("IG Trie compressor, part of IgReC version %s; git version: %s") % build_info::version % build_info::git_hash7 << std::endl;
             return 0;
         }
 

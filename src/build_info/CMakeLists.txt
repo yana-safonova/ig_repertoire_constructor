@@ -35,6 +35,16 @@ add_definitions(-D BUILD_INFO_C_FLAGS='"${BUILD_INFO_C_FLAGS}"')
 add_definitions(-D BUILD_INFO_CXX_FLAGS='"${BUILD_INFO_CXX_FLAGS}"')
 
 
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/../VERSION")
+  FILE(READ ${CMAKE_SOURCE_DIR}/../VERSION BUILD_INFO_VERSION)
+  STRING(STRIP ${BUILD_INFO_VERSION} BUILD_INFO_VERSION)
+else()
+  SET(BUILD_INFO_VERSION "<unknown>")
+endif()
+
+add_definitions(-D BUILD_INFO_VERSION='"${BUILD_INFO_VERSION}"')
+
 add_library(build_info STATIC
             build_info.cpp)
 

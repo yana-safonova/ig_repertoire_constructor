@@ -3,6 +3,8 @@
 #include <iostream>
 
 int main() {
+    std::cout << build_info::version << std::endl;
+
     std::cout << build_info::git_hash << std::endl;
     std::cout << build_info::git_hash7 << std::endl;
     std::cout << build_info::git_refspec << std::endl;

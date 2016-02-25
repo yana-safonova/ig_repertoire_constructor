@@ -1,6 +1,8 @@
 #pragma once
 
 namespace build_info {
+    extern const char *version;
+
     extern const char *git_hash;
     extern const char *git_hash7;
     extern const char *git_refspec;

@@ -1,6 +1,8 @@
 #include <build_info.hpp>
 
 namespace build_info {
+    const char *version = BUILD_INFO_VERSION;
+
     const char *git_hash = BUILD_INFO_GIT_HASH;
     const char *git_hash7 = BUILD_INFO_GIT_HASH7;
     const char *git_refspec = BUILD_INFO_GIT_REFSPEC;
