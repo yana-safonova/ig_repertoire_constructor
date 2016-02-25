@@ -49,6 +49,8 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
     std::string add_info_filename;
     std::string discard_info_filename;
 
+    std::string valignments_filename;
+
     void parse_cmd_line(int argc, char **argv) {
         namespace po = boost::program_options;
         using std::exit;
@@ -221,10 +223,12 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
         bad_output_filename = output_dir + "/filtered_reads.fa";
         add_info_filename = output_dir + "/alignment_info.csv";
         discard_info_filename = output_dir + "/discard_info.txt";
+        valignments_filename = output_dir + "/valignments.fa";
 
         if (compress) {
             output_filename += ".gz";
             bad_output_filename += ".gz";
+            valignments_filename += ".gz";
         }
     }
 };
@@ -281,6 +285,9 @@ int main(int argc, char **argv) {
     omp_set_num_threads(param.threads);
     INFO(bformat("Alignment reads using %d threads starts") % param.threads);
 
+    INFO(bformat("V alignments are written to %s") % param.valignments_filename);
+    std::ofstream vjalignments(param.valignments_filename.c_str());
+
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t j = 0; j < reads.size(); ++j) {
         const CharString &read_id = read_ids[j];
@@ -296,6 +303,21 @@ int main(int argc, char **argv) {
         }
 
         const auto vjalignment = vjaligner.Query(read, param);
+
+        // if (vjalignment.VHitsSize()) {
+        if (vjalignment) {
+            auto valign = vjalignment.VAlignmentSeqAn();
+            const auto &row_gene = seqan::row(valign, 0);
+            const auto &row_read = seqan::row(valign, 1);
+
+            SEQAN_OMP_PRAGMA(critical)
+            {
+                vjalignments << ">" << read_id << std::endl;
+                vjalignments << row_read << std::endl;
+                vjalignments << ">" << read_id << "_" << vjalignment.VId() << std::endl;
+                vjalignments << row_gene << std::endl;
+            }
+        }
 
         SEQAN_OMP_PRAGMA(critical)
         if (param.verbose) {
