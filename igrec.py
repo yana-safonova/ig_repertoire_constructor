@@ -142,7 +142,7 @@ class IgRepConConfig:
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
-        self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
+        self.path_to_germline = os.path.join(home_directory, "data/germline")
 
     def __init__(self):
         self.__initBinaryPaths()
