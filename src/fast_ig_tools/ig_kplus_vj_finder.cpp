@@ -16,6 +16,8 @@ using std::endl;
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
 
+#include <build_info.hpp>
+
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
 using seqan::CharString;
@@ -179,7 +181,7 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
         }
 
         if (vm.count("version")) {
-            cout << "ig_kplus_vjfinder version 0.2" << std::endl;
+            cout << bformat("IG k+ VJfinder, a part of IgReC %s; git version %s") % build_info::version % build_info::git_hash7 << std::endl;
             exit(0);
         }
 
