@@ -24,8 +24,11 @@ using seqan::length;
 #include "ig_kplus_vj_finder.hpp"
 
 using fast_ig_tools::VJAligner;
+using fast_ig_tools::VJAlignerParameters;
+using fast_ig_tools::VJQueryParameters;
+using fast_ig_tools::FixCropFillParameters;
 
-struct VJFinderParameters : public VJAligner::Parameters {
+struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters, public FixCropFillParameters {
     size_t left_uncovered_limit = 16;
     size_t right_uncovered_limit = 5; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
     size_t min_v_segment_length = 250;

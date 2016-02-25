@@ -29,12 +29,18 @@ struct VJAlignerParameters {
     std::string loci = "all";
     std::string db_directory = "./germline";
     bool pseudogenes = true;
+};
 
+
+struct VJQueryParameters {
     int max_candidates = 10;
     int max_candidates_j = 10;
     bool fix_strand = true; // TODO Naming?
     bool consistent_loci = true; // TODO Naming? (needed for reproducability)
+};
 
+
+struct FixCropFillParameters {
     bool fill_left = true;
     bool fill_right = false;
     size_t fix_left = 3;
@@ -335,7 +341,6 @@ public:
     }
 
     using Alignment = VJAlignment;
-    using Parameters = VJAlignerParameters;
 
     template<typename Tparam>
     VJAlignment Query(const Dna5String &read,
