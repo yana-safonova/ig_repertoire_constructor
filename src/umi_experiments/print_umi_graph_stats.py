@@ -88,6 +88,7 @@ class WorkflowRunner:
             os.makedirs(params.tmp_dir)
 
         if not params.input_file:
+            # TODO: clean reads after merging!!
             single_reads = self.MergeReads(log, params.left_reads, params.right_reads, params.tmp_dir, params.clean)
         else:
             single_reads = params.input_file
