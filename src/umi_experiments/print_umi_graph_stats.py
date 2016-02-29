@@ -72,7 +72,7 @@ class BinaryRunner:
             self.binary,
             "-i " + self.input_file if self.input_file else "",
             "-o " + self.output_file if self.output_file else "",
-            "-t " + threads if threads else "",
+            "-t " + str(threads) if threads else "",
             self.params)
         log.info("Running " + cmdline)
         exit_code = os.system(cmdline)
