@@ -41,6 +41,7 @@ class BinaryPaths:
         run_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + '/'
         bin_dir = "build/release/bin/"
         self.paired_read_merger = os.path.join(run_directory, bin_dir, "paired_read_merger")
+        self.vj_finder = os.path.join(run_directory, bin_dir, "ig_kplus_vj_finder")
         self.umi_to_fastq = os.path.join(run_directory, bin_dir, "umi_to_fastq")
         self.ig_trie_compressor = os.path.join(run_directory, bin_dir, "ig_trie_compressor")
         self.ig_swgraph_construct = os.path.join(run_directory, bin_dir, "ig_swgraph_construct")
@@ -88,8 +89,8 @@ class WorkflowRunner:
             os.makedirs(params.tmp_dir)
 
         if not params.input_file:
-            # TODO: clean reads after merging!!
-            single_reads = self.MergeReads(log, params.left_reads, params.right_reads, params.tmp_dir, params.clean)
+            merged_reads = self.MergeReads(log, params.left_reads, params.right_reads, params.tmp_dir, params.clean)
+            single_reads = self.CleanReads(log, merged_reads, params.tmp_dir, params.clean)
         else:
             single_reads = params.input_file
         umi_fastq = self.ExtractUmi(log, single_reads, params.tmp_dir, params.clean)
@@ -119,6 +120,12 @@ class WorkflowRunner:
             log.info("Skipping reads merge.")
             return output_file
         BinaryRunner(BinaryPaths().paired_read_merger, "", "", "%s %s %s" % (left_reads_file, right_reads_file, output_file)).Run(log, clean)
+        return output_file
+
+    def CleanReads(self, log, input_file, out_dir, clean):
+        result_dir = os.path.join(out_dir, "vdj_finder")
+        BinaryRunner(BinaryPaths().vj_finder, input_file, result_dir).Run(log, clean)
+        output_file = os.path.join(result_dir, "cleaned_reads.fa")
         return output_file
 
     def ExtractUmi(self, log, input_file, out_dir, clean):

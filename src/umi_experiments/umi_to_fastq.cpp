@@ -23,6 +23,7 @@ int main(int argc, char * argv[]){
         std::vector<seqan::DnaQString> input_qual;
         readRecords(input_ids, input_reads, input_qual, infile);
     }
+    INFO(input_ids.size() << " records read.");
 
     INFO("Extracting barcodes.");
     std::vector<seqan::Dna5String> umis;
