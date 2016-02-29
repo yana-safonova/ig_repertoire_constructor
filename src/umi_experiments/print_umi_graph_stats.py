@@ -21,8 +21,9 @@ def ParseCommandLineParams(log):
     pair_reads.add_argument("-1", type=str, dest="left_reads", help="Left paired-end reads in FASTQ format")
     pair_reads.add_argument("-2", type=str, dest="right_reads", help="Right paired-end reads in FASTQ format")
     parser.add_argument("-o", "--output", type=str, dest="stats_file", help="Output statistics file path", required=True)
-    parser.add_argument("-t", "--tmp", type=str, dest="tmp_dir", default=".", help="Temporary files directory path")
+    parser.add_argument("--tmp", type=str, dest="tmp_dir", default=".", help="Temporary files directory path")
     parser.add_argument("-c", "--clean", dest="clean", action="store_true", help="Will remove all temporary files")
+    parser.add_argument("-t", "--threads", type=int, dest="threads", help="Number of threads to be used")
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -39,13 +40,13 @@ def ParseCommandLineParams(log):
 class BinaryPaths:
     def __init__(self):
         run_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + '/'
-        bin_dir = "build/release/bin/"
-        self.paired_read_merger = os.path.join(run_directory, bin_dir, "paired_read_merger")
-        self.vj_finder = os.path.join(run_directory, bin_dir, "ig_kplus_vj_finder")
-        self.umi_to_fastq = os.path.join(run_directory, bin_dir, "umi_to_fastq")
-        self.ig_trie_compressor = os.path.join(run_directory, bin_dir, "ig_trie_compressor")
-        self.ig_swgraph_construct = os.path.join(run_directory, bin_dir, "ig_swgraph_construct")
-        self.print_graph_decomposition_stats = os.path.join(run_directory, bin_dir, "print_graph_decomposition_stats")
+        self.bin_dir = os.path.join(run_directory, "build/release/bin/")
+        self.paired_read_merger = os.path.join(self.bin_dir, "paired_read_merger")
+        self.vj_finder = os.path.join(self.bin_dir, "ig_kplus_vj_finder")
+        self.umi_to_fastq = os.path.join(self.bin_dir, "umi_to_fastq")
+        self.ig_trie_compressor = os.path.join(self.bin_dir, "ig_trie_compressor")
+        self.ig_swgraph_construct = os.path.join(self.bin_dir, "ig_swgraph_construct")
+        self.print_graph_decomposition_stats = os.path.join(self.bin_dir, "print_graph_decomposition_stats")
 
 class BinaryRunner:
     def __init__(self, binary, input_file, output_file, params = ""):
@@ -54,7 +55,7 @@ class BinaryRunner:
         self.output_file = output_file
         self.params = params
 
-    def Run(self, log, clean):
+    def Run(self, log, clean, threads=None):
         if not clean and os.path.exists(self.output_file):
             log.info("Output file %s already found for %s. Skipping.", self.output_file, self.binary)
             return
@@ -67,10 +68,11 @@ class BinaryRunner:
         if os.path.exists(self.output_file):
             os.remove(self.output_file)
 
-        cmdline = "%s %s %s %s" % (
+        cmdline = "%s %s %s %s %s" % (
             self.binary,
             "-i " + self.input_file if self.input_file else "",
             "-o " + self.output_file if self.output_file else "",
+            "-t " + threads if threads else "",
             self.params)
         log.info("Running " + cmdline)
         exit_code = os.system(cmdline)
@@ -87,6 +89,8 @@ class WorkflowRunner:
             log.info("Creating new tmp directory at " + params.tmp_dir)
         if not os.path.exists(params.tmp_dir):
             os.makedirs(params.tmp_dir)
+
+        self.threads = params.threads
 
         if not params.input_file:
             merged_reads = self.MergeReads(log, params.left_reads, params.right_reads, params.tmp_dir, params.clean)
@@ -124,8 +128,12 @@ class WorkflowRunner:
 
     def CleanReads(self, log, input_file, out_dir, clean):
         result_dir = os.path.join(out_dir, "vdj_finder")
-        BinaryRunner(BinaryPaths().vj_finder, input_file, result_dir).Run(log, clean)
         output_file = os.path.join(result_dir, "cleaned_reads.fa")
+        if not clean and os.path.exists(output_file):
+            log.info("Skipping clean reads.")
+            return output_file
+        params = "-o " + result_dir + " --db-directory " + os.path.join(BinaryPaths().bin_dir, "germline")
+        BinaryRunner(BinaryPaths().vj_finder, input_file, "", params).Run(log, clean, self.threads)
         return output_file
 
     def ExtractUmi(self, log, input_file, out_dir, clean):
@@ -140,7 +148,7 @@ class WorkflowRunner:
 
     def ConstructGraph(self, log, input_file, out_dir, clean):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + ".graph")
-        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k 6 --tau 1 -A").Run(log, clean)
+        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k 6 --tau 1 -A").Run(log, clean, self.threads)
         return output_file
 
     def PrintStats(self, log, reads_file, graph_file, output_file):
