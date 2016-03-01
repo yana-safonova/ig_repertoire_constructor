@@ -2,13 +2,12 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
-#include <openmp_wrapper.h>
 #include <segfault_handler.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include "utils.hpp"
 #include "umi_utils.hpp"
-#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "dist_distribution_stats.hpp"
 
 bool readArgs(int argc, char **argv, std::string& reads_file, std::string& output_dir, unsigned& thread_count) {
     namespace po = boost::program_options;
@@ -35,124 +34,6 @@ void group_reads_by_umi(const std::vector<seqan::Dna5String>& umis, std::unorder
         auto& reads = umi_to_reads[umi];
         reads.push_back(i);
     }
-}
-
-size_t get_sw_dist(const seqan::Dna5String& first, const seqan::Dna5String& second) {
-    vector<size_t> cur(length(first) + 1);
-    vector<size_t> prev(length(first) + 1);
-    size_t INF = std::numeric_limits<size_t>::max() / 2;
-    fill(cur.begin() + 1, cur.end(), INF);
-    for (size_t i = 0; i < length(second); i ++) {
-        std::swap(cur, prev);
-        fill(cur.begin(), cur.end(), INF);
-        cur[0] = prev[0] + 1;
-        for (size_t j = 1; j <= length(first); j ++) {
-            cur[j] = min({
-                                 cur[j - 1] + 1,
-                                 prev[j] + 1,
-                                 prev[j - 1] + (first[j - 1] == second[i] ? 0 : 1)
-                         });
-        }
-    }
-    return cur[length(first)];
-}
-
-class Stats {
-public:
-    Stats(std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution, std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution)
-            : hamming_dist_distribution_(hamming_dist_distribution), sw_dist_distribution_(sw_dist_distribution) {};
-
-    std::vector<size_t> GetSizes();
-
-    std::string ToString(size_t umi_size);
-
-    static Stats GetStats(const std::vector<seqan::Dna5String>& input_reads, const std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads, unsigned thread_count);
-
-private:
-    std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution_;
-    std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution_;
-};
-
-Stats Stats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads, unsigned thread_count) {
-    size_t max_read_length = 0;
-    for (auto& read : input_reads) {
-        max_read_length = std::max(max_read_length, length(read));
-    }
-
-    auto get_hamming_dist = [&](const seqan::Dna5String& s1, const seqan::Dna5String& s2) -> size_t {
-        return static_cast<size_t>(-half_sw_banded(s1, s2, 0, -1, -1, [](int) -> int { return 0; }, 0));
-    };
-
-    std::vector<std::vector<size_t>> read_groups;
-    for (auto& entry : umi_to_reads) {
-        read_groups.push_back(entry.second);
-    }
-    std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution;
-    std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution;
-    std::atomic<size_t> processed;
-    processed = 0;
-    size_t next_percent = 1;
-    omp_set_num_threads(thread_count);
-#pragma omp parallel for schedule(dynamic)
-    for (size_t group = 0; group < read_groups.size(); group ++) {
-        auto& reads = read_groups[group];
-        std::map<size_t, size_t> current_hamming_distribution;
-        std::map<size_t, size_t> current_sw_distribution;
-        for (size_t i = 0; i < reads.size(); i++) {
-            for (size_t j = 0; j < i; j++) {
-                auto& first = input_reads[reads[i]];
-                auto& second = input_reads[reads[j]];
-                size_t hamming_dist = get_hamming_dist(first, second);
-                size_t sw_dist = get_sw_dist(first, second);
-                current_hamming_distribution[hamming_dist] ++;
-                current_sw_distribution[sw_dist] ++;
-            }
-        }
-#pragma omp critical
-        {
-            for (auto &entry : current_hamming_distribution) {
-                hamming_dist_distribution[reads.size()][entry.first] += entry.second;
-                sw_dist_distribution[reads.size()][entry.first] += current_sw_distribution[entry.first];
-            }
-            processed += reads.size();
-            while (processed * 100 >= input_reads.size() * next_percent) {
-                if (processed * 100 >= input_reads.size() * next_percent) {
-                    INFO(next_percent << "% of " << input_reads.size() << " reads processed");
-                    next_percent++;
-//                std::cout << Stats(hamming_dist_distribution, sw_dist_distribution).ToString();
-                }
-            }
-        }
-    }
-    return Stats(hamming_dist_distribution, sw_dist_distribution);
-}
-
-std::vector<size_t> Stats::GetSizes() {
-    std::vector<size_t> sizes(hamming_dist_distribution_.size());
-    size_t current = 0;
-    for (auto& entry : hamming_dist_distribution_) {
-        sizes[current ++] = entry.first;
-    }
-    return sizes;
-}
-
-std::string Stats::ToString(size_t umi_size) {
-    size_t max_dist = 0;
-    for (size_t i = 0; i < hamming_dist_distribution_[umi_size].size(); i ++) {
-        if (hamming_dist_distribution_[umi_size][i] != 0 || sw_dist_distribution_[umi_size][i] != 0) {
-            max_dist = i;
-        }
-    }
-
-    std::stringstream ss;
-    char buf[100];
-    sprintf(buf, "%5s%10s%10s", "dist", "hamming", "sw");
-    ss << buf << std::endl;
-    for (size_t i = 0; i <= max_dist; i ++) {
-        sprintf(buf, "%5d%10d%10d", static_cast<int>(i), static_cast<int>(hamming_dist_distribution_[umi_size][i]), static_cast<int>(sw_dist_distribution_[umi_size][i]));
-        ss << buf << std::endl;
-    }
-    return ss.str();
 }
 
 void print_umi_reads_distribution_by_size(unordered_map<Umi, vector<size_t>>& umi_to_reads) {
@@ -196,7 +77,7 @@ int main(int argc, char **argv) {
     print_umi_reads_distribution_by_size(umi_to_reads);
 
     INFO("Calculating stats");
-    auto stats = Stats::GetStats(input_reads, umi_to_reads, thread_count);
+    auto stats = DistDistributionStats::GetStats(input_reads, umi_to_reads, thread_count);
 
     if (output_dir != "") {
         INFO("Saving results");
