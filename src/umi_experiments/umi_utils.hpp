@@ -39,3 +39,5 @@ namespace std {
 
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
                                     std::vector<seqan::DnaQString>& umi_quals);
+
+void group_reads_by_umi(const std::vector<seqan::Dna5String>& umis, std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads);

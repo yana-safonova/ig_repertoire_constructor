@@ -1,10 +1,8 @@
 #pragma once
 
 #include <logger/log_writers.hpp>
+#include <seqan/seq_io.h>
 
-void create_console_logger() {
-    using namespace logging;
-    logger *lg = create_logger("");
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
+void create_console_logger();
+
+size_t get_sw_dist(const seqan::Dna5String& first, const seqan::Dna5String& second);

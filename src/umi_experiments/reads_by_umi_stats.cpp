@@ -9,7 +9,7 @@
 #include "umi_utils.hpp"
 #include "dist_distribution_stats.hpp"
 
-bool readArgs(int argc, char **argv, std::string& reads_file, std::string& output_dir, unsigned& thread_count) {
+bool read_args(int argc, char **argv, std::string& reads_file, std::string& output_dir, unsigned& thread_count) {
     namespace po = boost::program_options;
     po::options_description cmdl_options("Is this needed?");
     cmdl_options.add_options()
@@ -28,14 +28,6 @@ bool readArgs(int argc, char **argv, std::string& reads_file, std::string& outpu
     return true;
 }
 
-void group_reads_by_umi(const std::vector<seqan::Dna5String>& umis, std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads) {
-    for (size_t i = 0; i < umis.size(); i ++) {
-        Umi umi(umis[i]);
-        auto& reads = umi_to_reads[umi];
-        reads.push_back(i);
-    }
-}
-
 void print_umi_reads_distribution_by_size(unordered_map<Umi, vector<size_t>>& umi_to_reads) {
     std::map<size_t, size_t> size_to_count;
     for (auto& entry : umi_to_reads) {
@@ -52,7 +44,7 @@ int main(int argc, char **argv) {
     std::string reads_file;
     std::string output_dir;
     unsigned thread_count;
-    if (!readArgs(argc, argv, reads_file, output_dir, thread_count)) {
+    if (!read_args(argc, argv, reads_file, output_dir, thread_count)) {
         return 0;
     }
 
@@ -70,10 +62,9 @@ int main(int argc, char **argv) {
         extract_barcodes_from_read_ids(input_ids, umis, umi_quals);
     }
 
-    INFO("Grouping reads by barcodes");
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(umis, umi_to_reads);
-    INFO(umi_to_reads.size() << " unique barcodes found, stats by sizes:");
+    INFO("stats by sizes:");
     print_umi_reads_distribution_by_size(umi_to_reads);
 
     INFO("Calculating stats");

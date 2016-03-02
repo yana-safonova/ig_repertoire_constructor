@@ -1,26 +1,7 @@
 #include <logger/logger.hpp>
 #include "dist_distribution_stats.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
-
-size_t get_sw_dist(const seqan::Dna5String& first, const seqan::Dna5String& second) {
-    vector<size_t> cur(length(first) + 1);
-    vector<size_t> prev(length(first) + 1);
-    size_t INF = std::numeric_limits<size_t>::max() / 2;
-    fill(cur.begin() + 1, cur.end(), INF);
-    for (size_t i = 0; i < length(second); i ++) {
-        std::swap(cur, prev);
-        fill(cur.begin(), cur.end(), INF);
-        cur[0] = prev[0] + 1;
-        for (size_t j = 1; j <= length(first); j ++) {
-            cur[j] = min({
-                                 cur[j - 1] + 1,
-                                 prev[j] + 1,
-                                 prev[j - 1] + (first[j - 1] == second[i] ? 0 : 1)
-                         });
-        }
-    }
-    return cur[length(first)];
-}
+#include "utils.hpp"
 
 DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads, unsigned thread_count) {
     size_t max_read_length = 0;

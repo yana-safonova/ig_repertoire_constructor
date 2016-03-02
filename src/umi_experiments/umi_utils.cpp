@@ -1,5 +1,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/format.hpp>
+#include <unordered_map>
+#include <logger/log_writers.hpp>
 #include "umi_utils.hpp"
 
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
@@ -29,4 +31,14 @@ void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_
         }
         VERIFY_MSG(umi_quals.size() == umis.size() || umi_quals.size() == 0, "Found both UMIs with quality data and without.");
     }
+}
+
+void group_reads_by_umi(const std::vector<seqan::Dna5String>& umis, std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads) {
+    INFO("Grouping reads by barcodes");
+    for (size_t i = 0; i < umis.size(); i ++) {
+        Umi umi(umis[i]);
+        auto& reads = umi_to_reads[umi];
+        reads.push_back(i);
+    }
+    INFO(umi_to_reads.size() << " unique barcodes found");
 }

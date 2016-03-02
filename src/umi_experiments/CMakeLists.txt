@@ -11,7 +11,7 @@ link_libraries(
         boost_program_options
 )
 
-set(SRC_FILES umi_utils.cpp dist_distribution_stats.cpp)
+set(SRC_FILES umi_utils.cpp dist_distribution_stats.cpp utils.cpp)
 
 # needed for CLion to include them into the project
 file(GLOB HEADER_FILES *.hpp)
@@ -22,3 +22,4 @@ add_executable(print_graph_decomposition_stats print_graph_decomposition_stats.c
 add_executable(umi_graph umi_graph.cpp ${SRC_FILES})
 add_executable(group_by_umi group_by_umi.cpp ${SRC_FILES})
 add_executable(reads_by_umi_stats reads_by_umi_stats.cpp ${SRC_FILES})
+add_executable(cluster_reads cluster_reads.cpp ${SRC_FILES})
