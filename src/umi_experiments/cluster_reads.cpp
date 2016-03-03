@@ -6,11 +6,13 @@
 #include "utils.hpp"
 #include "umi_utils.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "../graph_utils/graph_io.hpp"
 
 struct Params {
-    std::string reads_file;
-    std::string umi_file;
-    std::string umi_graph_file;
+    std::string reads_path;
+    std::string umi_uncompressed_path;
+    std::string umi_compressed_path;
+    std::string umi_graph_path;
 };
 
 bool read_args(int argc, char **argv, Params& params) {
@@ -18,9 +20,10 @@ bool read_args(int argc, char **argv, Params& params) {
     po::options_description cmdl_options("Is this needed?");
     cmdl_options.add_options()
             ("help,h", "print help message")
-            ("reads,r", po::value<std::string>(&params.reads_file)->required(), "input file with reads")
-            ("umi,u", po::value<std::string>(&params.umi_file)->required(), "file with UMI records extracted (not compressed)")
-            ("graph,g", po::value<std::string>(&params.umi_graph_file)->required(), "file with UMI graph")
+            ("reads,r", po::value<std::string>(&params.reads_path)->required(), "input file with reads")
+            ("umi_uncompressed,u", po::value<std::string>(&params.umi_uncompressed_path)->required(), "file with UMI records extracted (not compressed)")
+            ("umi_compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
+            ("graph,g", po::value<std::string>(&params.umi_graph_path)->required(), "file with UMI graph")
 //            ("output,o", po::value<std::string>(&output_dir)->default_value(""), "output directory")
 //            ("threads,t", po::value<unsigned>(&thread_count)->default_value(1), "number of running threads")
             ;
@@ -134,6 +137,30 @@ private:
     const ClusteringMode mode_;
 };
 
+size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
+                          const std::unordered_map <Umi, std::vector<size_t>>& umi_to_reads,
+                          std::unordered_map <Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi) {
+    size_t total_clusters = 0;
+    for (auto& entry : umi_to_reads) {
+        const auto& umi = entry.first;
+        const auto& umi_reads = entry.second;
+        hamm_clusters_by_umi[umi] = Clusterer(ClusteringMode::hamming).cluster(umi_reads, input_reads);
+        total_clusters += hamm_clusters_by_umi[umi].size();
+    }
+    return total_clusters;
+}
+
+size_t unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& input_reads, const SparseGraphPtr umi_graph,
+                                        const std::vector<seqan::Dna5String>& umis,
+                                        const std::unordered_map<Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi,
+                                        std::vector<Clusterer::Cluster> hamm_clusters) {
+    for (size_t v = 0; v < umi_graph->N(); v ++) {
+        for (size_t u : umi_graph->VertexEdges(v)) {
+
+        }
+    }
+}
+
 int main(int argc, char **argv) {
     segfault_handler sh;
     create_console_logger();
@@ -144,40 +171,54 @@ int main(int argc, char **argv) {
     }
 
     INFO("Reading reads");
-    seqan::SeqFileIn reads_file(params.reads_file.c_str());
     std::vector<seqan::CharString> input_ids;
     std::vector<seqan::Dna5String> input_reads;
-    readRecords(input_ids, input_reads, reads_file);
+    {
+        seqan::SeqFileIn reads_file(params.reads_path.c_str());
+        readRecords(input_ids, input_reads, reads_file);
+    }
     INFO(input_ids.size() << " records read");
 
     INFO("Reading UMI records");
-    seqan::SeqFileIn umi_file(params.umi_file.c_str());
     std::vector<seqan::CharString> umi_ids;
     std::vector<seqan::Dna5String> umis;
-    readRecords(umi_ids, umis, umi_file);
+    {
+        seqan::SeqFileIn umi_file(params.umi_uncompressed_path.c_str());
+        readRecords(umi_ids, umis, umi_file);
+    }
     INFO(umi_ids.size() << " UMIs read");
 
-    // group reads by umis, needs uncompressed umis
+    // needs uncompressed umis
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(umis, umi_to_reads);
 
-    // unite reads close by hamming within one UMI to groups
-    const size_t HAMMING_THRESHOLD = 10;
-    INFO("Clustering reads by hamming within single UMIs with threshold " << HAMMING_THRESHOLD);
+    INFO("Clustering reads by hamming within single UMIs with threshold " << ClusteringMode::hamming.threshold);
     std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
-    size_t total_clusters = 0;
-    for (auto& entry : umi_to_reads) {
-        const auto& umi = entry.first;
-        const auto& umi_reads = entry.second;
-        hamm_clusters_by_umi[umi] = Clusterer(ClusteringMode::hamming).cluster(umi_reads, input_reads);
-        total_clusters += hamm_clusters_by_umi[umi].size();
+    {
+        size_t total_clusters = cluster_inside_umi(input_reads, umi_to_reads, hamm_clusters_by_umi);
+        INFO(total_clusters << " clusters found");
     }
-    INFO(total_clusters << " clusters found");
 
-    // read umi graph
+    INFO("Reading compressed UMIs");
+    std::vector<seqan::Dna5String> compressed_umis;
+    {
+        std::vector<seqan::CharString> compressed_umi_ids;
+        seqan::SeqFileIn umi_compressed_file(params.umi_compressed_path.c_str());
+        readRecords(compressed_umi_ids, compressed_umis, umi_compressed_file);
+    }
+    INFO(compressed_umis.size() << " compressed UMIs read");
+
+    INFO("Reading UMI graph");
+    const SparseGraphPtr umi_graph = GraphReader(params.umi_graph_path).CreateGraph();
+    INFO("Read graph with " << umi_graph->N() << " vertices and " << umi_graph->NZ() << " edges");
 
     // unite groups of close by hamming reads for adjacent UMIs
-
+    INFO("Uniting read clusters for adjacent UMIs");
+    std::vector<Clusterer::Cluster> hamm_clusters;
+    {
+        size_t total_clusters = unite_clusters_for_adjacent_umis(input_reads, umi_graph, compressed_umis, hamm_clusters_by_umi, hamm_clusters);
+        INFO(total_clusters << " clusters found");
+    }
 
     // probably proceed with edit distance
 
