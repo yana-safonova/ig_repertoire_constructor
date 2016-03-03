@@ -35,28 +35,24 @@ bool read_args(int argc, char **argv, Params& params) {
 }
 
 struct ClusteringMode {
-    ClusteringMode(size_t threshold_) : threshold(threshold_) {}
+    typedef std::function<size_t(const seqan::Dna5String&, const seqan::Dna5String&)> DistFunction;
 
+    const DistFunction dist;
     const size_t threshold;
 
-    virtual size_t dist(const seqan::Dna5String&, const seqan::Dna5String&) = 0;
+    ClusteringMode(DistFunction dist_, size_t threshold_) : dist(dist_), threshold(threshold_) {}
+
+    static const ClusteringMode hamming;
+    static const ClusteringMode edit;
 };
 
-struct HammingClusteringMode : ClusteringMode {
-    HammingClusteringMode(size_t threshold) : ClusteringMode(threshold) {}
+const ClusteringMode ClusteringMode::hamming = ClusteringMode([](const seqan::Dna5String& first, const seqan::Dna5String& second) {
+    return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
+}, 10);
 
-    size_t dist(const seqan::Dna5String& first, const seqan::Dna5String& second) override {
-        return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-    }
-};
-
-struct EditDistClusteringMode : ClusteringMode {
-    EditDistClusteringMode(size_t threshold) : ClusteringMode(threshold) {}
-
-    size_t dist(const seqan::Dna5String& first, const seqan::Dna5String& second) override {
-        return get_sw_dist(first, second);
-    }
-};
+const ClusteringMode ClusteringMode::edit = ClusteringMode([](const seqan::Dna5String& first, const seqan::Dna5String& second) {
+    return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
+}, 10);
 
 // TODO: don't write this code for the third time
 class Clusterer {
@@ -66,7 +62,7 @@ public:
         Cluster(const seqan::Dna5String& first_member, size_t first_member_index)
                 : id_(first_member_index), members_{first_member_index}, center_(first_member) {}
 
-        bool ShouldContain(const seqan::Dna5String& read, ClusteringMode& clusteringMode) const {
+        bool ShouldContain(const seqan::Dna5String& read, const ClusteringMode& clusteringMode) const {
             return clusteringMode.dist(read, center_) <= clusteringMode.threshold;
         }
 
@@ -111,7 +107,7 @@ public:
         }
     };
 
-    Clusterer(ClusteringMode& mode) : mode_(mode) {}
+    Clusterer(const ClusteringMode& mode) : mode_(mode) {}
 
     std::vector<Cluster> cluster(const std::vector<size_t>& indices, const std::vector<seqan::Dna5String>& reads) {
         std::set<Cluster, Cluster::SizeComparator> clusters;
@@ -135,7 +131,7 @@ public:
     }
 
 private:
-    ClusteringMode& mode_;
+    const ClusteringMode mode_;
 };
 
 int main(int argc, char **argv) {
@@ -173,7 +169,7 @@ int main(int argc, char **argv) {
     for (auto& entry : umi_to_reads) {
         const auto& umi = entry.first;
         const auto& umi_reads = entry.second;
-        hamm_clusters_by_umi[umi] = Clusterer(HammingClusteringMode(HAMMING_THRESHOLD)).cluster(umi_reads, input_reads);
+        hamm_clusters_by_umi[umi] = Clusterer(ClusteringMode::hamming).cluster(umi_reads, input_reads);
         total_clusters += hamm_clusters_by_umi[umi].size();
     }
     INFO(total_clusters << " clusters found");
