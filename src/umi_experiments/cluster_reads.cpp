@@ -187,6 +187,7 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
             clusters[cluster_id] = umi_clusters[i];
         }
     }
+    DEBUG("Total clusters " << clusters.size());
 
     for (size_t v = 0; v < umi_graph->N(); v ++) {
         const auto v_umi = Umi(umis[v]);
@@ -198,13 +199,18 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
                 const auto v_cluster_id = std::make_pair(v_umi, v_cluster_idx);
                 for (size_t u_cluster_idx = 0; u_cluster_idx < u_clusters.size(); u_cluster_idx ++) {
                     const auto u_cluster_id = std::make_pair(u_umi, u_cluster_idx);
+                    if (ClusteringMode::hamming.dist(umis[u], umis[v]) > ClusteringMode::hamming.threshold) {
+                        continue;
+                    }
                     if (!cluster_origins.unite(v_cluster_id, u_cluster_id)) {
                         continue;
                     }
+                    DEBUG("Merging clusters corresponding to " << umis[u] << " and " << umis[v]);
                     const auto& merged = Clusterer::Cluster::merge(v_clusters[v_cluster_idx], u_clusters[u_cluster_idx], input_reads);
                     clusters.erase(v_cluster_id);
                     clusters.erase(u_cluster_id);
                     clusters[cluster_origins.findRoot(v_cluster_id)] = merged;
+                    DEBUG("Total clusters " << clusters.size());
                 }
             }
         }
