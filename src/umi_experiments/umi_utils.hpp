@@ -7,13 +7,14 @@
 class Umi {
 public:
     explicit Umi(const seqan::Dna5String& umi) : umi_(umi) {}
+    Umi() {}
 
     bool operator==(const Umi &other) const { return umi_ == other.umi_; }
 
     seqan::Dna5String GetString() const { return umi_; }
 
 private:
-    const seqan::Dna5String umi_;
+    seqan::Dna5String umi_;
 };
 
 namespace std {
