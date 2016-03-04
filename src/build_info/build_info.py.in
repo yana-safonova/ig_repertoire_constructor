@@ -1,0 +1,19 @@
+version = "@BUILD_INFO_VERSION@"
+git_hash = "@BUILD_INFO_GIT_HASH@"
+git_hash7 = "@BUILD_INFO_GIT_HASH7@"
+git_refspec = "@BUILD_INFO_GIT_REFSPEC@"
+git_describe = "@BUILD_INFO_GIT_DESCRIBE@"
+git_tag = "@BUILD_INFO_GIT_TAG@"
+
+cmake = "@BUILD_INFO_CMAKE@"
+system = "@BUILD_INFO_SYSTEM@"
+cpu = "@BUILD_INFO_CPU@"
+
+c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@"
+cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@"
+c_compiler = "@BUILD_INFO_C_COMPILER@"
+cxx_compiler = "@BUILD_INFO_CXX_COMPILER@"
+
+build_type = "@BUILD_INFO_BUILD_TYPE@"
+c_flags = "@BUILD_INFO_C_FLAGS@"
+cxx_flags = "@BUILD_INFO_CXX_FLAGS@"

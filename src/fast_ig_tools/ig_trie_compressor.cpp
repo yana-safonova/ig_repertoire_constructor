@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <chrono>
 
+#include <build_info.hpp>
+
 #include <iostream>
 using std::cout;
 
@@ -25,23 +27,18 @@ int main(int argc, char **argv) {
     perf_counter pc;
     create_console_logger("");
 
-    INFO("Command line: " << join_cmd_line(argc, argv));
-
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
     std::string idmap_file_name = "";
     try {
-        std::string config_file = "";
-
         // Declare a group of options that will be
         // allowed only on command line
         po::options_description generic("Generic options");
         generic.add_options()
             ("version,v", "print version string")
             ("help,h", "produce help message")
-            ("config,c", po::value<std::string>(&config_file)->default_value(config_file),
-             "name of a file of a configuration")
-            ("input-file,i", po::value<std::string>(&input_file),
+            ("config-file,c", "name of a file of a configuration")
+            ("input-file,i", po::value<std::string>(&input_file)->required(),
              "name of the input file (FASTA|FASTQ)")
             ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
              "name of the output file (FASTA|FASTQ)")
@@ -73,14 +70,31 @@ int main(int argc, char **argv) {
         visible.add(generic).add(config);
 
         po::positional_options_description p;
-        p.add("input-file", -1);
+        p.add("input-file", 1);
 
         po::variables_map vm;
         store(po::command_line_parser(argc, argv).
               options(cmdline_options).positional(p).run(), vm);
-        notify(vm);
 
-        if (config_file != "") {
+
+        if (vm.count("help-hidden")) {
+            cout << cmdline_options << std::endl;
+            return 0;
+        }
+
+        if (vm.count("help")) {
+            cout << visible << std::endl;
+            return 0;
+        }
+
+        if (vm.count("version")) {
+            cout << bformat("IG Trie compressor, part of IgReC version %s; git version: %s") % build_info::version % build_info::git_hash7 << std::endl;
+            return 0;
+        }
+
+        if (vm.count("config-file")) {
+            std::string config_file = vm["config-file"].as<std::string>();
+
             std::ifstream ifs(config_file.c_str());
             if (!ifs) {
                 cout << "can not open config file: " << config_file << "\n";
@@ -90,29 +104,20 @@ int main(int argc, char **argv) {
                 // reparse cmd line again for update config defaults
                 store(po::command_line_parser(argc, argv).
                       options(cmdline_options).positional(p).run(), vm);
-                notify(vm);
             }
         }
 
-        if (vm.count("help-hidden")) {
-            cout << cmdline_options << std::endl;
-            return 0;
-        }
-
-        if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
-            cout << visible << "\n";
-            return 0;
-        }
-
-        if (vm.count("version")) {
-            cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
-            return 0;
+        try {
+            notify(vm);
+        } catch (po::error &e) {
+            cout << "Parser error: " << e.what() << std::endl;
         }
     } catch(std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;
     }
 
+    INFO("Command line: " << join_cmd_line(argc, argv));
     INFO("Input reads: " << input_file);
     INFO("Output filename: " << output_file);
 
