@@ -168,7 +168,7 @@ size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
 void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& input_reads, const SparseGraphPtr umi_graph,
                                         const std::vector<seqan::Dna5String>& umis,
                                         const std::unordered_map<Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi,
-                                        std::vector<Clusterer::Cluster> hamm_clusters) {
+                                        std::vector<Clusterer::Cluster>& hamm_clusters) {
     // TODO: share Umi
     typedef std::pair<Umi, size_t> ClusterId;
     struct ClusterIdHash {
