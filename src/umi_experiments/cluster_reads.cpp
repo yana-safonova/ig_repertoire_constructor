@@ -198,6 +198,51 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
     }
 }
 
+struct Input {
+    Input(vector<seqan::CharString>& input_ids_, std::vector<seqan::Dna5String>& input_reads_,
+          vector<seqan::CharString>& umi_ids_, std::vector<seqan::Dna5String>& umis_,
+          std::vector<seqan::Dna5String>& compressed_umis_, SparseGraphPtr& umi_graph_)
+            : input_ids(input_ids_), input_reads(input_reads_), umi_ids(umi_ids_), umis(umis_),
+              compressed_umis(compressed_umis_), umi_graph(umi_graph_) {}
+
+    vector<seqan::CharString> input_ids;
+    std::vector<seqan::Dna5String> input_reads;
+    vector<seqan::CharString> umi_ids;
+    std::vector<seqan::Dna5String> umis;
+    std::vector<seqan::Dna5String> compressed_umis;
+    SparseGraphPtr umi_graph;
+};
+
+Input read_everything(const Params& params) {
+    vector<seqan::CharString> input_ids;
+    std::vector<seqan::Dna5String> input_reads;
+    INFO("Reading reads");
+    seqan::SeqFileIn reads_file(params.reads_path.c_str());
+    readRecords(input_ids, input_reads, reads_file);
+    INFO(input_ids.size() << " records read");
+
+    vector<seqan::CharString> umi_ids;
+    std::vector<seqan::Dna5String> umis;
+    INFO("Reading UMI records");
+    seqan::SeqFileIn umi_file(params.umi_uncompressed_path.c_str());
+    readRecords(umi_ids, umis, umi_file);
+    INFO(umi_ids.size() << " UMIs read");
+
+    std::vector<seqan::Dna5String> compressed_umis;
+    INFO("Reading compressed UMIs");
+    std::vector<seqan::CharString> compressed_umi_ids;
+    seqan::SeqFileIn umi_compressed_file(params.umi_compressed_path.c_str());
+    readRecords(compressed_umi_ids, compressed_umis, umi_compressed_file);
+    INFO(compressed_umis.size() << " compressed UMIs read");
+
+    SparseGraphPtr umi_graph;
+    INFO("Reading UMI graph");
+    umi_graph = GraphReader(params.umi_graph_path).CreateGraph();
+    INFO("Read graph with " << umi_graph->N() << " vertices and " << umi_graph->NZ() << " edges");
+
+    return Input(input_ids, input_reads, umi_ids, umis, compressed_umis, umi_graph);
+}
+
 int main(int argc, char **argv) {
     segfault_handler sh;
     create_console_logger();
@@ -207,52 +252,23 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    INFO("Reading reads");
-    std::vector<seqan::CharString> input_ids;
-    std::vector<seqan::Dna5String> input_reads;
-    {
-        seqan::SeqFileIn reads_file(params.reads_path.c_str());
-        readRecords(input_ids, input_reads, reads_file);
-    }
-    INFO(input_ids.size() << " records read");
-
-    INFO("Reading UMI records");
-    std::vector<seqan::CharString> umi_ids;
-    std::vector<seqan::Dna5String> umis;
-    {
-        seqan::SeqFileIn umi_file(params.umi_uncompressed_path.c_str());
-        readRecords(umi_ids, umis, umi_file);
-    }
-    INFO(umi_ids.size() << " UMIs read");
+    const auto input = read_everything(params);
 
     // needs uncompressed umis
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
-    group_reads_by_umi(umis, umi_to_reads);
+    group_reads_by_umi(input.umis, umi_to_reads);
 
     INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
     std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
     {
-        size_t total_clusters = cluster_inside_umi(input_reads, umi_to_reads, hamm_clusters_by_umi);
+        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
         INFO(total_clusters << " clusters found");
     }
-
-    INFO("Reading compressed UMIs");
-    std::vector<seqan::Dna5String> compressed_umis;
-    {
-        std::vector<seqan::CharString> compressed_umi_ids;
-        seqan::SeqFileIn umi_compressed_file(params.umi_compressed_path.c_str());
-        readRecords(compressed_umi_ids, compressed_umis, umi_compressed_file);
-    }
-    INFO(compressed_umis.size() << " compressed UMIs read");
-
-    INFO("Reading UMI graph");
-    const SparseGraphPtr umi_graph = GraphReader(params.umi_graph_path).CreateGraph();
-    INFO("Read graph with " << umi_graph->N() << " vertices and " << umi_graph->NZ() << " edges");
 
     // unite groups of close by hamming reads for adjacent UMIs
     INFO("Uniting read clusters for adjacent UMIs");
     std::vector<Clusterer::Cluster> hamm_clusters;
-    unite_clusters_for_adjacent_umis(input_reads, umi_graph, compressed_umis, hamm_clusters_by_umi, hamm_clusters);
+    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
     INFO(hamm_clusters.size() << " clusters found");
 
     // probably proceed with edit distance
