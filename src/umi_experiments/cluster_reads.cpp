@@ -271,6 +271,27 @@ int main(int argc, char **argv) {
     unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
     INFO(hamm_clusters.size() << " clusters found");
 
+    
+    INFO("Employing new sctucture");
+    // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
+    std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
+    for (auto& umi : input.compressed_umis) {
+        umi_ptr_by_umi[umi] = UmiPtr(new Umi(umi));
+    }
+
+    std::vector<UmiPtr> compressed_umi_ptrs;
+    for (auto& entry : umi_ptr_by_umi) {
+        compressed_umi_ptrs.push_back(entry.second);
+    }
+    ManyToManyCorrespondence<UmiPtr, clusterer::ClusterPtr> initial_umis_to_clusters;
+    for (auto& entry : umi_to_reads) {
+        auto& umi = umi_ptr_by_umi[entry.first];
+        for (auto& read : entry.second) {
+            initial_umis_to_clusters.add(umi, std::shared_ptr(new clusterer::Cluster<seqan::Dna5String>(read)));
+        }
+    }
+    clusterer::Clusterer::cluster(clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+
     // probably proceed with edit distance
 
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques

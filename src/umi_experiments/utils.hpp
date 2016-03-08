@@ -22,7 +22,8 @@ public:
 
     // returns true if the to parameter is presented by some links
     bool removeSecond(ToPtr to);
-    void add(const std::unordered_set<FromPtr>& from_set, ToPtr to);
+    void add(const FromPtr& from, const ToPtr& to);
+    void add(const std::unordered_set<FromPtr>& from_set, const ToPtr& to);
 
 private:
     std::unordered_map<FromPtr, std::unordered_set<ToPtr>> forth_;
