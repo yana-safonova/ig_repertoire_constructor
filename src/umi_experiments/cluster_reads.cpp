@@ -5,9 +5,10 @@
 #include <seqan/seq_io.h>
 #include "utils.hpp"
 #include "umi_utils.hpp"
-#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include "../graph_utils/graph_io.hpp"
 #include "disjoint_sets.hpp"
+
+#include "clusterer.hpp"
 
 struct Params {
     std::string reads_path;
@@ -38,27 +39,6 @@ bool read_args(int argc, char **argv, Params& params) {
     return true;
 }
 
-struct ClusteringMode {
-    typedef std::function<size_t(const seqan::Dna5String&, const seqan::Dna5String&)> DistFunction;
-
-    const DistFunction dist;
-    const size_t threshold;
-
-    ClusteringMode(DistFunction dist_, size_t threshold_) : dist(dist_), threshold(threshold_) {}
-
-    static const ClusteringMode hamming;
-    static const ClusteringMode edit;
-};
-
-const ClusteringMode ClusteringMode::hamming = ClusteringMode([](const seqan::Dna5String& first, const seqan::Dna5String& second) {
-    return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-}, 10);
-
-const ClusteringMode ClusteringMode::edit = ClusteringMode([](const seqan::Dna5String& first, const seqan::Dna5String& second) {
-    return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-}, 10);
-
-// TODO: don't write this code for the third time
 class Clusterer {
 public:
     class Cluster {
@@ -73,7 +53,7 @@ public:
             reevalueteCenter(reads);
         }
 
-        bool shouldContain(const seqan::Dna5String &read, const ClusteringMode &clusteringMode) const {
+        bool shouldContain(const seqan::Dna5String &read, const clusterer::ClusteringMode &clusteringMode) const {
             return clusteringMode.dist(read, center_) <= clusteringMode.threshold;
         }
 
@@ -125,7 +105,7 @@ public:
         }
     };
 
-    Clusterer(const ClusteringMode& mode) : mode_(mode) {}
+    Clusterer(const clusterer::ClusteringMode& mode) : mode_(mode) {}
 
     std::vector<Cluster> cluster(const std::vector<size_t>& indices, const std::vector<seqan::Dna5String>& reads) {
         std::set<Cluster, Cluster::SizeComparator> clusters;
@@ -149,7 +129,7 @@ public:
     }
 
 private:
-    const ClusteringMode mode_;
+    const clusterer::ClusteringMode mode_;
 };
 
 size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
@@ -159,7 +139,7 @@ size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
     for (auto& entry : umi_to_reads) {
         const auto& umi = entry.first;
         const auto& umi_reads = entry.second;
-        hamm_clusters_by_umi[umi] = Clusterer(ClusteringMode::hamming).cluster(umi_reads, input_reads);
+        hamm_clusters_by_umi[umi] = Clusterer(clusterer::ClusteringMode::hamming).cluster(umi_reads, input_reads);
         total_clusters += hamm_clusters_by_umi[umi].size();
     }
     return total_clusters;
@@ -198,7 +178,7 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
                 const auto v_cluster_id = std::make_pair(v_umi, v_cluster_idx);
                 for (size_t u_cluster_idx = 0; u_cluster_idx < u_clusters.size(); u_cluster_idx ++) {
                     const auto u_cluster_id = std::make_pair(u_umi, u_cluster_idx);
-                    if (ClusteringMode::hamming.dist(umis[u], umis[v]) > ClusteringMode::hamming.threshold) {
+                    if (clusterer::ClusteringMode::hamming.dist(umis[u], umis[v]) > clusterer::ClusteringMode::hamming.threshold) {
                         continue;
                     }
                     if (!cluster_origins.unite(v_cluster_id, u_cluster_id)) {
@@ -249,7 +229,7 @@ int main(int argc, char **argv) {
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(umis, umi_to_reads);
 
-    INFO("Clustering reads by hamming within single UMIs with threshold " << ClusteringMode::hamming.threshold);
+    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
     std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
     {
         size_t total_clusters = cluster_inside_umi(input_reads, umi_to_reads, hamm_clusters_by_umi);

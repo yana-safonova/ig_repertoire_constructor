@@ -17,6 +17,8 @@ private:
     seqan::Dna5String umi_;
 };
 
+typedef std::shared_ptr<Umi> UmiPtr;
+
 namespace std {
     template<>
     struct hash<seqan::Dna5String> {

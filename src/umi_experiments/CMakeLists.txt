@@ -11,7 +11,7 @@ link_libraries(
         boost_program_options
 )
 
-set(SRC_FILES umi_utils.cpp dist_distribution_stats.cpp utils.cpp)
+set(SRC_FILES umi_utils.cpp dist_distribution_stats.cpp utils.cpp clusterer.cpp)
 
 # needed for CLion to include them into the project
 file(GLOB HEADER_FILES *.hpp)
