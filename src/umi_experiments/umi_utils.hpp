@@ -17,6 +17,20 @@ private:
     seqan::Dna5String umi_;
 };
 
+class Read {
+public:
+    explicit Read(const seqan::Dna5String& read, size_t id) : read_(read), id_(id) {}
+
+    bool operator==(const Read& other) const { return id_ == other.id_; }
+
+    seqan::Dna5String GetSequence() const { return read_; }
+    size_t GetId() const { return id_; }
+
+private:
+    const seqan::Dna5String read_;
+    const size_t id_;
+};
+
 typedef std::shared_ptr<Umi> UmiPtr;
 
 namespace std {
@@ -35,6 +49,14 @@ namespace std {
     struct hash<Umi> {
         size_t operator()(const Umi& umi) const {
             size_t h = hash<seqan::Dna5String>()(umi.GetString());
+            return h;
+        }
+    };
+
+    template<>
+    struct hash<Read> {
+        size_t operator()(const Read& read) const {
+            size_t h = hash<size_t>()(read.GetId());
             return h;
         }
     };

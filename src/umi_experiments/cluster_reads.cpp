@@ -275,22 +275,28 @@ int main(int argc, char **argv) {
     INFO("Employing new sctucture");
     // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
-    for (auto& umi : input.compressed_umis) {
-        umi_ptr_by_umi[umi] = UmiPtr(new Umi(umi));
+    for (auto& umi_read : input.compressed_umis) {
+        umi_ptr_by_umi[Umi(umi_read)] = std::make_shared<Umi>(umi_read);
     }
 
     std::vector<UmiPtr> compressed_umi_ptrs;
     for (auto& entry : umi_ptr_by_umi) {
         compressed_umi_ptrs.push_back(entry.second);
     }
-    ManyToManyCorrespondence<UmiPtr, clusterer::ClusterPtr> initial_umis_to_clusters;
+    ManyToManyCorrespondence<UmiPtr, clusterer::ClusterPtr<Read>> initial_umis_to_clusters;
     for (auto& entry : umi_to_reads) {
         auto& umi = umi_ptr_by_umi[entry.first];
-        for (auto& read : entry.second) {
-            initial_umis_to_clusters.add(umi, std::shared_ptr(new clusterer::Cluster<seqan::Dna5String>(read)));
+        for (auto& read_idx : entry.second) {
+            const auto& read = Read(input.input_reads[read_idx], read_idx);
+            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(read, input.input_reads[read_idx]);
+            initial_umis_to_clusters.add(umi, cluster);
         }
     }
-    clusterer::Clusterer::cluster(clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
+    const auto& umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
+            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters,
+                    clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    INFO(umi_to_clusters_hamm_inside_umi.rightSize() << " clusters found");
 
     // probably proceed with edit distance
 

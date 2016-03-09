@@ -49,21 +49,23 @@ namespace clusterer {
     };
 
 
-    struct SingleReadClusterElement {
-        SingleReadClusterElement(const seqan::Dna5String& read) : center(read), weight(1) {}
-
-        seqan::Dna5String center;
-        size_t weight;
-    };
-
     template <typename ElementType>
     struct Cluster {
     public:
-        Cluster(ElementType element_ = ElementType(), size_t weight_ = 1) : center(element_), weight(weight_), members{element_} {}
+        explicit Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t weight_ = 1, const size_t id_ = -1)
+                : members{first_}, center(center_), weight(weight_), id(id_) {}
+        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t weight_, const size_t id_)
+                : members(members_), center(center_), weight(weight_), id(id_) {}
 
-        seqan::Dna5String center;
-        size_t weight;
-        std::unordered_set<ElementType> members;
+        // Assumes merged clusters are never compared.
+        bool operator==(const Cluster<ElementType>& other) const { return id == other.id; }
+
+        seqan::Dna5String& GetSequence() const { return center; }
+
+        const std::unordered_set<ElementType> members;
+        const seqan::Dna5String center;
+        const size_t weight;
+        const size_t id;
     };
 
     template <typename ElementType>
@@ -80,7 +82,9 @@ namespace clusterer {
                 const UmiPairsIterable& umi_pairs_iterable);
 
     private:
-        static ClusterPtr<ElementType> mergeClusters(const ClusterPtr<ElementType> first, const ClusterPtr<ElementType> second);
+        // It's supposed that the merged cluster is not considered in the partition together with either of parents.
+        // In particular it inherits id from one of the parents and can be used by ManyToManyCorrespondence, which relies it's a good equality measure and hash value.
+        static ClusterPtr<ElementType> mergeClusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second);
         static seqan::Dna5String findNewCenter(std::unordered_set<ElementType>& members);
     };
 
@@ -91,23 +95,21 @@ namespace clusterer {
             const ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>>& umis_to_clusters,
             const UmiPairsIterable& umi_pairs_iterable) {
         ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>> result(umis_to_clusters);
-        for (auto& umi_pair : umi_pairs_iterable) {
-            UmiPtr first_umi = umis[umi_pair.first];
-            UmiPtr second_umi = umis[umi_pair.second];
-            for (auto& first_cluster : umis_to_clusters.forth(first_umi)) {
-                for (auto& second_cluster : umis_to_clusters.forth(second_umi)) {
+        for (const auto& umi_pair : umi_pairs_iterable) {
+            const UmiPtr& first_umi = umis[umi_pair.first];
+            const UmiPtr& second_umi = umis[umi_pair.second];
+            for (const auto& first_cluster : umis_to_clusters.forth(first_umi)) {
+                for (const auto& second_cluster : umis_to_clusters.forth(second_umi)) {
                     if (first_cluster == second_cluster) continue;
-                    if (mode.dist(first_cluster->getRepresentative(), second_cluster->getRepresentative()) <= mode.threshold) {
+                    if (mode.dist(first_cluster->center, second_cluster->center) <= mode.threshold) {
                         VERIFY_MSG(result.removeSecond(first_cluster), "Trying to remove an absent cluster");
                         VERIFY_MSG(result.removeSecond(second_cluster), "Trying to remove an absent cluster");
-                        auto merged_cluster = mergeClusters(first_cluster, second_cluster);
+                        const auto merged_cluster = mergeClusters(first_cluster, second_cluster);
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = umis_to_clusters.back(first_cluster);
                         const auto& second_cluster_umis = umis_to_clusters.back(second_cluster);
-                        std::unordered_set<UmiPtr> merged_umis;
-                        std::set_union(first_cluster_umis.begin(), first_cluster_umis.end(),
-                                       second_cluster_umis.begin(), second_cluster_umis.end(),
-                                       merged_umis);
+                        std::unordered_set<UmiPtr> merged_umis(first_cluster_umis);
+                        merged_umis.insert(second_cluster_umis.begin(), second_cluster_umis.end());
                         result.add(merged_umis, merged_cluster);
                     }
                 }
@@ -117,30 +119,26 @@ namespace clusterer {
     };
 
     template <typename ElementType, typename UmiPairsIterable>
-    ClusterPtr<ElementType> Clusterer<ElementType, UmiPairsIterable>::mergeClusters(const ClusterPtr<ElementType> first, const ClusterPtr<ElementType> second) {
-        std::unordered_set<ElementType> members;
-        std::set_union(first->members.begin(), first->members.end(),
-                       second->members.begin(), second->members.end(),
-                       members);
+    ClusterPtr<ElementType> Clusterer<ElementType, UmiPairsIterable>::mergeClusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second) {
+        std::unordered_set<ElementType> members(first->members);
+        members.insert(second->members.begin(), second->members.end());
         VERIFY_MSG(members.size() == first->members.size() + second->members.size(), "Clusters already intersect.");
-        if (first->members.size() < second->members.size()) {
-            std::swap(first, second);
-        }
-        size_t max_size = first->members.size();
-        bool need_new_center = max_size <= 10 || __builtin_clzll(max_size) != __builtin_clz(members.size());
-        ElementType center = need_new_center ? findNewCenter(members) : first->center;
-        return ClusterPtr<ElementType>(center, first->weight + second->weight, members);
+        const ClusterPtr<ElementType>& max_cluster = first->members.size() > second->members.size() ? first : second;
+        size_t max_size = max_cluster->members.size();
+        bool need_new_center = max_size <= 10 || __builtin_clzll(max_size) != __builtin_clzll(members.size());
+        const seqan::Dna5String& center = need_new_center ? findNewCenter(members) : max_cluster->center;
+        return std::make_shared<Cluster<ElementType>>(members, center, first->weight + second->weight, max_cluster->id);
     }
 
     template <typename ElementType, typename UmiPairsIterable>
     seqan::Dna5String Clusterer<ElementType, UmiPairsIterable>::findNewCenter(std::unordered_set<ElementType>& members) {
         VERIFY_MSG(members.size() >= 2, "Too few elements to find new center.");
-        seqan::Dna5String center = members.begin()->center;
+        seqan::Dna5String center = members.begin()->GetSequence();
         std::vector<std::vector<size_t> > cnt(length(center), std::vector<size_t>(4));
         for (auto& member : members) {
-            size_t limit = std::min(length(member->center), length(center));
+            size_t limit = std::min(length(member.GetSequence()), length(center));
             for (size_t i = 0; i < limit; i ++) {
-                cnt[i][member->center[i]] ++;
+                cnt[i][member.GetSequence()[i]] ++;
             }
         }
         for (size_t i = 0; i < length(center); i ++) {
@@ -152,4 +150,14 @@ namespace clusterer {
         }
         return center;
     }
+}
+
+namespace std {
+    template <typename ElementType>
+    struct hash<clusterer::Cluster<ElementType>> {
+        size_t operator()(const clusterer::Cluster<ElementType>& cluster) const {
+            size_t h = cluster.id;
+            return h;
+        }
+    };
 }

@@ -40,5 +40,12 @@ void group_reads_by_umi(const std::vector<seqan::Dna5String>& umis, std::unorder
         auto& reads = umi_to_reads[umi];
         reads.push_back(i);
     }
+
+    size_t reads_count = 0;
+    for (const auto& entry : umi_to_reads) {
+        reads_count += entry.second.size();
+    }
+    VERIFY_MSG(reads_count == umis.size(), "Expected to have " << umis.size() << " reads corresponding to some UMI, but got " << reads_count);
+
     INFO(umi_to_reads.size() << " unique barcodes found");
 }
