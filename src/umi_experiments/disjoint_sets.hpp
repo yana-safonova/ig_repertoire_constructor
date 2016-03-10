@@ -3,7 +3,7 @@
 #include <bits/unordered_map.h>
 #include <verify.hpp>
 
-template <typename T, typename Hash>
+template <typename T, typename Hash = std::hash<T>>
 class DisjointSets {
 public:
 

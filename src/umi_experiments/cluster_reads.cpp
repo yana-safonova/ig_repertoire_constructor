@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
     const auto& umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters,
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
-    INFO(umi_to_clusters_hamm_inside_umi.rightSize() << " clusters found");
+    INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
 
 
     INFO("Old");

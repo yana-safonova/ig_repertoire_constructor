@@ -17,10 +17,13 @@ public:
     const std::unordered_set<To>& forth(const From& from) const { return forth_.find(from)->second; }
     const std::unordered_set<From>& back(const To& to) const { return back_.find(to)->second; }
 
-    size_t rightSize() const { return back_.size(); }
+    // returns an element from the 'to' set which is equal to 'to' parameter
+    const To getTo(const To& to) const { return back_.find(to)->first; }
+    size_t toSize() const { return back_.size(); }
+    const std::unordered_set<To> toSet() const;
 
-    // returns true if the to parameter is presented by some links
-    bool removeSecond(const To& to);
+    // returns true if the 'to' parameter is presented by some links
+    bool removeTo(const To &to);
     void add(const From& from, const To& to);
     void add(const std::unordered_set<From>& from_set, const To& to);
 
@@ -35,7 +38,16 @@ ManyToManyCorrespondence<From, To>::ManyToManyCorrespondence(const ManyToManyCor
 }
 
 template <typename From, typename To>
-bool ManyToManyCorrespondence<From, To>::removeSecond(const To& to) {
+const std::unordered_set<To> ManyToManyCorrespondence<From, To>::toSet() const {
+    std::unordered_set<To> result;
+    for (const auto& entry : back_) {
+        result.insert(entry.first);
+    }
+    return result;
+};
+
+template <typename From, typename To>
+bool ManyToManyCorrespondence<From, To>::removeTo(const To &to) {
     size_t contains = back_.count(to);
     if (contains == 0) return false;
     for (const auto& from : back_[to]) {
