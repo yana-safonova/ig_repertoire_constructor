@@ -70,16 +70,34 @@ namespace clusterer {
     };
 
     template <typename ElementType>
-    using ClusterPtr = std::shared_ptr<Cluster<ElementType>>;
+    using ClusterPtr = std::shared_ptr<const Cluster<ElementType>>;
 
+    template <typename ElementType>
+    struct ClusterPtrEquals {
+        bool operator()(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second) const {
+            return *first == *second;
+        }
+    };
+
+    template <typename ElementType>
+    struct ClusterPtrHash {
+        size_t operator()(const ClusterPtr<ElementType>& clusterPtr) const {
+            size_t h = clusterPtr->id;
+            return h;
+        }
+    };
+
+
+    template <typename ElementType>
+    using ManyToManyCorrespondenceUmiToCluster = ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>, UmiPtrHash, UmiPtrEquals, ClusterPtrHash<ElementType>, ClusterPtrEquals<ElementType>>;
 
     template <typename ElementType, typename UmiPairsIterable>
     class Clusterer {
     public:
-        static ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>> cluster(
+        static ManyToManyCorrespondenceUmiToCluster<ElementType> cluster(
                 const ClusteringMode& mode,
                 const std::vector<UmiPtr>& umis,
-                const ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>>& umis_to_clusters,
+                const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
                 const UmiPairsIterable& umi_pairs_iterable);
 
     private:
@@ -90,12 +108,12 @@ namespace clusterer {
     };
 
     template <typename ElementType, typename UmiPairsIterable>
-    ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>> Clusterer<ElementType, UmiPairsIterable>::cluster(
+    ManyToManyCorrespondenceUmiToCluster<ElementType> Clusterer<ElementType, UmiPairsIterable>::cluster(
             const ClusteringMode& mode,
             const std::vector<UmiPtr>& umis,
-            const ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>>& umis_to_clusters,
+            const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
             const UmiPairsIterable& umi_pairs_iterable) {
-        ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>> result(umis_to_clusters);
+        ManyToManyCorrespondenceUmiToCluster<ElementType> result(umis_to_clusters);
         // operated on clusters from original umis_to_clusters
         DisjointSets<ClusterPtr<ElementType>> ds;
         for (const auto& cluster : umis_to_clusters.toSet()) {

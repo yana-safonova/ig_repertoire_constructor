@@ -31,8 +31,6 @@ private:
     const size_t id_;
 };
 
-typedef std::shared_ptr<Umi> UmiPtr;
-
 namespace std {
     template<>
     struct hash<seqan::Dna5String> {
@@ -61,6 +59,22 @@ namespace std {
         }
     };
 }
+
+typedef std::shared_ptr<Umi> UmiPtr;
+
+struct UmiPtrEquals {
+    bool operator()(const UmiPtr& first, const UmiPtr& second) const {
+        return *first == *second;
+    }
+};
+
+struct UmiPtrHash {
+    size_t operator()(const UmiPtr& umiPtr) const {
+        size_t h = std::hash<Umi>()(*umiPtr);
+        return h;
+    }
+};
+
 
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
                                     std::vector<seqan::DnaQString>& umi_quals);

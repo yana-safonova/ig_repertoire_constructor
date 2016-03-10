@@ -7,7 +7,6 @@
 #include "umi_utils.hpp"
 #include "../graph_utils/graph_io.hpp"
 #include "disjoint_sets.hpp"
-
 #include "clusterer.hpp"
 
 struct Params {
@@ -270,7 +269,7 @@ int main(int argc, char **argv) {
     for (auto& entry : umi_ptr_by_umi) {
         compressed_umi_ptrs.push_back(entry.second);
     }
-    ManyToManyCorrespondence<UmiPtr, clusterer::ClusterPtr<Read>> initial_umis_to_clusters;
+    clusterer::ManyToManyCorrespondenceUmiToCluster<Read> initial_umis_to_clusters;
     for (auto& entry : umi_to_reads) {
         auto& umi = umi_ptr_by_umi[entry.first];
         for (auto& read_idx : entry.second) {
