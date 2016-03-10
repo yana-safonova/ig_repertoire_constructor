@@ -18,7 +18,11 @@ public:
     const std::unordered_set<From>& back(const To& to) const { return back_.find(to)->second; }
 
     // returns an element from the 'to' set which is equal to 'to' parameter
-    const To getTo(const To& to) const { return back_.find(to)->first; }
+    const To getTo(const To& to) const {
+        INFO("Searching for " << to->id);
+        INFO("Found " << back_.find(to)->first->id);
+        return back_.find(to)->first;
+    }
     size_t toSize() const { return back_.size(); }
     const std::unordered_set<To> toSet() const;
 

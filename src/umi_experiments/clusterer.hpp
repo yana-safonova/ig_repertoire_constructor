@@ -108,9 +108,9 @@ namespace clusterer {
                 for (const auto& second_cluster_original : umis_to_clusters.forth(second_umi)) {
                     INFO("Considering clusters with ids " << first_cluster_original->id << " and " << second_cluster_original->id);
                     INFO("First cluster root: " << ds.findRoot(first_cluster_original)->id);
+                    INFO("Second cluster root: " << ds.findRoot(second_cluster_original)->id);
                     INFO("Corresponding cluster in result: " << result.getTo(ds.findRoot(first_cluster_original))->id);
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
-                    INFO("Second cluster root: " << ds.findRoot(second_cluster_original)->id);
                     INFO("Corresponding cluster in result: " << result.getTo(ds.findRoot(second_cluster_original))->id);
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
