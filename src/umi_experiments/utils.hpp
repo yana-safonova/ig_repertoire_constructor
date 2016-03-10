@@ -20,10 +20,9 @@ public:
 
     // returns an element from the 'to' set which is equal to 'to' parameter
     const To getTo(const To& to) const {
-        INFO("Searching for " << to->id);
-        VERIFY_MSG(back_.find(to) != back_.end(), "Not found.");
-        INFO("Found " << back_.find(to)->first->id);
-        return back_.find(to)->first;
+        const auto& itr = back_.find(to);
+        VERIFY_MSG(itr != back_.end(), "Not found.");
+        return itr->first;
     }
     size_t toSize() const { return back_.size(); }
     const std::unordered_set<To> toSet() const;

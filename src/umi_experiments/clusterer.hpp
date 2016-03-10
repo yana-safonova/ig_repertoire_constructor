@@ -124,17 +124,10 @@ namespace clusterer {
             const UmiPtr& second_umi = umis[umi_pair.second];
             for (const auto& first_cluster_original : umis_to_clusters.forth(first_umi)) {
                 for (const auto& second_cluster_original : umis_to_clusters.forth(second_umi)) {
-                    INFO("Considering clusters with ids " << first_cluster_original->id << " and " << second_cluster_original->id);
-                    INFO("First cluster root: " << ds.findRoot(first_cluster_original)->id);
-                    INFO("Second cluster root: " << ds.findRoot(second_cluster_original)->id);
-                    INFO("Corresponding cluster in result: " << result.getTo(ds.findRoot(first_cluster_original))->id);
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
-                    INFO("Corresponding cluster in result: " << result.getTo(ds.findRoot(second_cluster_original))->id);
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
                     if (mode.dist(first_cluster->center, second_cluster->center) <= mode.threshold) {
-                        INFO("Removing clusters with ids " << first_cluster->id << " and " << second_cluster->id);
-
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
@@ -146,9 +139,8 @@ namespace clusterer {
 
                         VERIFY_MSG(ds.unite(first_cluster_original, second_cluster_original), "Tried to unite two equal sets");
                         const auto merged_cluster = mergeClusters(first_cluster, second_cluster, ds.findRoot(first_cluster_original)->id);
-                        INFO("Adding cluster with id " << merged_cluster->id);
+
                         result.add(merged_umis, merged_cluster);
-                        INFO("Added");
                     }
                 }
             }
