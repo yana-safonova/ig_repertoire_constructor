@@ -12,6 +12,7 @@ namespace clusterer {
                 return static_cast<unsigned long>(get_sw_dist(first, second));
             }, 10);
 
+
     ReflexiveUmiPairsIterator ReflexiveUmiPairsIterator::operator++() {
         current_ ++;
         return *this;

@@ -59,8 +59,8 @@ bool ManyToManyCorrespondence<From, To>::removeTo(const To &to) {
 
 template <typename From, typename To>
 void ManyToManyCorrespondence<From, To>::add(const From& from, const To& to) {
-    forth_[from].insert(to);
-    back_[to].insert(from);
+    VERIFY_MSG(forth_[from].insert(to).second, "Adding already existing mapping.");
+    VERIFY_MSG(back_[to].insert(from).second, "Adding already existing mapping.");
 }
 
 template <typename From, typename To>

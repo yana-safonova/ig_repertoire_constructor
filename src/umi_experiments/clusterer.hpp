@@ -106,6 +106,7 @@ namespace clusterer {
             const UmiPtr& second_umi = umis[umi_pair.second];
             for (const auto& first_cluster_original : umis_to_clusters.forth(first_umi)) {
                 for (const auto& second_cluster_original : umis_to_clusters.forth(second_umi)) {
+                    INFO("Considering clusters with ids " << first_cluster_original->id << " and " << second_cluster_original->id);
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
@@ -125,6 +126,7 @@ namespace clusterer {
                         const auto merged_cluster = mergeClusters(first_cluster, second_cluster, ds.findRoot(first_cluster_original)->id);
                         INFO("Adding cluster with id " << merged_cluster->id);
                         result.add(merged_umis, merged_cluster);
+                        INFO("Added");
                     }
                 }
             }
