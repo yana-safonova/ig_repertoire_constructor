@@ -275,7 +275,7 @@ int main(int argc, char **argv) {
         auto& umi = umi_ptr_by_umi[entry.first];
         for (auto& read_idx : entry.second) {
             const auto& read = Read(input.input_reads[read_idx], read_idx);
-            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(read, input.input_reads[read_idx]);
+            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(read, input.input_reads[read_idx], read_idx);
             initial_umis_to_clusters.add(umi, cluster);
         }
     }

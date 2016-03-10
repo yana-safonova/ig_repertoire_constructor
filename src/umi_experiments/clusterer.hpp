@@ -53,10 +53,10 @@ namespace clusterer {
     template <typename ElementType>
     struct Cluster {
     public:
-        explicit Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t weight_ = 1, const size_t id_ = -1)
-                : members{first_}, center(center_), weight(weight_), id(id_) {}
+        Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_ = 1)
+                : members{first_}, center(center_), id(id_), weight(weight_) {}
         Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t weight_, const size_t id_)
-                : members(members_), center(center_), weight(weight_), id(id_) {}
+                : members(members_), center(center_), id(id_), weight(weight_) {}
 
         // Assumes merged clusters are never compared.
         bool operator==(const Cluster<ElementType>& other) const { return id == other.id; }
@@ -65,8 +65,8 @@ namespace clusterer {
 
         const std::unordered_set<ElementType> members;
         const seqan::Dna5String center;
-        const size_t weight;
         const size_t id;
+        const size_t weight;
     };
 
     template <typename ElementType>
