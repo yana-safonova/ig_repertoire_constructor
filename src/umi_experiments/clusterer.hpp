@@ -102,6 +102,7 @@ namespace clusterer {
                 for (const auto& second_cluster : umis_to_clusters.forth(second_umi)) {
                     if (first_cluster == second_cluster) continue;
                     if (mode.dist(first_cluster->center, second_cluster->center) <= mode.threshold) {
+                        INFO("Removing clusters with ids " << first_cluster->id << " and " << second_cluster->id);
                         VERIFY_MSG(result.removeSecond(first_cluster), "Trying to remove an absent cluster");
                         VERIFY_MSG(result.removeSecond(second_cluster), "Trying to remove an absent cluster");
                         const auto merged_cluster = mergeClusters(first_cluster, second_cluster);
@@ -110,6 +111,7 @@ namespace clusterer {
                         const auto& second_cluster_umis = umis_to_clusters.back(second_cluster);
                         std::unordered_set<UmiPtr> merged_umis(first_cluster_umis);
                         merged_umis.insert(second_cluster_umis.begin(), second_cluster_umis.end());
+                        INFO("Adding cluster with id " << merged_cluster->id);
                         result.add(merged_umis, merged_cluster);
                     }
                 }

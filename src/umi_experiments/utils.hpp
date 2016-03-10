@@ -30,7 +30,9 @@ private:
 };
 
 template <typename From, typename To>
-ManyToManyCorrespondence<From, To>::ManyToManyCorrespondence(const ManyToManyCorrespondence& other) : forth_(other.forth_), back_(other.back_) {}
+ManyToManyCorrespondence<From, To>::ManyToManyCorrespondence(const ManyToManyCorrespondence& other) : forth_(other.forth_), back_(other.back_) {
+    VERIFY_MSG(forth_.size() == other.forth_.size() && back_.size() == other.back_.size(), "!!!");
+}
 
 template <typename From, typename To>
 bool ManyToManyCorrespondence<From, To>::removeSecond(const To& to) {

@@ -258,20 +258,7 @@ int main(int argc, char **argv) {
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(input.umis, umi_to_reads);
 
-    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
-    std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
-    {
-        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
-        INFO(total_clusters << " clusters found");
-    }
 
-    // unite groups of close by hamming reads for adjacent UMIs
-    INFO("Uniting read clusters for adjacent UMIs");
-    std::vector<Clusterer::Cluster> hamm_clusters;
-    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
-    INFO(hamm_clusters.size() << " clusters found");
-
-    
     INFO("Employing new sctucture");
     // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
@@ -295,8 +282,25 @@ int main(int argc, char **argv) {
     INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
     const auto& umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters,
-                    clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+            clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(umi_to_clusters_hamm_inside_umi.rightSize() << " clusters found");
+
+
+    INFO("Old");
+    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
+    std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
+    {
+        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
+        INFO(total_clusters << " clusters found");
+    }
+
+    // unite groups of close by hamming reads for adjacent UMIs
+    INFO("Uniting read clusters for adjacent UMIs");
+    std::vector<Clusterer::Cluster> hamm_clusters;
+    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
+    INFO(hamm_clusters.size() << " clusters found");
+
+    
 
     // probably proceed with edit distance
 
