@@ -64,10 +64,15 @@ public:
             }
         }
 
+        size_t size() const {
+            return members_.size();
+        }
+
         static Cluster merge(const Cluster& first, const Cluster& second, const std::vector<seqan::Dna5String> &reads) {
             std::vector<size_t> members;
             members.insert(members.end(), first.members_.begin(), first.members_.end());
             members.insert(members.end(), second.members_.begin(), second.members_.end());
+            VERIFY_MSG(members.size() == first.members_.size() + second.members_.size(), "merged " << first.members_.size() << " + " << second.members_.size() << " to " << members.size());
             return Cluster(first.id_, members, first.center_, reads);
         }
 
@@ -144,6 +149,7 @@ size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
     return total_clusters;
 }
 
+// bugs here. Result clusters contain not all reads, count is less by round count of single reads (but it seems it's not them)
 void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& input_reads, const SparseGraphPtr umi_graph,
                                         const std::vector<seqan::Dna5String>& umis,
                                         const std::unordered_map<Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi,
@@ -167,7 +173,17 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
         }
     }
 
+//    std::map<size_t, size_t> dist_distribution;
+//    std::map<size_t, size_t> size_distribution;
+//    std::unordered_set<seqan::Dna5String> distinct_umis;
+
     for (size_t v = 0; v < umi_graph->N(); v ++) {
+//        size_t total = 0;
+//        for (const auto& cluster : clusters) {
+//            total += cluster.second.size();
+//        }
+//        INFO("Total reads: " << total);
+
         const auto v_umi = Umi(umis[v]);
         const auto& v_clusters = hamm_clusters_by_umi.find(v_umi)->second;
         for (size_t u : umi_graph->VertexEdges(v)) {
@@ -177,16 +193,28 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
                 const auto v_cluster_id = std::make_pair(v_umi, v_cluster_idx);
                 for (size_t u_cluster_idx = 0; u_cluster_idx < u_clusters.size(); u_cluster_idx ++) {
                     const auto u_cluster_id = std::make_pair(u_umi, u_cluster_idx);
-                    if (clusterer::ClusteringMode::hamming.dist(umis[u], umis[v]) > clusterer::ClusteringMode::hamming.threshold) {
+                    size_t dist = clusterer::ClusteringMode::hamming.dist(umis[u], umis[v]);
+//                    distinct_umis.insert(umis[u]);
+//                    distinct_umis.insert(umis[v]);
+//                    dist_distribution[dist] ++;
+                    if (dist > clusterer::ClusteringMode::hamming.threshold) {
                         continue;
                     }
                     if (!cluster_origins.unite(v_cluster_id, u_cluster_id)) {
                         continue;
                     }
                     const auto& merged = Clusterer::Cluster::merge(v_clusters[v_cluster_idx], u_clusters[u_cluster_idx], input_reads);
+//                    size_t num_clusters = clusters.size();
+//                    INFO("size " << clusters.size());
+//                    INFO("erasing " << seqan_string_to_string(v_cluster_id.first.GetString()) << ", " << v_cluster_id.second);
                     clusters.erase(v_cluster_id);
+//                    INFO("size " << clusters.size());
+//                    INFO("erasing " << seqan_string_to_string(u_cluster_id.first.GetString()) << ", " << u_cluster_id.second);
                     clusters.erase(u_cluster_id);
+//                    INFO("size " << clusters.size());
+//                    VERIFY(clusters.size() + 2 == num_clusters);
                     clusters[cluster_origins.findRoot(v_cluster_id)] = merged;
+//                    VERIFY(clusters.size() + 1 == num_clusters);
                 }
             }
         }
@@ -194,7 +222,18 @@ void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& inpu
 
     for (auto& entry : clusters) {
         hamm_clusters.push_back(entry.second);
+//        size_distribution[entry.second.size()] ++;
     }
+
+//    INFO(distinct_umis.size() << " distinct umis");
+//    INFO("Dist distribution");
+//    for (const auto& entry : dist_distribution) {
+//        INFO("dist " << entry.first << " : " << entry.second << " times");
+//    }
+//    INFO("Size distribution");
+//    for (const auto& entry : size_distribution) {
+//        INFO("size " << entry.first << " : " << entry.second << " times");
+//    }
 }
 
 struct Input {
@@ -258,7 +297,22 @@ int main(int argc, char **argv) {
     group_reads_by_umi(input.umis, umi_to_reads);
 
 
-    INFO("Employing new sctructure");
+    INFO("Old");
+    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
+    std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
+    {
+        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
+        INFO(total_clusters << " clusters found");
+    }
+
+    INFO("Uniting read clusters for adjacent UMIs");
+    std::vector<Clusterer::Cluster> hamm_clusters;
+    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
+    INFO(hamm_clusters.size() << " clusters found");
+
+
+
+    INFO("Employing new structure");
     // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
     for (auto& umi_read : input.compressed_umis) {
@@ -278,28 +332,19 @@ int main(int argc, char **argv) {
             initial_umis_to_clusters.add(umi, cluster);
         }
     }
+    // This works 10-15 times slower than simple way (2 min vs 10 sec). Maybe because we don't try to glue to larger clusters first. Anyway, not a great problem at the moment.
     INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
     const auto& umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters,
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
 
-
-    INFO("Old");
-    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
-    std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
-    {
-        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
-        INFO(total_clusters << " clusters found");
-    }
-
-    // unite groups of close by hamming reads for adjacent UMIs
     INFO("Uniting read clusters for adjacent UMIs");
-    std::vector<Clusterer::Cluster> hamm_clusters;
-    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
-    INFO(hamm_clusters.size() << " clusters found");
+    const auto& umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
+            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
+            clusterer::GraphUmiPairsIterable(input.umi_graph));
+    INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
 
-    
 
     // probably proceed with edit distance
 

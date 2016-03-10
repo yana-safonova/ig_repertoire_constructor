@@ -3,6 +3,7 @@
 #include <seqan/seq_io.h>
 #include "utils.hpp"
 #include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "../graph_utils/sparse_graph.hpp"
 #include "umi_utils.hpp"
 #include "disjoint_sets.hpp"
 
@@ -36,8 +37,6 @@ namespace clusterer {
         size_t last_;
     };
 
-    // TODO: add GraphUmiPairsIterable/Iterator and probably full graph
-
     class ReflexiveUmiPairsIterable {
     public:
         ReflexiveUmiPairsIterable(size_t count): count_(count) {}
@@ -49,6 +48,36 @@ namespace clusterer {
         size_t count_;
     };
 
+    class GraphUmiPairsIterator {
+    public:
+        GraphUmiPairsIterator(const GraphUmiPairsIterator& other) = default;
+        GraphUmiPairsIterator(const SparseGraphPtr& graph, size_t vertex, const SparseGraph::EdgesIterator& current_edge)
+                : graph_(graph), vertex_(vertex), current_edge_(std::make_shared<SparseGraph::EdgesIterator>(current_edge)), advances_(0) {}
+
+        GraphUmiPairsIterator operator ++();
+        GraphUmiPairsIterator operator ++(int);
+        bool operator==(GraphUmiPairsIterator other) const;
+        bool operator!=(GraphUmiPairsIterator other) const;
+        std::pair<size_t, size_t> operator*() const;
+
+    private:
+        const SparseGraphPtr graph_;
+        size_t vertex_;
+        std::shared_ptr<SparseGraph::EdgesIterator> current_edge_;
+        // just for asserts
+        size_t advances_;
+    };
+
+    class GraphUmiPairsIterable {
+    public:
+        GraphUmiPairsIterable(const SparseGraphPtr& graph) : graph_(graph) {}
+
+        GraphUmiPairsIterator begin() const;
+        GraphUmiPairsIterator end() const;
+
+    private:
+        const SparseGraphPtr& graph_;
+    };
 
     template <typename ElementType>
     struct Cluster {
@@ -119,7 +148,9 @@ namespace clusterer {
         for (const auto& cluster : umis_to_clusters.toSet()) {
             ds.addNewSet(cluster);
         }
+        std::map<size_t, size_t> dist_distribution;
         for (const auto& umi_pair : umi_pairs_iterable) {
+            VERIFY_MSG(umi_pair.first < umis.size() && umi_pair.second < umis.size(), "Invalid umi pair.");
             const UmiPtr& first_umi = umis[umi_pair.first];
             const UmiPtr& second_umi = umis[umi_pair.second];
             for (const auto& first_cluster_original : umis_to_clusters.forth(first_umi)) {
@@ -127,7 +158,9 @@ namespace clusterer {
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
-                    if (mode.dist(first_cluster->center, second_cluster->center) <= mode.threshold) {
+                    size_t dist = mode.dist(first_cluster->center, second_cluster->center);
+                    dist_distribution[dist] ++;
+                    if (dist <= mode.threshold) {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
@@ -145,6 +178,12 @@ namespace clusterer {
                 }
             }
         }
+
+//        INFO("Dist distribution");
+//        for (const auto& entry : dist_distribution) {
+//            INFO("dist " << entry.first << " : " << entry.second << " times");
+//        }
+
         return result;
     };
 
