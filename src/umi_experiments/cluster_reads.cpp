@@ -259,7 +259,7 @@ int main(int argc, char **argv) {
     group_reads_by_umi(input.umis, umi_to_reads);
 
 
-    INFO("Employing new sctucture");
+    INFO("Employing new sctructure");
     // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
     for (auto& umi_read : input.compressed_umis) {
