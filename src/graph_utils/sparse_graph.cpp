@@ -85,7 +85,9 @@ bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) co
 }
 
 size_t SparseGraph::EdgesIterator::operator*() const {
-    VERIFY_MSG(current_ < graph_.Degree(vertex_), "Dereferencing out-of-bounds edge iterator.");
+    VERIFY_MSG(current_ < graph_.Degree(vertex_),
+               "Dereferencing out-of-bounds edge iterator. Vertex " << vertex_ << " (out of " << graph_.N()
+               << "), degree " << graph_.Degree(vertex_) << " current edge #" << current_);
     return graph_.get_edge_at_index(vertex_, current_);
 }
 
