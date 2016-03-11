@@ -345,6 +345,17 @@ int main(int argc, char **argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
 
+    INFO("Clustering reads by edit distance within single UMIs with threshold " << clusterer::ClusteringMode::edit.threshold);
+    const auto& umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
+            clusterer::ClusteringMode::edit, compressed_umi_ptrs, umi_to_clusters_hamm_adj_umi,
+            clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    INFO(umi_to_clusters_edit_inside_umi.toSize() << " clusters found");
+
+    INFO("Uniting read clusters for adjacent UMIs");
+    const auto& umi_to_clusters_edit_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
+            clusterer::ClusteringMode::edit, compressed_umi_ptrs, umi_to_clusters_edit_inside_umi,
+            clusterer::GraphUmiPairsIterable(input.umi_graph));
+    INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
     // probably proceed with edit distance
 
