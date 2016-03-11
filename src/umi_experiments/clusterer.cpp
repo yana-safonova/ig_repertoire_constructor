@@ -45,8 +45,9 @@ namespace clusterer {
         return ReflexiveUmiPairsIterator(count_, count_);
     }
 
+
     // TODO: skip half of the edges
-    GraphUmiPairsIterator GraphUmiPairsIterator::operator++() {
+    void GraphUmiPairsIterator::advance() {
         VERIFY_MSG(vertex_ < graph_->N(), "Trying to increment past-the-end iterator.");
         advances_ ++;
 
@@ -57,20 +58,16 @@ namespace clusterer {
             current_edge_ = std::make_shared<SparseGraph::EdgesIterator>(graph_->VertexEdges(vertex_).begin());
             VERIFY_MSG(vertex_ < graph_->N() || advances_ == 2 * graph_->NZ(), "Expected to iterate over " << 2 * graph_->NZ() << " edges, but got " << advances_);
         }
+    }
+
+    GraphUmiPairsIterator GraphUmiPairsIterator::operator++() {
+        advance();
         return *this;
     }
 
     GraphUmiPairsIterator GraphUmiPairsIterator::operator++(int) {
-        VERIFY_MSG(vertex_ < graph_->N(), "Trying to increment past-the-end iterator.");
-        advances_ ++;
-
         const GraphUmiPairsIterator itr(*this);
-        ++ *current_edge_;
-        while (vertex_ < graph_->N() && *current_edge_ == graph_->VertexEdges(vertex_).end()) {
-            vertex_ ++;
-            current_edge_ = std::make_shared<SparseGraph::EdgesIterator>(graph_->VertexEdges(vertex_).begin());
-            VERIFY_MSG(vertex_ < graph_->N() || advances_ == 2 * graph_->NZ(), "Expected to iterate over " << 2 * graph_->NZ() << " edges, but got " << advances_);
-        }
+        advance();
         return itr;
     }
 
@@ -89,8 +86,14 @@ namespace clusterer {
         return std::pair<size_t, size_t>(vertex_, opposite);
     }
 
+    GraphUmiPairsIterable::GraphUmiPairsIterable(const SparseGraphPtr& graph) : graph_(graph), first_connected_vertex_(0) {
+        while (first_connected_vertex_ < graph_->N() && graph_->Degree(first_connected_vertex_) == 0) {
+            first_connected_vertex_ ++;
+        }
+    }
+
     GraphUmiPairsIterator GraphUmiPairsIterable::begin() const {
-        return clusterer::GraphUmiPairsIterator(graph_, 0, graph_->VertexEdges(0).begin());
+        return clusterer::GraphUmiPairsIterator(graph_, first_connected_vertex_, graph_->VertexEdges(first_connected_vertex_).begin());
     }
 
     GraphUmiPairsIterator GraphUmiPairsIterable::end() const {

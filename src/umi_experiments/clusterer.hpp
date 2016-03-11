@@ -66,17 +66,20 @@ namespace clusterer {
         std::shared_ptr<SparseGraph::EdgesIterator> current_edge_;
         // just for asserts
         size_t advances_;
+
+        void advance();
     };
 
     class GraphUmiPairsIterable {
     public:
-        GraphUmiPairsIterable(const SparseGraphPtr& graph) : graph_(graph) {}
+        GraphUmiPairsIterable(const SparseGraphPtr& graph);
 
         GraphUmiPairsIterator begin() const;
         GraphUmiPairsIterator end() const;
 
     private:
         const SparseGraphPtr& graph_;
+        size_t first_connected_vertex_;
     };
 
     template <typename ElementType>
