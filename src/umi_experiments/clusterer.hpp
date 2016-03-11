@@ -82,6 +82,38 @@ namespace clusterer {
         size_t first_connected_vertex_;
     };
 
+    class FullGraphUmiPairsIterator {
+    public:
+        FullGraphUmiPairsIterator(size_t current_first, size_t current_second, size_t last)
+                : current_first_(current_first), current_second_(current_second), last_(last) {}
+
+        FullGraphUmiPairsIterator operator ++();
+        FullGraphUmiPairsIterator operator ++(int);
+        bool operator==(FullGraphUmiPairsIterator other) const;
+        bool operator!=(FullGraphUmiPairsIterator other) const;
+        std::pair<size_t, size_t> operator*() const;
+
+    private:
+        // current_second_ < current_first_
+        size_t current_first_;
+        size_t current_second_;
+        size_t last_;
+
+        void advance();
+    };
+
+    class FullGraphUmiPairsIterable {
+    public:
+        FullGraphUmiPairsIterable(size_t count): count_(count) {}
+
+        FullGraphUmiPairsIterator begin() const;
+        FullGraphUmiPairsIterator end() const;
+
+    private:
+        size_t count_;
+    };
+
+
     template <typename ElementType>
     struct Cluster {
     public:

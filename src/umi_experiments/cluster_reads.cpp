@@ -357,7 +357,11 @@ int main(int argc, char **argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
-    // probably proceed with edit distance
+    INFO("Uniting ignoring UMIs");
+    const auto& umi_to_clusters_global = clusterer::Clusterer<Read, clusterer::FullGraphUmiPairsIterable>::cluster(
+            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, umi_to_clusters_edit_adj_umi,
+            clusterer::FullGraphUmiPairsIterable(compressed_umi_ptrs.size()));
+    INFO(umi_to_clusters_global.toSize() << " clusters found");
 
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 

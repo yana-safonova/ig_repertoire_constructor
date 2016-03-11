@@ -5,12 +5,12 @@ namespace clusterer {
     const ClusteringMode ClusteringMode::hamming = ClusteringMode(
             [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
                 return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-            }, 20);
+            }, 30);
 
     const ClusteringMode ClusteringMode::edit = ClusteringMode(
             [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
                 return static_cast<unsigned long>(get_sw_dist(first, second));
-            }, 20);
+            }, 10);
 
 
     ReflexiveUmiPairsIterator ReflexiveUmiPairsIterator::operator++() {
@@ -98,5 +98,47 @@ namespace clusterer {
 
     GraphUmiPairsIterator GraphUmiPairsIterable::end() const {
         return clusterer::GraphUmiPairsIterator(graph_, graph_->N(), graph_->VertexEdges(graph_->N()).begin());
+    }
+
+
+    void FullGraphUmiPairsIterator::advance() {
+        VERIFY_MSG(current_first_ < last_, "Trying to increment past-the-end iterator.");
+        current_second_ ++;
+        if ( current_second_ == current_first_ ) {
+            current_first_ ++;
+            current_second_ = 0;
+        }
+    }
+
+    FullGraphUmiPairsIterator FullGraphUmiPairsIterator::operator++() {
+        advance();
+        return *this;
+    }
+
+    FullGraphUmiPairsIterator FullGraphUmiPairsIterator::operator++(int) {
+        const FullGraphUmiPairsIterator itr(*this);
+        advance();
+        return itr;
+    }
+
+    bool FullGraphUmiPairsIterator::operator==(FullGraphUmiPairsIterator other) const {
+        return current_first_ == other.current_first_ && current_second_ == other.current_second_;
+    }
+
+    bool FullGraphUmiPairsIterator::operator!=(FullGraphUmiPairsIterator other) const {
+        return !(*this == other);
+    }
+
+    std::pair<size_t, size_t> FullGraphUmiPairsIterator::operator*() const {
+        VERIFY_MSG(current_first_ < last_ && current_second_ < current_first_, "Dereferencing invalid iterator: " << current_first_ << ", " << current_second_);
+        return std::pair<size_t, size_t>(current_first_, current_second_);
+    }
+
+    FullGraphUmiPairsIterator FullGraphUmiPairsIterable::begin() const {
+        return clusterer::FullGraphUmiPairsIterator(1, 0, count_);
+    }
+
+    FullGraphUmiPairsIterator FullGraphUmiPairsIterable::end() const {
+        return clusterer::FullGraphUmiPairsIterator(count_, 0, count_);
     }
 }
