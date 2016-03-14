@@ -14,6 +14,7 @@ struct Params {
     std::string umi_uncompressed_path;
     std::string umi_compressed_path;
     std::string umi_graph_path;
+    std::string output_dir;
 };
 
 bool read_args(int argc, char **argv, Params& params) {
@@ -25,7 +26,7 @@ bool read_args(int argc, char **argv, Params& params) {
             ("umi_uncompressed,u", po::value<std::string>(&params.umi_uncompressed_path)->required(), "file with UMI records extracted (not compressed)")
             ("umi_compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
             ("graph,g", po::value<std::string>(&params.umi_graph_path)->required(), "file with UMI graph")
-//            ("output,o", po::value<std::string>(&output_dir)->default_value(""), "output directory")
+            ("output,o", po::value<std::string>(&params.output_dir)->default_value(""), "output directory path")
 //            ("threads,t", po::value<unsigned>(&thread_count)->default_value(1), "number of running threads")
             ;
     po::variables_map vm;
@@ -323,12 +324,15 @@ int main(int argc, char **argv) {
     for (auto& entry : umi_ptr_by_umi) {
         compressed_umi_ptrs.push_back(entry.second);
     }
+    std::vector<Read> reads;
+    for (size_t i = 0; i < input.input_reads.size(); i ++) {
+        reads[i] = Read(input.input_reads[i], input.input_ids[i], i);
+    }
     clusterer::ManyToManyCorrespondenceUmiToCluster<Read> initial_umis_to_clusters;
     for (auto& entry : umi_to_reads) {
         auto& umi = umi_ptr_by_umi[entry.first];
         for (auto& read_idx : entry.second) {
-            const auto& read = Read(input.input_reads[read_idx], read_idx);
-            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(read, input.input_reads[read_idx], read_idx);
+            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(reads[read_idx], input.input_reads[read_idx], read_idx);
             initial_umis_to_clusters.add(umi, cluster);
         }
     }
@@ -357,12 +361,15 @@ int main(int argc, char **argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
-    INFO("Uniting ignoring UMIs");
-    const auto& umi_to_clusters_global = clusterer::Clusterer<Read, clusterer::FullGraphUmiPairsIterable>::cluster(
-            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, umi_to_clusters_edit_adj_umi,
-            clusterer::FullGraphUmiPairsIterable(compressed_umi_ptrs.size()));
-    INFO(umi_to_clusters_global.toSize() << " clusters found");
+//    INFO("Uniting ignoring UMIs");
+//    const auto& umi_to_clusters_global = clusterer::Clusterer<Read, clusterer::FullGraphUmiPairsIterable>::cluster(
+//            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, umi_to_clusters_edit_adj_umi,
+//            clusterer::FullGraphUmiPairsIterable(compressed_umi_ptrs.size()));
+//    INFO(umi_to_clusters_global.toSize() << " clusters found");
 
+    INFO("Saving intermediate repertoire to output directory " << params.output_dir);
+    clusterer::write_clusters_and_correspondence<Read>(umi_to_clusters_edit_adj_umi, reads, params.output_dir);
+    INFO("Saving finished");
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 
     return 0;

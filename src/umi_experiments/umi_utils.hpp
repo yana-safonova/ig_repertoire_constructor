@@ -19,22 +19,30 @@ private:
 
 class Read {
 public:
-    explicit Read(const seqan::Dna5String& read, size_t id) : read_(read), id_(id) {}
+    explicit Read(const seqan::Dna5String& read, const seqan::CharString& read_id, size_t id) : read_(read), read_id_(read_id), id_(id) {}
 
     bool operator==(const Read& other) const { return id_ == other.id_; }
+    Read& operator=(const Read& other) {
+        read_ = other.read_;
+        read_id_ = other.read_id_;
+        id_ = other.id_;
+        return *this;
+    }
 
-    seqan::Dna5String GetSequence() const { return read_; }
+    const seqan::Dna5String& GetSequence() const { return read_; }
     size_t GetId() const { return id_; }
+    const seqan::CharString& GetReadId() const { return read_id_; }
 
 private:
-    const seqan::Dna5String read_;
-    const size_t id_;
+    seqan::Dna5String read_;
+    seqan::CharString read_id_;
+    size_t id_;
 };
 
 namespace std {
-    template<>
-    struct hash<seqan::Dna5String> {
-        size_t operator()(const seqan::Dna5String& str) const {
+    template<typename Param1, typename Param2>
+    struct hash<seqan::String<Param1, Param2>> {
+        size_t operator()(const seqan::String<Param1, Param2>& str) const {
             size_t h = 0;
             for (auto c : str) {
                 h = h * 31 + seqan::ordValue(c);

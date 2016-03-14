@@ -37,8 +37,8 @@ void print_reads_by_umi(std::string& output_dir_name, std::vector<seqan::CharStr
         if (!boost::filesystem::exists(size_dir)) {
             boost::filesystem::create_directory(size_dir);
         }
-        const auto umi_file_path = boost::filesystem::path(size_dir).append(seqan_string_to_string(umi.GetString())).replace_extension(".fasta").c_str();
-        seqan::SeqFileOut output_file(umi_file_path);
+        const auto umi_file_path = boost::filesystem::path(size_dir).append(seqan_string_to_string(umi.GetString())).replace_extension(".fasta");
+        seqan::SeqFileOut output_file(umi_file_path.c_str());
         std::vector<seqan::CharString> umi_read_ids(reads_count);
         std::vector<seqan::Dna5String> umi_reads(reads_count);
         for (size_t i = 0; i < reads_count; i ++) {
