@@ -84,6 +84,13 @@ bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) co
     return current_ != other.current_;
 }
 
+SparseGraph::EdgesIterator& SparseGraph::EdgesIterator::operator=(const SparseGraph::EdgesIterator& other) {
+    VERIFY_MSG(&graph_ == &other.graph_, "Assigning an iterator over another graph.");
+    vertex_ = other.vertex_;
+    current_ = other.current_;
+    return *this;
+}
+
 size_t SparseGraph::EdgesIterator::operator*() const {
     VERIFY_MSG(current_ < graph_.Degree(vertex_),
                "Dereferencing out-of-bounds edge iterator. Vertex " << vertex_ << " (out of " << graph_.N()

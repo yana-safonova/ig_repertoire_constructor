@@ -54,7 +54,7 @@ namespace clusterer {
     public:
         GraphUmiPairsIterator(const GraphUmiPairsIterator& other) = default;
         GraphUmiPairsIterator(const SparseGraphPtr& graph, size_t vertex, const SparseGraph::EdgesIterator& current_edge)
-                : graph_(graph), vertex_(vertex), current_edge_(std::make_shared<SparseGraph::EdgesIterator>(current_edge)), advances_(0) {}
+                : graph_(graph), vertex_(vertex), current_edge_(current_edge), advances_(0) {}
 
         GraphUmiPairsIterator operator ++();
         GraphUmiPairsIterator operator ++(int);
@@ -65,7 +65,7 @@ namespace clusterer {
     private:
         const SparseGraphPtr graph_;
         size_t vertex_;
-        std::shared_ptr<SparseGraph::EdgesIterator> current_edge_;
+        SparseGraph::EdgesIterator current_edge_;
         // just for asserts
         size_t advances_;
 
