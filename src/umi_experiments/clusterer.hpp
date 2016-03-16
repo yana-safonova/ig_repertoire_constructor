@@ -275,11 +275,13 @@ namespace clusterer {
         std::vector<seqan::Dna5String> repertoire_reads;
         size_t cluster_id = 0;
         std::unordered_map<seqan::CharString, size_t> read_id_to_cluster_id;
+        std::vector<size_t> representative(reads.size());
         for (const auto& cluster : umi_to_clusters.toSet()) {
             repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
             repertoire_reads.push_back(cluster->center);
             for (const auto& read : cluster->GetAllReads()) {
                 read_id_to_cluster_id[read.GetId()] = cluster_id;
+                representative[cluster_id] = read.GetId();
             }
             cluster_id ++;
         }
@@ -287,8 +289,13 @@ namespace clusterer {
         writeRecords(clusters_file, repertoire_ids, repertoire_reads);
 
         std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
+        std::vector<bool> used(cluster_id);
         for (const auto& read : reads) {
             read_to_cluster_ofs << read.GetReadId() << "\t" << read_id_to_cluster_id[read.GetId()] << std::endl;
+            used[read.GetId()] = true;
+        }
+        for (size_t i = 0; i < cluster_id; i ++) {
+            VERIFY_MSG(used[i], "Cluster " << i << " has no representatives, but it contains " << representative[i] << "th read.");
         }
     }
 }

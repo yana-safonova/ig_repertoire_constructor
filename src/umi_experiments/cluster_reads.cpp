@@ -152,9 +152,9 @@ size_t cluster_inside_umi(const std::vector<seqan::Dna5String>& input_reads,
 
 // bugs here. Result clusters contain not all reads, count is less by round count of single reads (but it seems it's not them)
 void unite_clusters_for_adjacent_umis(const std::vector<seqan::Dna5String>& input_reads, const SparseGraphPtr umi_graph,
-                                        const std::vector<seqan::Dna5String>& umis,
-                                        const std::unordered_map<Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi,
-                                        std::vector<Clusterer::Cluster>& hamm_clusters) {
+                                      const std::vector<seqan::Dna5String>& umis,
+                                      const std::unordered_map<Umi, std::vector<Clusterer::Cluster>>& hamm_clusters_by_umi,
+                                      std::vector<Clusterer::Cluster>& hamm_clusters) {
     // TODO: share Umi
     typedef std::pair<Umi, size_t> ClusterId;
     struct ClusterIdHash {
@@ -252,6 +252,15 @@ struct Input {
     SparseGraphPtr umi_graph;
 };
 
+bool operator ==(const Input& first, const Input& second) {
+    return first.input_ids == second.input_ids &&
+            first.input_reads == second.input_reads &&
+            first.umi_ids == second.umi_ids &&
+            first.umis == second.umis &&
+            first.compressed_umis == second.compressed_umis &&
+            first.umi_graph == second.umi_graph;
+}
+
 Input read_everything(const Params& params) {
     vector<seqan::CharString> input_ids;
     std::vector<seqan::Dna5String> input_reads;
@@ -292,25 +301,31 @@ int main(int argc, char **argv) {
     }
 
     const auto input = read_everything(params);
+    const auto input_copy = Input(input);
+    VERIFY(input == input_copy);
 
     // needs uncompressed umis
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(input.umis, umi_to_reads);
+    const auto umi_to_reads_copy = std::unordered_map<Umi, std::vector<size_t> >(umi_to_reads);
+    VERIFY(umi_to_reads == umi_to_reads_copy);
 
-
-    INFO("Old");
-    INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
-    std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
     {
-        size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
-        INFO(total_clusters << " clusters found");
+        INFO("Old");
+        INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
+        std::unordered_map<Umi, std::vector<Clusterer::Cluster>> hamm_clusters_by_umi;
+        {
+            size_t total_clusters = cluster_inside_umi(input.input_reads, umi_to_reads, hamm_clusters_by_umi);
+            INFO(total_clusters << " clusters found");
+        }
+
+        INFO("Uniting read clusters for adjacent UMIs");
+        std::vector<Clusterer::Cluster> hamm_clusters;
+        unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
+        INFO(hamm_clusters.size() << " clusters found");
     }
-
-    INFO("Uniting read clusters for adjacent UMIs");
-    std::vector<Clusterer::Cluster> hamm_clusters;
-    unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
-    INFO(hamm_clusters.size() << " clusters found");
-
+    VERIFY(input == input_copy);
+    VERIFY(umi_to_reads == umi_to_reads_copy);
 
 
     INFO("New");
@@ -343,9 +358,12 @@ int main(int argc, char **argv) {
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
 
+/*
     INFO("Uniting read clusters for adjacent UMIs");
     const auto& umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
-            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
+            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, */
+/*initial_umis_to_clusters*//*
+umi_to_clusters_hamm_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
 
@@ -372,5 +390,6 @@ int main(int argc, char **argv) {
     INFO("Saving finished");
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 
+*/
     return 0;
 }

@@ -14,6 +14,8 @@ link_libraries(
 # needed for CLion to include them into the project
 file(GLOB HEADER_FILES *.hpp)
 
+set(CMAKE_BUILD_TYPE "Debug")
+
 add_executable(check_graph_symmetry check_graph_symmetry.cpp utils.cpp)
 add_executable(umi_to_fastq umi_to_fastq.cpp utils.cpp umi_utils.cpp)
 add_executable(print_graph_decomposition_stats print_graph_decomposition_stats.cpp utils.cpp)

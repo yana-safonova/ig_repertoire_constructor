@@ -15,8 +15,14 @@ public:
     ManyToManyCorrespondence(const FromHash& from_hash, const FromEquals& from_equals, const ToHash& to_hash, const ToEquals& to_equals);
     ManyToManyCorrespondence(const ManyToManyCorrespondence& other);
 
-    const std::unordered_set<To>& forth(const From& from) const { return forth_.find(from)->second; }
-    const std::unordered_set<From>& back(const To& to) const { return back_.find(to)->second; }
+    const std::unordered_set<To>& forth(const From& from) const {
+        VERIFY(forth_.find(from) != forth_.end());
+        return forth_.find(from)->second;
+    }
+    const std::unordered_set<From>& back(const To& to) const {
+        VERIFY(back_.find(to) != back_.end());
+        return back_.find(to)->second;
+    }
 
     // returns an element from the 'to' set which is equal to 'to' parameter
     const To getTo(const To& to) const {
@@ -64,6 +70,8 @@ bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
         forth_[from].erase(to);
     }
     back_.erase(to);
+    VERIFY(back_.count(to) == 0);
+
     return true;
 }
 
