@@ -264,8 +264,8 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    void write_clusters_and_correspondence(ManyToManyCorrespondenceUmiToCluster<ElementType> umi_to_clusters,
-                                           std::vector<Read> reads, std::string output_dir) {
+    void write_clusters_and_correspondence(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
+                                           const std::vector<Read>& reads, const std::string& output_dir) {
         namespace fs = boost::filesystem;
         if (!fs::exists(output_dir)) {
             INFO("Creating directory " << output_dir);

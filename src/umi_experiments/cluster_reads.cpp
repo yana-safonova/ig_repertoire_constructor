@@ -313,7 +313,7 @@ int main(int argc, char **argv) {
 
 
 
-    INFO("Employing new structure");
+    INFO("New");
     // TODO: get rid of plain Dna5Strings in favor of shared_ptrs to them
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
     for (auto& umi_read : input.compressed_umis) {
@@ -326,7 +326,7 @@ int main(int argc, char **argv) {
     }
     std::vector<Read> reads;
     for (size_t i = 0; i < input.input_reads.size(); i ++) {
-        reads[i] = Read(input.input_reads[i], input.input_ids[i], i);
+        reads.emplace_back(input.input_reads[i], input.input_ids[i], i);
     }
     clusterer::ManyToManyCorrespondenceUmiToCluster<Read> initial_umis_to_clusters;
     for (auto& entry : umi_to_reads) {

@@ -19,7 +19,7 @@ private:
 
 class Read {
 public:
-    explicit Read(const seqan::Dna5String& read, const seqan::CharString& read_id, size_t id) : read_(read), read_id_(read_id), id_(id) {}
+    Read(const seqan::Dna5String& read, const seqan::CharString& read_id, size_t id) : read_(read), read_id_(read_id), id_(id) {}
 
     bool operator==(const Read& other) const { return id_ == other.id_; }
     Read& operator=(const Read& other) {
