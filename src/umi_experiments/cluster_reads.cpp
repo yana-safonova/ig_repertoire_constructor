@@ -358,12 +358,9 @@ int main(int argc, char **argv) {
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
 
-/*
     INFO("Uniting read clusters for adjacent UMIs");
     const auto& umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
-            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, */
-/*initial_umis_to_clusters*//*
-umi_to_clusters_hamm_inside_umi,
+            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
 
@@ -390,6 +387,5 @@ umi_to_clusters_hamm_inside_umi,
     INFO("Saving finished");
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 
-*/
     return 0;
 }

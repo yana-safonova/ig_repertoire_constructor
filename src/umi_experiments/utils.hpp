@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include <logger/log_writers.hpp>
 #include <seqan/seq_io.h>
+#include "../ig_tools/utils/string_tools.hpp"
 
 void create_console_logger();
 
@@ -41,17 +42,26 @@ public:
 private:
     std::unordered_map<From, std::unordered_set<To>, FromHash, FromEquals> forth_;
     std::unordered_map<To, std::unordered_set<From>, ToHash, ToEquals> back_;
+
+    void check_state();
+    DECL_LOGGER("ManyToManyCorrespondence");
 };
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::ManyToManyCorrespondence
         (const FromHash& from_hash, const FromEquals& from_equals, const ToHash& to_hash, const ToEquals& to_equals)
         : forth_(std::unordered_map<From, std::unordered_set<To>, FromHash, FromEquals>(1, from_hash, from_equals)),
-          back_(std::unordered_map<To, std::unordered_set<From>, ToHash, ToEquals>(1, to_hash, to_equals)) {}
+          back_(std::unordered_map<To, std::unordered_set<From>, ToHash, ToEquals>(1, to_hash, to_equals)) {
+    INFO("Constructing");
+    check_state();
+}
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::ManyToManyCorrespondence
-        (const ManyToManyCorrespondence& other) : forth_(other.forth_), back_(other.back_) {}
+        (const ManyToManyCorrespondence& other) : forth_(other.forth_), back_(other.back_) {
+    INFO("Constructing");
+    check_state();
+}
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 const std::unordered_set<To> ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::toSet() const {
@@ -64,8 +74,13 @@ const std::unordered_set<To> ManyToManyCorrespondence<From, To, FromHash, FromEq
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::removeTo(const To &to) {
+    INFO("Removing to cluster with center " << seqan_string_to_string(to->GetSequence()));
     size_t contains = back_.count(to);
-    if (contains == 0) return false;
+    if (contains == 0) {
+        INFO("No such");
+        return false;
+    }
+    INFO("Proceeding");
     for (const auto& from : back_[to]) {
         forth_[from].erase(to);
         // should not be needed for clusterer, but could be expected in general
@@ -76,13 +91,16 @@ bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
     back_.erase(to);
     VERIFY(back_.count(to) == 0);
 
+    check_state();
     return true;
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::add(const From& from, const To& to) {
+    INFO("Adding umi " << seqan_string_to_string(from->GetString()) << " point to cluster with center " << seqan_string_to_string(to->GetSequence()));
     VERIFY_MSG(forth_[from].insert(to).second, "Adding already existing mapping.");
     VERIFY_MSG(back_[to].insert(from).second, "Adding already existing mapping.");
+    check_state();
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
@@ -91,4 +109,35 @@ void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
         add(from, to);
     }
     VERIFY_MSG(back_.find(to) != back_.end(), "Not added actually");
+}
+
+template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
+void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::check_state() {
+    {
+        size_t forth_targets_cnt = 0;
+        for (const auto& entry : forth_) {
+            forth_targets_cnt += entry.second.size();
+        }
+        VERIFY_MSG(forth_targets_cnt == back_.size(), "To set of size " << back_.size() << ", but forth map points to " << forth_targets_cnt << " targets");
+    }
+    {
+        size_t back_targets_cnt = 0;
+        for (const auto& entry : back_) {
+            back_targets_cnt += entry.second.size();
+        }
+        VERIFY_MSG(back_targets_cnt == forth_.size(), "From set of size " << forth_.size() << ", but back map points to " << back_targets_cnt << " targets");
+    }
+
+    for (const auto& entry : forth_) {
+        for (const auto& to : entry.second) {
+            VERIFY_MSG(back_.count(to), seqan_string_to_string(entry.first->GetString()) << " umi maps to cluster with center "
+                    << seqan_string_to_string(to->GetSequence()) << ", but there's no such cluster in back map");
+        }
+    }
+    for (const auto& entry : back_) {
+        for (const auto& from : entry.second) {
+            VERIFY_MSG(forth_.count(from), seqan_string_to_string(entry.first->GetSequence()) << "-centered cluster maps to umi "
+                    << seqan_string_to_string(from->GetString()) << ", but there's no such umi in forth map");
+        }
+    }
 }
