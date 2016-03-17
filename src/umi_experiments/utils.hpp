@@ -68,6 +68,10 @@ bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
     if (contains == 0) return false;
     for (const auto& from : back_[to]) {
         forth_[from].erase(to);
+        // should not be needed for clusterer, but could be expected in general
+        if (forth_[from].empty()) {
+            forth_.erase(from);
+        }
     }
     back_.erase(to);
     VERIFY(back_.count(to) == 0);

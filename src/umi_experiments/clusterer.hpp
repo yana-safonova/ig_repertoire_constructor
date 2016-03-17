@@ -274,11 +274,12 @@ namespace clusterer {
         std::vector<seqan::CharString> repertoire_ids;
         std::vector<seqan::Dna5String> repertoire_reads;
         size_t cluster_id = 0;
-        std::unordered_map<seqan::CharString, size_t> read_id_to_cluster_id;
+        std::unordered_map<size_t, size_t> read_id_to_cluster_id;
         std::vector<size_t> representative(reads.size());
         for (const auto& cluster : umi_to_clusters.toSet()) {
             repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
             repertoire_reads.push_back(cluster->center);
+            VERIFY(cluster->GetAllReads().size() > 0);
             for (const auto& read : cluster->GetAllReads()) {
                 read_id_to_cluster_id[read.GetId()] = cluster_id;
                 representative[cluster_id] = read.GetId();
