@@ -16,11 +16,11 @@ public:
     ManyToManyCorrespondence(const FromHash& from_hash, const FromEquals& from_equals, const ToHash& to_hash, const ToEquals& to_equals);
     ManyToManyCorrespondence(const ManyToManyCorrespondence& other);
 
-    const std::unordered_set<To>& forth(const From& from) const {
+    const std::unordered_set<To, ToHash, ToEquals>& forth(const From& from) const {
         VERIFY(forth_.find(from) != forth_.end());
         return forth_.find(from)->second;
     }
-    const std::unordered_set<From>& back(const To& to) const {
+    const std::unordered_set<From, FromHash, FromEquals>& back(const To& to) const {
         VERIFY(back_.find(to) != back_.end());
         return back_.find(to)->second;
     }
@@ -32,16 +32,16 @@ public:
         return itr->first;
     }
     size_t toSize() const { return back_.size(); }
-    const std::unordered_set<To> toSet() const;
+    const std::unordered_set<To, ToHash, ToEquals> toSet() const;
 
     // returns true if the 'to' parameter is presented by some links
     bool removeTo(const To &to);
     void add(const From& from, const To& to);
-    void add(const std::unordered_set<From>& from_set, const To& to);
+    void add(const std::unordered_set<From, FromHash, FromEquals>& from_set, const To& to);
 
 private:
-    std::unordered_map<From, std::unordered_set<To>, FromHash, FromEquals> forth_;
-    std::unordered_map<To, std::unordered_set<From>, ToHash, ToEquals> back_;
+    std::unordered_map<From, std::unordered_set<To, ToHash, ToEquals>, FromHash, FromEquals> forth_;
+    std::unordered_map<To, std::unordered_set<From, FromHash, FromEquals>, ToHash, ToEquals> back_;
 
     void check_state();
     DECL_LOGGER("ManyToManyCorrespondence");
@@ -50,8 +50,8 @@ private:
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::ManyToManyCorrespondence
         (const FromHash& from_hash, const FromEquals& from_equals, const ToHash& to_hash, const ToEquals& to_equals)
-        : forth_(std::unordered_map<From, std::unordered_set<To>, FromHash, FromEquals>(1, from_hash, from_equals)),
-          back_(std::unordered_map<To, std::unordered_set<From>, ToHash, ToEquals>(1, to_hash, to_equals)) {
+        : forth_(std::unordered_map<From, std::unordered_set<To, ToHash, ToEquals>, FromHash, FromEquals>(1, from_hash, from_equals)),
+          back_(std::unordered_map<To, std::unordered_set<From, FromHash, FromEquals>, ToHash, ToEquals>(1, to_hash, to_equals)) {
     INFO("Constructing");
     check_state();
 }
@@ -64,8 +64,8 @@ ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::Many
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
-const std::unordered_set<To> ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::toSet() const {
-    std::unordered_set<To> result;
+const std::unordered_set<To, ToHash, ToEquals> ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::toSet() const {
+    std::unordered_set<To, ToHash, ToEquals> result;
     for (const auto& entry : back_) {
         result.insert(entry.first);
     }
@@ -74,13 +74,13 @@ const std::unordered_set<To> ManyToManyCorrespondence<From, To, FromHash, FromEq
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::removeTo(const To &to) {
-    INFO("Removing to cluster with center " << seqan_string_to_string(to->GetSequence()));
+//    INFO("Removing to cluster with center " << seqan_string_to_string(to->GetSequence()));
     size_t contains = back_.count(to);
     if (contains == 0) {
-        INFO("No such");
+//        INFO("No such");
         return false;
     }
-    INFO("Proceeding");
+//    INFO("Proceeding");
     for (const auto& from : back_[to]) {
         forth_[from].erase(to);
         // should not be needed for clusterer, but could be expected in general
@@ -97,14 +97,15 @@ bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::add(const From& from, const To& to) {
-    INFO("Adding umi " << seqan_string_to_string(from->GetString()) << " point to cluster with center " << seqan_string_to_string(to->GetSequence()));
+//    INFO("Adding umi " << seqan_string_to_string(from->GetString()) << " point to cluster with center " << seqan_string_to_string(to->GetSequence()));
     VERIFY_MSG(forth_[from].insert(to).second, "Adding already existing mapping.");
     VERIFY_MSG(back_[to].insert(from).second, "Adding already existing mapping.");
+//    INFO("From: " << forth_.size() << ", to: " << back_.size());
     check_state();
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
-void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::add(const std::unordered_set<From>& from_set, const To& to) {
+void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::add(const std::unordered_set<From, FromHash, FromEquals>& from_set, const To& to) {
     for (const auto& from : from_set) {
         add(from, to);
     }
@@ -114,18 +115,18 @@ void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::check_state() {
     {
-        size_t forth_targets_cnt = 0;
+        std::unordered_set<To, ToHash, ToEquals> forth_targets;
         for (const auto& entry : forth_) {
-            forth_targets_cnt += entry.second.size();
+            forth_targets.insert(entry.second.begin(), entry.second.end());
         }
-        VERIFY_MSG(forth_targets_cnt == back_.size(), "To set of size " << back_.size() << ", but forth map points to " << forth_targets_cnt << " targets");
+        VERIFY_MSG(forth_targets.size() == back_.size(), "To set of size " << back_.size() << ", but forth map points to " << forth_targets.size() << " targets");
     }
     {
-        size_t back_targets_cnt = 0;
+        std::unordered_set<From, FromHash, FromEquals> back_targets;
         for (const auto& entry : back_) {
-            back_targets_cnt += entry.second.size();
+            back_targets.insert(entry.second.begin(), entry.second.end());
         }
-        VERIFY_MSG(back_targets_cnt == forth_.size(), "From set of size " << forth_.size() << ", but back map points to " << back_targets_cnt << " targets");
+        VERIFY_MSG(back_targets.size() == forth_.size(), "From set of size " << forth_.size() << ", but back map points to " << back_targets.size() << " targets");
     }
 
     for (const auto& entry : forth_) {

@@ -207,7 +207,7 @@ namespace clusterer {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
-                        std::unordered_set<UmiPtr> merged_umis(first_cluster_umis);
+                        auto merged_umis(first_cluster_umis);
                         merged_umis.insert(second_cluster_umis.begin(), second_cluster_umis.end());
 
                         VERIFY_MSG(result.removeTo(first_cluster), "Trying to remove an absent cluster");
