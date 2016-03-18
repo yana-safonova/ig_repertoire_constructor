@@ -301,14 +301,10 @@ int main(int argc, char **argv) {
     }
 
     const auto input = read_everything(params);
-    const auto input_copy = Input(input);
-    VERIFY(input == input_copy);
 
     // needs uncompressed umis
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
     group_reads_by_umi(input.umis, umi_to_reads);
-    const auto umi_to_reads_copy = std::unordered_map<Umi, std::vector<size_t> >(umi_to_reads);
-    VERIFY(umi_to_reads == umi_to_reads_copy);
 
     {
         INFO("Old");
@@ -324,8 +320,6 @@ int main(int argc, char **argv) {
         unite_clusters_for_adjacent_umis(input.input_reads, input.umi_graph, input.compressed_umis, hamm_clusters_by_umi, hamm_clusters);
         INFO(hamm_clusters.size() << " clusters found");
     }
-    VERIFY(input == input_copy);
-    VERIFY(umi_to_reads == umi_to_reads_copy);
 
 
     INFO("New");

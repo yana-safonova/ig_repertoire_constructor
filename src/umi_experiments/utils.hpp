@@ -114,6 +114,7 @@ void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::check_state() {
+    return;
     {
         std::unordered_set<To, ToHash, ToEquals> forth_targets;
         for (const auto& entry : forth_) {

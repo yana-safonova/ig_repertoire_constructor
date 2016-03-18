@@ -207,7 +207,7 @@ namespace clusterer {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
-                        auto merged_umis(first_cluster_umis);
+                        std::unordered_set<UmiPtr, UmiPtrHash, UmiPtrEquals> merged_umis(first_cluster_umis);
                         merged_umis.insert(second_cluster_umis.begin(), second_cluster_umis.end());
 
                         VERIFY_MSG(result.removeTo(first_cluster), "Trying to remove an absent cluster");
@@ -286,18 +286,16 @@ namespace clusterer {
             }
             cluster_id ++;
         }
+        VERIFY(read_id_to_cluster_id.size() == reads.size());
         seqan::SeqFileOut clusters_file(fs::path(output_dir).append("intermediate_repertoire.fasta").string().c_str());
         writeRecords(clusters_file, repertoire_ids, repertoire_reads);
+        close(clusters_file);
 
         std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
-        std::vector<bool> used(cluster_id);
         for (const auto& read : reads) {
             read_to_cluster_ofs << read.GetReadId() << "\t" << read_id_to_cluster_id[read.GetId()] << std::endl;
-            used[read.GetId()] = true;
         }
-        for (size_t i = 0; i < cluster_id; i ++) {
-            VERIFY_MSG(used[i], "Cluster " << i << " has no representatives, but it contains " << representative[i] << "th read.");
-        }
+        read_to_cluster_ofs.close();
     }
 }
 
