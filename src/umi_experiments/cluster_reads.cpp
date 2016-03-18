@@ -252,15 +252,6 @@ struct Input {
     SparseGraphPtr umi_graph;
 };
 
-bool operator ==(const Input& first, const Input& second) {
-    return first.input_ids == second.input_ids &&
-            first.input_reads == second.input_reads &&
-            first.umi_ids == second.umi_ids &&
-            first.umis == second.umis &&
-            first.compressed_umis == second.compressed_umis &&
-            first.umi_graph == second.umi_graph;
-}
-
 Input read_everything(const Params& params) {
     vector<seqan::CharString> input_ids;
     std::vector<seqan::Dna5String> input_reads;

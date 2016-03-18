@@ -52,14 +52,12 @@ ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::Many
         (const FromHash& from_hash, const FromEquals& from_equals, const ToHash& to_hash, const ToEquals& to_equals)
         : forth_(std::unordered_map<From, std::unordered_set<To, ToHash, ToEquals>, FromHash, FromEquals>(1, from_hash, from_equals)),
           back_(std::unordered_map<To, std::unordered_set<From, FromHash, FromEquals>, ToHash, ToEquals>(1, to_hash, to_equals)) {
-    INFO("Constructing");
     check_state();
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::ManyToManyCorrespondence
         (const ManyToManyCorrespondence& other) : forth_(other.forth_), back_(other.back_) {
-    INFO("Constructing");
     check_state();
 }
 
@@ -74,13 +72,10 @@ const std::unordered_set<To, ToHash, ToEquals> ManyToManyCorrespondence<From, To
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::removeTo(const To &to) {
-//    INFO("Removing to cluster with center " << seqan_string_to_string(to->GetSequence()));
     size_t contains = back_.count(to);
     if (contains == 0) {
-//        INFO("No such");
         return false;
     }
-//    INFO("Proceeding");
     for (const auto& from : back_[to]) {
         forth_[from].erase(to);
         // should not be needed for clusterer, but could be expected in general
@@ -91,17 +86,15 @@ bool ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
     back_.erase(to);
     VERIFY(back_.count(to) == 0);
 
-    check_state();
+//    check_state();
     return true;
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::add(const From& from, const To& to) {
-//    INFO("Adding umi " << seqan_string_to_string(from->GetString()) << " point to cluster with center " << seqan_string_to_string(to->GetSequence()));
     VERIFY_MSG(forth_[from].insert(to).second, "Adding already existing mapping.");
     VERIFY_MSG(back_[to].insert(from).second, "Adding already existing mapping.");
-//    INFO("From: " << forth_.size() << ", to: " << back_.size());
-    check_state();
+//    check_state();
 }
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
@@ -114,7 +107,6 @@ void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>:
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 void ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::check_state() {
-    return;
     {
         std::unordered_set<To, ToHash, ToEquals> forth_targets;
         for (const auto& entry : forth_) {
