@@ -16,11 +16,12 @@ file(GLOB HEADER_FILES *.hpp)
 
 #set(CMAKE_BUILD_TYPE "Debug")
 
-add_executable(check_graph_symmetry check_graph_symmetry.cpp utils.cpp)
-add_executable(umi_to_fastq umi_to_fastq.cpp utils.cpp umi_utils.cpp)
-add_executable(print_graph_decomposition_stats print_graph_decomposition_stats.cpp utils.cpp)
-add_executable(umi_graph umi_graph.cpp utils.cpp umi_utils.cpp)
-add_executable(group_by_umi group_by_umi.cpp utils.cpp umi_utils.cpp)
-add_executable(reads_by_umi_stats reads_by_umi_stats.cpp utils.cpp umi_utils.cpp dist_distribution_stats.cpp)
+add_executable(check_graph_symmetry tools/check_graph_symmetry.cpp utils.cpp)
+add_executable(umi_to_fastq tools/umi_to_fastq.cpp utils.cpp umi_utils.cpp)
+add_executable(simulate_tiny_dataset tools/simulate_tiny_dataset.cpp)
+add_executable(umi_graph tools/umi_graph.cpp utils.cpp umi_utils.cpp)
+
+add_executable(reads_by_umi_stats stats/reads_by_umi_stats.cpp utils.cpp umi_utils.cpp stats/dist_distribution_stats.cpp)
+add_executable(print_graph_decomposition_stats stats/print_graph_decomposition_stats.cpp utils.cpp)
+
 add_executable(cluster_reads cluster_reads.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp)
-add_executable(simulate_tiny_dataset simulate_tiny_dataset.cpp)

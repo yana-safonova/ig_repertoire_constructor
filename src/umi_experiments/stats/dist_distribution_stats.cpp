@@ -1,6 +1,6 @@
 #include <logger/logger.hpp>
 #include "dist_distribution_stats.hpp"
-#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
+#include "../../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include "utils.hpp"
 
 DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::Dna5String>& input_reads, const std::unordered_map<Umi, std::vector<size_t> >& umi_to_reads, unsigned thread_count) {

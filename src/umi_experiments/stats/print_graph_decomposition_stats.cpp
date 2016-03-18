@@ -1,6 +1,6 @@
-#include "../graph_utils/graph_io.hpp"
+#include "../../graph_utils/graph_io.hpp"
 #include "graph_stats.hpp"
-#include "../ig_tools/utils/string_tools.hpp"
+#include "../../ig_tools/utils/string_tools.hpp"
 #include "utils.hpp"
 #include <segfault_handler.hpp>
 #include <boost/program_options/options_description.hpp>
