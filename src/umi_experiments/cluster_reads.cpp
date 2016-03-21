@@ -127,25 +127,41 @@ int main(int argc, char **argv) {
     }
     // This works 10-15 times slower than simple way (2 min vs 10 sec). Maybe because we don't try to glue to larger clusters first. Anyway, not a great problem at the moment.
     INFO("Clustering reads by hamming within single UMIs with threshold " << clusterer::ClusteringMode::hamming.threshold);
-    const auto& umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
+    const auto umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, initial_umis_to_clusters,
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    for (const auto& cluster : umi_to_clusters_hamm_inside_umi.toSet()) {
+        VERIFY_MSG(umi_to_clusters_hamm_inside_umi.back(cluster).size() == 1, "We haven't united any reads across different UMIs yet.");
+    }
     INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
 
+    std::map<size_t, size_t> umis_of_size;
+    std::map<size_t, size_t> clusters_in_umis_of_size;
+    for (const auto& umi_ptr : compressed_umi_ptrs) {
+        size_t size = umi_to_reads[*umi_ptr].size();
+        umis_of_size[size] ++;
+        clusters_in_umis_of_size[size] += umi_to_clusters_hamm_inside_umi.forth(umi_ptr).size();
+    }
+    for (const auto& entry : umis_of_size) {
+        size_t size = entry.first;
+        INFO("Size: " << size << ", UMIs: " << entry.second << ", clusters: " << clusters_in_umis_of_size[size] << ", compression: "
+                     << 100.0 * static_cast<double>(clusters_in_umis_of_size[size]) / static_cast<double>(size * entry.second) << "%");
+    }
+
     INFO("Uniting read clusters for adjacent UMIs");
-    const auto& umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
+    const auto umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
 
     INFO("Clustering reads by edit distance within single UMIs with threshold " << clusterer::ClusteringMode::edit.threshold);
-    const auto& umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
+    const auto umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::edit, compressed_umi_ptrs, umi_to_clusters_hamm_adj_umi,
             clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(umi_to_clusters_edit_inside_umi.toSize() << " clusters found");
 
     INFO("Uniting read clusters for adjacent UMIs");
-    const auto& umi_to_clusters_edit_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
+    const auto umi_to_clusters_edit_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::edit, compressed_umi_ptrs, umi_to_clusters_edit_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
