@@ -203,7 +203,7 @@ namespace clusterer {
                     if (first_cluster == second_cluster) continue;
                     size_t dist = mode.dist(first_cluster->center, second_cluster->center);
                     dist_distribution[dist] ++;
-                    if (dist <= mode.threshold) {
+                    if (dist <= mode.threshold || (dist <= 2 * mode.threshold && first_cluster->members.size() == 1 && second_cluster->members.size() == 1)) {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
