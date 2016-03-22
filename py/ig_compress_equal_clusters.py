@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     print "Command line: %s" % " ".join(sys.argv)
 
-    home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/../../'
+    home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/../'
     run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
     cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_file, args.map_file)
     os.system(cmd_line)
