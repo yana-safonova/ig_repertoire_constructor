@@ -7,8 +7,8 @@ namespace germline_utils {
             out << "B-cell";
         else if (lymphocyte_type == LymphocyteType::TLymphocyte)
             out << "T-cell";
-        else(lymphocyte_type == LymphocyteType::UnknownLymphocyte)
-        out << "unknown";
+        else
+            out << "unknown";
         return out;
     }
 

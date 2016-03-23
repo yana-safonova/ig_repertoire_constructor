@@ -2,33 +2,33 @@
 
 namespace germline_utils {
 
-    std::ostream &operator<<(std::ostream &out, const IgChainType &ig_chain_type) {
-        if (ig_chain_type == IgChainType::HeavyIgChain)
-            out << "IGH";
-        else if (ig_chain_type == IgChainType::KappaIgChain)
-            out << "IGK";
-        else if (ig_chain_type == IgChainType::LambdaIgChain)
-            out << "IGL";
-        else
-            out << "Unknown Ig chain";
-        return out;
-    }
+//    std::ostream &operator<<(std::ostream &out, const IgChainType &ig_chain_type) {
+//        if (ig_chain_type == IgChainType::HeavyIgChain)
+//            out << "IGH";
+//        else if (ig_chain_type == IgChainType::KappaIgChain)
+//            out << "IGK";
+//        else if (ig_chain_type == IgChainType::LambdaIgChain)
+//            out << "IGL";
+//        else
+//            out << "Unknown Ig chain";
+//        return out;
+//    }
+//
+//    std::ostream &operator<<(std::ostream &out, const TcrChainType &tcr_chain_type) {
+//        if (tcr_chain_type == TcrChainType::AlphaTcrChain)
+//            out << "TRA";
+//        else if (tcr_chain_type == TcrChainType::BetaTcrChain)
+//            out << "TRB";
+//        else if (tcr_chain_type == TcrChainType::GammaTcrChain)
+//            out << "TRG";
+//        else if (tcr_chain_type == TcrChainType::DeltaTcrChain)
+//            out << "TRD";
+//        else
+//            out << "Unknown TCR chain";
+//        return out;
+//    }
 
-    std::ostream &operator<<(std::ostream &out, const TcrChainType &tcr_chain_type) {
-        if (tcr_chain_type == TcrChainType::AlphaTcrChain)
-            out << "TRA";
-        else if (tcr_chain_type == TcrChainType::BetaTcrChain)
-            out << "TRB";
-        else if (tcr_chain_type == TcrChainType::GammaTcrChain)
-            out << "TRG";
-        else if (tcr_chain_type == TcrChainType::DeltaTcrChain)
-            out << "TRD";
-        else
-            out << "Unknown TCR chain";
-        return out;
-    }
-
-    std::ostream &operator<<(std::ostream &out, ImmuneChainType &chain_type) {
+    std::ostream &operator<<(std::ostream &out, const ImmuneChainType &chain_type) {
         if (chain_type == ImmuneChainType::AlphaTcrChain)
             out << "TRA";
         else if (chain_type == ImmuneChainType::BetaTcrChain)
@@ -63,15 +63,20 @@ namespace germline_utils {
 
     ChainType::ChainType(ImmuneChainType chain_type) {
         if (immune_chain_is_tcr(chain_type))
-            lymphocype_type_ = LymphocyteType::TLymphocyte;
+            lymphocyte_type_ = LymphocyteType::TLymphocyte;
         else if (immune_chain_is_ig(chain_type))
-            lymphocype_type_ = LymphocyteType::BLymphocyte;
-        lymphocype_type_ = LymphocyteType
+            lymphocyte_type_ = LymphocyteType::BLymphocyte;
+        else
+            lymphocyte_type_ = LymphocyteType::UnknownLymphocyte;
+        chain_type_ = chain_type;
     }
 
-    std::ostream &operator<<(std::ostream &out, ChainType &chain_type) {
-        out << chain_type.ChainType();
+    std::ostream &operator<<(std::ostream &out, const ChainType &chain_type) {
+        out << chain_type.Chain();
         return out;
     }
 
+    size_t ChainTypeHasher::operator()(const ChainType &chain_type) const {
+        return std::hash<int>()(chain_type.Chain()) * std::hash<int>()(chain_type.Lymphocyte());
+    }
 }

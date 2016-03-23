@@ -9,7 +9,7 @@ namespace germline_utils {
                    segment_type_);
     }
 
-    void CustomGeneDatabase::AddDatabase(ImmuneGeneType gene_type, std::filename) {
+    void CustomGeneDatabase::AddDatabase(ImmuneGeneType gene_type, std::string filename) {
         CheckConsistency(gene_type);
         size_t db_index;
         if (gene_type_index_map_.find(gene_type) == gene_type_index_map_.end()) {
@@ -20,9 +20,5 @@ namespace germline_utils {
         else
             db_index = gene_type_index_map_[gene_type];
         gene_databases_[db_index].AddGenesFromFile(filename);
-    }
-
-    size_t ImmuneGeneTypeHasher::operator()(const ImmuneGeneType &gene_type) {
-        return gene_type.Segment() * gene_type.Chain();
     }
 }

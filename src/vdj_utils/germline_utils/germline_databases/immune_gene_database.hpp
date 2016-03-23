@@ -1,6 +1,7 @@
 #pragma once
 
 #include <seqan/seq_io.h>
+#include <unordered_map>
 
 #include "../chain_type.hpp"
 #include "../germline_gene_type.hpp"
@@ -71,9 +72,9 @@ namespace germline_utils {
 
         typedef std::vector<ImmuneGene>::const_iterator citerator;
 
-        citerator cbegin() const { return ig_genes_.cbegin(); }
+        citerator cbegin() const { return immune_genes_.cbegin(); }
 
-        citerator cend() const { return ig_genes_.cend(); }
+        citerator cend() const { return immune_genes_.cend(); }
 
         size_t size() const { return immune_genes_.size(); }
 
