@@ -901,6 +901,8 @@ boxplot(t(mapply(cor.mm.method, IDO.IG.k_neighbour, FV.IG.k_neighbour)))
 ```{r}
 library("rgl")
 library("akima")
+library("tcR")
+library('gtools')
 ```
 
 ```{r}
@@ -915,26 +917,7 @@ grid <- cbind(grid, 1 - rowSums(grid))
 head(grid)
 ```
 
-```{r}
-plot.dirichlet <- function(kmer, datasets, direchlet.dimention = 3, color = "black") {
-  samp <- t(sapply(datasets, function(x) x[kmer,]))
-  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
-  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
-  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
-      
-  res <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
-        fn = minuslog, samp = samp, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")
-  res$par / sum(res$par)
-  
-  
-  z <- ddirichlet(grid, res$par)
-  z[z==Inf] <- 0
-  #s=interp(grid[,1], grid[,2], z)
-  plot3d( grid[,1], grid[,2], z, col = color)
-  #surface3d(s$x, s$y, s$z)
-  res
-}
-```
+
 
 ```{r}
 datasets.before.flu = list(
@@ -945,42 +928,98 @@ datasets.before.flu = list(
 ```
 
 ```{r}
-datasets.after.flu = list(
-  GMC.IGH.k_neighbour[[4]], GMC.IGH.k_neighbour[[5]], GMC.IGH.k_neighbour[[6]],GMC.IGH.k_neighbour[[7]],GMC.IGH.k_neighbour[[8]],GMC.IGH.k_neighbour[[9]],
-  GMC.IGH.k_neighbour[[10]],
-  IDO.IGH.k_neighbour[[4]], IDO.IGH.k_neighbour[[5]], IDO.IGH.k_neighbour[[6]],IDO.IGH.k_neighbour[[7]],IDO.IGH.k_neighbour[[8]],IDO.IGH.k_neighbour[[9]],
-  IDO.IGH.k_neighbour[[9]],
-  FV.IGH.k_neighbour [[4]], FV.IGH.k_neighbour [[5]], FV.IGH.k_neighbour [[6]],FV.IGH.k_neighbour [[7]],FV.IGH.k_neighbour [[8]],FV.IGH.k_neighbour [[9]],
-  FV.IGH.k_neighbour [[10]]
-)
+datasets.after.flu = unlist(list(
+  GMC.IGH.k_neighbour[-c(1:3, 8)],
+  FV.IGH.k_neighbour[-c(1:3, 5)],
+  IDO.IGH.k_neighbour[-(1:3)]
+), recursive = FALSE)
 ```
 
-```
-
-
-```{r}
-head(sort(rowSums(Reduce("+", datasets.before.flu)), decreasing = TRUE), 100)
-```
 
 ```{r}
 #open3d()
-plot.dirichlet(kmer = 'GTGTA', datasets = datasets.before.flu)$par
-plot.dirichlet(kmer = 'AGCTG', datasets = datasets.before.flu, color = "red")$par
-plot.dirichlet(kmer = 'GAGCT', datasets = datasets.before.flu, color = "red")$par
-plot.dirichlet(kmer = 'CAGCT', datasets = datasets.before.flu, color = "red")$par
-plot.dirichlet(kmer = 'GGGCT', datasets = datasets.before.flu, color = "red")$par
-plot.dirichlet(kmer = 'GGGCT', datasets = datasets.before.flu, color = "red")$par
-rrr = plot.dirichlet(kmer = 'GTATC', datasets = datasets.before.flu, color = "red")$par
-rrr / sum(rrr)
+plot.dirichlet(kmer = 'AAAAA', datasets = datasets.before.flu)
+plot.dirichlet(kmer = 'AACAA', datasets = datasets, color = "red")
 ```
 
 ```{r}
-plot.dirichlet(kmer = 'GTGTA', datasets = datasets.after.flu)$par
-plot.dirichlet(kmer = 'AGCTG', datasets = datasets.after.flu, color = "blue")$par
-plot.dirichlet(kmer = 'GAGCT', datasets = datasets.after.flu, color = "red")$par
-plot.dirichlet(kmer = 'CAGCT', datasets = datasets.after.flu, color = "red")$par
-plot.dirichlet(kmer = 'GGGCT', datasets = datasets.after.flu, color = "blue")$par
-plot.dirichlet(kmer = 'GGGCT', datasets = datasets.after.flu, color = "blue")$par
-open3d()
+mers5 <- generate.kmers(.k = 5)
+```
+
+```{r}
+calc.dir.model <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- t(sapply(datasets, function(x) x[kmer,]))
+  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
+  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
+  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
+      
+  res <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")
+  res$par
+}
+```
+
+```{r}
+model.before <- t(sapply(mers5, calc.dir.model, datasets.before.flu))
+model.after <- t(sapply(mers5, calc.dir.model, datasets.after.flu))
+```
+
+```{r}
+head(sort(rowSums(sapply(datasets.before.flu, rowSums)), decreasing = TRUE))
+head(sort(rowSums(sapply(datasets.after.flu, rowSums)), decreasing = TRUE))
+```
+
+
+```{r}
+plot.dirichlet <- function(kmer, datasets, model, direchlet.dimention = 3, color = "black", draw.lines = FALSE, col.lines = "green", add = FALSE) {
+  x1 <- x2 <- seq(0.01, .99, by=.01) 
+  
+  f <- function(x1, x2) { 
+    ddirichlet(x = matrix(c(x1, x2, 1-x1-x2), ncol=3), alpha = model[kmer,])
+  }
+  
+  z <- outer(x1, x2, f) 
+  z[z <= 0] <- NA
+  
+  persp(x1, x2, z, 
+         main = "Dirichlet Distribution", 
+         col = color, 
+         theta = 50, 
+         phi = 20, 
+         r = 50, 
+         d = 0.1, 
+         expand = 0.5, 
+         ltheta = 90, 
+         lphi = 180, 
+         shade = 0.75, 
+         ticktype = "detailed", 
+         nticks = 5)
+  
+  persp3d(x = x1, y = x2, z = z, col = color, add = add, alpha = 0.5)
+  
+  samp <- t(sapply(datasets, function(x) x[kmer,]))
+  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
+  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
+  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
+  samp <- samp / rowSums(samp)
+  print(samp)
+  apply(samp, 1, function(row) {
+      print(row)
+      lines3d(x = c(row[1], row[1]), c(row[2], row[2]), c(0, max(z, na.rm = TRUE)),
+              color = col.lines, lwd = 2)
+    }
+  )
+}
+```
+
+
+```{r}
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.before.flu, model = model.before, color = "red")
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE)
 ```
 
