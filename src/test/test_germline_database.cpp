@@ -18,29 +18,18 @@ void create_console_logger() {
 
 class GermlineDBTest : public ::testing::Test {
 public:
-    void SetUp();
-
-    void TearDown() { }
+    void SetUp() {
+        create_console_logger();
+    }
 };
 
-void GermlineDBTest::SetUp() {
-    create_console_logger();
-    //output_dir = "germline_db_unit_tests";
-    //path::make_dir(output_dir);
-    // todo: add graph with weighted vertices in test
-    //std::string graph_filename = "test_dataset/dsf/weighted_vertices.graph";
-    //GraphReader graph_reader(graph_filename);
-    //test_graph = graph_reader.CreateGraph();
-}
-
-// create decomposition into dense subgraphs
-// check that each constructed dense subgraph contains at most one supernode
+// test creates DB for specific type of immune gene (IGHV), uploads sequences from file and
+// check correctness of the created DB
 TEST_F(GermlineDBTest, TestImmuneGeneDbCorrectness) {
     std::string human_ighv_file = "data/germline/human/IG/IGHV.fa";
     using namespace germline_utils;
-    ImmuneGeneDatabase ighv_database(ImmuneGeneType(
-            ChainType(ImmuneChainType::HeavyIgChain),
-            SegmentType::VariableSegment));
+    ImmuneGeneDatabase ighv_database(ImmuneGeneType(ChainType(ImmuneChainType::HeavyIgChain),
+                                                    SegmentType::VariableSegment));
     ighv_database.AddGenesFromFile(human_ighv_file);
     INFO("Reading database from " << human_ighv_file);
     ASSERT_EQ(ighv_database.size(), 351);
@@ -55,7 +44,41 @@ TEST_F(GermlineDBTest, TestImmuneGeneDbCorrectness) {
     INFO("DB gene type: " << ighv_database.GeneType());
 }
 
-TestF(GermlineDBTest, TestChainDbCorrectness) {
-    
+TEST_F(GermlineDBTest, TestHeavyChainDbCorrectness) {
+    std::string human_ighv_file = "data/germline/human/IG/IGHV.fa";
+    std::string human_ighd_file = "data/germline/human/IG/IGHD.fa";
+    std::string human_ighj_file = "data/germline/human/IG/IGHJ.fa";
+    using namespace germline_utils;
+    ChainType chain_type(ImmuneChainType::HeavyIgChain);
+    INFO("Creating DB for chain of type " << chain_type);
+    ChainDatabase igh_database(chain_type);
+    igh_database.AddGenesFromFile(SegmentType::VariableSegment, human_ighv_file);
+    igh_database.AddGenesFromFile(SegmentType::DiversitySegment, human_ighd_file);
+    igh_database.AddGenesFromFile(SegmentType::JoinSegment, human_ighj_file);
+    ASSERT_EQ(igh_database.GenesNumber(SegmentType::VariableSegment), 351);
+    INFO("Database contains " << igh_database.GenesNumber(SegmentType::VariableSegment) <<
+                 " genes of type " << igh_database.GetDb(SegmentType::VariableSegment).GeneType());
+    ASSERT_EQ(igh_database.GenesNumber(SegmentType::DiversitySegment), 44);
+    INFO("Database contains " << igh_database.GenesNumber(SegmentType::DiversitySegment) <<
+         " genes of type " << igh_database.GetDb(SegmentType::DiversitySegment).GeneType());
+    ASSERT_EQ(igh_database.GenesNumber(SegmentType::JoinSegment), 13);
+    INFO("Database contains " << igh_database.GenesNumber(SegmentType::JoinSegment) <<
+         " genes of type " << igh_database.GetDb(SegmentType::JoinSegment).GeneType());
 }
 
+TEST_F(GermlineDBTest, TestTraChainDbCorrectness) {
+    std::string human_trav_file = "data/germline/human/TCR/TRAV.fa";
+    std::string human_traj_file = "data/germline/human/TCR/TRAJ.fa";
+    using namespace germline_utils;
+    ChainType chain_type(ImmuneChainType::AlphaTcrChain);
+    INFO("Creating DB for chain of type " << chain_type);
+    ChainDatabase tra_database(chain_type);
+    tra_database.AddGenesFromFile(SegmentType::VariableSegment, human_trav_file);
+    tra_database.AddGenesFromFile(SegmentType::JoinSegment, human_traj_file);
+    ASSERT_EQ(tra_database.GenesNumber(SegmentType::VariableSegment), 103);
+    INFO("Database contains " << tra_database.GenesNumber(SegmentType::VariableSegment) <<
+         " genes of type " << tra_database.GetDb(SegmentType::VariableSegment).GeneType());
+    ASSERT_EQ(tra_database.GenesNumber(SegmentType::JoinSegment), 68);
+    INFO("Database contains " << tra_database.GenesNumber(SegmentType::JoinSegment) <<
+         " genes of type " << tra_database.GetDb(SegmentType::JoinSegment).GeneType());
+}

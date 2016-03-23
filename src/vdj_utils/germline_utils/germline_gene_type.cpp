@@ -17,17 +17,17 @@ namespace germline_utils {
     }
 
     bool ImmuneGeneType::CheckChainSegmentConsistency() {
-        VERIFY_MSG(segment_type_ != SegmentType::DiversitySegment and
-                           chain_type_.Chain() != ImmuneChainType::AlphaTcrChain,
+        VERIFY_MSG(!(segment_type_ == SegmentType::DiversitySegment and
+                     chain_type_.Chain() == ImmuneChainType::AlphaTcrChain),
                    "TRA chain does not contain D gene segment");
-        VERIFY_MSG(segment_type_ != SegmentType::DiversitySegment and
-                           chain_type_.Chain() != ImmuneChainType::GammaTcrChain,
+        VERIFY_MSG(!(segment_type_ == SegmentType::DiversitySegment and
+                     chain_type_.Chain() == ImmuneChainType::GammaTcrChain),
                    "TRG chain does not contain D gene segment");
-        VERIFY_MSG(segment_type_ != SegmentType::DiversitySegment and
-                           chain_type_.Chain() != ImmuneChainType::KappaIgChain,
+        VERIFY_MSG(!(segment_type_ == SegmentType::DiversitySegment and
+                     chain_type_.Chain() == ImmuneChainType::KappaIgChain),
                    "IGK chain does not contain D gene segment");
-        VERIFY_MSG(segment_type_ != SegmentType::DiversitySegment and
-                           chain_type_.Chain() != ImmuneChainType::LambdaIgChain,
+        VERIFY_MSG(!(segment_type_ == SegmentType::DiversitySegment and
+                     chain_type_.Chain() == ImmuneChainType::LambdaIgChain),
                    "IGL chain does not contain D gene segment");
         return true;
     }

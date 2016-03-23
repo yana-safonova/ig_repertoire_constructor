@@ -55,6 +55,8 @@ namespace germline_utils {
         std::unordered_map <std::string, size_t> gene_name_map_;
 
     public:
+        ImmuneGeneDatabase() : gene_type_() { }
+
         ImmuneGeneDatabase(ImmuneGeneType gene_type) :
                 gene_type_(gene_type) { }
 

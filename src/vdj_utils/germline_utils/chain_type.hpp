@@ -40,6 +40,10 @@ namespace germline_utils {
             return lymphocyte_type_ == obj.Lymphocyte() and
                    chain_type_ == obj.Chain();
         }
+
+        bool IsVDJ() const { return chain_type_ == ImmuneChainType::HeavyIgChain or
+                    chain_type_ == ImmuneChainType::BetaTcrChain or
+                    chain_type_ == ImmuneChainType::DeltaTcrChain; }
     };
 
     std::ostream &operator<<(std::ostream &out, const ChainType &chain_type);
