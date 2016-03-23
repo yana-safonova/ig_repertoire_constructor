@@ -903,21 +903,8 @@ library("rgl")
 library("akima")
 library("tcR")
 library('gtools')
+library('parallel')
 ```
-
-```{r}
-grid.N <- 1e2
-grid <- seq(0, 1, length.out = grid.N)
-grid <- do.call(rbind, lapply(grid, function(x) { 
-  cbind(rep(x, grid.N * (1 - x)),
-        seq(from = 0, to = 1 - x, length.out = grid.N * (1 - x)))
-}))
-
-grid <- cbind(grid, 1 - rowSums(grid))
-head(grid)
-```
-
-
 
 ```{r}
 datasets.before.flu = list(
@@ -947,12 +934,20 @@ mers5 <- generate.kmers(.k = 5)
 ```
 
 ```{r}
-calc.dir.model <- function(kmer, datasets, direchlet.dimention = 3) {
+get.dir.samp.from.datasets <- function(kmer, datasets, direchlet.dimention = 3) {
   samp <- t(sapply(datasets, function(x) x[kmer,]))
   samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
   kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
   samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
-      
+  
+  samp  
+}
+```
+
+
+```{r}
+calc.dir.model <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- get.dir.samp.from.datasets(kmer, datasets)  
   res <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
         fn = minuslog, samp = samp, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")
   res$par
@@ -997,10 +992,9 @@ plot.dirichlet <- function(kmer, datasets, model, direchlet.dimention = 3, color
   
   persp3d(x = x1, y = x2, z = z, col = color, add = add, alpha = 0.5)
   
-  samp <- t(sapply(datasets, function(x) x[kmer,]))
-  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
-  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
-  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
+
+  samp <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets)
+  
   samp <- samp / rowSums(samp)
   print(samp)
   apply(samp, 1, function(row) {
@@ -1021,5 +1015,43 @@ plot.dirichlet(kmer = "GTGTA", datasets = datasets.after.flu, model = model.afte
 ```{r}
 plot.dirichlet(kmer = "AGCTG", datasets = datasets.before.flu, model = model.before, color = "red")
 plot.dirichlet(kmer = "AGCTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE)
+```
+
+```{r}
+permutation.test <- function(M, datasets1, datasets2, kmer, direchlet.dimention = 3) {
+  par1 <- calc.dir.model(kmer = kmer, datasets = datasets1)
+  par2 <- calc.dir.model(kmer = kmer, datasets = datasets2)
+  means1 <- par1 / sum(par1)
+  means2 <- par2 / sum(par2)
+  
+  real.value <- sum(abs(means1 - means2))
+  
+  samp1 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets1)
+  samp2 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets2)
+
+  samp <- rbind(samp1, samp2)
+
+  len <- seq_len(nrow(samp))
+  res <- mclapply(1:M, function(...) {
+  #res <- replicate(M, {
+    part1 <- sample(len, size = nrow(samp1))
+    samp1 <- samp[part1, ]
+    samp2 <- samp[-part1, ]
+    par1 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp1, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+    par2 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp2, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+    means1 <- par1 / sum(par1)
+    means2 <- par2 / sum(par2)
+    sum(abs(means1 - means2))
+  }, mc.cores = 3)
+  res <- unlist(res)
+  hist(res)
+  abline(v = real.value, col="red")
+}
+```
+
+```{r}
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
 ```
 
