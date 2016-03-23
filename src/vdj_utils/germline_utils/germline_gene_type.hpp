@@ -27,16 +27,20 @@ namespace germline_utils {
             CheckChainSegmentConsistency();
         }
 
-        LymphocyteType Lymphocyte() { return chain_type_.Lymphocyte(); }
+        LymphocyteType Lymphocyte() const { return chain_type_.Lymphocyte(); }
 
         ChainType Chain() const { return chain_type_; }
 
         SegmentType Segment() const { return segment_type_; }
+
+        bool operator==(const ImmuneGeneType &gene_type) const {
+            return chain_type_ == gene_type.Chain() and segment_type_ == gene_type.Segment();
+        }
     };
 
-    std::ostream &operator<<(std::ostream &out, ImmuneGeneType &gene_type);
+    std::ostream &operator<<(std::ostream &out, const ImmuneGeneType &gene_type);
 
     struct ImmuneGeneTypeHasher {
-        size_t operator()(const ImmuneGeneType& gene_type);
+        size_t operator()(const ImmuneGeneType& gene_type) const;
     };
 }

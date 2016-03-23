@@ -29,13 +29,14 @@ namespace germline_utils {
     }
 
     const ImmuneGene &ImmuneGeneDatabase::GetByName(std::string gene_name) const {
-        VERIFY_MSG(gene_name_map_.find(gene_name) != gene_name_map_.end(), "Map does not contain gene " << gene_name);
+        VERIFY_MSG(gene_name_map_.find(gene_name) != gene_name_map_.end(), "Immune gene DB does not contain gene " << gene_name);
         return immune_genes_[GetIndexByName(gene_name)];
     }
 
     size_t ImmuneGeneDatabase::GetIndexByName(std::string gene_name) const {
-        VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
-        return gene_index_map_.at(gene_name);
+        VERIFY_MSG(gene_name_map_.find(gene_name) != gene_name_map_.end(),
+                   "Immune gene DB does not contain gene name " << gene_name);
+        return gene_name_map_.at(gene_name);
     }
 
     size_t ImmuneGeneDatabase::GetIndexByName(seqan::CharString gene_name) const {
@@ -45,7 +46,7 @@ namespace germline_utils {
     std::ostream &operator<<(std::ostream &out, const ImmuneGeneDatabase &immune_gene_db) {
         out << "Immune genes database. Gene type: " << immune_gene_db.GeneType() <<
         ". # records: " << immune_gene_db.size() << std::endl;
-        for (auto it = ig_gene_db.cbegin(); it != ig_gene_db.cend(); it++)
+        for (auto it = immune_gene_db.cbegin(); it != immune_gene_db.cend(); it++)
             out << *it << std::endl;
         return out;
     }

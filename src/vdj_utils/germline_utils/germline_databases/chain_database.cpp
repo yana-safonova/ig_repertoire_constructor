@@ -21,24 +21,25 @@ namespace germline_utils {
             return diversity_genes_.size();
         if (segment_type == SegmentType::JoinSegment)
             return join_genes_.size();
+        return 0;
     }
 
     const ImmuneGene &ChainDatabase::GetGeneByIndex(SegmentType segment_type, size_t index) const {
+        VERIFY_MSG(segment_type != SegmentType::UnknownSegment, "Requested segment type is unknown");
         if (segment_type == SegmentType::VariableSegment)
             return variable_genes_[index];
         if (segment_type == SegmentType::DiversitySegment)
             return diversity_genes_[index];
-        if (segment_type == SegmentType::JoinSegment)
-            return join_genes_[index];
+        return join_genes_[index];
     }
 
     const ImmuneGeneDatabase &ChainDatabase::GetDb(SegmentType segment_type) const {
+        VERIFY_MSG(segment_type != SegmentType::UnknownSegment, "Requested segment type is unknown");
         if (segment_type == SegmentType::VariableSegment)
             return variable_genes_;
         if (segment_type == SegmentType::DiversitySegment)
             return diversity_genes_;
-        if (segment_type == SegmentType::JoinSegment)
-            return join_genes_;
+        return join_genes_;
     }
 
     std::ostream &operator<<(std::ostream &out, const ChainDatabase &chain_db) {
