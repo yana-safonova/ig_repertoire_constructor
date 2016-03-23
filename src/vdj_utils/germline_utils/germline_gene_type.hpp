@@ -10,6 +10,10 @@ namespace germline_utils {
 
     std::ostream &operator<<(std::ostream &out, const SegmentType &segment_type);
 
+    struct SegmentTypeHasher {
+        size_t operator()(const SegmentType &segment_type) const { return std::hash<int>()(int(segment_type)); }
+    };
+
     class ImmuneGeneType {
         ChainType chain_type_;
         SegmentType segment_type_;

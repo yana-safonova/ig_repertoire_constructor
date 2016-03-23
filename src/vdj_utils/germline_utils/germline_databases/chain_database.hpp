@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "immune_gene_database.hpp"
 
 namespace germline_utils {
@@ -8,16 +10,17 @@ namespace germline_utils {
     class ChainDatabase {
         ChainType chain_type_;
 
-        ImmuneGeneDatabase variable_genes_;
-        ImmuneGeneDatabase diversity_genes_;
-        ImmuneGeneDatabase join_genes_;
+        std::unordered_map<SegmentType, ImmuneGeneDatabase, SegmentTypeHasher> immune_gene_dbs_;
+
+        void InitializeImmuneGeneDbs();
+
+        void CheckConsistency(SegmentType segment_type) const;
 
     public:
         ChainDatabase(ChainType chain_type) :
-                chain_type_(chain_type),
-                variable_genes_(ImmuneGeneType(chain_type, SegmentType::VariableSegment)),
-                diversity_genes_(ImmuneGeneType(chain_type, SegmentType::DiversitySegment)),
-                join_genes_(ImmuneGeneType(chain_type, SegmentType::JoinSegment)) { }
+                chain_type_(chain_type) {
+            InitializeImmuneGeneDbs();
+        }
 
         void AddGenesFromFile(SegmentType segment_type, std::string filename);
 
