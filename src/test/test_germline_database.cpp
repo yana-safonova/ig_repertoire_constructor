@@ -30,8 +30,8 @@ TEST_F(GermlineDBTest, TestImmuneGeneDbCorrectness) {
     using namespace germline_utils;
     ImmuneGeneDatabase ighv_database(ImmuneGeneType(ChainType(ImmuneChainType::HeavyIgChain),
                                                     SegmentType::VariableSegment));
+    INFO("Creating database for immune gene " << ighv_database.GeneType());
     ighv_database.AddGenesFromFile(human_ighv_file);
-    INFO("Reading database from " << human_ighv_file);
     ASSERT_EQ(ighv_database.size(), 351);
     INFO("DB contains " << ighv_database.size() << " records");
     std::stringstream chain_str;
@@ -42,9 +42,10 @@ TEST_F(GermlineDBTest, TestImmuneGeneDbCorrectness) {
     gene_str << ighv_database.GeneType();
     ASSERT_EQ(gene_str.str(), "IGHV");
     INFO("DB gene type: " << ighv_database.GeneType());
+    //ASSERT_EQ(ighv_database[1].name(), "IGHV1-18*02");
 }
 
-TEST_F(GermlineDBTest, TestHeavyChainDbCorrectness) {
+TEST_F(GermlineDBTest, TestIghChainDbCorrectness) {
     std::string human_ighv_file = "data/germline/human/IG/IGHV.fa";
     std::string human_ighd_file = "data/germline/human/IG/IGHD.fa";
     std::string human_ighj_file = "data/germline/human/IG/IGHJ.fa";
@@ -81,4 +82,24 @@ TEST_F(GermlineDBTest, TestTraChainDbCorrectness) {
     ASSERT_EQ(tra_database.GenesNumber(SegmentType::JoinSegment), 68);
     INFO("Database contains " << tra_database.GenesNumber(SegmentType::JoinSegment) <<
          " genes of type " << tra_database.GetDb(SegmentType::JoinSegment).GeneType());
+}
+
+TEST_F(GermlineDBTest, TestCustomVariableDbCorrectness) {
+    std::string human_ighj_file = "data/germline/human/IG/IGHJ.fa";
+    std::string human_igkj_file = "data/germline/human/IG/IGKJ.fa";
+    std::string human_iglj_file = "data/germline/human/IG/IGLJ.fa";
+    std::string human_traj_file = "data/germline/human/TCR/TRAJ.fa";
+    using namespace germline_utils;
+    INFO("Creating custom DB for J genes");
+    CustomGeneDatabase custom_j_db(SegmentType::JoinSegment);
+    custom_j_db.AddDatabase(ImmuneGeneType(ChainType(ImmuneChainType::HeavyIgChain),SegmentType::JoinSegment),
+                            human_ighj_file);
+    custom_j_db.AddDatabase(ImmuneGeneType(ChainType(ImmuneChainType::LambdaIgChain),SegmentType::JoinSegment),
+                            human_igkj_file);
+    custom_j_db.AddDatabase(ImmuneGeneType(ChainType(ImmuneChainType::KappaIgChain),SegmentType::JoinSegment),
+                            human_iglj_file);
+    custom_j_db.AddDatabase(ImmuneGeneType(ChainType(ImmuneChainType::AlphaTcrChain),SegmentType::JoinSegment),
+                            human_traj_file);
+    ASSERT_EQ(custom_j_db.size(), 100);
+    INFO("Custom database of " << custom_j_db.Segment() << " segments contains " << custom_j_db.size() << " records");
 }

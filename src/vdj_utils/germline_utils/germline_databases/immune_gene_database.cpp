@@ -1,7 +1,7 @@
-#include "immune_gene_database.hpp"
-
 #include <verify.hpp>
-#include "seqan/sequence.h"
+#include <logger/logger.hpp>
+
+#include "immune_gene_database.hpp"
 
 namespace germline_utils {
 
@@ -21,6 +21,7 @@ namespace germline_utils {
             immune_genes_.push_back(immune_gene);
             gene_name_map_[std::string(seqan::toCString(read_headers[i]))] = i;
         }
+        INFO(read_headers.size() << " records were extracted from " << filename);
     }
 
     const ImmuneGene &ImmuneGeneDatabase::operator[](size_t index) const {

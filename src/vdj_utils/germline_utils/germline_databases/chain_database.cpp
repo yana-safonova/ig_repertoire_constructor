@@ -39,13 +39,26 @@ namespace germline_utils {
         return immune_gene_dbs_.at(segment_type);
     }
 
+    bool ChainDatabase::ContainsGeneSegments(SegmentType segment_type) const {
+        return immune_gene_dbs_.find(segment_type) != immune_gene_dbs_.end();
+    }
+
+    bool ChainDatabase::Complete() const {
+        bool complete = ContainsGeneSegments(SegmentType::VariableSegment) and
+                ContainsGeneSegments(SegmentType::JoinSegment);
+        if(IsVDJ())
+            complete = complete and ContainsGeneSegments(SegmentType::DiversitySegment);
+        return complete;
+    }
+
     std::ostream &operator<<(std::ostream &out, const ChainDatabase &chain_db) {
-        out << "Database for immune chain " << chain_db.Chain() << std::endl;
-        if (chain_db.GenesNumber(SegmentType::VariableSegment) != 0)
+        out << "Database for immune chain " << chain_db.Chain() << ", completeness: " <<
+                chain_db.Complete() << std::endl;
+        if (chain_db.ContainsGeneSegments(SegmentType::VariableSegment))
             out << chain_db.GetDb(SegmentType::VariableSegment) << std::endl;
-        if (chain_db.GenesNumber(SegmentType::DiversitySegment) != 0)
+        if (chain_db.ContainsGeneSegments(SegmentType::DiversitySegment))
             out << chain_db.GetDb(SegmentType::DiversitySegment) << std::endl;
-        if (chain_db.GenesNumber(SegmentType::JoinSegment) != 0)
+        if (chain_db.ContainsGeneSegments(SegmentType::JoinSegment))
             out << chain_db.GetDb(SegmentType::JoinSegment);
         return out;
     }
