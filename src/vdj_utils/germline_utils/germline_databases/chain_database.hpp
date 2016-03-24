@@ -31,6 +31,12 @@ namespace germline_utils {
         const ImmuneGeneDatabase &GetDb(SegmentType segment_type) const;
 
         ChainType Chain() const { return chain_type_; }
+
+        bool IsVDJ() const { return chain_type_.IsVDJ(); }
+
+        bool ContainsGeneSegments(SegmentType segment_type) const;
+
+        bool Complete() const;
     };
 
     std::ostream &operator<<(std::ostream &out, const ChainDatabase &chain_db);

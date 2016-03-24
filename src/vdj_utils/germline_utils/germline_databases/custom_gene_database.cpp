@@ -1,4 +1,6 @@
 #include <verify.hpp>
+#include <logger/logger.hpp>
+
 #include "custom_gene_database.hpp"
 
 namespace germline_utils {
@@ -20,5 +22,6 @@ namespace germline_utils {
         else
             db_index = gene_type_index_map_[gene_type];
         gene_databases_[db_index].AddGenesFromFile(filename);
+        num_records_ += gene_databases_[db_index].size();
     }
 }
