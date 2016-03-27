@@ -172,11 +172,14 @@ namespace clusterer {
                 const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
                 const UmiPairsIterable& umi_pairs_iterable);
 
+        static ManyToManyCorrespondenceUmiToCluster<ElementType> uniteByCenters(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
+
     private:
         // It's supposed that the merged cluster is not considered in the partition together with either of parents.
         // In particular it inherits id from one of the parents and can be used by ManyToManyCorrespondence, which relies it's a good equality measure and hash value.
-        static ClusterPtr<ElementType> mergeClusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
+        static ClusterPtr<ElementType> merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
         static seqan::Dna5String findNewCenter(std::unordered_set<ElementType>& members);
+        static void print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
     };
 
     template <typename ElementType, typename UmiPairsIterable>
@@ -191,7 +194,7 @@ namespace clusterer {
         for (const auto& cluster : umis_to_clusters.toSet()) {
             ds.addNewSet(cluster);
         }
-        std::map<size_t, size_t> dist_distribution;
+//        std::map<size_t, size_t> dist_distribution;
         for (const auto& umi_pair : umi_pairs_iterable) {
             VERIFY_MSG(umi_pair.first < umis.size() && umi_pair.second < umis.size(), "Invalid umi pair.");
             const UmiPtr& first_umi = umis[umi_pair.first];
@@ -202,7 +205,7 @@ namespace clusterer {
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
                     size_t dist = mode.dist(first_cluster->center, second_cluster->center);
-                    dist_distribution[dist] ++;
+//                    dist_distribution[dist] ++;
                     if (dist <= mode.threshold || (dist <= 1.5 * static_cast<double>(mode.threshold) && first_cluster->members.size() == 1 && second_cluster->members.size() == 1)) {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
@@ -214,7 +217,7 @@ namespace clusterer {
                         VERIFY_MSG(result.removeTo(second_cluster), "Trying to remove an absent cluster");
 
                         VERIFY_MSG(ds.unite(first_cluster_original, second_cluster_original), "Tried to unite two equal sets");
-                        const auto merged_cluster = mergeClusters(first_cluster, second_cluster, ds.findRoot(first_cluster_original)->id);
+                        const auto merged_cluster = merge_clusters(first_cluster, second_cluster, ds.findRoot(first_cluster_original)->id);
 
                         result.add(merged_umis, merged_cluster);
                     }
@@ -222,9 +225,49 @@ namespace clusterer {
             }
         }
 
-        std::map<size_t, size_t> clusters_per_umi;
-        for (const auto& umi : result.fromSet()) {
-            clusters_per_umi[result.forth(umi).size()] ++;
+        print_umi_to_cluster_stats(result);
+
+        //        INFO("Dist distribution");
+//        for (const auto& entry : dist_distribution) {
+//            INFO("dist " << entry.first << " : " << entry.second << " times");
+//        }
+
+        return result;
+    }
+
+    template <typename ElementType, typename UmiPairsIterable>
+    ManyToManyCorrespondenceUmiToCluster<ElementType> Clusterer<ElementType, UmiPairsIterable>::uniteByCenters(
+            const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+        std::unordered_map<seqan::Dna5String, std::vector<ClusterPtr<ElementType>>> center_to_clusters;
+        for (const auto& cluster : umis_to_clusters.toSet()) {
+            center_to_clusters[cluster->center].push_back(cluster);
+        }
+
+        ManyToManyCorrespondenceUmiToCluster<ElementType> result;
+
+        for (const auto& entry : center_to_clusters) {
+            const auto& clusters = entry.second;
+            std::unordered_set<UmiPtr, UmiPtrHash, UmiPtrEquals> merged_umis(umis_to_clusters.back(clusters[0]));
+            ClusterPtr<ElementType> merged_cluster = clusters[0];
+            for (size_t i = 1; i < clusters.size(); i ++) {
+                const auto& umis = umis_to_clusters.back(clusters[i]);
+                merged_umis.insert(umis.begin(), umis.end());
+                merged_cluster = merge_clusters(merged_cluster, clusters[i], merged_cluster->id);
+            }
+
+            result.add(merged_umis, merged_cluster);
+        }
+
+        print_umi_to_cluster_stats(result);
+
+        return result;
+    }
+
+    template <typename ElementType, typename UmiPairsIterable>
+    void Clusterer<ElementType, UmiPairsIterable>::print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+        map<size_t, size_t> clusters_per_umi;
+        for (const auto& umi : umis_to_clusters.fromSet()) {
+            clusters_per_umi[umis_to_clusters.forth(umi).size()] ++;
         }
         INFO("Distribution of number of clusters covered by single UMI: size count");
         for (const auto& entry : clusters_per_umi) {
@@ -232,24 +275,17 @@ namespace clusterer {
         }
 
         std::map<size_t, size_t> umis_per_cluster;
-        for (const auto& cluster : result.toSet()) {
-            umis_per_cluster[result.back(cluster).size()] ++;
+        for (const auto& cluster : umis_to_clusters.toSet()) {
+            umis_per_cluster[umis_to_clusters.back(cluster).size()] ++;
         }
         INFO("Distribution of number of UMIs with reads representing single cluster: size coint");
         for ( const auto& entry : umis_per_cluster) {
             INFO(entry.first << "\t" << entry.second);
         }
-
-//        INFO("Dist distribution");
-//        for (const auto& entry : dist_distribution) {
-//            INFO("dist " << entry.first << " : " << entry.second << " times");
-//        }
-
-        return result;
     };
 
     template <typename ElementType, typename UmiPairsIterable>
-    ClusterPtr<ElementType> Clusterer<ElementType, UmiPairsIterable>::mergeClusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id) {
+    ClusterPtr<ElementType> Clusterer<ElementType, UmiPairsIterable>::merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id) {
         std::unordered_set<ElementType> members(first->members);
         members.insert(second->members.begin(), second->members.end());
         VERIFY_MSG(members.size() == first->members.size() + second->members.size(), "Clusters already intersect.");

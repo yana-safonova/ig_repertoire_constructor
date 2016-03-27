@@ -166,6 +166,11 @@ int main(int argc, char **argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
+    INFO("Uniting clusters with identical centers");
+    const auto umi_to_clusters_same_centers = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::uniteByCenters(
+            umi_to_clusters_edit_adj_umi);
+    INFO(umi_to_clusters_same_centers.toSize() << " clusters found");
+
 //    INFO("Uniting ignoring UMIs");
 //    const auto& umi_to_clusters_global = clusterer::Clusterer<Read, clusterer::FullGraphUmiPairsIterable>::cluster(
 //            clusterer::ClusteringMode::hamming, compressed_umi_ptrs, umi_to_clusters_edit_adj_umi,
