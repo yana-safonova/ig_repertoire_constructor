@@ -222,6 +222,24 @@ namespace clusterer {
             }
         }
 
+        std::map<size_t, size_t> clusters_per_umi;
+        for (const auto& umi : result.fromSet()) {
+            clusters_per_umi[result.forth(umi).size()] ++;
+        }
+        INFO("Distribution of number of clusters covered by single UMI: size count");
+        for (const auto& entry : clusters_per_umi) {
+            INFO(entry.first << "\t" << entry.second);
+        }
+
+        std::map<size_t, size_t> umis_per_cluster;
+        for (const auto& cluster : result.toSet()) {
+            umis_per_cluster[result.back(cluster).size()] ++;
+        }
+        INFO("Distribution of number of UMIs with reads representing single cluster: size coint");
+        for ( const auto& entry : umis_per_cluster) {
+            INFO(entry.first << "\t" << entry.second);
+        }
+
 //        INFO("Dist distribution");
 //        for (const auto& entry : dist_distribution) {
 //            INFO("dist " << entry.first << " : " << entry.second << " times");

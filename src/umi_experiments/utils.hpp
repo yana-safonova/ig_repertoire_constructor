@@ -34,6 +34,8 @@ public:
     size_t toSize() const { return back_.size(); }
     const std::unordered_set<To, ToHash, ToEquals> toSet() const;
 
+    const std::unordered_set<From, FromHash, FromEquals> fromSet() const;
+
     // returns true if the 'to' parameter is presented by some links
     bool removeTo(const To &to);
     void add(const From& from, const To& to);
@@ -65,6 +67,15 @@ template <typename From, typename To, typename FromHash, typename FromEquals, ty
 const std::unordered_set<To, ToHash, ToEquals> ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::toSet() const {
     std::unordered_set<To, ToHash, ToEquals> result;
     for (const auto& entry : back_) {
+        result.insert(entry.first);
+    }
+    return result;
+};
+
+template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
+const std::unordered_set<From, FromHash, FromEquals> ManyToManyCorrespondence<From, To, FromHash, FromEquals, ToHash, ToEquals>::fromSet() const {
+    std::unordered_set<From, FromHash, FromEquals> result;
+    for (const auto& entry : forth_) {
         result.insert(entry.first);
     }
     return result;
