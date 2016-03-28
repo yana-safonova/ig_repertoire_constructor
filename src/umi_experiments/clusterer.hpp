@@ -269,7 +269,7 @@ namespace clusterer {
         for (const auto& umi : umis_to_clusters.fromSet()) {
             clusters_per_umi[umis_to_clusters.forth(umi).size()] ++;
         }
-        INFO("Distribution of number of clusters covered by single UMI: size count");
+        INFO("Distribution of number of clusters per UMI: size -> count");
         for (const auto& entry : clusters_per_umi) {
             INFO(entry.first << "\t" << entry.second);
         }
@@ -278,7 +278,7 @@ namespace clusterer {
         for (const auto& cluster : umis_to_clusters.toSet()) {
             umis_per_cluster[umis_to_clusters.back(cluster).size()] ++;
         }
-        INFO("Distribution of number of UMIs with reads representing single cluster: size count");
+        INFO("Distribution of number of UMIs per cluster: size -> count");
         for ( const auto& entry : umis_per_cluster) {
             INFO(entry.first << "\t" << entry.second);
         }
