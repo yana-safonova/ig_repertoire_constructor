@@ -278,7 +278,7 @@ namespace clusterer {
         for (const auto& cluster : umis_to_clusters.toSet()) {
             umis_per_cluster[umis_to_clusters.back(cluster).size()] ++;
         }
-        INFO("Distribution of number of UMIs with reads representing single cluster: size coint");
+        INFO("Distribution of number of UMIs with reads representing single cluster: size count");
         for ( const auto& entry : umis_per_cluster) {
             INFO(entry.first << "\t" << entry.second);
         }
