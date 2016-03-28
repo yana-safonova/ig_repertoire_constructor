@@ -1,0 +1,83 @@
+; run parameters ;
+rp {
+    num_threads	8
+}
+
+; input - output parameters ; 
+iop {
+	input {
+			input_reads;
+    }
+
+     output {
+     	; output files ;           
+		of {
+			output_dir	vjf_test
+			output_filename 	oppa1		
+			bad_output_filename	oppa2
+			add_info_filename	oppa3
+			discard_info_filename	oppa4
+			valignments_filename	oppa5
+		}
+
+		; output details ;
+        od {
+        	verbose 			true
+            compress 			false
+           	fix_spaces 			true
+            separator	comma
+        }
+	}
+}
+
+; algorithm parameters ; 
+algop {
+	; aligner_params ;
+	ap {
+		left_uncovered_limit	16
+		right_uncovered_limit	5
+		min_v_segment_length	250
+		min_j_segment_length	30
+		min_len					300
+        K						7
+		word_size_j				5
+        min_k_coverage			50
+        min_k_coverage_j		13
+	}
+
+	; germline_params ;
+	gp {
+		organism		human
+        loci			all
+        db_directory		./data/germline
+        pseudogenes		true		
+	}
+
+    ; query_params ;
+	qp {
+    	max_candidates		10
+        max_candidates_j	10
+        fix_strand		true 
+        consistent_loci		true
+        min_len                                 300 
+    }
+            
+    ; fix_crop_fill_params ;
+	fxp {
+    	fill_left		true
+        fill_right		false
+        fix_left		3
+        fix_right		0
+        crop_left		true
+        crop_right		true
+    }
+
+    ; alignment scoring ;
+    asp {
+        max_global_gap		24
+        max_local_deletions	12
+        max_local_insertions	12
+        gap_opening_cost	4
+        gap_extention_cost	1
+    }
+}
