@@ -61,20 +61,22 @@ def ExtractReadsFromCluster(log, rcm_path, cluster_id, read_id_to_idx):
 
 def ReadRecords(log, reads_path):
     with open(reads_path, "r") as reads_file:
-        records_list = list(SeqIO.parse(reads_file, "fastq"))
+        records_list = list(SeqIO.parse(reads_file, "fasta"))
         id_to_record = SeqIO.to_dict(records_list)
         id_to_idx = defaultdict()
         for i in range(len(records_list)):
             id_to_idx[records_list[i].id] = i
-        log.info("Read %d (%d) records from %s", len(id_to_record), len(records_list), reads_path)
+        log.info("Read %d records from %s", len(id_to_record), reads_path)
         return id_to_idx, id_to_record
 
 
 def GenFastqNClustal(log, reads, dir, name):
+    if not os.path.exists(dir):
+        os.makedirs(dir)
     path = os.path.join(dir, name)
     log.info("Writing subcluster of %d reads to %s", len(reads), path)
-    with open(path) as cluster_file:
-        SeqIO.write(reads, cluster_file, "fastq")
+    with open(path, "w") as cluster_file:
+        SeqIO.write(reads, cluster_file, "fasta")
     clustal_cmd = "clustalw -infile=%s" % path
     log.info("Running '%s'", clustal_cmd)
     os.system(clustal_cmd)
@@ -94,9 +96,9 @@ def main():
         for read_info in cluster_read_info:
             cluster_reads.append(read_id_to_record[read_info[1]])
         all_reads.extend(cluster_reads)
-        GenFastqNClustal(log, cluster_reads, params.output_dir, str(cluster[0]) + ".fastq")
+        GenFastqNClustal(log, cluster_reads, params.output_dir, str(cluster[0]) + ".fasta")
 
-    GenFastqNClustal(log, all_reads, params.output_dir, "all.fastq")
+    GenFastqNClustal(log, all_reads, params.output_dir, "all.fasta")
 
 
 if __name__ == '__main__':
