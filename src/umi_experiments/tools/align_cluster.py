@@ -18,9 +18,10 @@ def CreateLogger():
 def ParseCommandLineParams(log):
     from argparse import ArgumentParser
     parser = ArgumentParser()
+    parser.add_argument("-l", "--final-repertoire",     type=str,   dest="final_fasta_path",        help="Path to final repertoire fasta",          required=True)
     parser.add_argument("-f", "--final-repertoire-rcm", type=str,   dest="final_rcm_path",          help="Path to final repertoire rcm",            required=True)
     parser.add_argument("-i", "--inter-repertoire-rcm", type=str,   dest="inter_rcm_path",          help="Path to intermediate repertoire rcm",     required=True)
-    parser.add_argument("-c", "--inter-clusters",       type=str,   dest="inter_fastq_path",        help="Path to intermediate repertoire fastq",   required=True)
+    parser.add_argument("-c", "--inter-clusters",       type=str,   dest="inter_fasta_path",        help="Path to intermediate repertoire fasta",   required=True)
     parser.add_argument("-r", "--reads",                type=str,   dest="reads_path",              help="Path to fastq file with reads",           required=True)
     parser.add_argument("-o", "--output",               type=str,   dest="output_dir",              help="Path to output directory",                required=True)
     # parser.add_argument("-c", "--cluster-id",           type=int,   dest="cluster_id",  default=0,  help="Id of the cluster to analyze",        required=False)
@@ -35,13 +36,15 @@ def ParseCommandLineParams(log):
 
 
 def FindAbundantCluster(log, rcm_path):
-    with open(rcm_path, "r") as rcm:
-        for line in rcm:
-            id_and_cluster = line[:-1].split("\t")
-            size = int(id_and_cluster[0].split("___")[-1])
+    with open(rcm_path, "r") as fasta:
+        line_number = 0
+        for record in SeqIO.parse(fasta, "fasta"):
+            id = record.id
+            size = int(id.split("___")[-1])
             if size >= 5:
-                log.info("Found cluster '%s', %s of size %d", id_and_cluster[0], id_and_cluster[1], size)
-                return int(id_and_cluster[1])
+                log.info("Found cluster '%s' of size %d", id, size)
+                return line_number
+            line_number += 1
     assert False
 
 
@@ -85,8 +88,8 @@ def GenFastqNClustal(log, reads, dir, name):
 def main():
     log = CreateLogger()
     params = ParseCommandLineParams(log)
-    final_cluster_id = FindAbundantCluster(log, params.final_rcm_path)
-    inter_id_to_idx, inter_id_to_record = ReadRecords(log, params.inter_fastq_path)
+    final_cluster_id = FindAbundantCluster(log, params.final_fasta_path)
+    inter_id_to_idx, inter_id_to_record = ReadRecords(log, params.inter_fasta_path)
     clusters = ExtractReadsFromCluster(log, params.final_rcm_path, final_cluster_id, inter_id_to_idx)
     read_to_idx, read_id_to_record = ReadRecords(log, params.reads_path)
     all_reads = []
