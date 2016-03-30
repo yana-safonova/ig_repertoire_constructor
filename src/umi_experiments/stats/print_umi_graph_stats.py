@@ -24,7 +24,7 @@ def ParseCommandLineParams(log):
     parser.add_argument("--tmp", type=str, dest="tmp_dir", default=".", help="Temporary files directory path")
     parser.add_argument("-c", "--clean", dest="clean", action="store_true", help="Will remove all temporary files")
     parser.add_argument("-t", "--threads", type=int, dest="threads", help="Number of threads to be used")
-    parser.add_argument("--tau", type=int, dest="tau", help="Distance threshold for the UMI graph")
+    parser.add_argument("--tau", type=int, dest="tau", default=1, help="Distance threshold for the UMI graph")
 
     if len(sys.argv) == 1:
         parser.print_help()
