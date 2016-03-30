@@ -24,6 +24,7 @@ def ParseCommandLineParams(log):
     parser.add_argument("--tmp", type=str, dest="tmp_dir", default=".", help="Temporary files directory path")
     parser.add_argument("-c", "--clean", dest="clean", action="store_true", help="Will remove all temporary files")
     parser.add_argument("-t", "--threads", type=int, dest="threads", help="Number of threads to be used")
+    parser.add_argument("--tau", type=int, dest="tau", help="Distance threshold for the UMI graph")
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -99,7 +100,7 @@ class WorkflowRunner:
             single_reads = params.input_file
         umi_fastq = self.ExtractUmi(log, single_reads, params.tmp_dir, params.clean)
         umi_compressed = self.CompressFastq(log, umi_fastq, params.tmp_dir, params.clean)
-        umi_graph = self.ConstructGraph(log, umi_compressed, params.tmp_dir, params.clean)
+        umi_graph = self.ConstructGraph(log, umi_compressed, params.tmp_dir, params.tau, params.clean)
         self.PrintStats(log, umi_compressed, umi_graph, params.stats_file)
 
     def GenerateSingleReadsFileName(self, log, left_reads_file, right_reads_file, out_dir):
@@ -146,9 +147,17 @@ class WorkflowRunner:
         BinaryRunner(BinaryPaths().ig_trie_compressor, input_file, output_file).Run(log, clean)
         return output_file
 
-    def ConstructGraph(self, log, input_file, out_dir, clean):
+    def ConstructGraph(self, log, input_file, out_dir, tau, clean):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + ".graph")
-        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k 6 --tau 1 -A").Run(log, clean, self.threads)
+        with open(input_file, "r") as umis:
+            i = 0
+            for line in umis:
+                if i == 1:
+                    line = line.rstrip('\n')
+                    umi_length = len(line)
+                    break
+                i += 1
+        BinaryRunner(BinaryPaths().ig_swgraph_construct, input_file, output_file, "-k %d --tau %d -A" % (umi_length // (tau + 1), tau) ).Run(log, clean, self.threads)
         return output_file
 
     def PrintStats(self, log, reads_file, graph_file, output_file):
