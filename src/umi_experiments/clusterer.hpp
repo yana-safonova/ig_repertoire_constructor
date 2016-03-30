@@ -121,7 +121,7 @@ namespace clusterer {
     public:
         Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_ = 1)
                 : members{first_}, center(center_), id(id_), weight(weight_) {}
-        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t weight_, const size_t id_)
+        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_)
                 : members(members_), center(center_), id(id_), weight(weight_) {}
 
         // Assumes merged clusters are never compared.
@@ -217,7 +217,8 @@ namespace clusterer {
                         VERIFY_MSG(result.removeTo(second_cluster), "Trying to remove an absent cluster");
 
                         VERIFY_MSG(ds.unite(first_cluster_original, second_cluster_original), "Tried to unite two equal sets");
-                        const auto merged_cluster = merge_clusters(first_cluster, second_cluster, ds.findRoot(first_cluster_original)->id);
+                        size_t new_id = ds.findRoot(first_cluster_original)->id;
+                        const auto merged_cluster = merge_clusters(first_cluster, second_cluster, new_id);
 
                         result.add(merged_umis, merged_cluster);
                     }
@@ -293,7 +294,7 @@ namespace clusterer {
         size_t max_size = max_cluster->members.size();
         bool need_new_center = max_size <= 10 || __builtin_clzll(max_size) != __builtin_clzll(members.size());
         const seqan::Dna5String& center = need_new_center ? findNewCenter(members) : max_cluster->center;
-        return std::make_shared<Cluster<ElementType>>(members, center, first->weight + second->weight, id);
+        return std::make_shared<Cluster<ElementType>>(members, center, id, first->weight + second->weight);
     }
 
     template <typename ElementType, typename UmiPairsIterable>

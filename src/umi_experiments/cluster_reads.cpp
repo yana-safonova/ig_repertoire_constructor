@@ -58,27 +58,28 @@ namespace {
     Input read_everything(const Params& params) {
         vector<seqan::CharString> input_ids;
         std::vector<seqan::Dna5String> input_reads;
-        INFO("Reading reads");
+        INFO("Reading records from " << params.reads_path);
         seqan::SeqFileIn reads_file(params.reads_path.c_str());
         readRecords(input_ids, input_reads, reads_file);
         INFO(input_ids.size() << " records read");
 
         vector<seqan::CharString> umi_ids;
         std::vector<seqan::Dna5String> umis;
-        INFO("Reading UMI records");
+        INFO("Reading UMI records from " << params.umi_uncompressed_path);
         seqan::SeqFileIn umi_file(params.umi_uncompressed_path.c_str());
         readRecords(umi_ids, umis, umi_file);
         INFO(umi_ids.size() << " UMIs read");
+        VERIFY_MSG(umi_ids.size() == input_ids.size(), "The number of reads should be the same as the number of UMIs")
 
         std::vector<seqan::Dna5String> compressed_umis;
-        INFO("Reading compressed UMIs");
+        INFO("Reading compressed UMIs from " << params.umi_compressed_path);
         std::vector<seqan::CharString> compressed_umi_ids;
         seqan::SeqFileIn umi_compressed_file(params.umi_compressed_path.c_str());
         readRecords(compressed_umi_ids, compressed_umis, umi_compressed_file);
         INFO(compressed_umis.size() << " compressed UMIs read");
 
         SparseGraphPtr umi_graph;
-        INFO("Reading UMI graph");
+        INFO("Reading UMI graph from " << params.umi_graph_path);
         umi_graph = GraphReader(params.umi_graph_path).CreateGraph();
         INFO("Read graph with " << umi_graph->N() << " vertices and " << umi_graph->NZ() << " edges");
 
