@@ -8,8 +8,49 @@ import os.path
 import tempfile
 
 
-from ig_remove_low_abundance_reads import smart_open, parse_abundance
+from ig_remove_low_abundance_reads import smart_open
 
+
+def parse_cluster_mult(id):
+    import re
+    id = str(id)
+    m = re.match(r"^cluster___(\d+)___size___(\d+)$", id)
+    if m:
+        g = m.groups()
+        cluster = int(g[0])
+        mult = int(g[1])
+        return cluster, mult
+    else:
+        return None
+
+
+def check_fa_rcm_consistency(fa_filename, rcm_filename):
+    from collections import defaultdict
+
+    cluster_mult_rcm = defaultdict(int)
+    num_rcm_reads = 0
+    with open(rcm_filename) as rcm:
+        for line in rcm:
+            cluster = int(line.split("\t")[1])
+            cluster_mult_rcm[cluster] += 1
+            num_rcm_reads += 1
+
+    num_fa_reads = 0
+    is_ok = True
+    with smart_open(fa_filename) as fa:
+        for record in SeqIO.parse(fa, "fasta"):
+            id = str(record.description)
+            cluster, mult = parse_cluster_mult(id)
+            if not cluster_mult_rcm[cluster] == mult:
+                print id, cluster_mult_rcm[cluster]
+                is_ok = False
+            num_fa_reads += mult
+
+    if not num_rcm_reads == num_fa_reads:
+        is_ok = False
+        print "Sizes are inconsistent: %d input reads and total multiplicity is %d" % (num_rcm_reads, num_fa_reads)
+
+    return is_ok
 
 
 if __name__ == "__main__":
@@ -54,8 +95,13 @@ if __name__ == "__main__":
     with open(args.map_file) as fin:
         targets = [int(line.strip()) for line in fin]
 
+    mults = []
+    cluster2cluster_num = {}
     with open(args.input) as fin:
-        mults = [parse_abundance(record.description) for record in SeqIO.parse(fin, "fasta")]
+        for i, record in enumerate(SeqIO.parse(fin, "fasta")):
+            cluster, mult = parse_cluster_mult(record.description)
+            cluster2cluster_num[cluster] = i
+            mults.append(mult)
 
     final_mults = [0] * (max(targets) + 1) if len(targets) else []
     for target, mult in zip(targets, mults):
@@ -69,6 +115,10 @@ if __name__ == "__main__":
 
     if args.rcm:
         print "Fixing RCM file..."
+        print "Check input consistency..."
+        if not check_fa_rcm_consistency(args.input, args.rcm):
+            exit(1)
+
         if not args.output_rcm:
             args.output_rcm = args.rcm
 
@@ -78,8 +128,12 @@ if __name__ == "__main__":
 
         with open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
-                target_cluster = targets[cluster]
+                target_cluster = targets[cluster2cluster_num[cluster]]
                 fout.writelines("%s\t%s\n" % (id, target_cluster))
+
+        print "Check output consistency..."
+        if not check_fa_rcm_consistency(args.output, args.output_rcm):
+            exit(1)
 
 
     print "Remove temporary files: %s %s" % (args.tmp_file, args.map_file)
