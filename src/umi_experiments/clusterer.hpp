@@ -8,6 +8,7 @@
 #include "../graph_utils/sparse_graph.hpp"
 #include "umi_utils.hpp"
 #include "disjoint_sets.hpp"
+#include "utils/io.hpp"
 
 namespace clusterer {
 
@@ -320,35 +321,66 @@ namespace clusterer {
 
     template <typename ElementType>
     void write_clusters_and_correspondence(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
-                                           const std::vector<Read>& reads, const std::string& output_dir) {
-        namespace fs = boost::filesystem;
-        if (!fs::exists(output_dir)) {
-            INFO("Creating directory " << output_dir);
-            fs::create_directory(output_dir);
-        }
+                                           const std::vector<Read>& reads, const std::string& output_dir,
+                                           bool save_clusters) {
         std::vector<seqan::CharString> repertoire_ids;
         std::vector<seqan::Dna5String> repertoire_reads;
-        size_t cluster_id = 0;
         std::unordered_map<size_t, size_t> read_id_to_cluster_id;
-        for (const auto& cluster : umi_to_clusters.toSet()) {
-            repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
-            repertoire_reads.push_back(cluster->center);
-            VERIFY(cluster->GetAllReads().size() > 0);
-            for (const auto& read : cluster->GetAllReads()) {
-                read_id_to_cluster_id[read.GetId()] = cluster_id;
+        {
+            size_t cluster_id = 0;
+            for (const auto& cluster : umi_to_clusters.toSet()) {
+                repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
+                repertoire_reads.push_back(cluster->center);
+                VERIFY(cluster->GetAllReads().size() > 0);
+                for (const auto& read : cluster->GetAllReads()) {
+                    read_id_to_cluster_id[read.GetId()] = cluster_id;
+                }
+                cluster_id++;
             }
-            cluster_id ++;
         }
         VERIFY(read_id_to_cluster_id.size() == reads.size());
-        seqan::SeqFileOut clusters_file(fs::path(output_dir).append("intermediate_repertoire.fasta").string().c_str());
-        writeRecords(clusters_file, repertoire_ids, repertoire_reads);
-        close(clusters_file);
+
+        INFO("Creating output directory " << output_dir);
+        if (!create_new_directory(output_dir)) {
+            INFO("Removed old directory");
+        }
+
+        namespace fs = boost::filesystem;
+        write_seqan_records(fs::path(output_dir).append("intermediate_repertoire.fasta"), repertoire_ids, repertoire_reads);
 
         std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
         for (const auto& read : reads) {
             read_to_cluster_ofs << read.GetReadId() << "\t" << read_id_to_cluster_id[read.GetId()] << std::endl;
         }
         read_to_cluster_ofs.close();
+
+        if (!save_clusters) return;
+
+        const auto clusters_path = fs::path(output_dir).append("clusters_by_umis");
+        fs::create_directory(clusters_path);
+        for (const auto& umi : umi_to_clusters.fromSet()) {
+            auto umi_path = clusters_path;
+            umi_path.append(seqan_string_to_string(umi->GetString()));
+            fs::create_directory(umi_path);
+            const auto& cluster_set = umi_to_clusters.forth(umi);
+            std::vector<ClusterPtr<ElementType>> clusters(cluster_set.begin(), cluster_set.end());
+            std::sort(clusters.begin(), clusters.end(), [](const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second) {
+                if (first->weight != second->weight) {
+                    return first->weight > second->weight;
+                }
+                return first->id < second->id;
+            });
+            for (const auto& cluster : clusters) {
+                std::vector<seqan::CharString> cluster_ids;
+                std::vector<seqan::Dna5String> cluster_reads;
+                for (const auto& read : cluster->members) {
+                    cluster_ids.push_back(read.GetReadId());
+                    cluster_reads.push_back(read.GetSequence());
+                }
+                const auto& cluster_path = fs::path(umi_path).append("cluster_" + std::to_string(cluster->id) + "_size_" + std::to_string(cluster->weight));
+                write_seqan_records(cluster_path, cluster_ids, cluster_reads);
+            }
+        }
     }
 }
 

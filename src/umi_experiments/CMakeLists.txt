@@ -12,7 +12,7 @@ link_libraries(
 )
 
 # needed for CLion to include them into the project
-file(GLOB HEADER_FILES *.hpp)
+file(GLOB HEADER_FILES **/*.hpp)
 
 #set(CMAKE_BUILD_TYPE "Debug")
 
@@ -25,4 +25,4 @@ add_executable(analyze_intermed_clusters tools/analyze_intermed_clusters.cpp uti
 add_executable(reads_by_umi_stats stats/reads_by_umi_stats.cpp utils.cpp umi_utils.cpp stats/dist_distribution_stats.cpp)
 add_executable(print_graph_decomposition_stats stats/print_graph_decomposition_stats.cpp utils.cpp)
 
-add_executable(cluster_reads cluster_reads.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp)
+add_executable(cluster_reads cluster_reads.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp utils/io.cpp)

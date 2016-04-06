@@ -16,6 +16,7 @@ namespace {
         std::string umi_compressed_path;
         std::string umi_graph_path;
         std::string output_dir;
+        bool save_clusters;
     };
 
     bool read_args(int argc, char **argv, Params& params) {
@@ -28,6 +29,7 @@ namespace {
                 ("umi_compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
                 ("graph,g", po::value<std::string>(&params.umi_graph_path)->required(), "file with UMI graph")
                 ("output,o", po::value<std::string>(&params.output_dir)->default_value(""), "output directory path")
+                ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
     //            ("threads,t", po::value<unsigned>(&thread_count)->default_value(1), "number of running threads")
                 ;
         po::variables_map vm;
@@ -179,7 +181,7 @@ int main(int argc, char **argv) {
 //    INFO(umi_to_clusters_global.toSize() << " clusters found");
 
     INFO("Saving intermediate repertoire to output directory " << params.output_dir);
-    clusterer::write_clusters_and_correspondence<Read>(umi_to_clusters_same_centers, reads, params.output_dir);
+    clusterer::write_clusters_and_correspondence<Read>(umi_to_clusters_same_centers, reads, params.output_dir, params.save_clusters);
     INFO("Saving finished");
     // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 
