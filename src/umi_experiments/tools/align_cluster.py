@@ -17,14 +17,15 @@ def CreateLogger():
 
 def ParseCommandLineParams(log):
     from argparse import ArgumentParser
-    parser = ArgumentParser()
+    parser = ArgumentParser(description="Finds somewhat abundunt cluster in the final alignment (in terms of an intermediate one) "
+                                        "and aligns original reads from intermediate clusters and from the final one.")
     parser.add_argument("-l", "--final-repertoire",     type=str,   dest="final_fasta_path",        help="Path to final repertoire fasta",          required=True)
     parser.add_argument("-f", "--final-repertoire-rcm", type=str,   dest="final_rcm_path",          help="Path to final repertoire rcm",            required=True)
     parser.add_argument("-i", "--inter-repertoire-rcm", type=str,   dest="inter_rcm_path",          help="Path to intermediate repertoire rcm",     required=True)
     parser.add_argument("-c", "--inter-clusters",       type=str,   dest="inter_fasta_path",        help="Path to intermediate repertoire fasta",   required=True)
     parser.add_argument("-r", "--reads",                type=str,   dest="reads_path",              help="Path to fastq file with reads",           required=True)
     parser.add_argument("-o", "--output",               type=str,   dest="output_dir",              help="Path to output directory",                required=True)
-    # parser.add_argument("-c", "--cluster-id",           type=int,   dest="cluster_id",  default=0,  help="Id of the cluster to analyze",        required=False)
+    parser.add_argument("-b", "--clustal-binary",       type=str,   dest="clustal_path",            help="Path to clustal binary",                  required=False, default="clustalw")
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -37,14 +38,14 @@ def ParseCommandLineParams(log):
 
 def FindAbundantCluster(log, rcm_path):
     with open(rcm_path, "r") as fasta:
-        line_number = 0
+        record_number = 0
         for record in SeqIO.parse(fasta, "fasta"):
             id = record.id
             size = int(id.split("___")[-1])
             if size >= 5:
-                log.info("Found cluster '%s' of size %d", id, size)
-                return line_number
-            line_number += 1
+                log.info("Found cluster '%s' of size %d, number %d", id, size, record_number)
+                return record_number
+            record_number += 1
     assert False
 
 
@@ -73,14 +74,14 @@ def ReadRecords(log, reads_path):
         return id_to_idx, id_to_record
 
 
-def GenFastqNClustal(log, reads, dir, name):
+def GenFastqNClustal(log, reads, dir, name, clustal_path):
     if not os.path.exists(dir):
         os.makedirs(dir)
     path = os.path.join(dir, name)
     log.info("Writing subcluster of %d reads to %s", len(reads), path)
     with open(path, "w") as cluster_file:
         SeqIO.write(reads, cluster_file, "fasta")
-    clustal_cmd = "clustalw -infile=%s" % path
+    clustal_cmd = "%s -infile=%s" % (clustal_path, path)
     log.info("Running '%s'", clustal_cmd)
     os.system(clustal_cmd)
 
@@ -99,9 +100,9 @@ def main():
         for read_info in cluster_read_info:
             cluster_reads.append(read_id_to_record[read_info[1]])
         all_reads.extend(cluster_reads)
-        GenFastqNClustal(log, cluster_reads, params.output_dir, str(cluster[0]) + ".fasta")
+        GenFastqNClustal(log, cluster_reads, params.output_dir, str(cluster[0]) + ".fasta", params.clustal_path)
 
-    GenFastqNClustal(log, all_reads, params.output_dir, "all.fasta")
+    GenFastqNClustal(log, all_reads, params.output_dir, "all.fasta", params.clustal_path)
 
 
 if __name__ == '__main__':
