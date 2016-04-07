@@ -1,4 +1,9 @@
+#include <verify.hpp>
+
 #include "chain_type.hpp"
+
+#include <vector>
+#include <ostream>
 
 namespace germline_utils {
 
@@ -28,23 +33,25 @@ namespace germline_utils {
 //        return out;
 //    }
 
+    std::vector<std::string> immune_chain_strs { "Unknown chain type", "IGH", "IGK", "IGL", "TRA", "TRB", "TRG", "TRD" };
+
+    void check_chain_str_correctness_fatal(std::string chain_str) {
+        bool chain_str_was_not_found = false;
+        for(auto it = immune_chain_strs.begin(); it != immune_chain_strs.end(); it++)
+            if(*it == chain_str)
+                return;
+        VERIFY_MSG(chain_str_was_not_found, "Chain type " << chain_str << " was not recognized");
+    }
+
+    ImmuneChainType get_chain_type_by_str(std::string chain_str) {
+        for(size_t i = 0; i < immune_chain_strs.size(); i++)
+            if(immune_chain_strs[i] == chain_str)
+                return ImmuneChainType(i);
+        return ImmuneChainType::UnknownImmuneChain;
+    }
+
     std::ostream &operator<<(std::ostream &out, const ImmuneChainType &chain_type) {
-        if (chain_type == ImmuneChainType::AlphaTcrChain)
-            out << "TRA";
-        else if (chain_type == ImmuneChainType::BetaTcrChain)
-            out << "TRB";
-        else if (chain_type == ImmuneChainType::GammaTcrChain)
-            out << "TRG";
-        else if (chain_type == ImmuneChainType::DeltaTcrChain)
-            out << "TRD";
-        else if (chain_type == ImmuneChainType::HeavyIgChain)
-            out << "IGH";
-        else if (chain_type == ImmuneChainType::KappaIgChain)
-            out << "IGK";
-        else if (chain_type == ImmuneChainType::LambdaIgChain)
-            out << "IGL";
-        else
-            out << "Unknown chain type";
+        out << immune_chain_strs[int(chain_type)];
         return out;
     }
 
@@ -61,7 +68,7 @@ namespace germline_utils {
                immune_chain_type == ImmuneChainType::LambdaIgChain;
     }
 
-    ChainType::ChainType(ImmuneChainType chain_type) {
+    void ChainType::Initialize(ImmuneChainType chain_type) {
         if (immune_chain_is_tcr(chain_type))
             lymphocyte_type_ = LymphocyteType::TLymphocyte;
         else if (immune_chain_is_ig(chain_type))
@@ -69,6 +76,16 @@ namespace germline_utils {
         else
             lymphocyte_type_ = LymphocyteType::UnknownLymphocyte;
         chain_type_ = chain_type;
+    }
+
+    ChainType::ChainType(ImmuneChainType chain_type) {
+        Initialize(chain_type);
+    }
+
+    ChainType::ChainType(std::string chain_str) {
+        check_chain_str_correctness_fatal(chain_str);
+        ImmuneChainType chain_type = get_chain_type_by_str(chain_str);
+        Initialize(chain_type);
     }
 
     std::ostream &operator<<(std::ostream &out, const ChainType &chain_type) {

@@ -2,18 +2,44 @@
 
 #include "germline_gene_type.hpp"
 
+#include <vector>
+
 namespace germline_utils {
 
+    std::vector<std::string> segment_type_strs { "Unknown gene segment", "V", "D", "J" };
+
     std::ostream &operator<<(std::ostream &out, const SegmentType &segment_type) {
-        if (segment_type == SegmentType::VariableSegment)
-            out << "V";
-        else if (segment_type == SegmentType::DiversitySegment)
-            out << "D";
-        else if (segment_type == SegmentType::JoinSegment)
-            out << "J";
-        else
-            out << "Unknown gene segment";
+        out << segment_type_strs[int(segment_type)];
         return out;
+    }
+
+    void check_segment_str_correctness_fatal(std::string segment_str) {
+        bool segment_str_correct = false;
+        for(auto it = segment_type_strs.begin(); it != segment_type_strs.end(); it++)
+            if(*it == segment_str)
+                return;
+        VERIFY_MSG(segment_str_correct, "Segment type is unknown: " << segment_str);
+    }
+
+    SegmentType convert_set_to_segment_type(std::string segment_str) {
+        for(size_t i = 0; i < segment_type_strs.size(); i++)
+            if(segment_type_strs[i] == segment_str)
+                return SegmentType(i);
+        return SegmentType::UnknownSegment;
+    }
+
+    void ImmuneGeneType::Initialize(ChainType chain_type, SegmentType segment_type) {
+        chain_type_ = chain_type;
+        segment_type_ = segment_type;
+        CheckChainSegmentConsistency();
+    }
+
+    ImmuneGeneType::ImmuneGeneType(std::string immune_gene_str) {
+        VERIFY_MSG(immune_gene_str.size() == 4, "Format of immune gene string is not correct: " << immune_gene_str);
+        std::string segment_str = immune_gene_str.substr(3, 1);
+        check_segment_str_correctness_fatal(segment_str);
+        SegmentType segment_type = convert_set_to_segment_type(segment_str);
+        Initialize(ChainType(immune_gene_str.substr(0, 3)), segment_type);
     }
 
     bool ImmuneGeneType::CheckChainSegmentConsistency() {

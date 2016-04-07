@@ -27,9 +27,11 @@ void parse_command_line_args(vj_finder::vjf_config &cfg, int argc, char** argv) 
             ("version,v", "print version string")
             ("help,h", "produce help message")
             ("config-file,c", "name of a file of a configuration")
-            ("input-file,i", po::value<std::string>(&cfg.iop.input.input_reads)->required(),
+            //("input-file,i", po::value<std::string>(&cfg.iop.input.input_reads)->required(),
+            ("input-file,i", po::value<std::string>(&cfg.io_params.input_params.input_reads)->default_value(cfg.io_params.input_params.input_reads),
              "name of an input file (FASTA|FASTQ)")
-            ("output-dir,o", po::value<std::string>(&cfg.iop.output.of.output_dir)->required(),
+            //("output-dir,o", po::value<std::string>(&cfg.iop.output.of.output_dir)->required(),
+            ("output-dir,o", po::value<std::string>(&cfg.io_params.output_params.output_files.output_dir)->default_value(cfg.io_params.output_params.output_files.output_dir),
              "output directory");
 
 /*        std::string separator;
@@ -51,42 +53,39 @@ void parse_command_line_args(vj_finder::vjf_config &cfg, int argc, char** argv) 
     // config file
     po::options_description config("Configuration");
     config.add_options()
-            ("compress,Z", po::value<bool>(&cfg.iop.output.od.compress)->default_value(cfg.iop.output.od.compress),
+            ("compress,Z", po::value<bool>(&cfg.io_params.output_params.output_details.compress)->default_value(cfg.io_params.output_params.output_details.compress),
              "compress output FASTA files using zlib")
-            ("verbose,V", po::value<bool>(&cfg.iop.output.od.verbose)->default_value(cfg.iop.output.od.verbose)->implicit_value(true),
+            ("verbose,V", po::value<bool>(&cfg.io_params.output_params.output_details.verbose)->default_value(cfg.io_params.output_params.output_details.verbose)->implicit_value(true),
              "produce alignment output for each query")
-            ("fix-spaces", po::value<bool>(&cfg.iop.output.od.fix_spaces)->default_value(cfg.iop.output.od.fix_spaces),
-             "replace spaces in read ids by underline symbol '_'")
-            ("separator", po::value<std::string>(&cfg.iop.output.od.separator)->default_value(cfg.iop.output.od.separator),
+            ("fix-spaces", po::value<bool>(&cfg.io_params.output_params.output_details.fix_spaces)->default_value(cfg.io_params.output_params.output_details.fix_spaces),
+             "replace spaces in read headers with underline symbol '_'")
+            ("separator", po::value<std::string>(&cfg.io_params.output_params.output_details.separator)->default_value(cfg.io_params.output_params.output_details.separator),
              "separator for alignment info file: ','")
 
-            ("pseudogenes,P", po::value<bool>(&cfg.algop.gp.pseudogenes)->default_value(cfg.algop.gp.pseudogenes),
+            ("pseudogenes,P", po::value<bool>(&cfg.algorithm_params.germline_params.pseudogenes)->default_value(cfg.algorithm_params.germline_params.pseudogenes),
              "use pseudogenes along with normal germline genes")
-            ("loci,l", po::value<std::string>(&cfg.algop.gp.loci)->default_value(cfg.algop.gp.loci),
+            ("loci,l", po::value<std::string>(&cfg.algorithm_params.germline_params.loci)->default_value(cfg.algorithm_params.germline_params.loci),
              "loci: IGH, IGL, IGK, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all")
-            ("db-directory", po::value<std::string>(&cfg.algop.gp.db_directory)->default_value(cfg.algop.gp.db_directory),
-             "directory with germline database")
-            ("organism", po::value<std::string>(&cfg.algop.gp.organism)->default_value(cfg.algop.gp.organism),
+            ("organism", po::value<std::string>(&cfg.algorithm_params.germline_params.organism)->default_value(cfg.algorithm_params.germline_params.organism),
              "organism ('human', 'mouse', 'pig', 'rabbit', 'rat' and 'rhesus_monkey' are supported)")
 
-
-            ("threads,t", po::value<size_t>(&cfg.rp.num_threads)->default_value(cfg.rp.num_threads),
+            ("threads,t", po::value<size_t>(&cfg.run_params.num_threads)->default_value(cfg.run_params.num_threads),
              "the number of threads")
 
-            ("word-size,k", po::value<int>(&cfg.algop.ap.K)->default_value(cfg.algop.ap.K),
-             "word size for V-genes")
-            ("word-size-j", po::value<int>(&cfg.algop.ap.word_size_j)->default_value(cfg.algop.ap.word_size_j),
-             "word size for J-genes")
-            ("min-k-coverage,n", po::value<int>(&cfg.algop.ap.min_k_coverage)->default_value(cfg.algop.ap.min_k_coverage),
-             "minimal k+-coverage")
-            ("min-k-coverage-j", po::value<int>(&cfg.algop.ap.min_k_coverage_j)->default_value(cfg.algop.ap.min_k_coverage_j),
-             "minimal k+-coverage for J-gene")
+            ("word-size,k", po::value<size_t>(&cfg.algorithm_params.aligner_params.word_size_v)->default_value(cfg.algorithm_params.aligner_params.word_size_v),
+             "word size for V genes")
+            ("word-size-j", po::value<size_t>(&cfg.algorithm_params.aligner_params.word_size_j)->default_value(cfg.algorithm_params.aligner_params.word_size_j),
+             "word size for J genes")
+            ("min-k-coverage-v,n", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_k_coverage_v)->default_value(cfg.algorithm_params.aligner_params.min_k_coverage_v),
+             "minimal block coverage for V gene")
+            ("min-k-coverage-j", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_k_coverage_j)->default_value(cfg.algorithm_params.aligner_params.min_k_coverage_j),
+             "minimal block coverage for J gene")
 
-            ("max-candidates-v,N", po::value<int>(&cfg.algop.qp.max_candidates)->default_value(cfg.algop.qp.max_candidates),
-             "maximal number of candidates for each query")
-            ("max-candidates-j", po::value<int>(&cfg.algop.qp.max_candidates_j)->default_value(cfg.algop.qp.max_candidates_j),
-             "maximal number of J-gene candidates for each query")
-            ("min-len", po::value<size_t>(&cfg.algop.qp.min_len)->default_value(cfg.algop.qp.min_len),
+            ("max-candidates-v,N", po::value<size_t>(&cfg.algorithm_params.query_params.max_candidates_v)->default_value(cfg.algorithm_params.query_params.max_candidates_v),
+             "maximal number of V gene candidates for each query")
+            ("max-candidates-j", po::value<size_t>(&cfg.algorithm_params.query_params.max_candidates_j)->default_value(cfg.algorithm_params.query_params.max_candidates_j),
+             "maximal number of J gene candidates for each query")
+            ("min-len", po::value<size_t>(&cfg.algorithm_params.query_params.min_len)->default_value(cfg.algorithm_params.query_params.min_len),
              "minimal length of reported sequence")
             ;
 
@@ -94,38 +93,64 @@ void parse_command_line_args(vj_finder::vjf_config &cfg, int argc, char** argv) 
     // in config file, but will not be shown to the user.
     po::options_description hidden("Hidden options");
     hidden.add_options()
-            ("help-hidden", "show all options, including developers' ones")
-            ("left-uncoverage-limit", po::value<size_t>(&cfg.algop.ap.left_uncovered_limit)->default_value(cfg.algop.ap.left_uncovered_limit),
+            ("help-hidden", "show all options, including developers options")
+            ("left-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.aligner_params.left_uncovered_limit)->default_value(cfg.algorithm_params.aligner_params.left_uncovered_limit),
              "uncoverage limit of left end")
-            ("right-uncoverage-limit", po::value<size_t>(&cfg.algop.ap.right_uncovered_limit)->default_value(cfg.algop.ap.right_uncovered_limit),
+            ("right-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.aligner_params.right_uncovered_limit)->default_value(cfg.algorithm_params.aligner_params.right_uncovered_limit),
              "uncoverage limit of right end")
-            ("min-vsegment-length", po::value<size_t>(&cfg.algop.ap.min_v_segment_length)->default_value(cfg.algop.ap.min_v_segment_length),
+            ("min-vsegment-length", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_v_segment_length)->default_value(cfg.algorithm_params.aligner_params.min_v_segment_length),
              "minimal allowed length of V gene segment")
-            ("min-jsegment-length", po::value<size_t>(&cfg.algop.ap.min_j_segment_length)->default_value(cfg.algop.ap.min_j_segment_length),
+            ("min-jsegment-length", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_j_segment_length)->default_value(cfg.algorithm_params.aligner_params.min_j_segment_length),
              "minimal allowed length of J gene segment")
 
-            ("max-global-gap", po::value<int>(&cfg.algop.asp.max_global_gap)->default_value(cfg.algop.asp.max_global_gap),
-             "maximal allowed size of global gap")
-            ("max-local-insertions", po::value<int>(&cfg.algop.asp.max_local_insertions)->default_value(cfg.algop.asp.max_local_insertions),
-             "maximal allowed size of local insertion")
-            ("max-local-deletions", po::value<int>(&cfg.algop.asp.max_local_deletions)->default_value(cfg.algop.asp.max_local_deletions),
-             "maximal allowed size of local deletion")
-            ("gap-opening-cost", po::value<int>(&cfg.algop.asp.gap_opening_cost)->default_value(cfg.algop.asp.gap_opening_cost),
-             "gap opening cost")
-            ("gap-extention-cost", po::value<int>(&cfg.algop.asp.gap_extention_cost)->default_value(cfg.algop.asp.gap_extention_cost),
-             "gap extention cost")
+            ("db-directory", po::value<std::string>(&cfg.algorithm_params.germline_params.germline_dir)->default_value(cfg.algorithm_params.germline_params.germline_dir),
+             "directory with germline database")
 
-            ("fill-left", po::value<bool>(&cfg.algop.fxp.fill_left)->default_value(cfg.algop.fxp.fill_left),
+            ("max-global-gap-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.max_global_gap)->default_value(cfg.algorithm_params.scoring_params.v_scoring.max_global_gap),
+             "maximal allowed size of global gap for V gene")
+            ("max-local-insertions-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.max_local_insertions)->default_value(cfg.algorithm_params.scoring_params.v_scoring.max_local_insertions),
+             "maximal allowed size of local insertion for V gene")
+            ("max-local-deletions-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.max_local_deletions)->default_value(cfg.algorithm_params.scoring_params.v_scoring.max_local_deletions),
+             "maximal allowed size of local deletion for V gene")
+            ("gap-opening-cost-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.gap_opening_cost)->default_value(cfg.algorithm_params.scoring_params.v_scoring.gap_opening_cost),
+             "gap opening cost for V gene alignement")
+            ("gap-extention-cost-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.gap_extention_cost)->default_value(cfg.algorithm_params.scoring_params.v_scoring.gap_extention_cost),
+             "gap extention cost for V gene alignment")
+            ("mismatch-extention-cost-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.mismatch_extention_cost)->default_value(cfg.algorithm_params.scoring_params.v_scoring.mismatch_extention_cost),
+             "mismatch extention cost for V gene alignment")
+            ("mismatch-opening-cost-v", po::value<int>(&cfg.algorithm_params.scoring_params.v_scoring.mismatch_opening_cost)->default_value(cfg.algorithm_params.scoring_params.v_scoring.mismatch_opening_cost),
+             "mismatch opening cost for V gene alignment")
+            //("min-vsegment-length", po::value<size_t>(&cfg.algorithm_params.asp.v_scoring.min_v_segment_length)->default_value(min_v_segment_length),
+            // "minimal allowed length of V gene segment")
+
+            ("max-global-gap-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.max_global_gap)->default_value(cfg.algorithm_params.scoring_params.j_scoring.max_global_gap),
+             "maximal allowed size of global gap for J gene")
+            ("max-local-insertions-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.max_local_insertions)->default_value(cfg.algorithm_params.scoring_params.j_scoring.max_local_insertions),
+             "maximal allowed size of local insertion for J gene")
+            ("max-local-deletions-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.max_local_deletions)->default_value(cfg.algorithm_params.scoring_params.j_scoring.max_local_deletions),
+             "maximal allowed size of local deletion for J gene")
+            ("gap-opening-cost-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.gap_opening_cost)->default_value(cfg.algorithm_params.scoring_params.j_scoring.gap_opening_cost),
+             "gap opening cost for J gene alignment")
+            ("gap-extention-cost-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.gap_extention_cost)->default_value(cfg.algorithm_params.scoring_params.j_scoring.gap_extention_cost),
+             "gap extention cost for J gene alignment")
+            ("mismatch-extention-cost-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.mismatch_extention_cost)->default_value(cfg.algorithm_params.scoring_params.j_scoring.mismatch_extention_cost),
+             "mismatch extention cost for J gene alignment")
+            ("mismatch-opening-cost-j", po::value<int>(&cfg.algorithm_params.scoring_params.j_scoring.mismatch_opening_cost)->default_value(cfg.algorithm_params.scoring_params.j_scoring.mismatch_opening_cost),
+             "mismatch opening cost for J gene alignment")
+            //("min-jsegment-length", po::value<size_t>(&min_j_segment_length)->default_value(min_j_segment_length),
+            // "minimal allowed length of J gene segment")
+
+            ("fill-left", po::value<bool>(&cfg.algorithm_params.fix_crop_fill_params.fill_left)->default_value(cfg.algorithm_params.fix_crop_fill_params.fill_left),
              "fill left cropped positions by germline")
-            ("fill-right", po::value<bool>(&cfg.algop.fxp.fill_right)->default_value(cfg.algop.fxp.fill_right),
+            ("fill-right", po::value<bool>(&cfg.algorithm_params.fix_crop_fill_params.fill_right)->default_value(cfg.algorithm_params.fix_crop_fill_params.fill_right),
              "fill right cropped positions by germline")
-            ("crop-left", po::value<bool>(&cfg.algop.fxp.crop_left)->default_value(cfg.algop.fxp.crop_left),
+            ("crop-left", po::value<bool>(&cfg.algorithm_params.fix_crop_fill_params.crop_left)->default_value(cfg.algorithm_params.fix_crop_fill_params.crop_left),
              "crop extra left positions")
-            ("crop-right", po::value<bool>(&cfg.algop.fxp.crop_right)->default_value(cfg.algop.fxp.crop_right),
+            ("crop-right", po::value<bool>(&cfg.algorithm_params.fix_crop_fill_params.crop_right)->default_value(cfg.algorithm_params.fix_crop_fill_params.crop_right),
              "crop extra right positions")
-            ("fix-left", po::value<size_t>(&cfg.algop.fxp.fix_left)->default_value(cfg.algop.fxp.fix_left),
+            ("fix-left", po::value<size_t>(&cfg.algorithm_params.fix_crop_fill_params.fix_left)->default_value(cfg.algorithm_params.fix_crop_fill_params.fix_left),
              "the number left read positions which will be fixed by germline")
-            ("fix-right", po::value<size_t>(&cfg.algop.fxp.fix_right)->default_value(cfg.algop.fxp.fix_right),
+            ("fix-right", po::value<size_t>(&cfg.algorithm_params.fix_crop_fill_params.fix_right)->default_value(cfg.algorithm_params.fix_crop_fill_params.fix_right),
              "the number right read positions which will be fixed by germline")
             ;
 

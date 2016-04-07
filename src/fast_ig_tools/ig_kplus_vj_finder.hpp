@@ -358,7 +358,8 @@ public:
         char strand;
 
         // Fix strand if asked
-        std::tie(v_hits, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
+        std::tie(v_hits, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) :
+                                                  correct_strand_fake(read, param.max_candidates);
 
         if (v_hits.empty()) {
             return VJAlignment::EmptyVJAlignment(); // Empty TODO Add marker

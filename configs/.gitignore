@@ -2,3 +2,4 @@ ig_repertoire_constructor/config.info
 ig_repertoire_constructor/log.properties
 dense_sgraph_finder/config.info
 dense_sgraph_finder/log.properties
+vj_finder/config.info
