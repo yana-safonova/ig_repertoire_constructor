@@ -18,6 +18,8 @@ namespace core {
                 id(new_id) { }
 
         Read() : name(), seq() { }
+
+        size_t length() const { return seqan::length(seq); }
     };
 
     std::ostream &operator<<(std::ostream &out, const Read &read);

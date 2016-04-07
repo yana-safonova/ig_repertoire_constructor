@@ -2,8 +2,9 @@
 
 #include "chain_type.hpp"
 
-namespace germline_utils {
+#include <vector>
 
+namespace germline_utils {
     enum SegmentType {
         UnknownSegment, VariableSegment, DiversitySegment, JoinSegment
     };
@@ -20,15 +21,17 @@ namespace germline_utils {
 
         bool CheckChainSegmentConsistency();
 
+        void Initialize(ChainType chain_type, SegmentType segment_type);
+
     public:
         ImmuneGeneType() :
                 chain_type_(),
                 segment_type_(SegmentType::UnknownSegment) { }
 
-        ImmuneGeneType(ChainType chain_type, SegmentType segment_type) :
-                chain_type_(chain_type),
-                segment_type_(segment_type) {
-            CheckChainSegmentConsistency();
+        ImmuneGeneType(std::string immune_gene_str);
+
+        ImmuneGeneType(ChainType chain_type, SegmentType segment_type) {
+            Initialize(chain_type, segment_type);
         }
 
         LymphocyteType Lymphocyte() const { return chain_type_.Lymphocyte(); }

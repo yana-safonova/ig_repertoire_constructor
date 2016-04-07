@@ -5,21 +5,6 @@
 #include <unordered_map>
 
 namespace algorithms {
-    // TODO: what is it?
-    struct KmerMatch {
-        int needle_pos;
-        int read_pos;
-
-        int shift() const {
-            return read_pos - needle_pos;
-        }
-
-        static bool less_shift(const KmerMatch &m1, const KmerMatch &m2) {
-            return (m1.shift() < m2.shift()) || (m1.shift() == m2.shift() && m1.read_pos < m2.read_pos);
-        }
-    };
-
-    // TODO: what is it?
     struct Match {
         int needle_pos;
         int read_pos;
@@ -40,7 +25,6 @@ namespace algorithms {
         }
     };
 
-    // TODO: what is it?
     class AlignmentPath : public std::vector<Match> {
         using std::vector<Match>::vector;
     public:

@@ -3,12 +3,12 @@
 #include "verify.hpp"
 
 #include "block_alignment_primitives.hpp"
+#include "../hashes/subject_query_kmer_index.hpp"
 
 #include <seqan/seq_io.h>
 #include <seqan/align.h>
 
 namespace algorithms {
-
     template<typename Tsequence1, typename Tsequence2>
     int find_simple_gap(const Tsequence1 &read, const Tsequence2 &gene) {
         // Positive if gaps in read (|read| < |gene|)
@@ -114,7 +114,4 @@ namespace algorithms {
 
         return { path, score };
     }
-
-    std::vector<Match> combine_sequential_kmer_matches(std::vector<KmerMatch> &matches,
-                                                       size_t K);
 }

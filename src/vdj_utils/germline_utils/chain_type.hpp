@@ -25,12 +25,16 @@ namespace germline_utils {
         LymphocyteType lymphocyte_type_;
         ImmuneChainType chain_type_;
 
+        void Initialize(ImmuneChainType chain_type);
+
     public:
         ChainType() :
                 lymphocyte_type_(LymphocyteType::UnknownLymphocyte),
                 chain_type_(ImmuneChainType::UnknownImmuneChain) { }
 
         ChainType(ImmuneChainType chain_type);
+
+        ChainType(std::string chain_str);
 
         LymphocyteType Lymphocyte() const { return lymphocyte_type_; }
 

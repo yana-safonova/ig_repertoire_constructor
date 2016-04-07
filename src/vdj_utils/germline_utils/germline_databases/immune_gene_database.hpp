@@ -38,6 +38,10 @@ namespace germline_utils {
 
         ImmuneGeneType GeneType() const { return gene_type_; }
 
+        ChainType Chain() const { return gene_type_.Chain(); }
+
+        LymphocyteType Lymphocyte() const { return gene_type_.Lymphocyte(); }
+
         size_t id() const { return id_; }
     };
 
