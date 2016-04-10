@@ -42,16 +42,6 @@ namespace vj_finder {
 
         typedef algorithms::BlockAlignmentHits<germline_utils::ImmuneGeneDatabase> ImmuneDbBlockAlignmentHits;
 
-        /*
-        std::tuple<CustomDbBlockAlignmentHits, core::Read, bool> CorrectStrand(
-                const core::Read &read,
-                size_t max_candidates_v);
-
-        std::tuple<CustomDbBlockAlignmentHits, core::Read, bool> DoNotCorrectStrand(
-                const core::Read &read,
-                size_t max_candidates_v);
-                */
-
         bool VAlignmentsAreConsistent(const CustomDbBlockAlignmentHits& v_alignments) const;
 
         germline_utils::ChainType IdentifyLocus(const CustomDbBlockAlignmentHits& v_alignments) const;
