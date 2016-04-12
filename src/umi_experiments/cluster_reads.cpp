@@ -183,7 +183,6 @@ int main(int argc, char **argv) {
     INFO("Saving intermediate repertoire to output directory " << params.output_dir);
     clusterer::write_clusters_and_correspondence<Read>(umi_to_clusters_same_centers, reads, params.output_dir, params.save_clusters);
     INFO("Saving finished");
-    // unite close reads with different UMIs: graph is needed anyway; then either metis clustering, or continue custom techniques
 
     return 0;
 }

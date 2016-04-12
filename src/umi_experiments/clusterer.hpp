@@ -377,7 +377,7 @@ namespace clusterer {
                     cluster_ids.push_back(read.GetReadId());
                     cluster_reads.push_back(read.GetSequence());
                 }
-                const auto& cluster_path = fs::path(umi_path).append("cluster_" + std::to_string(cluster->id) + "_size_" + std::to_string(cluster->weight));
+                const auto& cluster_path = fs::path(umi_path).append("cluster_" + std::to_string(cluster->id) + "_size_" + std::to_string(cluster->weight) + ".fasta");
                 write_seqan_records(cluster_path, cluster_ids, cluster_reads);
             }
         }
