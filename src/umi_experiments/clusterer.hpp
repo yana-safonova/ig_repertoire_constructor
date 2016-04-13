@@ -320,6 +320,27 @@ namespace clusterer {
     }
 
     template <typename ElementType>
+    size_t count_total_reads_from_umis(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+        size_t result = 0;
+        for (const auto& umi : umis_to_clusters.fromSet()) {
+            const auto& clusters = umis_to_clusters.forth(umi);
+            for (const auto& cluster : clusters) {
+                result += cluster->weight;
+            }
+        }
+        return result;
+    }
+
+    template <typename ElementType>
+    size_t count_reads_with_corrected_umi(const ManyToManyCorrespondenceUmiToCluster<ElementType>& before,
+                                          const ManyToManyCorrespondenceUmiToCluster<ElementType>& after) {
+        size_t before_size = count_total_reads_from_umis(before);
+        size_t after_size = count_total_reads_from_umis(after);
+        VERIFY(after_size >= before_size);
+        return after_size - before_size;
+    }
+
+    template <typename ElementType>
     void print_umi_split_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
         size_t total_reads = 0;
         size_t secondary_reads = 0;
