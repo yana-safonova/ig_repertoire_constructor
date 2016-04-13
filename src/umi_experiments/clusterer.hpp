@@ -320,6 +320,24 @@ namespace clusterer {
     }
 
     template <typename ElementType>
+    void print_umi_split_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+        size_t total_reads = 0;
+        size_t secondary_reads = 0;
+        for (const auto& umi : umis_to_clusters.fromSet()) {
+            const auto& clusters = umis_to_clusters.forth(umi);
+            size_t max_cluster = 0;
+            size_t umi_size = 0;
+            for (const auto& cluster : clusters) {
+                umi_size += cluster->weight;
+                max_cluster = std::max(max_cluster, cluster->weight);
+            }
+            total_reads += umi_size;
+            secondary_reads += umi_size - max_cluster;
+        }
+        INFO("Total " << total_reads << " reads in the dataset. " << secondary_reads << " of them don't belong to the main group of their barcode.");
+    }
+
+    template <typename ElementType>
     void write_clusters_and_correspondence(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
                                            const std::vector<Read>& reads, const std::string& output_dir,
                                            bool save_clusters) {

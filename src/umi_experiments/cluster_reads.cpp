@@ -151,6 +151,8 @@ int main(int argc, char **argv) {
                      << 100.0 * static_cast<double>(clusters_in_umis_of_size[size]) / static_cast<double>(size * entry.second) << "%");
     }
 
+    clusterer::print_umi_split_stats<Read>(umi_to_clusters_hamm_inside_umi);
+
     INFO("Uniting read clusters for adjacent UMIs");
     const auto umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
