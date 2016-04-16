@@ -29,6 +29,24 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     for(auto it = fastq_fnames.begin(); it != fastq_fnames.end(); it++)
         raw_pairing_storage.Update(*it);
     INFO(raw_pairing_storage.size() << " pairing records were extracted from input reads");
+
+//    std::ofstream ofhandler("pairing_stats.txt");
+//    for(auto it = raw_pairing_storage.cbegin(); it != raw_pairing_storage.cend(); it++) {
+//        if(!(*it)->Complete())
+//            continue;
+//        auto hc_isotypes = (*it)->HcIsotypes();
+//        for(auto it2 = hc_isotypes.begin(); it2 != hc_isotypes.end(); it2++)
+//            ofhandler << it2->str() << "\t";
+//        ofhandler << std::endl;
+//        if((*it)->KappaChainCount() != 0)
+//            ofhandler << "IGK" << "\t";
+//        if((*it)->LambdaChainCount() != 0)
+//            ofhandler << "IGL" << "\t";
+//        ofhandler << std::endl;
+//    }
+//    ofhandler.close();
+//    return;
+
     //for(auto it = raw_pairing_storage.cbegin(); it != raw_pairing_storage.cend(); it++) {
     //    std::cout << (*it)->Db() << ". #HC isotypes: " << (*it)->HcIsotypeNumber() << ", #Ks: " <<
     //            (*it)->KappaChainCount() << ", #Ls: " << (*it)->LambdaChainCount() << std::endl;
