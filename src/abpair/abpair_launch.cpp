@@ -30,6 +30,9 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
         raw_pairing_storage.Update(*it);
     INFO(raw_pairing_storage.size() << " pairing records were extracted from input reads");
 
+    RawPairingDataStatsCalculator stats_calculator(io.output, raw_pairing_storage);
+    stats_calculator.OutputDemultiplexedData();
+
 //    std::ofstream ofhandler("pairing_stats.txt");
 //    for(auto it = raw_pairing_storage.cbegin(); it != raw_pairing_storage.cend(); it++) {
 //        if(!(*it)->Complete())
@@ -51,7 +54,8 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     //    std::cout << (*it)->Db() << ". #HC isotypes: " << (*it)->HcIsotypeNumber() << ", #Ks: " <<
     //            (*it)->KappaChainCount() << ", #Ls: " << (*it)->LambdaChainCount() << std::endl;
     //}
-    RawPairingDataStatsCalculator stats_calculator(io.output, raw_pairing_storage);
+
+/*    RawPairingDataStatsCalculator stats_calculator(io.output, raw_pairing_storage);
     INFO("# complete records: " << stats_calculator.NumberCompleteRecords());
     INFO("# complete and non-ambiguous records: " << stats_calculator.NumberCompleteNonAmbiguousRecords());
     INFO("# complete and non-ambiguous HC records: " << stats_calculator.NumberCompleteNonAmbiguousHcRecords());
@@ -64,6 +68,6 @@ void AbPairLauncher::Run(const abpair_config::io_config &io) {
     INFO("CDR3 computation starts");
     Cdr3GraphComputer cdr3_graph_computer(io, raw_pairing_storage);
     cdr3_graph_computer.Compute();
-    cdr3_graph_computer.OutputCdr3Graphs();
+    cdr3_graph_computer.OutputCdr3Graphs();*/
     INFO("==== AbPair ends");
 }

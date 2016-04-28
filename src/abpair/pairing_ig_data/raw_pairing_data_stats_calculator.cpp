@@ -138,8 +138,8 @@ void RawPairingDataStatsCalculator::OutputDemultiplexedData() {
     INFO("Demultiplexed raw & complete data will be written to " + output_.demultiplexed_raw_dir);
     size_t num_reported = 0;
     for(auto it = raw_pairing_data_storage_.cbegin(); it != raw_pairing_data_storage_.cend(); it++) {
-        if(!(*it)->Complete())
-            continue;
+        //if(!(*it)->Complete())
+        //    continue;
         std::string barcode_dir = path::append_path(output_.demultiplexed_raw_dir, GetBarcodeDir(*it));
         path::make_dir(barcode_dir);
         // output of heavy chains records
