@@ -19,17 +19,12 @@ void RawPairingData::UpdateHcSequences(IsotypeUmiSequence hc_sequence) {
     hc_isotype_map_[hc_sequence.isotype]->Update(hc_sequence);
 }
 
-void RawPairingData::Update(DropletBarcode db, std::string header, std::string sequence,
-                            std::string v_gene, std::string j_gene) {
+void RawPairingData::Update(DropletBarcode db, std::string header, std::string sequence) {
     CheckDropletBarcodeConsistency(db);
     IsotypeUmiSequence umi_sequence(PairingFastqUtils::ExtractIsotypeFromHeader(header),
                                     PairingFastqUtils::ExtractUmiFromHeader(header),
                                     PairingFastqUtils::ExtractSizeFromHeader(header),
                                     PairingFastqUtils::ConvertToDnaString(sequence));
-
-    // temporary stub
-    umi_sequence.v_gene = v_gene;
-    umi_sequence.j_gene = j_gene;
 
     if(umi_sequence.isotype.IsHeavyChain()) {
         UpdateHcSequences(umi_sequence);

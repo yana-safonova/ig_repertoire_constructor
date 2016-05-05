@@ -25,8 +25,7 @@ public:
             kappa_sequences_(new IsotypeUmiSequences(IgIsotypeHelper::GetKappaIsotype())),
             lambda_sequences_(new IsotypeUmiSequences(IgIsotypeHelper::GetLambdaIsotype())) { }
 
-    void Update(DropletBarcode db, std::string header, std::string sequence,
-                std::string v_gene, std::string j_gene);
+    void Update(DropletBarcode db, std::string header, std::string sequence); 
 
     DropletBarcode Db() const { return droplet_barcode_; }
 

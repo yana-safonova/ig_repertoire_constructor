@@ -23,7 +23,8 @@ std::pair<std::string, std::string> get_vj_hit_from_line(std::string line) {
 
 // temporary
 void RawPairingDataStorage::ExtractMap() {
-    std::string fname = "SG3M-full_alignment_info.csv";
+   /*
+     std::string fname = "SG3M-full_alignment_info.csv";
     std::ifstream vj_fhanlder_(fname);
     std::string line;
     std::getline(vj_fhanlder_, line);
@@ -43,6 +44,7 @@ void RawPairingDataStorage::ExtractMap() {
         }
     }
     INFO(align_record_vj_.size() << " VJ alignment were extracted from " << fname);
+*/
 }
 
 void RawPairingDataStorage::UpdateRecord(DropletBarcode db, std::string header, std::string sequence) {
@@ -54,13 +56,7 @@ void RawPairingDataStorage::UpdateRecord(DropletBarcode db, std::string header, 
         db_index_map_[db] = raw_pairing_records_.size() - 1;
     }
     size_t index = db_index_map_[db];
-
-    std::string header2 = header.substr(1, header.size() - 1);
-    if(align_record_vj_.find(header2) == align_record_vj_.end())
-        return;
-    auto vj_hit = align_record_vj_[header2];
-
-    raw_pairing_records_[index]->Update(db, header, sequence, vj_hit.first, vj_hit.second);
+    raw_pairing_records_[index]->Update(db, header, sequence); // vj_hit.first, vj_hit.second);
 }
 
 void RawPairingDataStorage::Update(std::string fastq_fname) {

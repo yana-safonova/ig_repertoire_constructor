@@ -9,10 +9,6 @@ struct IsotypeUmiSequence {
     size_t size;
     seqan::Dna5String sequence;
 
-    // temporary stub
-    std::string v_gene;
-    std::string j_gene;
-
     IsotypeUmiSequence() :
             isotype(),
             umi(),

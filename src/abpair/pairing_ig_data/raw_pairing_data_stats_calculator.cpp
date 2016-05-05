@@ -142,16 +142,18 @@ void RawPairingDataStatsCalculator::OutputDemultiplexedData() {
         //    continue;
         std::string barcode_dir = path::append_path(output_.demultiplexed_raw_dir, GetBarcodeDir(*it));
         path::make_dir(barcode_dir);
-        // output of heavy chains records
-        seqan::SeqFileOut hc_out(path::append_path(barcode_dir,
+        if(!(*it)->HcIsMissed()) {
+            // output of heavy chains records
+            seqan::SeqFileOut hc_out(path::append_path(barcode_dir,
                                                 GetFilenameForRawRecord(*it, "IGH")).c_str());
-        auto hc_isotypes = (*it)->HcIsotypes();
-        for(auto isotype = hc_isotypes.begin(); isotype != hc_isotypes.end(); isotype++) {
-            auto umi_sequences = (*it)->GetSequencesByIsotype(*isotype);
-            for (auto umi_seq = umi_sequences->cbegin(); umi_seq != umi_sequences->cend(); umi_seq++) {
-                seqan::writeRecord(hc_out,
+            auto hc_isotypes = (*it)->HcIsotypes();
+            for(auto isotype = hc_isotypes.begin(); isotype != hc_isotypes.end(); isotype++) {
+                auto umi_sequences = (*it)->GetSequencesByIsotype(*isotype);
+                for (auto umi_seq = umi_sequences->cbegin(); umi_seq != umi_sequences->cend(); umi_seq++) {
+                    seqan::writeRecord(hc_out,
                                    seqan::CharString(GetHeaderForUmiSequence(*umi_seq)),
                                    umi_seq->sequence);
+                }
             }
         }
         // output of kappa chains records
@@ -167,7 +169,7 @@ void RawPairingDataStatsCalculator::OutputDemultiplexedData() {
             seqan::SeqFileOut lc_out(path::append_path(barcode_dir,
                                                        GetFilenameForRawRecord(*it, "IGL")).c_str());
 
-            auto lc_records = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetKappaIsotype());
+            auto lc_records = (*it)->GetSequencesByIsotype(IgIsotypeHelper::GetLambdaIsotype());
             for (auto lit = lc_records->cbegin(); lit != lc_records->cend(); lit++)
                 seqan::writeRecord(lc_out, seqan::CharString(GetHeaderForUmiSequence(*lit)), lit->sequence);
         }
