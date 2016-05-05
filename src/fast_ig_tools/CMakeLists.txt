@@ -64,8 +64,3 @@ add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
 add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
-
-add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/germline"
-        $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
