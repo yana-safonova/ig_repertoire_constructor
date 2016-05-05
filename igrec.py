@@ -671,7 +671,7 @@ def HelpString():
     "Please provide us with igrec.log file from the output directory."
 
 def ParseCommandLineParams(log):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
+    from py.python_add.argparse_ext import ArgumentHiddenParser
     parser = ArgumentHiddenParser(description="IgReC: an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
                                   epilog="""
