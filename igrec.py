@@ -6,11 +6,9 @@ import sys
 import logging
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-spades_src = os.path.join(home_directory, "src/python_pipeline/")
 
 import dense_subgraph_finder
 
-sys.path.append(spades_src)
 import support
 
 #######################################################################################
