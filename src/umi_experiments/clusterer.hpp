@@ -379,12 +379,13 @@ namespace clusterer {
         }
         VERIFY(read_id_to_cluster_id.size() == reads.size());
 
-        INFO("Creating output directory " << output_dir);
-        if (!create_new_directory(output_dir)) {
-            INFO("Removed old directory");
-        }
-
         namespace fs = boost::filesystem;
+
+        INFO("Using output directory " << output_dir);
+        if (output_dir != ".") {
+            fs::create_directory(output_dir);
+            INFO("Created new");
+        }
         write_seqan_records(fs::path(output_dir).append("intermediate_repertoire.fasta"), repertoire_ids, repertoire_reads);
 
         std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
@@ -396,7 +397,7 @@ namespace clusterer {
         if (!save_clusters) return;
 
         const auto clusters_path = fs::path(output_dir).append("clusters_by_umis");
-        fs::create_directory(clusters_path);
+        create_new_directory(clusters_path);
         for (const auto& umi : umi_to_clusters.fromSet()) {
             auto umi_path = clusters_path;
             umi_path.append(seqan_string_to_string(umi->GetString()));
@@ -416,7 +417,7 @@ namespace clusterer {
                     cluster_ids.push_back(read.GetReadId());
                     cluster_reads.push_back(read.GetSequence());
                 }
-                const auto& cluster_path = fs::path(umi_path).append("cluster_" + std::to_string(cluster->id) + "_size_" + std::to_string(cluster->weight) + ".fasta");
+                const auto cluster_path = fs::path(umi_path).append("cluster_" + std::to_string(cluster->id) + "_size_" + std::to_string(cluster->weight) + ".fasta");
                 write_seqan_records(cluster_path, cluster_ids, cluster_reads);
             }
         }
