@@ -1,0 +1,8 @@
+# Absolute paths
+IGREC = %RUN_PATH
+BIN := $(IGREC)/build/release/bin
+SRC := $(IGREC)/src
+UMI_SRC := $(SRC)/umi_experiments
+
+# Relative paths
+INTER_REP = intermediate_repertoire.fasta
