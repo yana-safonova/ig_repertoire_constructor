@@ -120,7 +120,7 @@ namespace vj_finder {
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.finish;
+            return block_alignment_.finish + block_alignment_.read_shift;
         }
     };
 
@@ -129,7 +129,7 @@ namespace vj_finder {
         VGeneHit v_hit_;
         JGeneHit j_hit_;
 
-        void CheckConsistency();
+        void CheckConsistencyFatal();
 
     public:
         VJHit(const core::Read& read,
@@ -174,14 +174,25 @@ namespace vj_finder {
             j_hits_.push_back(j_hit);
         }
 
-        size_t NumVHits() { return v_hits_.size(); }
+        size_t NumVHits() const { return v_hits_.size(); }
 
-        size_t NumJHits() { return j_hits_.size(); }
+        size_t NumJHits() const { return j_hits_.size(); }
 
-        //const VJHit& operator[](size_t index) {
-        //    VERIFY_MSG(index < size(), "Index " << index << " exceeds VJ hits size");
-        //    return vj_hits_[index];
-        //}
+        VGeneHit GetVHitByIndex(size_t index) const {
+            VERIFY_MSG(index < NumVHits(), "Index " << index << " exceeds number V hits");
+            return v_hits_[index];
+        }
+
+        JGeneHit GetJHitByIndex(size_t index) const {
+            VERIFY_MSG(index < NumJHits(), "Index " << index << " exceeds number J hits");
+            return j_hits_[index];
+        }
+
+        size_t AlignedSegmentLength() const {
+            std::cout << GetJHitByIndex(0).End() << " - " << GetVHitByIndex(0).Start() << std::endl;
+            return GetJHitByIndex(0).End() - GetVHitByIndex(0).Start();
+        }
+
     };
 
     class CustomGermlineDbHelper : public algorithms::KmerIndexHelper<germline_utils::CustomGeneDatabase,

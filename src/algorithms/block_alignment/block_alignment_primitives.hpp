@@ -6,18 +6,18 @@
 
 namespace algorithms {
     struct Match {
-        int needle_pos;
+        int subject_pos;
         int read_pos;
         size_t length;
 
         static int overlap(const Match &a,
                            const Match &b) {
-            return std::max<int>(std::max<int>(a.length - (b.needle_pos - a.needle_pos),
+            return std::max<int>(std::max<int>(a.length - (b.subject_pos - a.subject_pos),
                                                a.length - (b.read_pos - a.read_pos)), 0);
         }
 
-        static bool less_needle_pos(const Match &a, const Match &b) {
-            return a.needle_pos < b.needle_pos;
+        static bool less_subject_pos(const Match &a, const Match &b) {
+            return a.subject_pos < b.subject_pos;
         }
 
         static bool less_read_pos(const Match &a, const Match &b) {
@@ -39,11 +39,11 @@ namespace algorithms {
         }
 
         int left_shift() const {
-            return first().read_pos - first().needle_pos;
+            return first().read_pos - first().subject_pos;
         }
 
         int right_shift() const {
-            return last().read_pos - last().needle_pos;
+            return last().read_pos - last().subject_pos;
         }
 
         int global_gap() const {
@@ -54,8 +54,8 @@ namespace algorithms {
             return last().read_pos - first().read_pos + last().length;
         }
 
-        int needle_segment_size() const {
-            return last().needle_pos - first().needle_pos + last().length;
+        int subject_segment_size() const {
+            return last().subject_pos - first().subject_pos + last().length;
         }
 
         std::string visualize_matches(int needle_length, int read_length) const;

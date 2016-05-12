@@ -11,7 +11,7 @@ namespace germline_utils {
         return out;
     }
 
-    void ImmuneGeneDatabase::AddGenesFromFile(std::string filename) {
+    size_t ImmuneGeneDatabase::AddGenesFromFile(std::string filename) {
         std::vector <seqan::CharString> read_headers;
         std::vector <seqan::Dna5String> read_seqs;
         seqan::SeqFileIn seqFileIn_reads(filename.c_str());
@@ -22,6 +22,7 @@ namespace germline_utils {
             gene_name_map_[std::string(seqan::toCString(read_headers[i]))] = i;
         }
         INFO(read_headers.size() << " records were extracted from " << filename);
+        return read_headers.size();
     }
 
     const ImmuneGene &ImmuneGeneDatabase::operator[](size_t index) const {

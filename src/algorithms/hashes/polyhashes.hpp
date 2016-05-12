@@ -12,7 +12,6 @@ namespace algorithms {
         if (seqan::length(s) < K) {
             return {  };
         }
-
         const size_t p = 7;
         std::vector<size_t> result(seqan::length(s) - K + 1);
 

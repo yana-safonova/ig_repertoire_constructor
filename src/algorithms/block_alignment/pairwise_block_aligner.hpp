@@ -39,11 +39,11 @@ namespace algorithms {
                                           size_t subject_index) const {
             auto has_edge = [this](const Match &a, const Match &b) -> bool {
                 int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.needle_pos - a.needle_pos;
+                int needle_gap = b.subject_pos - a.subject_pos;
                 int gap = read_gap - needle_gap;
                 if (gap > scoring_.max_local_insertions || -gap > scoring_.max_local_deletions) return false;
                 // Crossing check
-                if (a.needle_pos >= b.needle_pos || a.read_pos >= b.read_pos) return false;
+                if (a.subject_pos >= b.subject_pos || a.read_pos >= b.read_pos) return false;
                 return true;
             };
 
@@ -53,9 +53,9 @@ namespace algorithms {
 
             auto edge_weight = [this](const Match &a, const Match &b) -> double {
                 int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.needle_pos - a.needle_pos;
+                int needle_gap = b.subject_pos - a.subject_pos;
                 int gap = read_gap - needle_gap;
-                int mmatch = std::min(b.read_pos - a.read_pos - a.length, b.needle_pos - a.needle_pos - a.length);
+                int mmatch = std::min(b.read_pos - a.read_pos - a.length, b.subject_pos - a.subject_pos - a.length);
                 mmatch = std::max(0, mmatch);
                 return - Match::overlap(a, b)
                        - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
@@ -63,7 +63,6 @@ namespace algorithms {
             };
 
             auto longest_path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
-
             return PairwiseBlockAlignment(longest_path.first,
                                           kmer_index_helper_.GetStringLength(
                                                   kmer_index_helper_.GetDbRecordByIndex(subject_index)),
@@ -87,7 +86,7 @@ namespace algorithms {
                     continue;
                 std::vector<Match> combined = combine_sequential_kmer_matches(matches, kmer_index_.k());
                 std::sort(combined.begin(), combined.end(),
-                          [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
+                          [](const Match &a, const Match &b) -> bool { return a.subject_pos < b.subject_pos; });
                 assert(combined.size() > 0);
                 PairwiseBlockAlignment align = MakeAlignment(combined, query, i);
                 if (CheckAlignment(align)) {

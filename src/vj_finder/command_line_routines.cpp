@@ -80,12 +80,12 @@ void parse_command_line_args(vj_finder::vjf_config &cfg, int argc, char** argv) 
              "minimal block coverage for V gene")
             ("min-k-coverage-j", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_k_coverage_j)->default_value(cfg.algorithm_params.aligner_params.min_k_coverage_j),
              "minimal block coverage for J gene")
-
-            ("max-candidates-v,N", po::value<size_t>(&cfg.algorithm_params.query_params.max_candidates_v)->default_value(cfg.algorithm_params.query_params.max_candidates_v),
+            ("max-candidates-v,N", po::value<size_t>(&cfg.algorithm_params.aligner_params.max_candidates_v)->default_value(cfg.algorithm_params.aligner_params.max_candidates_v),
              "maximal number of V gene candidates for each query")
-            ("max-candidates-j", po::value<size_t>(&cfg.algorithm_params.query_params.max_candidates_j)->default_value(cfg.algorithm_params.query_params.max_candidates_j),
+            ("max-candidates-j", po::value<size_t>(&cfg.algorithm_params.aligner_params.max_candidates_j)->default_value(cfg.algorithm_params.aligner_params.max_candidates_j),
              "maximal number of J gene candidates for each query")
-            ("min-len", po::value<size_t>(&cfg.algorithm_params.query_params.min_len)->default_value(cfg.algorithm_params.query_params.min_len),
+
+            ("min-len", po::value<size_t>(&cfg.algorithm_params.filtering_params.min_aligned_length)->default_value(cfg.algorithm_params.filtering_params.min_aligned_length),
              "minimal length of reported sequence")
             ;
 
@@ -94,13 +94,13 @@ void parse_command_line_args(vj_finder::vjf_config &cfg, int argc, char** argv) 
     po::options_description hidden("Hidden options");
     hidden.add_options()
             ("help-hidden", "show all options, including developers options")
-            ("left-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.aligner_params.left_uncovered_limit)->default_value(cfg.algorithm_params.aligner_params.left_uncovered_limit),
+            ("left-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.filtering_params.left_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.left_uncovered_limit),
              "uncoverage limit of left end")
-            ("right-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.aligner_params.right_uncovered_limit)->default_value(cfg.algorithm_params.aligner_params.right_uncovered_limit),
+            ("right-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.filtering_params.right_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.right_uncovered_limit),
              "uncoverage limit of right end")
-            ("min-vsegment-length", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_v_segment_length)->default_value(cfg.algorithm_params.aligner_params.min_v_segment_length),
+            ("min-vsegment-length", po::value<size_t>(&cfg.algorithm_params.filtering_params.min_v_segment_length)->default_value(cfg.algorithm_params.filtering_params.min_v_segment_length),
              "minimal allowed length of V gene segment")
-            ("min-jsegment-length", po::value<size_t>(&cfg.algorithm_params.aligner_params.min_j_segment_length)->default_value(cfg.algorithm_params.aligner_params.min_j_segment_length),
+            ("min-jsegment-length", po::value<size_t>(&cfg.algorithm_params.filtering_params.min_j_segment_length)->default_value(cfg.algorithm_params.filtering_params.min_j_segment_length),
              "minimal allowed length of J gene segment")
 
             ("db-directory", po::value<std::string>(&cfg.algorithm_params.germline_params.germline_dir)->default_value(cfg.algorithm_params.germline_params.germline_dir),

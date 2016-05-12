@@ -2,6 +2,7 @@
 
 #include <unordered_map>
 #include <seqan/sequence.h>
+#include <seqan/modifier.h>
 
 namespace core {
 
@@ -20,6 +21,12 @@ namespace core {
         Read() : name(), seq() { }
 
         size_t length() const { return seqan::length(seq); }
+
+        Read ReverseComplement() const {
+            seqan::Dna5String rc_seq = seq;
+            seqan::reverseComplement(rc_seq);
+            return Read(name, rc_seq, id);
+        }
     };
 
     std::ostream &operator<<(std::ostream &out, const Read &read);

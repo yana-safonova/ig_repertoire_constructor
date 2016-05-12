@@ -36,39 +36,37 @@ io_params {
 
 algorithm_params {
     aligner_params {
-        left_uncovered_limit    16
-        right_uncovered_limit    5
-        min_v_segment_length    250
-        min_j_segment_length    30
-        min_len                    300
-        word_size_v                        7
-        word_size_j                5
+        word_size_v                 7
+        word_size_j                 5
         min_k_coverage_v            50
-        min_k_coverage_j        13
+        min_k_coverage_j            13
+        max_candidates_v            10
+        max_candidates_j            10
+        fix_strand                  true
     }
 
     germline_params {
         germline_dir    ./data/germline
         organism        human
         loci            all
-        pseudogenes        true        
+        pseudogenes     true
     }
 
-    query_params {
-        max_candidates_v      10
-        max_candidates_j    10
-        fix_strand        true 
-        consistent_loci        true
-        min_len                                 300 
+    filtering_params {
+        left_uncovered_limit        16
+        right_uncovered_limit       5
+        min_v_segment_length        250
+        min_j_segment_length        30
+        min_aligned_length          300
     }
             
     fix_crop_fill_params {
-        fill_left        true
-        fill_right        false
+        fill_left       true
+        fill_right      false
         fix_left        3
-        fix_right        0
-        crop_left        true
-        crop_right        true
+        fix_right       0
+        crop_left       true
+        crop_right      true
     }
 
     scoring_params {

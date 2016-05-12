@@ -11,6 +11,15 @@ namespace germline_utils {
                    segment_type_);
     }
 
+    void CustomGeneDatabase::UpdateGeneIndexMap(size_t db_index, size_t num_added_records) {
+        size_t num_db_records = gene_databases_[db_index].size();
+        for(size_t i = 0; i < num_added_records; i++) {
+            size_t global_id = num_records_ - num_added_records + i;
+            size_t local_id = num_db_records - num_added_records + i;
+            gene_index_map_[global_id] = std::make_pair(db_index, local_id);
+        }
+    }
+
     void CustomGeneDatabase::AddDatabase(ImmuneGeneType gene_type, std::string filename) {
         CheckConsistency(gene_type);
         size_t db_index;
@@ -22,8 +31,9 @@ namespace germline_utils {
         }
         else
             db_index = gene_type_index_map_[gene_type];
-        gene_databases_[db_index].AddGenesFromFile(filename);
-        num_records_ += gene_databases_[db_index].size();
+        size_t num_added_records = gene_databases_[db_index].AddGenesFromFile(filename);
+        num_records_ += num_added_records;
+        UpdateGeneIndexMap(db_index, num_added_records);
     }
 
     bool CustomGeneDatabase::ContainsImmuneGeneType(ImmuneGeneType gene_type) const {
@@ -36,6 +46,9 @@ namespace germline_utils {
     }
 
     const ImmuneGene& CustomGeneDatabase::operator[](size_t index) const {
-        return ImmuneGene();
+        VERIFY_MSG(gene_index_map_.find(index) != gene_index_map_.end(), "Index " << index <<
+                " is not presented in gene map");
+        auto index_pair = gene_index_map_.at(index);
+        return gene_databases_[index_pair.first][index_pair.second];
     }
 }

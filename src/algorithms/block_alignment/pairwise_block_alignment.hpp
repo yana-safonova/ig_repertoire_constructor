@@ -19,11 +19,18 @@ namespace algorithms {
         int overlap_length;
         double score;
 
-        PairwiseBlockAlignment() : subject_length(), query_length(),
+        size_t read_shift;
+
+        PairwiseBlockAlignment() : subject_length(),
+                                   query_length(),
                                    kp_coverage(),
-                                   int_score(), path(),
-                                   start(), finish(),
-                                   overlap_length(), score() { }
+                                   int_score(),
+                                   path(),
+                                   start(),
+                                   finish(),
+                                   overlap_length(),
+                                   score(),
+                                   read_shift() { }
 
         PairwiseBlockAlignment(AlignmentPath &path,
                                size_t subject_length,
@@ -31,36 +38,38 @@ namespace algorithms {
                                int score);
 
         size_t first_match_read_pos() const {
-            return path.first().read_pos;
+            return path.first().read_pos + read_shift;
         }
 
-        size_t first_match_needle_pos() const {
-            return path.first().needle_pos;
+        size_t first_match_subject_pos() const {
+            return path.first().subject_pos;
         }
 
-        size_t last_match_needle_pos() const {
-            return path.last().needle_pos + path.last().length;
+        size_t last_match_subject_pos() const {
+            return path.last().subject_pos + path.last().length;
         }
 
         size_t last_match_read_pos() const {
-            return path.last().read_pos + path.last().length;
+            return path.last().read_pos + path.last().length + read_shift;
         }
 
         size_t left_half_segment_length() const {
-            return last_match_needle_pos();
+            return last_match_subject_pos();
         }
 
         size_t right_half_segment_length() const {
-            return subject_length - first_match_needle_pos();
+            return subject_length - first_match_subject_pos();
         }
 
         size_t segment_length() const {
-            return last_match_needle_pos() - first_match_needle_pos();
+            return last_match_subject_pos() - first_match_subject_pos();
         }
 
         std::string visualize() const {
             return this->path.visualize_matches(static_cast<int>(subject_length), static_cast<int>(query_length));
         }
+
+        void add_read_shift(size_t read_shift) { this->read_shift = read_shift; }
     };
 
     template<typename SubjectDatabase>

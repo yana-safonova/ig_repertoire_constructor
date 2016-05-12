@@ -75,13 +75,12 @@ namespace vj_finder {
     void load(vjf_config::AlgorithmParams::AlignerParams &ap, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(ap.word_size_v, pt, "word_size_v");
-        load(ap.left_uncovered_limit, pt, "left_uncovered_limit");
-        load(ap.min_j_segment_length, pt, "min_j_segment_length");
+        load(ap.word_size_j, pt, "word_size_j");
         load(ap.min_k_coverage_v, pt, "min_k_coverage_v");
         load(ap.min_k_coverage_j, pt, "min_k_coverage_j");
-        load(ap.min_v_segment_length, pt, "min_v_segment_length");
-        load(ap.right_uncovered_limit, pt, "right_uncovered_limit");
-        load(ap.word_size_j, pt, "word_size_j");
+        load(ap.max_candidates_v, pt, "max_candidates_v");
+        load(ap.max_candidates_j, pt, "max_candidates_j");
+        load(ap.fix_strand, pt, "fix_strand");
     }
 
     void load(vjf_config::AlgorithmParams::GermlineParams &gp, boost::property_tree::ptree const &pt, bool) {
@@ -92,12 +91,13 @@ namespace vj_finder {
         load(gp.pseudogenes, pt, "pseudogenes");
     }
 
-    void load(vjf_config::AlgorithmParams::QueryParams &qp, boost::property_tree::ptree const &pt, bool) {
+    void load(vjf_config::AlgorithmParams::FilteringParams &fp, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
-        load(qp.max_candidates_v, pt, "max_candidates_v");
-        load(qp.max_candidates_j, pt, "max_candidates_j");
-        load(qp.fix_strand, pt, "fix_strand");
-        load(qp.min_len, pt, "min_len");
+        load(fp.left_uncovered_limit, pt, "left_uncovered_limit");
+        load(fp.right_uncovered_limit, pt, "right_uncovered_limit");
+        load(fp.min_j_segment_length, pt, "min_j_segment_length");
+        load(fp.min_v_segment_length, pt, "min_v_segment_length");
+        load(fp.min_aligned_length, pt, "min_aligned_length");
     }
 
     void load(vjf_config::AlgorithmParams::FixCropFillParams &fxp, boost::property_tree::ptree const &pt, bool) {
@@ -146,7 +146,7 @@ namespace vj_finder {
         using config_common::load;
         load(algop.aligner_params, pt, "aligner_params");
         load(algop.germline_params, pt, "germline_params");
-        load(algop.query_params, pt, "query_params");
+        load(algop.filtering_params, pt, "filtering_params");
         load(algop.fix_crop_fill_params, pt, "fix_crop_fill_params");
         load(algop.scoring_params, pt, "scoring_params");
     }
