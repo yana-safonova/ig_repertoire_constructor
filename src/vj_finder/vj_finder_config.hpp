@@ -50,15 +50,21 @@ namespace vj_finder {
 
         struct AlgorithmParams {
             struct AlignerParams {
-                size_t left_uncovered_limit;
-                size_t right_uncovered_limit; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
-                size_t min_v_segment_length;
-                size_t min_j_segment_length;
                 size_t word_size_v;
                 size_t word_size_j;
                 size_t min_k_coverage_v;
                 size_t min_k_coverage_j;
+                size_t max_candidates_v;
+                size_t max_candidates_j;
+                bool fix_strand;
+            };
 
+            struct FilteringParams {
+                size_t min_v_segment_length;
+                size_t min_j_segment_length;
+                size_t left_uncovered_limit;
+                size_t right_uncovered_limit; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+                size_t min_aligned_length;
             };
 
             struct GermlineParams {
@@ -66,13 +72,6 @@ namespace vj_finder {
                 std::string organism;
                 std::string loci;
                 bool pseudogenes;
-            };
-
-            struct QueryParams {
-                size_t max_candidates_v;
-                size_t max_candidates_j;
-                bool fix_strand;
-                size_t min_len;
             };
 
             struct FixCropFillParams {
@@ -113,7 +112,7 @@ namespace vj_finder {
 
             AlignerParams aligner_params;
             GermlineParams germline_params;
-            QueryParams query_params;
+            FilteringParams filtering_params;
             FixCropFillParams fix_crop_fill_params;
             ScoringParams scoring_params;
         };

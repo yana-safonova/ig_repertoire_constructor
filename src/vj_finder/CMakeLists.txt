@@ -18,6 +18,7 @@ add_executable(vj_finder
         germline_db_generator.cpp
         vj_alignment_structs.cpp
         vj_query_aligner.cpp
+        vj_hits_filter.cpp
         vjf_launch.cpp
         main.cpp
         )

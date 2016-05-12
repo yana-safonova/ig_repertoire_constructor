@@ -30,12 +30,12 @@ namespace vj_finder {
 
         algorithms::BlockAlignerParams CreateVBlockAlignerParams() const {
                 return algorithms::BlockAlignerParams(algorithm_params_.aligner_params.min_k_coverage_v,
-                                                      algorithm_params_.query_params.max_candidates_v);
+                                                      algorithm_params_.aligner_params.max_candidates_v);
         }
 
         algorithms::BlockAlignerParams CreateJBlockAlignerParams() const {
             return algorithms::BlockAlignerParams(algorithm_params_.aligner_params.min_k_coverage_j,
-                                                  algorithm_params_.query_params.max_candidates_j);
+                                                  algorithm_params_.aligner_params.max_candidates_j);
         }
 
         typedef algorithms::BlockAlignmentHits<germline_utils::CustomGeneDatabase> CustomDbBlockAlignmentHits;

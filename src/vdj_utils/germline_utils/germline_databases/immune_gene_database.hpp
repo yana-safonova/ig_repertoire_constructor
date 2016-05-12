@@ -64,7 +64,8 @@ namespace germline_utils {
         ImmuneGeneDatabase(ImmuneGeneType gene_type) :
                 gene_type_(gene_type) { }
 
-        void AddGenesFromFile(std::string filename);
+        // method returns number of added records
+        size_t AddGenesFromFile(std::string filename);
 
 
         ImmuneGeneType GeneType() const { return gene_type_; }

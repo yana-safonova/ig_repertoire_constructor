@@ -13,8 +13,13 @@ namespace germline_utils {
         std::unordered_map <ImmuneGeneType, size_t, ImmuneGeneTypeHasher> gene_type_index_map_;
         std::vector<ImmuneGeneType> immune_gene_types_;
         size_t num_records_;
+        // map from global index into a pair <db_index, record_local_index>
+        std::unordered_map <size_t, std::pair<size_t, size_t>> gene_index_map_;
+        //vector<>
 
         void CheckConsistency(ImmuneGeneType gene_type);
+
+        void UpdateGeneIndexMap(size_t db_index, size_t num_added_records);
 
     public:
         CustomGeneDatabase(SegmentType segment_type) :
@@ -24,6 +29,8 @@ namespace germline_utils {
         void AddDatabase(ImmuneGeneType gene_type, std::string filename);
 
         size_t size() const { return num_records_; }
+
+        size_t num_dbs() const { return gene_databases_.size(); }
 
         SegmentType Segment() const { return segment_type_; }
 
