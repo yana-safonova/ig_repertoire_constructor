@@ -11,7 +11,7 @@ cleaned_reads_umi.fastq cleaned_reads_umi_compressed.fastq cleaned_reads_umi_com
 	--input $(VJF)/cleaned_reads.fa \
 	--output stats \
 	--tmp . \
-	--tau %CLUSTER_TAU \
+	--tau %UMI_GRAPH_TAU \
 	--clean
 
 clean:

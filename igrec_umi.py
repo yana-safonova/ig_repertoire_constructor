@@ -53,10 +53,10 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
-    optional_args.add_argument("--cluster_tau",
+    optional_args.add_argument("--umi_graph_tau",
                                type=int,
-                               default=10,
-                               dest="cluster_tau",
+                               default=1,
+                               dest="umi_graph_tau",
                                help="Maximum allowed mismatches inside UMI clusters"
                                     "[default: %(default)d]")
     optional_args.add_argument("--igrec_tau",
@@ -128,7 +128,7 @@ class __StagePrepare:
                     line = line.replace("%RIGHT_INPUT", params.right_reads)
                 line = line.replace("%THREADS", str(params.num_threads))
                 line = line.replace("%IGREC_TAU", str(params.igrec_tau))
-                line = line.replace("%CLUSTER_TAU", str(params.cluster_tau))
+                line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
                 line = line.replace("%LOCI", params.loci)
                 line = line.replace("%ORGANISM", params.organism)
                 file.write(line)
