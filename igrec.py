@@ -135,8 +135,11 @@ class IgRepConConfig:
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
         self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
         self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
+        self.path_to_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
+        self.path_to_remove_low_abundance_reads = os.path.join(home_directory, 'py/ig_remove_low_abundance_reads.py')
         self.run_remove_low_abundance_reads = os.path.join(home_directory, 'py/ig_remove_low_abundance_reads.py')
+        self.path_to_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
@@ -167,15 +170,15 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
+        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.path_to_rcm_recoverer):
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.run_compress_equal_clusters):
+        if not os.path.exists(self.path_to_compress_equal_clusters):
             log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.run_remove_low_abundance_reads):
+        if not os.path.exists(self.path_to_remove_low_abundance_reads):
             log.info("ERROR: Binary file of " + phase_names.GetRemoveLowAbundanceReadsName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
