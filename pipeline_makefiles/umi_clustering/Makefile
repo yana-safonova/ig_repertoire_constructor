@@ -10,12 +10,12 @@ all:
 
 $(INTER_REP): $(BIN)/cluster_reads $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi.fastq $(UMIS)/cleaned_reads_umi_compressed.fastq $(UMIS)/cleaned_reads_umi_compressed.graph
 	$(BIN)/cluster_reads \
-	-r $(VJF)/cleaned_reads.fa \
-	-u $(UMIS)/cleaned_reads_umi.fastq \
-	-c $(UMIS)/cleaned_reads_umi_compressed.fastq \
-	-g $(UMIS)/cleaned_reads_umi_compressed.graph \
-	-o . \
-	-s true
+	--reads $(VJF)/cleaned_reads.fa \
+	--umi_uncompressed $(UMIS)/cleaned_reads_umi.fastq \
+	--umi_compressed $(UMIS)/cleaned_reads_umi_compressed.fastq \
+	--graph $(UMIS)/cleaned_reads_umi_compressed.graph \
+	--output . \
+	--save-clusters true
 
 clean:
 	$(MAKE) -C $(VJF) clean

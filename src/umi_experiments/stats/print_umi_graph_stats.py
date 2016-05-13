@@ -82,12 +82,12 @@ class BinaryRunner:
 
 class WorkflowRunner:
     def Run(self, log, params):
-        if params.clean:
-            if os.path.exists(params.tmp_dir):
-                log.info("Removing old tmp directory")
-                import shutil
-                shutil.rmtree(params.tmp_dir)
-            log.info("Creating new tmp directory at " + params.tmp_dir)
+        # if params.clean:
+        #     if os.path.exists(params.tmp_dir):
+        #         log.info("Removing old tmp directory")
+        #         import shutil
+        #         shutil.rmtree(params.tmp_dir)
+        #     log.info("Creating new tmp directory at " + params.tmp_dir)
         if not os.path.exists(params.tmp_dir):
             os.makedirs(params.tmp_dir)
 

@@ -5,10 +5,10 @@ all:
 
 cleaned_reads.fa: $(BIN)/ig_kplus_vj_finder %INPUT
 	$(BIN)/ig_kplus_vj_finder \
-	--input %INPUT \
-	-o . \
+	--input-file %INPUT \
+	--output . \
 	--db-directory $(IGREC)/data/germline \
-	-t %THREADS \
+	--threads %THREADS \
 	--loci %LOCI \
 	--organism %ORGANISM
 

@@ -11,8 +11,8 @@ final_repertoire.fa: $(IGREC)/igrec.py ../umi_clustering/$(INTER_REP)
 	--loci %LOCI \
 	--organism %ORGANISM \
 	--tau %IGREC_TAU \
-	-o . \
-	-t %THREADS
+	--output . \
+	--threads %THREADS
 
 clean:
 	$(MAKE) -C ../umi_clustering clean

@@ -8,10 +8,11 @@ all:
 
 cleaned_reads_umi.fastq cleaned_reads_umi_compressed.fastq cleaned_reads_umi_compressed.graph: $(UMI_SRC)/stats/print_umi_graph_stats.py $(VJF)/cleaned_reads.fa
 	$(UMI_SRC)/stats/print_umi_graph_stats.py \
-	-i $(VJF)/cleaned_reads.fa \
-	-o stats \
+	--input $(VJF)/cleaned_reads.fa \
+	--output stats \
 	--tmp . \
-	--tau %CLUSTER_TAU
+	--tau %CLUSTER_TAU \
+	--clean
 
 clean:
 	$(MAKE) -C $(VJF) clean

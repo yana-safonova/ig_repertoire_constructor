@@ -8,10 +8,10 @@ all:
 
 cleaned_reads.fa: $(BIN)/ig_kplus_vj_finder $(MERGED)/merged_reads.fastq
 	$(BIN)/ig_kplus_vj_finder \
-	--input $(MERGED)/merged_reads.fastq \
-	-o . \
+	--input-file $(MERGED)/merged_reads.fastq \
+	--output . \
 	--db-directory $(IGREC)/data/germline \
-	-t %THREADS \
+	--threads %THREADS \
 	--loci %LOCI \
 	--organism %ORGANISM
 
