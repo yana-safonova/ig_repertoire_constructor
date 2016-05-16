@@ -41,6 +41,7 @@ namespace vj_finder {
     }
 
     void update_output_files_config(vjf_config::IOParams::OutputParams::OutputFiles & of) {
+        of.log_filename = path::append_path(of.output_dir, of.log_filename);
         of.add_info_filename = path::append_path(of.output_dir, of.add_info_filename);
         of.bad_output_filename = path::append_path(of.output_dir, of.bad_output_filename);
         of.discard_info_filename = path::append_path(of.output_dir, of.discard_info_filename);
@@ -51,6 +52,7 @@ namespace vj_finder {
     void load(vjf_config::IOParams::OutputParams::OutputFiles & of,
               boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
+        load(of.log_filename, pt, "log_filename");
         load(of.add_info_filename, pt, "add_info_filename");
         load(of.bad_output_filename, pt, "bad_output_filename");
         load(of.discard_info_filename, pt, "discard_info_filename");

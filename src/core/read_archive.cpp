@@ -52,6 +52,7 @@ namespace core {
     }
 
     void ReadArchive::FixSpacesInHeaders() {
-        VERIFY_MSG(false, "Implement me!");
+        for(auto it = reads_.begin(); it != reads_.end(); it++)
+            std::replace(it->name.begin(), it->name.end(), ' ', '_');
     }
 }

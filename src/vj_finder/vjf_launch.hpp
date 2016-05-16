@@ -13,5 +13,8 @@ namespace vj_finder {
                 config_(config) { }
 
         void Run();
+
+    private:
+        DECL_LOGGER("VJFinderLaunch");
     };
 }

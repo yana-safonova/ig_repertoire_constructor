@@ -8,29 +8,34 @@
 
 namespace algorithms {
     struct PairwiseBlockAlignment {
+    private:
+        int start_;
+        int finish_;
+
+    public:
         size_t subject_length;
         size_t query_length;
 
         int kp_coverage;
         int int_score;
         AlignmentPath path;
-        int start, finish;
 
         int overlap_length;
         double score;
 
         size_t read_shift;
 
-        PairwiseBlockAlignment() : subject_length(),
-                                   query_length(),
-                                   kp_coverage(),
-                                   int_score(),
-                                   path(),
-                                   start(),
-                                   finish(),
-                                   overlap_length(),
-                                   score(),
-                                   read_shift() { }
+        PairwiseBlockAlignment() :
+                start_(),
+                finish_(),
+                subject_length(),
+                query_length(),
+                kp_coverage(),
+                int_score(),
+                path(),
+                overlap_length(),
+                score(),
+                read_shift() { }
 
         PairwiseBlockAlignment(AlignmentPath &path,
                                size_t subject_length,
@@ -64,6 +69,10 @@ namespace algorithms {
         size_t segment_length() const {
             return last_match_subject_pos() - first_match_subject_pos();
         }
+
+        int start() const { return start_; }
+
+        int finish() const { return finish_ + read_shift; }
 
         std::string visualize() const {
             return this->path.visualize_matches(static_cast<int>(subject_length), static_cast<int>(query_length));

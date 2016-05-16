@@ -18,9 +18,10 @@ io_params {
      output_params {
         output_files {
             output_dir    vjf_test
+            log_filename  log.properties
             output_filename     oppa1        
             bad_output_filename    oppa2
-            add_info_filename    oppa3
+            add_info_filename    alignment_info.csv
             discard_info_filename    oppa4
             valignments_filename    oppa5
         }

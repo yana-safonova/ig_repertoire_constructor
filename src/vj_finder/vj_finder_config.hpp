@@ -26,6 +26,7 @@ namespace vj_finder {
             struct OutputParams {
                 struct OutputFiles {
                     std::string output_dir;
+                    std::string log_filename;
                     std::string output_filename;
                     std::string bad_output_filename;
                     std::string add_info_filename;

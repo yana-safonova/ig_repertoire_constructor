@@ -60,5 +60,8 @@ namespace vj_finder {
         }
 
         VJHits Align(const core::Read& read);
+
+    private:
+        DECL_LOGGER("VJQueryAligner");
     };
 }
