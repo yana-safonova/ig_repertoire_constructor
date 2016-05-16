@@ -11,7 +11,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
 
 add_executable(shm_kmer_model
-               main.cpp)
+               main.cpp shm_config.hpp shm_config.cpp shm_kmer_model_estimator.hpp shm_kmer_model_estimator.cpp)
 
 target_link_libraries(shm_kmer_model input yaml-cpp graph_utils ${COMMON_LIBRARIES})
 

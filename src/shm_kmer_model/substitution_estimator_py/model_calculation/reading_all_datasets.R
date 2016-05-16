@@ -1,6 +1,8 @@
 # Loading datasets
 ## Loading GMC
 
+setwd("~/chihua")
+
 shm.k.mer.model.reader <- function(filepath) {
   model <- read.csv(filepath)
   rownames(model) <- model$X
@@ -9,12 +11,12 @@ shm.k.mer.model.reader <- function(filepath) {
   model
 }
 
-yale.shm <- read.csv('/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/output/yale_substitution.csv', sep=" ")
-rownames(yale.shm) <- yale.shm$Fivemer
-yale.shm$Fivemer <- NULL
-head(yale.shm)
+# yale.shm <- read.csv('/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/output/yale_substitution.csv', sep=" ")
+# rownames(yale.shm) <- yale.shm$Fivemer
+# yale.shm$Fivemer <- NULL
+# head(yale.shm)
 
-syn <- which(yale.shm$Source == "Measured")
+# syn <- which(yale.shm$Source == "Measured")
 
 GMC.1.IG.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/AbVitro/flu_time_course/GMC/VJF_output_loci_IG/1/shm_model/model_trivial_mm.csv")
 GMC.2.IG.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/AbVitro/flu_time_course/GMC/VJF_output_loci_IG/2/shm_model/model_trivial_mm.csv")
@@ -644,3 +646,43 @@ FV.IGH.k_neighbour <- list(
   FV.30.IGH.k_neighbour
 )
 
+
+age.1.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/1/shm_model/model_k_neighbour_mm.csv")
+age.2.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/2/shm_model/model_k_neighbour_mm.csv")
+age.3.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/3/shm_model/model_k_neighbour_mm.csv")
+age.4.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/4/shm_model/model_k_neighbour_mm.csv")
+age.5.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/5/shm_model/model_k_neighbour_mm.csv")
+age.6.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/6/shm_model/model_k_neighbour_mm.csv")
+age.7.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/7/shm_model/model_k_neighbour_mm.csv")
+age.8.IGH.k_neighbour <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/8/shm_model/model_k_neighbour_mm.csv")
+
+age.IGH.k_neighbour <- list(
+  age.1.IGH.k_neighbour,
+  age.2.IGH.k_neighbour,
+  age.3.IGH.k_neighbour,
+  age.4.IGH.k_neighbour,
+  age.5.IGH.k_neighbour,
+  age.6.IGH.k_neighbour,
+  age.7.IGH.k_neighbour,
+  age.8.IGH.k_neighbour
+)
+
+age.1.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/1/shm_model/model_trivial_mm.csv")
+age.2.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/2/shm_model/model_trivial_mm.csv")
+age.3.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/3/shm_model/model_trivial_mm.csv")
+age.4.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/4/shm_model/model_trivial_mm.csv")
+age.5.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/5/shm_model/model_trivial_mm.csv")
+age.6.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/6/shm_model/model_trivial_mm.csv")
+age.7.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/7/shm_model/model_trivial_mm.csv")
+age.8.IGH.trivial <- shm.k.mer.model.reader("./Sid/abzikadze/datasets/age/vjf_output_on_final_repertoire/IGH/8/shm_model/model_trivial_mm.csv")
+
+age.IGH.trivial <- list(
+  age.1.IGH.trivial,
+  age.2.IGH.trivial,
+  age.3.IGH.trivial,
+  age.4.IGH.trivial,
+  age.5.IGH.trivial,
+  age.6.IGH.trivial,
+  age.7.IGH.trivial,
+  age.8.IGH.trivial
+)

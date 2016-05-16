@@ -1,6 +1,4 @@
 require("gtools")
-require("bbmle")
-require("numDeriv")
 require("parallel")
 require("lattice")
 
