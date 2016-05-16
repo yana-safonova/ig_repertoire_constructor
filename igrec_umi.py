@@ -2,7 +2,7 @@ import os
 import sys
 import igrec
 
-home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
+home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
 
 sys.path.append(spades_src)
@@ -14,8 +14,8 @@ def HelpAndReturn(log, parser, exit_code = 0):
     sys.exit(exit_code)
 
 def ParseCommandLineParams(log):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="IgReC: an algorithm for construction of "
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="IgReC: an algorithm for construction of "
                                               "antibody repertoire from immunosequencing data",
                                   epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
@@ -57,7 +57,7 @@ def ParseCommandLineParams(log):
                                type=int,
                                default=1,
                                dest="umi_graph_tau",
-                               help="Maximum allowed mismatches inside UMI clusters"
+                               help="Maximum allowed mismatches between UMIs, used for UMI correction"
                                     "[default: %(default)d]")
     optional_args.add_argument("--igrec_tau",
                                type=int,
@@ -122,10 +122,10 @@ class __StagePrepare:
             for line in lines:
                 line = line.replace("%RUN_PATH", home_directory)
                 if params.single_reads:
-                    line = line.replace("%INPUT", params.single_reads)
+                    line = line.replace("%INPUT", os.path.abspath(params.single_reads))
                 if params.left_reads and params.right_reads:
-                    line = line.replace("%LEFT_INPUT", params.left_reads)
-                    line = line.replace("%RIGHT_INPUT", params.right_reads)
+                    line = line.replace("%LEFT_INPUT", os.path.abspath(params.left_reads))
+                    line = line.replace("%RIGHT_INPUT", os.path.abspath(params.right_reads))
                 line = line.replace("%THREADS", str(params.num_threads))
                 line = line.replace("%IGREC_TAU", str(params.igrec_tau))
                 line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
@@ -141,7 +141,7 @@ class __StagePrepare:
         self.EnsureExists(dest_dir)
         tmp_file_name = self.__GetUnusedName(dest_dir, makefile_name)
         tmp_file = os.path.join(dest_dir, tmp_file_name)
-        shutil.copyfile(os.path.join("pipeline_makefiles/", stage_template, makefile_name), tmp_file)
+        shutil.copyfile(os.path.join(home_directory, "pipeline_makefiles", stage_template, makefile_name), tmp_file)
         self.__ReplaceVariables(tmp_file, params)
         if tmp_file_name == makefile_name:
             return
