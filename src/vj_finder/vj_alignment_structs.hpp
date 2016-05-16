@@ -52,9 +52,9 @@ namespace vj_finder {
 
         virtual size_t SegmentLength() const = 0;
 
-        virtual size_t LeftUncovered() const { return 0; }
+        virtual int LeftUncovered() const { return 0; }
 
-        virtual size_t RightUncovered() const { return 0; }
+        virtual int RightUncovered() const { return 0; }
 
         double Score() const {
             VERIFY(!Empty());
@@ -80,14 +80,14 @@ namespace vj_finder {
             return block_alignment_.left_half_segment_length();
         }
 
-        virtual size_t LeftUncovered() const {
+        virtual int LeftUncovered() const {
             VERIFY(!Empty());
-            return std::max(0, block_alignment_.start);
+            return std::max(0, -block_alignment_.start());
         }
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return block_alignment_.start;
+            return block_alignment_.start();
         }
 
         virtual int End() const {
@@ -108,9 +108,9 @@ namespace vj_finder {
             return block_alignment_.right_half_segment_length();
         }
 
-        virtual size_t RightUncovered() const {
+        virtual int RightUncovered() const {
             VERIFY(!Empty());
-            return std::max(0, block_alignment_.finish - static_cast<int>(read_ptr_->length()));
+            return std::max(0, block_alignment_.finish() - static_cast<int>(read_ptr_->length()));
         }
 
         virtual int Start() const {
@@ -120,7 +120,7 @@ namespace vj_finder {
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.finish + block_alignment_.read_shift;
+            return block_alignment_.finish();
         }
     };
 
@@ -189,7 +189,6 @@ namespace vj_finder {
         }
 
         size_t AlignedSegmentLength() const {
-            std::cout << GetJHitByIndex(0).End() << " - " << GetVHitByIndex(0).Start() << std::endl;
             return GetJHitByIndex(0).End() - GetVHitByIndex(0).Start();
         }
 

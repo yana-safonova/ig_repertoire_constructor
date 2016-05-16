@@ -15,9 +15,9 @@ namespace algorithms {
 
         int left_shift = this->path.left_shift();
         int right_shift = this->path.right_shift();
-        start = left_shift;
-        finish = right_shift + int(subject_length);
-        int over_start = std::max<int>(0, start);
+        start_ = left_shift;
+        finish_ = right_shift + int(subject_length);
+        int over_start = std::max<int>(0, start_);
 
         int over_finish = std::min<int>(right_shift + subject_length, static_cast<int>(query_length));
         int read_overlap_length = over_finish - over_start; // read overlap

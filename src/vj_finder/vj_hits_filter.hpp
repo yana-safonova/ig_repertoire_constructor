@@ -14,9 +14,12 @@ namespace vj_finder {
     public:
         bool Filter(const VJHits &vj_hits) const {
             bool empty = vj_hits.NumJHits() == 0 or vj_hits.NumVHits() == 0;
-            std::cout << "vj_hits.NumJHits() == 0 or vj_hits.NumVHits() == 0: " << empty << std::endl;
+            TRACE("V hits are empty and J hits are empty: " << empty);
             return vj_hits.NumJHits() == 0 or vj_hits.NumVHits() == 0;
         }
+
+    private:
+        DECL_LOGGER("EmptyHitsFilter");
     };
 
     class LeftCoverageFilter : public VJHitsFilter {
@@ -28,9 +31,13 @@ namespace vj_finder {
 
         bool Filter(const VJHits &vj_hits) const {
             bool bad = vj_hits.GetVHitByIndex(0).LeftUncovered() > left_uncovered_limit_;
-            std::cout << "vj_hits.GetVHitByIndex(0).LeftUncovered() > left_uncovered_limit_: " << bad << std::endl;
+            TRACE("Left uncovered (" << vj_hits.GetVHitByIndex(0).LeftUncovered() <<
+                    ") > limit (" << left_uncovered_limit_ << "): " << bad);
             return vj_hits.GetVHitByIndex(0).LeftUncovered() > left_uncovered_limit_;
         }
+
+    private:
+        DECL_LOGGER("LeftCoverageFilter");
     };
 
     class RightCoverageFilter : public VJHitsFilter {
@@ -42,9 +49,13 @@ namespace vj_finder {
 
         bool Filter(const VJHits &vj_hits) const {
             bool bad = vj_hits.GetJHitByIndex(0).RightUncovered() > right_uncovered_limit_;
-            std::cout << "vj_hits.GetJHitByIndex(0).RightUncovered() > right_uncovered_limit_: " << bad << std::endl;
+            TRACE("Right uncovered (" << vj_hits.GetJHitByIndex(0).RightUncovered() << ") > limit (" <<
+                          right_uncovered_limit_ << "): " << bad);
             return vj_hits.GetJHitByIndex(0).RightUncovered() > right_uncovered_limit_;
         }
+
+    private:
+        DECL_LOGGER("RightCoverageFilter");
     };
 
     class VSegmentLengthFilter : public VJHitsFilter {
@@ -56,9 +67,13 @@ namespace vj_finder {
 
         bool Filter(const VJHits &vj_hits) const {
             bool bad = vj_hits.GetVHitByIndex(0).SegmentLength() < min_v_segment_length_;
-            std::cout << "vj_hits.GetVHitByIndex(0).SegmentLength() < min_v_segment_length_: " << bad << std::endl;
+            TRACE("V segment length (" << vj_hits.GetVHitByIndex(0).SegmentLength() << ") < limit (" <<
+                          min_v_segment_length_ << "): " << bad);
             return vj_hits.GetVHitByIndex(0).SegmentLength() < min_v_segment_length_;
         }
+
+    private:
+        DECL_LOGGER("VSegmentLengthFilter");
     };
 
     class JSegmentLengthFilter : public VJHitsFilter {
@@ -70,9 +85,13 @@ namespace vj_finder {
 
         bool Filter(const VJHits &vj_hits) const {
             bool bad = vj_hits.GetJHitByIndex(0).SegmentLength() < min_j_segment_length_;
-            std::cout << "vj_hits.GetJHitByIndex(0).SegmentLength() < min_j_segment_length_: " << bad << std::endl;
+            TRACE("J segment length (" << vj_hits.GetJHitByIndex(0).SegmentLength() << ") < limit (" <<
+                  min_j_segment_length_ << "): " << bad);
             return vj_hits.GetJHitByIndex(0).SegmentLength() < min_j_segment_length_;
         }
+
+    private:
+        DECL_LOGGER("JSegmentLengthFilter");
     };
 
     class AlignedSegmentLengthFilter : public VJHitsFilter {
@@ -84,9 +103,13 @@ namespace vj_finder {
 
         bool Filter(const VJHits &vj_hits) const {
             bool bad = vj_hits.AlignedSegmentLength() < min_aligned_segment_length_;
-            std::cout << "vj_hits.AlignedSegmentLength (" << vj_hits.AlignedSegmentLength() << ") < min_aligned_segment_length_: " << bad << std::endl;
+            TRACE("Alignment segment length (" << vj_hits.AlignedSegmentLength() << ") < limit ("
+                  << min_aligned_segment_length_ << "): " << bad);
             return vj_hits.AlignedSegmentLength() < min_aligned_segment_length_;
         }
+
+    private:
+        DECL_LOGGER("AlignedSegmentLengthFilter");
     };
 
     class CustomVjHitsFilter {
