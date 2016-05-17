@@ -1,3 +1,5 @@
+#pragma once
+
 #include "vj_finder_config.hpp"
 #include "vj_alignment_structs.hpp"
 
@@ -122,13 +124,13 @@ namespace vj_finder {
     };
 
     class VersatileVjFilter {
-        const vjf_config::AlgorithmParams::FilteringParams &filtering_params_;
+        const VJFinderConfig::AlgorithmParams::FilteringParams &filtering_params_;
         CustomVjHitsFilter custom_vj_filter_;
 
         void InitializeCustomVjFinder();
 
     public:
-        VersatileVjFilter(const vjf_config::AlgorithmParams::FilteringParams &filtering_params) :
+        VersatileVjFilter(const VJFinderConfig::AlgorithmParams::FilteringParams &filtering_params) :
                 filtering_params_(filtering_params) {
             InitializeCustomVjFinder();
         }

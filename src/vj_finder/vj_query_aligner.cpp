@@ -44,7 +44,7 @@ namespace vj_finder {
         TRACE("Kmer index for V gene segment DB was constructed");
         PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> v_aligner(
                 v_kmer_index, v_kmer_index_helper,
-                CreateBlockAlignmentScoring<vjf_config::AlgorithmParams::ScoringParams::VScoringParams>(
+                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams>(
                 algorithm_params_.scoring_params.v_scoring),
                 CreateVBlockAlignerParams());
         TRACE("Computation of V hits");
@@ -80,7 +80,7 @@ namespace vj_finder {
                 j_gene_db, algorithm_params_.aligner_params.word_size_j, j_kmer_index_helper);
         PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> j_aligner(
                 j_kmer_index, j_kmer_index_helper,
-                CreateBlockAlignmentScoring<vjf_config::AlgorithmParams::ScoringParams::JScoringParams>(
+                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::JScoringParams>(
                         algorithm_params_.scoring_params.j_scoring),
                 CreateJBlockAlignerParams());
         auto dj_read_suffix = DefineReadJSuffix(v_aligns, stranded_read.seq);

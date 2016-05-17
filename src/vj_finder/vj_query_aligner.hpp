@@ -7,7 +7,7 @@
 
 namespace vj_finder {
     class VJQueryAligner {
-        const vjf_config::AlgorithmParams & algorithm_params_;
+        const VJFinderConfig::AlgorithmParams & algorithm_params_;
 
         const germline_utils::CustomGeneDatabase &v_custom_db_;
         const germline_utils::CustomGeneDatabase &j_custom_db_;
@@ -50,7 +50,7 @@ namespace vj_finder {
                                             seqan::Dna5String read) const;
 
     public:
-        VJQueryAligner(const vjf_config::AlgorithmParams & algorithm_params,
+        VJQueryAligner(const VJFinderConfig::AlgorithmParams & algorithm_params,
                        const germline_utils::CustomGeneDatabase &v_custom_db,
                        const germline_utils::CustomGeneDatabase &j_custom_db) :
                 algorithm_params_(algorithm_params),

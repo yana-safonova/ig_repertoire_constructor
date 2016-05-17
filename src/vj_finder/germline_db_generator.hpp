@@ -5,8 +5,8 @@
 
 namespace vj_finder {
     class GermlineDbGenerator {
-        const vjf_config::IOParams::InputParams::GermlineInput &germ_input_;
-        const vjf_config::AlgorithmParams::GermlineParams &germ_params_;
+        const VJFinderConfig::IOParams::InputParams::GermlineInput &germ_input_;
+        const VJFinderConfig::AlgorithmParams::GermlineParams &germ_params_;
 
         std::vector<germline_utils::ChainType> chain_types_;
         std::vector<std::string> v_genes_fnames_;
@@ -15,8 +15,8 @@ namespace vj_finder {
         void GenerateGeneFnames();
 
     public:
-        GermlineDbGenerator(const vjf_config::IOParams::InputParams::GermlineInput &germ_input,
-                            const vjf_config::AlgorithmParams::GermlineParams &germ_params) :
+        GermlineDbGenerator(const VJFinderConfig::IOParams::InputParams::GermlineInput &germ_input,
+                            const VJFinderConfig::AlgorithmParams::GermlineParams &germ_params) :
                 germ_input_(germ_input),
                 germ_params_(germ_params) {
             GenerateGeneFnames();

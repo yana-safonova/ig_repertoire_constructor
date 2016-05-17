@@ -5,7 +5,7 @@
 #include <boost/property_tree/ptree_fwd.hpp>
 
 namespace vj_finder {
-    struct vjf_config {
+    struct VJFinderConfig {
         struct RunParams {
             size_t num_threads;
         };
@@ -35,10 +35,10 @@ namespace vj_finder {
                 };
 
                 struct OutputDetails {
-                    bool verbose;
                     bool compress;
                     bool fix_spaces;
                     std::string separator;
+                    size_t num_aligned_candidates;
                 };
 
                 OutputFiles output_files;
@@ -61,6 +61,7 @@ namespace vj_finder {
             };
 
             struct FilteringParams {
+                bool enable_filtering;
                 size_t min_v_segment_length;
                 size_t min_j_segment_length;
                 size_t left_uncovered_limit;
@@ -76,10 +77,13 @@ namespace vj_finder {
             };
 
             struct FixCropFillParams {
-                bool fill_left;
-                bool fill_right;
+                bool enable_fixing;
                 size_t fix_left;
                 size_t fix_right;
+                bool enable_filling;
+                bool fill_left;
+                bool fill_right;
+                bool enable_cropping;
                 bool crop_left;
                 bool crop_right;
             };
@@ -123,7 +127,7 @@ namespace vj_finder {
         AlgorithmParams algorithm_params;
     };
 
-    void load(vjf_config &cfg, std::string const &filename);
+    void load(VJFinderConfig &cfg, std::string const &filename);
 
-    typedef config_common::config<vjf_config> vjf_cfg;
+    typedef config_common::config<VJFinderConfig> vjf_cfg;
 }

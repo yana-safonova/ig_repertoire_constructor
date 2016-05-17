@@ -9,28 +9,28 @@ io_params {
         config_dir ./configs/vj_finder
 
         germline_input {
-            ig_dir    IG
-            tcr_dir   TCR
+            ig_dir                    IG
+            tcr_dir                   TCR
             germline_filenames_config germline_files_config.txt
         }
     }
 
      output_params {
         output_files {
-            output_dir    vjf_test
-            log_filename  log.properties
-            output_filename     oppa1        
-            bad_output_filename    oppa2
-            add_info_filename    alignment_info.csv
-            discard_info_filename    oppa4
+            output_dir              vjf_test
+            log_filename            log.properties
+            output_filename         oppa1        
+            bad_output_filename     oppa2
+            add_info_filename       alignment_info.csv
+            discard_info_filename   oppa4
             valignments_filename    oppa5
         }
 
         output_details {
-            verbose             true
-            compress             false
-            fix_spaces             true
-            separator    comma
+            compress                 false
+            fix_spaces               true
+            separator                comma
+            num_aligned_candidates   1
         }
     }
 }
@@ -54,6 +54,7 @@ algorithm_params {
     }
 
     filtering_params {
+        enable_filtering            true
         left_uncovered_limit        16
         right_uncovered_limit       5
         min_v_segment_length        250
@@ -62,6 +63,9 @@ algorithm_params {
     }
             
     fix_crop_fill_params {
+        enable_filling  true
+        enable_fixing   true
+        enable_cropping true
         fill_left       true
         fill_right      false
         fix_left        3
@@ -71,26 +75,26 @@ algorithm_params {
     }
 
     scoring_params {
-			v_scoring {
-				max_global_gap 				24
-				max_local_insertions		12
-				max_local_deletions			12
-				gap_opening_cost			4
-				gap_extention_cost			1
-                mismatch_extention_cost		0
-                mismatch_opening_cost		0
-                match_reward				1
-			}
+        v_scoring {
+            max_global_gap              24
+            max_local_insertions        12
+            max_local_deletions	        12
+            gap_opening_cost            4
+            gap_extention_cost          1
+            mismatch_extention_cost     0
+            mismatch_opening_cost       0
+            match_reward                1
+        }
 
-			j_scoring {
-                max_global_gap              24
-                max_local_insertions        12
-                max_local_deletions         12
-                gap_opening_cost            5
-                gap_extention_cost          2
-                mismatch_extention_cost     0
-                mismatch_opening_cost       0
-                match_reward                1
-			}
+        j_scoring {
+            max_global_gap              24
+            max_local_insertions        12
+            max_local_deletions         12
+            gap_opening_cost            5
+            gap_extention_cost          2
+            mismatch_extention_cost     0
+            mismatch_opening_cost       0
+            match_reward                1
+        }
     }
 }

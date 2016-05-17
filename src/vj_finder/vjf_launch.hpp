@@ -4,12 +4,12 @@
 
 namespace vj_finder {
     class VJFinderLaunch {
-        const vjf_config &config_;
+        const VJFinderConfig &config_;
 
 
 
     public:
-        VJFinderLaunch(const vjf_config &config) :
+        VJFinderLaunch(const VJFinderConfig &config) :
                 config_(config) { }
 
         void Run();
