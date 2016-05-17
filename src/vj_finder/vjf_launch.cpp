@@ -4,9 +4,8 @@
 
 #include <read_archive.hpp>
 #include "germline_db_generator.hpp"
-#include "vj_query_aligner.hpp"
-#include "vj_hits_filter.hpp"
-
+#include "vj_alignment_info.hpp"
+#include "vj_query_processing.hpp"
 
 namespace vj_finder {
     void CreateAlignmentOutput(std::ofstream& fhandler, const core::Read& read, const VJHits& vj_hits) {
@@ -28,22 +27,11 @@ namespace vj_finder {
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
-        VJQueryAligner vj_query_aligner(config_.algorithm_params, v_db, j_db);
-        VersatileVjFilter vj_filter(config_.algorithm_params.filtering_params);
-        std::string alignment_info = config_.io_params.output_params.output_files.add_info_filename;
-        std::ofstream alignment_info_fhandler(alignment_info);
         for(auto it = read_archive.cbegin(); it != read_archive.cend(); it++) {
             TRACE("Processing read: " << it->name << ", id: " << it->id << ", length: " << it->length());
-            auto vj_hits = vj_query_aligner.Align(*it);
-            if(!vj_filter.Filter(vj_hits)) {
-                TRACE("Read is good");
-                CreateAlignmentOutput(alignment_info_fhandler, *it, vj_hits);
-            }
-            else
-                TRACE("Read was filtered out");
+            VJQueryProcessor vj_query_processor(config_.algorithm_params, v_db, j_db);
+            auto vj_hits = vj_query_processor.Process(*it);
         }
-        INFO("Alignment information was written to " << alignment_info);
-        alignment_info_fhandler.close();
         INFO("== VJ Finder ends == ");
     }
 }

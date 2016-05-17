@@ -32,7 +32,7 @@ std::string running_time_format(const perf_counter &pc) {
     return bf.str();
 }
 
-void prepare_output_dir(const vj_finder::vjf_config::IOParams::OutputParams::OutputFiles & of) {
+void prepare_output_dir(const vj_finder::VJFinderConfig::IOParams::OutputParams::OutputFiles & of) {
     path::make_dir(of.output_dir);
 }
 

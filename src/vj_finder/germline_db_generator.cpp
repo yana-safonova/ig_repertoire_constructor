@@ -139,10 +139,10 @@ namespace vj_finder {
     };
 
     class ChainDirectoryParam {
-        const vjf_config::IOParams::InputParams::GermlineInput &gi_;
+        const VJFinderConfig::IOParams::InputParams::GermlineInput &gi_;
 
     public:
-        ChainDirectoryParam(const vjf_config::IOParams::InputParams::GermlineInput &gi) :
+        ChainDirectoryParam(const VJFinderConfig::IOParams::InputParams::GermlineInput &gi) :
                 gi_(gi) { }
 
         std::string GetDirByChainType(germline_utils::ChainType chain_type) {
