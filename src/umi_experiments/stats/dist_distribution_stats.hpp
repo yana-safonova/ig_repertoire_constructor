@@ -4,8 +4,10 @@
 
 class DistDistributionStats {
 public:
-    DistDistributionStats(std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution, std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution)
-            : hamming_dist_distribution_(hamming_dist_distribution), sw_dist_distribution_(sw_dist_distribution) {};
+    DistDistributionStats(std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution, std::map<size_t, std::map<size_t, size_t>> min_hamming_dist_distribution,
+                          std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution, std::map<size_t, std::map<size_t, size_t>> min_sw_dist_distribution)
+            : hamming_dist_distribution_(hamming_dist_distribution), min_hamming_dist_distribution_(min_hamming_dist_distribution),
+              sw_dist_distribution_(sw_dist_distribution), min_sw_dist_distribution_(min_sw_dist_distribution) {};
 
     std::vector<size_t> GetSizes();
 
@@ -15,5 +17,7 @@ public:
 
 private:
     std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution_;
+    std::map<size_t, std::map<size_t, size_t>> min_hamming_dist_distribution_;
     std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution_;
+    std::map<size_t, std::map<size_t, size_t>> min_sw_dist_distribution_;
 };

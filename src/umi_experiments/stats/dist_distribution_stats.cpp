@@ -17,7 +17,9 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
     for (auto& entry : umi_to_reads) {
         read_groups.push_back(entry.second);
     }
+    std::map<size_t, std::map<size_t, size_t>> min_hamming_dist_distribution;
     std::map<size_t, std::map<size_t, size_t>> hamming_dist_distribution;
+    std::map<size_t, std::map<size_t, size_t>> min_sw_dist_distribution;
     std::map<size_t, std::map<size_t, size_t>> sw_dist_distribution;
     std::atomic<size_t> processed;
     processed = 0;
@@ -27,8 +29,12 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
     for (size_t group = 0; group < read_groups.size(); group ++) {
         auto& reads = read_groups[group];
         std::map<size_t, size_t> current_hamming_distribution;
+        std::map<size_t, size_t> current_min_hamming_distribution;
         std::map<size_t, size_t> current_sw_distribution;
+        std::map<size_t, size_t> current_min_sw_distribution;
         for (size_t i = 0; i < reads.size(); i++) {
+            size_t min_hamming = std::numeric_limits<size_t>::max();
+            size_t min_sw = std::numeric_limits<size_t>::max();
             for (size_t j = 0; j < i; j++) {
                 auto& first = input_reads[reads[i]];
                 auto& second = input_reads[reads[j]];
@@ -36,7 +42,11 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
                 size_t sw_dist = get_sw_dist(first, second);
                 current_hamming_distribution[hamming_dist] ++;
                 current_sw_distribution[sw_dist] ++;
+                min_hamming = hamming_dist > 0 && hamming_dist < min_hamming ? hamming_dist : min_hamming;
+                min_sw = sw_dist > 0 && sw_dist < min_sw ? sw_dist : min_sw;
             }
+            current_min_hamming_distribution[min_hamming] ++;
+            current_min_sw_distribution[min_sw] ++;
         }
 #pragma omp critical
         {
@@ -54,7 +64,7 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
             }
         }
     }
-    return DistDistributionStats(hamming_dist_distribution, sw_dist_distribution);
+    return DistDistributionStats(hamming_dist_distribution, min_hamming_dist_distribution, sw_dist_distribution, min_sw_dist_distribution);
 }
 
 std::vector<size_t> DistDistributionStats::GetSizes() {
@@ -76,10 +86,12 @@ std::string DistDistributionStats::ToString(size_t umi_size) {
 
     std::stringstream ss;
     char buf[100];
-    sprintf(buf, "%5s%10s%10s", "dist", "hamming", "sw");
+    sprintf(buf, "%5s%10s%10s%10s%10s", "dist", "min ham", "min sw", "hamming", "sw");
     ss << buf << std::endl;
     for (size_t i = 0; i <= max_dist; i ++) {
-        sprintf(buf, "%5d%10d%10d", static_cast<int>(i), static_cast<int>(hamming_dist_distribution_[umi_size][i]), static_cast<int>(sw_dist_distribution_[umi_size][i]));
+        sprintf(buf, "%5d%10d%10d%10d%10d", static_cast<int>(i),
+                static_cast<int>(min_hamming_dist_distribution_[umi_size][i]), static_cast<int>(min_sw_dist_distribution_[umi_size][i]),
+                static_cast<int>(hamming_dist_distribution_[umi_size][i]), static_cast<int>(sw_dist_distribution_[umi_size][i]));
         ss << buf << std::endl;
     }
     return ss.str();
