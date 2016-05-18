@@ -437,10 +437,10 @@ def CreateReadIndexMap(igblast_output):
         index += 1
     #print(igblast_output.read_index)
 
-def ParseIgBlastOutput(igblast_fname, log):
+def ParseIgBlastOutput(igblast_fname, log, openfnc=open):
     if not os.path.exists(igblast_fname):
         log.info("ERROR: IgBlast output file " + igblast_fname + " was not found")
-    output = open(igblast_fname, "r")
+    output = openfnc(igblast_fname, "r")
     lines = output.readlines()
     igblast_output = CreateIgblastOutput(lines)
     CreateReadIndexMap(igblast_output)
