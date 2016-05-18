@@ -248,10 +248,9 @@ class HitTableRow:
         self.s_end = int(splits[BlockConfig.hit_s_end]) - 1
         self.evalue = float(splits[BlockConfig.hit_evalue])
         self.bit_score = float(splits[BlockConfig.hit_bit_score])
-        self.subject_length = int(splits[BlockConfig.hit_subject_length])
 
     def __str__(self):
-        return self.type + ": " + self.query_id + ", " + self.subject_id + ", " + str(self.perc_identity) + ", " + str(self.align_length) + ", " + str(self.mismatches) + ", " + str(self.gap_open) + ", " + str(self.gaps) + ", " + str(self.q_start) + ", " + str(self.q_end) + ", " + str(self.s_start) + ", " + str(self.s_end) + ", " + str(self.evalue) + ", " + str(self.bit_score) + ", " + str(self.subject_length)
+        return self.type + ": " + self.query_id + ", " + self.subject_id + ", " + str(self.perc_identity) + ", " + str(self.align_length) + ", " + str(self.mismatches) + ", " + str(self.gap_open) + ", " + str(self.gaps) + ", " + str(self.q_start) + ", " + str(self.q_end) + ", " + str(self.s_start) + ", " + str(self.s_end) + ", " + str(self.evalue) + ", " + str(self.bit_score)
 
 class HitTable:
     def __init__(self):
