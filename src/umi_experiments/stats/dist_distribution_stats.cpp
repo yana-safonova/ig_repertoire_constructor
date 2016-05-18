@@ -56,7 +56,15 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
         {
             for (auto &entry : current_hamming_distribution) {
                 hamming_dist_distribution[reads.size()][entry.first] += entry.second;
-                sw_dist_distribution[reads.size()][entry.first] += current_sw_distribution[entry.first];
+            }
+            for (auto &entry : current_min_hamming_distribution) {
+                min_hamming_dist_distribution[reads.size()][entry.first] += entry.second;
+            }
+            for (auto &entry : current_sw_distribution) {
+                sw_dist_distribution[reads.size()][entry.first] += entry.second;
+            }
+            for (auto &entry : current_min_sw_distribution) {
+                min_sw_dist_distribution[reads.size()][entry.first] += entry.second;
             }
             processed += reads.size();
             while (processed * 100 >= input_reads.size() * next_percent) {
