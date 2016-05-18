@@ -27,9 +27,9 @@ namespace vj_finder {
                 struct OutputFiles {
                     std::string output_dir;
                     std::string log_filename;
-                    std::string output_filename;
-                    std::string bad_output_filename;
-                    std::string add_info_filename;
+                    std::string cleaned_reads_fname;
+                    std::string filtered_reads_fname;
+                    std::string alignment_info_fname;
                     std::string discard_info_filename;
                     std::string valignments_filename;
                 };

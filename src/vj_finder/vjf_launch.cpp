@@ -27,11 +27,20 @@ namespace vj_finder {
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
+        VJAlignmentInfo alignment_info;
         for(auto it = read_archive.cbegin(); it != read_archive.cend(); it++) {
             TRACE("Processing read: " << it->name << ", id: " << it->id << ", length: " << it->length());
             VJQueryProcessor vj_query_processor(config_.algorithm_params, v_db, j_db);
             auto vj_hits = vj_query_processor.Process(*it);
+            if(vj_hits)
+                alignment_info.UpdateFilteredReads(*it);
+            else
+                alignment_info.UpdateHits(*vj_hits);
         }
+        VJAlignmentOutput alignment_info_output(config_.io_params.output_params, alignment_info);
+        alignment_info_output.OutputAlignmentInfo();
+        alignment_info_output.OutputCleanedReads();
+        alignment_info_output.OutputFilteredReads();
         INFO("== VJ Finder ends == ");
     }
 }

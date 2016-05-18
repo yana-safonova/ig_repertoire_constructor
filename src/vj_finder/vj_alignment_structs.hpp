@@ -192,6 +192,7 @@ namespace vj_finder {
             return GetJHitByIndex(0).End() - GetVHitByIndex(0).Start();
         }
 
+        const core::Read& Read() const { return read_; }
     };
 
     class CustomGermlineDbHelper : public algorithms::KmerIndexHelper<germline_utils::CustomGeneDatabase,
