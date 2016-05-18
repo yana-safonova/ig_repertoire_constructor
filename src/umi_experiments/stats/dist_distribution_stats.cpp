@@ -45,8 +45,12 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
                 min_hamming = hamming_dist > 0 && hamming_dist < min_hamming ? hamming_dist : min_hamming;
                 min_sw = sw_dist > 0 && sw_dist < min_sw ? sw_dist : min_sw;
             }
-            current_min_hamming_distribution[min_hamming] ++;
-            current_min_sw_distribution[min_sw] ++;
+            if (min_hamming < std::numeric_limits<size_t>::max()) {
+                current_min_hamming_distribution[min_hamming]++;
+            }
+            if (min_sw < std::numeric_limits<size_t>::max()) {
+                current_min_sw_distribution[min_sw]++;
+            }
         }
 #pragma omp critical
         {
