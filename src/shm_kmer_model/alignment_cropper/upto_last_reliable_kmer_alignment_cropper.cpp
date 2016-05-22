@@ -13,7 +13,7 @@ UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
                          std::pow(hash_base, kmer_len - 1))))
     { }
 
-void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::GermlineReadPair &alignment) {
+void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlinePair &alignment) {
     using std::pair;
     using std::make_pair;
     using std::string;

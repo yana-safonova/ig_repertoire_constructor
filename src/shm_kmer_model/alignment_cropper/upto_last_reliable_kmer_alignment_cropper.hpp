@@ -21,7 +21,7 @@ public:
     UptoLastReliableKmerAlignmentCropper(const shm_config::alignment_cropper_params::
         upto_reliable_kmer_cropper_params& config);
 
-    void crop(ns_gene_alignment::GermlineReadPair& alignment);
+    void crop(ns_gene_alignment::ReadGermlinePair& alignment);
     ~UptoLastReliableKmerAlignmentCropper() { }
 
 private:

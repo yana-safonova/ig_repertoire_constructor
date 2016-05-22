@@ -31,12 +31,12 @@ AlignmentReader::AlignmentReader(const std::string &alignments_filename,
     }
 }
 
-ns_gene_alignment::VectorGermlineReadPairs AlignmentReader::read_alignments() {
+ns_gene_alignment::VectorReadGermlinePairs AlignmentReader::read_alignments() {
     std::vector<seqan::CharString> names;
     std::vector<seqan::CharString> reads;
     seqan::SeqFileIn seqFileIn(alignments_filename_.c_str());
     seqan::readRecords(names, reads, seqFileIn);
-    VectorGermlineReadPairs alignments;
+    VectorReadGermlinePairs alignments;
     alignments.reserve(reads.size());
 
     auto ReadIterator = reads.cbegin();
@@ -45,7 +45,7 @@ ns_gene_alignment::VectorGermlineReadPairs AlignmentReader::read_alignments() {
         ++ReadIterator;
         assert(ReadIterator != reads.cend());
         std::string read_seq = std::string(seqan::toCString(*ReadIterator));
-        GermlineReadPair alignment(std::move(germline_seq), std::move(read_seq));
+        ReadGermlinePair alignment(std::move(germline_seq), std::move(read_seq));
         if (alignment_checker_ptr_ -> check(alignment)) {
             std::cout << alignment.first << std::endl;
             std::cout << alignment.second << std::endl;

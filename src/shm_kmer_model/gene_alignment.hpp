@@ -13,6 +13,6 @@ namespace ns_gene_alignment {
     // using DnaGappedAlignment = seqan::Align<DnaGappedString, seqan::ArrayGaps>;
 
     // We place germline and read as pure c++ strings here for now.
-    using GermlineReadPair = std::pair<std::string, std::string>;
-    using VectorGermlineReadPairs = std::vector<ns_gene_alignment::GermlineReadPair>;
+    using ReadGermlinePair = std::pair<std::string, std::string>;
+    using VectorReadGermlinePairs = std::vector<ns_gene_alignment::ReadGermlinePair>;
 }

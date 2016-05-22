@@ -12,7 +12,7 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() {
     ns_alignment_reader::AlignmentReader alignment_reader(io_params_.input.input_filename,
                                                           alignment_checker_params_,
                                                           alignment_cropper_params_);
-    ns_gene_alignment::VectorGermlineReadPairs alignments(alignment_reader.read_alignments());
+    ns_gene_alignment::VectorReadGermlinePairs alignments(alignment_reader.read_alignments());
     // for (auto& alignment : alignments) {
     //     INFO(alignment.first);
     //     INFO(alignment.second);

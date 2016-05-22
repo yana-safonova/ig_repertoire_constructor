@@ -7,7 +7,7 @@
 #include "no_gaps_alignment_checker.hpp"
 #include "../gene_alignment.hpp"
 
-bool NoGapsAlignmentChecker::check(const ns_gene_alignment::GermlineReadPair & germline_read_pair) {
+bool NoGapsAlignmentChecker::check(const ns_gene_alignment::ReadGermlinePair & germline_read_pair) {
     return germline_read_pair.first.find_first_of('-') == std::string::npos &&
            germline_read_pair.second.find_first_of('-') == std::string::npos;
 }

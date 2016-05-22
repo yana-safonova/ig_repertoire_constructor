@@ -10,7 +10,7 @@
 namespace ns_abstract_alignment_cropper {
 class AbstractAlignmentCropper {
 public:
-    virtual void crop(ns_gene_alignment::GermlineReadPair &) = 0;
+    virtual void crop(ns_gene_alignment::ReadGermlinePair &) = 0;
     virtual ~AbstractAlignmentCropper() { }
 };
 using AbstractAlignmentCropperPtr = std::shared_ptr<AbstractAlignmentCropper>;
