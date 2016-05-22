@@ -37,8 +37,8 @@ void load(shm_config::alignment_checker_params& achp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
-    if (pt.get<std::string>("alignment_checker_method") == "NoGapsAlignmentCheckerConfig") {
-        achp.alignment_checker_method = AlignmentCheckerMethod::NoGapsAlignmentCheckerConfig;
+    if (pt.get<std::string>("alignment_checker_method") == "NoGapsAlignmentChecker") {
+        achp.alignment_checker_method = AlignmentCheckerMethod::NoGapsAlignmentChecker;
     }
 }
 // Alignment Checker parameters FINISH
@@ -48,6 +48,7 @@ void load(shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_param
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     load(rkmp.kmer_len, pt, "kmer_len");
+    load(rkmp.hash_base, pt, "hash_base");
 }
 
 void load(shm_config::alignment_cropper_params& acrp,
@@ -62,24 +63,24 @@ void load(shm_config::alignment_cropper_params& acrp,
 // Alignment Cropper parameters FINISH
 
 // Mismatch Finder parameters START
-void load(shm_config::mismatch_finder_params::trivial_mismatch_finder_params& tmfp,
-          boost::property_tree::ptree const& pt, bool) { }
+void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params& tmfp,
+          boost::property_tree::ptree const&, bool) { }
 
-void load(shm_config::mismatch_finder_params::no_kneighbours_mismatch_finder_params& nknmfp,
+void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params& nknmfp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     load(nknmfp.kmer_len, pt, "kmer_len");
 }
 
-void load(shm_config::mismatch_finder_params& mfp,
+void load(shm_config::mutations_strategy_params& mfp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
-    using MismatchFinderMethod = shm_config::mismatch_finder_params::MismatchFinderMethod;
-    if (pt.get<std::string>("mismatch_finder_method") == "Trivial") {
-        mfp.mismatch_finder_method = MismatchFinderMethod::Trivial;
+    using MutationsStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
+    if (pt.get<std::string>("mutations_strategy_method") == "Trivial") {
+        mfp.mutations_strategy_method = MutationsStrategyMethod::Trivial;
         load(mfp.tmfp, pt, "method_params");
-    } else if (pt.get<std::string>("mismatch_finder_method") == "NoKNeighbours") {
-        mfp.mismatch_finder_method = MismatchFinderMethod::NoKNeighbours;
+    } else if (pt.get<std::string>("mutations_strategy_method") == "NoKNeighbours") {
+        mfp.mutations_strategy_method = MutationsStrategyMethod::NoKNeighbours;
         load(mfp.nknmfp, pt, "method_params");
     }
 }
@@ -91,7 +92,7 @@ void load(shm_config& cfg, boost::property_tree::ptree const& pt, bool complete)
     load(cfg.io, pt, "io_params", complete);
     load(cfg.achp, pt, "alignment_checker_params");
     load(cfg.acrp, pt, "alignment_cropper_params");
-    load(cfg.mfp, pt, "mismatch_finder_params");
+    load(cfg.mfp, pt, "mutations_strategy_params");
 }
 
 void load(shm_config& cfg, std::string const& filename) {

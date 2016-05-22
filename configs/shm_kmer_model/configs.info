@@ -1,6 +1,6 @@
 io_params {
     input_params {
-        input_filename src/shm_kmer_model/test/shm_kmer_model_test.fastq
+        input_filename src/shm_kmer_model/test/shm_kmer_model_test.fasta
     }
     output_params {
         output_dir shm_test
@@ -10,18 +10,19 @@ io_params {
 }
 
 alignment_checker_params {
-    alignment_checker_method NoGapsAlignmentCheckerConfig
+    alignment_checker_method NoGapsAlignmentChecker
 }
 
 alignment_cropper_params {
     alignment_cropper_method UptoLastReliableKMer
     method_params {
         kmer_len 5
+        hash_base 7
     }
 }
 
-mismatch_finder_params {
-    mismatch_finder_method NoKNeighbour
+mutations_strategy_params {
+    mutations_strategy_method NoKNeighbours
     method_params {
         kmer_len 5
     }

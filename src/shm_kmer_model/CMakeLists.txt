@@ -11,7 +11,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
 
 add_executable(shm_kmer_model
-               main.cpp shm_config.hpp shm_config.cpp shm_kmer_model_estimator.hpp shm_kmer_model_estimator.cpp)
+               main.cpp shm_config.hpp shm_config.cpp shm_kmer_model_estimator.hpp shm_kmer_model_estimator.cpp alignment_reader.cpp gene_alignment.hpp alignment_checker/abstract_alignment_checker.hpp alignment_checker/no_gaps_alignment_checker.hpp alignment_checker/no_gaps_alignment_checker.cpp alignment_cropper/abstract_alignment_cropper.hpp alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp mutations_strategies/abstract_mutation_strategy.hpp)
 
 target_link_libraries(shm_kmer_model input yaml-cpp graph_utils ${COMMON_LIBRARIES})
 

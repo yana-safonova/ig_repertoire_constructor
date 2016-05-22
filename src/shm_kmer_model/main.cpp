@@ -1,3 +1,4 @@
+// TODO remove that standard.hpp include! Cosmetic refactoring of SPAdes utils is needed.
 #include "standard.hpp"
 #include "logger/log_writers.hpp"
 
@@ -7,27 +8,27 @@
 #include "shm_kmer_model_estimator.hpp"
 
 void make_dirs() {
-    make_dir(shm_cfg::get().io.output.output_dir);
+    path::make_dir(shm_cfg::get().io.output.output_dir);
 }
 
-void copy_configs(string cfg_filename, string to) {
-    if (!make_dir(to)) {
+void copy_configs(std::string cfg_filename, std::string to) {
+    if (!path::make_dir(to)) {
         WARN("Could not create files use in /tmp directory");
     }
     path::copy_files_by_ext(path::parent_path(cfg_filename), to, ".info", true);
 }
 
-void load_config(string cfg_filename) {
+void load_config(std::string cfg_filename) {
     path::CheckFileExistenceFATAL(cfg_filename);
     shm_cfg::create_instance(cfg_filename);
-    string path_to_copy = path::append_path(shm_cfg::get().io.output.output_dir, "configs");
+    std::string path_to_copy = path::append_path(shm_cfg::get().io.output.output_dir, "configs");
     copy_configs(cfg_filename, path_to_copy);
 }
 
-void create_console_logger(string cfg_filename) {
+void create_console_logger(std::string cfg_filename) {
     using namespace logging;
 
-    string log_props_file = shm_cfg::get().io.output.log_filename;
+    std::string log_props_file = shm_cfg::get().io.output.log_filename;
 
     if (!path::FileExists(log_props_file)){
         log_props_file = path::append_path(path::parent_path(cfg_filename),
@@ -50,10 +51,11 @@ int main(int argc, char* argv[]) {
     segfault_handler sh;
 
     try {
-        string cfg_filename = argv[1];
+        std::string cfg_filename = argv[1];
         load_config(cfg_filename);
         create_console_logger(cfg_filename);
         make_dirs();
+
         int error_code =  shm_kmer_model_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
                                                                           shm_cfg::get().achp,
                                                                           shm_cfg::get().acrp,

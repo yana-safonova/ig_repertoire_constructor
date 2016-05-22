@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "io/library.hpp"
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 
@@ -25,7 +24,7 @@ struct shm_config {
     };
 
     struct alignment_checker_params {
-        enum class AlignmentCheckerMethod { NoGapsAlignmentCheckerConfig };
+        enum class AlignmentCheckerMethod { NoGapsAlignmentChecker};
         AlignmentCheckerMethod alignment_checker_method;
     };
 
@@ -34,6 +33,7 @@ struct shm_config {
         struct upto_reliable_kmer_cropper_params :
             public alignment_cropper_method_params {
             unsigned int kmer_len;
+            unsigned int hash_base;
         };
         enum class AlignmentCropperMethod { UptoLastReliableKMer };
         AlignmentCropperMethod alignment_cropper_method;
@@ -41,26 +41,26 @@ struct shm_config {
         upto_reliable_kmer_cropper_params rkmp;
     };
 
-    struct mismatch_finder_params {
-        struct mismatch_finder_method_params { };
-        struct trivial_mismatch_finder_params:
-            public mismatch_finder_method_params { };
-        struct no_kneighbours_mismatch_finder_params:
-            public mismatch_finder_method_params {
+    struct mutations_strategy_params {
+        struct mutations_strategy_method_params { };
+        struct trivial_mutations_strategy_params:
+            public mutations_strategy_method_params { };
+        struct no_kneighbours_mutations_strategy_params:
+            public mutations_strategy_method_params {
             unsigned int kmer_len;
         };
 
-        enum class MismatchFinderMethod { Trivial, NoKNeighbours };
-        MismatchFinderMethod mismatch_finder_method;
+        enum class MutationsStrategyMethod { Trivial, NoKNeighbours };
+        MutationsStrategyMethod mutations_strategy_method;
 
-        trivial_mismatch_finder_params tmfp;
-        no_kneighbours_mismatch_finder_params nknmfp;
+        trivial_mutations_strategy_params tmfp;
+        no_kneighbours_mutations_strategy_params nknmfp;
     };
 
     io_params io;
     alignment_checker_params achp;
     alignment_cropper_params acrp;
-    mismatch_finder_params mfp;
+    mutations_strategy_params mfp;
 };
 
 void load(shm_config &cfg, std::string const &filename);
