@@ -1,5 +1,6 @@
 #include "vj_query_processing.hpp"
 #include "vj_hits_filter.hpp"
+#include "vj_query_fix_fill_crop.hpp"
 
 namespace vj_finder {
     ProcessedVJHits VJQueryProcessor::ComputeFilteringResults(VJHits vj_hits) {
@@ -20,7 +21,7 @@ namespace vj_finder {
         ProcessedVJHits hits_after_fitering = ComputeFilteringResults(vj_hits);
         if(!hits_after_fitering)
             return hits_after_fitering;
-        VERIFY_MSG(false, "Implement fix, fill, crop");
-        return hits_after_fitering;
+        FillFixCropProcessor fix_processor(params_.fix_crop_fill_params);
+        return ProcessedVJHits(fix_processor.Process(*hits_after_fitering));
     }
 }

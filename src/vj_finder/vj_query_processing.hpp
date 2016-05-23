@@ -4,11 +4,7 @@
 #include "vj_alignment_structs.hpp"
 #include "vj_finder_config.hpp"
 
-#include <boost/optional.hpp>
-
 namespace vj_finder {
-    typedef boost::optional<VJHits> ProcessedVJHits;
-
     class VJQueryProcessor {
         const VJFinderConfig::AlgorithmParams &params_;
         const germline_utils::CustomGeneDatabase &v_db_;

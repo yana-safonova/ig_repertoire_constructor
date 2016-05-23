@@ -20,6 +20,7 @@ add_executable(vj_finder
         vj_query_aligner.cpp
         vj_hits_filter.cpp
         vj_alignment_info.cpp
+        vj_query_fix_fill_crop.cpp
         vj_query_processing.cpp
         vjf_launch.cpp
         main.cpp
