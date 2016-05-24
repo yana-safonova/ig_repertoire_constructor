@@ -10,8 +10,9 @@ namespace vj_finder {
             if(vj_filter.Filter(vj_hits))
                 read_to_be_filtered = true;
         }
-        if(read_to_be_filtered)
+        if(read_to_be_filtered) {
             return ProcessedVJHits();
+        }
         return ProcessedVJHits(vj_hits);
     }
 
