@@ -5,15 +5,13 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithAsserts" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
-
-
 add_subdirectory(configs)
 add_subdirectory(src)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}" CACHE PATH "default install path" FORCE)
+  set(CMAKE_INSTALL_PREFIX "/opt" CACHE PATH "default install path" FORCE)
 endif()
-set(INSTALL_DIR ".")
+set(INSTALL_DIR "igrec")
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/VERSION"
               "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
@@ -50,3 +48,6 @@ install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_compress_equal_clusters.py"
                  "${CMAKE_CURRENT_SOURCE_DIR}/py/rcm_recoverer.py"
         DESTINATION "${INSTALL_DIR}/py"
         COMPONENT runtime)
+
+# Make symlink if possible (return 0 in any case)
+install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/igrec.py\" \"/usr/bin/igrec.py\")")
