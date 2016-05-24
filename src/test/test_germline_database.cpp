@@ -5,9 +5,9 @@
 #include <gtest/gtest.h>
 #include <logger/log_writers.hpp>
 
-#include "../vdj_utils/germline_utils/germline_databases/immune_gene_database.hpp"
-#include "../vdj_utils/germline_utils/germline_databases/chain_database.hpp"
-#include "../vdj_utils/germline_utils/germline_databases/custom_gene_database.hpp"
+#include <germline_utils/germline_databases/immune_gene_database.hpp>
+#include <germline_utils/germline_databases/chain_database.hpp>
+#include <germline_utils/germline_databases/custom_gene_database.hpp>
 
 void create_console_logger() {
     using namespace logging;
