@@ -1,6 +1,12 @@
 all:
 	$(MAKE) -C build/release all
 
+# Default install prefix
+prefix?="/opt/"
+
+install:
+	cd build/release && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -P cmake_install.cmake
+
 rig:
 	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
 
