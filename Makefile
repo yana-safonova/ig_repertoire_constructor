@@ -1,10 +1,15 @@
-all:
+all: igrec
+
+igrec: build/release/Makefile
 	$(MAKE) -C build/release all
+
+build/release/Makefile: prepare_cfg
+	./prepare_cfg
 
 # Default install prefix
 prefix?="/opt/"
 
-install:
+install: igrec
 	cd build/release && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -P cmake_install.cmake
 
 rig:
