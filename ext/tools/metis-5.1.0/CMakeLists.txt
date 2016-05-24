@@ -74,8 +74,8 @@ endif()
 
 target_link_libraries(metis ${COMMON_LIBRARIES} m)
 
-install(TARGETS metis
-        RUNTIME DESTINATION bin)
+# install(TARGETS metis
+#         RUNTIME DESTINATION bin)
 
 # Try to find subversion revision.
 set(SVNREV "")
