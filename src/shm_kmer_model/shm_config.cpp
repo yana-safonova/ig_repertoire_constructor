@@ -2,9 +2,30 @@
 // Created by Andrew Bzikadze on 5/14/16.
 //
 
+#include <stdexcept>
+#include <algorithm>
+
 #include "shm_config.hpp"
 
 #include "../include/config_common.hpp"
+
+std::string error_message_strategy(const std::string& what_about,
+                                   const std::string& supplied_method,
+                                   const std::vector<std::string>& available_methods)
+{
+    std::string message(":::(config) wrong ");
+    message += what_about;
+    message += " method: ";
+    message += supplied_method;
+    message += ". Available: ";
+    for (auto available_method = available_methods.begin();
+         available_method != available_methods.end();
+         ++available_method) {
+        message += *available_method + ", ";
+    }
+    message += ":::";
+    return message;
+}
 
 // IO parameters START
 void updateIO(shm_config::io_params &io) {
@@ -37,8 +58,17 @@ void load(shm_config::alignment_checker_params& achp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
-    if (pt.get<std::string>("alignment_checker_method") == "NoGapsAlignmentChecker") {
-        achp.alignment_checker_method = AlignmentCheckerMethod::NoGapsAlignmentChecker;
+    std::string method_str(pt.get<std::string>("alignment_checker_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str_lowercase == "nogaps") {
+        achp.alignment_checker_method = AlignmentCheckerMethod::NoGaps;
+    } else {
+        std::string message = error_message_strategy("alignment checker",
+                                                     method_str,
+                                                     achp.alignment_checker_method_names);
+        throw std::invalid_argument(message);
     }
 }
 // Alignment Checker parameters FINISH
@@ -55,34 +85,52 @@ void load(shm_config::alignment_cropper_params& acrp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     using AlignmentCropperMethod = shm_config::alignment_cropper_params::AlignmentCropperMethod;
-    if (pt.get<std::string>("alignment_cropper_method") == "UptoLastReliableKMer") {
+    std::string method_str(pt.get<std::string>("alignment_cropper_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str_lowercase == "uptolastreliablekmer") {
         acrp.alignment_cropper_method = AlignmentCropperMethod::UptoLastReliableKMer;
         load(acrp.rkmp, pt, "method_params");
+    } else {
+        std::string message = error_message_strategy("alignment cropper",
+                                                     method_str,
+                                                     acrp.alignment_cropper_method_names);
+        throw std::invalid_argument(message);
     }
 }
 // Alignment Cropper parameters FINISH
 
 // Mismatch Finder parameters START
 void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params& tmfp,
-          boost::property_tree::ptree const&, bool) { }
+          boost::property_tree::ptree const&, bool)
+{ }
 
 void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params& nknmfp,
-          boost::property_tree::ptree const& pt, bool) {
-    using config_common::load;
-    load(nknmfp.kmer_len, pt, "kmer_len");
-}
+          boost::property_tree::ptree const& pt, bool)
+{ }
 
 void load(shm_config::mutations_strategy_params& mfp,
           boost::property_tree::ptree const& pt, bool) {
     using config_common::load;
     using MutationsStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
-    if (pt.get<std::string>("mutations_strategy_method") == "Trivial") {
+    std::string method_str(pt.get<std::string>("mutations_strategy_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str_lowercase == "trivial") {
         mfp.mutations_strategy_method = MutationsStrategyMethod::Trivial;
         load(mfp.tmfp, pt, "method_params");
-    } else if (pt.get<std::string>("mutations_strategy_method") == "NoKNeighbours") {
+    } else if (method_str_lowercase == "nokneighbours") {
         mfp.mutations_strategy_method = MutationsStrategyMethod::NoKNeighbours;
         load(mfp.nknmfp, pt, "method_params");
+    } else {
+        std::string message = error_message_strategy("mutation strategy",
+                                                     method_str,
+                                                     mfp.mutation_strategy_method_names);
+        throw std::invalid_argument(message);
     }
+    load(mfp.kmer_len, pt, "kmer_len");
 }
 // Mismatch Finder parameters FINISH
 

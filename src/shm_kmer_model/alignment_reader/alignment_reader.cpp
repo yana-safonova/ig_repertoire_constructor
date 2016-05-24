@@ -8,7 +8,7 @@
 #include <seqan/seq_io.h>
 
 #include "alignment_reader.hpp"
-#include "gene_alignment.hpp"
+#include "gene_alignment/gene_alignment.hpp"
 
 using namespace ns_gene_alignment;
 using namespace ns_alignment_reader;
@@ -19,7 +19,7 @@ AlignmentReader::AlignmentReader(const std::string &alignments_filename,
     alignments_filename_(alignments_filename)
 {
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
-    if (alignment_checker_params.alignment_checker_method == AlignmentCheckerMethod::NoGapsAlignmentChecker) {
+    if (alignment_checker_params.alignment_checker_method == AlignmentCheckerMethod::NoGaps) {
         alignment_checker_ptr_ = std::make_shared<NoGapsAlignmentChecker>
             (NoGapsAlignmentChecker(alignment_checker_params));
     }
@@ -47,11 +47,7 @@ ns_gene_alignment::VectorReadGermlinePairs AlignmentReader::read_alignments() {
         std::string read_seq = std::string(seqan::toCString(*ReadIterator));
         ReadGermlinePair alignment(std::move(germline_seq), std::move(read_seq));
         if (alignment_checker_ptr_ -> check(alignment)) {
-            std::cout << alignment.first << std::endl;
-            std::cout << alignment.second << std::endl;
             alignment_cropper_ptr_ -> crop(alignment);
-            std::cout << alignment.first << std::endl;
-            std::cout << alignment.second << std::endl << std::endl;
             alignments.emplace_back(std::move(alignment));
         }
         ++ReadIterator;

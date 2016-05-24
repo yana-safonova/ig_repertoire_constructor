@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 
@@ -24,7 +26,8 @@ struct shm_config {
     };
 
     struct alignment_checker_params {
-        enum class AlignmentCheckerMethod { NoGapsAlignmentChecker};
+        enum class AlignmentCheckerMethod { NoGaps };
+        std::vector<std::string> alignment_checker_method_names {std::string("NoGaps")};
         AlignmentCheckerMethod alignment_checker_method;
     };
 
@@ -36,6 +39,7 @@ struct shm_config {
             unsigned int hash_base;
         };
         enum class AlignmentCropperMethod { UptoLastReliableKMer };
+        std::vector<std::string> alignment_cropper_method_names {std::string("UptoLastReliableKMer")};
         AlignmentCropperMethod alignment_cropper_method;
 
         upto_reliable_kmer_cropper_params rkmp;
@@ -47,14 +51,16 @@ struct shm_config {
             public mutations_strategy_method_params { };
         struct no_kneighbours_mutations_strategy_params:
             public mutations_strategy_method_params {
-            unsigned int kmer_len;
         };
 
         enum class MutationsStrategyMethod { Trivial, NoKNeighbours };
+        std::vector<std::string> mutation_strategy_method_names {std::string("Trivial"),
+                                                                 std::string("NoKNeighbours")};
         MutationsStrategyMethod mutations_strategy_method;
 
         trivial_mutations_strategy_params tmfp;
         no_kneighbours_mutations_strategy_params nknmfp;
+        unsigned int kmer_len;
     };
 
     io_params io;

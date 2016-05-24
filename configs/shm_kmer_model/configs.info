@@ -10,7 +10,7 @@ io_params {
 }
 
 alignment_checker_params {
-    alignment_checker_method NoGapsAlignmentChecker
+    alignment_checker_method NoGaps
 }
 
 alignment_cropper_params {
@@ -22,8 +22,8 @@ alignment_cropper_params {
 }
 
 mutations_strategy_params {
-    mutations_strategy_method NoKNeighbours
+    mutations_strategy_method Trivial
+    kmer_len 5
     method_params {
-        kmer_len 5
     }
 }

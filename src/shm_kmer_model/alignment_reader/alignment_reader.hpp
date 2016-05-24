@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "shm_config.hpp"
-#include "gene_alignment.hpp"
+#include "gene_alignment/gene_alignment.hpp"
 #include "alignment_checker/abstract_alignment_checker.hpp"
 #include "alignment_checker/no_gaps_alignment_checker.hpp"
 #include "alignment_cropper/abstract_alignment_cropper.hpp"

@@ -61,12 +61,12 @@ int main(int argc, char* argv[]) {
                                                                           shm_cfg::get().acrp,
                                                                           shm_cfg::get().mfp).Run();
         if (error_code != 0) {
-            INFO("SHM Kmer-Model Calculator finished abnormally");
+            INFO("SHM k-mer Model Calculator finished abnormally");
             return error_code;
         }
 
     } catch (std::bad_alloc const& e) {
-        std::cerr << "Not enough memory to run SHM Kmer-Model Calculator." << e.what() << std::endl;
+        std::cerr << "Not enough memory to run SHM k-mer Model Calculator." << e.what() << std::endl;
         return EINTR;
     } catch (std::exception const& e) {
         std::cerr << "Exception caught " << e.what() << std::endl;

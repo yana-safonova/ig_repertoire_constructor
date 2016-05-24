@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include "../gene_alignment.hpp"
+#include "gene_alignment/gene_alignment.hpp"
 
 namespace ns_abstract_alignment_cropper {
 class AbstractAlignmentCropper {
