@@ -8,14 +8,8 @@
 set -e
 
 export assembler="`pwd`"
-export src="$assembler/src"
-export ext="$assembler/ext"
+export src="$assembler"
 export build="$assembler/build"
-
-echo "/**************************************/"
-echo "/********** copying configs  ***********/"
-echo "/**************************************/"
-./cpcfg
 
 echo "/**************************************/"
 echo "/********  preparing debug ************/"
