@@ -16,27 +16,32 @@ namespace vj_finder {
                 read.seq[i] = vj_hits.GetJHitByIndex(0).ImmuneGene().seq()[gene_pos];
         }
         VJHits fixed_vj_hits(read);
+        std::cout << "1: " << read.seq << std::endl;
+        std::cout << "2: " << fixed_vj_hits.Read().seq << std::endl;
         for(size_t i = 0; i < vj_hits.NumVHits(); i++)
-            fixed_vj_hits.AddVHit(vj_hits.GetVHitByIndex(0));
+            fixed_vj_hits.AddVHit(vj_hits.GetVHitByIndex(i));
         for(size_t i = 0; i < vj_hits.NumJHits(); i++)
-            fixed_vj_hits.AddJHit(vj_hits.GetJHitByIndex(0));
+            fixed_vj_hits.AddJHit(vj_hits.GetJHitByIndex(i));
         return fixed_vj_hits;
     }
 
     VJHits FillFixCropProcessor::PerformFillingCropping(VJHits vj_hits) {
         core::Read read = vj_hits.Read();
+        TRACE("Right filling & cropping...");
         int right_shift = 0;
-        if(params_.crop_right and vj_hits.GetJHitByIndex(0).End() < static_cast<int>(read.length()))
+        if(params_.crop_right and vj_hits.GetJHitByIndex(0).End() < static_cast<int>(read.length())) {
             // no alignment editing in this case
             read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).End());
+        }
         else if(params_.fill_right and vj_hits.GetJHitByIndex(0).End() > static_cast<int>(read.length())) {
             auto j_gene = vj_hits.GetJHitByIndex(0).ImmuneGene();
             auto j_suffix = seqan::suffix(j_gene.seq(),
                                           j_gene.length() - (vj_hits.GetJHitByIndex(0).End() - read.length()));
             read.seq += j_suffix;
+            // extend end alignment of J gene and read by length of j_suffix
             right_shift = int(seqan::length(j_suffix));
-            // todo: extend end alignment of J gene and read by length of j_suffix
         }
+        TRACE("Left filling & cropping...");
         int left_shift = 0;
         if(params_.crop_left and vj_hits.GetVHitByIndex(0).Start() > 0)  {
             // shift to left all alignment positions of read by vj_hits.GetVHitByIndex(0).Start()
@@ -44,11 +49,11 @@ namespace vj_finder {
             left_shift = -vj_hits.GetVHitByIndex(0).Start();
         }
         else if(params_.fill_left and vj_hits.GetVHitByIndex(0).Start() < 0) {
-            // todo: shift to right all alignment positions of read by length of germline_prefix
             seqan::Dna5String germline_prefix = seqan::prefix(vj_hits.GetVHitByIndex(0).ImmuneGene().seq(),
                                                               -vj_hits.GetVHitByIndex(0).Start());
             germline_prefix += read.seq;
             read.seq = germline_prefix;
+            // shift to right all alignment positions of read by length of germline_prefix
             left_shift = int(seqan::length(germline_prefix));
         }
         VJHits filled_cropped_vj_hits(read);
@@ -62,7 +67,10 @@ namespace vj_finder {
     }
 
     VJHits FillFixCropProcessor::Process(VJHits vj_hits) {
-        VJHits fixed_vj_hits = PerformFixing(vj_hits);
-        return PerformFillingCropping(fixed_vj_hits);
+        TRACE("Fixing...");
+        //VJHits fixed_vj_hits = PerformFixing(vj_hits);
+        TRACE("Filling and croppping...");
+        VJHits final_vj_hits = PerformFillingCropping(vj_hits);
+        return final_vj_hits;
     }
 }

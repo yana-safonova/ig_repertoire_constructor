@@ -32,11 +32,15 @@ namespace vj_finder {
             TRACE("Processing read: " << it->name << ", id: " << it->id << ", length: " << it->length());
             VJQueryProcessor vj_query_processor(config_.algorithm_params, v_db, j_db);
             auto vj_hits = vj_query_processor.Process(*it);
-            if(vj_hits)
+            if(!vj_hits) {
                 alignment_info.UpdateFilteredReads(*it);
-            else
+            }
+            else {
                 alignment_info.UpdateHits(*vj_hits);
+            }
         }
+        INFO(alignment_info.NumVJHits() << " reads were aligned");
+        INFO(alignment_info.NumFilteredReads() << " reads were filtered out");
         VJAlignmentOutput alignment_info_output(config_.io_params.output_params, alignment_info);
         alignment_info_output.OutputAlignmentInfo();
         alignment_info_output.OutputCleanedReads();

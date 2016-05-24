@@ -19,8 +19,9 @@ namespace vj_finder {
         VJQueryAligner vj_query_aligner(params_, v_db_, j_db_);
         VJHits vj_hits = vj_query_aligner.Align(read);
         ProcessedVJHits hits_after_fitering = ComputeFilteringResults(vj_hits);
-        if(!hits_after_fitering)
+        if(!hits_after_fitering) {
             return hits_after_fitering;
+        }
         FillFixCropProcessor fix_processor(params_.fix_crop_fill_params);
         return ProcessedVJHits(fix_processor.Process(*hits_after_fitering));
     }

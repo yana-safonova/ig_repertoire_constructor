@@ -31,7 +31,8 @@ namespace vj_finder {
                 read_ptr_(&read),
                 immune_gene_ptr_(&immune_gene),
                 block_alignment_(std::move(block_alignment)),
-                strand_(strand) { }
+                strand_(strand),
+                shift_(0) { }
 
         bool Strand() const { return strand_; }
 
