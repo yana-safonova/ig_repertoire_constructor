@@ -139,47 +139,8 @@ namespace vj_finder {
         }
     };
 
-    /*
-    class VJHit {
-        const core::Read& read_;
-        VGeneHit v_hit_;
-        JGeneHit j_hit_;
-
-        int left_shift_;
-        int right_shift_;
-
-        void CheckConsistencyFatal();
-
-    public:
-        VJHit(const core::Read& read,
-              VGeneHit v_hit,
-              JGeneHit j_hit) :
-                read_(read),
-                v_hit_(v_hit),
-                j_hit_(j_hit) { }
-
-        const core::Read& Read() const { return read_; }
-
-        bool Strand() const { return v_hit_.Strand(); }
-
-        germline_utils::ChainType Chain() const { return v_hit_.Chain(); }
-
-        const ImmuneGeneHit& V() const { return v_hit_; }
-
-        const ImmuneGeneHit& J() const { return j_hit_; }
-
-        int FinalLength() const {
-            return j_hit_.End() - v_hit_.Start();
-        }
-
-        void AddLeftShift(int left_shift);
-
-        void AddRightShift(int right_shift);
-    };
-     */
-
     class VJHits {
-        const core::Read &read_;
+        core::Read read_;
         std::vector<VGeneHit> v_hits_;
         std::vector<JGeneHit> j_hits_;
 

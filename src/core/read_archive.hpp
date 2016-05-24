@@ -20,6 +20,12 @@ namespace core {
 
         Read() : name(), seq() { }
 
+        Read(const Read& obj) {
+            name = obj.name;
+            seq = obj.seq;
+            id = obj.id;
+        }
+
         size_t length() const { return seqan::length(seq); }
 
         Read ReverseComplement() const {

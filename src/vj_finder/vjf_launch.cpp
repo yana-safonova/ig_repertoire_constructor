@@ -4,8 +4,7 @@
 
 #include <read_archive.hpp>
 #include "germline_db_generator.hpp"
-#include "vj_alignment_info.hpp"
-#include "vj_query_processing.hpp"
+#include "vj_parallel_processor.hpp"
 
 namespace vj_finder {
     void CreateAlignmentOutput(std::ofstream& fhandler, const core::Read& read, const VJHits& vj_hits) {
@@ -27,20 +26,12 @@ namespace vj_finder {
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
-        VJAlignmentInfo alignment_info;
-        for(auto it = read_archive.cbegin(); it != read_archive.cend(); it++) {
-            TRACE("Processing read: " << it->name << ", id: " << it->id << ", length: " << it->length());
-            VJQueryProcessor vj_query_processor(config_.algorithm_params, v_db, j_db);
-            auto vj_hits = vj_query_processor.Process(*it);
-            if(!vj_hits) {
-                alignment_info.UpdateFilteredReads(*it);
-            }
-            else {
-                alignment_info.UpdateHits(*vj_hits);
-            }
-        }
-        INFO(alignment_info.NumVJHits() << " reads were aligned");
-        INFO(alignment_info.NumFilteredReads() << " reads were filtered out");
+        VJParallelProcessor processor(read_archive, config_.algorithm_params, v_db, j_db,
+                                      config_.run_params.num_threads);
+        INFO("Alignment against VJ germline segments starts");
+        VJAlignmentInfo alignment_info = processor.Process();
+        INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
+                     " reads were filtered out");
         VJAlignmentOutput alignment_info_output(config_.io_params.output_params, alignment_info);
         alignment_info_output.OutputAlignmentInfo();
         alignment_info_output.OutputCleanedReads();

@@ -22,6 +22,7 @@ add_executable(vj_finder
         vj_alignment_info.cpp
         vj_query_fix_fill_crop.cpp
         vj_query_processing.cpp
+        vj_parallel_processor.cpp
         vjf_launch.cpp
         main.cpp
         )

@@ -11,10 +11,12 @@ namespace vj_finder {
 
     void VJAlignmentInfo::UpdateFilteredReads(const core::Read &read) {
         filtered_reads_.push_back(&read);
+        filtered_read_ids_.insert(read.id);
     }
 
     void VJAlignmentInfo::UpdateHits(VJHits vj_hits) {
         alignment_records_.push_back(std::move(vj_hits));
+        read_id_hit_index_map_[vj_hits.Read().id] = alignment_records_.size() - 1;
     }
 
     const core::Read& VJAlignmentInfo::GetFilteredReadByIndex(size_t index) const {
@@ -34,15 +36,16 @@ namespace vj_finder {
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
             auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
             for(size_t j = 0; j < output_params_.output_details.num_aligned_candidates; j++)
-                out << vj_hits.Read().name << "\t" << vj_hits.GetVHitByIndex(j).Start() << "\t" <<
+                out << vj_hits.Read().name << "\t" << vj_hits.GetVHitByIndex(j).Start() + 1 << "\t" <<
                         vj_hits.GetVHitByIndex(j).End() << "\t" <<
                         vj_hits.GetVHitByIndex(j).Score() << "\t" <<
                         vj_hits.GetVHitByIndex(j).ImmuneGene().name() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).Start() << "\t" <<
+                        vj_hits.GetJHitByIndex(j).Start() + 1 << "\t" <<
                         vj_hits.GetJHitByIndex(j).End() << "\t" << vj_hits.GetJHitByIndex(j).Score() << "\t" <<
                         vj_hits.GetJHitByIndex(j).ImmuneGene().name() << std::endl;
         }
         out.close();
+        INFO("Alignment info was written to " << output_params_.output_files.alignment_info_fname);
     }
 
     void VJAlignmentOutput::OutputCleanedReads() const {
@@ -53,6 +56,7 @@ namespace vj_finder {
             out << read.seq << std::endl;
         }
         out.close();
+        INFO("Cleaned reads were written to " << output_params_.output_files.cleaned_reads_fname);
     }
 
     void VJAlignmentOutput::OutputFilteredReads() const {
@@ -63,5 +67,6 @@ namespace vj_finder {
             out << read.seq << std::endl;
         }
         out.close();
+        INFO("Cleaned reads were written to " << output_params_.output_files.filtered_reads_fname);
     }
 }
