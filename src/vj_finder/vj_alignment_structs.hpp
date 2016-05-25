@@ -104,7 +104,7 @@ namespace vj_finder {
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.last_match_read_pos() + shift_;
+            return int(block_alignment_.last_match_read_pos()) + shift_;
         }
     };
 
@@ -130,7 +130,7 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return block_alignment_.first_match_read_pos() + shift_;
+            return int(block_alignment_.first_match_read_pos()) + shift_;
         }
 
         virtual int End() const {

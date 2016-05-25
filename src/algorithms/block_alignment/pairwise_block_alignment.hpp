@@ -16,14 +16,14 @@ namespace algorithms {
         size_t subject_length;
         size_t query_length;
 
-        int kp_coverage;
+        size_t kp_coverage;
         int int_score;
         AlignmentPath path;
 
         int overlap_length;
         double score;
 
-        size_t read_shift;
+        int read_shift;
 
         PairwiseBlockAlignment() :
                 start_(),
@@ -43,11 +43,11 @@ namespace algorithms {
                                int score);
 
         size_t first_match_read_pos() const {
-            return path.first().read_pos + read_shift;
+            return size_t(path.first().read_pos + read_shift);
         }
 
         size_t first_match_subject_pos() const {
-            return path.first().subject_pos;
+            return size_t(path.first().subject_pos);
         }
 
         size_t last_match_subject_pos() const {
@@ -78,7 +78,7 @@ namespace algorithms {
             return this->path.visualize_matches(static_cast<int>(subject_length), static_cast<int>(query_length));
         }
 
-        void add_read_shift(size_t read_shift) { this->read_shift = read_shift; }
+        void add_read_shift(int read_shift) { this->read_shift = read_shift; }
     };
 
     template<typename SubjectDatabase>

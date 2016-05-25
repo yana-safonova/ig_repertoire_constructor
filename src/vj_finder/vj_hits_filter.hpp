@@ -25,10 +25,10 @@ namespace vj_finder {
     };
 
     class LeftCoverageFilter : public VJHitsFilter {
-        size_t left_uncovered_limit_;
+        int left_uncovered_limit_;
 
     public:
-        LeftCoverageFilter(size_t left_uncovered_limit) :
+        LeftCoverageFilter(int left_uncovered_limit) :
                 left_uncovered_limit_(left_uncovered_limit) { }
 
         bool Filter(const VJHits &vj_hits) const {
@@ -43,10 +43,10 @@ namespace vj_finder {
     };
 
     class RightCoverageFilter : public VJHitsFilter {
-        size_t right_uncovered_limit_;
+        int right_uncovered_limit_;
 
     public:
-        RightCoverageFilter(size_t right_uncovered_limit) :
+        RightCoverageFilter(int right_uncovered_limit) :
                 right_uncovered_limit_(right_uncovered_limit) { }
 
         bool Filter(const VJHits &vj_hits) const {

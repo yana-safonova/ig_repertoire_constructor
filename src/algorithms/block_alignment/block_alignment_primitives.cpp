@@ -4,8 +4,8 @@
 #include <boost/format.hpp>
 
 namespace algorithms {
-    int AlignmentPath::kplus_length() const {
-        int result = 0;
+    size_t AlignmentPath::kplus_length() const {
+        size_t result = 0;
         for (const auto &match : *this)
             result += match.length;
         return result;
@@ -24,9 +24,9 @@ namespace algorithms {
         ss << boost::format("{%d}") % std::max(matches[0].subject_pos - matches[0].read_pos, 0);
         ss << boost::format("(%d)") % std::min(matches[0].subject_pos, matches[0].read_pos);
         for (size_t i = 0; i < matches.size() - 1; ++i) {
-            int read_gap = matches[i + 1].read_pos - matches[i].read_pos - matches[i].length;
-            int needle_gap = matches[i + 1].subject_pos - matches[i].subject_pos - matches[i].length;
-            unsigned current_match_len = matches[i].length;
+            int read_gap = matches[i + 1].read_pos - matches[i].read_pos - int(matches[i].length);
+            int needle_gap = matches[i + 1].subject_pos - matches[i].subject_pos - int(matches[i].length);
+            size_t current_match_len = matches[i].length;
 
             if (needle_gap >= 0 || read_gap >= 0) {
                 if (needle_gap != read_gap) {

@@ -15,7 +15,6 @@ namespace germline_utils {
         size_t num_records_;
         // map from global index into a pair <db_index, record_local_index>
         std::unordered_map <size_t, std::pair<size_t, size_t>> gene_index_map_;
-        //vector<>
 
         void CheckConsistency(ImmuneGeneType gene_type);
 
@@ -33,9 +32,6 @@ namespace germline_utils {
         size_t num_dbs() const { return gene_databases_.size(); }
 
         SegmentType Segment() const { return segment_type_; }
-
-        // todo: implement me and refactor
-        size_t GetSequenceLengthByIndex(size_t index) const { return 0; }
 
         typedef std::vector<ImmuneGeneType>::const_iterator ImmuneGeneTypeIter;
 

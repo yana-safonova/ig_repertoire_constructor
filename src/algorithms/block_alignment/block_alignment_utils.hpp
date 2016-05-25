@@ -36,7 +36,7 @@ namespace algorithms {
             sum[i] = cum_matches_forward[i] + cum_matches_backward[i];
         }
 
-        return std::max_element(sum.cbegin(), sum.cend()) - sum.cbegin();
+        return int(std::max_element(sum.cbegin(), sum.cend()) - sum.cbegin());
     }
 
     using TAlign = seqan::Align<seqan::Dna5String, seqan::ArrayGaps>;     // align type
@@ -92,8 +92,9 @@ namespace algorithms {
         AlignmentPath path;
         path.reserve(combined.size());
 
-        size_t maxi = std::max_element(values.cbegin(), values.cend()) - values.cbegin();
-        int score = values[maxi];
+        size_t maxi = size_t(std::max_element(values.cbegin(), values.cend()) - values.cbegin());
+        // Sasha, is it ok that score is integer here? Looks like a potential error
+        int score = int(values[maxi]);
 
         while (true) {
             path.push_back(combined[maxi]);
