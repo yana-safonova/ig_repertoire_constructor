@@ -1,3 +1,5 @@
+#include <chrono>
+
 // TODO remove that standard.hpp include! Cosmetic refactoring of SPAdes utils is needed.
 #include "standard.hpp"
 #include "logger/log_writers.hpp"
