@@ -17,6 +17,6 @@ private:
 public:
     StatisticsEstimator(const shm_config::mutations_strategy_params& config);
 
-    ns_mutation_statistics::MutationsStatistics calculate_mutation_statistics(
+    MutationsStatistics calculate_mutation_statistics(
         ns_gene_alignment::VectorReadGermlinePairs&);
 };

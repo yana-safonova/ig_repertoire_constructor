@@ -36,7 +36,7 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() {
             static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
 
     StatisticsEstimator statistics_estimator(mutations_strategy_params_);
-    ns_mutation_statistics::MutationsStatistics statistics =
+    MutationsStatistics statistics =
         statistics_estimator.calculate_mutation_statistics(alignments);
     INFO(boarder << " Estimating statistics finishes" << boarder);
 

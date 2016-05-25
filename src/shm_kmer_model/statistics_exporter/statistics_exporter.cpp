@@ -7,7 +7,7 @@
 #include "seqan/basic.h"
 #include "statistics_exporter.hpp"
 
-void StatisticsExporter::export_statistics(const ns_mutation_statistics::MutationsStatistics &statistics) {
+void StatisticsExporter::export_statistics(const MutationsStatistics &statistics) {
     std::ofstream out(output_filename_);
 
     out << "k-mer";

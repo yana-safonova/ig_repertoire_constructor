@@ -25,7 +25,7 @@ add_executable(shm_kmer_model
         alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp
         alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
         mutations_strategies/abstract_mutation_strategy.hpp
-        mutations_strategies/trivial_strategy.hpp mutations_strategies/trivial_strategy.cpp statistics_estimator/statistics_estimator.hpp statistics_estimator/mutation_statistics.hpp statistics_estimator/statistics_estimator.cpp statistics_exporter/statistics_exporter.hpp statistics_exporter/statistics_exporter.cpp mutations_strategies/no_k_neighbours.hpp mutations_strategies/no_k_neighbours.cpp)
+        mutations_strategies/trivial_strategy.hpp mutations_strategies/trivial_strategy.cpp statistics_estimator/statistics_estimator.hpp statistics_estimator/mutation_statistics.hpp statistics_estimator/statistics_estimator.cpp statistics_exporter/statistics_exporter.hpp statistics_exporter/statistics_exporter.cpp mutations_strategies/no_k_neighbours.hpp mutations_strategies/no_k_neighbours.cpp statistics_estimator/mutation_statistics.cpp)
 
 target_link_libraries(shm_kmer_model input yaml-cpp graph_utils ${COMMON_LIBRARIES})
 

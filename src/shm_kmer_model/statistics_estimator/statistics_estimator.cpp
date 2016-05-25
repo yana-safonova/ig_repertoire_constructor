@@ -7,7 +7,6 @@
 #include "statistics_estimator.hpp"
 #include <seqan/file.h>
 
-using namespace ns_mutation_statistics;
 using namespace ns_gene_alignment;
 
 StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_params &config) :
@@ -21,7 +20,7 @@ StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_pa
 }
 
 MutationsStatistics StatisticsEstimator::calculate_mutation_statistics(VectorReadGermlinePairs &alignments) {
-    MutationsStatistics mutations_statistics;
+    MutationsStatistics mutations_statistics(kmer_len_);
     for (auto& alignment : alignments) {
         std::vector<size_t> relevant_positions = mutation_strategy_ -> calculate_relevant_positions(alignment);
 

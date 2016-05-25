@@ -18,5 +18,5 @@ public:
         output_filename_(output_filename)
     { }
 
-    void export_statistics(const ns_mutation_statistics::MutationsStatistics&);
+    void export_statistics(const MutationsStatistics&);
 };
