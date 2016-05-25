@@ -7,7 +7,7 @@
 #include "seqan/basic.h"
 #include "statistics_exporter.hpp"
 
-void StatisticsExporter::export_statistics(const MutationsStatistics &statistics) {
+void StatisticsExporter::export_statistics(const MutationsStatistics &statistics) const {
     std::ofstream out(output_filename_);
 
     out << "k-mer";
@@ -17,7 +17,7 @@ void StatisticsExporter::export_statistics(const MutationsStatistics &statistics
     out << "\n";
 
     std::vector<std::string> kmers;
-    for (auto it = statistics.begin(); it != statistics.end(); ++it)
+    for (auto it = statistics.cbegin(); it != statistics.cend(); ++it)
         kmers.push_back(it -> first);
     std::sort(kmers.begin(), kmers.end());
 

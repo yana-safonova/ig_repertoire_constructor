@@ -15,12 +15,15 @@ private:
     statistics_type statistics;
 
 public:
-    MutationsStatistics(unsigned int kmer_len);
+    explicit MutationsStatistics(unsigned int kmer_len);
 
     statistics_type::iterator begin() noexcept { return statistics.begin(); }
     statistics_type::const_iterator begin() const noexcept { return statistics.begin(); }
+    statistics_type::const_iterator cbegin() const noexcept { return statistics.cbegin(); }
+
     statistics_type::iterator end() noexcept { return statistics.end(); }
     statistics_type::const_iterator end() const noexcept { return statistics.end(); }
+    statistics_type::const_iterator cend() const noexcept { return statistics.cend(); }
 
     statistics_type::iterator find(const std::string& str) { return statistics.find(str); }
     statistics_type::const_iterator find(const std::string& str) const { return statistics.find(str); }

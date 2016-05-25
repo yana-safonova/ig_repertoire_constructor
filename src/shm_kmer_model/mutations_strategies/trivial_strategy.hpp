@@ -9,10 +9,10 @@
 
 class TrivialMutationStrategy : public ns_abstract_mutation_strategy::AbstractMutationStrategy {
 public:
-    TrivialMutationStrategy(const shm_config::mutations_strategy_params& config) :
+    explicit TrivialMutationStrategy(const shm_config::mutations_strategy_params& config) :
         AbstractMutationStrategy(config)
     { }
 
-    std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlinePair&);
+    std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlineAlignment &) const;
     ~TrivialMutationStrategy() { }
 };

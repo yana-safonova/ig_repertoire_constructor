@@ -15,8 +15,8 @@ private:
     unsigned int kmer_len_;
 
 public:
-    StatisticsEstimator(const shm_config::mutations_strategy_params& config);
+    explicit StatisticsEstimator(const shm_config::mutations_strategy_params& config);
 
     MutationsStatistics calculate_mutation_statistics(
-        ns_gene_alignment::VectorReadGermlinePairs&);
+        ns_gene_alignment::VectorReadGermlineAlignments &) const;
 };

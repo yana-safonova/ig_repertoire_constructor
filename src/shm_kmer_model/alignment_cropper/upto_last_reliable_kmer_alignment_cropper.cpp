@@ -13,7 +13,7 @@ UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
                          std::pow(hash_base, kmer_len - 1))))
     { }
 
-void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlinePair &alignment) {
+void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineAlignment &alignment) const {
     using std::pair;
     using std::make_pair;
     using std::string;
@@ -22,20 +22,20 @@ void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineP
     using PairStringCRIterator = pair<string::const_reverse_iterator, string::const_reverse_iterator>;
 
     auto left_boarder = find_correct_boarder<PairStringCIterator>(
-        make_pair(alignment.first.cbegin(), alignment.second.cbegin()),
-        make_pair(alignment.first.cend(), alignment.second.cend()));
+        make_pair(alignment.read().cbegin(), alignment.germline().cbegin()),
+        make_pair(alignment.read().cend(),   alignment.germline().cend()));
 
     auto right_boarder = find_correct_boarder<PairStringCRIterator>(
-        make_pair(alignment.first.crbegin(), alignment.second.crbegin()),
-        make_pair(alignment.first.crend(), alignment.second.crend()));
+        make_pair(alignment.read().crbegin(), alignment.germline().crbegin()),
+        make_pair(alignment.read().crend(),   alignment.germline().crend()));
 
-    alignment.first.assign<string::const_iterator>(left_boarder.first, right_boarder.first.base());
-    alignment.second.assign<string::const_iterator>(left_boarder.second, right_boarder.second.base());
+    alignment.set_read(left_boarder.first, right_boarder.first.base());
+    alignment.set_germline(left_boarder.second, right_boarder.second.base());
 }
 
 template<typename PairIter>
 PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
-    const PairIter &begin_iterators, const PairIter &end_iterators) {
+    const PairIter &begin_iterators, const PairIter &end_iterators) const {
     long long hash_germline = 0, hash_read = 0, hash_mult = 1;
 
     auto iter_boarder(std::make_pair(begin_iterators.first + kmer_len,

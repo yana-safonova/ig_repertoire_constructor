@@ -26,6 +26,6 @@ public:
                     const shm_config::alignment_checker_params& alignment_checker_params,
                     const shm_config::alignment_cropper_params& alignment_cropper_params);
 
-    ns_gene_alignment::VectorReadGermlinePairs read_alignments();
+    ns_gene_alignment::VectorReadGermlineAlignments read_alignments() const;
 };
 }

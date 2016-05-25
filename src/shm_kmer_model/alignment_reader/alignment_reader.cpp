@@ -31,26 +31,31 @@ AlignmentReader::AlignmentReader(const std::string &alignments_filename,
     }
 }
 
-ns_gene_alignment::VectorReadGermlinePairs AlignmentReader::read_alignments() {
+ns_gene_alignment::VectorReadGermlineAlignments AlignmentReader::read_alignments() const {
     std::vector<seqan::CharString> names;
     std::vector<seqan::CharString> reads;
     seqan::SeqFileIn seqFileIn(alignments_filename_.c_str());
     seqan::readRecords(names, reads, seqFileIn);
-    VectorReadGermlinePairs alignments;
-    alignments.reserve(reads.size());
+    VectorReadGermlineAlignments alignments;
 
     auto ReadIterator = reads.cbegin();
+    auto NamesIterator = names.cbegin();
     while(ReadIterator != reads.cend()) {
-        std::string germline_seq = std::string(seqan::toCString(*ReadIterator));
-        ++ReadIterator;
-        assert(ReadIterator != reads.cend());
         std::string read_seq = std::string(seqan::toCString(*ReadIterator));
-        ReadGermlinePair alignment(std::move(germline_seq), std::move(read_seq));
+        ++ReadIterator;
+        ++NamesIterator;
+        assert(ReadIterator != reads.cend());
+        assert(NamesIterator != names.cend());
+        std::string germline_seq = std::string(seqan::toCString(*ReadIterator));
+        std::string gene_id = std::string(seqan::toCString(*NamesIterator));
+
+        ReadGermlineAlignment alignment(std::move(read_seq), std::move(germline_seq), gene_id);
         if (alignment_checker_ptr_ -> check(alignment)) {
             alignment_cropper_ptr_ -> crop(alignment);
             alignments.emplace_back(std::move(alignment));
         }
         ++ReadIterator;
+        ++NamesIterator;
     }
     return alignments;
 }

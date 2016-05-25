@@ -14,7 +14,7 @@ std::string error_message_strategy(const std::string& what_about,
                                    const std::vector<std::string>& available_methods)
 {
     std::string message(":::(config) wrong ");
-    message = what_about;
+    message += what_about;
     message += " method: ";
     message += supplied_method;
     message += ". Available: ";

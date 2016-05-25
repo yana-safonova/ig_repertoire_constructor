@@ -14,9 +14,9 @@ private:
     const char separator = ';';
 
 public:
-    StatisticsExporter(const std::string& output_filename) :
+    explicit StatisticsExporter(const std::string& output_filename) :
         output_filename_(output_filename)
     { }
 
-    void export_statistics(const MutationsStatistics&);
+    void export_statistics(const MutationsStatistics&) const;
 };

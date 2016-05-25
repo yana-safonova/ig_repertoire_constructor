@@ -22,6 +22,6 @@ public:
         alignment_cropper_params_(alignment_cropper_params),
         mutations_strategy_params_(mutations_strategy_params) { }
 
-    int Run();
+    int Run() const;
 };
 }

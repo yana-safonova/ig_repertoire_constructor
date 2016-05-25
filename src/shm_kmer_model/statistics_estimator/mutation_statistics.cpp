@@ -19,9 +19,10 @@ void MutationsStatistics::generate_kmer_keys(std::vector<std::string>& kmers, co
 }
 
 void MutationsStatistics::generate_kmer_keys_(std::vector<std::string>& kmers,
-                         const unsigned int kmer_len,
-                         unsigned int curr_len,
-                         std::string kmer) const {
+                                              const unsigned int kmer_len,
+                                              unsigned int curr_len,
+                                              std::string kmer) const
+{
     if (curr_len == kmer_len) {
         kmers.emplace_back(kmer);
         return;

@@ -11,7 +11,7 @@
 #include "statistics_estimator/statistics_estimator.hpp"
 #include "statistics_exporter/statistics_exporter.hpp"
 
-int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() {
+int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
     const std::string boarder("=============");
     INFO(boarder << " SHM k-mer Model Calculator starts " << boarder);
 
@@ -27,7 +27,7 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() {
     ns_alignment_reader::AlignmentReader alignment_reader(io_params_.input.input_filename,
                                                           alignment_checker_params_,
                                                           alignment_cropper_params_);
-    ns_gene_alignment::VectorReadGermlinePairs alignments(alignment_reader.read_alignments());
+    ns_gene_alignment::VectorReadGermlineAlignments alignments(alignment_reader.read_alignments());
     INFO(boarder << " Reading alignments finishes " << boarder);
 
     INFO(boarder << " Estimating statistics starts " << boarder);

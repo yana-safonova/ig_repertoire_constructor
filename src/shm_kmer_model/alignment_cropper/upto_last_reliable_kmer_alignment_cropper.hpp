@@ -18,13 +18,13 @@ private:
     const unsigned int hash_max_pow;
 
 public:
-    UptoLastReliableKmerAlignmentCropper(const shm_config::alignment_cropper_params::
+    explicit UptoLastReliableKmerAlignmentCropper(const shm_config::alignment_cropper_params::
         upto_reliable_kmer_cropper_params& config);
 
-    void crop(ns_gene_alignment::ReadGermlinePair& alignment);
+    void crop(ns_gene_alignment::ReadGermlineAlignment& alignment) const;
     ~UptoLastReliableKmerAlignmentCropper() { }
 
 private:
     template <typename PairIter>
-    PairIter find_correct_boarder(const PairIter&, const PairIter&);
+    PairIter find_correct_boarder(const PairIter&, const PairIter&) const;
 };

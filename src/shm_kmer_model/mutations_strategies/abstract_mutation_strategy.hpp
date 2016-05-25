@@ -17,11 +17,11 @@ class AbstractMutationStrategy {
 protected:
     unsigned int kmer_len_;
 public:
-    AbstractMutationStrategy(const shm_config::mutations_strategy_params & config) :
+    explicit AbstractMutationStrategy(const shm_config::mutations_strategy_params &config) :
         kmer_len_(config.kmer_len)
     { }
 
-    virtual std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlinePair&) = 0;
+    virtual std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlineAlignment&) const = 0;
     virtual ~AbstractMutationStrategy() { }
 };
 using AbstractMutationStrategyPtr = std::shared_ptr<AbstractMutationStrategy>;
