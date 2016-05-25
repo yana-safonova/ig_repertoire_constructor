@@ -23,9 +23,8 @@ MutationsStatistics StatisticsEstimator::calculate_mutation_statistics(VectorRea
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
 
         for (auto it = relevant_positions.begin(); it != relevant_positions.end(); ++it) {
-            size_t &current_pos = *it;
-            size_t center_nucl_pos = current_pos + kmer_len_ / 2;
-            std::string gene_substring = alignment.germline().substr(current_pos, kmer_len_);
+            size_t center_nucl_pos = *it;
+            std::string gene_substring = alignment.germline().substr(center_nucl_pos - kmer_len_ / 2, kmer_len_);
 
             if ((alignment.read()[center_nucl_pos] == 'N') ||
                 (gene_substring.find_first_of('N') != std::string::npos))

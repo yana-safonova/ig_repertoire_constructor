@@ -22,7 +22,7 @@ alignment_cropper_params {
 }
 
 mutations_strategy_params {
-    mutations_strategy_method NoKneighbours
+    mutations_strategy_method Trivial
     kmer_len 5
     method_params {
     }

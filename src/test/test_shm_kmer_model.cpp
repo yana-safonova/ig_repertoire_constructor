@@ -10,6 +10,8 @@
 #include "../shm_kmer_model/shm_config.hpp"
 #include "../shm_kmer_model/alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
 #include "../shm_kmer_model/alignment_reader/alignment_reader.hpp"
+#include "../shm_kmer_model/mutation_strategies/trivial_strategy.hpp"
+#include "../shm_kmer_model/mutation_strategies/no_k_neighbours.hpp"
 
 void create_console_logger() {
     using namespace logging;
@@ -173,3 +175,66 @@ TEST_F(AlignmentReaderTest, CheckingIsCorrect) {
 
 }
 
+class MutationStrategiesTest: public ::testing::Test {
+public:
+    void SetUp() { create_console_logger(); }
+};
+
+TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
+    shm_config shm_config_ms;
+    std::string config_ms_nkn = "test_dataset/shm_kmer_model/mutation_strategy_nkn.config.info";
+    load(shm_config_ms, config_ms_nkn);
+
+    NoKNeighboursMutationStrategy ms_nkn(shm_config_ms.mfp);
+
+    {
+        ns_gene_alignment::ReadGermlineAlignment alignment("AACCGGTTAA",
+                                                           "AATCGGAAAA", "id");
+        auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        ASSERT_EQ(rel_pos.size(), 1);
+        ASSERT_EQ(rel_pos[0], 2);
+    }
+
+    {
+        ns_gene_alignment::ReadGermlineAlignment alignment("AACCGGAAAA",
+                                                           "AATCGGAAAA", "id");
+        auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        ASSERT_EQ(rel_pos.size(), 4);
+        ASSERT_EQ(rel_pos[0], 2);
+        for (size_t i = 1; i < 4; ++i)
+            ASSERT_EQ(rel_pos[i], i + 4);
+    }
+
+    {
+        ns_gene_alignment::ReadGermlineAlignment alignment("TCTCCAACGTTTTCTG",
+                                                           "CCTCCATCGGTTTCTG", "id");
+        auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        ASSERT_EQ(rel_pos.size(), 5);
+        ASSERT_EQ(rel_pos[0], 3);
+        ASSERT_EQ(rel_pos[1], 6);
+        ASSERT_EQ(rel_pos[2], 9);
+        ASSERT_EQ(rel_pos[3], 12);
+        ASSERT_EQ(rel_pos[4], 13);
+    }
+
+    {
+        ns_gene_alignment::ReadGermlineAlignment alignment("TTTCCAACGTTTTCTGTGCACGAGGA",
+                                                           "CCTCCATCGGTTTCTGTGCATGACGA", "id");
+        auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        ASSERT_EQ(rel_pos.size(), 10);
+        ASSERT_EQ(rel_pos[0], 6);
+        ASSERT_EQ(rel_pos[1], 9);
+        ASSERT_EQ(rel_pos[2], 12);
+        ASSERT_EQ(rel_pos[3], 13);
+        ASSERT_EQ(rel_pos[4], 14);
+        ASSERT_EQ(rel_pos[5], 15);
+        ASSERT_EQ(rel_pos[6], 16);
+        ASSERT_EQ(rel_pos[7], 17);
+        ASSERT_EQ(rel_pos[8], 20);
+        ASSERT_EQ(rel_pos[9], 23);
+    }
+}

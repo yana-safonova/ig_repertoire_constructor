@@ -101,11 +101,11 @@ void load(shm_config::alignment_cropper_params &acrp,
 // Alignment Cropper parameters FINISH
 
 // Mismatch Finder parameters START
-void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params &tmfp,
+void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params &,
           boost::property_tree::ptree const &, bool) { }
 
-void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &nknmfp,
-          boost::property_tree::ptree const &pt, bool) { }
+void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &,
+          boost::property_tree::ptree const &, bool) { }
 
 void load(shm_config::mutations_strategy_params &mfp,
           boost::property_tree::ptree const &pt, bool) {
