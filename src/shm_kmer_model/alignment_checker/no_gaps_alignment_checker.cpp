@@ -5,9 +5,8 @@
 #include <string>
 
 #include "no_gaps_alignment_checker.hpp"
-#include "gene_alignment/gene_alignment.hpp"
 
-bool NoGapsAlignmentChecker::check(const ns_gene_alignment::ReadGermlineAlignment& germline_read_pair) const {
+bool NoGapsAlignmentChecker::check(const ns_gene_alignment::ReadGermlineAlignment &germline_read_pair) const {
     return germline_read_pair.read().find_first_of('-') == std::string::npos &&
-           germline_read_pair.germline().find_first_of('-') == std::string::npos;
+        germline_read_pair.germline().find_first_of('-') == std::string::npos;
 }

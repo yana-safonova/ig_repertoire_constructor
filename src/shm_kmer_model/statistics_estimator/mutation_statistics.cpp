@@ -13,16 +13,15 @@ MutationsStatistics::MutationsStatistics(unsigned int kmer_len) {
         statistics[*it] = std::vector<unsigned int>(alphabet_size);
 }
 
-void MutationsStatistics::generate_kmer_keys(std::vector<std::string>& kmers, const unsigned int kmer_len) const {
+void MutationsStatistics::generate_kmer_keys(std::vector<std::string> &kmers, const unsigned int kmer_len) const {
     std::string kmer(kmer_len, ' ');
     generate_kmer_keys_(kmers, kmer_len, 0, kmer);
 }
 
-void MutationsStatistics::generate_kmer_keys_(std::vector<std::string>& kmers,
+void MutationsStatistics::generate_kmer_keys_(std::vector<std::string> &kmers,
                                               const unsigned int kmer_len,
                                               unsigned int curr_len,
-                                              std::string kmer) const
-{
+                                              std::string kmer) const {
     if (curr_len == kmer_len) {
         kmers.emplace_back(kmer);
         return;

@@ -9,10 +9,9 @@
 
 #include "../include/config_common.hpp"
 
-std::string error_message_strategy(const std::string& what_about,
-                                   const std::string& supplied_method,
-                                   const std::vector<std::string>& available_methods)
-{
+std::string error_message_strategy(const std::string &what_about,
+                                   const std::string &supplied_method,
+                                   const std::vector<std::string> &available_methods) {
     std::string message(":::(config) wrong ");
     message += what_about;
     message += " method: ";
@@ -45,7 +44,7 @@ void load(shm_config::io_params::output_params &output, boost::property_tree::pt
     load(output.output_filename, pt, "output_filename");
 }
 
-void load(shm_config::io_params& io, boost::property_tree::ptree const& pt, bool) {
+void load(shm_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(io.input, pt, "input_params");
     load(io.output, pt, "output_params");
@@ -54,8 +53,8 @@ void load(shm_config::io_params& io, boost::property_tree::ptree const& pt, bool
 // IO parameters FINISH
 
 // Alignment Checker parameters START
-void load(shm_config::alignment_checker_params& achp,
-          boost::property_tree::ptree const& pt, bool) {
+void load(shm_config::alignment_checker_params &achp,
+          boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
     std::string method_str(pt.get<std::string>("alignment_checker_method"));
@@ -74,15 +73,15 @@ void load(shm_config::alignment_checker_params& achp,
 // Alignment Checker parameters FINISH
 
 // Alignment Cropper parameters START
-void load(shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params& rkmp,
-          boost::property_tree::ptree const& pt, bool) {
+void load(shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &rkmp,
+          boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(rkmp.kmer_len, pt, "kmer_len");
     load(rkmp.hash_base, pt, "hash_base");
 }
 
-void load(shm_config::alignment_cropper_params& acrp,
-          boost::property_tree::ptree const& pt, bool) {
+void load(shm_config::alignment_cropper_params &acrp,
+          boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     using AlignmentCropperMethod = shm_config::alignment_cropper_params::AlignmentCropperMethod;
     std::string method_str(pt.get<std::string>("alignment_cropper_method"));
@@ -102,16 +101,14 @@ void load(shm_config::alignment_cropper_params& acrp,
 // Alignment Cropper parameters FINISH
 
 // Mismatch Finder parameters START
-void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params& tmfp,
-          boost::property_tree::ptree const&, bool)
-{ }
+void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params &tmfp,
+          boost::property_tree::ptree const &, bool) { }
 
-void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params& nknmfp,
-          boost::property_tree::ptree const& pt, bool)
-{ }
+void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &nknmfp,
+          boost::property_tree::ptree const &pt, bool) { }
 
-void load(shm_config::mutations_strategy_params& mfp,
-          boost::property_tree::ptree const& pt, bool) {
+void load(shm_config::mutations_strategy_params &mfp,
+          boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     using MutationsStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
     std::string method_str(pt.get<std::string>("mutations_strategy_method"));
@@ -135,7 +132,7 @@ void load(shm_config::mutations_strategy_params& mfp,
 // Mismatch Finder parameters FINISH
 
 // Main load functions
-void load(shm_config& cfg, boost::property_tree::ptree const& pt, bool complete) {
+void load(shm_config &cfg, boost::property_tree::ptree const &pt, bool complete) {
     using config_common::load;
     load(cfg.io, pt, "io_params", complete);
     load(cfg.achp, pt, "alignment_checker_params");
@@ -143,7 +140,7 @@ void load(shm_config& cfg, boost::property_tree::ptree const& pt, bool complete)
     load(cfg.mfp, pt, "mutations_strategy_params");
 }
 
-void load(shm_config& cfg, std::string const& filename) {
+void load(shm_config &cfg, std::string const &filename) {
     boost::property_tree::ptree pt;
     boost::property_tree::read_info(filename, pt);
     load(cfg, pt, true);

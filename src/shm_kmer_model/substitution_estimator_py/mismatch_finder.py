@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
-from abc import ABCMeta, abstractmethod
 
 import numpy as np
+from abc import ABCMeta, abstractmethod
 
 
 class AbstractMismatchFinder:

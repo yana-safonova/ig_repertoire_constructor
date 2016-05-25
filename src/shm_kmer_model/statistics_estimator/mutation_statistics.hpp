@@ -25,20 +25,20 @@ public:
     statistics_type::const_iterator end() const noexcept { return statistics.end(); }
     statistics_type::const_iterator cend() const noexcept { return statistics.cend(); }
 
-    statistics_type::iterator find(const std::string& str) { return statistics.find(str); }
-    statistics_type::const_iterator find(const std::string& str) const { return statistics.find(str); }
+    statistics_type::iterator find(const std::string &str) { return statistics.find(str); }
+    statistics_type::const_iterator find(const std::string &str) const { return statistics.find(str); }
 
-    std::vector<unsigned int>& operator[] (const std::string& str) { return statistics[str]; }
-    std::vector<unsigned int>& operator[] (std::string& str) { return statistics[str]; }
+    std::vector<unsigned int> &operator[](const std::string &str) { return statistics[str]; }
+    std::vector<unsigned int> &operator[](std::string &str) { return statistics[str]; }
 
-    std::vector<unsigned int>& at (const std::string& str) { return statistics.at(str); }
-    const std::vector<unsigned int>& at (const std::string& str) const { return statistics.at(str); }
+    std::vector<unsigned int> &at(const std::string &str) { return statistics.at(str); }
+    const std::vector<unsigned int> &at(const std::string &str) const { return statistics.at(str); }
 
 private:
-    void generate_kmer_keys(std::vector<std::string>& kmers, const unsigned int kmer_len) const;
+    void generate_kmer_keys(std::vector<std::string> &kmers, const unsigned int kmer_len) const;
 
-    void generate_kmer_keys_(std::vector<std::string>& kmers,
-                            const unsigned int kmer_len,
-                            unsigned int curr_len,
-                            std::string kmer) const;
+    void generate_kmer_keys_(std::vector<std::string> &kmers,
+                             const unsigned int kmer_len,
+                             unsigned int curr_len,
+                             std::string kmer) const;
 };

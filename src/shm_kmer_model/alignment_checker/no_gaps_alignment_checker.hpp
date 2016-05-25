@@ -7,9 +7,9 @@
 #include "../shm_config.hpp"
 #include "abstract_alignment_checker.hpp"
 
-class NoGapsAlignmentChecker final : public ns_abstract_alignment_checker::AbstractAlignmentChecker {
+class NoGapsAlignmentChecker: public ns_abstract_alignment_checker::AbstractAlignmentChecker {
 public:
-    explicit NoGapsAlignmentChecker(const shm_config::alignment_checker_params&) { }
-    virtual bool check(const ns_gene_alignment::ReadGermlineAlignment&) const;
+    explicit NoGapsAlignmentChecker(const shm_config::alignment_checker_params &) { }
+    virtual bool check(const ns_gene_alignment::ReadGermlineAlignment &) const;
     ~NoGapsAlignmentChecker() { }
 };

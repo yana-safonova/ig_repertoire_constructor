@@ -6,8 +6,7 @@
 #include "no_k_neighbours.hpp"
 
 std::vector<size_t> NoKNeighboursMutationStrategy::calculate_relevant_positions
-    (ns_gene_alignment::ReadGermlineAlignment &alignment) const
-{
+    (ns_gene_alignment::ReadGermlineAlignment &alignment) const {
     std::deque<int> mismatch_positions(alignment.read().size());
     for (size_t i = 0; i < alignment.read().size(); ++i)
         mismatch_positions[i] = static_cast<int>(alignment.read()[i] != alignment.germline()[i]);

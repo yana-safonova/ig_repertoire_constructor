@@ -4,8 +4,8 @@ from __future__ import print_function
 
 from alignment_checkers import NoGapsAlignmentChecker
 from alignment_cropper import UptoLastReliableKMerAlignmentCropper
-from mismatch_finder import TrivialMismatchFinder
 from mismatch_finder import NoKNeighboursMismatchFinder
+from mismatch_finder import TrivialMismatchFinder
 
 
 # TODO from config.file

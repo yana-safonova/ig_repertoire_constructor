@@ -9,6 +9,7 @@
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 
+
 struct shm_config {
     struct io_params {
         struct input_params {
@@ -27,19 +28,19 @@ struct shm_config {
 
     struct alignment_checker_params {
         enum class AlignmentCheckerMethod { NoGaps };
-        std::vector<std::string> alignment_checker_method_names {std::string("NoGaps")};
+        std::vector<std::string> alignment_checker_method_names{std::string("NoGaps")};
         AlignmentCheckerMethod alignment_checker_method;
     };
 
     struct alignment_cropper_params {
         struct alignment_cropper_method_params { };
-        struct upto_reliable_kmer_cropper_params :
+        struct upto_reliable_kmer_cropper_params:
             public alignment_cropper_method_params {
             unsigned int kmer_len;
             unsigned int hash_base;
         };
         enum class AlignmentCropperMethod { UptoLastReliableKMer };
-        std::vector<std::string> alignment_cropper_method_names {std::string("UptoLastReliableKMer")};
+        std::vector<std::string> alignment_cropper_method_names{std::string("UptoLastReliableKMer")};
         AlignmentCropperMethod alignment_cropper_method;
 
         upto_reliable_kmer_cropper_params rkmp;
@@ -48,14 +49,15 @@ struct shm_config {
     struct mutations_strategy_params {
         struct mutations_strategy_method_params { };
         struct trivial_mutations_strategy_params:
-            public mutations_strategy_method_params { };
+            public mutations_strategy_method_params {
+        };
         struct no_kneighbours_mutations_strategy_params:
             public mutations_strategy_method_params {
         };
 
         enum class MutationsStrategyMethod { Trivial, NoKNeighbours };
-        std::vector<std::string> mutation_strategy_method_names {std::string("Trivial"),
-                                                                 std::string("NoKNeighbours")};
+        std::vector<std::string> mutation_strategy_method_names{std::string("Trivial"),
+                                                                std::string("NoKNeighbours")};
         MutationsStrategyMethod mutations_strategy_method;
 
         trivial_mutations_strategy_params tmfp;

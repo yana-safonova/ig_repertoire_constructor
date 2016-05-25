@@ -6,6 +6,7 @@ from Bio import SeqIO
 
 from germline_alignment import GermlineAlignment
 
+
 class GermlineAlignmentReader:
     def read(self):
         alignments = []

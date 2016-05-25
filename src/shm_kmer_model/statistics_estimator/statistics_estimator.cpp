@@ -2,16 +2,14 @@
 // Created by Andrew Bzikadze on 5/24/16.
 //
 
-#include "mutations_strategies/trivial_strategy.hpp"
-#include "mutations_strategies/no_k_neighbours.hpp"
+#include "../mutation_strategies/trivial_strategy.hpp"
+#include "../mutation_strategies/no_k_neighbours.hpp"
 #include "statistics_estimator.hpp"
-#include <seqan/file.h>
 
 using namespace ns_gene_alignment;
 
 StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_params &config) :
-        kmer_len_(config.kmer_len)
-{
+    kmer_len_(config.kmer_len) {
     using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
     if (config.mutations_strategy_method == MutationStrategyMethod::Trivial)
         mutation_strategy_ = std::make_shared<TrivialMutationStrategy>(TrivialMutationStrategy(config));
@@ -21,11 +19,11 @@ StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_pa
 
 MutationsStatistics StatisticsEstimator::calculate_mutation_statistics(VectorReadGermlineAlignments &alignments) const {
     MutationsStatistics mutations_statistics(kmer_len_);
-    for (auto& alignment : alignments) {
-        std::vector<size_t> relevant_positions = mutation_strategy_ -> calculate_relevant_positions(alignment);
+    for (auto &alignment : alignments) {
+        std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
 
         for (auto it = relevant_positions.begin(); it != relevant_positions.end(); ++it) {
-            size_t& current_pos = *it;
+            size_t &current_pos = *it;
             size_t center_nucl_pos = current_pos + kmer_len_ / 2;
             std::string gene_substring = alignment.germline().substr(current_pos, kmer_len_);
 

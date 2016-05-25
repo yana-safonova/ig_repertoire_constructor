@@ -3,12 +3,12 @@
 from __future__ import print_function
 
 import argparse
-import os
 import logging
+import os
 import sys
 
-from shm_substitution_model_estimator import SHMSubstitutionModelEstimator
 from config import Config
+from shm_substitution_model_estimator import SHMSubstitutionModelEstimator
 
 
 def parse_command_line():

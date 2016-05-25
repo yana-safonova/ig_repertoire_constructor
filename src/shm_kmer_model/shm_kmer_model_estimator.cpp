@@ -32,7 +32,7 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
 
     INFO(boarder << " Estimating statistics starts " << boarder);
     INFO(std::string("Strategy for mutations: ") <<
-         mutations_strategy_params_.mutation_strategy_method_names[
+        mutations_strategy_params_.mutation_strategy_method_names[
             static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
 
     StatisticsEstimator statistics_estimator(mutations_strategy_params_);

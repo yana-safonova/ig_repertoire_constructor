@@ -10,8 +10,7 @@ UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
     hash_base(config.hash_base),
     hash_max_pow(static_cast<unsigned int>(
                      std::round(
-                         std::pow(hash_base, kmer_len - 1))))
-    { }
+                         std::pow(hash_base, kmer_len - 1)))) { }
 
 void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineAlignment &alignment) const {
     using std::pair;
@@ -23,11 +22,11 @@ void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineA
 
     auto left_boarder = find_correct_boarder<PairStringCIterator>(
         make_pair(alignment.read().cbegin(), alignment.germline().cbegin()),
-        make_pair(alignment.read().cend(),   alignment.germline().cend()));
+        make_pair(alignment.read().cend(), alignment.germline().cend()));
 
     auto right_boarder = find_correct_boarder<PairStringCRIterator>(
         make_pair(alignment.read().crbegin(), alignment.germline().crbegin()),
-        make_pair(alignment.read().crend(),   alignment.germline().crend()));
+        make_pair(alignment.read().crend(), alignment.germline().crend()));
 
     alignment.set_read(left_boarder.first, right_boarder.first.base());
     alignment.set_germline(left_boarder.second, right_boarder.second.base());

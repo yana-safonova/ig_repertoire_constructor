@@ -1,18 +1,16 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
-import unittest
 
+import unittest
+from Bio.Alphabet import generic_dna
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-from Bio.Alphabet import generic_dna
 
-from mismatch_finder import NoKNeighboursMismatchFinder
 from alignment_checkers import NoGapsAlignmentChecker
-from germline_alignment import GermlineAlignment
-from alignment_cropper import UptoLastReliableKMerAlignmentCropper
-
 from config import Config
+from germline_alignment import GermlineAlignment
+from mismatch_finder import NoKNeighboursMismatchFinder
 
 
 class TestNoKNeighboursMismatchFinder(unittest.TestCase):
@@ -56,29 +54,30 @@ class TestNoKNeighboursMismatchFinder(unittest.TestCase):
         self.assertEqual(self.finder.find_mismatch_positions('CACCGGAAAA',
                                                              'AAACGGAAAA'), [])
 
+
 class TestNoGapsAlignmentChecker(unittest.TestCase):
     config = Config.AlignmentCheckerConfig.NoGapsAlignmentCheckerConfig()
     checker = NoGapsAlignmentChecker(config)
 
     def test(self):
-        rec1= SeqRecord(Seq('AGTACACTGGT', generic_dna))
-        rec2= SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
+        rec1 = SeqRecord(Seq('AGTACACTGGT', generic_dna))
+        rec2 = SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
         self.assertFalse(self.checker.check(GermlineAlignment(rec1, rec2)))
 
-        rec1= SeqRecord(Seq('AGTACACTGGT', generic_dna))
-        rec2= SeqRecord(Seq('AGTACCCTGGT', generic_dna))
+        rec1 = SeqRecord(Seq('AGTACACTGGT', generic_dna))
+        rec2 = SeqRecord(Seq('AGTACCCTGGT', generic_dna))
         self.assertTrue(self.checker.check(GermlineAlignment(rec1, rec2)))
 
-        rec1= SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
-        rec2= SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
+        rec1 = SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
+        rec2 = SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
         self.assertFalse(self.checker.check(GermlineAlignment(rec1, rec2)))
 
-        rec1= SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
-        rec2= SeqRecord(Seq('AGTACCCTGGT', generic_dna))
+        rec1 = SeqRecord(Seq('AGTAC-CTGGT', generic_dna))
+        rec2 = SeqRecord(Seq('AGTACCCTGGT', generic_dna))
         self.assertFalse(self.checker.check(GermlineAlignment(rec1, rec2)))
 
-        rec1= SeqRecord(Seq('---', generic_dna))
-        rec2= SeqRecord(Seq('---', generic_dna))
+        rec1 = SeqRecord(Seq('---', generic_dna))
+        rec2 = SeqRecord(Seq('---', generic_dna))
         self.assertFalse(self.checker.check(GermlineAlignment(rec1, rec2)))
 
 
