@@ -64,8 +64,8 @@ namespace vj_finder {
                 bool enable_filtering;
                 size_t min_v_segment_length;
                 size_t min_j_segment_length;
-                size_t left_uncovered_limit;
-                size_t right_uncovered_limit; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
+                int left_uncovered_limit;
+                int right_uncovered_limit; // It should be at least 4 (=1 + 3cropped) 1bp trimming is common
                 size_t min_aligned_length;
             };
 

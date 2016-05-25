@@ -25,7 +25,7 @@ namespace algorithms {
 
         // Add finishing gaps (reverse order since insert_gaps works with VIEW position!)
         // TODO Use SeqAn clipping if possible
-        int finishing_gap = (gene_len - path.last().subject_pos) - (read_len - path.last().read_pos);
+        int finishing_gap = (int(gene_len) - path.last().subject_pos) - (int(read_len) - path.last().read_pos);
         if (finishing_gap > 0) {
             insertGaps(row_read, read_len, finishing_gap);
         } else if (finishing_gap < 0) {

@@ -90,7 +90,7 @@ namespace vj_finder {
         TRACE("Computation of J hits");
         auto j_aligns = j_aligner.Align(dj_read_suffix);
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
-            it->first.add_read_shift(stranded_read.length() - seqan::length(dj_read_suffix));
+            it->first.add_read_shift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
         TRACE(v_aligns.size() << " J hits were computed: ")
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
             TRACE(j_gene_db[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<

@@ -23,7 +23,7 @@ namespace vj_finder {
     }
 
     VJAlignmentInfo VJParallelProcessor::Process() {
-        omp_set_num_threads(num_threads_);
+        omp_set_num_threads(int(num_threads_));
 #pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < read_archive_.size(); i++) {
             size_t thread_id = omp_get_thread_num();

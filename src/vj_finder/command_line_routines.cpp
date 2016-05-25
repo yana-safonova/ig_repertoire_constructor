@@ -94,9 +94,9 @@ void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, char** ar
     po::options_description hidden("Hidden options");
     hidden.add_options()
             ("help-hidden", "show all options, including developers options")
-            ("left-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.filtering_params.left_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.left_uncovered_limit),
+            ("left-uncoverage-limit", po::value<int>(&cfg.algorithm_params.filtering_params.left_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.left_uncovered_limit),
              "uncoverage limit of left end")
-            ("right-uncoverage-limit", po::value<size_t>(&cfg.algorithm_params.filtering_params.right_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.right_uncovered_limit),
+            ("right-uncoverage-limit", po::value<int>(&cfg.algorithm_params.filtering_params.right_uncovered_limit)->default_value(cfg.algorithm_params.filtering_params.right_uncovered_limit),
              "uncoverage limit of right end")
             ("min-vsegment-length", po::value<size_t>(&cfg.algorithm_params.filtering_params.min_v_segment_length)->default_value(cfg.algorithm_params.filtering_params.min_v_segment_length),
              "minimal allowed length of V gene segment")

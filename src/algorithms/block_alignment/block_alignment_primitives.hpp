@@ -12,8 +12,8 @@ namespace algorithms {
 
         static int overlap(const Match &a,
                            const Match &b) {
-            return std::max<int>(std::max<int>(a.length - (b.subject_pos - a.subject_pos),
-                                               a.length - (b.read_pos - a.read_pos)), 0);
+            return std::max<int>(std::max<int>(int(a.length) - (b.subject_pos - a.subject_pos),
+                                               int(a.length) - (b.read_pos - a.read_pos)), 0);
         }
 
         static bool less_subject_pos(const Match &a, const Match &b) {
@@ -28,7 +28,7 @@ namespace algorithms {
     class AlignmentPath : public std::vector<Match> {
         using std::vector<Match>::vector;
     public:
-        int kplus_length() const;
+        size_t kplus_length() const;
 
         const Match &first() const {
             return (*this)[0];
@@ -51,11 +51,11 @@ namespace algorithms {
         }
 
         int read_segment_size() const {
-            return last().read_pos - first().read_pos + last().length;
+            return last().read_pos - first().read_pos + int(last().length);
         }
 
         int subject_segment_size() const {
-            return last().subject_pos - first().subject_pos + last().length;
+            return last().subject_pos - first().subject_pos + int(last().length);
         }
 
         std::string visualize_matches(int needle_length, int read_length) const;

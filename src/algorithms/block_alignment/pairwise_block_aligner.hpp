@@ -55,7 +55,8 @@ namespace algorithms {
                 int read_gap = b.read_pos - a.read_pos;
                 int needle_gap = b.subject_pos - a.subject_pos;
                 int gap = read_gap - needle_gap;
-                int mmatch = std::min(b.read_pos - a.read_pos - a.length, b.subject_pos - a.subject_pos - a.length);
+                int mmatch = std::min(b.read_pos - a.read_pos - int(a.length),
+                                      b.subject_pos - a.subject_pos - int(a.length));
                 mmatch = std::max(0, mmatch);
                 return - Match::overlap(a, b)
                        - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
