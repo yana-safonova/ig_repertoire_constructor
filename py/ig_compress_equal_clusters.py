@@ -13,10 +13,10 @@ from ig_report_supernodes import smart_open
 def parse_cluster_mult(id):
     import re
     id = str(id)
-    m = re.match(r"^cluster___(\d+)___size___(\d+)$", id)
+    m = re.match(r"^cluster___([0-9a-zA-Z]+)___size___(\d+)$", id)
     if m:
         g = m.groups()
-        cluster = int(g[0])
+        cluster = g[0].strip()
         mult = int(g[1])
         return cluster, mult
     else:
@@ -28,12 +28,13 @@ def check_fa_rcm_consistency(fa_filename, rcm_filename):
     num_rcm_reads = 0
     with open(rcm_filename) as rcm:
         for line in rcm:
-            cluster = int(line.split("\t")[1])
+            cluster = line.split("\t")[1].strip()
             cluster_mult_rcm[cluster] += 1
             num_rcm_reads += 1
 
     num_fa_reads = 0
     is_ok = True
+
     with smart_open(fa_filename) as fa:
         for record in SeqIO.parse(fa, "fasta"):
             id = str(record.description)
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     os.system(cmd_line)
 
     with open(args.tmp_map_file) as fin:
-        input_read_num2compressed_cluster = [int(line.strip()) for line in fin]
+        input_read_num2compressed_cluster = [line.strip() for line in fin]
 
     input_read_num2mult = []
     cluster2input_read_num = {}
@@ -107,7 +108,7 @@ if __name__ == "__main__":
     # Fix IDs
     with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.output, "w") as fout:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
-            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[i])
+            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[str(i)])
             SeqIO.write(record, fout, "fasta")
 
     # Fix RCM if provided
@@ -122,7 +123,7 @@ if __name__ == "__main__":
 
         with open(args.rcm, "r") as fin:
             rcm = [line.strip().split("\t") for line in fin]
-            rcm = [(id, int(cluster)) for id, cluster in rcm]
+            rcm = [(id, cluster) for id, cluster in rcm]
 
         with open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
