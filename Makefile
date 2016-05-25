@@ -21,3 +21,6 @@ check_essential: all
 
 vjf:
 	$(MAKE) -C build/release/vj_finder
+
+cdr:
+	$(MAKE) -C build/release/cdr_labeler
