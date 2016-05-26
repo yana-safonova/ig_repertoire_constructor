@@ -3,6 +3,7 @@
 //
 
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
 #include <logger/log_writers.hpp>
 
 #include "../shm_kmer_model/gene_alignment/gene_alignment.hpp"
@@ -211,30 +212,13 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
         ns_gene_alignment::ReadGermlineAlignment alignment("TCTCCAACGTTTTCTG",
                                                            "CCTCCATCGGTTTCTG", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
-        ASSERT_EQ(rel_pos.size(), 5);
-        ASSERT_EQ(rel_pos[0], 3);
-        ASSERT_EQ(rel_pos[1], 6);
-        ASSERT_EQ(rel_pos[2], 9);
-        ASSERT_EQ(rel_pos[3], 12);
-        ASSERT_EQ(rel_pos[4], 13);
+        EXPECT_THAT(rel_pos, testing::ElementsAre(3, 6, 9, 12, 13));
     }
 
     {
         ns_gene_alignment::ReadGermlineAlignment alignment("TTTCCAACGTTTTCTGTGCACGAGGA",
                                                            "CCTCCATCGGTTTCTGTGCATGACGA", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
-        ASSERT_EQ(rel_pos.size(), 10);
-        ASSERT_EQ(rel_pos[0], 6);
-        ASSERT_EQ(rel_pos[1], 9);
-        ASSERT_EQ(rel_pos[2], 12);
-        ASSERT_EQ(rel_pos[3], 13);
-        ASSERT_EQ(rel_pos[4], 14);
-        ASSERT_EQ(rel_pos[5], 15);
-        ASSERT_EQ(rel_pos[6], 16);
-        ASSERT_EQ(rel_pos[7], 17);
-        ASSERT_EQ(rel_pos[8], 20);
-        ASSERT_EQ(rel_pos[9], 23);
+        EXPECT_THAT(rel_pos, testing::ElementsAre(6, 9, 12, 13, 14, 15, 16, 17, 20, 23));
     }
 }
