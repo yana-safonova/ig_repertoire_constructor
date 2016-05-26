@@ -13,5 +13,5 @@ public:
         : AbstractMutationStrategy(config) { }
 
     std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlineAlignment &) const;
-    ~NoKNeighboursMutationStrategy() { }
+    virtual ~NoKNeighboursMutationStrategy() { }
 };

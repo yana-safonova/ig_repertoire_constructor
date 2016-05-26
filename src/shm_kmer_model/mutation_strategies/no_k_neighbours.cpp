@@ -24,7 +24,12 @@ std::vector<size_t> NoKNeighboursMutationStrategy::calculate_relevant_positions
         cum_sums[i] = cum_sums[i - 1] - mismatch_positions[i - 1] + mismatch_positions[i + kmer_len_ - 1];
 
     std::vector<size_t> relevant_positions;
+    // First and last kmer_len/2 nucleotides are not taken.
     for (size_t i = kmer_len_ / 2; i < alignment.size() - kmer_len_ / 2; ++i) {
+        // We take the position `i', if
+        //     1) there is no mutation ( == 0);
+        // OR
+        //     2) there is mutation AND mutation is in the central nucleotide.
         if (cum_sums[i] == 0 ||
             ((cum_sums[i] == 1) && (alignment.read()[i] != alignment.germline()[i])))
             relevant_positions.push_back(i);

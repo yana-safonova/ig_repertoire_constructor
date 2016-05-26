@@ -20,6 +20,7 @@ void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineA
     using PairStringCIterator = pair<string::const_iterator, string::const_iterator>;
     using PairStringCRIterator = pair<string::const_reverse_iterator, string::const_reverse_iterator>;
 
+    // Find the correct left and right boarder. After that we crop alignment up these boarders.
     auto left_boarder = find_correct_boarder<PairStringCIterator>(
         make_pair(alignment.read().cbegin(), alignment.germline().cbegin()),
         make_pair(alignment.read().cend(), alignment.germline().cend()));
@@ -39,6 +40,7 @@ PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
 
     auto iter_boarder(std::make_pair(begin_iterators.first + kmer_len,
                                      begin_iterators.second + kmer_len));
+    // Calculate hashes of first kmer in both germline gene and read.
     while (iter_boarder.first != begin_iterators.first) {
         --iter_boarder.first;
         --iter_boarder.second;
@@ -48,12 +50,14 @@ PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
 
         hash_mult *= hash_base;
     }
+    // If the hashes are equal — no need to crop anything.
     if (hash_germline == hash_read)
         return begin_iterators;
 
     assert(iter_boarder.first == begin_iterators.first);
     assert(iter_boarder.second == begin_iterators.second);
 
+    // Otherwise, find a kmer with equal hashes in the germline gene sequence and the read.
     while (iter_boarder.first + kmer_len != end_iterators.first &&
         hash_germline != hash_read) {
         hash_germline -= (*iter_boarder.first) * hash_max_pow;

@@ -22,7 +22,7 @@ public:
     upto_reliable_kmer_cropper_params &config);
 
     void crop(ns_gene_alignment::ReadGermlineAlignment &alignment) const;
-    ~UptoLastReliableKmerAlignmentCropper() { }
+    virtual ~UptoLastReliableKmerAlignmentCropper() { }
 
 private:
     template<typename PairIter>
