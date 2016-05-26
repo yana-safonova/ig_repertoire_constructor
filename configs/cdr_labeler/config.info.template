@@ -1,0 +1,12 @@
+input_params {
+    input_reads test_dataset/merged_reads.fastq
+    vj_finder_config configs/vj_finder/config.info
+}
+
+output_params {
+    output_dir cdr_test
+}
+
+run_params {
+    num_threads 4
+}
