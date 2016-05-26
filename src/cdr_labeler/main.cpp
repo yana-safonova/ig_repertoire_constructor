@@ -9,12 +9,12 @@
 #include "cdr_config.hpp"
 #include "cdr_launch.hpp"
 
-void create_console_logger(std::string cfg_filename) {
+void create_console_logger(/*std::string cfg_filename*/) {
     using namespace logging;
     std::string log_props_file = "";
-    if (!path::FileExists(log_props_file)){
-        log_props_file = path::append_path(path::parent_path(cfg_filename), log_props_file);
-    }
+    //if (!path::FileExists(log_props_file)){
+    //    log_props_file = path::append_path(path::parent_path(cfg_filename), log_props_file);
+    //}
     logger *lg = create_logger(path::FileExists(log_props_file) ? log_props_file : "");
     lg->add_writer(std::make_shared<console_writer>());
     attach_logger(lg);
@@ -63,6 +63,7 @@ cdr_labeler::CDRLabelerConfig load_config(int argc, char **argv) {
 int main(int argc, char **argv) {
     segfault_handler sh;
     perf_counter pc;
+    create_console_logger();
     cdr_labeler::CDRLabelerConfig config = load_config(argc, argv);
     cdr_labeler::CDRLabelerLaunch(config).Launch();
     //create_console_logger(cfg_filename);
