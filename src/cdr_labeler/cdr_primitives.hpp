@@ -15,7 +15,8 @@ namespace cdr_labeler {
         CDRRange(size_t start_pos, size_t end_pos) :
                 start_pos(start_pos),
                 end_pos(end_pos) {
-            VERIFY_MSG(start_pos < end_pos, "Start position (" << start_pos <<
+            if(start_pos != size_t(-1))
+                VERIFY_MSG(start_pos < end_pos, "Start position (" << start_pos <<
                     ") exceeds end position (" << end_pos << ")");
         }
 

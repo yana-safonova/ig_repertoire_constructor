@@ -29,6 +29,7 @@ add_executable(cdr_labeler
         immunoglobulin_cdr_labeling/hcdr1_labeler.cpp
         immunoglobulin_cdr_labeling/hcdr2_labeler.cpp
         immunoglobulin_cdr_labeling/hcdr3_v_labeler.cpp
+        immunoglobulin_cdr_labeling/hcdr3_j_labeler.cpp
         immunoglobulin_cdr_labeling/immune_gene_labeler.cpp
         cdr_launch.cpp
         main.cpp)
