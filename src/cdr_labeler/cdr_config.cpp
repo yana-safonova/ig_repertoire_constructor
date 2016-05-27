@@ -65,5 +65,7 @@ namespace cdr_labeler {
         load(run_params, pt, "run_params", true);
         load(cdrs_params, pt, "cdrs_params", true);
         vj_finder::load(vj_finder_config, input_params.vj_finder_config);
+        vj_finder_config.algorithm_params.germline_params.pseudogenes = false;
+        vj_finder_config.algorithm_params.germline_params.loci = "IG";
     }
 }

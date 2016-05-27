@@ -6,6 +6,7 @@ namespace cdr_labeler {
     }
 
     bool PositionIsTrp(seqan::Dna5String seq, size_t pos) {
+        std::cout << seq[pos] << seq[pos + 1] << seq[pos + 2] << std::endl;
         return seq[pos] == 'T' and seq[pos + 1] == 'G' and seq[pos + 2] == 'G';
     }
 
@@ -24,9 +25,10 @@ namespace cdr_labeler {
                 break;
             }
         }
-        if(abs_diff(params_.start_pos, cdr1_start) <= params_.start_shift)
+        std::cout << "HCDR1 start pos: " << cdr1_start << std::endl;
+        if(abs_diff(params_.start_pos, cdr1_start  / 3) <= params_.start_shift)
             return cdr1_start;
-        return size_t(-1);
+        return params_.start_pos * 3;
     }
 
     size_t HCDR1Labeler::ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene,
@@ -36,20 +38,23 @@ namespace cdr_labeler {
         size_t end_pos = size_t(-1);
         for(size_t i = start_pos / 3 + 1; i < aa_length; i++)
             if(PositionIsTrp(immune_gene.seq(), i * 3)) {
-                end_pos = i * 3 - 3;
+                end_pos = i * 3 - 1;
                 break;
             }
+        std::cout << "HCDR1 end pos: " << end_pos << std::endl;
         if(end_pos < start_pos)
             return size_t(-1);
-        size_t cdr1_length = end_pos - start_pos + 1;
-        if(cdr1_length >= params_.min_length and cdr1_length <= params_.max_length)
-            return end_pos;
-        return size_t(-1);
+        size_t cdr1_length = (end_pos - start_pos) / 3 + 1;
+        //if(cdr1_length >= params_.min_length and cdr1_length <= params_.max_length)
+        return end_pos;
+        //return size_t(-1);
     }
 
     CDRRange HCDR1Labeler::ComputeRange(const germline_utils::ImmuneGene &immune_gene, CDRRange) {
         size_t start_pos = ComputeStartPosition(immune_gene);
         size_t end_pos = ComputeEndPosition(immune_gene, start_pos);
+        std::cout << start_pos << " - " << end_pos << std::endl;
+        std::cout << seqan::infixWithLength(immune_gene.seq(), start_pos, end_pos - start_pos + 1) << std::endl;
         return CDRRange(start_pos, end_pos);
     }
 }

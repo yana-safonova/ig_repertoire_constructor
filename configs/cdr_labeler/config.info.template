@@ -13,8 +13,8 @@ run_params {
 
 cdrs_params {
    hcdr1_params {
-       start_pos        26
-       start_shift      5
+       start_pos        25
+       start_shift      10
        min_length       10
        max_length       12
        residues_before  C-X-X-X
@@ -23,7 +23,7 @@ cdrs_params {
 
    hcdr2_params {
        distance_from_cdr1_end   15
-       start_shift              5
+       distance_shift           5
        min_length               16
        max_length               19
        residues_before          L-G-W-I-G
@@ -32,7 +32,7 @@ cdrs_params {
 
    hcdr3_params {
        distance_from_cdr2_end   33
-       start_shift              5
+       distance_shift           5
        min_length               3
        max_length               25
        residues_before          C-X-X

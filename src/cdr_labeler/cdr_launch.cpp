@@ -2,7 +2,9 @@
 
 #include <read_archive.hpp>
 #include "germline_db_generator.hpp"
+#include "germline_db_labeler.hpp"
 #include "vj_parallel_processor.hpp"
+
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
@@ -17,9 +19,10 @@ namespace cdr_labeler {
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
         INFO("CDR labeling for germline segments starts");
-        vj_finder::VJParallelProcessor processor(read_archive, config_.vj_finder_config.algorithm_params, v_db, j_db,
-                                      config_.run_params.num_threads);
+        auto v_labeling = GermlineDbLabeler(v_db, config_.cdrs_params).ComputeLabeling();
         INFO("Alignment against VJ germline segments starts");
+        vj_finder::VJParallelProcessor processor(read_archive, config_.vj_finder_config.algorithm_params, v_db, j_db,
+                                                 config_.run_params.num_threads);
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
              " reads were filtered out");

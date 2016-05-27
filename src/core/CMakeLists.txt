@@ -5,7 +5,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 
 add_library(core STATIC
         read_archive.cpp
-        amino_acid_motif.cpp
+        aa_utils/amino_acid_motif.cpp
         )
 
 target_link_libraries(core input)
