@@ -19,4 +19,6 @@ namespace cdr_labeler {
 
         CDRRange ComputeLoopRange(const germline_utils::ImmuneGene &immune_gene, CDRRange previous_cdr);
     };
+
+    typedef std::shared_ptr<SingleLoopLabeler> SingleLoopLabelerPtr;
 }
