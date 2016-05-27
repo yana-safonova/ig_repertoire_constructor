@@ -41,5 +41,9 @@ namespace cdr_labeler {
 
     public:
         DbCDRLabeling(const germline_utils::CustomGeneDatabase &gene_db) : gene_db_(gene_db) { }
+
+        void AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling) {
+            cdr_labelings_.push_back(labeling);
+        }
     };
 }

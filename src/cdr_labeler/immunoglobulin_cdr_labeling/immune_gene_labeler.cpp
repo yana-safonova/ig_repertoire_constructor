@@ -6,7 +6,7 @@ namespace cdr_labeler {
                                                          ") is not " << gene_type_);
         CDRRange cdr1 = cdr1_labeler_ptr_->ComputeLoopRange(immune_gene, CDRRange());
         CDRRange cdr2 = cdr2_labeler_ptr_->ComputeLoopRange(immune_gene, cdr1);
-        CDRRange cdr3 = cdr3_labeler_ptr_->ComputeLoopRange(immune_gene, cdr2);
+        CDRRange cdr3; // = cdr3_labeler_ptr_->ComputeLoopRange(immune_gene, cdr2);
         return CDRLabeling(cdr1, cdr2, cdr3);
     }
 
