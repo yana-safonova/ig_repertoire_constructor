@@ -34,5 +34,5 @@ add_executable(cdr_labeler
         cdr_launch.cpp
         main.cpp)
 
-target_link_libraries(cdr_labeler core algorithms vdj_utils build_info input boost_program_options ${COMMON_LIBRARIES})
+target_link_libraries(cdr_labeler core algorithms vdj_utils input boost_program_options ${COMMON_LIBRARIES})
 
