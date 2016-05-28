@@ -21,9 +21,12 @@ add_executable(shm_kmer_model
         statistics_estimator/statistics_estimator.cpp
         statistics_exporter/statistics_exporter.cpp
         mutation_strategies/no_k_neighbours.cpp
-        statistics_estimator/mutation_statistics.cpp)
+        statistics_estimator/mutation_statistics.cpp
+        command_line_routines.hpp
+        command_line_routines.cpp
+        )
 
-target_link_libraries(shm_kmer_model input yaml-cpp graph_utils ${COMMON_LIBRARIES})
+target_link_libraries(shm_kmer_model boost_program_options input yaml-cpp graph_utils ${COMMON_LIBRARIES})
 
 if (SPADES_STATIC_BUILD)
     set_target_properties(shm_kmer_model PROPERTIES LINK_SEARCH_END_STATIC 1)

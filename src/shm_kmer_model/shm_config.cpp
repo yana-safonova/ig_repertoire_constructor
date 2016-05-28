@@ -11,8 +11,10 @@
 
 std::string error_message_strategy(const std::string &what_about,
                                    const std::string &supplied_method,
-                                   const std::vector<std::string> &available_methods) {
-    std::string message(":::(config) wrong ");
+                                   const std::vector<std::string> &available_methods,
+                                   const std::string &where="config") {
+    std::string message(":::(");
+    message += where + ") wrong ";
     message += what_about;
     message += " method: ";
     message += supplied_method;
@@ -145,3 +147,32 @@ void load(shm_config &cfg, std::string const &filename) {
     boost::property_tree::read_info(filename, pt);
     load(cfg, pt, true);
 }
+
+std::istream& operator>>(std::istream& in, shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy) {
+    std::string token_original;
+    in >> token_original;
+    std::string token(token_original.size(), ' ');
+    std::transform(token_original.begin(), token_original.end(),
+                   token.begin(), ::tolower);
+    using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
+    if (token == "trivial")
+        strategy = MutationStrategyMethod::Trivial;
+    else if (token == "nokneighbours")
+        strategy = MutationStrategyMethod::NoKNeighbours;
+    else {
+        std::string message = error_message_strategy("mutation strategy",
+                                                     token_original,
+                                                     shm_config::mutations_strategy_params::
+                                                     mutation_strategy_method_names,
+                                                     "command line argument");
+        throw std::invalid_argument(message);
+    }
+    return in;
+}
+
+const std::vector<std::string> shm_config::alignment_checker_params::alignment_checker_method_names =
+    {std::string("NoGaps")};
+const std::vector<std::string> shm_config::alignment_cropper_params::alignment_cropper_method_names =
+    {std::string("UptoLastReliableKMer")};
+const std::vector<std::string> shm_config::mutations_strategy_params:: mutation_strategy_method_names =
+    {std::string("Trivial"), std::string("NoKNeighbours")};

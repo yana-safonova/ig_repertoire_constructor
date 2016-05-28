@@ -28,7 +28,7 @@ struct shm_config {
 
     struct alignment_checker_params {
         enum class AlignmentCheckerMethod { NoGaps };
-        std::vector<std::string> alignment_checker_method_names{std::string("NoGaps")};
+        const static std::vector<std::string> alignment_checker_method_names;
         AlignmentCheckerMethod alignment_checker_method;
     };
 
@@ -40,7 +40,7 @@ struct shm_config {
             unsigned int hash_base;
         };
         enum class AlignmentCropperMethod { UptoLastReliableKMer };
-        std::vector<std::string> alignment_cropper_method_names{std::string("UptoLastReliableKMer")};
+        const static std::vector<std::string> alignment_cropper_method_names;
         AlignmentCropperMethod alignment_cropper_method;
 
         upto_reliable_kmer_cropper_params rkmp;
@@ -56,8 +56,7 @@ struct shm_config {
         };
 
         enum class MutationsStrategyMethod { Trivial, NoKNeighbours };
-        std::vector<std::string> mutation_strategy_method_names{std::string("Trivial"),
-                                                                std::string("NoKNeighbours")};
+        const static std::vector<std::string> mutation_strategy_method_names;
         MutationsStrategyMethod mutations_strategy_method;
 
         trivial_mutations_strategy_params tmfp;
@@ -71,6 +70,10 @@ struct shm_config {
     mutations_strategy_params mfp;
 };
 
+std::istream& operator>>(std::istream& in,
+                         shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy);
+
 void load(shm_config &cfg, std::string const &filename);
 
 typedef config_common::config<shm_config> shm_cfg;
+

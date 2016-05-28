@@ -3,10 +3,11 @@
 // TODO remove that standard.hpp include! Cosmetic refactoring of SPAdes utils is needed.
 #include "standard.hpp"
 #include "logger/log_writers.hpp"
-
 #include "segfault_handler.hpp"
-#include "shm_config.hpp"
 #include "copy_file.hpp"
+
+#include "shm_config.hpp"
+#include "command_line_routines.hpp"
 #include "shm_kmer_model_estimator.hpp"
 
 void make_dirs() {
@@ -18,6 +19,23 @@ void copy_configs(std::string cfg_filename, std::string to) {
         WARN("Could not create files use in /tmp directory");
     }
     path::copy_files_by_ext(path::parent_path(cfg_filename), to, ".info", true);
+}
+
+std::string get_config_fname(int argc, char **argv) {
+    if(argc == 2 and (std::string(argv[1]) != "--help" and std::string(argv[1]) != "-h"))
+        return std::string(argv[1]);
+    return "configs/shm_kmer_model/configs.info";
+}
+
+std::string load_config(int argc, char **argv) {
+    std::string cfg_filename = get_config_fname(argc, argv);
+    path::CheckFileExistenceFATAL(cfg_filename);
+    shm_cfg::create_instance(cfg_filename);
+    std::string path_to_copy = path::append_path(shm_cfg::get().io.output.output_dir, "configs");
+    path::make_dir(path_to_copy);
+    copy_configs(cfg_filename, path_to_copy);
+    parse_command_line_args(shm_cfg::get_writable(), argc, argv);
+    return cfg_filename;
 }
 
 void load_config(std::string cfg_filename) {
@@ -43,21 +61,12 @@ void create_console_logger(std::string cfg_filename) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 2) {
-        std::cout << "Invalid input parameters" << std::endl;
-        std::cout << "shm_kmer_model config.info" << std::endl;
-        return 1;
-    }
-
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
     segfault_handler sh;
 
     try {
-        std::string cfg_filename = argv[1];
-        load_config(cfg_filename);
+        std::string cfg_filename = load_config(argc, argv);
         create_console_logger(cfg_filename);
-        make_dirs();
-
         int error_code = shm_kmer_model_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
                                                                          shm_cfg::get().achp,
                                                                          shm_cfg::get().acrp,

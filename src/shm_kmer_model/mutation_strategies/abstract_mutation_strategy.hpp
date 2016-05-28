@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 
+#include "../shm_config.hpp"
 #include "../gene_alignment/gene_alignment.hpp"
 
 namespace ns_abstract_mutation_strategy {
