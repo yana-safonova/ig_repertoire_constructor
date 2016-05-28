@@ -1,5 +1,9 @@
 #include "hcdr1_labeler.hpp"
 
+#include "aa_utils/aa_motif_finder.hpp"
+
+#include "seqan/translation.h"
+
 namespace cdr_labeler {
     bool PositionIsCys(seqan::Dna5String seq, size_t pos) {
         return seq[pos] == 'T' and seq[pos + 1] == 'G' and (seq[pos + 2] == 'T' or seq[pos + 2] == 'C');
@@ -34,20 +38,36 @@ namespace cdr_labeler {
     size_t HCDR1Labeler::ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene,
                                             size_t start_pos) {
         VERIFY_MSG(start_pos % 3 == 0, "Start position of HCDR1 " << start_pos << " is not in frame");
-        size_t aa_length = immune_gene.length() / 3;
-        size_t end_pos = size_t(-1);
-        for(size_t i = start_pos / 3 + 1; i < aa_length; i++)
-            if(PositionIsTrp(immune_gene.seq(), i * 3)) {
-                end_pos = i * 3 - 1;
-                break;
+        using namespace seqan;
+        StringSet<String<AminoAcid>, Owner<ConcatDirect<> > > aa_seqs;
+        translate(aa_seqs, immune_gene.seq(), SINGLE_FRAME);
+        std::cout << "V gene aa seq: " << aa_seqs[0] << std::endl;
+        core::AminoAcidMotifs aa_start_motif(params_.residues_after);
+        size_t best_pos = size_t(-1);
+        size_t best_score = 0;
+        core::AminoAcidMotifFinder *aa_motif_finder = new core::AminoAcidMotifFinder(aa_start_motif);
+        for(size_t i = start_pos / 3 + 1; i < length(aa_seqs[0]); i++) {
+            size_t cur_score = aa_motif_finder->FindMotif(aa_seqs[0], i);
+            if(cur_score > best_score) {
+                best_pos = i * 3 - 1;
+                best_score = cur_score;
             }
-        std::cout << "HCDR1 end pos: " << end_pos << std::endl;
-        if(end_pos < start_pos)
-            return size_t(-1);
-        size_t cdr1_length = (end_pos - start_pos) / 3 + 1;
-        //if(cdr1_length >= params_.min_length and cdr1_length <= params_.max_length)
-        return end_pos;
-        //return size_t(-1);
+        }
+        std::cout << "HCDR1 end pos: " << best_pos << std::endl;
+        return best_pos;
+//        size_t aa_length = immune_gene.length() / 3;
+//        size_t end_pos = size_t(-1);
+//        for(size_t i = start_pos / 3 + 1; i < aa_length; i++)
+//            if(PositionIsTrp(immune_gene.seq(), i * 3)) {
+//                end_pos = i * 3 - 1;
+//                break;
+//            }
+//        if(end_pos < start_pos)
+//            return size_t(-1);
+//        size_t cdr1_length = (end_pos - start_pos) / 3 + 1;
+//        //if(cdr1_length >= params_.min_length and cdr1_length <= params_.max_length)
+//        return end_pos;
+//        //return size_t(-1);
     }
 
     CDRRange HCDR1Labeler::ComputeRange(const germline_utils::ImmuneGene &immune_gene, CDRRange) {
