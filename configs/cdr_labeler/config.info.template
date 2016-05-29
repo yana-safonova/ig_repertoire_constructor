@@ -12,30 +12,40 @@ run_params {
 }
 
 cdrs_params {
-   hcdr1_params {
-       start_pos        25
-       start_shift      10
-       min_length       10
-       max_length       12
-       residues_before  C-X-X-X
-       residues_after   X-X-W/M
+    annotated_search_params {
+        domain_system        imgt ; kabat
+        imgt_v_annotation    data/annotation/human_v_imgt.txt
+        kabat_v_annotation   data/annotation/human_v_kabat.txt
+        imgt_j_annotation    data/annotation/human_j_imgt.txt
+        kabat_j_annotation   data/annotation/human_j_kabat.txt
     }
 
-   hcdr2_params {
-       distance_from_cdr1_end   15
-       distance_shift           5
-       min_length               16
-       max_length               19
-       residues_before          L-G-W-I-G
-       residues_after           K/R-L/I/V/F/W/A-W/S/I/A
+    hcdr1_params {
+        start_pos        25
+        start_shift      10
+        min_length       10
+        max_length       12
+        residues_before  C-X-X-X
+        residues_after   X-X-W/M
     }
 
-   hcdr3_params {
-       distance_from_cdr2_end   33
-       distance_shift           5
-       min_length               3
-       max_length               25
-       residues_before          C-X-X
-       residues_after           W-G-X-G
+    hcdr2_params {
+        distance_from_cdr1_end   15
+        distance_shift           5
+        min_length               16
+        max_length               19
+        residues_before          L-G-W-I-G
+        residues_after           K/R-L/I/V/F/W/A-W/S/I/A
     }
+
+    hcdr3_params {
+        distance_from_cdr2_end   33
+        distance_shift           5
+        min_length               3
+        max_length               25
+        residues_before          C-X-X
+        residues_after           W-G-X-G
+    }
+
+    cdr_search_algorithm annotated_search ; de_novo_search
 }
