@@ -19,6 +19,26 @@ namespace cdr_labeler {
         load(rp.num_threads, pt, "num_threads");
     }
 
+    CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem convert_string_to_domain_system(std::string str) {
+        if(str == "imgt")
+            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::IMGT;
+        if(str == "kabat")
+            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::Kabat;
+        VERIFY_MSG(false, "Domain system " << str << " is unknown!");
+        return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::UnknownDomain;
+    }
+
+    void load(CDRLabelerConfig::CDRsParams::AnnotatedSearchParams &ap, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        std::string domain_system_str;
+        load(domain_system_str, pt, "domain_system");
+        ap.domain_system = convert_string_to_domain_system(domain_system_str);
+        load(ap.imgt_j_annotation, pt, "imgt_j_annotation");
+        load(ap.kabat_j_annotation, pt, "kabat_j_annotation");
+        load(ap.imgt_v_annotation, pt, "imgt_v_annotation");
+        load(ap.kabat_v_annotation, pt, "kabat_v_annotation");
+    }
+
     void load(CDRLabelerConfig::CDRsParams::HCDR1Params &cdr1_p, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(cdr1_p.max_length, pt, "max_length");
@@ -49,11 +69,24 @@ namespace cdr_labeler {
         load(cdr3_p.distance_shift, pt, "distance_shift");
     }
 
+    CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm convert_str_cdr_search_params(std::string str) {
+        if(str == "annotated_search")
+            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedSearch;
+        if(str == "de_novo_search")
+            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::DeNovoSearch;
+        VERIFY_MSG(false, "Unknown CDR search algorithm: " << str);
+        return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::UnknownSearchAlgorithm;
+    }
+
     void load(CDRLabelerConfig::CDRsParams &cdrs_p, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
+        load(cdrs_p.annotated_search_params, pt, "annotated_search_params");
         load(cdrs_p.hcdr1_params, pt, "hcdr1_params");
         load(cdrs_p.hcdr2_params, pt, "hcdr2_params");
         load(cdrs_p.hcdr3_params, pt, "hcdr3_params");
+        std::string cdr_search_str;
+        load(cdr_search_str, pt, "cdr_search_algorithm");
+        cdrs_p.cdr_search_algorithm = convert_str_cdr_search_params(cdr_search_str);
     }
 
     void CDRLabelerConfig::load(std::string config_fname) {

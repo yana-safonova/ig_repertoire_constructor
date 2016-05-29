@@ -21,7 +21,10 @@ namespace cdr_labeler {
         }
 
         bool Valid() const {
-            return start_pos < end_pos;
+            if(start_pos == size_t(-1) and end_pos == size_t(-1))
+                return false;
+            if(start_pos != size_t(-1) and end_pos != size_t(-1))
+                return start_pos < end_pos;
         }
     };
 
@@ -29,6 +32,8 @@ namespace cdr_labeler {
         CDRRange cdr1;
         CDRRange cdr2;
         CDRRange cdr3;
+
+        CDRLabeling() : cdr1(), cdr2(), cdr3() { }
 
         CDRLabeling(CDRRange cdr1, CDRRange cdr2, CDRRange cdr3) :
                 cdr1(cdr1), cdr2(cdr2), cdr3(cdr3) { }

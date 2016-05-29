@@ -8,7 +8,7 @@ namespace cdr_labeler {
         DbCDRLabeling cdr_labeling(gene_db_);
         for(auto it = gene_db_.cbegin(); it != gene_db_.cend(); it++) {
             auto specific_gene_db = gene_db_.GetDbByGeneType(*it);
-            ImmuneGeneCDRLabeler gene_labeler(*it, cdr_params_);
+            DeNovoImmuneGeneCDRLabeler gene_labeler(*it, cdr_params_);
             for(auto it2 = specific_gene_db.cbegin(); it2 != specific_gene_db.cend(); it2++) {
                 std::cout << "Processing immune gene " << *it2 << std::endl;
                 cdr_labeling.AddGeneLabeling(*it2, gene_labeler.ComputeLabeling(*it2));
