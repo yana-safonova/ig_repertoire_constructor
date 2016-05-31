@@ -17,7 +17,7 @@ sys.path.append(igrec_dir + "/src/python_pipeline/")
 from igblast_utils import ParseIgBlastOutput
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-from ash_python_utils import CreateLogger, AttachFileLogger, linear_search, idFormatByFileName, smart_open, md5_file, fq2fa
+from ash_python_utils import CreateLogger, AttachFileLogger, linear_search, idFormatByFileName, smart_open, md5_file, fq2fa, mkdir_p
 
 
 
@@ -102,11 +102,85 @@ def simulated_repertoire_to_final_repertoire(input_file, output_file):
                 SeqIO.write(record, fout, output_format)
 
 
+def simulate_data(input_file, output_dir, **kwargs):
+    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa" % output_dir)
+    jitt_fa_file(input_file, "%s/merged_reads.fq" % output_dir, **kwargs)
 
-# def simulate_final_repertoire_fasta_to_merge_reads_final_and_rcm(input_file, output_file, error_rate):
+
+path_to_ig_simulator = "/ssd/ig_simulator/"
+path_to_mixcr = "TBD"
+path_to_igrec = igrec_dir
+
+
+def run_ig_simulator(output_dir, log, chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000):
+    assert chain in ["HC", "LC"]
+
+    args = {"path": path_to_ig_simulator,
+            "output_dir": output_dir,
+            "chain": chain,
+            "num_bases": num_bases,
+            "num_mutated": num_mutated,
+            "reprtoire_size": reprtoire_size}
+    support.sys_call("%{path}s/ig_simulator.py --chain-type %{chain}s --num-bases %{num_bases}d --num-mutated %{num_mutated}d --repertoire-size %{reprtoire_size}d -o %s{output_dir}s --skip-drawing" % args,
+                     log=log)
+
+
+def convert_mixcr_output_to_igrec(input_file, output_file):
+    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
+        # Skip header
+        fh.next()
+
+        for i, line in enumerate(fh):
+            seq, size = line.strip().split()
+            size = int(size)
+            fout.write(">cluster___%d___size___%d\n" % (i, size))
+            fout.write(seq + "\n")
+
+
+def run_igreg(input_file, output_dir, log, tau=4, loci="IGH"):
+    args = {"path": path_to_igrec,
+            "tau": tau,
+            "loci": loci,
+            "input_file": input_file,
+            "output_dir": output_dir}
+    support.sys_call("%{path}s/igrec.py --tau=%{tau}d -t 36 --loci %{loci}s -s %{input_file}s -o %{output_dir}s" % args)
+
+
+def fa2fq(input_file, output_file):
+    import random
+
+    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
+        for record in SeqIO.parse(fh, "fasta"):
+            record.letter_annotations["phred_quality"] = [50] * len(record)
+            # record.letter_annotations["phred_quality"] = [random.randint(30, 50) for _ in xrange(len(record))]
+            SeqIO.write(record, fout, "fastq")
+
+
+def run_mixcr(input_file, output_dir, log, loci="IGH"):
+    mkdir_p(output_dir)
+
+    if idFormatByFileName(input_file) == "fasta":
+        input_file_fq = "%s/input_reads.fq" % output_dir
+        fa2fq(input_file, input_file_fq)
+        input_file = input_file_fq
+
+
+    args = {"path": path_to_mixcr,
+            "mixcr_cmd": "java -jar %s/mixcr.jar" % path_to_mixcr,
+            "output_dir": output_dir}
+
+    support.sys_call("%{mixcr_cmd}s  align -f -g -r %{output_dir}s/align_report.txt --loci %{loci}s --noMerge -OvParameters.geneFeatureToAlign=VTranscript %{input_file}s %{output_dir}s/mixcr.vdjca" % args,
+                     log=log)
+    support.sys_call("%{mixcr_cmd}s assemble -f -r %{output_dir}s/assemble_report.txt -OassemblingFeatures=\"{FR1Begin:CDR3End}\" %{output_dir}s/mixcr.vdjca %{output_dir}s/mixcr.clns" % args,
+                     log=log)
+    os.system("%{mixcr_cmd}s exportClones -pf %{path}s/preset.pf -f --no-spaces %{output_dir}s/mixcr.clns %{output_dir}s/mixcr.txt" % args)
+
+    convert_mixcr_output_to_igrec("%{output_dir}s/mixcr.txt" % args, "%{output_dir}s/mixcr_final.fa" % args)
+
+
 if __name__ == "__main__":
+    log = CreateLogger("aimQUAST")
+
     input_file = "/ssd/ig_simulator/ig_simulator_test/final_repertoire.fasta"
-    simulated_repertoire_to_rcm(input_file, "/ssd/ig_repertoire_constructor/tmp_dir/ideal_final_repertoire.rcm")
-    simulated_repertoire_to_final_repertoire(input_file, "/ssd/ig_repertoire_constructor/tmp_dir/ideal_final_repertoire.fa")
-    jitt_fa_file(input_file, "/ssd/ig_repertoire_constructor/tmp_dir/merged_reads.fa", 2)
-    jitt_fa_file(input_file, "/ssd/ig_repertoire_constructor/tmp_dir/merged_reads.fq", 2)
+    simulate_data(input_file, "/ssd/ig_repertoire_constructor/tmp_dir", error_rate=2)

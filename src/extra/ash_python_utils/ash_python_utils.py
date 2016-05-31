@@ -78,3 +78,17 @@ def fq2fa(input_file, output_file):
     with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
         parser = SeqIO.parse(fh, idFormatByFileName(input_file))
         SeqIO.write(parser, fout, "fasta")
+
+
+def mkdir_p(path):
+    "From http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python"
+    import errno
+    import os
+
+    try:
+        os.makedirs(path)
+    except OSError as exc:  # Python >2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
