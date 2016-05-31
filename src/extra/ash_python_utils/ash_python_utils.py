@@ -72,12 +72,24 @@ def md5_file(fname):
     return hash_md5.hexdigest()
 
 
-def fq2fa(input_file, output_file):
+def fastx2fastx(input_file, output_file, quality=50):
     from Bio import SeqIO
 
-    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
-        parser = SeqIO.parse(fh, idFormatByFileName(input_file))
-        SeqIO.write(parser, fout, "fasta")
+    input_format, output_format = idFormatByFileName(input_file), idFormatByFileName(output_file)
+
+    with smart_open(input_file) as fin, smart_open(output_file, "w") as fout:
+        if input_format == output_format:
+            for line in fin:
+                fout.write(line)
+        else:
+            for record in SeqIO.parse(fin, input_format):
+                if output_format == "fastq":
+                    record.letter_annotations["phred_quality"] = [quality] * len(record)
+                SeqIO.write(record, fout, output_format)
+
+
+fq2fa = fastx2fastx
+fa2fq = fastx2fastx
 
 
 def mkdir_p(path):

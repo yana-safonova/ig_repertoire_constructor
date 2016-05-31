@@ -68,16 +68,36 @@ def rand_adj(X, Y):
         S10 += _mY - _m
         S11 += N - _mX - _mY + _m
 
+    S00 //= 2
+    S01 //= 2
+    S10 //= 2
+    S11 //= 2
+
 
     # Compute the ARI using the contingency data
     sum_comb_c = sum(comb2(_) for _ in mY.itervalues())
     sum_comb_k = sum(comb2(_) for _ in mX.itervalues())
     sum_comb = sum(comb2(_) for _ in m.itervalues())
 
+    assert sum_comb == S00
+    assert S01 == sum_comb_k - S00
+    assert S10 == sum_comb_c - S00
+    assert S11 == comb2(N) - S01 - S10 - S00
+
+
     prod_comb = (sum_comb_c * sum_comb_k) / float(comb2(N))
     mean_comb = (sum_comb_k + sum_comb_c) / 2.
 
     return (sum_comb - prod_comb) / (mean_comb - prod_comb)
+
+
+def purity(X, Y):
+    # TODO
+    pass
+
+
+def normalized_mutual_information(X, Y): #  NMI
+    pass
 
 
 def rand(X, Y):
