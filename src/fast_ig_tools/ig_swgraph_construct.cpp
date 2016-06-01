@@ -22,59 +22,6 @@ using seqan::CharString;
 #include "ig_final_alignment.hpp"
 #include <build_info.hpp>
 
-template<typename T, typename Tf>
-Graph tauDistGraph(const std::vector<T> &input_reads,
-                   const KmerIndex &kmer2reads,
-                   const Tf &dist_fun,
-                   unsigned tau,
-                   unsigned K,
-                   unsigned strategy,
-                   size_t &num_of_dist_computations) {
-    Graph g(input_reads.size());
-
-    std::atomic<size_t> atomic_num_of_dist_computations;
-    atomic_num_of_dist_computations = 0;
-
-    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-    for (size_t j = 0; j < input_reads.size(); ++j) {
-        auto cand = find_candidates(input_reads[j], kmer2reads, input_reads.size(), tau, K, strategy);
-
-        size_t len_j = length(input_reads[j]);
-
-        for (size_t i : cand) {
-            size_t len_i = length(input_reads[i]);
-            if (len_j < len_i || (len_i == len_j && j < i)) {
-                unsigned dist = dist_fun(input_reads[j], input_reads[i]);
-
-                atomic_num_of_dist_computations += 1;
-
-                if (dist <= tau) {
-                    g[j].push_back( { i, dist } );
-                }
-            }
-        }
-    }
-
-    // Undirecting
-    auto gg = g;
-    for (size_t i = 0; i < gg.size(); ++i) {
-        for (const auto &_ : gg[i]) {
-            g[_.first].push_back( { i, _.second } );
-        }
-    }
-    gg.clear(); // Free memory
-
-    SEQAN_OMP_PRAGMA(parallel for schedule(guided, 8))
-    for (size_t j = 0; j < g.size(); ++j) {
-        remove_duplicates(g[j]);
-    }
-
-    num_of_dist_computations = atomic_num_of_dist_computations;
-
-    return g;
-}
-
-
 struct SWGCParam {
     unsigned k = 10;
     unsigned tau = 4;
