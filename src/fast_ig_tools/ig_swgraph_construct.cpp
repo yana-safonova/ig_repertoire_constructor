@@ -74,8 +74,20 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     return g;
 }
 
-bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, std::string &output_file, int &K, int &tau,
-                              int &nthreads, unsigned &strategy, int &max_indels, bool &export_abundances) {
+
+struct SWGCParam {
+    unsigned k = 10;
+    unsigned tau = 4;
+    unsigned nthreads = 4;
+    std::string input_file = "cropped.fa";
+    std::string output_file = "output.graph";
+    unsigned strategy = 3;
+    unsigned max_indels = 0;
+    bool export_abundances = false;
+};
+
+
+bool parse_cmd_line_arguments(int argc, char **argv, SWGCParam &args) {
     std::string config_file = "";
 
     // Declare a group of options that will be
@@ -86,9 +98,9 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
             ("help,h", "produce help message")
             ("config,c", po::value<std::string>(&config_file)->default_value(config_file),
              "name of a file of a configuration")
-            ("input-file,i", po::value<std::string>(&input_file),
+            ("input-file,i", po::value<std::string>(&args.input_file),
              "name of an input file (FASTA|FASTQ)")
-            ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
+            ("output-file,o", po::value<std::string>(&args.output_file)->default_value(args.output_file),
              "file for outputted truncated dist-graph in METIS format")
             ("export-abundances,A", "export read abundances to output graph file")
             ("no-export-abundances", "don't export read abundances to output graph file (default)")
@@ -99,15 +111,15 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
     // config file
     po::options_description config("Configuration");
     config.add_options()
-            ("word-size,k", po::value<int>(&K)->default_value(K),
+            ("word-size,k", po::value<unsigned>(&args.k)->default_value(args.k),
              "word size for k-mer index construction")
-            ("strategy,S", po::value<unsigned>(&strategy)->default_value(strategy),
+            ("strategy,S", po::value<unsigned>(&args.strategy)->default_value(args.strategy),
              "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple, etc)")
-            ("tau", po::value<int>(&tau)->default_value(tau),
+            ("tau", po::value<unsigned>(&args.tau)->default_value(args.tau),
              "maximum distance value for truncated dist-graph construction")
-            ("max-indels", po::value<int>(&max_indels)->default_value(max_indels),
+            ("max-indels", po::value<unsigned>(&args.max_indels)->default_value(args.max_indels),
              "maximum number of indels in Levenshtein distance")
-            ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
+            ("threads,t", po::value<unsigned>(&args.nthreads)->default_value(args.nthreads),
              "the number of parallel threads")
             ;
 
@@ -173,34 +185,25 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
     }
 
     if (vm.count("export-abundances")) {
-        export_abundances = true;
+        args.export_abundances = true;
     }
 
     if (vm.count("no-export-abundances")) {
-        export_abundances = false;
+        args.export_abundances = false;
     }
 
     return true;
 }
+
 
 int main(int argc, char **argv) {
     segfault_handler sh;
     perf_counter pc;
     create_console_logger("");
 
-    INFO("Command line: " << join_cmd_line(argc, argv));
-
-    int K = 10; // anchor length
-    int tau = 4;
-    int nthreads = 4;
-    std::string input_file = "cropped.fa";
-    std::string output_file = "output.graph";
-    unsigned strategy = 3;
-    int max_indels = 0;
-    bool export_abundances = false;
-
+    SWGCParam args;
     try {
-        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, K, tau, nthreads, strategy, max_indels, export_abundances)) {
+        if (!parse_cmd_line_arguments(argc, argv, args)) {
             return 0;
         }
     } catch(std::exception& e) {
@@ -208,22 +211,22 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    INFO("Input reads: " << input_file);
+    INFO("Command line: " << join_cmd_line(argc, argv));
+    INFO("Input reads: " << args.input_file);
+    INFO("k = " << args.k << ", tau = " << args.tau);
 
-    INFO("K = " << K << ", tau = " << tau);
-
-    SeqFileIn seqFileIn_input(input_file.c_str());
+    SeqFileIn seqFileIn_input(args.input_file.c_str());
     std::vector<CharString> input_ids;
     std::vector<Dna5String> input_reads;
 
     INFO("Reading input reads starts");
     readRecords(input_ids, input_reads, seqFileIn_input);
-    INFO(input_reads.size() << " reads were extracted from " << input_file);
+    INFO(input_reads.size() << " reads were extracted from " << args.input_file);
 
     INFO("Read length checking");
-    size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
-    size_t required_read_length_for_single_strategy = K * (tau + 1);
-    size_t required_read_length_for_double_strategy = K * (tau + 2);
+    size_t required_read_length = (args.strategy != 0) ? (args.k * (args.tau + args.strategy)) : 0;
+    size_t required_read_length_for_single_strategy = args.k * (args.tau + 1);
+    size_t required_read_length_for_double_strategy = args.k * (args.tau + 2);
 
     size_t discarded_reads = 0;
     size_t discarded_reads_single = 0;
@@ -241,12 +244,12 @@ int main(int argc, char **argv) {
         if (saved_reads_single - saved_reads_double < 0.05 * static_cast<double>(input_reads.size())) {
             INFO(bformat("Choosing <<double>> strategy for saving %d reads")
                  % saved_reads_double);
-            strategy = 2;
+            args.strategy = 2;
             discarded_reads = discarded_reads_double;
         } else {
             INFO(bformat("Choosing <<single>> strategy for saving %d reads")
                  % saved_reads_single);
-            strategy = 1;
+            args.strategy = 1;
             discarded_reads = discarded_reads_single;
         }
     }
@@ -256,25 +259,25 @@ int main(int argc, char **argv) {
     }
 
     INFO("K-mer index construction");
-    auto kmer2reads = kmerIndexConstruction(input_reads, K);
+    auto kmer2reads = kmerIndexConstruction(input_reads, args.k);
 
-    omp_set_num_threads(nthreads);
-    INFO(bformat("Truncated distance graph construction using %d threads starts") % nthreads);
+    omp_set_num_threads(args.nthreads);
+    INFO(bformat("Truncated distance graph construction using %d threads starts") % args.nthreads);
     INFO("Construction of candidates graph");
 
-    INFO("Strategy " << strategy << " was chosen");
+    INFO("Strategy " << args.strategy << " was chosen");
 
-    auto dist_fun = [max_indels](const Dna5String &s1, const Dna5String &s2) -> int {
+    auto dist_fun = [&args](const Dna5String &s1, const Dna5String &s2) -> int {
         auto lizard_tail = [](int l) -> int { return 0*l; };
-        return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, max_indels);
+        return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, args.max_indels);
     };
 
     size_t num_of_dist_computations;
     auto dist_graph = tauDistGraph(input_reads,
                                    kmer2reads,
                                    dist_fun,
-                                   tau, K,
-                                   strategy,
+                                   args.tau, args.k,
+                                   args.strategy,
                                    num_of_dist_computations);
 
 
@@ -286,15 +289,15 @@ int main(int argc, char **argv) {
     INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
 
     // Output
-    if (export_abundances) {
+    if (args.export_abundances) {
         INFO("Saving graph (with abundances)");
         auto abundances = find_abundances(input_ids);
-        write_metis_graph(dist_graph, abundances, output_file);
+        write_metis_graph(dist_graph, abundances, args.output_file);
     } else {
         INFO("Saving graph (without abundances)");
-        write_metis_graph(dist_graph, output_file);
+        write_metis_graph(dist_graph, args.output_file);
     }
-    INFO("Graph was written to " << output_file);
+    INFO("Graph was written to " << args.output_file);
 
     INFO("Running time: " << running_time_format(pc));
 
