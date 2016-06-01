@@ -20,6 +20,7 @@ using seqan::CharString;
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
 #include "ig_final_alignment.hpp"
+#include <build_info.hpp>
 
 template<typename T, typename Tf>
 Graph tauDistGraph(const std::vector<T> &input_reads,
@@ -127,41 +128,48 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
     visible.add(generic).add(config);
 
     po::positional_options_description p;
-    p.add("input-file", -1);
-    // p.add("output-file", -1);
+    p.add("input-file", 1);
+    p.add("output-file", 1);
 
     po::variables_map vm;
     store(po::command_line_parser(argc, argv).
-            options(cmdline_options).positional(p).run(), vm);
-    notify(vm);
+          options(cmdline_options).positional(p).run(), vm);
 
-    if (config_file != "") {
-        std::ifstream ifs(config_file.c_str());
-        if (!ifs) {
-            cout << "can not open config file: " << config_file << "\n";
-            return false;
-        } else {
-            store(parse_config_file(ifs, config_file_options), vm);
-            // reparse cmd line again for update config defaults
-            store(po::command_line_parser(argc, argv).
-                    options(cmdline_options).positional(p).run(), vm);
-            notify(vm);
-        }
-    }
 
     if (vm.count("help-hidden")) {
         cout << cmdline_options << std::endl;
         return false;
     }
 
-    if (vm.count("help") || !vm.count("input-file")) { // TODO Process required arguments by the proper way
-        cout << visible << "\n";
+    if (vm.count("help")) {
+        cout << visible << std::endl;
         return false;
     }
 
     if (vm.count("version")) {
-        cout << "<Some cool name> version 0.1" << vm.count("version") << std::endl;
+        cout << bformat("S-W Graph Constructor, part of IgReC version %s; git version: %s") % build_info::version % build_info::git_hash7 << std::endl;
         return false;
+    }
+
+    if (vm.count("config-file")) {
+        std::string config_file = vm["config-file"].as<std::string>();
+
+        std::ifstream ifs(config_file.c_str());
+        if (!ifs) {
+            cout << "can not open config file: " << config_file << "\n";
+            return 0;
+        } else {
+            store(parse_config_file(ifs, config_file_options), vm);
+            // reparse cmd line again for update config defaults
+            store(po::command_line_parser(argc, argv).
+                  options(cmdline_options).positional(p).run(), vm);
+        }
+    }
+
+    try {
+        notify(vm);
+    } catch (po::error &e) {
+        cout << "Parser error: " << e.what() << std::endl;
     }
 
     if (vm.count("export-abundances")) {
@@ -171,6 +179,7 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
     if (vm.count("no-export-abundances")) {
         export_abundances = false;
     }
+
     return true;
 }
 
