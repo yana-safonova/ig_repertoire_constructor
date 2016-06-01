@@ -242,12 +242,13 @@ std::vector<size_t> find_candidates(const T &read,
 using Graph = std::vector<std::vector<std::pair<size_t, int>>>;
 
 
-size_t numEdges(const Graph &graph) {
+size_t numEdges(const Graph &graph,
+                bool exclude_loops = true) {
     size_t nE = 0;
 
     for (size_t i = 0; i < graph.size(); ++i) {
         for (const auto &neib : graph[i]) {
-            if (i != neib.first) nE += 1; // Exclude loop edges
+            if (!exclude_loops || i != neib.first) nE += 1; // Exclude loop edges
         }
     }
     nE /= 2;
@@ -257,7 +258,8 @@ size_t numEdges(const Graph &graph) {
 
 
 void write_metis_graph(const Graph &graph,
-                       const std::string &filename) {
+                       const std::string &filename,
+                       bool exclude_loops = true) {
     std::ofstream out(filename);
 
     // Count the numder of vertices and the number of edges
@@ -268,7 +270,7 @@ void write_metis_graph(const Graph &graph,
 
     for (size_t i = 0; i < graph.size(); ++i) {
         for (const auto &neib : graph[i]) {
-            if (i == neib.first) continue; // Exclude loop edges
+            if (exclude_loops && i == neib.first) continue; // Exclude loop edges
             out << neib.first + 1 << " " << neib.second << " ";
         }
         out << "\n";
@@ -278,7 +280,8 @@ void write_metis_graph(const Graph &graph,
 
 void write_metis_graph(const Graph &graph,
                        const std::vector<size_t> &weights,
-                       const std::string &filename) {
+                       const std::string &filename,
+                       bool exclude_loops = true) {
     std::ofstream out(filename);
 
     // Count the numder of vertices and the number of edges
@@ -290,7 +293,7 @@ void write_metis_graph(const Graph &graph,
     for (size_t i = 0; i < graph.size(); ++i) {
         out << weights[i] << " ";
         for (const auto &neib : graph[i]) {
-            if (i == neib.first) continue; // Exclude loop edges
+            if (exclude_loops && i == neib.first) continue; // Exclude loop edges
             out << neib.first + 1 << " " << neib.second << " ";
         }
         out << "\n";
