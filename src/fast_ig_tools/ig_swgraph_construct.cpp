@@ -26,8 +26,8 @@ template<typename T, typename Tf>
 Graph tauDistGraph(const std::vector<T> &input_reads,
                    const KmerIndex &kmer2reads,
                    const Tf &dist_fun,
-                   int tau,
-                   int K,
+                   unsigned tau,
+                   unsigned K,
                    unsigned strategy,
                    size_t &num_of_dist_computations) {
     Graph g(input_reads.size());
@@ -44,7 +44,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
         for (size_t i : cand) {
             size_t len_i = length(input_reads[i]);
             if (len_j < len_i || (len_i == len_j && j < i)) {
-                int dist = dist_fun(input_reads[j], input_reads[i]);
+                unsigned dist = dist_fun(input_reads[j], input_reads[i]);
 
                 atomic_num_of_dist_computations += 1;
 
@@ -267,7 +267,7 @@ int main(int argc, char **argv) {
 
     INFO("Strategy " << args.strategy << " was chosen");
 
-    auto dist_fun = [&args](const Dna5String &s1, const Dna5String &s2) -> int {
+    auto dist_fun = [&args](const Dna5String &s1, const Dna5String &s2) -> unsigned {
         auto lizard_tail = [](int l) -> int { return 0*l; };
         return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, args.max_indels);
     };

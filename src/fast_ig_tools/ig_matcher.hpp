@@ -190,7 +190,7 @@ template<typename T>
 std::vector<size_t> find_candidates(const T &read,
                                     const KmerIndex &kmer2reads,
                                     size_t target_size,
-                                    int tau, size_t K,
+                                    unsigned tau, size_t K,
                                     unsigned strategy) {
     size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
     if (length(read) < required_read_length) {
