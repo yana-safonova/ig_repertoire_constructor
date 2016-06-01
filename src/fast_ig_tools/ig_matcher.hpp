@@ -63,6 +63,8 @@ bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
 
 // TODO cover by tests
 // and then, refactor it!!!!!!!!111111111111oneoneone
+// TODO Rename it to be consistent with the paper
+// TODO int -> unsigned or size_t
 std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
                                      size_t K, size_t n = 3) {
     assert(n >= 1);
