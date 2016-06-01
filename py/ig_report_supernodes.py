@@ -70,18 +70,21 @@ if __name__ == "__main__":
     print "Supernode reporter started..."
     print "Command line: %s" % " ".join(sys.argv)
 
-    result = []
-    with smart_open(args.input, "r") as fin:
+    input_size, output_size = 0,0
+    with smart_open(args.input, "r") as fin, smart_open(args.output, "w") as fout:
         for record in SeqIO.parse(fin, "fasta"):
+            input_size += 1
             id = str(record.description)
             size = parse_size(id)
             if size >= args.limit:
                 if not "___size___" in id:
                     id = "%s___size___%d" % (id, size)
                 record.id = record.name = record.description = id
-                result.append(record)
+                SeqIO.write(record, fout, "fasta")
+                output_size += 1
 
-    with smart_open(args.output, "w") as fout:
-        SeqIO.write(result, fout, "fasta")
 
+    print "%d antibody clusters have abundance >= %d" % (output_size, args.limit)
+    print "%d lowly abundant antibody clusters will be discarded" % (input_size - output_size, )
+    print "Highly abundant clusters were written to " + args.output
     print "Supernode reporter done"
