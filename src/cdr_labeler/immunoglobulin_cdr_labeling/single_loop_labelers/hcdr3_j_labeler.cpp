@@ -1,7 +1,7 @@
 #include "hcdr3_j_labeler.hpp"
 
 namespace cdr_labeler {
-    size_t HCDR3JLabeler::ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene) {
+    size_t HCDR3JLabeler::ComputeEndPosition(const germline_utils::ImmuneGene &) {
         VERIFY_MSG(false, "Implement me!");
         return size_t(-1);
     }

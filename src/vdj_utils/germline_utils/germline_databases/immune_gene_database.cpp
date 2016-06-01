@@ -4,11 +4,14 @@
 #include "immune_gene_database.hpp"
 
 namespace germline_utils {
-
     std::ostream &operator<<(std::ostream &out, const ImmuneGene &obj) {
         out << "Name: " << obj.name() << ", type: " << obj.GeneType() << std::endl;
         out << "Seq (len " << obj.length() << "): " << obj.seq();
         return out;
+    }
+
+    void ImmuneGeneDatabase::CheckConsistencyFatal(const ImmuneGene &immune_gene) {
+        VERIFY_MSG(immune_gene.GeneType() == gene_type_, "Type of gene is not " << gene_type_);
     }
 
     size_t ImmuneGeneDatabase::AddGenesFromFile(std::string filename) {
@@ -18,11 +21,16 @@ namespace germline_utils {
         seqan::readRecords(read_headers, read_seqs, seqFileIn_reads);
         for (size_t i = 0; i < read_headers.size(); i++) {
             ImmuneGene immune_gene(gene_type_, read_headers[i], read_seqs[i], i);
-            immune_genes_.push_back(immune_gene);
-            gene_name_map_[std::string(seqan::toCString(read_headers[i]))] = i;
+            AddImmuneGene(immune_gene);
         }
         INFO(read_headers.size() << " records were extracted from " << filename);
         return read_headers.size();
+    }
+
+    void ImmuneGeneDatabase::AddImmuneGene(ImmuneGene immune_gene) {
+        CheckConsistencyFatal(immune_gene);
+        immune_genes_.push_back(immune_gene);
+        gene_name_map_[std::string(seqan::toCString(immune_gene.name()))] = immune_genes_.size() - 1;
     }
 
     const ImmuneGene &ImmuneGeneDatabase::operator[](size_t index) const {

@@ -20,20 +20,36 @@ namespace germline_utils {
         }
     }
 
+    size_t CustomGeneDatabase::AddImmuneGeneType(ImmuneGeneType gene_type) {
+        gene_databases_.push_back(ImmuneGeneDatabase(gene_type));
+        size_t db_index = gene_databases_.size() - 1;
+        gene_type_index_map_[gene_type] = db_index;
+        immune_gene_types_.push_back(gene_type);
+        return db_index;
+    }
+
     void CustomGeneDatabase::AddDatabase(ImmuneGeneType gene_type, std::string filename) {
         CheckConsistency(gene_type);
         size_t db_index;
-        if (gene_type_index_map_.find(gene_type) == gene_type_index_map_.end()) {
-            gene_databases_.push_back(ImmuneGeneDatabase(gene_type));
-            db_index = gene_databases_.size() - 1;
-            gene_type_index_map_[gene_type] = db_index;
-            immune_gene_types_.push_back(gene_type);
-        }
+        if (!ContainsImmuneGeneType(gene_type))
+            db_index = AddImmuneGeneType(gene_type);
         else
             db_index = gene_type_index_map_[gene_type];
         size_t num_added_records = gene_databases_[db_index].AddGenesFromFile(filename);
         num_records_ += num_added_records;
         UpdateGeneIndexMap(db_index, num_added_records);
+    }
+
+    void CustomGeneDatabase::AddImmuneGene(ImmuneGene immune_gene) {
+        CheckConsistency(immune_gene.GeneType());
+        size_t db_index;
+        if (!ContainsImmuneGeneType(immune_gene.GeneType()))
+            db_index = AddImmuneGeneType(immune_gene.GeneType());
+        else
+            db_index = gene_type_index_map_[immune_gene.GeneType()];
+        gene_databases_[db_index].AddImmuneGene(immune_gene);
+        num_records_++;
+        UpdateGeneIndexMap(db_index, 1);
     }
 
     bool CustomGeneDatabase::ContainsImmuneGeneType(ImmuneGeneType gene_type) const {

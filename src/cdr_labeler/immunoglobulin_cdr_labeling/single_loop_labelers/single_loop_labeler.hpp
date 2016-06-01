@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../cdr_primitives.hpp"
+#include "../../cdr_primitives.hpp"
 
 namespace cdr_labeler {
     class SingleLoopLabeler {
@@ -9,8 +9,7 @@ namespace cdr_labeler {
 
         void CheckConsistencyFatal(const germline_utils::ImmuneGene &immune_gene);
 
-        virtual CDRRange ComputeRange(const germline_utils::ImmuneGene &immune_gene,
-                                      CDRRange) {
+        virtual CDRRange ComputeRange(const germline_utils::ImmuneGene&, CDRRange) {
             return CDRRange();
         }
 
