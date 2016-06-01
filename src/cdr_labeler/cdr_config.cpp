@@ -21,11 +21,33 @@ namespace cdr_labeler {
 
     CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem convert_string_to_domain_system(std::string str) {
         if(str == "imgt")
-            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::IMGT;
+            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::IMGT_Domain;
         if(str == "kabat")
-            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::Kabat;
+            return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::Kabat_Domain;
         VERIFY_MSG(false, "Domain system " << str << " is unknown!");
         return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::UnknownDomain;
+    }
+
+    void load(CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::VGeneAnnotation &va,
+              boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(va.cdr1_end_line_index, pt, "cdr1_end_line_index");
+        load(va.cdr1_start_line_index, pt, "cdr1_start_line_index");
+        load(va.cdr2_end_line_index, pt, "cdr2_end_line_index");
+        load(va.cdr2_start_line_index, pt, "cdr2_start_line_index");
+        load(va.fr3_end_index, pt, "fr3_end_index");
+        load(va.imgt_v_annotation, pt, "imgt_v_annotation");
+        load(va.kabat_v_annotation, pt, "kabat_v_annotation");
+        load(va.v_gene_line_index, pt, "v_gene_line_index");
+    }
+
+    void load(CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::JGeneAnnotation &ja,
+              boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(ja.cdr3_end_index, pt, "cdr3_end_index");
+        load(ja.imgt_j_annotation, pt, "imgt_j_annotation");
+        load(ja.j_gene_line_index, pt, "j_gene_line_index");
+        load(ja.kabat_j_annotation, pt, "kabat_j_annotation");
     }
 
     void load(CDRLabelerConfig::CDRsParams::AnnotatedSearchParams &ap, boost::property_tree::ptree const &pt, bool) {
@@ -33,10 +55,8 @@ namespace cdr_labeler {
         std::string domain_system_str;
         load(domain_system_str, pt, "domain_system");
         ap.domain_system = convert_string_to_domain_system(domain_system_str);
-        load(ap.imgt_j_annotation, pt, "imgt_j_annotation");
-        load(ap.kabat_j_annotation, pt, "kabat_j_annotation");
-        load(ap.imgt_v_annotation, pt, "imgt_v_annotation");
-        load(ap.kabat_v_annotation, pt, "kabat_v_annotation");
+        load(ap.v_gene_annotation, pt, "v_gene_annotation");
+        load(ap.j_gene_annotation, pt, "j_gene_annotation");
     }
 
     void load(CDRLabelerConfig::CDRsParams::HCDR1Params &cdr1_p, boost::property_tree::ptree const &pt, bool) {

@@ -12,7 +12,7 @@ namespace cdr_labeler {
         translate(aa_seqs, immune_gene.seq(), SINGLE_FRAME);
         std::cout << "V gene aa seq: " << aa_seqs[0] << std::endl;
         core::AminoAcidMotifs aa_start_motif(params_.residues_before);
-        size_t aa_length = immune_gene.length() / 3;
+        //size_t aa_length = immune_gene.length() / 3;
         size_t start_range = previous_cdr.end_pos / 3 + 1 + params_.distance_from_cdr1_end -
                 params_.distance_shift - aa_start_motif.length();
         size_t end_range = start_range + 2 * params_.distance_shift;
@@ -29,8 +29,8 @@ namespace cdr_labeler {
         return best_pos;
     }
 
-    size_t HCDR2Labeler::ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene, size_t start_pos) {
-        //VERIFY_MSG(false, "Implement me!");
+    size_t HCDR2Labeler::ComputeEndPosition(const germline_utils::ImmuneGene &, size_t) {
+        VERIFY_MSG(false, "Implement me!");
         return size_t(-1);
     }
 

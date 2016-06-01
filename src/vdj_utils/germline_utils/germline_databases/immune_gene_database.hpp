@@ -55,8 +55,10 @@ namespace germline_utils {
     class ImmuneGeneDatabase {
         ImmuneGeneType gene_type_;
         std::vector <ImmuneGene> immune_genes_;
-        // map from gene_name to its id
+        // map from gene_name to its index in immune_genes_ vector
         std::unordered_map <std::string, size_t> gene_name_map_;
+
+        void CheckConsistencyFatal(const ImmuneGene &immune_gene);
 
     public:
         ImmuneGeneDatabase() : gene_type_() { }
@@ -67,6 +69,7 @@ namespace germline_utils {
         // method returns number of added records
         size_t AddGenesFromFile(std::string filename);
 
+        void AddImmuneGene(ImmuneGene immune_gene);
 
         ImmuneGeneType GeneType() const { return gene_type_; }
 

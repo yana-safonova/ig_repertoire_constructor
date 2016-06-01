@@ -20,12 +20,16 @@ namespace germline_utils {
 
         void UpdateGeneIndexMap(size_t db_index, size_t num_added_records);
 
+        size_t AddImmuneGeneType(ImmuneGeneType gene_type);
+
     public:
         CustomGeneDatabase(SegmentType segment_type) :
                 segment_type_(segment_type),
                 num_records_() { }
 
         void AddDatabase(ImmuneGeneType gene_type, std::string filename);
+
+        void AddImmuneGene(ImmuneGene immune_gene);
 
         size_t size() const { return num_records_; }
 

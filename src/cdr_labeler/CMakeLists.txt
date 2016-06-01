@@ -25,12 +25,16 @@ add_executable(cdr_labeler
         ../vj_finder/vj_query_processing.cpp
         ../vj_finder/vj_parallel_processor.cpp
         germline_db_labeler.cpp
-        immunoglobulin_cdr_labeling/single_loop_labeler.cpp
-        immunoglobulin_cdr_labeling/hcdr1_labeler.cpp
-        immunoglobulin_cdr_labeling/hcdr2_labeler.cpp
-        immunoglobulin_cdr_labeling/hcdr3_v_labeler.cpp
-        immunoglobulin_cdr_labeling/hcdr3_j_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/hcdr1_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/hcdr2_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_v_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_j_labeler.cpp
+        immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_helper.cpp
         immunoglobulin_cdr_labeling/immune_gene_labeler.cpp
+        immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
+        immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
+        cdr_primitives.cpp
         cdr_launch.cpp
         main.cpp)
 

@@ -25,7 +25,10 @@ namespace cdr_labeler {
                 return false;
             if(start_pos != size_t(-1) and end_pos != size_t(-1))
                 return start_pos < end_pos;
+            return true;
         }
+
+        bool Empty() const { return !Valid(); }
     };
 
     struct CDRLabeling {
@@ -37,18 +40,25 @@ namespace cdr_labeler {
 
         CDRLabeling(CDRRange cdr1, CDRRange cdr2, CDRRange cdr3) :
                 cdr1(cdr1), cdr2(cdr2), cdr3(cdr3) { }
+
+        bool Empty() const { return cdr1.Empty() and cdr2.Empty() and cdr3.Empty(); }
     };
 
-    // todo: make it template
     class DbCDRLabeling {
-        const germline_utils::CustomGeneDatabase &gene_db_;
         std::vector<CDRLabeling> cdr_labelings_;
+        std::unordered_map<std::string, size_t> gene_name_index_map_;
+
+        size_t num_empty_labelings_;
 
     public:
-        DbCDRLabeling(const germline_utils::CustomGeneDatabase &gene_db) : gene_db_(gene_db) { }
+        DbCDRLabeling() : num_empty_labelings_() { }
 
-        void AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling) {
-            cdr_labelings_.push_back(labeling);
-        }
+        void AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling);
+
+        CDRLabeling GetLabelingByGene(const germline_utils::ImmuneGene &immune_gene) const;
+
+        bool CDRLabelingIsEmpty(const germline_utils::ImmuneGene &immune_gene) const;
+
+        size_t NumEmptyLabelings() const { return num_empty_labelings_; }
     };
 }

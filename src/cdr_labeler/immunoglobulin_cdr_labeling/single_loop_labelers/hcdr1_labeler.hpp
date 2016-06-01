@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cdr_config.hpp"
+#include "../../cdr_config.hpp"
 #include "single_loop_labeler.hpp"
 
 namespace cdr_labeler {

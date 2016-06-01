@@ -19,19 +19,29 @@ namespace cdr_labeler {
 
         struct CDRsParams {
             struct AnnotatedSearchParams {
-                enum DomainSystem { UnknownDomain, IMGT, Kabat };
-                DomainSystem domain_system;
-                std::string imgt_v_annotation;
-                std::string kabat_v_annotation;
-                std::string imgt_j_annotation;
-                std::string kabat_j_annotation;
-                size_t v_gene_line_index;
-                size_t cdr1_start_line_index;
-                size_t cdr1_end_line_index;
-                size_t cdr2_start_line_index;
-                size_t cdr2_end_line_index;
-                size_t fr3_end_index;
+                enum DomainSystem { UnknownDomain, IMGT_Domain, Kabat_Domain };
 
+                struct VGeneAnnotation {
+                    std::string imgt_v_annotation;
+                    std::string kabat_v_annotation;
+                    size_t v_gene_line_index;
+                    size_t cdr1_start_line_index;
+                    size_t cdr1_end_line_index;
+                    size_t cdr2_start_line_index;
+                    size_t cdr2_end_line_index;
+                    size_t fr3_end_index;
+                };
+
+                struct JGeneAnnotation {
+                    std::string imgt_j_annotation;
+                    std::string kabat_j_annotation;
+                    size_t j_gene_line_index;
+                    size_t cdr3_end_index;
+                };
+
+                DomainSystem domain_system;
+                VGeneAnnotation v_gene_annotation;
+                JGeneAnnotation j_gene_annotation;
             };
 
             struct HCDR1Params {
