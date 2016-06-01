@@ -159,7 +159,8 @@ using KmerIndex = std::unordered_map<size_t, std::vector<size_t>>;
 
 template<typename T>
 KmerIndex kmerIndexConstruction(const std::vector<T> &input_reads, size_t K) {
-    KmerIndex kmer2reads(input_reads.size() * 200); // Count them more careful
+    size_t initial_hashtable_size = (K <= 13) ? (1 << (2*K)) : (input_reads.size() * 200);
+    KmerIndex kmer2reads(initial_hashtable_size);
 
     for (size_t j = 0; j < input_reads.size(); ++j) {
         for (size_t hash : polyhashes(input_reads[j], K)) {
