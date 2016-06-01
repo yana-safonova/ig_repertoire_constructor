@@ -138,7 +138,6 @@ class IgRepConConfig:
         self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
         self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
-        self.run_remove_low_abundance_reads = os.path.join(home_directory, 'py/ig_remove_low_abundance_reads.py')
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
@@ -157,7 +156,7 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetVJAlignmentLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_trie_compressor):
+        if not os.path.exists(self.path_to_trie_compressor) or not os.path.exists(self.run_report_supernodes):
             log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
@@ -175,10 +174,6 @@ class IgRepConConfig:
             sys.exit(1)
         if not os.path.exists(self.run_compress_equal_clusters):
             log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.run_remove_low_abundance_reads):
-            log.info("ERROR: Binary file of " + phase_names.GetRemoveLowAbundanceReadsName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
@@ -555,7 +550,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
+        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
                                                 self.__params.io.compressed_final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
                                                 self.__params.min_cluster_size)
