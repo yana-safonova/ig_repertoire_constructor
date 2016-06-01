@@ -27,7 +27,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
                    const Tf &dist_fun,
                    int tau,
                    int K,
-                   Strategy strategy,
+                   unsigned strategy,
                    size_t &num_of_dist_computations) {
     Graph g(input_reads.size());
 
@@ -74,7 +74,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
 }
 
 bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, std::string &output_file, int &K, int &tau,
-                              int &nthreads, int &strategy_int, int &max_indels, bool &export_abundances) {
+                              int &nthreads, unsigned &strategy, int &max_indels, bool &export_abundances) {
     std::string config_file = "";
 
     // Declare a group of options that will be
@@ -100,8 +100,8 @@ bool parse_cmd_line_arguments(int argc, char **argv, std::string &input_file, st
     config.add_options()
             ("word-size,k", po::value<int>(&K)->default_value(K),
              "word size for k-mer index construction")
-            ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
-             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
+            ("strategy,S", po::value<unsigned>(&strategy)->default_value(strategy),
+             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple, etc)")
             ("tau", po::value<int>(&tau)->default_value(tau),
              "maximum distance value for truncated dist-graph construction")
             ("max-indels", po::value<int>(&max_indels)->default_value(max_indels),
@@ -186,12 +186,12 @@ int main(int argc, char **argv) {
     int nthreads = 4;
     std::string input_file = "cropped.fa";
     std::string output_file = "output.graph";
-    int strategy_int = Strategy::TRIPLE;
+    unsigned strategy = 3;
     int max_indels = 0;
     bool export_abundances = false;
 
     try {
-        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, K, tau, nthreads, strategy_int, max_indels, export_abundances)) {
+        if (!parse_cmd_line_arguments(argc, argv, input_file, output_file, K, tau, nthreads, strategy, max_indels, export_abundances)) {
             return 0;
         }
     } catch(std::exception& e) {
@@ -212,7 +212,7 @@ int main(int argc, char **argv) {
     INFO(input_reads.size() << " reads were extracted from " << input_file);
 
     INFO("Read length checking");
-    size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+    size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
     size_t required_read_length_for_single_strategy = K * (tau + 1);
     size_t required_read_length_for_double_strategy = K * (tau + 2);
 
@@ -232,12 +232,12 @@ int main(int argc, char **argv) {
         if (saved_reads_single - saved_reads_double < 0.05 * static_cast<double>(input_reads.size())) {
             INFO(bformat("Choosing <<double>> strategy for saving %d reads")
                  % saved_reads_double);
-            strategy_int = 2;
+            strategy = 2;
             discarded_reads = discarded_reads_double;
         } else {
             INFO(bformat("Choosing <<single>> strategy for saving %d reads")
                  % saved_reads_single);
-            strategy_int = 1;
+            strategy = 1;
             discarded_reads = discarded_reads_single;
         }
     }
@@ -253,8 +253,7 @@ int main(int argc, char **argv) {
     INFO(bformat("Truncated distance graph construction using %d threads starts") % nthreads);
     INFO("Construction of candidates graph");
 
-    Strategy strategy = Strategy(strategy_int);
-    INFO(toCString(strategy) << " was chosen");
+    INFO("Strategy " << strategy << " was chosen");
 
     auto dist_fun = [max_indels](const Dna5String &s1, const Dna5String &s2) -> int {
         auto lizard_tail = [](int l) -> int { return 0*l; };

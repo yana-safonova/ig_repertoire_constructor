@@ -143,6 +143,17 @@ int hamming_rtrim(const T1& s1, const T2 &s2) {
 }
 
 
+template<typename T>
+void remove_duplicates(std::vector<T> &v, bool sorted = false) {
+    // Remove duplicated items
+    if (!sorted) {
+        std::sort(v.begin(), v.end());
+    }
+    auto it = std::unique_copy(v.cbegin(), v.cend(), v.begin());
+    v.resize(std::distance(v.begin(), it));
+}
+
+
 using KmerIndex = std::unordered_map<size_t, std::vector<size_t>>;
 
 
@@ -156,35 +167,11 @@ KmerIndex kmerIndexConstruction(const std::vector<T> &input_reads, size_t K) {
         }
     }
 
-    return kmer2reads;
-}
-
-
-enum Strategy { NAIVE, SINGLE, PAIR, TRIPLE };
-
-
-const char* toCString(Strategy strategy) {
-    switch (strategy) {
-        case Strategy::NAIVE:
-            return "Naive strategy";
-        case Strategy::SINGLE:
-            return "Basic <<single>> strategy";
-        case Strategy::PAIR:
-            return "<<Pair>> strategy";
-        case Strategy::TRIPLE:
-            return "<<Triple>> strategy";
-        default:
-            return "Unknown strategy";
+    for (auto &kv : kmer2reads) {
+        remove_duplicates(kv.second, true);
     }
-}
 
-
-template<typename T>
-void remove_duplicates(std::vector<T> &v) {
-    // Remove duplicated items
-    std::sort(v.begin(), v.end());
-    auto it = std::unique_copy(v.cbegin(), v.cend(), v.begin());
-    v.resize(std::distance(v.begin(), it));
+    return kmer2reads;
 }
 
 
@@ -201,97 +188,51 @@ std::vector<size_t> find_candidates(const T &read,
                                     const KmerIndex &kmer2reads,
                                     size_t target_size,
                                     int tau, size_t K,
-                                    Strategy strategy) {
-    int strategy_int = int(strategy);
-    size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+                                    unsigned strategy) {
+    size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
     if (length(read) < required_read_length) {
         return {  };
     }
 
-    std::vector<int> multiplicities;
-
-    auto hashes = polyhashes(read, K);
-
-    multiplicities.reserve(hashes.size());
-    for (size_t hash : hashes) {
-        auto it = kmer2reads.find(hash);
-        if (it != kmer2reads.cend()) // TODO check it
-            multiplicities.push_back(it->second.size());
-        else
-            multiplicities.push_back(0);
-    }
-
     std::vector<size_t> cand;
 
-    if (strategy == Strategy::NAIVE) { // Simple O(N*M) strategy
+    if (strategy == 0) { // Simple O(N*M) strategy
         cand.resize(target_size);
         std::iota(cand.begin(), cand.end(), 0);
-    } else if (strategy == Strategy::SINGLE) { // basic <<single>> strategy
-        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 1);
+    } else { // Minimizers strategy
+        std::vector<int> multiplicities;
 
+        auto hashes = polyhashes(read, K);
+
+        multiplicities.reserve(hashes.size());
+        for (size_t hash : hashes) {
+            auto it = kmer2reads.find(hash);
+            if (it != kmer2reads.cend()) {
+                multiplicities.push_back(it->second.size());
+            } else {
+                multiplicities.push_back(0);
+            }
+        }
+
+        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + strategy);
+
+        std::unordered_map<size_t, size_t> hits;
         for (size_t i : ind) {
             size_t hash = hashes[i];
             auto it = kmer2reads.find(hash);
             if (it != kmer2reads.cend()) {
-                std::copy(it->second.cbegin(), it->second.cend(), std::back_inserter(cand));
-            }
-        }
-    } else if (strategy == Strategy::PAIR) { // <<pair>> strategy
-        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 2);
-
-        std::vector<const std::vector<size_t>*> reads_set;
-
-        reads_set.reserve(ind.size());
-        for (size_t i : ind) {
-            size_t hash = hashes[i];
-            auto it = kmer2reads.find(hash);
-            if (it != kmer2reads.cend()) {
-                reads_set.push_back(&(it->second));
-            }
-        }
-
-        for (size_t i = 0; i < reads_set.size(); ++i) {
-            for (size_t j = i + 1; j < reads_set.size(); ++j) {
-                std::set_intersection(reads_set[i]->cbegin(), reads_set[i]->cend(),
-                                      reads_set[j]->cbegin(), reads_set[j]->cend(),
-                                      std::back_inserter(cand));
-            }
-        }
-    } else if (strategy == Strategy::TRIPLE) { // <<triple>> strategy (fastest, but with complicated preprocessing)
-        std::vector<size_t> ind = optimal_coverage(multiplicities, K, tau + 3);
-
-        std::vector<const std::vector<size_t>*> reads_set;
-
-        reads_set.reserve(ind.size());
-        for (size_t i : ind) {
-            size_t hash = hashes[i];
-            auto it = kmer2reads.find(hash);
-            if (it != kmer2reads.cend()) {
-                reads_set.push_back(&(it->second));
-            }
-        }
-
-        for (size_t i = 0; i < reads_set.size(); ++i) {
-            for (size_t j = i + 1; j < reads_set.size(); ++j) {
-                for (size_t k = j + 1; k < reads_set.size(); ++k) {
-                    std::vector<size_t> tmp;
-                    tmp.reserve(reads_set[i]->size() + reads_set[j]->size());
-
-                    std::set_intersection(reads_set[i]->cbegin(), reads_set[i]->cend(),
-                                          reads_set[j]->cbegin(), reads_set[j]->cend(),
-                                          std::back_inserter(tmp));
-                    std::set_intersection(tmp.cbegin(), tmp.cend(),
-                                          reads_set[k]->cbegin(), reads_set[k]->cend(),
-                                          std::back_inserter(cand));
+                for (size_t candidate_index : it->second) {
+                    ++hits[candidate_index];
                 }
             }
         }
-    } else {
-        throw std::invalid_argument("Unknown strategy");
-    }
 
-    // Remove duplicated items
-    remove_duplicates(cand);
+        for (const auto &kv : hits) {
+            if (kv.second >= strategy) {
+                cand.push_back(kv.first);
+            }
+        }
+    }
 
     return cand;
 }
