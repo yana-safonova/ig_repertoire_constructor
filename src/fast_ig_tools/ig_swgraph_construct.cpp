@@ -26,8 +26,9 @@ struct SWGCParam {
     unsigned k = 10;
     unsigned tau = 4;
     unsigned nthreads = 4;
-    std::string input_file = "cropped.fa";
+    std::string input_file = "";
     std::string output_file = "output.graph";
+    std::string reference_file = "";
     unsigned strategy = 3;
     unsigned max_indels = 0;
     bool export_abundances = false;
@@ -43,11 +44,13 @@ bool parse_cmd_line_arguments(int argc, char **argv, SWGCParam &args) {
     generic.add_options()
             ("version,v", "print version string")
             ("help,h", "produce help message")
-            ("config,c", po::value<std::string>(&config_file)->default_value(config_file),
+            ("config,c", po::value<std::string>(&config_file),
              "name of a file of a configuration")
             ("input-file,i", po::value<std::string>(&args.input_file),
              "name of an input file (FASTA|FASTQ)")
-            ("output-file,o", po::value<std::string>(&args.output_file)->default_value(args.output_file),
+            ("reference-file,r", po::value<std::string>(&args.reference_file)->default_value(args.reference_file),
+             "name of an input file (FASTA|FASTQ)")
+            ("output-file,o", po::value<std::string>(&args.output_file),
              "file for outputted truncated dist-graph in METIS format")
             ("export-abundances,A", "export read abundances to output graph file")
             ("no-export-abundances", "don't export read abundances to output graph file (default)")
@@ -205,9 +208,6 @@ int main(int argc, char **argv) {
         WARN(bformat("Discarded reads %d") % discarded_reads);
     }
 
-    INFO("K-mer index construction");
-    auto kmer2reads = kmerIndexConstruction(input_reads, args.k);
-
     omp_set_num_threads(args.nthreads);
     INFO(bformat("Truncated distance graph construction using %d threads starts") % args.nthreads);
     INFO("Construction of candidates graph");
@@ -219,31 +219,73 @@ int main(int argc, char **argv) {
         return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, args.max_indels);
     };
 
-    size_t num_of_dist_computations;
-    auto dist_graph = tauDistGraph(input_reads,
-                                   kmer2reads,
-                                   dist_fun,
-                                   args.tau, args.k,
-                                   args.strategy,
-                                   num_of_dist_computations);
+    if (args.reference_file == "") {
+        INFO("K-mer index construction");
+        auto kmer2reads = kmerIndexConstruction(input_reads, args.k);
 
+        size_t num_of_dist_computations;
+        auto dist_graph = tauDistGraph(input_reads,
+                                       kmer2reads,
+                                       dist_fun,
+                                       args.tau, args.k,
+                                       args.strategy,
+                                       num_of_dist_computations);
 
-    INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
-         static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
+        INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
+             static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
 
-    size_t num_of_edges = numEdges(dist_graph);
-    INFO("Edges found: " << num_of_edges);
-    INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
+        size_t num_of_edges = numEdges(dist_graph);
+        INFO("Edges found: " << num_of_edges);
+        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
 
-    // Output
-    if (args.export_abundances) {
-        INFO("Saving graph (with abundances)");
-        auto abundances = find_abundances(input_ids);
-        write_metis_graph(dist_graph, abundances, args.output_file);
+        // Output
+        if (args.export_abundances) {
+            INFO("Saving graph (with abundances)");
+            auto abundances = find_abundances(input_ids);
+            write_metis_graph(dist_graph, abundances, args.output_file);
+        } else {
+            INFO("Saving graph (without abundances)");
+            write_metis_graph(dist_graph, args.output_file);
+        }
     } else {
-        INFO("Saving graph (without abundances)");
-        write_metis_graph(dist_graph, args.output_file);
+        SeqFileIn seqFileIn_reference(args.reference_file.c_str());
+        std::vector<CharString> reference_ids;
+        std::vector<Dna5String> reference_reads;
+
+        INFO("Reading input reads starts");
+        readRecords(reference_ids, reference_reads, seqFileIn_reference);
+        INFO(reference_reads.size() << " reads were extracted from " << args.reference_file);
+
+        INFO("K-mer index construction");
+        auto kmer2reads = kmerIndexConstruction(reference_reads, args.k);
+
+        size_t num_of_dist_computations;
+        auto dist_graph = tauMatchGraph(input_reads,
+                                        reference_reads,
+                                        kmer2reads,
+                                        dist_fun,
+                                        args.tau, args.k,
+                                        args.strategy,
+                                        num_of_dist_computations);
+
+        INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
+             static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
+
+        size_t num_of_edges = numEdges(dist_graph, false);
+        INFO("Edges found: " << num_of_edges);
+        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
+
+        // Output
+        if (args.export_abundances) {
+            INFO("Saving graph (with abundances)");
+            auto abundances = find_abundances(input_ids);
+            write_metis_graph(dist_graph, abundances, args.output_file, false);
+        } else {
+            INFO("Saving graph (without abundances)");
+            write_metis_graph(dist_graph, args.output_file, false);
+        }
     }
+
     INFO("Graph was written to " << args.output_file);
 
     INFO("Running time: " << running_time_format(pc));

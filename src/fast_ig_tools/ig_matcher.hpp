@@ -355,4 +355,39 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     return g;
 }
 
+
+template<typename T, typename Tf>
+Graph tauMatchGraph(const std::vector<T> &input_reads,
+                    const std::vector<T> &reference_reads,
+                    const KmerIndex &kmer2reads,
+                    const Tf &dist_fun,
+                    unsigned tau,
+                    unsigned K,
+                    unsigned strategy,
+                    size_t &num_of_dist_computations) {
+    Graph g(input_reads.size());
+
+    std::atomic<size_t> atomic_num_of_dist_computations;
+    atomic_num_of_dist_computations = 0;
+
+    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+    for (size_t j = 0; j < input_reads.size(); ++j) {
+        auto cand = find_candidates(input_reads[j], kmer2reads, reference_reads.size(), tau, K, strategy);
+
+        for (size_t i : cand) {
+            unsigned dist = dist_fun(input_reads[j], reference_reads[i]);
+
+            atomic_num_of_dist_computations += 1;
+
+            if (dist <= tau) {
+                g[j].push_back( { i, dist } );
+            }
+        }
+    }
+
+    num_of_dist_computations = atomic_num_of_dist_computations;
+
+    return g;
+}
+
 // vim: ts=4:sw=4
