@@ -63,6 +63,8 @@ target_link_libraries(ig_kplus_vj_finder build_info)
 
 add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
+target_link_libraries(ig_swgraph_construct build_info)
+
 add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
