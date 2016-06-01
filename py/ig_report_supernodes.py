@@ -38,10 +38,10 @@ def smart_open(filename, mode="r"):
             fh.close()
 
 
-def parse_abundance(s):
+def parse_size(s):
     import re
 
-    m = re.match(r"^.*abundance:(\d+)$", s)
+    m = re.match(r"^.*___size___(\d+)$", s)
 
     if m:
         g = m.groups()
@@ -49,7 +49,7 @@ def parse_abundance(s):
     else:
         return 1
 
-assert(parse_abundance("dsdsfsd_abundance:10") == 10)
+assert(parse_size("dsdsfsd___size___10") == 10)
 
 
 if __name__ == "__main__":
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument("--limit", "-l",
                         type=int,
                         default=5,
-                        help="abundance limit (default: %(default)s)")
+                        help="size limit (default: %(default)s)")
 
     args = parser.parse_args()
 
@@ -73,14 +73,12 @@ if __name__ == "__main__":
     result = []
     with smart_open(args.input, "r") as fin:
         for record in SeqIO.parse(fin, "fasta"):
-            abundance = parse_abundance(str(record.id))
-            if abundance >= args.limit:
-                old_id = str(record.id)
-                if "_abundance" in old_id:
-                    new_id = old_id.replace("_abundance:", "___size___")
-                else:
-                    new_id = "%s___size___%d" % (old_id, abundance)
-                record.id = record.name = record.description = new_id
+            id = str(record.description)
+            size = parse_size(id)
+            if size >= args.limit:
+                if not "___size___" in id:
+                    id = "%s___size___%d" % (id, size)
+                record.id = record.name = record.description = id
                 result.append(record)
 
     with smart_open(args.output, "w") as fout:

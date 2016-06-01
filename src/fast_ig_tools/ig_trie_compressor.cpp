@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
         count += abundance;
 
         std::string id = seqan::toCString(input_ids[index]);
-        id += "_abundance:" + std::to_string(abundance);
+        id += "___size___" + std::to_string(abundance);
 
         seqan::writeRecord(seqFileOut_output, id, input_reads[index]);
     }
