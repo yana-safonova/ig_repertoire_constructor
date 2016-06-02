@@ -28,7 +28,7 @@ cdrs_params {
 
         j_gene_annotation {
             j_gene_line_index    0
-            cdr3_end_index       2
+            cdr3_end_index       1
             imgt_j_annotation    data/annotation/human_j_imgt.txt
             kabat_j_annotation   data/annotation/human_j_kabat.txt
         }
