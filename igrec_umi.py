@@ -65,6 +65,11 @@ def ParseCommandLineParams(log):
                                dest="igrec_tau",
                                help="Maximum allowed mismatches between UMI clusters"
                                     "[default: %(default)d]")
+    optional_args.add_argument("-n", "--min-sread-size",
+                               type=int,
+                               default=5,
+                               dest="min_snode_size",
+                               help="Minimum super read size [default: %(default)d]")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
     vj_align_args.add_argument("-l", "--loci",
@@ -131,6 +136,7 @@ class __StagePrepare:
                 line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
                 line = line.replace("%LOCI", params.loci)
                 line = line.replace("%ORGANISM", params.organism)
+                line = line.replace("%MIN_SUPER_NODE_SIZE", params.min_super_node_size)
                 file.write(line)
 
     def Prepare(self, params, stage_template, log, stage_dest = None, makefile_name = MAKEFILE):

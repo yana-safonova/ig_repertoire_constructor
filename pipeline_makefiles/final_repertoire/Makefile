@@ -16,7 +16,6 @@ final_repertoire.fa: $(IGREC)/igrec.py ../umi_clustering/$(INTER_REP)
 
 clean:
 	$(MAKE) -C ../umi_clustering clean
-	# $(RM)
 
 clean_all:
 	$(MAKE) clean
