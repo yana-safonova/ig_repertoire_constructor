@@ -47,7 +47,7 @@ def parse_size(s):
         g = m.groups()
         return int(g[0])
     else:
-        return 1
+        return None
 
 assert(parse_size("dsdsfsd___size___10") == 10)
 
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             input_size += 1
             id = str(record.description)
             size = parse_size(id)
-            assert  "___size___" in id
+            assert id is not None
             if size >= args.limit:
                 SeqIO.write(record, fout, "fasta")
                 output_size += 1
