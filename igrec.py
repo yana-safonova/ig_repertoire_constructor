@@ -156,8 +156,12 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetVJAlignmentLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_trie_compressor) or not os.path.exists(self.run_report_supernodes):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " was not found\n")
+        if not os.path.exists(self.path_to_trie_compressor):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.path_to_trie_compressor +") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_report_supernodes):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
@@ -168,8 +172,12 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
-            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
+        if not os.path.exists(self.path_to_consensus_constructor):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if  not os.path.exists(self.run_rcm_recoverer):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_compress_equal_clusters):
