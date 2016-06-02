@@ -76,10 +76,8 @@ if __name__ == "__main__":
             input_size += 1
             id = str(record.description)
             size = parse_size(id)
+            assert  "___size___" in id
             if size >= args.limit:
-                if not "___size___" in id:
-                    id = "%s___size___%d" % (id, size)
-                record.id = record.name = record.description = id
                 SeqIO.write(record, fout, "fasta")
                 output_size += 1
 
