@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
 
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
-    std::string idmap_file_name = "";
+    std::string rcm_file_name = "";
     try {
         // Declare a group of options that will be
         // allowed only on command line
@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
              "name of the input file (FASTA|FASTQ)")
             ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
              "name of the output file (FASTA|FASTQ)")
-            ("idmap,m", po::value<std::string>(&idmap_file_name)->default_value(idmap_file_name),
-             "map file name; empty (default) for non-producing")
+            ("rcm,m", po::value<std::string>(&rcm_file_name)->default_value(rcm_file_name),
+             "file name for read-cluster map (rcm); leave empty to skip rcm file generation")
             ;
 
         // Declare a group of options that will be
@@ -155,39 +155,24 @@ int main(int argc, char **argv) {
 
     INFO(result.size() << " compressed reads were written to " << output_file);
 
-    if (idmap_file_name != "") {
-        std::ofstream idmap_file(idmap_file_name.c_str());
-        std::vector<size_t> idmap(length(input_reads));
-        auto result = trie.checkout_ids(length(input_reads));
-        for (const auto &_ : result) {
-            size_t index = _.first;
-            const auto &ids = _.second;
-
+    if (rcm_file_name != "") {
+        std::ofstream rcm_file(rcm_file_name.c_str());
+        std::vector<size_t> read_to_group(length(input_reads));
+        auto trie_checkout = trie.checkout_ids(length(input_reads));
+        size_t group_count = 0;
+        for (const auto &entry : trie_checkout) {
+            const auto &ids = entry.second;
+            group_count ++;
             for (size_t id : ids) {
-                idmap[id] = index;
+                read_to_group[id] = group_count;
             }
         }
 
-        // TODO Refactor it ASAP
-        std::vector<size_t> ord(length(input_reads), 0);
-        for (size_t id : idmap) {
-            ord[id] = 1;
+        for (size_t read = 0; read < read_to_group.size(); read ++) {
+            rcm_file << input_ids[read] << "\t" << read_to_group[read] << "\n";
         }
 
-        size_t ii = 0;
-        for (size_t &o : ord) {
-            if (o) {
-                o = ii;
-                ++ii;
-            }
-        }
-
-
-        for (size_t id : idmap) {
-            idmap_file << ord[id] << "\n";
-        }
-
-        INFO("Map from input reads to compressed reads was written to " << idmap_file_name);
+        INFO("Map from input reads to compressed reads was written to " << rcm_file_name);
     }
     INFO("Construction of trie finished")
     INFO("Running time: " << running_time_format(pc));
