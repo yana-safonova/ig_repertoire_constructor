@@ -24,7 +24,22 @@ add_executable(test_dsf test_dsf.cpp
 
 add_executable(test_germline_database test_germline_database.cpp)
 
-#add_executable(test_germline_cdr test_germline_cdr.cpp)
+add_executable(test_germline_cdr test_germline_cdr.cpp
+        ../vj_finder/vj_finder_config.cpp
+        ../vj_finder/germline_db_generator.cpp
+        ../cdr_labeler/cdr_config.cpp
+        ../cdr_labeler/germline_db_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr1_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr2_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_v_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_j_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_helper.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
+        ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
+        ../cdr_labeler/cdr_primitives.cpp
+        )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp
 #        ../vj_finder/vj_finder_config.cpp

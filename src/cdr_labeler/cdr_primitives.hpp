@@ -47,13 +47,16 @@ namespace cdr_labeler {
     };
 
     class DbCDRLabeling {
+        const germline_utils::CustomGeneDatabase &germline_db_;
+
         std::vector<CDRLabeling> cdr_labelings_;
         std::unordered_map<std::string, size_t> gene_name_index_map_;
 
         size_t num_empty_labelings_;
 
     public:
-        DbCDRLabeling() : num_empty_labelings_() { }
+        DbCDRLabeling(const germline_utils::CustomGeneDatabase &germline_db) : germline_db_(germline_db),
+                                                                               num_empty_labelings_() { }
 
         void AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling);
 
@@ -62,5 +65,7 @@ namespace cdr_labeler {
         bool CDRLabelingIsEmpty(const germline_utils::ImmuneGene &immune_gene) const;
 
         size_t NumEmptyLabelings() const { return num_empty_labelings_; }
+
+        germline_utils::CustomGeneDatabase CreateFilteredDb();
     };
 }
