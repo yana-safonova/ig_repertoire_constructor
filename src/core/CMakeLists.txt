@@ -7,6 +7,7 @@ add_library(core STATIC
         read_archive.cpp
         aa_utils/amino_acid_motif.cpp
         aa_utils/aa_motif_finder.cpp
+        convert.cpp
         )
 
 target_link_libraries(core input)

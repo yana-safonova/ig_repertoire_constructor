@@ -5,6 +5,8 @@
 #include <boost/algorithm/string.hpp>
 
 namespace cdr_labeler {
+    using namespace annotation_utils;
+
     void AnnotatedVGeneCDRLabeler::Initialize() {
         auto v_annotation_params = search_params_.v_gene_annotation;
         std::string v_gene_annotation = (search_params_.domain_system == CDRLabelerConfig::CDRsParams::

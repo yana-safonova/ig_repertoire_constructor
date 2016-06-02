@@ -7,11 +7,13 @@ namespace cdr_labeler {
     class HCDR2Labeler : public SingleLoopLabeler {
         const CDRLabelerConfig::CDRsParams::HCDR2Params &params_;
 
-        size_t ComputeStartPosition(const germline_utils::ImmuneGene &immune_gene, CDRRange previous_cdr);
+        size_t ComputeStartPosition(const germline_utils::ImmuneGene &immune_gene,
+                                    annotation_utils::CDRRange previous_cdr);
 
         size_t ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene, size_t start_pos);
 
-        CDRRange ComputeRange(const germline_utils::ImmuneGene &immune_gene, CDRRange previous_cdr);
+        annotation_utils::CDRRange ComputeRange(const germline_utils::ImmuneGene &immune_gene,
+                                                annotation_utils::CDRRange previous_cdr);
 
     public:
         HCDR2Labeler(const CDRLabelerConfig::CDRsParams::HCDR2Params &params) :

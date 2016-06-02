@@ -5,8 +5,8 @@
 namespace cdr_labeler {
     class BaseImmuneGeneCDRLabeler {
     public:
-        virtual CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene&) {
-            return CDRLabeling();
+        virtual annotation_utils::CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene&) {
+            return annotation_utils::CDRLabeling();
         }
 
         ~BaseImmuneGeneCDRLabeler() { }
@@ -28,6 +28,6 @@ namespace cdr_labeler {
                 cdr2_labeler_ptr_(SingleLoopLabelingHelper::GetCDR2Labeler(gene_type, cdrs_params)),
                 cdr3_labeler_ptr_(SingleLoopLabelingHelper::GetCDR3Labeler(gene_type, cdrs_params)) { }
 
-        CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
+        annotation_utils::CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
     };
 }

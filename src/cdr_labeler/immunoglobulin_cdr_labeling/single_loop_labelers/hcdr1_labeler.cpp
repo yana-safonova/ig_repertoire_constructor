@@ -5,6 +5,8 @@
 #include "seqan/translation.h"
 
 namespace cdr_labeler {
+    using namespace annotation_utils;
+
     bool PositionIsCys(seqan::Dna5String seq, size_t pos) {
         return seq[pos] == 'T' and seq[pos + 1] == 'G' and (seq[pos + 2] == 'T' or seq[pos + 2] == 'C');
     }

@@ -5,6 +5,8 @@
 #include <seqan/translation.h>
 
 namespace cdr_labeler {
+    using namespace annotation_utils;
+
     size_t HCDR2Labeler::ComputeStartPosition(const germline_utils::ImmuneGene &immune_gene,
                                               CDRRange previous_cdr) {
         using namespace seqan;

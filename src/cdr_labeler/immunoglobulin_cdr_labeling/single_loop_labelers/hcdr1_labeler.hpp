@@ -11,7 +11,8 @@ namespace cdr_labeler {
 
         size_t ComputeEndPosition(const germline_utils::ImmuneGene &immune_gene, size_t start_pos);
 
-        CDRRange ComputeRange(const germline_utils::ImmuneGene &immune_gene, CDRRange);
+        annotation_utils::CDRRange ComputeRange(const germline_utils::ImmuneGene &immune_gene,
+                                                annotation_utils::CDRRange);
 
     public:
         HCDR1Labeler(const CDRLabelerConfig::CDRsParams::HCDR1Params &params) :

@@ -38,7 +38,7 @@ add_executable(test_germline_cdr test_germline_cdr.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
-        ../cdr_labeler/cdr_primitives.cpp
+        ../cdr_labeler/germline_db_labeling.cpp
         )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp
