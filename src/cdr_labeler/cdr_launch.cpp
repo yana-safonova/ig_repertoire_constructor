@@ -7,21 +7,6 @@
 
 
 namespace cdr_labeler {
-    germline_utils::CustomGeneDatabase CDRLabelerLaunch::GetDatabaseByCDRLabeling(
-            const germline_utils::CustomGeneDatabase &gene_db,
-            DbCDRLabeling cdr_labeling) {
-        germline_utils::CustomGeneDatabase labeled_db(gene_db.Segment());
-        for(auto it = gene_db.cbegin(); it != gene_db.cend(); it++) {
-            auto specific_gene_db = gene_db.GetDbByGeneType(*it);
-            for(size_t i = 0; i < specific_gene_db.size(); i++) {
-                auto gene_labeling = cdr_labeling.GetLabelingByGene(specific_gene_db[i]);
-                if(!gene_labeling.Empty())
-                    labeled_db.AddImmuneGene(specific_gene_db[i]);
-            }
-        }
-        return labeled_db;
-    }
-
     void CDRLabelerLaunch::Launch() {
         INFO("CDR labeler starts");
         core::ReadArchive read_archive(config_.input_params.input_reads);
@@ -38,9 +23,9 @@ namespace cdr_labeler {
         INFO("CDR labeling for J gene segments");
         auto j_labeling = GermlineDbLabeler(j_db, config_.cdrs_params).ComputeLabeling();
         INFO("Creation of labeled V and J databases");
-        auto labeled_v_db = GetDatabaseByCDRLabeling(v_db, v_labeling);
+        auto labeled_v_db = v_labeling.CreateFilteredDb();
         INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
-        auto labeled_j_db = GetDatabaseByCDRLabeling(j_db, j_labeling);
+        auto labeled_j_db = j_labeling.CreateFilteredDb();
         INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
         INFO("Alignment against VJ germline segments");
         vj_finder::VJParallelProcessor processor(read_archive, config_.vj_finder_config.algorithm_params,
@@ -49,11 +34,6 @@ namespace cdr_labeler {
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
                      " reads were filtered out");
-        auto v_gene = labeled_v_db[0];
-        auto v_cdrs = v_labeling.GetLabelingByGene(v_gene);
-        std::cout << v_gene << std::endl;
-        std::cout << "CDR1: " << seqan::infixWithLength(v_gene.seq(), v_cdrs.cdr1.start_pos, v_cdrs.cdr1.length()) << std::endl;
-        std::cout << "CDR2: " << seqan::infixWithLength(v_gene.seq(), v_cdrs.cdr2.start_pos, v_cdrs.cdr2.length()) << std::endl;
         // conversion into seqan alignment and projection of cdr positions
         INFO("CDR labeler ends");
     }
