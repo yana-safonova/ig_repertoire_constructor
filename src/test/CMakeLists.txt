@@ -3,9 +3,10 @@ project(tests)
 include_directories(${CORE_DIR})
 include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
-include_directories(${VJ_FINDER})
+include_directories(${VJ_FINDER_DIR})
+include_directories(${CDR_LABELER_DIR})
 
-link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithm input ${COMMON_LIBRARIES})
+link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms input ${COMMON_LIBRARIES})
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
@@ -22,6 +23,8 @@ add_executable(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
 add_executable(test_germline_database test_germline_database.cpp)
+
+#add_executable(test_germline_cdr test_germline_cdr.cpp)
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp
 #        ../vj_finder/vj_finder_config.cpp

@@ -33,21 +33,28 @@ namespace cdr_labeler {
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
-        INFO("CDR labeling for germline segments");
         INFO("CDR labeling for V gene segments");
         auto v_labeling = GermlineDbLabeler(v_db, config_.cdrs_params).ComputeLabeling();
         INFO("CDR labeling for J gene segments");
         auto j_labeling = GermlineDbLabeler(j_db, config_.cdrs_params).ComputeLabeling();
         INFO("Creation of labeled V and J databases");
         auto labeled_v_db = GetDatabaseByCDRLabeling(v_db, v_labeling);
+        INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
         auto labeled_j_db = GetDatabaseByCDRLabeling(j_db, j_labeling);
+        INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
         INFO("Alignment against VJ germline segments");
         vj_finder::VJParallelProcessor processor(read_archive, config_.vj_finder_config.algorithm_params,
                                                  labeled_v_db, labeled_j_db,
                                                  config_.run_params.num_threads);
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
-             " reads were filtered out");
+                     " reads were filtered out");
+        auto v_gene = labeled_v_db[0];
+        auto v_cdrs = v_labeling.GetLabelingByGene(v_gene);
+        std::cout << v_gene << std::endl;
+        std::cout << "CDR1: " << seqan::infixWithLength(v_gene.seq(), v_cdrs.cdr1.start_pos, v_cdrs.cdr1.length()) << std::endl;
+        std::cout << "CDR2: " << seqan::infixWithLength(v_gene.seq(), v_cdrs.cdr2.start_pos, v_cdrs.cdr2.length()) << std::endl;
+        // conversion into seqan alignment and projection of cdr positions
         INFO("CDR labeler ends");
     }
 }

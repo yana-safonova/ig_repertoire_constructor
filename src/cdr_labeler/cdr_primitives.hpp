@@ -29,6 +29,8 @@ namespace cdr_labeler {
         }
 
         bool Empty() const { return !Valid(); }
+
+        size_t length() const { return end_pos - start_pos + 1; }
     };
 
     struct CDRLabeling {
