@@ -30,6 +30,7 @@ set(CORE_DIR "${SPADES_MAIN_SRC_DIR}/core")
 set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
 set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
+set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
 
 # Everything option-dependent
 include(options)
