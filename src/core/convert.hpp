@@ -1,5 +1,7 @@
 #pragma once
 
+#include <seqan/sequence.h>
+
 #include <sstream>
 
 namespace core {
@@ -11,4 +13,6 @@ namespace core {
         ss >> converted;
         return converted;
     };
+
+    std::string dna5String_to_string(seqan::Dna5String);
 }

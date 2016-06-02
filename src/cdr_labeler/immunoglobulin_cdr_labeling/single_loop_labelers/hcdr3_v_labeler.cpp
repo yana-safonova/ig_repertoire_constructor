@@ -1,6 +1,8 @@
 #include "hcdr3_v_labeler.hpp"
 
 namespace cdr_labeler {
+    using namespace annotation_utils;
+
     size_t HCDR3VLabeler::ComputeStartPosition(const germline_utils::ImmuneGene &, CDRRange) {
         return size_t(-1);
     }

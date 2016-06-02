@@ -13,6 +13,7 @@ add_library(vdj_utils STATIC
         germline_utils/germline_databases/custom_gene_database.cpp
         alignment_utils/alignment_positions.cpp
         alignment_utils/pairwise_alignment.cpp
+        annotation_utils/cdr_annotated_clone.cpp
         )
 
 target_link_libraries(vdj_utils core ${COMMON_LIBRARIES})

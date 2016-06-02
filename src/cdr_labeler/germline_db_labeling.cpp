@@ -1,8 +1,10 @@
 #include <verify.hpp>
 
-#include "cdr_primitives.hpp"
+#include "germline_db_labeling.hpp"
 
 namespace cdr_labeler {
+    using namespace annotation_utils;
+
     void DbCDRLabeling::AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling)  {
         cdr_labelings_.push_back(labeling);
         gene_name_index_map_[std::string(seqan::toCString(immune_gene.name()))] = cdr_labelings_.size() - 1;

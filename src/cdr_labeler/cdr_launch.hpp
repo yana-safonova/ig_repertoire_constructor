@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cdr_config.hpp"
-#include "cdr_primitives.hpp"
+#include "germline_db_labeling.hpp"
 
 namespace cdr_labeler {
     class CDRLabelerLaunch {

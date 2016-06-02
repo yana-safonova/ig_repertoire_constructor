@@ -1,8 +1,8 @@
 #pragma once
 
-#include <germline_utils/germline_databases/custom_gene_database.hpp>
+#include <verify.hpp>
 
-namespace cdr_labeler {
+namespace annotation_utils {
     // start and end positions are inclusive
     struct CDRRange {
         size_t start_pos;
@@ -17,7 +17,7 @@ namespace cdr_labeler {
                 end_pos(end_pos) {
             if(start_pos != size_t(-1))
                 VERIFY_MSG(start_pos < end_pos, "Start position (" << start_pos <<
-                    ") exceeds end position (" << end_pos << ")");
+                                                ") exceeds end position (" << end_pos << ")");
         }
 
         bool Valid() const {
@@ -30,7 +30,12 @@ namespace cdr_labeler {
 
         bool Empty() const { return !Valid(); }
 
-        size_t length() const { return end_pos - start_pos + 1; }
+        bool Full() const { return start_pos != size_t(-1) and end_pos != size_t(-1); }
+
+        size_t length() const {
+            VERIFY_MSG(Full(), "Start pos (" << start_pos << ") or end pos (" << end_pos << ") is not defined");
+            return end_pos - start_pos + 1;
+        }
     };
 
     struct CDRLabeling {
@@ -44,28 +49,5 @@ namespace cdr_labeler {
                 cdr1(cdr1), cdr2(cdr2), cdr3(cdr3) { }
 
         bool Empty() const { return cdr1.Empty() and cdr2.Empty() and cdr3.Empty(); }
-    };
-
-    class DbCDRLabeling {
-        const germline_utils::CustomGeneDatabase &germline_db_;
-
-        std::vector<CDRLabeling> cdr_labelings_;
-        std::unordered_map<std::string, size_t> gene_name_index_map_;
-
-        size_t num_empty_labelings_;
-
-    public:
-        DbCDRLabeling(const germline_utils::CustomGeneDatabase &germline_db) : germline_db_(germline_db),
-                                                                               num_empty_labelings_() { }
-
-        void AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling);
-
-        CDRLabeling GetLabelingByGene(const germline_utils::ImmuneGene &immune_gene) const;
-
-        bool CDRLabelingIsEmpty(const germline_utils::ImmuneGene &immune_gene) const;
-
-        size_t NumEmptyLabelings() const { return num_empty_labelings_; }
-
-        germline_utils::CustomGeneDatabase CreateFilteredDb();
     };
 }

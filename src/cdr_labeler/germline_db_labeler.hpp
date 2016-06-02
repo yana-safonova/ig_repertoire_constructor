@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cdr_primitives.hpp"
+#include "germline_db_labeling.hpp"
 #include "cdr_config.hpp"
 
 #include "immunoglobulin_cdr_labeling/immune_gene_labeler.hpp"

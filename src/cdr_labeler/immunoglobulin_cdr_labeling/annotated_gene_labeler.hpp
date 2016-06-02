@@ -36,7 +36,7 @@ namespace cdr_labeler {
             Initialize();
         }
 
-        CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
+        annotation_utils::CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
     };
 
     class AnnotatedJGeneCDRLabeler : public BaseImmuneGeneCDRLabeler {
@@ -64,6 +64,6 @@ namespace cdr_labeler {
             Initialize();
         }
 
-        CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
+        annotation_utils::CDRLabeling ComputeLabeling(const germline_utils::ImmuneGene &immune_gene);
     };
 }
