@@ -4,7 +4,7 @@
 #include "germline_db_generator.hpp"
 #include "germline_db_labeler.hpp"
 #include "vj_parallel_processor.hpp"
-
+#include "immune_gene_alignment_converter.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
@@ -34,7 +34,33 @@ namespace cdr_labeler {
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
                      " reads were filtered out");
-        // conversion into seqan alignment and projection of cdr positions
+
+        for(size_t i = 0; i < alignment_info.NumVJHits(); i++) {
+            auto vj_hit = alignment_info.GetVJHitsByIndex(i);
+            auto v_hit = vj_hit.GetVHitByIndex(0);
+            vj_finder::ImmuneGeneAlignmentConverter converter;
+            auto v_alignment = converter.ConvertToAlignment(v_hit.ImmuneGene(), v_hit.Read(), v_hit.BlockAlignment());
+            std::cout << v_hit.ImmuneGene() << std::endl;
+            std::cout << v_hit.Read() << std::endl;
+            std::cout << v_alignment.Alignment() << std::endl;
+            auto v_cdr_labeling = v_labeling.GetLabelingByGene(v_hit.ImmuneGene());
+            CDRRange read_cdr1(v_alignment.GetQueryPositionBySubjectPosition(v_cdr_labeling.cdr1.start_pos),
+                               v_alignment.GetQueryPositionBySubjectPosition(v_cdr_labeling.cdr1.end_pos));
+            std::cout << seqan::infixWithLength(v_hit.Read().seq, read_cdr1.start_pos, read_cdr1.length()) << std::endl;
+
+            auto j_hit = vj_hit.GetJHitByIndex(0);
+            auto j_alignment = converter.ConvertToAlignment(j_hit.ImmuneGene(), j_hit.Read(), j_hit.BlockAlignment());
+            std::cout << j_hit.ImmuneGene() << std::endl;
+            std::cout << j_hit.Read() << std::endl;
+            std::cout << j_alignment.Alignment() << std::endl;
+
+            auto j_cdr_labeling = j_labeling.GetLabelingByGene(j_hit.ImmuneGene());
+            CDRRange read_cdr3(v_alignment.GetQueryPositionBySubjectPosition(v_cdr_labeling.cdr3.start_pos),
+                               j_alignment.GetQueryPositionBySubjectPosition(j_cdr_labeling.cdr3.end_pos));
+            std::cout << seqan::infixWithLength(v_hit.Read().seq, read_cdr3.start_pos, read_cdr3.length()) << std::endl;
+        }
+
+
         INFO("CDR labeler ends");
     }
 }
