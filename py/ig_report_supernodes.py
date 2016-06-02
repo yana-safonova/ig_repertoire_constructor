@@ -70,7 +70,7 @@ if __name__ == "__main__":
     print "Supernode reporter started..."
     print "Command line: %s" % " ".join(sys.argv)
 
-    input_size, output_size = 0,0
+    input_size = output_size = 0
     with smart_open(args.input, "r") as fin, smart_open(args.output, "w") as fout:
         for record in SeqIO.parse(fin, "fasta"):
             input_size += 1
