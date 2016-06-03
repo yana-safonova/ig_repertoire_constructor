@@ -162,10 +162,10 @@ int main(int argc, char **argv) {
         size_t group_count = 0;
         for (const auto &entry : trie_checkout) {
             const auto &ids = entry.second;
-            group_count ++;
             for (size_t id : ids) {
                 read_to_group[id] = group_count;
             }
+            group_count ++;
         }
 
         for (size_t read = 0; read < read_to_group.size(); read ++) {
