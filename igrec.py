@@ -191,7 +191,7 @@ class IgRepConIO:
 
     def __initCompressorOutput(self, output_dir):
         self.compressed_reads = os.path.join(output_dir, "compressed_reads.fa")
-        self.map_file = os.path.join(output_dir, "cleaned_compressed_map.txt")
+        self.map_file = os.path.join(output_dir, "cleaned_compressed_map.rcm")
         self.supernodes_file = os.path.join(output_dir, "super_reads.fa")
 
     def __initDSFOutput(self, output_dir):
@@ -489,8 +489,7 @@ class ConsensusConstructionPhase(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s -i %s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
-                                                       self.__params.io.cropped_reads,
+        command_line = "%s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
                                                        self.__params.io.map_file,
                                                        self.__params.io.dense_sgraph_decomposition,
                                                        self.__params.io.uncompressed_final_rcm)

@@ -64,7 +64,7 @@ if __name__ == "__main__":
                         type=str,
                         default="",
                         help="temporary file for ig_trie_compressor output (default: <empty>)")
-    parser.add_argument("--tmp-map-file", "-m",
+    parser.add_argument("--tmp-rcm-file", "-m",
                         type=str,
                         default="",
                         help="map file (default: <empty>)")
@@ -81,18 +81,19 @@ if __name__ == "__main__":
 
     if (not args.tmp_fa_file):
         args.tmp_fa_file = tempfile.mkstemp(suffix=".fa", prefix="igrec_")[1]
-    if (not args.tmp_map_file):
-        args.tmp_map_file = tempfile.mkstemp(suffix=".map", prefix="igrec_")[1]
+    if (not args.tmp_rcm_file):
+        args.tmp_rcm_file = tempfile.mkstemp(suffix=".rcm", prefix="igrec_")[1]
 
     print "Command line: %s" % " ".join(sys.argv)
 
     home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/../'
     run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
-    cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_map_file)
+    cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_rcm_file)
     os.system(cmd_line)
 
-    with open(args.tmp_map_file) as fin:
-        input_read_num2compressed_cluster = [int(line.strip()) for line in fin]
+    with open(args.tmp_rcm_file) as fin:
+        # obtain simple map from rcm file
+        input_read_num2compressed_cluster = [int(line.strip().split("\t")[1]) for line in fin]
 
     input_read_num2mult = []
     cluster2input_read_num = {}
@@ -136,6 +137,6 @@ if __name__ == "__main__":
             exit(1)
 
 
-    print "Remove temporary files: %s %s" % (args.tmp_fa_file, args.tmp_map_file)
+    print "Remove temporary files: %s %s" % (args.tmp_fa_file, args.tmp_rcm_file)
     os.remove(args.tmp_fa_file)
-    os.remove(args.tmp_map_file)
+    os.remove(args.tmp_rcm_file)
