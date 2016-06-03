@@ -245,15 +245,16 @@ using Graph = std::vector<std::vector<std::pair<size_t, int>>>;
 
 
 size_t numEdges(const Graph &graph,
-                bool exclude_loops = true) {
+                bool undirected = true) {
     size_t nE = 0;
 
-    for (size_t i = 0; i < graph.size(); ++i) {
-        for (const auto &neib : graph[i]) {
-            if (!exclude_loops || i != neib.first) nE += 1; // Exclude loop edges
-        }
+    for (const auto &edges : graph) {
+        nE += edges.size();
     }
-    nE /= 2;
+
+    if (undirected) {
+        nE /= 2;
+    }
 
     return nE;
 }
@@ -261,19 +262,18 @@ size_t numEdges(const Graph &graph,
 
 void write_metis_graph(const Graph &graph,
                        const std::string &filename,
-                       bool exclude_loops = true) {
+                       bool undirected = true) {
     std::ofstream out(filename);
 
     // Count the numder of vertices and the number of edges
     size_t nV = graph.size();
-    size_t nE = numEdges(graph);
+    size_t nE = numEdges(graph, undirected);
 
     out << nV << " " << nE << " 001\n"; // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
 
-    for (size_t i = 0; i < graph.size(); ++i) {
-        for (const auto &neib : graph[i]) {
-            if (exclude_loops && i == neib.first) continue; // Exclude loop edges
-            out << neib.first + 1 << " " << neib.second << " ";
+    for (const auto &edges : graph) {
+        for (const auto &edge : edges) {
+            out << edge.first + 1 << " " << edge.second << " ";
         }
         out << "\n";
     }
@@ -283,20 +283,21 @@ void write_metis_graph(const Graph &graph,
 void write_metis_graph(const Graph &graph,
                        const std::vector<size_t> &weights,
                        const std::string &filename,
-                       bool exclude_loops = true) {
+                       bool undirected = true) {
+    assert(graph.size() == weights.size());
+
     std::ofstream out(filename);
 
     // Count the numder of vertices and the number of edges
     size_t nV = graph.size();
-    size_t nE = numEdges(graph);
+    size_t nE = numEdges(graph, undirected);
 
     out << nV << " " << nE << " 011\n"; // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
 
     for (size_t i = 0; i < graph.size(); ++i) {
         out << weights[i] << " ";
-        for (const auto &neib : graph[i]) {
-            if (exclude_loops && i == neib.first) continue; // Exclude loop edges
-            out << neib.first + 1 << " " << neib.second << " ";
+        for (const auto &edge : graph[i]) {
+            out << edge.first + 1 << " " << edge.second << " ";
         }
         out << "\n";
     }
