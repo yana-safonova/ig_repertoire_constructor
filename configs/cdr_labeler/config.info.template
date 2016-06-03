@@ -4,7 +4,9 @@ input_params {
 }
 
 output_params {
-    output_dir cdr_test
+    output_dir    cdr_test
+    cdr_details   cdr_details.txt   
+    cdr3_fasta    cdr3.fasta
 }
 
 run_params {

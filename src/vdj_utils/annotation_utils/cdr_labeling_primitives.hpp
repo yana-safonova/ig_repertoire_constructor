@@ -1,7 +1,5 @@
 #pragma once
 
-#include <verify.hpp>
-
 namespace annotation_utils {
     // start and end positions are inclusive
     struct CDRRange {
@@ -14,11 +12,7 @@ namespace annotation_utils {
 
         CDRRange(size_t start_pos, size_t end_pos) :
                 start_pos(start_pos),
-                end_pos(end_pos) {
-            if(start_pos != size_t(-1))
-                VERIFY_MSG(start_pos < end_pos, "Start position (" << start_pos <<
-                                                ") exceeds end position (" << end_pos << ")");
-        }
+                end_pos(end_pos) { }
 
         bool Valid() const {
             if(start_pos == size_t(-1) and end_pos == size_t(-1))
@@ -32,10 +26,7 @@ namespace annotation_utils {
 
         bool Full() const { return start_pos != size_t(-1) and end_pos != size_t(-1); }
 
-        size_t length() const {
-            VERIFY_MSG(Full(), "Start pos (" << start_pos << ") or end pos (" << end_pos << ") is not defined");
-            return end_pos - start_pos + 1;
-        }
+        size_t length() const;
     };
 
     struct CDRLabeling {

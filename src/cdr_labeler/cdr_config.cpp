@@ -9,9 +9,17 @@ namespace cdr_labeler {
         load(ip.vj_finder_config, pt, "vj_finder_config");
     }
 
+    void update_output_config(CDRLabelerConfig::OutputParams &op) {
+        op.cdr_details = path::append_path(op.output_dir, op.cdr_details);
+        op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
+    }
+
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(op.output_dir, pt, "output_dir");
+        load(op.cdr_details, pt, "cdr_details");
+        load(op.cdr3_fasta, pt, "cdr3_fasta");
+        update_output_config(op);
     }
 
     void load(CDRLabelerConfig::RunParams &rp, boost::property_tree::ptree const &pt, bool) {
@@ -25,7 +33,7 @@ namespace cdr_labeler {
         if(str == "kabat")
             return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::Kabat_Domain;
         VERIFY_MSG(false, "Domain system " << str << " is unknown!");
-        return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::UnknownDomain;
+        return CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::DomainSystem::Unknown_Domain;
     }
 
     void load(CDRLabelerConfig::CDRsParams::AnnotatedSearchParams::VGeneAnnotation &va,

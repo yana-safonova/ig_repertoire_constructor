@@ -22,4 +22,14 @@ namespace cdr_labeler {
                                                                                                read_cdr2,
                                                                                                read_cdr3));
     }
+
+    annotation_utils::CDRAnnotatedCloneSet ReadCDRLabeler::CreateAnnotatedCloneSet(
+            const vj_finder::VJAlignmentInfo &alignment_info) {
+        annotation_utils::CDRAnnotatedCloneSet clone_set;
+        for(size_t i = 0; i < alignment_info.NumVJHits(); i++) {
+            auto vj_hit = alignment_info.GetVJHitsByIndex(i);
+            clone_set.AddClone(CreateAnnotatedClone(vj_hit));
+        }
+        return clone_set;
+    }
 }

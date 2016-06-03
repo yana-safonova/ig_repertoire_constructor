@@ -1,3 +1,5 @@
+#include <verify.hpp>
+
 #include "cdr_annotated_clone.hpp"
 
 #include <seqan/stream.h>

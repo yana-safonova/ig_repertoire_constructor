@@ -5,6 +5,7 @@
 #include "germline_db_labeler.hpp"
 #include "vj_parallel_processor.hpp"
 #include "read_labeler.hpp"
+#include "cdr_output.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
@@ -36,12 +37,10 @@ namespace cdr_labeler {
                      " reads were filtered out");
 
         ReadCDRLabeler read_labeler(v_labeling, j_labeling);
-        for(size_t i = 0; i < alignment_info.NumVJHits(); i++) {
-            auto vj_hit = alignment_info.GetVJHitsByIndex(i);
-            auto labeler_clone = read_labeler.CreateAnnotatedClone(vj_hit);
-            std::cout << labeler_clone << std::endl;
-        }
-
+        auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
+        CDRLabelingWriter writer(config_.output_params, annotated_clone_set);
+        writer.OutputCDRDetails();
+        writer.OutputCDR3Fasta();
         INFO("CDR labeler ends");
     }
 }

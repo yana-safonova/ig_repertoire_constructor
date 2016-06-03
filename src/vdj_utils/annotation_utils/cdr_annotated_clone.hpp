@@ -31,6 +31,18 @@ namespace annotation_utils {
 
         seqan::Dna5String GetRegionString(StructuralRegion region) const;
 
+        seqan::Dna5String CDR1() const {
+            return GetRegionString(StructuralRegion::CDR1);
+        }
+
+        seqan::Dna5String CDR2() const {
+            return GetRegionString(StructuralRegion::CDR2);
+        }
+
+        seqan::Dna5String CDR3() const {
+            return GetRegionString(StructuralRegion::CDR3);
+        }
+
         const core::Read& Read() const { return read_; }
     };
 
