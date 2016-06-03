@@ -1,10 +1,11 @@
 #pragma once
 
-#include "germline_db_labeling.hpp"
-#include <annotation_utils/cdr_annotated_clone.hpp>
-#include <vj_alignment_structs.hpp>
+#include <vj_alignment_info.hpp>
+#include <annotation_utils/annotated_clone_set.hpp>
 
+#include "germline_db_labeling.hpp"
 #include "immune_gene_alignment_converter.hpp"
+
 
 namespace cdr_labeler {
     class ReadCDRLabeler {
@@ -19,5 +20,7 @@ namespace cdr_labeler {
                 j_labeling_(j_labeling) { }
 
         annotation_utils::CDRAnnotatedClone CreateAnnotatedClone(const vj_finder::VJHits &vj_hits);
+
+        annotation_utils::CDRAnnotatedCloneSet CreateAnnotatedCloneSet(const vj_finder::VJAlignmentInfo &alignment_info);
     };
 }

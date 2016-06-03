@@ -11,6 +11,8 @@ namespace cdr_labeler {
 
         struct OutputParams {
             std::string output_dir;
+            std::string cdr_details;
+            std::string cdr3_fasta;
         };
 
         struct RunParams {
@@ -19,7 +21,7 @@ namespace cdr_labeler {
 
         struct CDRsParams {
             struct AnnotatedSearchParams {
-                enum DomainSystem { UnknownDomain, IMGT_Domain, Kabat_Domain };
+                enum DomainSystem { Unknown_Domain, IMGT_Domain, Kabat_Domain };
 
                 struct VGeneAnnotation {
                     std::string imgt_v_annotation;

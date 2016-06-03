@@ -36,6 +36,7 @@ add_executable(cdr_labeler
         immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
         germline_db_labeling.cpp
         read_labeler.cpp
+        cdr_output.cpp
         cdr_launch.cpp
         main.cpp)
 
