@@ -24,7 +24,7 @@ add_executable(test_dsf test_dsf.cpp
 
 add_executable(test_germline_database test_germline_database.cpp)
 
-add_executable(test_germline_cdr test_germline_cdr.cpp
+add_executable(test_germline_cdr test_cdr_labeler.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
         ../cdr_labeler/cdr_config.cpp

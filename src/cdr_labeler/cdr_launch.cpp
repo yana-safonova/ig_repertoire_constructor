@@ -38,7 +38,7 @@ namespace cdr_labeler {
 
         ReadCDRLabeler read_labeler(v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
-        CDRLabelingWriter writer(config_.output_params, annotated_clone_set);
+        CDRLabelingWriter writer(config_.output_params, alignment_info, annotated_clone_set);
         writer.OutputCDRDetails();
         writer.OutputCDR3Fasta();
         INFO("CDR labeler ends");

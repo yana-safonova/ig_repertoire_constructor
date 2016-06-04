@@ -17,7 +17,7 @@ void create_console_logger() {
 cdr_labeler::CDRLabelerConfig config;
 germline_utils::CustomGeneDatabase v_gene_database(germline_utils::SegmentType::VariableSegment);
 
-class VGermlineCDRTest : public ::testing::Test {
+class CDRLabelerTest : public ::testing::Test {
 public:
     void SetUp() {
         create_console_logger();
@@ -29,14 +29,14 @@ public:
     }
 };
 
-std::string GetCDRSequence(const germline_utils::ImmuneGene &immune_gene, cdr_labeler::CDRRange cdr_range) {
+std::string GetCDRSequence(const germline_utils::ImmuneGene &immune_gene, annotation_utils::CDRRange cdr_range) {
     auto seqan_cdr = seqan::infixWithLength(immune_gene.seq(), cdr_range.start_pos, cdr_range.length());
     std::stringstream ss;
     ss << seqan_cdr;
     return ss.str();
 }
 
-TEST_F(VGermlineCDRTest, GermlineCDRsAreConsistentWithIgBlast) {
+TEST_F(CDRLabelerTest, GermlineCDRsAreConsistentWithIgBlast) {
     auto v_labeling = cdr_labeler::GermlineDbLabeler(v_gene_database, config.cdrs_params).ComputeLabeling();
     auto filtered_v_db = v_labeling.CreateFilteredDb();
     auto ighv1_18 = filtered_v_db[0];

@@ -64,7 +64,7 @@ namespace cdr_labeler {
             j_annotations_.push_back(j_annotation);
             j_name_index_map_[j_annotation.name] = j_annotations_.size() - 1;
         }
-        INFO(j_annotations_.size() << " J annotations were extracted from " << j_gene_annotation);
+        //INFO(j_annotations_.size() << " J annotations were extracted from " << j_gene_annotation);
     }
 
     CDRLabeling AnnotatedJGeneCDRLabeler::ComputeLabeling(const germline_utils::ImmuneGene &immune_gene) {

@@ -29,6 +29,8 @@ namespace vj_finder {
 
         const core::Read& GetFilteredReadByIndex(size_t index) const;
 
+        const VJHits& GetVJHitsByRead(const core::Read &read) const;
+
         bool ReadIsFiltered(const core::Read &read) const {
             return filtered_read_ids_.find(read.id) != filtered_read_ids_.end();
         }
