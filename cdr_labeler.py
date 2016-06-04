@@ -8,19 +8,23 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-spades_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "src/python_pipeline/")
 cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler/")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
-ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constructor")
 cdr_labeler_bin = "build/release/bin/cdr_labeler"
 run_cdr_labeler = "build/release/bin/./cdr_labeler"
 
-sys.path.append(spades_src)
+sys.path.append(py_src)
 import process_cfg
 import support
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
 test_dir = os.path.join(home_directory, "cdr_test")
+
+def CheckBinariesExistance(params, log):
+    if not os.path.exists(cdr_labeler_bin):
+        log.info("ERROR: CDR labeler binary file was not found. Please compile CDR labeler before running.")
+        sys.exit(1)
 
 def DomainParamCorrect(domain_str):
     return domain_str == "imgt" or domain_str == "kabat"
@@ -70,7 +74,13 @@ def CopyConfigs(params, log):
     shutil.copytree(cdr_labeler_config_dir, os.path.join(params.config_dir, "cdr_labeler"))
     shutil.copytree(vj_finder_config_dir, os.path.join(params.config_dir, "vj_finder"))
     params.vj_finder_config_file = os.path.join(params.config_dir, "vj_finder/config.info")
+    if not os.path.exists(params.vj_finder_config_file):
+        log.info("ERROR: Config file " + params.vj_finder_config_file + " was not found")
+        sys.exit(1)
     params.cdr_labeler_config_file = os.path.join(params.config_dir, "cdr_labeler/config.info")
+    if not os.path.exists(params.cdr_labeler_config_file):
+        log.info("ERROR: Config file " + params.cdr_labeler_config_file + " was not found")
+        sys.exit(1)
 
 def ModifyConfigFiles(params, log):
     cdr_param_dict = dict()
@@ -157,6 +167,7 @@ def main(argv):
 
     params = parser.parse_args()
 
+    CheckBinariesExistance(params, log)
     CheckParamsCorrectness(params, log)
     SetOutputParams(params, log)
 
