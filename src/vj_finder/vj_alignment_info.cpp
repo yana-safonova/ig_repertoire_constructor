@@ -31,6 +31,12 @@ namespace vj_finder {
         return alignment_records_[index];
     }
 
+    const VJHits& VJAlignmentInfo::GetVJHitsByRead(const core::Read &read) const {
+        VERIFY_MSG(read_id_hit_index_map_.find(read.id) != read_id_hit_index_map_.end(),
+                   "Alignment info does not contain read " << read.name);
+        return alignment_records_[read_id_hit_index_map_.at(read.id)];
+    }
+
     void VJAlignmentOutput::OutputAlignmentInfo() const {
         std::ofstream out(output_params_.output_files.alignment_info_fname);
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
