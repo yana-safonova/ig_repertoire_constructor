@@ -26,7 +26,10 @@ namespace annotation_utils {
     void CDRAnnotatedClone::UpdateStructuralRegion(StructuralRegion region, CDRRange range) {
         CheckRangeConsistencyFatal(range);
         region_range_map_[region] = range;
-        region_string_map_[region] = seqan::infixWithLength(read_.seq, range.start_pos, range.length());
+        seqan::Dna5String cdr_seq;
+        if(range.Valid())
+            cdr_seq = seqan::infixWithLength(read_.seq, range.start_pos, range.length());
+        region_string_map_[region] = cdr_seq;
     }
 
     void CDRAnnotatedClone::Initialize(CDRLabeling cdr_labeling) {
@@ -35,27 +38,32 @@ namespace annotation_utils {
         UpdateStructuralRegion(StructuralRegion::CDR3, cdr_labeling.cdr3);
     }
 
-    bool CDRAnnotatedClone::RegionExists(StructuralRegion region) const {
-        return region_range_map_.find(region) != region_range_map_.end();
+    bool CDRAnnotatedClone::RegionIsEmpty(StructuralRegion region) const {
+        if (region_range_map_.find(region) == region_range_map_.end())
+            return true;
+        return seqan::length(GetRegionString(region)) == 0;
     }
 
     seqan::Dna5String CDRAnnotatedClone::GetRegionString(StructuralRegion region) const {
-        VERIFY_MSG(RegionExists(region), "Clone does not have information about region " << region);
+        if(region_range_map_.find(region) == region_range_map_.end())
+            return seqan::Dna5String();
+        //VERIFY_MSG(region_range_map_.find(region) != region_range_map_.end(),
+        //           "Clone does not have information about region " << region);
         return region_string_map_.at(region);
     }
 
     CDRRange CDRAnnotatedClone::GetRangeByRegion(StructuralRegion region) const {
-        VERIFY_MSG(RegionExists(region), "Clone does not have information about region " << region);
+        VERIFY_MSG(!RegionIsEmpty(region), "Clone does not have information about region " << region);
         return region_range_map_.at(region);
     }
 
     std::ostream& operator<<(std::ostream& out, const CDRAnnotatedClone &obj) {
         out << obj.Read() << std::endl;
-        if(obj.RegionExists(StructuralRegion::CDR1))
+        if(!obj.RegionIsEmpty(StructuralRegion::CDR1))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR1) << std::endl;
-        if(obj.RegionExists(StructuralRegion::CDR2))
+        if(!obj.RegionIsEmpty(StructuralRegion::CDR2))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR2) << std::endl;
-        if(obj.RegionExists(StructuralRegion::CDR3))
+        if(!obj.RegionIsEmpty(StructuralRegion::CDR3))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR3) << std::endl;
         return out;
     }
