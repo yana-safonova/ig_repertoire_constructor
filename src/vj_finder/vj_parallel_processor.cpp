@@ -26,6 +26,7 @@ namespace vj_finder {
         omp_set_num_threads(int(num_threads_));
 #pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < read_archive_.size(); i++) {
+            TRACE("Processing read: " << read_archive_[i].name);
             size_t thread_id = omp_get_thread_num();
             thread_id_per_read_[i] = thread_id;
             VJQueryProcessor vj_query_processor(algorithm_params_, v_db_, j_db_);
