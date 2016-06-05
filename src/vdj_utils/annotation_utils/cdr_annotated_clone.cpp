@@ -24,6 +24,7 @@ namespace annotation_utils {
     }
 
     void CDRAnnotatedClone::UpdateStructuralRegion(StructuralRegion region, CDRRange range) {
+        //TRACE("Updating " << region << " by range " << range);
         CheckRangeConsistencyFatal(range);
         region_range_map_[region] = range;
         seqan::Dna5String cdr_seq;

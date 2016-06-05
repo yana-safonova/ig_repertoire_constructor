@@ -29,6 +29,8 @@ namespace annotation_utils {
         size_t length() const;
     };
 
+    std::ostream& operator<<(std::ostream& out, const CDRRange &obj);
+
     struct CDRLabeling {
         CDRRange cdr1;
         CDRRange cdr2;
