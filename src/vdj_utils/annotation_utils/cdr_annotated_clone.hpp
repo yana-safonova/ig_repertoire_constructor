@@ -25,7 +25,7 @@ namespace annotation_utils {
             Initialize(cdr_labeling);
         }
 
-        bool RegionExists(StructuralRegion region) const;
+        bool RegionIsEmpty(StructuralRegion region) const;
 
         CDRRange GetRangeByRegion(StructuralRegion region) const;
 
