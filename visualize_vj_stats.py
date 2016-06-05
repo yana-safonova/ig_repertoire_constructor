@@ -60,6 +60,7 @@ class VJMatrix:
                 v_index = sorted_v_abun_l.index(vj[0])
                 j_index = sorted_j_abun_l.index(vj[1])
                 table[j_index][v_index] = self.vj_dict[vj]
+        sorted_j_abun_l.reverse()
         return table, sorted_v_abun_l, sorted_j_abun_l
 
 def visualize_vj_heatmap(cdr_info_fname, output_pdf):
@@ -71,8 +72,7 @@ def visualize_vj_heatmap(cdr_info_fname, output_pdf):
     mplt.rcParams.update({'font.size': 18})
     f, ax = plt.subplots(figsize=(15, 10))
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    plot = sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
-    j.reverse()
+    plot = sns.heatmap(table, cmap = plt.cm.seismic, xticklabels = v, yticklabels = j) #plt.cm.Greens)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60) #, fontsize=12)
