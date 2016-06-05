@@ -48,7 +48,7 @@ namespace algorithms {
             };
 
             auto vertex_weight = [this](const Match &m) -> double {
-                return m.length * scoring_.match_reward;
+                return double(m.length) * double(scoring_.match_reward);
             };
 
             auto edge_weight = [this](const Match &a, const Match &b) -> double {
