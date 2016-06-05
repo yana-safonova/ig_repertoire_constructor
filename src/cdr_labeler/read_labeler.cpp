@@ -30,6 +30,7 @@ namespace cdr_labeler {
             auto vj_hit = alignment_info.GetVJHitsByIndex(i);
             clone_set.AddClone(CreateAnnotatedClone(vj_hit));
         }
+        INFO(clone_set.size() << " annotated sequences were created");
         return clone_set;
     }
 }

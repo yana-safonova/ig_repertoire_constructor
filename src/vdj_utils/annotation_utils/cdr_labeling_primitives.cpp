@@ -7,4 +7,9 @@ namespace annotation_utils {
         VERIFY_MSG(Full(), "Start pos (" << start_pos << ") or end pos (" << end_pos << ") is not defined");
         return end_pos - start_pos + 1;
     }
+
+    std::ostream& operator<<(std::ostream& out, const CDRRange &obj) {
+        out << "Start pos: " << obj.start_pos << ", end pos: " << obj.end_pos;
+        return out;
+    }
 }

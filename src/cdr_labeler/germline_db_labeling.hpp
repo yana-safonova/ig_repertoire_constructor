@@ -12,6 +12,9 @@ namespace cdr_labeler {
 
         size_t num_empty_labelings_;
 
+        bool LabelingIsValid(const germline_utils::ImmuneGene &immune_gene,
+                                annotation_utils::CDRLabeling labeling) const;
+
     public:
         DbCDRLabeling(const germline_utils::CustomGeneDatabase &germline_db) : germline_db_(germline_db),
                                                                                num_empty_labelings_() { }
