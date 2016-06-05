@@ -31,8 +31,8 @@ namespace algorithms {
     class PairwiseBlockAligner {
         const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
         KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper_;
-        const BlockAlignmentScoringScheme& scoring_;
-        const BlockAlignerParams& params_;
+        const BlockAlignmentScoringScheme scoring_;
+        const BlockAlignerParams params_;
 
         PairwiseBlockAlignment MakeAlignment(const std::vector<Match> &combined,
                                           const StringType &query,
@@ -100,7 +100,7 @@ namespace algorithms {
     public:
         PairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
                              KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
-                             const BlockAlignmentScoringScheme& scoring, const BlockAlignerParams &params) :
+                             BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
                 kmer_index_(kmer_index),
                 kmer_index_helper_(kmer_index_helper),
                 scoring_(scoring),
