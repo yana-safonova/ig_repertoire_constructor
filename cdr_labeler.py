@@ -18,6 +18,8 @@ sys.path.append(py_src)
 import process_cfg
 import support
 
+import visualize_vj_stats
+
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
 test_dir = os.path.join(home_directory, "cdr_test")
 
@@ -191,6 +193,7 @@ def main(argv):
     try:
         cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
         support.sys_call(cdr_command_line, log)
+        visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"), params.output_dir])
         #Cleanup(params, log)
         log.info("\nThank you for using CDR Labeler!\n")
     except (KeyboardInterrupt):

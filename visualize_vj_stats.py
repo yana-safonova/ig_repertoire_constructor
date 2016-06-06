@@ -1,6 +1,7 @@
 import os
 import sys
 import operator
+import warnings
 
 from string import letters
 import numpy as np
@@ -70,7 +71,7 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     j_hits = list(labeling_df['J_hit'])
     vj_matrix = VJMatrix(v_hits, j_hits)
     table, v, j = vj_matrix.CreateTable(2500)
-    mplt.rcParams.update({'font.size': 18})
+    mplt.rcParams.update({'font.size': 20})
     f, ax = plt.subplots(figsize=(15, 10))
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
     #sns.clustermap(table, cmap = plt.cm.coolwarm)
@@ -85,28 +86,100 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     plt.clf()
     print "VJ heatmap was written to " + output_pdf
 
-def visualize_region_stats(labeling_df, region, region_name, output_fname):
+def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     region_seq = list(labeling_df[region])
     region_len = [len(s) for s in region_seq if len(s) > 1]
     sns.distplot(region_len, kde = False, rug=False)
-    plt.xlabel('CDR3 length')
-    plt.ylabel('# CDR3s')
+    plt.xlabel(region_name + ' length')
+    plt.ylabel('# ' + region_name + 's')
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
     plt.clf()
     print region_name + " length distribution was written to " + output_fname
 
-def main():
-    if len(sys.argv) != 3:
+def get_region_largest_group(region_seq):
+    len_dict = dict()
+    for s in region_seq:
+        if len(s) not in len_dict:
+            len_dict[len(s)] = list()
+        len_dict[len(s)].append(s)
+    max_len = 0
+    max_group = 0
+    for l in len_dict:
+        if len(len_dict[l]) > max_group:
+            max_group = len(len_dict[l])
+            max_len = l
+    return len_dict[max_len]
+
+def get_nucls_lists(max_group):
+    region_len = len(max_group[0])
+    nucl_dict = dict()
+    nucl_dict['A'] = [0] * region_len
+    nucl_dict['C'] = [0] * region_len
+    nucl_dict['G'] = [0] * region_len
+    nucl_dict['T'] = [0] * region_len
+    for s in max_group:
+        for i in range(0, len(s)):
+            if s[i] in nucl_dict:
+                nucl_dict[s[i]][i] += 1
+    for i in range(0, region_len):
+        sum = nucl_dict['A'][i] + nucl_dict['C'][i] + nucl_dict['G'][i] + nucl_dict['T'][i]
+        nucl_dict['A'][i] = float(nucl_dict['A'][i]) / float(sum) * 100
+        nucl_dict['C'][i] = float(nucl_dict['C'][i]) / float(sum) * 100
+        nucl_dict['G'][i] = float(nucl_dict['G'][i]) / float(sum) * 100
+        nucl_dict['T'][i] = float(nucl_dict['T'][i]) / float(sum) * 100
+    nucl_dict['A'] = np.array(nucl_dict['A'])
+    nucl_dict['C'] = np.array(nucl_dict['C'])
+    nucl_dict['G'] = np.array(nucl_dict['G'])
+    nucl_dict['T'] = np.array(nucl_dict['T'])
+    return nucl_dict
+
+def visualize_largest_region_nucls(labeling_df, region, region_name, output_fname):
+    region_seq = list(labeling_df[region])
+    max_group = get_region_largest_group(region_seq)
+    if len(max_group) == 0:
+        return
+    nucl_dict = get_nucls_lists(max_group)
+    x = range(0, len(max_group[0]))
+    acgt = nucl_dict['A'] + nucl_dict['C'] + nucl_dict['G'] + nucl_dict['T']
+    cgt = nucl_dict['C'] + nucl_dict['G'] + nucl_dict['T']
+    gt = nucl_dict['G'] + nucl_dict['T']
+    #sns.set_color_codes("pastel")
+    sns.set_color_codes("muted")
+    f, ax = plt.subplots(figsize=(15, 6))
+    sns.barplot(x=x, y=acgt, label="A", color = 'b')
+    sns.barplot(x=x, y=cgt, label="C", color = 'g')
+    sns.barplot(x=x, y=gt, label="G", color = 'r')
+    sns.barplot(x=x, y=nucl_dict['T'], label="T", color = 'orange')
+    ax.legend(ncol=4, loc="lower right", frameon=True)
+    plt.xlabel(region_name + ' position')
+    plt.ylabel('Nucleotide %')
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print region_name + " nucleotide distribution was written to " + output_fname
+
+def checkout_output_dir(output_dir):
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
+def main(argv):
+    warnings.filterwarnings('ignore')
+    if len(argv) != 3:
         print "Invalid input parameters"
         return
-    df = pd.read_table(sys.argv[1], delim_whitespace = True)
-    output_dir = sys.argv[2]
+    df = pd.read_table(argv[1], delim_whitespace = True)
+    output_dir = argv[2]
+    checkout_output_dir(output_dir)
     visualize_vj_heatmap(df, os.path.join(output_dir, "vj_heatmap.pdf"))
-    #visualize_region_stats(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
-    #visualize_region_stats(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_length.pdf"))
-    visualize_region_stats(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_length.pdf"))
+    visualize_region_lengths(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
+    visualize_region_lengths(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_length.pdf"))
+    visualize_region_lengths(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_length.pdf"))
+    visualize_largest_region_nucls(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_nucls.pdf"))
+    visualize_largest_region_nucls(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_nucls.pdf"))
+    visualize_largest_region_nucls(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_nucls.pdf"))
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

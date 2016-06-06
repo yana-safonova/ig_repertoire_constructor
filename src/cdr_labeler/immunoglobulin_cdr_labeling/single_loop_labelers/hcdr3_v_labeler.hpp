@@ -5,7 +5,7 @@
 
 namespace cdr_labeler {
     class HCDR3VLabeler : public SingleLoopLabeler {
-        const CDRLabelerConfig::CDRsParams::HCDR3Params &params_;
+        //const CDRLabelerConfig::CDRsParams::HCDR3Params &params_;
 
         size_t ComputeStartPosition(const germline_utils::ImmuneGene &immune_gene,
                                     annotation_utils::CDRRange previous_cdr);
@@ -14,9 +14,9 @@ namespace cdr_labeler {
                                                 annotation_utils::CDRRange previous_cdr);
 
     public:
-        HCDR3VLabeler(const CDRLabelerConfig::CDRsParams::HCDR3Params &params) :
+        HCDR3VLabeler(const CDRLabelerConfig::CDRsParams::HCDR3Params &) :
                 SingleLoopLabeler(germline_utils::ImmuneGeneType(germline_utils::ChainType("IGH"),
-                                                                 germline_utils::SegmentType::VariableSegment)),
-                params_(params) { }
+                                                                 germline_utils::SegmentType::VariableSegment))
+                /*, params_(params)*/ { }
     };
 }
