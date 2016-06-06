@@ -42,8 +42,10 @@ class VJMatrix:
         sorted_j = sorted(j_abun.items(), key=operator.itemgetter(1), reverse=True)
         #print sorted_v
         #print sorted_j
-        v_abun_large = [v[0] for v in sorted_v if v[1] >= size_threshold]
-        j_abun_large = [j[0] for j in sorted_j if j[1] >= size_threshold]
+        min_v = min(len(sorted_v), 24)
+        min_j = min(len(sorted_j), 100)
+        v_abun_large = [sorted_v[i][0] for i in range(0, min_v)] #[v[0] for v in sorted_v if v[1] >= size_threshold]
+        j_abun_large = [sorted_j[i][0] for i in range(0, min_j)] #[j[0] for j in sorted_j if j[1] >= size_threshold]
         #print v_abun_large
         #print j_abun_large
         return v_abun_large, j_abun_large
@@ -63,12 +65,11 @@ class VJMatrix:
         sorted_j_abun_l.reverse()
         return table, sorted_v_abun_l, sorted_j_abun_l
 
-def visualize_vj_heatmap(cdr_info_fname, output_pdf):
-    df = pd.read_table(cdr_info_fname, delim_whitespace = True)
-    v_hits = list(df['V_hit'])
-    j_hits = list(df['J_hit'])
+def visualize_vj_heatmap(labeling_df, output_pdf):
+    v_hits = list(labeling_df['V_hit'])
+    j_hits = list(labeling_df['J_hit'])
     vj_matrix = VJMatrix(v_hits, j_hits)
-    table, v, j = vj_matrix.CreateTable(5000)
+    table, v, j = vj_matrix.CreateTable(2500)
     mplt.rcParams.update({'font.size': 18})
     f, ax = plt.subplots(figsize=(15, 10))
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
@@ -81,15 +82,31 @@ def visualize_vj_heatmap(cdr_info_fname, output_pdf):
     pp = PdfPages(output_pdf)
     pp.savefig()
     pp.close()
+    plt.clf()
     print "VJ heatmap was written to " + output_pdf
 
-    #plt.show()
+def visualize_region_stats(labeling_df, region, region_name, output_fname):
+    region_seq = list(labeling_df[region])
+    region_len = [len(s) for s in region_seq if len(s) > 1]
+    sns.distplot(region_len, kde = False, rug=False)
+    plt.xlabel('CDR3 length')
+    plt.ylabel('# CDR3s')
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print region_name + " length distribution was written to " + output_fname
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print "Invalid input parameters"
         return
-    visualize_vj_heatmap(sys.argv[1], "vj_heatmap.pdf")
+    df = pd.read_table(sys.argv[1], delim_whitespace = True)
+    output_dir = sys.argv[2]
+    visualize_vj_heatmap(df, os.path.join(output_dir, "vj_heatmap.pdf"))
+    #visualize_region_stats(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
+    #visualize_region_stats(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_length.pdf"))
+    visualize_region_stats(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_length.pdf"))
 
 if __name__ == "__main__":
     main()
