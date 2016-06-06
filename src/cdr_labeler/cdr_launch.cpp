@@ -6,6 +6,7 @@
 #include "vj_parallel_processor.hpp"
 #include "read_labeler.hpp"
 #include "cdr_output.hpp"
+#include "diversity_analyser.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
@@ -44,6 +45,8 @@ namespace cdr_labeler {
         writer.OutputCDR2Fasta();
         writer.OutputCDR3Fasta();
         writer.OutputCompressedCDR3Fasta();
+        INFO("Diversity analyser starts");
+        DiversityAnalyser cdr_analyser(config_.output_params.cdr3_compressed_fasta);
         INFO("CDR labeler ends");
     }
 }

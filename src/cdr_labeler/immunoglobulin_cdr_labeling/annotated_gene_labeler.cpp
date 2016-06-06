@@ -31,7 +31,7 @@ namespace cdr_labeler {
             v_annotations_.push_back(v_annotation);
             v_name_index_map_[v_annotation.name] = v_annotations_.size() - 1;
         }
-        INFO(v_annotations_.size() << " V annotations were extracted from " << v_gene_annotation);
+        //INFO(v_annotations_.size() << " V annotations were extracted from " << v_gene_annotation);
     }
 
     CDRLabeling AnnotatedVGeneCDRLabeler::ComputeLabeling(const germline_utils::ImmuneGene &immune_gene) {
