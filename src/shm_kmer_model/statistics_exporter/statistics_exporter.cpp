@@ -10,7 +10,6 @@
 void StatisticsExporter::export_statistics(const MutationsStatistics &statistics) const {
     std::ofstream out(output_filename_);
 
-    out << "k-mer";
     auto alphabet_size = seqan::ValueSize<seqan::Dna>::VALUE;
     for (size_t i = 0; i < alphabet_size; ++i)
         out << separator << seqan::Dna(i);
