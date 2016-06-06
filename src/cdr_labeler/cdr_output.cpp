@@ -1,5 +1,7 @@
 #include "cdr_output.hpp"
 
+#include "compressed_cdr_set.hpp"
+
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
 
@@ -35,15 +37,53 @@ namespace cdr_labeler {
         INFO("CDR details were written to " << output_config_.cdr_details);
     }
 
-    void CDRLabelingWriter::OutputCDR3Fasta() const {
-        seqan::SeqFileOut out(output_config_.cdr3_fasta.c_str());
+    void CDRLabelingWriter::OutputRegionFasta(std::string output_fname,
+                                              annotation_utils::StructuralRegion region) const {
+        seqan::SeqFileOut out(output_fname.c_str());
         std::vector<seqan::CharString> headers;
-        std::vector<seqan::Dna5String> cdr3s;
+        std::vector<seqan::Dna5String> regions;
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
+            if(it->RegionIsEmpty(region))
+                continue;
             headers.push_back(seqan::CharString(it->Read().name.c_str()));
-            cdr3s.push_back(it->CDR3());
+            regions.push_back(it->GetRegionString(region));
         }
-        seqan::writeRecords(out, headers, cdr3s);
-        INFO("CDR3 sequences were written to " << output_config_.cdr3_fasta);
+        seqan::writeRecords(out, headers, regions);
+        INFO(region << " sequences were written to " << output_fname);
+    }
+
+    void CDRLabelingWriter::OutputCDR1Fasta() const {
+        OutputRegionFasta(output_config_.cdr1_fasta, annotation_utils::StructuralRegion::CDR1);
+    }
+
+    void CDRLabelingWriter::OutputCDR2Fasta() const {
+        OutputRegionFasta(output_config_.cdr2_fasta, annotation_utils::StructuralRegion::CDR2);
+    }
+
+    void CDRLabelingWriter::OutputCDR3Fasta() const {
+        OutputRegionFasta(output_config_.cdr3_fasta, annotation_utils::StructuralRegion::CDR3);
+    }
+
+    seqan::CharString CDRLabelingWriter::GetCompressedRegionFname(annotation_utils::StructuralRegion region,
+                                                                  CDRKey cdr_key, size_t abundance) const {
+        std::stringstream ss;
+        ss << region << ":" << cdr_key.id + 1 << "|V_hit:" << cdr_key.v_name << "|J_hit:" << cdr_key.j_name <<
+                "|COUNT:" << abundance;
+        return seqan::CharString(ss.str().c_str());
+    }
+
+    void CDRLabelingWriter::OutputCompressedCDR3Fasta() const {
+        CompressedCDRSet compressed_cdr3s(annotation_utils::StructuralRegion::CDR3, alignment_info_, clone_set_);
+        seqan::SeqFileOut out(output_config_.cdr3_compressed_fasta.c_str());
+        std::vector<seqan::CharString> headers;
+        std::vector<seqan::Dna5String> regions;
+        for(auto it = compressed_cdr3s.cbegin(); it != compressed_cdr3s.cend(); it++) {
+            headers.push_back(GetCompressedRegionFname(annotation_utils::StructuralRegion::CDR3,
+                                                       it->first, it->second));
+            regions.push_back(it->first.cdr_seq);
+        }
+        seqan::writeRecords(out, headers, regions);
+        INFO("Compressed " << annotation_utils::StructuralRegion::CDR3 << " were written to " <<
+                     output_config_.cdr3_compressed_fasta);
     }
 }

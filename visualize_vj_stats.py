@@ -68,11 +68,12 @@ def visualize_vj_heatmap(cdr_info_fname, output_pdf):
     v_hits = list(df['V_hit'])
     j_hits = list(df['J_hit'])
     vj_matrix = VJMatrix(v_hits, j_hits)
-    table, v, j = vj_matrix.CreateTable(2500)
+    table, v, j = vj_matrix.CreateTable(5000)
     mplt.rcParams.update({'font.size': 18})
     f, ax = plt.subplots(figsize=(15, 10))
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    plot = sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
+    #sns.clustermap(table, cmap = plt.cm.coolwarm)
+    sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60) #, fontsize=12)
@@ -81,6 +82,7 @@ def visualize_vj_heatmap(cdr_info_fname, output_pdf):
     pp.savefig()
     pp.close()
     print "VJ heatmap was written to " + output_pdf
+
     #plt.show()
 
 def main():

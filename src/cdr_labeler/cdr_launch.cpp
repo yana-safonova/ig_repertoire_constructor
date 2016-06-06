@@ -40,7 +40,10 @@ namespace cdr_labeler {
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
         CDRLabelingWriter writer(config_.output_params, alignment_info, annotated_clone_set);
         writer.OutputCDRDetails();
+        writer.OutputCDR1Fasta();
+        writer.OutputCDR2Fasta();
         writer.OutputCDR3Fasta();
+        writer.OutputCompressedCDR3Fasta();
         INFO("CDR labeler ends");
     }
 }
