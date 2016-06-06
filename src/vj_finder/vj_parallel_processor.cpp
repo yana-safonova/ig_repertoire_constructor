@@ -36,6 +36,12 @@ namespace vj_finder {
             else
                 info_per_thread[thread_id].UpdateHits(*vj_hits);
         }
-        return GatherAlignmentInfos();
+        auto total_alignment_info = GatherAlignmentInfos();
+        size_t num_aligned_reads = total_alignment_info.NumVJHits();
+        for(auto it = total_alignment_info.chain_type_cbegin(); it != total_alignment_info.chain_type_cend(); it++) {
+            float perc = float(it->second) / float(num_aligned_reads) * 100;
+            INFO(perc << "% of aligned reads have isotype " << it->first);
+        }
+        return total_alignment_info;
     }
 }
