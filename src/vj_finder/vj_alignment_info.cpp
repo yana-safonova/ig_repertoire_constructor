@@ -14,7 +14,15 @@ namespace vj_finder {
         filtered_read_ids_.insert(read.id);
     }
 
+    void VJAlignmentInfo::UpdateChainTypeMap(const VJHits &vj_hits) {
+        auto chain_type = vj_hits.GetVHitByIndex(0).ImmuneGene().Chain();
+        if(chain_type_abundance_.find(chain_type) == chain_type_abundance_.end())
+            chain_type_abundance_[chain_type] = 0;
+        chain_type_abundance_[chain_type]++;
+    }
+
     void VJAlignmentInfo::UpdateHits(VJHits vj_hits) {
+        UpdateChainTypeMap(vj_hits);
         alignment_records_.push_back(std::move(vj_hits));
         read_id_hit_index_map_[vj_hits.Read().id] = alignment_records_.size() - 1;
     }

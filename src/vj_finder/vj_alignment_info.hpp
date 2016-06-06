@@ -12,6 +12,10 @@ namespace vj_finder {
         std::unordered_set<size_t> filtered_read_ids_;
         std::unordered_map<size_t, size_t> read_id_hit_index_map_;
 
+        std::unordered_map<germline_utils::ChainType, size_t, germline_utils::ChainTypeHasher> chain_type_abundance_;
+
+        void UpdateChainTypeMap(const VJHits &vj_hits);
+
     public:
         VJAlignmentInfo() { }
 
@@ -40,6 +44,13 @@ namespace vj_finder {
                        "Info does contain record for read " << read.name);
             return read_id_hit_index_map_.at(read.id);
         }
+
+        typedef std::unordered_map<germline_utils::ChainType, size_t,
+                germline_utils::ChainTypeHasher>::const_iterator ChainTypeAbundanceConstIter;
+
+        ChainTypeAbundanceConstIter chain_type_cbegin() const { return chain_type_abundance_.cbegin(); }
+
+        ChainTypeAbundanceConstIter chain_type_cend() const { return chain_type_abundance_.cend(); }
     };
 
     class VJAlignmentOutput {
