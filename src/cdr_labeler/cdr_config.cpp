@@ -11,14 +11,20 @@ namespace cdr_labeler {
 
     void update_output_config(CDRLabelerConfig::OutputParams &op) {
         op.cdr_details = path::append_path(op.output_dir, op.cdr_details);
+        op.cdr1_fasta = path::append_path(op.output_dir, op.cdr1_fasta);
+        op.cdr2_fasta = path::append_path(op.output_dir, op.cdr2_fasta);
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
+        op.cdr3_compressed_fasta = path::append_path(op.output_dir, op.cdr3_compressed_fasta);
     }
 
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(op.output_dir, pt, "output_dir");
         load(op.cdr_details, pt, "cdr_details");
+        load(op.cdr1_fasta, pt, "cdr1_fasta");
+        load(op.cdr2_fasta, pt, "cdr2_fasta");
         load(op.cdr3_fasta, pt, "cdr3_fasta");
+        load(op.cdr3_compressed_fasta, pt, "cdr3_compressed_fasta");
         update_output_config(op);
     }
 

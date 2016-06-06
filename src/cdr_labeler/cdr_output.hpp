@@ -3,6 +3,7 @@
 #include "cdr_config.hpp"
 #include <annotation_utils/annotated_clone_set.hpp>
 #include <vj_alignment_info.hpp>
+#include "compressed_cdr_set.hpp"
 
 namespace cdr_labeler {
     class CDRLabelingWriter {
@@ -13,6 +14,11 @@ namespace cdr_labeler {
         std::ostream& OutputCloneRegion(std::ostream& out, const annotation_utils::CDRAnnotatedClone &clone,
                                        annotation_utils::StructuralRegion region) const;
 
+        void OutputRegionFasta(std::string output_fname, annotation_utils::StructuralRegion region) const;
+
+        seqan::CharString GetCompressedRegionFname(annotation_utils::StructuralRegion region,
+                                                   CDRKey cdr_key, size_t abundance) const;
+
     public:
         CDRLabelingWriter(const CDRLabelerConfig::OutputParams &output_config,
                           const vj_finder::VJAlignmentInfo &alignment_info,
@@ -22,6 +28,12 @@ namespace cdr_labeler {
 
         void OutputCDRDetails() const;
 
+        void OutputCDR1Fasta() const;
+
+        void OutputCDR2Fasta() const;
+
         void OutputCDR3Fasta() const;
+
+        void OutputCompressedCDR3Fasta() const;
     };
 }

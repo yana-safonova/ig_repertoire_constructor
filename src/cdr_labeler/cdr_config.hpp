@@ -12,7 +12,10 @@ namespace cdr_labeler {
         struct OutputParams {
             std::string output_dir;
             std::string cdr_details;
+            std::string cdr1_fasta;
+            std::string cdr2_fasta;
             std::string cdr3_fasta;
+            std::string cdr3_compressed_fasta;
         };
 
         struct RunParams {
