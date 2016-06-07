@@ -4,12 +4,17 @@ import operator
 import warnings
 
 from string import letters
+
+import matplotlib as mplt
+mplt.use('Agg')
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import matplotlib as mplt
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+
+mplt.use('Agg')
 
 class VJMatrix:
     def __init__(self, v_hits, j_hits):
