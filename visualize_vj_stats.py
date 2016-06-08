@@ -147,6 +147,7 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
         return
     nucl_dict = get_nucls_lists(max_group)
     x = range(0, len(max_group[0]))
+    x_l = [str(i) for i in range(1, len(max_group[0]) + 1)]
     acgt = nucl_dict['A'] + nucl_dict['C'] + nucl_dict['G'] + nucl_dict['T']
     cgt = nucl_dict['C'] + nucl_dict['G'] + nucl_dict['T']
     gt = nucl_dict['G'] + nucl_dict['T']
@@ -157,9 +158,10 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     sns.barplot(x=x, y=cgt, label="C", color = 'g')
     sns.barplot(x=x, y=gt, label="G", color = 'r')
     sns.barplot(x=x, y=nucl_dict['T'], label="T", color = 'orange')
-    ax.legend(ncol=4, loc="lower right", frameon=True)
-    plt.xlabel(region_name + ' position')
-    plt.ylabel('Nucleotide %')
+    ax.legend(ncol = 4, loc="upper center", frameon=True, fontsize = 14)
+    plt.xlabel(region_name + ' position', fontsize = 14)
+    plt.ylabel('Nucleotide %', fontsize = 14)
+    plt.xticks(x, x_l)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
