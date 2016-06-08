@@ -493,9 +493,9 @@ class ConsensusConstructionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = "%s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
-                                                       self.__params.io.map_file,
-                                                       self.__params.io.dense_sgraph_decomposition,
-                                                       self.__params.io.uncompressed_final_rcm)
+                                                 self.__params.io.map_file,
+                                                 self.__params.io.dense_sgraph_decomposition,
+                                                 self.__params.io.uncompressed_final_rcm)
         support.sys_call(command_line, self._log)
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
