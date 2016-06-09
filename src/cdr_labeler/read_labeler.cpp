@@ -20,7 +20,9 @@ namespace cdr_labeler {
                                              j_alignment.QueryPositionBySubjectPosition(j_cdr_labeling.cdr3.end_pos));
         return annotation_utils::CDRAnnotatedClone(v_hit.Read(), annotation_utils::CDRLabeling(read_cdr1,
                                                                                                read_cdr2,
-                                                                                               read_cdr3));
+                                                                                               read_cdr3),
+                                                   v_alignment,
+                                                   j_alignment);
     }
 
     annotation_utils::CDRAnnotatedCloneSet ReadCDRLabeler::CreateAnnotatedCloneSet(

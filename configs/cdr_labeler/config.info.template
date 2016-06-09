@@ -4,12 +4,13 @@ input_params {
 }
 
 output_params {
-    output_dir    cdr_test
-    cdr_details   cdr_details.txt  
-    cdr1_fasta    cdr1s.fasta
-    cdr2_fasta    cdr2s.fasta 
-    cdr3_fasta    cdr3s.fasta
-    cdr3_compressed_fasta compressed_cdr3s.fasta
+    output_dir             cdr_test
+    cdr_details            cdr_details.txt  
+    cdr1_fasta             cdr1s.fasta
+    cdr2_fasta             cdr2s.fasta 
+    cdr3_fasta             cdr3s.fasta
+    cdr3_compressed_fasta  compressed_cdr3s.fasta
+    v_alignment_fasta      v_alignment.fasta
 }
 
 run_params {

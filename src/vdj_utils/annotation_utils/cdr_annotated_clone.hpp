@@ -2,6 +2,7 @@
 
 #include "cdr_labeling_primitives.hpp"
 #include <read_archive.hpp>
+#include "../alignment_utils/pairwise_alignment.hpp"
 
 namespace annotation_utils {
     enum StructuralRegion { CDR1, CDR2, CDR3 };
@@ -14,6 +15,9 @@ namespace annotation_utils {
         std::unordered_map<StructuralRegion, seqan::Dna5String, std::hash<int>> region_string_map_;
         std::unordered_map<StructuralRegion, CDRRange, std::hash<int>> region_range_map_;
 
+        alignment_utils::ImmuneGeneReadAlignment v_alignment_;
+        alignment_utils::ImmuneGeneReadAlignment j_alignment_;
+
         void CheckRangeConsistencyFatal(CDRRange range);
 
         void UpdateStructuralRegion(StructuralRegion region, CDRRange range);
@@ -21,7 +25,12 @@ namespace annotation_utils {
         void Initialize(CDRLabeling cdr_labeling);
 
     public:
-        CDRAnnotatedClone(const core::Read &read, CDRLabeling cdr_labeling) : read_(read) {
+        CDRAnnotatedClone(const core::Read &read,
+                          CDRLabeling cdr_labeling,
+                          alignment_utils::ImmuneGeneReadAlignment v_alignment,
+                          alignment_utils::ImmuneGeneReadAlignment j_alignment) : read_(read),
+                                                                                  v_alignment_(v_alignment),
+                                                                                  j_alignment_(j_alignment) {
             Initialize(cdr_labeling);
         }
 
@@ -44,6 +53,10 @@ namespace annotation_utils {
         }
 
         const core::Read& Read() const { return read_; }
+
+        const alignment_utils::ImmuneGeneReadAlignment& VAlignment() const { return v_alignment_; }
+
+        const alignment_utils::ImmuneGeneReadAlignment& JAlignment() const { return j_alignment_; }
     };
 
     std::ostream& operator<<(std::ostream& out, const CDRAnnotatedClone &obj);

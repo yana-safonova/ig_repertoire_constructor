@@ -14,7 +14,9 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-mplt.use('Agg')
+from Bio import SeqIO
+from Bio.Seq import Seq
+from Bio.SeqRecord import SeqRecord
 
 class VJMatrix:
     def __init__(self, v_hits, j_hits):
@@ -168,17 +170,135 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.clf()
     print region_name + " nucleotide distribution was written to " + output_fname
 
+cm = plt.get_cmap('hsv')
+aa_colors = []
+for i in range(21):
+    aa_colors.append(cm(1. * i / 21))
+amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
+
+def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname):
+    region_seq = list(labeling_df[region])
+    max_group = get_region_largest_group(region_seq)
+    if len(max_group) == 0:
+        return
+    group_len = len(max_group[0])
+    if group_len % 3 != 0:
+        print "Largest " + region_name + " is not out-of-frame"
+        return
+    aa_seqs = [Seq(cdr).translate(to_stop=True) for cdr in max_group]
+    aa_list = [dict() for i in range(0, group_len / 3)]
+    for aa_seq in aa_seqs:
+        for i in range(0, len(aa_seq)):
+            if aa_seq[i] not in aa_list[i]:
+                aa_list[i][aa_seq[i]] = 0
+            aa_list[i][aa_seq[i]] += 1
+    aa_num = [len(aa) for aa in aa_list]
+    aa_large_abun = []
+    aa_large_acid = []
+    for aa in aa_list:
+        aa = sorted(aa.items(), key=operator.itemgetter(1), reverse = True)
+        sum = 0
+        for i in aa:
+            sum += i[1]
+        aa_large_abun.append(float(aa[0][1]) / float(sum) * 100)
+        aa_large_acid.append(aa[0][0])
+    aa_set = set()
+    for aa in aa_large_acid:
+        aa_set.add(aa)
+    for aa in aa_set:
+        x_ = []
+        abun_ = []
+        for i in range(0, len(aa_large_abun)):
+            x_.append(i)
+            if aa_large_acid[i] == aa:
+                abun_.append(aa_large_abun[i])
+            else:
+                abun_.append(0)
+        sns.barplot(x_, abun_, color = aa_colors[amino_acids.index(aa)])
+    plt.xticks(range(0, len(aa_large_abun)), aa_large_acid)
+    plt.xlabel('The most abundant amino acid')
+    plt.ylabel('% ' + region_name + 's')
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print region_name + " aa variability was written to " + output_fname
+
+def get_gene_isotype(gene_record):
+    #return np.random.randint(3) % 3
+    splits = gene_record.id.split('|')
+    return splits[2].split(':')[1]
+
+def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
+    input_records = list(SeqIO.parse(open(v_alignment_fasta), 'fasta'))
+    ig_dict = dict()
+    ig_dict['IGH'] = []
+    ig_dict['IGK'] = []
+    ig_dict['IGL'] = []
+    num_shms = dict()
+    num_shms['IGH'] = []
+    num_shms['IGK'] = []
+    num_shms['IGL'] = []
+    colors = {'IGH' : 'b', 'IGK' : 'g', 'IGL' : 'r'}
+    for i in range(0, len(input_records) / 2):
+        read = input_records[i * 2]
+        gene = input_records[i * 2 + 1]
+        isotype = get_gene_isotype(gene)
+        cur_num_shms = 0
+        for j in range(0, len(read.seq)):
+            if read.seq[j] != gene.seq[j]:
+                ig_dict[isotype].append(float(j) / float(len(read.seq)))
+                cur_num_shms += 1
+        num_shms[isotype].append(cur_num_shms)
+    plt.figure(1, figsize=(9, 6))
+    plt.subplot(211)
+    pos = []
+    labels = []
+    cols = []
+    for isotype in ig_dict:
+        if len(ig_dict[isotype]) > 0:
+            pos.append(ig_dict[isotype])
+            labels.append(str(isotype))
+            cols.append(colors[isotype])
+            #sns.distplot(ig_dict[isotype], hist = False, label = str(isotype))
+    plt.hist(pos, bins= 100, color = cols, alpha = .5, label = labels)
+    plt.legend(loc = 'upper center', ncol = len(pos))
+    plt.xlabel("Relative position of SHM in V gene segment")
+    plt.ylabel("# SHMs")
+    plt.subplot(212)
+    nums = []
+    cols = []
+    for isotype in num_shms:
+        if len(num_shms[isotype]) > 0:
+            #sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
+            nums.append(num_shms[isotype])
+            labels.append(str(isotype))
+            cols.append(colors[isotype])
+    plt.hist(nums, bins= 100, color = cols, alpha = .5, label = labels)
+    plt.legend(loc = 'upper center', ncol = len(nums))
+    plt.xlabel("#SHM in V gene segment")
+    plt.ylabel("# sequences")
+    #for isotype in num_shms:
+    #    if len(num_shms[isotype]) > 0:
+    #        sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print "Distribution of SHMs in V was written to " + output_fname
+
 def checkout_output_dir(output_dir):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
 
 def main(argv):
     warnings.filterwarnings('ignore')
-    if len(argv) != 3:
+    if len(argv) != 4:
         print "Invalid input parameters"
         return
     df = pd.read_table(argv[1], delim_whitespace = True)
-    output_dir = argv[2]
+    v_alignment_fa = argv[2]
+    output_dir = argv[3]
     checkout_output_dir(output_dir)
     visualize_vj_heatmap(df, os.path.join(output_dir, "vj_heatmap.pdf"))
     visualize_region_lengths(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
@@ -187,6 +307,10 @@ def main(argv):
     visualize_largest_region_nucls(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_nucls.pdf"))
     visualize_largest_region_nucls(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_nucls.pdf"))
     visualize_largest_region_nucls(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_nucls.pdf"))
+    visualize_largest_group_aa_variability(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_aa.pdf"))
+    visualize_largest_group_aa_variability(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_aa.pdf"))
+    visualize_largest_group_aa_variability(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_aa.pdf"))
+    visualize_v_mutations_stats(v_alignment_fa, os.path.join(output_dir, "v_mutations_distribution.pdf"))
 
 if __name__ == "__main__":
     main(sys.argv)
