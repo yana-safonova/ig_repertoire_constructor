@@ -16,6 +16,7 @@ namespace cdr_labeler {
             std::string cdr2_fasta;
             std::string cdr3_fasta;
             std::string cdr3_compressed_fasta;
+            std::string v_alignment_fasta;
         };
 
         struct RunParams {

@@ -73,4 +73,6 @@ namespace alignment_utils {
             return seqan::toSourcePosition(query_row, alignment_pos);
         }
     };
+
+    typedef PairwiseAlignment<germline_utils::ImmuneGene, core::Read> ImmuneGeneReadAlignment;
 }

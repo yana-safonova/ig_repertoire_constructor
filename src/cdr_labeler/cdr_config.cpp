@@ -15,6 +15,7 @@ namespace cdr_labeler {
         op.cdr2_fasta = path::append_path(op.output_dir, op.cdr2_fasta);
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
         op.cdr3_compressed_fasta = path::append_path(op.output_dir, op.cdr3_compressed_fasta);
+        op.v_alignment_fasta = path::append_path(op.output_dir, op.v_alignment_fasta);
     }
 
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
@@ -25,6 +26,7 @@ namespace cdr_labeler {
         load(op.cdr2_fasta, pt, "cdr2_fasta");
         load(op.cdr3_fasta, pt, "cdr3_fasta");
         load(op.cdr3_compressed_fasta, pt, "cdr3_compressed_fasta");
+        load(op.v_alignment_fasta, pt, "v_alignment_fasta");
         update_output_config(op);
     }
 

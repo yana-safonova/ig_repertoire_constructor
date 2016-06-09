@@ -86,4 +86,21 @@ namespace cdr_labeler {
         INFO("Compressed " << annotation_utils::StructuralRegion::CDR3 << " were written to " <<
                      output_config_.cdr3_compressed_fasta);
     }
+
+    void CDRLabelingWriter::OutputVGeneAlignment() const {
+        std::ofstream out(output_config_.v_alignment_fasta);
+        size_t index = 1;
+        for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
+            auto subject_row = seqan::row(it->VAlignment().Alignment(), 0);
+            auto query_row = seqan::row(it->VAlignment().Alignment(), 1);
+            out << ">INDEX:" << index << "|READ:" << it->Read().name << std::endl;
+            out << query_row << std::endl;
+            out << ">INDEX:" << index << "|GENE:" << it->VAlignment().subject().name() <<
+                    "|CHAIN_TYPE:" << it->VAlignment().subject().Chain() << std::endl;
+            out << subject_row << std::endl;
+            index++;
+        }
+        out.close();
+        INFO("V alignments were written to " << output_config_.v_alignment_fasta);
+    }
 }

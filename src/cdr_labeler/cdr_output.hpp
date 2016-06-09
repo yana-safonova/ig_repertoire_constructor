@@ -35,5 +35,7 @@ namespace cdr_labeler {
         void OutputCDR3Fasta() const;
 
         void OutputCompressedCDR3Fasta() const;
+
+        void OutputVGeneAlignment() const;
     };
 }

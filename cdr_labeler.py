@@ -193,7 +193,9 @@ def main(argv):
     try:
         cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
         support.sys_call(cdr_command_line, log)
-        visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"), params.output_dir])
+        visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
+                                 os.path.join(params.output_dir, "v_alignment.fasta"),
+                                 os.path.join(params.output_dir, "plots")])
         #Cleanup(params, log)
         log.info("\nThank you for using CDR Labeler!\n")
     except (KeyboardInterrupt):
