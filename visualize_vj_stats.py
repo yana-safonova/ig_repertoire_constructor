@@ -20,6 +20,7 @@ from Bio.SeqRecord import SeqRecord
 
 class VJMatrix:
     def __init__(self, v_hits, j_hits):
+        self.num_records = len(v_hits)
         self.vj_dict = dict()
         self.v_set = set()
         self.j_set = set()
@@ -52,8 +53,8 @@ class VJMatrix:
         #print sorted_j
         min_v = min(len(sorted_v), 24)
         min_j = min(len(sorted_j), 100)
-        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if sorted_v[i][1] >= size_threshold]
-        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if sorted_j[i][1] >= size_threshold]
+        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if float(sorted_v[i][1]) / float(self.num_records) < .1]
+        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if float(sorted_j[i][1]) / float(self.num_records) < .1]
         #print v_abun_large
         #print j_abun_large
         return v_abun_large, j_abun_large
