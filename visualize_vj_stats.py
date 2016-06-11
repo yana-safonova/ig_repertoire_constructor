@@ -52,8 +52,8 @@ class VJMatrix:
         #print sorted_j
         min_v = min(len(sorted_v), 24)
         min_j = min(len(sorted_j), 100)
-        v_abun_large = [sorted_v[i][0] for i in range(0, min_v)] #[v[0] for v in sorted_v if v[1] >= size_threshold]
-        j_abun_large = [sorted_j[i][0] for i in range(0, min_j)] #[j[0] for j in sorted_j if j[1] >= size_threshold]
+        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if sorted_v[i][1] >= size_threshold]
+        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if sorted_j[i][1] >= size_threshold]
         #print v_abun_large
         #print j_abun_large
         return v_abun_large, j_abun_large
@@ -77,17 +77,17 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     v_hits = list(labeling_df['V_hit'])
     j_hits = list(labeling_df['J_hit'])
     vj_matrix = VJMatrix(v_hits, j_hits)
-    table, v, j = vj_matrix.CreateTable(2500)
+    table, v, j = vj_matrix.CreateTable(100)
     mplt.rcParams.update({'font.size': 20})
-    f, ax = plt.subplots(figsize=(15, 10))
-    cmap = sns.diverging_palette(220, 10, as_cmap=True)
+    f, ax = plt.subplots(figsize=(15, 12))
+    #cmap = sns.diverging_palette(220, 10, as_cmap=True)
     #sns.clustermap(table, cmap = plt.cm.coolwarm)
     sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60, fontsize=12)
     plt.yticks(y, j, rotation='horizontal', fontsize=12)
-    plt.legend(fontsize = 12)
+    plt.legend(fontsize = 14)
     pp = PdfPages(output_pdf)
     pp.savefig()
     pp.close()
@@ -288,6 +288,8 @@ def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
     plt.ylabel("# sequences", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
+    plt.xlim(0, 150)
+    plt.legend(fontsize = 14)
     #for isotype in num_shms:
     #    if len(num_shms[isotype]) > 0:
     #        sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
