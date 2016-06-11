@@ -85,8 +85,9 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
-    plt.xticks(x, v, rotation=60) #, fontsize=12)
-    plt.yticks(y, j, rotation='horizontal') #, fontsize=12)
+    plt.xticks(x, v, rotation=60, fontsize=12)
+    plt.yticks(y, j, rotation='horizontal', fontsize=12)
+    plt.legend(fontsize = 12)
     pp = PdfPages(output_pdf)
     pp.savefig()
     pp.close()
@@ -97,8 +98,10 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     region_seq = list(labeling_df[region])
     region_len = [len(s) for s in region_seq if len(s) > 1]
     sns.distplot(region_len, kde = False, rug=False)
-    plt.xlabel(region_name + ' length')
-    plt.ylabel('# ' + region_name + 's')
+    plt.xlabel(region_name + ' length', fontsize = 16)
+    plt.ylabel('# ' + region_name + 's', fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
@@ -160,20 +163,22 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     sns.barplot(x=x, y=cgt, label="C", color = 'g')
     sns.barplot(x=x, y=gt, label="G", color = 'r')
     sns.barplot(x=x, y=nucl_dict['T'], label="T", color = 'orange')
-    ax.legend(ncol = 4, loc="upper center", frameon=True, fontsize = 14)
-    plt.xlabel(region_name + ' position', fontsize = 14)
-    plt.ylabel('Nucleotide %', fontsize = 14)
-    plt.xticks(x, x_l)
+    ax.legend(ncol = 4, loc="upper center", frameon=True, fontsize = 16)
+    plt.xlabel(region_name + ' position', fontsize = 16)
+    plt.ylabel('Nucleotide %', fontsize = 16)
+    plt.xticks(x, x_l, fontsize = 14)
+    plt.yticks(fontsize = 14)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
     plt.clf()
     print region_name + " nucleotide distribution was written to " + output_fname
 
-cm = plt.get_cmap('hsv')
+np.random.seed(1)
+cm = plt.get_cmap('gnuplot2')
 aa_colors = []
 for i in range(21):
-    aa_colors.append(cm(1. * i / 21))
+    aa_colors.append(cm(float(i + 1) / 21)) #(np.random.random_sample()))
 amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
 
 def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname):
@@ -215,9 +220,10 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
             else:
                 abun_.append(0)
         sns.barplot(x_, abun_, color = aa_colors[amino_acids.index(aa)])
-    plt.xticks(range(0, len(aa_large_abun)), aa_large_acid)
-    plt.xlabel('The most abundant amino acid')
-    plt.ylabel('% ' + region_name + 's')
+    plt.xticks(range(0, len(aa_large_abun)), aa_large_acid, fontsize = 14)
+    plt.yticks(fontsize = 14)
+    plt.xlabel('The most abundant amino acid', fontsize = 16)
+    plt.ylabel('% ' + region_name + 's', fontsize = 16)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
@@ -261,23 +267,27 @@ def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
             labels.append(str(isotype))
             cols.append(colors[isotype])
             #sns.distplot(ig_dict[isotype], hist = False, label = str(isotype))
-    plt.hist(pos, bins= 100, color = cols, alpha = .5, label = labels)
-    plt.legend(loc = 'upper center', ncol = len(pos))
-    plt.xlabel("Relative position of SHM in V gene segment")
-    plt.ylabel("# SHMs")
+    plt.hist(pos, bins= 30, color = cols, alpha = .5, label = labels)
+    plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 16)
+    plt.xlabel("Relative position of SHM in V gene segment", fontsize = 16)
+    plt.ylabel("# SHMs", fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
     plt.subplot(212)
     nums = []
     cols = []
     for isotype in num_shms:
         if len(num_shms[isotype]) > 0:
-            #sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
-            nums.append(num_shms[isotype])
-            labels.append(str(isotype))
-            cols.append(colors[isotype])
-    plt.hist(nums, bins= 100, color = cols, alpha = .5, label = labels)
-    plt.legend(loc = 'upper center', ncol = len(nums))
-    plt.xlabel("#SHM in V gene segment")
-    plt.ylabel("# sequences")
+            sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
+            #nums.append(num_shms[isotype])
+            #labels.append(str(isotype))
+            #cols.append(colors[isotype])
+    #plt.hist(nums, bins= 25, color = cols, alpha = .5, label = labels)
+    #plt.legend(loc = 'upper center', ncol = len(nums))
+    plt.xlabel("#SHM in V gene segment", fontsize = 16)
+    plt.ylabel("# sequences", fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
     #for isotype in num_shms:
     #    if len(num_shms[isotype]) > 0:
     #        sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
