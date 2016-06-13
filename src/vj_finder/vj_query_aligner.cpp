@@ -71,7 +71,7 @@ namespace vj_finder {
         TRACE("V Locus was identified: " << v_chain_type);
         TRACE("Strand: " << strand);
 
-        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetDbByGeneType(
+        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(
                 germline_utils::ImmuneGeneType(v_chain_type, germline_utils::SegmentType::JoinSegment));
         TRACE("J database for locus " << v_chain_type << " consists of " << j_gene_db.size() << " gene segments");
 

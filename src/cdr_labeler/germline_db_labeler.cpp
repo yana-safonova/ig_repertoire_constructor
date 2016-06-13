@@ -22,11 +22,13 @@ namespace cdr_labeler {
         DbCDRLabeling cdr_labeling(gene_db_);
         INFO("Algorithm of CDR computation: " << cdr_search_algorithm_to_str(cdr_params_.cdr_search_algorithm));
         for(auto it = gene_db_.cbegin(); it != gene_db_.cend(); it++) {
-            auto specific_gene_db = gene_db_.GetDbByGeneType(*it);
-            //INFO("Processing DB of type " << specific_gene_db.Chain());
+            germline_utils::ImmuneGeneDatabase& specific_gene_db = gene_db_.GetDbByGeneType(*it);
             auto cdr_labeler = GetImmuneGeneLabeler(specific_gene_db.GeneType());
-            for(auto it2 = specific_gene_db.cbegin(); it2 != specific_gene_db.cend(); it2++) {
-                cdr_labeling.AddGeneLabeling(*it2, cdr_labeler->ComputeLabeling(*it2));
+            for(size_t i = 0; i < specific_gene_db.size(); i++) {
+            //for(auto it2 = specific_gene_db.begin(); it2 != specific_gene_db.end(); it2++) {
+                auto gene_labeling = cdr_labeler->ComputeLabeling(specific_gene_db[i]);
+                specific_gene_db.GetImmuneGeneByIndex(i).SetORF(gene_labeling.orf);
+                cdr_labeling.AddGeneLabeling(specific_gene_db[i], gene_labeling);
             }
         }
         INFO("# records from DB with empty CDR labelings: " << cdr_labeling.NumEmptyLabelings());

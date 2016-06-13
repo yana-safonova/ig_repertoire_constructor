@@ -45,7 +45,9 @@ namespace germline_utils {
 
         bool ContainsImmuneGeneType(ImmuneGeneType gene_type) const;
 
-        const ImmuneGeneDatabase& GetDbByGeneType(ImmuneGeneType gene_type) const;
+        const ImmuneGeneDatabase& GetConstDbByGeneType(ImmuneGeneType gene_type) const;
+
+        ImmuneGeneDatabase& GetDbByGeneType(ImmuneGeneType gene_type);
 
         const ImmuneGene& operator[](size_t index) const;
     };

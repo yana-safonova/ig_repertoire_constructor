@@ -35,11 +35,12 @@ namespace annotation_utils {
         CDRRange cdr1;
         CDRRange cdr2;
         CDRRange cdr3;
+        unsigned orf;
 
-        CDRLabeling() : cdr1(), cdr2(), cdr3() { }
+        CDRLabeling() : cdr1(), cdr2(), cdr3(), orf(0) { }
 
-        CDRLabeling(CDRRange cdr1, CDRRange cdr2, CDRRange cdr3) :
-                cdr1(cdr1), cdr2(cdr2), cdr3(cdr3) { }
+        CDRLabeling(CDRRange cdr1, CDRRange cdr2, CDRRange cdr3, unsigned orf = 0) :
+                cdr1(cdr1), cdr2(cdr2), cdr3(cdr3), orf(orf) { }
 
         bool Empty() const { return cdr1.Empty() and cdr2.Empty() and cdr3.Empty(); }
     };

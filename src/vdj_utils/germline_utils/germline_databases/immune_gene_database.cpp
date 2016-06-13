@@ -3,7 +3,22 @@
 
 #include "immune_gene_database.hpp"
 
+#include <seqan/translation.h>
+
 namespace germline_utils {
+    void ImmuneGene::ComputeAASeq() {
+        using namespace seqan;
+        StringSet<String<AminoAcid>, Owner<ConcatDirect<> > > aa_seqs;
+        translate(aa_seqs, gene_seq_, WITH_FRAME_SHIFTS);
+        aa_seq_ = aa_seqs[orf_];
+    }
+
+    void ImmuneGene::SetORF(unsigned orf) {
+        VERIFY_MSG(orf == 0 or orf == 1 or orf == 2, "ORF value " << orf << " is not valid");
+        orf_ = orf;
+        ComputeAASeq();
+    }
+
     std::ostream &operator<<(std::ostream &out, const ImmuneGene &obj) {
         out << "Name: " << obj.name() << ", type: " << obj.GeneType() << std::endl;
         out << "Seq (len " << obj.length() << "): " << obj.seq();
@@ -36,6 +51,11 @@ namespace germline_utils {
     const ImmuneGene &ImmuneGeneDatabase::operator[](size_t index) const {
         VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
         return immune_genes_[index];
+    }
+
+    ImmuneGene& ImmuneGeneDatabase::GetImmuneGeneByIndex(size_t index) {
+        VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records in immune gene DB");
+        return immune_genes_.at(index);
     }
 
     const ImmuneGene &ImmuneGeneDatabase::GetByName(std::string gene_name) const {

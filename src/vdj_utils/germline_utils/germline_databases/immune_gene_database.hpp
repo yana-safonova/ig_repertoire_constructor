@@ -13,13 +13,19 @@ namespace germline_utils {
         seqan::CharString gene_name_;
         seqan::Dna5String gene_seq_;
         size_t id_;
+        unsigned orf_;
+        seqan::String<seqan::AminoAcid> aa_seq_;
+
+        void ComputeAASeq();
 
     public:
         ImmuneGene() :
                 gene_type_(),
                 gene_name_(),
                 gene_seq_(),
-                id_(size_t(-1)) { }
+                id_(size_t(-1)),
+                orf_(0),
+                aa_seq_() { }
 
         ImmuneGene(ImmuneGeneType gene_type,
                    seqan::CharString gene_name,
@@ -28,11 +34,21 @@ namespace germline_utils {
                 gene_type_(gene_type),
                 gene_name_(gene_name),
                 gene_seq_(gene_seq),
-                id_(id) { }
+                id_(id),
+                orf_(0),
+                aa_seq_() {
+            ComputeAASeq();
+        }
+
+        void SetORF(unsigned orf);
+
+        unsigned ORF() const { return orf_; }
 
         const seqan::CharString &name() const { return gene_name_; }
 
         const seqan::Dna5String &seq() const { return gene_seq_; }
+
+        const seqan::String<seqan::AminoAcid>& aa_seq() const { return aa_seq_; }
 
         size_t length() const { return static_cast<size_t>(seqan::length(gene_seq_)); }
 
@@ -80,15 +96,24 @@ namespace germline_utils {
         SegmentType Segment() const { return gene_type_.Segment(); }
 
 
-        typedef std::vector<ImmuneGene>::const_iterator citerator;
+        typedef std::vector<ImmuneGene>::const_iterator ImmuneGeneConstIterator;
 
-        citerator cbegin() const { return immune_genes_.cbegin(); }
+        ImmuneGeneConstIterator cbegin() const { return immune_genes_.cbegin(); }
 
-        citerator cend() const { return immune_genes_.cend(); }
+        ImmuneGeneConstIterator cend() const { return immune_genes_.cend(); }
+
+        typedef std::vector<ImmuneGene>::iterator ImmuneGeneIterator;
+
+        ImmuneGeneIterator begin() { return immune_genes_.begin(); }
+
+        ImmuneGeneIterator end() { return immune_genes_.end(); }
+
 
         size_t size() const { return immune_genes_.size(); }
 
         const ImmuneGene &operator[](size_t index) const;
+
+        ImmuneGene& GetImmuneGeneByIndex(size_t index);
 
 
         const ImmuneGene &GetByName(std::string gene_name) const;

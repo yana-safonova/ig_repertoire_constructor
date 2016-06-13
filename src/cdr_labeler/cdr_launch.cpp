@@ -46,8 +46,8 @@ namespace cdr_labeler {
         writer.OutputCDR3Fasta();
         writer.OutputCompressedCDR3Fasta();
         writer.OutputVGeneAlignment();
-        INFO("Diversity analyser starts");
-        DiversityAnalyser cdr_analyser(config_.output_params.cdr3_compressed_fasta);
+        //INFO("Diversity analyser starts");
+        //DiversityAnalyser cdr_analyser(config_.output_params.cdr3_compressed_fasta);
         INFO("CDR labeler ends");
     }
 }

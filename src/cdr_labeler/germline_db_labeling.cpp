@@ -38,7 +38,7 @@ namespace cdr_labeler {
     germline_utils::CustomGeneDatabase DbCDRLabeling::CreateFilteredDb() {
         germline_utils::CustomGeneDatabase filtered_db(germline_db_.Segment());
         for(auto it = germline_db_.cbegin(); it != germline_db_.cend(); it++) {
-            auto specific_gene_db = germline_db_.GetDbByGeneType(*it);
+            auto specific_gene_db = germline_db_.GetConstDbByGeneType(*it);
             for(size_t i = 0; i < specific_gene_db.size(); i++) {
                 auto gene_labeling = GetLabelingByGene(specific_gene_db[i]);
                 if(!gene_labeling.Empty() and LabelingIsValid(specific_gene_db[i], gene_labeling))
