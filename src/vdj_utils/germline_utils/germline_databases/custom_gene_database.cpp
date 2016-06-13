@@ -56,9 +56,14 @@ namespace germline_utils {
         return gene_type_index_map_.find(gene_type) != gene_type_index_map_.end();
     }
 
-    const ImmuneGeneDatabase& CustomGeneDatabase::GetDbByGeneType(ImmuneGeneType gene_type) const {
+    const ImmuneGeneDatabase& CustomGeneDatabase::GetConstDbByGeneType(ImmuneGeneType gene_type) const {
         VERIFY_MSG(ContainsImmuneGeneType(gene_type), "Custom DB does not contains gene type " << gene_type);
-        return gene_databases_[gene_type_index_map_.at(gene_type)];
+        return gene_databases_.at(gene_type_index_map_.at(gene_type));
+    }
+
+    ImmuneGeneDatabase& CustomGeneDatabase::GetDbByGeneType(ImmuneGeneType gene_type) {
+        VERIFY_MSG(ContainsImmuneGeneType(gene_type), "Custom DB does not contains gene type " << gene_type);
+        return gene_databases_.at(gene_type_index_map_.at(gene_type));
     }
 
     const ImmuneGene& CustomGeneDatabase::operator[](size_t index) const {

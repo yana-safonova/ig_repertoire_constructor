@@ -3,7 +3,7 @@
 #include <vector>
 #include <verify.hpp>
 
-#include "cdr_annotated_clone.hpp"
+#include "annotated_clone.hpp"
 
 namespace annotation_utils {
     template<typename AnnotatedClone>
@@ -29,5 +29,5 @@ namespace annotation_utils {
         }
     };
 
-    typedef AnnotatedCloneSet<CDRAnnotatedClone> CDRAnnotatedCloneSet;
+    typedef AnnotatedCloneSet<AnnotatedClone> CDRAnnotatedCloneSet;
 }

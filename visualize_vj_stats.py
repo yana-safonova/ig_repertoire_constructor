@@ -53,8 +53,8 @@ class VJMatrix:
         #print sorted_j
         min_v = min(len(sorted_v), 24)
         min_j = min(len(sorted_j), 100)
-        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if float(sorted_v[i][1]) / float(self.num_records) < .1]
-        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if float(sorted_j[i][1]) / float(self.num_records) < .1]
+        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if float(sorted_v[i][1]) / float(self.num_records) < .4]
+        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if float(sorted_j[i][1]) / float(self.num_records) < .4]
         #print v_abun_large
         #print j_abun_large
         return v_abun_large, j_abun_large
@@ -80,20 +80,22 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     vj_matrix = VJMatrix(v_hits, j_hits)
     table, v, j = vj_matrix.CreateTable(100)
     mplt.rcParams.update({'font.size': 20})
-    f, ax = plt.subplots(figsize=(15, 12))
+    f, ax = plt.subplots(figsize=(15, 15))
     #cmap = sns.diverging_palette(220, 10, as_cmap=True)
     #sns.clustermap(table, cmap = plt.cm.coolwarm)
     sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
-    plt.xticks(x, v, rotation=60, fontsize=12)
-    plt.yticks(y, j, rotation='horizontal', fontsize=12)
+    plt.xticks(x, v, rotation=60, fontsize=16)
+    plt.yticks(y, j, rotation='horizontal', fontsize=16)
     plt.legend(fontsize = 14)
     pp = PdfPages(output_pdf)
     pp.savefig()
     pp.close()
     plt.clf()
     print "VJ heatmap was written to " + output_pdf
+
+############################################################################
 
 def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     region_seq = list(labeling_df[region])
@@ -108,6 +110,8 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     pp.close()
     plt.clf()
     print region_name + " length distribution was written to " + output_fname
+
+############################################################################
 
 def get_region_largest_group(region_seq):
     len_dict = dict()
@@ -175,6 +179,8 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.clf()
     print region_name + " nucleotide distribution was written to " + output_fname
 
+############################################################################
+
 np.random.seed(1)
 cm = plt.get_cmap('gnuplot2')
 aa_colors = []
@@ -231,55 +237,35 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
     plt.clf()
     print region_name + " aa variability was written to " + output_fname
 
+############################################################################
+
 def get_gene_isotype(gene_record):
     #return np.random.randint(3) % 3
     splits = gene_record.id.split('|')
     return splits[2].split(':')[1]
 
-def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
-    input_records = list(SeqIO.parse(open(v_alignment_fasta), 'fasta'))
-    ig_dict = dict()
-    ig_dict['IGH'] = []
-    ig_dict['IGK'] = []
-    ig_dict['IGL'] = []
-    num_shms = dict()
-    num_shms['IGH'] = []
-    num_shms['IGK'] = []
-    num_shms['IGL'] = []
-    colors = {'IGH' : 'b', 'IGK' : 'g', 'IGL' : 'r'}
-    for i in range(0, len(input_records) / 2):
-        read = input_records[i * 2]
-        gene = input_records[i * 2 + 1]
-        isotype = get_gene_isotype(gene)
-        cur_num_shms = 0
-        for j in range(0, len(read.seq)):
-            if read.seq[j] != gene.seq[j]:
-                ig_dict[isotype].append(float(j) / float(len(read.seq)))
-                cur_num_shms += 1
-        num_shms[isotype].append(cur_num_shms)
-    plt.figure(1, figsize=(9, 6))
-    plt.subplot(211)
+def output_shms_pos(all_shms_pos, colors):
     pos = []
     labels = []
     cols = []
-    for isotype in ig_dict:
-        if len(ig_dict[isotype]) > 0:
-            pos.append(ig_dict[isotype])
+    for isotype in all_shms_pos:
+        if len(all_shms_pos[isotype]) > 0:
+            pos.append(all_shms_pos[isotype])
             labels.append(str(isotype))
             cols.append(colors[isotype])
-            #sns.distplot(ig_dict[isotype], hist = False, label = str(isotype))
     plt.hist(pos, bins= 30, color = cols, alpha = .5, label = labels)
     plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 16)
     plt.xlabel("Relative position of SHM in V gene segment", fontsize = 16)
     plt.ylabel("# SHMs", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
-    plt.subplot(212)
+
+def output_num_shms(num_all_shms, colors):
     nums = []
     cols = []
-    for isotype in num_shms:
-        if len(num_shms[isotype]) > 0:
-            sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
+    for isotype in num_all_shms:
+        if len(num_all_shms[isotype]) > 0:
+            sns.distplot(num_all_shms[isotype], hist = False, label = str(isotype))
             #nums.append(num_shms[isotype])
             #labels.append(str(isotype))
             #cols.append(colors[isotype])
@@ -291,14 +277,41 @@ def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
     plt.yticks(fontsize = 14)
     plt.xlim(0, 150)
     plt.legend(fontsize = 14)
-    #for isotype in num_shms:
-    #    if len(num_shms[isotype]) > 0:
-    #        sns.distplot(num_shms[isotype], hist = False, label = str(isotype))
+
+def get_nucl_sequence_without_gaps(sequence):
+    nucl_seq = Seq("")
+    for s in sequence:
+        if s != '-':
+            nucl_seq += s
+    return nucl_seq
+
+def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
+    input_records = list(SeqIO.parse(open(v_alignment_fasta), 'fasta'))
+    all_shms_pos = {'IGH': [], 'IGK': [], 'IGL': []}
+    num_all_shms = {'IGH': [], 'IGK': [], 'IGL': []}
+    colors = {'IGH': 'b', 'IGK': 'g', 'IGL': 'r'}
+    for i in range(0, len(input_records) / 2):
+        read = input_records[i * 2]
+        gene = input_records[i * 2 + 1]
+        isotype = get_gene_isotype(gene)
+        cur_num_shms = 0
+        for j in range(0, len(read.seq)):
+            if read.seq[j] != gene.seq[j]:
+                all_shms_pos[isotype].append(float(j) / float(len(read.seq)))
+                cur_num_shms += 1
+        num_all_shms[isotype].append(cur_num_shms)
+    plt.figure(1, figsize=(9, 6))
+    plt.subplot(211)
+    output_shms_pos(all_shms_pos, colors)
+    plt.subplot(212)
+    output_num_shms(num_all_shms, colors)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
     plt.clf()
     print "Distribution of SHMs in V was written to " + output_fname
+
+############################################################################
 
 def checkout_output_dir(output_dir):
     if not os.path.exists(output_dir):

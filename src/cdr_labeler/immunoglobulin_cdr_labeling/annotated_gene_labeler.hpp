@@ -43,13 +43,17 @@ namespace cdr_labeler {
         const CDRLabelerConfig::CDRsParams::AnnotatedSearchParams &search_params_;
         germline_utils::SegmentType segment_type_;
 
+        // todo: make ORF enum
         struct JGeneAnnotation {
             std::string name;
             size_t cdr3_end;
+            unsigned orf;
 
-            JGeneAnnotation() : name(), cdr3_end() { }
+            JGeneAnnotation() : name(), cdr3_end(), orf() { }
 
-            JGeneAnnotation(std::string name, size_t cdr3_end) : name(name), cdr3_end(cdr3_end) { }
+            JGeneAnnotation(std::string name, size_t cdr3_end) : name(name), cdr3_end(cdr3_end) {
+                orf = (cdr3_end + 1) % 3;
+            }
         };
 
         std::vector<AnnotatedJGeneCDRLabeler::JGeneAnnotation> j_annotations_;

@@ -19,7 +19,7 @@ namespace cdr_labeler {
                 v_labeling_(v_labeling),
                 j_labeling_(j_labeling) { }
 
-        annotation_utils::CDRAnnotatedClone CreateAnnotatedClone(const vj_finder::VJHits &vj_hits);
+        annotation_utils::AnnotatedClone CreateAnnotatedClone(const vj_finder::VJHits &vj_hits);
 
         annotation_utils::CDRAnnotatedCloneSet CreateAnnotatedCloneSet(const vj_finder::VJAlignmentInfo &alignment_info);
     };

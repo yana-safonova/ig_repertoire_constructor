@@ -72,7 +72,7 @@ namespace cdr_labeler {
         std::string gene_name = std::string(seqan::toCString(immune_gene.name()));
         if(j_name_index_map_.find(gene_name) != j_name_index_map_.end()) {
             AnnotatedJGeneCDRLabeler::JGeneAnnotation annotation = j_annotations_[j_name_index_map_.at(gene_name)];
-            return CDRLabeling(CDRRange(), CDRRange(), CDRRange(size_t(-1), annotation.cdr3_end));
+            return CDRLabeling(CDRRange(), CDRRange(), CDRRange(size_t(-1), annotation.cdr3_end), annotation.orf);
         }
         return CDRLabeling();
     }

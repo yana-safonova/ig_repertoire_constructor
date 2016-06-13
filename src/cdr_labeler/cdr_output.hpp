@@ -11,7 +11,7 @@ namespace cdr_labeler {
         const vj_finder::VJAlignmentInfo &alignment_info_;
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
 
-        std::ostream& OutputCloneRegion(std::ostream& out, const annotation_utils::CDRAnnotatedClone &clone,
+        std::ostream& OutputCloneRegion(std::ostream& out, const annotation_utils::AnnotatedClone &clone,
                                        annotation_utils::StructuralRegion region) const;
 
         void OutputRegionFasta(std::string output_fname, annotation_utils::StructuralRegion region) const;
