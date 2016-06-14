@@ -46,8 +46,8 @@ namespace annotation_utils {
                 read_(read),
                 v_alignment_(v_alignment),
                 j_alignment_(j_alignment),
-                v_shms_(germline_utils::SegmentType::VariableSegment),
-                j_shms_(germline_utils::SegmentType::JoinSegment) {
+                v_shms_(read, v_alignment.subject()),
+                j_shms_(read, j_alignment.subject()) {
             Initialize(cdr_labeling);
             InitializeAASeq();
             InitializeSHMs(germline_utils::SegmentType::VariableSegment);

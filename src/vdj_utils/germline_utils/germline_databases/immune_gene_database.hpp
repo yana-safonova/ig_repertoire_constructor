@@ -58,6 +58,8 @@ namespace germline_utils {
 
         LymphocyteType Lymphocyte() const { return gene_type_.Lymphocyte(); }
 
+        SegmentType Segment() const { return gene_type_.Segment(); }
+
         size_t id() const { return id_; }
     };
 

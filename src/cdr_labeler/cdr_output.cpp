@@ -4,6 +4,7 @@
 
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
+#include <annotation_utils/shm_filter.hpp>
 
 namespace cdr_labeler {
     std::ostream& CDRLabelingWriter::OutputCloneRegion(std::ostream& out,
@@ -104,5 +105,33 @@ namespace cdr_labeler {
         }
         out.close();
         INFO("V alignments were written to " << output_config_.v_alignment_fasta);
+    }
+
+    void CDRLabelingWriter::OutputSHMsForRead(std::ostream& out, const annotation_utils::GeneSegmentSHMs &shms) const {
+        size_t max_skipped_start = output_config_.shm_output_details.v_start_max_skipped;
+        size_t max_skipped_end = output_config_.shm_output_details.v_end_max_skipped;
+        if(shms.SegmentType() == germline_utils::SegmentType::JoinSegment) {
+            max_skipped_start = output_config_.shm_output_details.j_start_max_skipped;
+            max_skipped_end = output_config_.shm_output_details.j_end_max_skipped;
+        }
+        annotation_utils::PositionalSHMFilter shm_filter(shms, max_skipped_start, max_skipped_end);
+        for(auto it = shms.cbegin(); it != shms.cend(); it++)
+            if(!shm_filter.FilterSHM(*it))
+                out << shms.Read().name << "\t" << shms.Read().length() << "\t" << shms.SegmentType() << "\t" <<
+                        shms.ImmuneGene().name() << "\t" << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
+                        it->gene_nucl_pos << "\t" << it->read_nucl << "\t" << it->gene_nucl << "\t" << it->read_aa <<
+                        "\t" << it->gene_aa << "\t" << it->IsSynonymous() << "\t" << it->ToStopCodon() << std::endl;
+    }
+
+    void CDRLabelingWriter::OutputSHMs() const {
+        std::ofstream out(output_config_.shm_output_details.shm_details);
+        out << "Read_name\tRead_length\tGene_segment\tGene_name\tSHM_type\tRead_pos\tGene_pos\tRead_nucl\tGene_nucl\tRead_aa\tGene_aa\t"
+                       "Is_synonymous\tIs_stop_codon\n";
+        for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
+            OutputSHMsForRead(out, it->VSHMs());
+            OutputSHMsForRead(out, it->JSHMs());
+        }
+        out.close();
+        INFO("SHM getails were written to " << output_config_.shm_output_details.shm_details);
     }
 }

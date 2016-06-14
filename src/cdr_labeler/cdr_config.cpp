@@ -16,6 +16,17 @@ namespace cdr_labeler {
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
         op.cdr3_compressed_fasta = path::append_path(op.output_dir, op.cdr3_compressed_fasta);
         op.v_alignment_fasta = path::append_path(op.output_dir, op.v_alignment_fasta);
+        op.shm_output_details.shm_details = path::append_path(op.output_dir, op.shm_output_details.shm_details);
+    }
+
+    void load(CDRLabelerConfig::OutputParams::SHMOutputDetails &shm_d, boost::property_tree::ptree const &pt,
+              bool) {
+        using config_common::load;
+        load(shm_d.shm_details, pt, "shm_details");
+        load(shm_d.j_end_max_skipped, pt, "j_end_max_skipped");
+        load(shm_d.j_start_max_skipped, pt, "j_start_max_skipped");
+        load(shm_d.v_end_max_skipped, pt, "v_end_max_skipped");
+        load(shm_d.v_start_max_skipped, pt, "v_start_max_skipped");
     }
 
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
@@ -27,6 +38,7 @@ namespace cdr_labeler {
         load(op.cdr3_fasta, pt, "cdr3_fasta");
         load(op.cdr3_compressed_fasta, pt, "cdr3_compressed_fasta");
         load(op.v_alignment_fasta, pt, "v_alignment_fasta");
+        load(op.shm_output_details, pt, "shm_output_details");
         update_output_config(op);
     }
 

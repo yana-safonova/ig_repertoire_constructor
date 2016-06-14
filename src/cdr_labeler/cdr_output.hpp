@@ -19,6 +19,8 @@ namespace cdr_labeler {
         seqan::CharString GetCompressedRegionFname(annotation_utils::StructuralRegion region,
                                                    CDRKey cdr_key, size_t abundance) const;
 
+        void OutputSHMsForRead(std::ostream& out, const annotation_utils::GeneSegmentSHMs &shms) const;
+
     public:
         CDRLabelingWriter(const CDRLabelerConfig::OutputParams &output_config,
                           const vj_finder::VJAlignmentInfo &alignment_info,
@@ -37,5 +39,7 @@ namespace cdr_labeler {
         void OutputCompressedCDR3Fasta() const;
 
         void OutputVGeneAlignment() const;
+
+        void OutputSHMs() const;
     };
 }

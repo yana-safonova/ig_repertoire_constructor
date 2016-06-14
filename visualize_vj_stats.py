@@ -3,8 +3,6 @@ import sys
 import operator
 import warnings
 
-from string import letters
-
 import matplotlib as mplt
 mplt.use('Agg')
 
@@ -312,6 +310,76 @@ def visualize_v_mutations_stats(v_alignment_fasta, output_fname):
     print "Distribution of SHMs in V was written to " + output_fname
 
 ############################################################################
+def skip_aa_record(prev_read_name, cur_read_name, prev_read_pos, cur_read_pos):
+    return prev_read_name == cur_read_name and prev_read_pos / 3 == cur_read_pos / 3
+
+def aa_pair_is_valid(aa1, aa2):
+    return aa1 != '*' and aa1 != '-' and aa2 != '*' and aa2 != '-'
+
+def get_aa_list():
+    return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+
+def visualize_aa_substitutions(shm_df, output_fname):
+    read_aa = shm_df['Read_aa']
+    gene_aa = shm_df['Gene_aa']
+    read_pos = shm_df['Read_pos']
+    read_name = shm_df['Read_name']
+    dict_aa = dict()
+    prev_read_name = ""
+    prev_read_pos = -100
+    for i in range(0, len(read_aa)):
+        if not skip_aa_record(prev_read_name, read_name[i], prev_read_pos, read_pos[i]) \
+                and aa_pair_is_valid(read_aa[i], gene_aa[i]):
+            aa_pair = gene_aa[i] + read_aa[i]
+            if aa_pair not in dict_aa:
+                dict_aa[aa_pair] = 0
+            dict_aa[aa_pair] += 1
+        prev_read_pos = read_pos[i]
+        prev_read_name = read_name[i]
+    aa_freq = []
+    for i in range(0, 20):
+        aa_freq.append([0] * 20)
+    aa_list = get_aa_list()
+    for aa_pair in dict_aa:
+        aa_freq[aa_list.index(aa_pair[1])][aa_list.index(aa_pair[0])] = dict_aa[aa_pair]
+    fig, ax = plt.subplots()
+    sns.heatmap(aa_freq, cmap = plt.cm.jet, xticklabels = aa_list, yticklabels = aa_list, square = True, ax = ax)
+    ax.tick_params(labelsize = 14)
+    plt.xticks(fontsize = 12)
+    plt.yticks(fontsize = 12, rotation='horizontal')
+    plt.xlabel("From", fontsize = 14)
+    plt.ylabel("To", fontsize = 14, rotation='horizontal')
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print "Amino acid substitution heatmap was written to " + output_fname
+
+def visualize_special_shm_positions(shm_df, output_fname):
+    read_pos = shm_df['Read_pos']
+    read_length = shm_df['Read_length']
+    synonymous = shm_df['Is_synonymous']
+    stop_codon = shm_df['Is_stop_codon']
+    synonymous_pos = []
+    stop_codon_pos = []
+    for i in range(0, len(read_pos)):
+        if synonymous[i] == 1:
+            synonymous_pos.append(float(read_pos[i]) / float(read_length[i]))
+        elif stop_codon[i] == 1:
+            stop_codon_pos.append(float(read_pos[i]) / float(read_length[i]))
+    plt.hist([synonymous_pos, stop_codon_pos], bins= 60, color = ['g', 'r'], alpha = .75, label = ['Synonymous SHMs', 'Stop codon SHMs'])
+    plt.legend(loc = 'upper center', ncol = 2, fontsize = 16)
+    plt.xlabel("Relative position on read", fontsize = 16)
+    plt.ylabel("# SHMs", fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    pp = PdfPages(output_fname)
+    pp.savefig()
+    pp.close()
+    plt.clf()
+    print "Distribution of synonymous and stop codon SHMs was written to " + output_fname
+
+############################################################################
 
 def checkout_output_dir(output_dir):
     if not os.path.exists(output_dir):
@@ -319,24 +387,28 @@ def checkout_output_dir(output_dir):
 
 def main(argv):
     warnings.filterwarnings('ignore')
-    if len(argv) != 4:
+    if len(argv) != 5:
         print "Invalid input parameters"
+        print "python visualize_vj_stats.py cdr_details.txt v_alignment.fasta shm_details.txt output_dir"
         return
-    df = pd.read_table(argv[1], delim_whitespace = True)
+    vj_df = pd.read_table(argv[1], delim_whitespace = True)
     v_alignment_fa = argv[2]
-    output_dir = argv[3]
+    shms_df = pd.read_table(argv[3], delim_whitespace = True)
+    output_dir = argv[4]
     checkout_output_dir(output_dir)
-    visualize_vj_heatmap(df, os.path.join(output_dir, "vj_heatmap.pdf"))
-    visualize_region_lengths(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
-    visualize_region_lengths(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_length.pdf"))
-    visualize_region_lengths(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_length.pdf"))
-    visualize_largest_region_nucls(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_nucls.pdf"))
-    visualize_largest_region_nucls(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_nucls.pdf"))
-    visualize_largest_region_nucls(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_nucls.pdf"))
-    visualize_largest_group_aa_variability(df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_aa.pdf"))
-    visualize_largest_group_aa_variability(df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_aa.pdf"))
-    visualize_largest_group_aa_variability(df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_aa.pdf"))
+    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap.pdf"))
+    visualize_region_lengths(vj_df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_length.pdf"))
+    visualize_region_lengths(vj_df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_length.pdf"))
+    visualize_region_lengths(vj_df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_length.pdf"))
+    visualize_largest_region_nucls(vj_df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_nucls.pdf"))
+    visualize_largest_region_nucls(vj_df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_nucls.pdf"))
+    visualize_largest_region_nucls(vj_df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_nucls.pdf"))
+    visualize_largest_group_aa_variability(vj_df, "CDR1_nucls", "CDR1", os.path.join(output_dir, "cdr1_aa.pdf"))
+    visualize_largest_group_aa_variability(vj_df, "CDR2_nucls", "CDR2", os.path.join(output_dir, "cdr2_aa.pdf"))
+    visualize_largest_group_aa_variability(vj_df, "CDR3_nucls", "CDR3", os.path.join(output_dir, "cdr3_aa.pdf"))
     visualize_v_mutations_stats(v_alignment_fa, os.path.join(output_dir, "v_mutations_distribution.pdf"))
+    visualize_aa_substitutions(shms_df, os.path.join(output_dir, "aa_substitution_heatmap.pdf"))
+    visualize_special_shm_positions(shms_df, os.path.join(output_dir, "synonymous_stop_codon_shms.pdf"))
 
 if __name__ == "__main__":
     main(sys.argv)
