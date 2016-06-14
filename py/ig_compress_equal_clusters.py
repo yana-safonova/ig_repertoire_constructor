@@ -3,13 +3,11 @@
 from argparse import ArgumentParser
 from Bio import SeqIO
 import sys
-import os
 import os.path
 import tempfile
 from collections import defaultdict
-
-
 from ig_remove_low_abundance_reads import smart_open
+from rcm_utils import read_rcm_list, read_rcm_map, rcm2rcmint, combine_rcms
 
 
 def parse_cluster_mult(id):
@@ -52,7 +50,7 @@ def check_fa_rcm_consistency(fa_filename, rcm_filename):
     return is_ok
 
 
-if __name__ == "__main__":
+def parse_cmd_line():
     parser = ArgumentParser(description="Compress equal clusters")
     parser.add_argument("input",
                         type=str,
@@ -71,11 +69,11 @@ if __name__ == "__main__":
     parser.add_argument("--rcm", "-r",
                         type=str,
                         default="",
-                        help="rcm file for fixup, empty for skip this stage (default: <empty>)")
+                        help="rcm file mapping reads out of scope to clusters from input file, leave empty to skip fixup stage (default: <empty>)")
     parser.add_argument("--output-rcm", "-R",
                         type=str,
                         default="",
-                        help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
+                        help="output rcm file to combine --rcm file with --tmp-rcm-file, leave empty to rewrite existing --rcm file (default: <empty>)")
 
     args = parser.parse_args()
 
@@ -84,59 +82,59 @@ if __name__ == "__main__":
     if (not args.tmp_rcm_file):
         args.tmp_rcm_file = tempfile.mkstemp(suffix=".rcm", prefix="igrec_")[1]
 
+    return args
+
+
+if __name__ == "__main__":
+    args = parse_cmd_line()
+
     print "Command line: %s" % " ".join(sys.argv)
 
-    home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/../'
-    run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
+    home_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    run_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
     cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_rcm_file)
     os.system(cmd_line)
 
-    with open(args.tmp_rcm_file) as fin:
-        # obtain simple map from rcm file
-        input_read_num2compressed_cluster = [int(line.strip().split("\t")[1]) for line in fin]
-
-    input_read_num2mult = []
-    cluster2input_read_num = {}
+    input_read_id2mult = {}
+    input_read_ids = []
     with open(args.input) as fin:
-        for i, record in enumerate(SeqIO.parse(fin, "fasta")):
+        for record in SeqIO.parse(fin, "fasta"):
+            input_read_ids.append(record.description)
             cluster, mult = parse_cluster_mult(record.description)
-            cluster2input_read_num[cluster] = i
-            input_read_num2mult.append(mult)
+            input_read_id2mult[record.description] = mult
 
-    compressed_cluster2mult = defaultdict(int)
-    for compressed_cluster, mult in zip(input_read_num2compressed_cluster, input_read_num2mult):
-        compressed_cluster2mult[compressed_cluster] += mult
+    input_read_id2compressed_cluster_idx = rcm2rcmint(read_rcm_map(args.tmp_rcm_file))
+
+    compressed_cluster_idx2mult = defaultdict(int)
+    for input_read_id, compressed_cluster_idx in input_read_id2compressed_cluster_idx.iteritems():
+        compressed_cluster_idx2mult[compressed_cluster_idx] += input_read_id2mult[input_read_id]
 
     # Fix IDs
     with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.output, "w") as fout:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
-            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[i])
+            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster_idx2mult[i])
             SeqIO.write(record, fout, "fasta")
 
     # Fix RCM if provided
     if args.rcm:
         print "Fixing RCM file..."
-        print "Check input consistency..."
+        print "Checking input consistency..."
         if not check_fa_rcm_consistency(args.input, args.rcm):
             exit(1)
 
         if not args.output_rcm:
             args.output_rcm = args.rcm
 
-        with open(args.rcm, "r") as fin:
-            rcm = [line.strip().split("\t") for line in fin]
-            rcm = [(id, int(cluster)) for id, cluster in rcm]
+        rcm = rcm2rcmint(read_rcm_list(args.rcm))
 
         with open(args.output_rcm, "w") as fout:
-            for id, cluster in rcm:
-                compressed_cluster = input_read_num2compressed_cluster[cluster2input_read_num[cluster]]
-                fout.writelines("%s\t%s\n" % (id, compressed_cluster))
+            for (outer_read_id, final_cluster_idx) in combine_rcms(rcm, input_read_ids, input_read_id2compressed_cluster_idx):
+                fout.writelines("%s\t%s\n" % (outer_read_id, final_cluster_idx))
 
-        print "Check output consistency..."
+        print "Checking output consistency..."
         if not check_fa_rcm_consistency(args.output, args.output_rcm):
             exit(1)
 
-
-    print "Remove temporary files: %s %s" % (args.tmp_fa_file, args.tmp_rcm_file)
+    print "Removing temporary files: %s %s" % (args.tmp_fa_file, args.tmp_rcm_file)
     os.remove(args.tmp_fa_file)
     os.remove(args.tmp_rcm_file)
