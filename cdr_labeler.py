@@ -13,8 +13,10 @@ cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler/")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
 cdr_labeler_bin = "build/release/bin/cdr_labeler"
 run_cdr_labeler = "build/release/bin/./cdr_labeler"
+visualizer_dir = os.path.join(home_directory, "py/diversity_stats_visualizer")
 
 sys.path.append(py_src)
+sys.path.append(visualizer_dir)
 import process_cfg
 import support
 
@@ -193,6 +195,7 @@ def main(argv):
     try:
         cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
         support.sys_call(cdr_command_line, log)
+        log.info("\n")
         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
                                  os.path.join(params.output_dir, "v_alignment.fasta"),
                                  os.path.join(params.output_dir, "plots")])
