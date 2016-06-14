@@ -48,6 +48,14 @@ namespace annotation_utils {
         //std::cout << last_meaning_read_pos_ << " - " << last_meaning_gene_pos_ << std::endl;
     }
 
+    size_t PositionalSHMFilter::NumGoodSHMs() const {
+        size_t num_good_shms = 0;
+        for(auto it = shms_.cbegin(); it != shms_.cend(); it++)
+            if(!FilterSHM(*it))
+                num_good_shms++;
+        return num_good_shms;
+    }
+
     bool PositionalSHMFilter::FilterSHM(SHM shm) const {
         return !(shm.read_nucl_pos >= first_meaning_read_pos_ and shm.gene_nucl_pos >= first_meaning_gene_pos_ and
                 shm.read_nucl_pos <= last_meaning_read_pos_ and shm.gene_nucl_pos <= last_meaning_gene_pos_);

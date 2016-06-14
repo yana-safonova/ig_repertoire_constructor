@@ -7,6 +7,8 @@ namespace annotation_utils {
     public:
         virtual bool FilterSHM(SHM shm) const = 0; // return true if SHM should be fitered out
 
+        virtual size_t NumGoodSHMs() const = 0;
+
         virtual ~SHMFilter() { }
     };
 
@@ -34,6 +36,8 @@ namespace annotation_utils {
                                                           max_num_skipped_end_(max_num_skipped_end) {
             ComputeMeaningPositions();
         }
+
+        size_t NumGoodSHMs() const;
 
         bool FilterSHM(SHM shm) const;
     };
