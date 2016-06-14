@@ -115,18 +115,21 @@ namespace cdr_labeler {
             max_skipped_end = output_config_.shm_output_details.j_end_max_skipped;
         }
         annotation_utils::PositionalSHMFilter shm_filter(shms, max_skipped_start, max_skipped_end);
+        if(shm_filter.NumGoodSHMs() == 0)
+            return;
+        out << "Read_name:" << shms.Read().name << "|Read_length:" << shms.Read().length() <<
+                "|Segment:" << shms.SegmentType() << "|Gene_name:" << shms.ImmuneGene().name() <<
+                "|Gene_length:" << shms.ImmuneGene().length() << std::endl;
         for(auto it = shms.cbegin(); it != shms.cend(); it++)
             if(!shm_filter.FilterSHM(*it))
-                out << shms.Read().name << "\t" << shms.Read().length() << "\t" << shms.SegmentType() << "\t" <<
-                        shms.ImmuneGene().name() << "\t" << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
+                out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
                         it->gene_nucl_pos << "\t" << it->read_nucl << "\t" << it->gene_nucl << "\t" << it->read_aa <<
                         "\t" << it->gene_aa << "\t" << it->IsSynonymous() << "\t" << it->ToStopCodon() << std::endl;
     }
 
     void CDRLabelingWriter::OutputSHMs() const {
         std::ofstream out(output_config_.shm_output_details.shm_details);
-        out << "Read_name\tRead_length\tGene_segment\tGene_name\tSHM_type\tRead_pos\tGene_pos\tRead_nucl\tGene_nucl\tRead_aa\tGene_aa\t"
-                       "Is_synonymous\tIs_stop_codon\n";
+        out << "SHM_type\tRead_pos\tGene_pos\tRead_nucl\tGene_nucl\tRead_aa\tGene_aa\tIs_synonymous\tTo_stop_codon\n";
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
             OutputSHMsForRead(out, it->VSHMs());
             OutputSHMsForRead(out, it->JSHMs());
