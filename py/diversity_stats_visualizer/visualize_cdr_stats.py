@@ -158,17 +158,18 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
 
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + ".pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_length.pdf"))
     visualize_largest_region_nucls(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + ".pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_nucls.pdf"))
     visualize_largest_group_aa_variability(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + ".pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_aa.pdf"))
 
 def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
     locus_df = vj_df.loc[vj_df['Chain_type'] == locus_name]
-    num_records = len(locus_df['Read_name'])
-    if num_records < 500:
-        print "Output contains very low number (" + str(num_records) + ") of " + locus_df + " records"
+    num_records = len(vj_df['Read_name'])
+    num_locus_records = len(locus_df['Read_name'])
+    if float(num_locus_records) / float(num_records) < .05:
+        print "Output contains very low number (" + str(num_locus_records) + ") of " + locus_name + " records"
         return
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir)
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR2_nucls", "CDR2", output_dir)

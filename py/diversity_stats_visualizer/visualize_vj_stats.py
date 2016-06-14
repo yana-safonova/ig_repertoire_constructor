@@ -97,10 +97,6 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
 
 ############################################################################
 
-
-
-############################################################################
-
 def get_gene_isotype(gene_record):
     #return np.random.randint(3) % 3
     splits = gene_record.id.split('|')
