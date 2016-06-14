@@ -43,9 +43,9 @@ namespace annotation_utils {
     void PositionalSHMFilter::ComputeMeaningPositions() {
         ComputeStartMeaningPositions();
         ComputeEndMeaningPositions();
-        std::cout << shms_ << std::endl;
-        std::cout << first_meaning_read_pos_ << " - " << first_meaning_gene_pos_ << std::endl;
-        std::cout << last_meaning_read_pos_ << " - " << last_meaning_gene_pos_ << std::endl;
+        //std::cout << shms_ << std::endl;
+        //std::cout << first_meaning_read_pos_ << " - " << first_meaning_gene_pos_ << std::endl;
+        //std::cout << last_meaning_read_pos_ << " - " << last_meaning_gene_pos_ << std::endl;
     }
 
     bool PositionalSHMFilter::FilterSHM(SHM shm) const {
