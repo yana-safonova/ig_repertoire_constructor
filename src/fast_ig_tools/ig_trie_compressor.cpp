@@ -159,13 +159,27 @@ int main(int argc, char **argv) {
         std::ofstream rcm_file(rcm_file_name.c_str());
         std::vector<size_t> read_to_group(length(input_reads));
         auto trie_checkout = trie.checkout_ids(length(input_reads));
-        size_t group_count = 0;
+
+        // Heavily relying on consistency between trie.checkout methods
+        // and on the fact that actually only equal sequences are compressed
+        // and on the fact that representative is always the first element among equal.
+        // Needs refactoring in the trie.
+        std::set<size_t> group_representatives;
         for (const auto &entry : trie_checkout) {
+            group_representatives.insert(entry.first);
+        }
+        std::unordered_map<size_t, size_t> read_id_to_group;
+        size_t group_count = 0;
+        for (size_t representative : group_representatives) {
+            read_id_to_group[representative] = group_count;
+            group_count ++;
+        }
+        for (const auto &entry : trie_checkout) {
+            const size_t representative = entry.first;
             const auto &ids = entry.second;
             for (size_t id : ids) {
-                read_to_group[id] = group_count;
+                read_to_group[id] = read_id_to_group[representative];
             }
-            group_count ++;
         }
 
         for (size_t read = 0; read < read_to_group.size(); read ++) {
