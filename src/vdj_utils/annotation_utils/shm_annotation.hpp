@@ -1,15 +1,18 @@
 #pragma once
 
 #include <verify.hpp>
-#include "../germline_utils/germline_gene_type.hpp"
+#include "../germline_utils/germline_databases/immune_gene_database.hpp"
+#include <read_archive.hpp>
 
 namespace annotation_utils {
     enum SHMType { UnknownSHM, SubstitutionSHM, InsertionSHM, DeletionSHM };
 
+    std::ostream& operator<<(std::ostream& out, const SHMType &shm_type);
+
     struct SHM {
         SHMType shm_type;
-        size_t gene_pos;
-        size_t read_pos;
+        size_t gene_nucl_pos;
+        size_t read_nucl_pos;
         char gene_nucl;
         char read_nucl;
         char gene_aa;
@@ -17,20 +20,22 @@ namespace annotation_utils {
 
         void ComputeType();
 
-        SHM(size_t gene_pos, size_t read_pos, char gene_nucl,
-            char read_nucl, char gene_aa, char read_aa) : gene_pos(gene_pos), read_pos(read_pos),
-                                                          gene_nucl(gene_nucl), read_nucl(read_nucl), gene_aa(gene_aa),
-                                                          read_aa(read_aa) {
+        SHM(size_t gene_nucl_pos, size_t read_nucl_pos, char gene_nucl, char read_nucl,
+            char gene_aa, char read_aa) :
+                gene_nucl_pos(gene_nucl_pos), read_nucl_pos(read_nucl_pos),
+                gene_nucl(gene_nucl), read_nucl(read_nucl), gene_aa(gene_aa), read_aa(read_aa) {
             ComputeType();
         }
 
         bool IsSynonymous() const {
-            VERIFY_MSG(shm_type == SHMType::SubstitutionSHM, "SHM is not substitution");
+            if(shm_type != SHMType::SubstitutionSHM)
+                return false;
             return gene_aa == read_aa;
         }
 
         bool ToStopCodon() const {
-            VERIFY_MSG(shm_type == SHMType::SubstitutionSHM, "SHM is not substitution");
+            if(shm_type != SHMType::SubstitutionSHM)
+                return false;
             return read_aa == '*';
         }
     };
@@ -39,13 +44,15 @@ namespace annotation_utils {
 
     // class stores SHMs in the order of increasing positions
     class GeneSegmentSHMs {
-        germline_utils::SegmentType segment_type_;
+        const core::Read &read_;
+        const germline_utils::ImmuneGene &immune_gene_;
         std::vector<SHM> shms_;
 
         void CheckConsistencyFatal(SHM shm);
 
     public:
-        GeneSegmentSHMs(germline_utils::SegmentType segment_type) : segment_type_(segment_type) { }
+        GeneSegmentSHMs(const core::Read &read, const germline_utils::ImmuneGene &immune_gene) :
+                read_(read), immune_gene_(immune_gene) { }
 
         void AddSHM(SHM shm);
 
@@ -61,7 +68,11 @@ namespace annotation_utils {
 
         bool operator==(const SHM& obj) const;
 
-        germline_utils::SegmentType SegmentType() const { return segment_type_; }
+        germline_utils::SegmentType SegmentType() const { return immune_gene_.Segment(); }
+
+        const core::Read& Read() const { return read_; }
+
+        const germline_utils::ImmuneGene& ImmuneGene() const { return immune_gene_; }
     };
 
     std::ostream& operator<<(std::ostream &out, const GeneSegmentSHMs& shms);

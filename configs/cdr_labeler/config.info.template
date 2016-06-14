@@ -11,6 +11,14 @@ output_params {
     cdr3_fasta             cdr3s.fasta
     cdr3_compressed_fasta  compressed_cdr3s.fasta
     v_alignment_fasta      v_alignment.fasta
+
+    shm_output_details {
+        shm_details          shm_details.txt
+        v_start_max_skipped  5
+        v_end_max_skipped    5
+        j_start_max_skipped  10
+        j_end_max_skipped    5
+    }
 }
 
 run_params {

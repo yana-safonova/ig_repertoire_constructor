@@ -25,7 +25,6 @@ namespace cdr_labeler {
             germline_utils::ImmuneGeneDatabase& specific_gene_db = gene_db_.GetDbByGeneType(*it);
             auto cdr_labeler = GetImmuneGeneLabeler(specific_gene_db.GeneType());
             for(size_t i = 0; i < specific_gene_db.size(); i++) {
-            //for(auto it2 = specific_gene_db.begin(); it2 != specific_gene_db.end(); it2++) {
                 auto gene_labeling = cdr_labeler->ComputeLabeling(specific_gene_db[i]);
                 specific_gene_db.GetImmuneGeneByIndex(i).SetORF(gene_labeling.orf);
                 cdr_labeling.AddGeneLabeling(specific_gene_db[i], gene_labeling);

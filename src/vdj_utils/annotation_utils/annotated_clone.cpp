@@ -54,12 +54,12 @@ namespace annotation_utils {
                                            unsigned orf) const {
         if(nucl_pos < orf)
             return '-';
-        size_t pos = (nucl_pos - orf) / 3;
-        if(pos < seqan::length(aa_seq))
-            return aa_seq[pos];
-        else if(pos == seqan::length(aa_seq))
+        size_t aa_pos = (nucl_pos - orf) / 3;
+        if(aa_pos < seqan::length(aa_seq))
+            return aa_seq[aa_pos];
+        else if(aa_pos == seqan::length(aa_seq))
             return '-';
-        VERIFY_MSG(false, "Unknown position " << pos << " of amino acid sequence " << aa_seq);
+        VERIFY_MSG(false, "Unknown position " << aa_pos << " of amino acid sequence " << aa_seq);
         return '-';
     }
 
@@ -67,14 +67,14 @@ namespace annotation_utils {
         const alignment_utils::ImmuneGeneReadAlignment& alignment =
                 (segment_type == germline_utils::SegmentType::VariableSegment) ? v_alignment_ : j_alignment_;
         GeneSegmentSHMs& shms = (segment_type == germline_utils::SegmentType::VariableSegment) ? v_shms_ : j_shms_;
-        std::cout << read_ << std::endl;
-        std::cout << aa_read_seq_ << std::endl;
-        std::cout << alignment.subject() << ", ORF: " << alignment.subject().ORF() << std::endl;
+        //std::cout << read_ << std::endl;
+        //std::cout << aa_read_seq_ << std::endl;
+        //std::cout << alignment.subject() << ", ORF: " << alignment.subject().ORF() << std::endl;
         auto gene_row = seqan::row(alignment.Alignment(), 0);
         auto read_row = seqan::row(alignment.Alignment(), 1);
-        std::cout << gene_row << std::endl;
-        std::cout << read_row << std::endl;
-        std::cout << alignment.subject().aa_seq() << std::endl;
+        //std::cout << gene_row << std::endl;
+        //std::cout << read_row << std::endl;
+        //std::cout << alignment.subject().aa_seq() << std::endl;
         for(size_t i = alignment.RealStartAlignmentPos(); i <= alignment.RealEndAlignmentPos(); i++) {
             if(gene_row[i] != read_row[i]) {
                 size_t real_read_pos = seqan::toSourcePosition(read_row, i);
@@ -85,7 +85,7 @@ namespace annotation_utils {
                 shms.AddSHM(shm);
             }
         }
-        std::cout << shms;
+        //std::cout << shms;
     }
 
     bool AnnotatedClone::RegionIsEmpty(StructuralRegion region) const {
