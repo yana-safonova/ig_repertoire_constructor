@@ -202,24 +202,37 @@ def visualize_special_shm_positions(shm_df, output_fname):
                 deletion_pos.append(relative_pos)
             elif shm.is_insertion():
                 insertion_pos.append(relative_pos)
-    num_graphs = 0
+    pos = []
+    labels = []
+    colors = []
+    plt.figure(figsize=(12, 9))
     if len(synonymous_pos) > 100:
-        sns.distplot(synonymous_pos, hist = False, label = "Synonymous SHMs", color = 'r')
-        num_graphs += 1
+        pos.append(synonymous_pos)
+        labels.append('Synonymous')
+        colors.append('r')
+        #sns.distplot(synonymous_pos, hist = False, label = "Synonymous SHMs", color = 'r')
     if len(stop_codon_pos) > 100:
-        sns.distplot(stop_codon_pos, hist = False, label = "Stop codon SHMs", color = 'g')
-        num_graphs += 1
+        pos.append(stop_codon_pos)
+        labels.append('Stop codon')
+        colors.append('g')
+        #sns.distplot(stop_codon_pos, hist = False, label = "Stop codon SHMs", color = 'g')
     if len(deletion_pos) > 100:
-        sns.distplot(deletion_pos, hist = False, label = "Deletion SHMs", color = 'b')
-        num_graphs += 1
+        pos.append(deletion_pos)
+        labels.append('Deletions')
+        colors.append('b')
+        #sns.distplot(deletion_pos, hist = False, label = "Deletion SHMs", color = 'b')
     if len(insertion_pos) > 100:
-        sns.distplot(insertion_pos, hist = False, label = "Insertion SHMs", color = 'orange')
-        num_graphs += 1
-    plt.legend(loc = 'upper center', ncol = num_graphs, fontsize = 16)
-    plt.xlabel("Relative position on read", fontsize = 16)
-    plt.ylabel("# SHMs", fontsize = 16)
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 14)
+        pos.append(insertion_pos)
+        labels.append('Insertions')
+        colors.append('orange')
+        #sns.distplot(insertion_pos, hist = False, label = "Insertion SHMs", color = 'orange')
+    plt.hist(pos, color = colors, label= labels, bins = 30)
+    plt.xlim(0, 1)
+    plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 12, bbox_to_anchor=(0.5, -0.07))
+    plt.xlabel("Relative position on read", fontsize = 14)
+    plt.ylabel("# SHMs", fontsize = 14)
+    plt.xticks(fontsize = 12)
+    plt.yticks(fontsize = 12)
     pp = PdfPages(output_fname)
     pp.savefig()
     pp.close()
