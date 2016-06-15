@@ -110,14 +110,15 @@ def output_shms_pos(all_shms_pos, colors):
 def output_num_shms(num_all_shms, colors):
     nums = []
     cols = []
+    labels = []
     for isotype in num_all_shms:
         if len(num_all_shms[isotype]) > 0:
-            sns.distplot(num_all_shms[isotype], hist = False, label = str(isotype), color = colors[str(isotype)])
-            #nums.append(num_shms[isotype])
-            #labels.append(str(isotype))
-            #cols.append(colors[isotype])
-    #plt.hist(nums, bins= 25, color = cols, alpha = .5, label = labels)
-    #plt.legend(loc = 'upper center', ncol = len(nums))
+            #sns.distplot(num_all_shms[isotype], hist = False, label = str(isotype), color = colors[str(isotype)])
+            nums.append(num_all_shms[isotype])
+            labels.append(str(isotype))
+            cols.append(colors[isotype])
+    plt.hist(nums, bins= 25, color = cols, alpha = .75, label = labels)
+    plt.legend(loc = 'upper center', ncol = len(nums))
     plt.xlabel("#SHM in V gene segment", fontsize = 16)
     plt.ylabel("# sequences", fontsize = 16)
     plt.xticks(fontsize = 14)
