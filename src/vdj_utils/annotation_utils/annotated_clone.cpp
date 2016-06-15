@@ -50,9 +50,11 @@ namespace annotation_utils {
     }
 
     void AnnotatedClone::ComputeInFrame() {
-        VERIFY_MSG(!RegionIsEmpty(StructuralRegion::CDR3) and !RegionIsEmpty(StructuralRegion::CDR1),
-                   "CDR1 and/or CDR3 regions are not defined, ORF cannot be identified");
-        in_frame_ = (region_range_map_[StructuralRegion::CDR3].end_pos -
+        StructuralRegion region = (!RegionIsEmpty(StructuralRegion::CDR3)) ? StructuralRegion::CDR3 :
+                                  StructuralRegion::CDR2;
+        VERIFY_MSG(!RegionIsEmpty(region) and !RegionIsEmpty(StructuralRegion::CDR1),
+                   "CDRs regions are not defined, ORF cannot be identified");
+        in_frame_ = (region_range_map_[region].end_pos -
                 region_range_map_[StructuralRegion::CDR1].start_pos + 1) % 3 == 0;
     }
 
