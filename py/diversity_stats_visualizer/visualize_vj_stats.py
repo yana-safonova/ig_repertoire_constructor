@@ -53,8 +53,8 @@ class VJMatrix:
         #print sorted_j
         min_v = min(len(sorted_v), 24)
         min_j = min(len(sorted_j), 100)
-        v_abun_large = [sorted_v[i][0] for i in range(0, min_v) if float(sorted_v[i][1]) / float(self.num_records) < .4]
-        j_abun_large = [sorted_j[i][0] for i in range(0, min_j) if float(sorted_j[i][1]) / float(self.num_records) < .4]
+        v_abun_large = [sorted_v[i][0] for i in range(0, min_v)] #if float(sorted_v[i][1]) / float(self.num_records) < .4]
+        j_abun_large = [sorted_j[i][0] for i in range(0, min_j)] #if float(sorted_j[i][1]) / float(self.num_records) < .4]
         #print v_abun_large
         #print j_abun_large
         return v_abun_large, j_abun_large
@@ -81,14 +81,12 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     table, v, j = vj_matrix.CreateTable(100)
     mplt.rcParams.update({'font.size': 20})
     f, ax = plt.subplots(figsize=(15, 15))
-    #cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    #sns.clustermap(table, cmap = plt.cm.coolwarm)
-    sns.heatmap(table, cmap = plt.cm.coolwarm, xticklabels = v, yticklabels = j) #plt.cm.Greens)
+    sns.heatmap(table, cmap = plt.cm.jet, xticklabels = v, yticklabels = j, ax = ax)
+    ax.tick_params(labelsize = 16)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60, fontsize=16)
     plt.yticks(y, j, rotation='horizontal', fontsize=16)
-    plt.legend(fontsize = 14)
     pp = PdfPages(output_pdf)
     pp.savefig()
     pp.close()
