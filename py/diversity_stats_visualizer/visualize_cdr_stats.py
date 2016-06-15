@@ -169,9 +169,9 @@ def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
     num_records = len(vj_df['Read_name'])
     num_locus_records = len(locus_df['Read_name'])
     if float(num_locus_records) / float(num_records) < .05:
-        print "Output contains very low number (" + str(num_locus_records) + ") of " + locus_name + " records"
+        print "Output contains very low number of " + locus_name + " records. Drawing plots skipped"
         return
-    print "Output CDR statistics for " + locus_name + "\n"
+    print "CDR statistics for " + locus_name
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir)
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR2_nucls", "CDR2", output_dir)
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR3_nucls", "CDR3", output_dir)
@@ -182,10 +182,12 @@ def main(df_fname, output_dir):
         sys.exit(1)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
+    print "== Output CDR statistics"
     vj_df = pd.read_table(df_fname, delim_whitespace = True)
     output_cdrs_stats_for_locus(vj_df, "IGH", output_dir)
     output_cdrs_stats_for_locus(vj_df, "IGK", output_dir)
     output_cdrs_stats_for_locus(vj_df, "IGL", output_dir)
+    print ""
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:

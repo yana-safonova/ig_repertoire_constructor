@@ -117,9 +117,9 @@ namespace cdr_labeler {
         annotation_utils::PositionalSHMFilter shm_filter(shms, max_skipped_start, max_skipped_end);
         if(shm_filter.NumGoodSHMs() == 0)
             return;
-        out << "Read_name:" << shms.Read().name << "|Read_length:" << shms.Read().length() <<
-                "|Gene_name:" << shms.ImmuneGene().name() << "|Gene_length:" << shms.ImmuneGene().length() <<
-                "|Segment:" << shms.SegmentType() << "|Chain_type:" << shms.ImmuneGene().Chain() << std::endl;
+        out << "Read_name:" << shms.Read().name << "\tRead_length:" << shms.Read().length() <<
+                "\tGene_name:" << shms.ImmuneGene().name() << "\tGene_length:" << shms.ImmuneGene().length() <<
+                "\tSegment:" << shms.SegmentType() << "\tChain_type:" << shms.ImmuneGene().Chain() << std::endl;
         for(auto it = shms.cbegin(); it != shms.cend(); it++)
             if(!shm_filter.FilterSHM(*it))
                 out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<

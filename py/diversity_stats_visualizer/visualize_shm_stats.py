@@ -18,7 +18,7 @@ from Bio.SeqRecord import SeqRecord
 
 class AlignedRead:
     def _parse_line(self, line):
-        splits = line.split('|')
+        splits = line.split()
         if len(splits) != 6:
             print "Header line " + line + " is not valid"
             sys.exit(1)
@@ -227,6 +227,7 @@ def visualize_special_shm_positions(shm_df, output_fname):
     print "Distribution of special SHMs was written to " + output_fname
 
 def main(shm_df_fname, output_dir):
+    print "== Output SHMs statistics"
     shm_df = SHMs(shm_df_fname)
     visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution.pdf"))
     visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions.pdf"))
