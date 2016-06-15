@@ -88,11 +88,12 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60, fontsize=16)
     plt.yticks(y, j, rotation='horizontal', fontsize=16)
-    pp = PdfPages(output_pdf)
+    pp = PdfPages(output_pdf + ".pdf")
     pp.savefig()
     pp.close()
+    plt.savefig(output_pdf + ".png")
     plt.clf()
-    print "VJ heatmap was written to " + output_pdf
+    print "VJ heatmap was written to " + output_pdf + ".pdf and .png"
 
 ############################################################################
 
@@ -110,9 +111,9 @@ def main(argv):
     output_dir = argv[3]
     checkout_output_dir(output_dir)
     print "== Output VJ statistics"
-    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap.pdf"))
+    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap"))
     print ""
-    visualize_cdr_stats.main(argv[1], output_dir)
+    visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"))
     visualize_shm_stats.main(argv[2], output_dir)
 
 if __name__ == "__main__":

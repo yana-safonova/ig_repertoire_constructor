@@ -141,11 +141,12 @@ def visualize_v_mutations_stats(shms_df, output_fname):
     output_shms_pos(all_shms_pos, colors)
     plt.subplot(212)
     output_num_shms(num_all_shms, colors)
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of SHMs in V was written to " + output_fname
+    print "Distribution of SHMs in V was written to " + output_fname + ".pdf and .png"
 
 def get_aa_list():
     return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
@@ -179,26 +180,28 @@ def visualize_aa_substitution_matrix(shms_df, output_fname):
     plt.yticks(fontsize = 12, rotation='horizontal')
     plt.xlabel("From", fontsize = 14)
     plt.ylabel("To", fontsize = 14, rotation='horizontal')
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Amino acid substitution heatmap was written to " + output_fname
+    print "Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png"
 
 def output_synonymous_shms(synonymous_pos, output_fname):
     if len(synonymous_pos) < 100:
         return
-    plt.hist(synonymous_pos, color = 'r', bins = 50)
+    plt.hist(synonymous_pos, color = 'r', bins = 70)
     plt.xlabel("Relative position on read", fontsize = 14)
     plt.ylabel("#SHMs", fontsize = 14)
     plt.xlim(0, 1)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12)
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of synonymous SHMs positions was wirtten to " + output_fname
+    print "Distribution of synonymous SHMs positions was wirtten to " + output_fname + ".pdf and .png"
 
 def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname):
     synonymous_pos = []
@@ -247,19 +250,20 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.ylabel("# SHMs", fontsize = 14)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12)
-    pp = PdfPages(special_output_fname)
+    pp = PdfPages(special_output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(special_output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of special SHMs was written to " + special_output_fname
+    print "Distribution of special SHMs was written to " + special_output_fname + ".pdf and .png"
 
 def main(shm_df_fname, output_dir):
     print "== Output SHMs statistics"
     shm_df = SHMs(shm_df_fname)
-    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution.pdf"))
-    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions.pdf"))
-    visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions.pdf"),
-                                    os.path.join(output_dir, "special_shms_positions.pdf"))
+    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"))
+    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"))
+    visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
+                                    os.path.join(output_dir, "special_shms_positions"))
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
