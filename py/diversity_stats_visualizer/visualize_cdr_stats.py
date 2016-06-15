@@ -24,11 +24,12 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     plt.ylabel('# ' + region_name + 's', fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " length distribution was written to " + output_fname
+    print region_name + " length distribution was written to " + output_fname + ".pdf and .png"
 
 ############################################################################
 
@@ -92,11 +93,12 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.ylabel('Nucleotide %', fontsize = 16)
     plt.xticks(x, x_l, fontsize = 14)
     plt.yticks(fontsize = 14)
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " nucleotide distribution was written to " + output_fname
+    print region_name + " nucleotide distribution was written to " + output_fname + ".pdf and .png"
 
 ############################################################################
 
@@ -150,19 +152,20 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
     plt.yticks(fontsize = 14)
     plt.xlabel('The most abundant amino acid', fontsize = 16)
     plt.ylabel('% ' + region_name + 's', fontsize = 16)
-    pp = PdfPages(output_fname)
+    pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
+    plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " aa variability was written to " + output_fname
+    print region_name + " aa variability was written to " + output_fname + ".pdf and .png"
 
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_length.pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_length"))
     visualize_largest_region_nucls(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_nucls.pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_nucls"))
     visualize_largest_group_aa_variability(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_aa.pdf"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_aa"))
 
 def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
     locus_df = vj_df.loc[vj_df['Chain_type'] == locus_name]
