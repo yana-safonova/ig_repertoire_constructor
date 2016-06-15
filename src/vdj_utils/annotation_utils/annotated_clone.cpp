@@ -40,14 +40,31 @@ namespace annotation_utils {
         UpdateStructuralRegion(StructuralRegion::CDR3, cdr_labeling.cdr3);
     }
 
+    void AnnotatedClone::ComputeProductiveness() {
+        has_stop_codon_ = false;
+        for(size_t i = 0; i < seqan::length(aa_read_seq_); i++)
+            if(aa_read_seq_[i] == '*') {
+                has_stop_codon_ = true;
+                break;
+            }
+    }
+
+    void AnnotatedClone::ComputeInFrame() {
+        VERIFY_MSG(!RegionIsEmpty(StructuralRegion::CDR3) and !RegionIsEmpty(StructuralRegion::CDR1),
+                   "CDR1 and/or CDR3 regions are not defined, ORF cannot be identified");
+        in_frame_ = (region_range_map_[StructuralRegion::CDR3].end_pos -
+                region_range_map_[StructuralRegion::CDR1].start_pos + 1) % 3 == 0;
+    }
+
     void AnnotatedClone::InitializeAASeq() {
+        VERIFY_MSG(!RegionIsEmpty(StructuralRegion::CDR1), "CDR1 is not defined, AA sequence cannot be computed");
         using namespace seqan;
         StringSet<String<AminoAcid>, Owner<ConcatDirect<> > > aa_seqs;
-        translate(aa_seqs, read_.seq, SINGLE_FRAME);
+        read_orf_ = region_range_map_[StructuralRegion::CDR1].start_pos % 3;
+        translate(aa_seqs, suffix(read_.seq, read_orf_), SINGLE_FRAME);
         aa_read_seq_ = aa_seqs[0];
-        // todo: compute productiveness and in-frame accurately
-        productive_ = false;
-        in_frame_ = false;
+        ComputeProductiveness();
+        ComputeInFrame();
     }
 
     char AnnotatedClone::GetAminoAcidByPos(const seqan::String<seqan::AminoAcid> &aa_seq, size_t nucl_pos,
@@ -81,7 +98,7 @@ namespace annotation_utils {
                 size_t real_gene_pos = seqan::toSourcePosition(gene_row, i);
                 SHM shm(real_read_pos, real_gene_pos, gene_row[i], read_row[i],
                         GetAminoAcidByPos(alignment.subject().aa_seq(), real_gene_pos, alignment.subject().ORF()),
-                        GetAminoAcidByPos(aa_read_seq_, real_read_pos, 0));
+                        GetAminoAcidByPos(aa_read_seq_, real_read_pos, read_orf_));
                 shms.AddSHM(shm);
             }
         }
