@@ -133,57 +133,46 @@ int main(int argc, char **argv) {
     INFO("Construction of trie starts");
     Trie<seqan::Dna5> trie(input_reads);
 
-    auto result__ = trie.checkout(length(input_reads));
-    std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
-    std::sort(result.begin(), result.end());
+    auto representative2abundance = trie.checkout(length(input_reads));
+    std::vector<std::pair<size_t, size_t>> representatives(representative2abundance.cbegin(), representative2abundance.cend());
+    std::sort(representatives.begin(), representatives.end());
     INFO("Unique prefixes were collected");
 
     size_t count = 0;
-    for (const auto &_ : result) {
-        size_t index = _.first;
-        size_t abundance = _.second;
-
-        count += abundance;
+    for (const auto &it : representatives) {
+        size_t index = it.first;
+        size_t abundance = it.second;
 
         std::string id = seqan::toCString(input_ids[index]);
         id += "___size___" + std::to_string(abundance);
 
         seqan::writeRecord(seqFileOut_output, id, input_reads[index]);
+
+        count += abundance;
     }
 
     assert(count == length(input_reads));
 
-    INFO(result.size() << " compressed reads were written to " << output_file);
+    INFO(representatives.size() << " compressed reads were written to " << output_file);
 
     if (rcm_file_name != "") {
         std::ofstream rcm_file(rcm_file_name.c_str());
-        std::vector<size_t> read_to_group(length(input_reads));
-        auto trie_checkout = trie.checkout_ids(length(input_reads));
-
-        // Heavily relying on consistency between trie.checkout methods
-        // and on the fact that actually only equal sequences are compressed
-        // and on the fact that representative is always the first element among equal.
-        // Needs refactoring in the trie.
-        std::set<size_t> group_representatives;
-        for (const auto &entry : trie_checkout) {
-            group_representatives.insert(entry.first);
+        std::unordered_map<size_t, size_t> representative2compressed_position;
+        for (size_t group = 0; group < representatives.size(); group ++) {
+            representative2compressed_position[representatives[group].first] = group;
         }
-        std::unordered_map<size_t, size_t> read_id_to_group;
-        size_t group_count = 0;
-        for (size_t representative : group_representatives) {
-            read_id_to_group[representative] = group_count;
-            group_count ++;
-        }
-        for (const auto &entry : trie_checkout) {
+        auto representative2members = trie.checkout_ids(length(input_reads));
+        std::vector<size_t> read2compressed_position(length(input_reads));
+        for (const auto &entry : representative2members) {
             const size_t representative = entry.first;
-            const auto &ids = entry.second;
-            for (size_t id : ids) {
-                read_to_group[id] = read_id_to_group[representative];
+            const auto &members = entry.second;
+            for (size_t member : members) {
+                read2compressed_position[member] = representative2compressed_position[representative];
             }
         }
 
-        for (size_t read = 0; read < read_to_group.size(); read ++) {
-            rcm_file << input_ids[read] << "\t" << read_to_group[read] << "\n";
+        for (size_t read = 0; read < input_reads.size(); read ++) {
+            rcm_file << input_ids[read] << "\t" << read2compressed_position[read] << "\n";
         }
 
         INFO("Map from input reads to compressed reads was written to " << rcm_file_name);
