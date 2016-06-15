@@ -207,7 +207,7 @@ class IgRepConIO:
 
     def __initCompressEqualClusters(self, output_dir):
         self.tmp_compressed_clusters_fa = os.path.join(output_dir, 'tmp_compressed_clusters.fa')
-        self.tmp_compressed_clusters_map = os.path.join(output_dir, 'tmp_compressed_clusters.map')
+        self.tmp_compressed_clusters_rcm = os.path.join(output_dir, 'tmp_compressed_clusters.rcm')
         self.compressed_final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
         self.compressed_final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
@@ -532,7 +532,7 @@ class CompressEqualClusters(Phase):
                                                              self.__params.io.uncompressed_final_clusters_fa,
                                                              self.__params.io.compressed_final_clusters_fa,
                                                              self.__params.io.tmp_compressed_clusters_fa,
-                                                             self.__params.io.tmp_compressed_clusters_map,
+                                                             self.__params.io.tmp_compressed_clusters_rcm,
                                                              self.__params.io.uncompressed_final_rcm,
                                                              self.__params.io.compressed_final_rcm)
         support.sys_call(command_line, self._log)
