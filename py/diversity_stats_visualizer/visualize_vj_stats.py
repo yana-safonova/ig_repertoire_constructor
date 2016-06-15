@@ -109,7 +109,9 @@ def main(argv):
     vj_df = pd.read_table(argv[1], delim_whitespace = True)
     output_dir = argv[3]
     checkout_output_dir(output_dir)
+    print "== Output VJ statistics"
     visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap.pdf"))
+    print ""
     visualize_cdr_stats.main(argv[1], output_dir)
     visualize_shm_stats.main(argv[2], output_dir)
 
