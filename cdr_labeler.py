@@ -197,7 +197,6 @@ def main(argv):
         support.sys_call(cdr_command_line, log)
         log.info("\n")
         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
-                                 os.path.join(params.output_dir, "v_alignment.fasta"),
                                  os.path.join(params.output_dir, "shm_details.txt"),
                                  os.path.join(params.output_dir, "plots")])
         #Cleanup(params, log)
