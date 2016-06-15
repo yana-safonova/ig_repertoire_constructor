@@ -151,7 +151,7 @@ def get_aa_list():
     return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
 
 def aa_is_valid(aa):
-    return aa != '*' and aa != '-'
+    return aa != '*' and aa != '-' and aa != 'X'
 
 def visualize_aa_substitution_matrix(shms_df, output_fname):
     dict_aa = dict()
