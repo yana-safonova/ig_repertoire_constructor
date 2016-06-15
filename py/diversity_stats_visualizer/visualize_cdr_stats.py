@@ -171,6 +171,7 @@ def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
     if float(num_locus_records) / float(num_records) < .05:
         print "Output contains very low number (" + str(num_locus_records) + ") of " + locus_name + " records"
         return
+    print "Output CDR statistics for " + locus_name + "\n"
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir)
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR2_nucls", "CDR2", output_dir)
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR3_nucls", "CDR3", output_dir)

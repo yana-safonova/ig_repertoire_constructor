@@ -118,8 +118,8 @@ namespace cdr_labeler {
         if(shm_filter.NumGoodSHMs() == 0)
             return;
         out << "Read_name:" << shms.Read().name << "|Read_length:" << shms.Read().length() <<
-                "|Segment:" << shms.SegmentType() << "|Gene_name:" << shms.ImmuneGene().name() <<
-                "|Gene_length:" << shms.ImmuneGene().length() << std::endl;
+                "|Gene_name:" << shms.ImmuneGene().name() << "|Gene_length:" << shms.ImmuneGene().length() <<
+                "|Segment:" << shms.SegmentType() << "|Chain_type:" << shms.ImmuneGene().Chain() << std::endl;
         for(auto it = shms.cbegin(); it != shms.cend(); it++)
             if(!shm_filter.FilterSHM(*it))
                 out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
