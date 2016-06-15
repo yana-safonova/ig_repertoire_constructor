@@ -23,7 +23,8 @@ namespace annotation_utils {
         GeneSegmentSHMs j_shms_;
 
         seqan::String<seqan::AminoAcid> aa_read_seq_;
-        bool productive_;
+        unsigned read_orf_;
+        bool has_stop_codon_;
         bool in_frame_;
 
         void CheckRangeConsistencyFatal(CDRRange range);
@@ -37,6 +38,10 @@ namespace annotation_utils {
         void InitializeSHMs(germline_utils::SegmentType);
 
         void InitializeAASeq();
+
+        void ComputeProductiveness();
+
+        void ComputeInFrame();
 
     public:
         AnnotatedClone(const core::Read &read,
@@ -84,9 +89,13 @@ namespace annotation_utils {
 
         const GeneSegmentSHMs& JSHMs() const { return j_shms_; }
 
-        bool Productive() const { return productive_; }
+        bool HasStopCodon() const { return has_stop_codon_; }
 
         bool InFrame() const { return in_frame_; }
+
+        bool Productive() const { return !HasStopCodon() and InFrame(); }
+
+        seqan::String<seqan::AminoAcid> AA() const { return aa_read_seq_; }
 
         const germline_utils::ImmuneGene& VGene() const { return v_alignment_.subject(); }
 
