@@ -64,6 +64,9 @@ class HTMLReportWriter:
     def WriteEmptyLine(self):
         self.fhandler.write("<br>\n")
 
+    def WriteHorizontalLine(self):
+        self.fhandler.write("<hr>\n")
+
     def CloseFile(self):
         self.fhandler.close()
 
@@ -222,16 +225,18 @@ def create_html(output_html_fname, vj_df, shm_df, images_dict):
     print "Printing general characteristics of the repertoire"
     html_writer = HTMLReportWriter(output_html_fname)
     WriteGeneralCharacteristics(html_writer, vj_df, images_dict)
-    html_writer.WriteEmptyLine()
+    html_writer.WriteHorizontalLine()
     print "Printing SHM characteristics"
     WriteSHMCharacteristics(html_writer, shm_df, images_dict)
-    html_writer.WriteEmptyLine()
+    html_writer.WriteHorizontalLine()
     print "Printing CDR characteristics"
     WriteCDRCharacteristics(html_writer, vj_df, images_dict)
+    html_writer.CloseFile()
     print "Annotation report was written to " + output_html_fname
 
 #######################################################################################################################
 def add_cdr_plots(image_dict, plots_dir):
+    inner_plots_dir = "plots/cdr_plots"
     if not os.path.exists(os.path.join(plots_dir, "cdr_plots")):
         return
     cdr_dict = os.path.join(plots_dir, "cdr_plots")
@@ -239,28 +244,29 @@ def add_cdr_plots(image_dict, plots_dir):
     cdrs = ['CDR1', 'CDR2', 'CDR3']
     for l in loci:
         for cdr in cdrs:
-            file_dict = {l + "_" + cdr + "_length" : os.path.join(cdr_dict, l + "_" + cdr + "_length.png"),
-                         l + "_" + cdr + "_nucls" : os.path.join(cdr_dict, l + "_" + cdr + "_nucls.png"),
-                         l + "_" + cdr + "_aa" : os.path.join(cdr_dict, l + "_" + cdr + "_aa.png")}
+            file_dict = {l + "_" + cdr + "_length" : l + "_" + cdr + "_length.png",
+                         l + "_" + cdr + "_nucls" : l + "_" + cdr + "_nucls.png",
+                         l + "_" + cdr + "_aa" : l + "_" + cdr + "_aa.png"}
             for f in file_dict:
-                if os.path.exists(file_dict[f]):
-                    image_dict[f] = file_dict[f]
+                if os.path.exists(os.path.join(cdr_dict, file_dict[f])):
+                    image_dict[f] = os.path.join(inner_plots_dir, file_dict[f])
 
 def add_shm_plots(image_dict, plots_dir):
+    inner_plots_dir = "plots"
     if os.path.exists(os.path.join(plots_dir, "aa_substitutions.png")):
-        image_dict["aa_substitutions"] = os.path.join(plots_dir, "aa_substitutions.png")
+        image_dict["aa_substitutions"] = os.path.join(inner_plots_dir, "aa_substitutions.png")
     if os.path.exists(os.path.join(plots_dir, "v_mutations_distribution.png")):
-        image_dict["general_v_mutations"] = os.path.join(plots_dir, "v_mutations_distribution.png")
+        image_dict["general_v_mutations"] = os.path.join(inner_plots_dir, "v_mutations_distribution.png")
     if os.path.exists(os.path.join(plots_dir, "synonymous_shms_positions.png")):
-        image_dict["synonymous_shms"] = os.path.join(plots_dir, "synonymous_shms_positions.png")
+        image_dict["synonymous_shms"] = os.path.join(inner_plots_dir, "synonymous_shms_positions.png")
     if os.path.exists(os.path.join(plots_dir, "special_shms_positions.png")):
-        image_dict["special_shms"] = os.path.join(plots_dir, "special_shms_positions.png")
+        image_dict["special_shms"] = os.path.join(inner_plots_dir, "special_shms_positions.png")
 
 
 def create_image_dict(plots_dir):
     image_dict = dict()
     if os.path.exists(os.path.join(plots_dir, "vj_heatmap.png")):
-        image_dict["vj_heatmap"] = os.path.join(plots_dir, "vj_heatmap.png")
+        image_dict["vj_heatmap"] = os.path.join("plots", "vj_heatmap.png")
     add_cdr_plots(image_dict, plots_dir)
     add_shm_plots(image_dict, plots_dir)
     return image_dict
