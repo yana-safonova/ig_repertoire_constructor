@@ -66,6 +66,9 @@ class SHM:
     def is_insertion(self):
         return self.type == 'I'
 
+    def is_substitution(self):
+        return self.type == 'S'
+
 class SHMs:
     def __init__(self, df_fname):
         self.shm_dict = dict()
@@ -79,10 +82,9 @@ class SHMs:
                 self.shm_dict[current_read] = list()
             else:
                 self.shm_dict[current_read].append(SHM(l))
-        print str(len(self.shm_dict)) + " records were extracted from " + df_fname
 
     def __len__(self):
-        return self.shm_dict
+        return len(self.shm_dict)
 
     def __getitem__(self, item):
         return self.shm_dict[item]
@@ -100,7 +102,7 @@ def output_shms_pos(all_shms_pos, colors):
             pos.append(all_shms_pos[isotype])
             labels.append(str(isotype))
             cols.append(colors[isotype])
-    plt.hist(pos, bins= 30, color = cols, alpha = .75, label = labels)
+    plt.hist(pos, bins= 100 / len(cols), color = cols, alpha = .75, label = labels)
     plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 16)
     plt.xlabel("Relative position of SHM in V gene segment", fontsize = 16)
     plt.ylabel("# SHMs", fontsize = 16)
@@ -117,7 +119,7 @@ def output_num_shms(num_all_shms, colors):
             nums.append(num_all_shms[isotype])
             labels.append(str(isotype))
             cols.append(colors[isotype])
-    plt.hist(nums, bins= 25, color = cols, alpha = .75, label = labels)
+    plt.hist(nums, bins= 100 / len(cols), color = cols, alpha = .75, label = labels)
     plt.legend(loc = 'upper center', ncol = len(nums))
     plt.xlabel("#SHM in V gene segment", fontsize = 16)
     plt.ylabel("# sequences", fontsize = 16)
@@ -191,8 +193,8 @@ def visualize_aa_substitution_matrix(shms_df, output_fname):
 def output_synonymous_shms(synonymous_pos, output_fname):
     if len(synonymous_pos) < 100:
         return
-    plt.hist(synonymous_pos, color = 'r', bins = 70)
-    plt.xlabel("Relative position on read", fontsize = 14)
+    plt.hist(synonymous_pos, color = 'r', bins = 100)
+    plt.xlabel("Relative position on V segment", fontsize = 14)
     plt.ylabel("#SHMs", fontsize = 14)
     plt.xlim(0, 1)
     plt.xticks(fontsize = 12)
@@ -202,7 +204,7 @@ def output_synonymous_shms(synonymous_pos, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of synonymous SHMs positions was wirtten to " + output_fname + ".pdf and .png"
+    print "Distribution of synonymous SHMs positions in V segment was wirtten to " + output_fname + ".pdf and .png"
 
 def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname):
     synonymous_pos = []
@@ -212,7 +214,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     for it in shm_df:
         read_shms = shm_df[it]
         for shm in read_shms:
-            relative_pos = float(shm.read_pos) / float(it.read_len)
+            relative_pos = float(shm.gene_pos) / float(it.gene_len)
             if shm.synonymous:
                 synonymous_pos.append(relative_pos)
             elif shm.to_stop_codon:
@@ -244,10 +246,10 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     if len(pos) == 0:
         return
     #sns.distplot(insertion_pos, hist = False, label = "Insertion SHMs", color = 'orange')
-    plt.hist(pos, color = colors, label= labels, bins = 30)
+    plt.hist(pos, color = colors, label= labels, bins = 100 / len(pos))
     plt.xlim(0, 1)
     plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 12, bbox_to_anchor=(0.5, -0.07))
-    plt.xlabel("Relative position on read", fontsize = 14)
+    plt.xlabel("Relative position on V segment", fontsize = 14)
     plt.ylabel("# SHMs", fontsize = 14)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12)
@@ -256,11 +258,12 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.savefig(special_output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of special SHMs was written to " + special_output_fname + ".pdf and .png"
+    print "Distribution of special SHMs in V segment was written to " + special_output_fname + ".pdf and .png"
 
 def main(shm_df_fname, output_dir):
     print "== Output SHMs statistics"
     shm_df = SHMs(shm_df_fname)
+    print str(len(shm_df)) + " records were extracted from " + shm_df_fname
     visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"))
     visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"))
     visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
