@@ -1,10 +1,12 @@
 import os
 import sys
+import warnings
 
 import pandas as pd
 
 import visualize_shm_stats
 import visualize_cdr_stats
+
 
 class HTMLReportWriter:
     def _WriteHeader(self, level, text, align):
@@ -64,8 +66,8 @@ class HTMLReportWriter:
     def WriteEmptyLine(self):
         self.fhandler.write("<br>\n")
 
-    def WriteHorizontalLine(self):
-        self.fhandler.write("<hr>\n")
+    def WriteHorizontalLine(self, width = 100):
+        self.fhandler.write("<hr width=" + str(width) + "%>\n")
 
     def CloseFile(self):
         self.fhandler.close()
@@ -212,6 +214,7 @@ def WriteCDRPlots(html_writer, vj_df, images_dict):
                                                                                    "Plot of the most abundant amino "
                                                                                    "acids per position:")
                     html_writer.WriteImage(images_dict[l + "_" + cdr + "_aa"], 70)
+        html_writer.WriteHorizontalLine(70)
 
 def WriteCDRCharacteristics(html_writer, vj_df, images_dict):
     html_writer.WriteH1("CDR characteristics")
@@ -274,6 +277,7 @@ def create_image_dict(plots_dir):
 #######################################################################################################################
 
 def main(argv):
+    warnings.filterwarnings('ignore')
     if len(argv) != 5:
         print "Invalid input"
         print "python html_report_writer.py cdr_details.txt shm_details.txt plots_dir output.html"

@@ -214,6 +214,8 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     for it in shm_df:
         read_shms = shm_df[it]
         for shm in read_shms:
+            if not it.is_variable():
+                continue
             relative_pos = float(shm.gene_pos) / float(it.gene_len)
             if shm.synonymous:
                 synonymous_pos.append(relative_pos)
