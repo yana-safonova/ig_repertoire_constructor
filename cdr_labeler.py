@@ -21,6 +21,7 @@ import process_cfg
 import support
 
 import visualize_vj_stats
+import html_report_writer
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
 test_dir = os.path.join(home_directory, "cdr_test")
@@ -195,10 +196,15 @@ def main(argv):
     try:
         cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
         support.sys_call(cdr_command_line, log)
-        log.info("\n")
+        log.info("\n==== Visualization ====")
         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
                                  os.path.join(params.output_dir, "shm_details.txt"),
                                  os.path.join(params.output_dir, "plots")])
+        log.info("\n==== Annotation report creation ====")
+        html_report_writer.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
+                                os.path.join(params.output_dir, "shm_details.txt"),
+                                os.path.join(params.output_dir, "plots"),
+                                os.path.join(params.output_dir, "annotation_report.html")])
         #Cleanup(params, log)
         log.info("\nThank you for using CDR Labeler!\n")
     except (KeyboardInterrupt):

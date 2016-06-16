@@ -24,6 +24,7 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     plt.ylabel('# ' + region_name + 's', fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
+    plt.xlim(0, 100)
     pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
     plt.savefig(output_fname + ".png")
@@ -172,7 +173,7 @@ def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
     num_records = len(vj_df['Read_name'])
     num_locus_records = len(locus_df['Read_name'])
     if float(num_locus_records) / float(num_records) < .05:
-        print "Output contains very low number of " + locus_name + " records. Drawing plots skipped"
+        print "Output contains very low number of " + locus_name + " records. Drawing plots was skipped"
         return
     print "CDR statistics for " + locus_name
     output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir)
