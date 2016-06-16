@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_trie_compressor.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -29,7 +30,8 @@ int main(int argc, char **argv) {
 
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
-    std::string idmap_file_name = "";
+    std::string rcm_file_name = "";
+    bool recalculate_abundance = false;
     try {
         // Declare a group of options that will be
         // allowed only on command line
@@ -42,8 +44,10 @@ int main(int argc, char **argv) {
              "name of the input file (FASTA|FASTQ)")
             ("output-file,o", po::value<std::string>(&output_file)->default_value(output_file),
              "name of the output file (FASTA|FASTQ)")
-            ("idmap,m", po::value<std::string>(&idmap_file_name)->default_value(idmap_file_name),
-             "map file name; empty (default) for non-producing")
+            ("rcm,m", po::value<std::string>(&rcm_file_name)->default_value(rcm_file_name),
+             "file name for read-cluster map (rcm); leave empty to skip rcm file generation")
+            ("size,s", po::value<bool>(&recalculate_abundance)->default_value(recalculate_abundance),
+             "set to true if read ids contain abundance information to recalculate it")
             ;
 
         // Declare a group of options that will be
@@ -130,64 +134,63 @@ int main(int argc, char **argv) {
     readRecords(input_ids, input_reads, seqFileIn_input);
     INFO(length(input_reads) << " reads were extracted from " << input_file);
 
-    INFO("Construction of trie starts");
-    Trie<seqan::Dna5> trie(input_reads);
+    std::vector<size_t> abundances(input_ids.size(), 1);
+    if (recalculate_abundance) {
+        INFO("Parsing abundances from ids");
+        for (size_t read = 0; read < input_ids.size(); read ++) {
+            const std::string id_string = seqan_string_to_string(input_ids[read]);
+            const std::string delimiter = "___";
+            size_t pos = id_string.rfind(delimiter);
+            abundances[read] = stoull(id_string.substr(pos + delimiter.length()));
+        }
+    }
 
-    auto result__ = trie.checkout(length(input_reads));
-    std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
-    std::sort(result.begin(), result.end());
+    INFO("Construction of trie starts");
+    Trie<seqan::Dna5> trie(input_reads, abundances);
+
+    auto representative2abundance = trie.checkout(length(input_reads));
+    std::vector<std::pair<size_t, size_t>> representatives(representative2abundance.cbegin(), representative2abundance.cend());
+    std::sort(representatives.begin(), representatives.end());
     INFO("Unique prefixes were collected");
 
     size_t count = 0;
-    for (const auto &_ : result) {
-        size_t index = _.first;
-        size_t abundance = _.second;
-
-        count += abundance;
+    for (const auto &it : representatives) {
+        size_t index = it.first;
+        size_t abundance = it.second;
 
         std::string id = seqan::toCString(input_ids[index]);
         id += "___size___" + std::to_string(abundance);
 
         seqan::writeRecord(seqFileOut_output, id, input_reads[index]);
+
+        count += abundance;
     }
 
-    assert(count == length(input_reads));
+    assert(recalculate_abundance || count == length(input_reads));
 
-    INFO(result.size() << " compressed reads were written to " << output_file);
+    INFO(representatives.size() << " compressed reads were written to " << output_file);
 
-    if (idmap_file_name != "") {
-        std::ofstream idmap_file(idmap_file_name.c_str());
-        std::vector<size_t> idmap(length(input_reads));
-        auto result = trie.checkout_ids(length(input_reads));
-        for (const auto &_ : result) {
-            size_t index = _.first;
-            const auto &ids = _.second;
-
-            for (size_t id : ids) {
-                idmap[id] = index;
+    if (rcm_file_name != "") {
+        std::ofstream rcm_file(rcm_file_name.c_str());
+        std::unordered_map<size_t, size_t> representative2compressed_position;
+        for (size_t group = 0; group < representatives.size(); group ++) {
+            representative2compressed_position[representatives[group].first] = group;
+        }
+        auto representative2members = trie.checkout_ids(length(input_reads));
+        std::vector<size_t> read2compressed_position(length(input_reads));
+        for (const auto &entry : representative2members) {
+            const size_t representative = entry.first;
+            const auto &members = entry.second;
+            for (size_t member : members) {
+                read2compressed_position[member] = representative2compressed_position[representative];
             }
         }
 
-        // TODO Refactor it ASAP
-        std::vector<size_t> ord(length(input_reads), 0);
-        for (size_t id : idmap) {
-            ord[id] = 1;
+        for (size_t read = 0; read < input_reads.size(); read ++) {
+            rcm_file << input_ids[read] << "\t" << read2compressed_position[read] << "\n";
         }
 
-        size_t ii = 0;
-        for (size_t &o : ord) {
-            if (o) {
-                o = ii;
-                ++ii;
-            }
-        }
-
-
-        for (size_t id : idmap) {
-            idmap_file << ord[id] << "\n";
-        }
-
-        INFO("Map from input reads to compressed reads was written to " << idmap_file_name);
+        INFO("Map from input reads to compressed reads was written to " << rcm_file_name);
     }
     INFO("Construction of trie finished")
     INFO("Running time: " << running_time_format(pc));

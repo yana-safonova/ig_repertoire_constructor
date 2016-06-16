@@ -194,7 +194,7 @@ class IgRepConIO:
 
     def __initCompressorOutput(self, output_dir):
         self.compressed_reads = os.path.join(output_dir, "compressed_reads.fa")
-        self.map_file = os.path.join(output_dir, "cleaned_compressed_map.txt")
+        self.map_file = os.path.join(output_dir, "cleaned_compressed_map.rcm")
         self.supernodes_file = os.path.join(output_dir, "super_reads.fa")
 
     def __initDSFOutput(self, output_dir):
@@ -207,7 +207,7 @@ class IgRepConIO:
 
     def __initCompressEqualClusters(self, output_dir):
         self.tmp_compressed_clusters_fa = os.path.join(output_dir, 'tmp_compressed_clusters.fa')
-        self.tmp_compressed_clusters_map = os.path.join(output_dir, 'tmp_compressed_clusters.map')
+        self.tmp_compressed_clusters_rcm = os.path.join(output_dir, 'tmp_compressed_clusters.rcm')
         self.compressed_final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
         self.compressed_final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
@@ -492,11 +492,10 @@ class ConsensusConstructionPhase(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s -i %s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
-                                                       self.__params.io.cropped_reads,
-                                                       self.__params.io.map_file,
-                                                       self.__params.io.dense_sgraph_decomposition,
-                                                       self.__params.io.uncompressed_final_rcm)
+        command_line = "%s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
+                                                 self.__params.io.map_file,
+                                                 self.__params.io.dense_sgraph_decomposition,
+                                                 self.__params.io.uncompressed_final_rcm)
         support.sys_call(command_line, self._log)
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
@@ -533,7 +532,7 @@ class CompressEqualClusters(Phase):
                                                              self.__params.io.uncompressed_final_clusters_fa,
                                                              self.__params.io.compressed_final_clusters_fa,
                                                              self.__params.io.tmp_compressed_clusters_fa,
-                                                             self.__params.io.tmp_compressed_clusters_map,
+                                                             self.__params.io.tmp_compressed_clusters_rcm,
                                                              self.__params.io.uncompressed_final_rcm,
                                                              self.__params.io.compressed_final_rcm)
         support.sys_call(command_line, self._log)
