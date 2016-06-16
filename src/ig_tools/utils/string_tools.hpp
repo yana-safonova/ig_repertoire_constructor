@@ -1,6 +1,7 @@
 #pragma once
 
 #include "include_me.hpp"
+#include <seqan/seq_io.h>
 
 inline vector<string> split(const string &s, char delim) {
 	vector<string> elems;
@@ -83,4 +84,13 @@ inline void StringToKHashes(string &s, size_t k, vector<size_t> &ans) {
         ans.push_back(khash);
     }
     return;
+}
+
+template<typename T>
+string seqan_string_to_string(const T &s) {
+    std::stringstream sstream;
+    sstream << s;
+    std::string result;
+    sstream >> result;
+    return result;
 }

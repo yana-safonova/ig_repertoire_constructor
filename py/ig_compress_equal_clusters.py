@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     home_directory = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     run_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
-    cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_rcm_file)
+    cmd_line = "%s -i %s -o %s -m %s -s true" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_rcm_file)
     os.system(cmd_line)
 
     input_read_id2mult = {}

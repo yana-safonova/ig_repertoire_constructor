@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_trie_compressor.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -30,6 +31,7 @@ int main(int argc, char **argv) {
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
     std::string rcm_file_name = "";
+    bool recalculate_abundance = false;
     try {
         // Declare a group of options that will be
         // allowed only on command line
@@ -44,6 +46,8 @@ int main(int argc, char **argv) {
              "name of the output file (FASTA|FASTQ)")
             ("rcm,m", po::value<std::string>(&rcm_file_name)->default_value(rcm_file_name),
              "file name for read-cluster map (rcm); leave empty to skip rcm file generation")
+            ("size,s", po::value<bool>(&recalculate_abundance)->default_value(recalculate_abundance),
+             "set to true if read ids contain abundance information to recalculate it")
             ;
 
         // Declare a group of options that will be
@@ -130,8 +134,19 @@ int main(int argc, char **argv) {
     readRecords(input_ids, input_reads, seqFileIn_input);
     INFO(length(input_reads) << " reads were extracted from " << input_file);
 
+    std::vector<size_t> abundances(input_ids.size(), 1);
+    if (recalculate_abundance) {
+        INFO("Parsing abundances from ids");
+        for (size_t read = 0; read < input_ids.size(); read ++) {
+            const std::string id_string = seqan_string_to_string(input_ids[read]);
+            const std::string delimiter = "___";
+            size_t pos = id_string.rfind(delimiter);
+            abundances[read] = stoull(id_string.substr(pos + delimiter.length()));
+        }
+    }
+
     INFO("Construction of trie starts");
-    Trie<seqan::Dna5> trie(input_reads);
+    Trie<seqan::Dna5> trie(input_reads, abundances);
 
     auto representative2abundance = trie.checkout(length(input_reads));
     std::vector<std::pair<size_t, size_t>> representatives(representative2abundance.cbegin(), representative2abundance.cend());
@@ -151,7 +166,7 @@ int main(int argc, char **argv) {
         count += abundance;
     }
 
-    assert(count == length(input_reads));
+    assert(recalculate_abundance || count == length(input_reads));
 
     INFO(representatives.size() << " compressed reads were written to " << output_file);
 

@@ -45,7 +45,7 @@ public:
     }
 
     template<typename T, typename Tf>
-    void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
+    void add(const T &s, size_t id, const Tf &toIndex, size_t abundance) {
         assert(!isCompressed());
 
         typename TrieNode::pointer_type p = this->root.get();
@@ -69,9 +69,9 @@ public:
     }
 
     template<typename T>
-    void add(const T &s, size_t id) {
+    void add(const T &s, size_t id, size_t abundance = 1) {
         auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
-        add(s, id, to_size_t);
+        add(s, id, to_size_t, abundance);
     }
 
     bool isCompressed() const {
