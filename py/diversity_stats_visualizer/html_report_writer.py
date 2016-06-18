@@ -137,17 +137,17 @@ def WriteSHMCharacteristics(html_writer, shm_df, images_dict):
     html_writer.WriteTable(col_names, row_names, table)
     if "aa_substitutions" in images_dict:
         html_writer.WriteH2("Heatmap of amino acid substitutions:")
-        html_writer.WriteImage(images_dict["aa_substitutions"], width=60)
+        html_writer.WriteImage(images_dict["aa_substitutions"], width = 60)
     if "general_v_mutations" in images_dict:
         html_writer.WriteH2("Distribution of SHM positions in V gene segment (above) and "
                             "distribution of SHM number in V gene segment per sequence (below):")
         html_writer.WriteImage(images_dict["general_v_mutations"], width = 80)
     if "synonymous_shms" in images_dict:
         html_writer.WriteH2("Distribution of synonymous SHM positions in V gene segment:")
-        html_writer.WriteImage(images_dict["synonymous_shms"], 60)
+        html_writer.WriteImage(images_dict["synonymous_shms"], width = 60)
     if "special_shms" in images_dict:
         html_writer.WriteH2("Distribution of special SHM (stop codon, deletions, insertions) positions in V gene segment:")
-        html_writer.WriteImage(images_dict["special_shms"], 70)
+        html_writer.WriteImage(images_dict["special_shms"], width = 70)
 
 #######################################################################################################################
 def ComputeLocusCDRCharacteristics(vj_df, locus):

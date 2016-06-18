@@ -108,6 +108,7 @@ def output_shms_pos(all_shms_pos, colors):
     plt.ylabel("# SHMs", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
+    plt.xlim(0, 1)
 
 def output_num_shms(num_all_shms, colors):
     nums = []
@@ -137,7 +138,7 @@ def visualize_v_mutations_stats(shms_df, output_fname):
             continue
         read_shms = shms_df[it]
         for shm in read_shms:
-            all_shms_pos[it.chain_type].append(float(shm.read_pos) / float(it.gene_len))
+            all_shms_pos[it.chain_type].append(float(shm.gene_pos) / float(it.gene_len))
         num_all_shms[it.chain_type].append(len(shms_df[it]))
     plt.figure(1, figsize=(9, 6))
     plt.subplot(211)
@@ -149,7 +150,7 @@ def visualize_v_mutations_stats(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of SHMs in V was written to " + output_fname + ".pdf and .png"
+    print "Distribution of SHM positions in V was written to " + output_fname + ".pdf and .png"
 
 def get_aa_list():
     return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
