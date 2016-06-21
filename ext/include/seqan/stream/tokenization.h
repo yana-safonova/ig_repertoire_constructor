@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -255,7 +255,7 @@ template <typename TTarget, typename TFwdIterator, typename TStopFunctor, typena
 inline void
 _readUntil(TTarget &target, TFwdIterator &iter, TStopFunctor &stopFunctor, TIgnoreFunctor &ignoreFunctor, TIChunk, TOChunk)
 {
-    typename Value<TFwdIterator>::Type val;
+    typename RemoveConst<typename Value<TFwdIterator>::Type>::Type val;
     for (; !atEnd(iter); ++iter)
     {
         if (SEQAN_UNLIKELY(stopFunctor(val = *iter)))

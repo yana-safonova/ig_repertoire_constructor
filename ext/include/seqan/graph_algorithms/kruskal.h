@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -84,9 +84,9 @@ struct LessPairI1_ : public std::unary_function<Pair<TWeight, TPair>, bool>
  *
  * @section Example
  *
- * @include demos/graph_algorithms/kruskals_algorithm.cpp
+ * @include demos/dox/graph_algorithms/kruskals_algorithm.cpp
  *
- * @include demos/graph_algorithms/kruskals_algorithm.cpp.stdout
+ * @include demos/dox/graph_algorithms/kruskals_algorithm.cpp.stdout
  *
  * @see primsAlgorithm
  */

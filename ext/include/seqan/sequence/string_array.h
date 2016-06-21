@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -178,6 +178,16 @@ struct IsContiguous<String<TValue, Array<CAPACITY> > >
     enum { VALUE = true };
 };
 
+// ----------------------------------------------------------------------------
+// Metafunction LENGTH
+// ----------------------------------------------------------------------------
+
+template <typename TValue, size_t CAPACITY>
+struct LENGTH<String<TValue, Array<CAPACITY> > >
+{
+    enum { VALUE = CAPACITY };
+};
+
 // ============================================================================
 // Functions
 // ============================================================================
@@ -244,6 +254,22 @@ reserve(String<TValue, Array<CAPACITY> > & me,
     return capacity(me);
 }
 
+// ----------------------------------------------------------------------------
+// Function -*allocateStorage()
+// ----------------------------------------------------------------------------
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline TValue *
+_allocateStorage(String<TValue, Array<CAPACITY> > & me, TSize /*capacity*/)
+{
+    return me.data_begin;
+}
+
+template <typename TValue, size_t CAPACITY, typename TSize>
+inline void
+_deallocateStorage(String<TValue, Array<CAPACITY> > & /*me*/, TValue * /*ptr*/, TSize /*capacity*/)
+{
+}
 
 // ----------------------------------------------------------------------------
 // Function _setLength()

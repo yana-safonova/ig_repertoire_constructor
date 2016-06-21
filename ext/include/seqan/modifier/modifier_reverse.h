@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -103,13 +103,13 @@ struct Cargo<ModifiedIterator<THost, ModReverse> >
 template <typename THost>
 struct Iterator<ModifiedString<THost, ModReverse>, Standard>
 {
-    typedef ModifiedIterator<typename Iterator<THost const, Rooted>::Type, ModReverse> Type;
+    typedef ModifiedIterator<typename Iterator<THost, Rooted>::Type, ModReverse> Type;
 };
 
 template <typename THost>
 struct Iterator<ModifiedString<THost, ModReverse> const, Standard>
 {
-    typedef ModifiedIterator<typename Iterator<THost const, Rooted>::Type, ModReverse> Type;
+    typedef ModifiedIterator<typename Iterator<THost, Rooted>::Type, ModReverse> Type;
 };
 
 // --------------------------------------------------------------------------
@@ -274,6 +274,16 @@ operator-=(ModifiedIterator<THost, ModReverse> & me, TDelta delta)
     }
     return me;
 }
+// --------------------------------------------------------------------------
+// Function operator-()                         [ModReverse ModifiedIterator]
+// --------------------------------------------------------------------------
+
+template <typename THost, typename TPos>
+inline ModifiedIterator<THost, ModReverse>
+operator-(ModifiedIterator<THost, ModReverse> me, TPos const i)
+{
+    return me -= i;
+}
 
 // --------------------------------------------------------------------------
 // Function operator-()                         [ModReverse ModifiedIterator]
@@ -304,6 +314,15 @@ position(ModifiedIterator<THost, ModReverse> const & me)
         return length(container(host(me)));
     else
         return length(container(host(me))) - 1 - position(host(me));
+}
+
+// rooted overload
+template <typename TContainer1, typename TIterator, typename TSpec, typename TContainer2>
+inline typename Position<ModifiedIterator<Iter<TContainer1, AdaptorIterator<TIterator, TSpec> >, ModReverse> const>::Type
+position(ModifiedIterator<Iter<TContainer1, AdaptorIterator<TIterator, TSpec> >, ModReverse> const & me,
+         TContainer2 const &)
+{
+    return position(me); // rooted has container
 }
 
 template <typename THost, typename TContainer>
@@ -543,7 +562,7 @@ reverse(TSequence & sequence, Tag<TParallelTag> parallelTag)
     Splitter<TPos> splitter(0, length(sequence) / 2, parallelTag);
 
     // disable multi-threading if sequence is too small
-    // __uint64 cast is for 8bit size types for which comparison would be always true
+    // uint64_t cast is for 8bit size types for which comparison would be always true
     if (IsSameType<Tag<TParallelTag>, Parallel>::VALUE && _reverseDoSequential(length(sequence)))
         resize(splitter, 1);
 
@@ -572,22 +591,15 @@ reverse(StringSet<TSequence, TSpec> & stringSet, Tag<TParallelTag>)
         reverse(stringSet[seqNo], Serial());
 }
 
-template <typename TValue>
-inline void
-reverse(std::list<TValue> & list)
-{
-    list.reverse();
-}
-
 template < typename TText >
-inline void
+inline SEQAN_FUNC_DISABLE_IF(Is<StlContainerConcept<TText> >)
 reverse(TText & text)
 {
     reverse(text, Parallel());
 }
 
 // const variants for segments/modifiers
-
+//NOTE(h-2): why do we remove constnes??
 template < typename TText >
 inline void
 reverse(TText const & text)
@@ -601,7 +613,6 @@ reverse(TText const & text, Tag<TParallelTag> parallelTag)
 {
     reverse(const_cast<TText &>(text), parallelTag);
 }
-
 
 // --------------------------------------------------------------------------
 // Function reverseString()

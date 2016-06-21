@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,7 @@ namespace seqan {
  * Since it was created from the 20-letter alphabet the clusters in SeqAn are
  * not identical (they contain more symbols). This is the clustering:
  * @code{.txt}
- *   'A', // A U X
+ *   'A', // A O U X
  *   'B', // B D E N Q Z
  *   'C', // C
  *   'F', // F W Y *
