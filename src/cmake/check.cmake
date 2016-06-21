@@ -4,7 +4,7 @@ enable_testing()
 add_custom_target(check_essential)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} -V)
 
-set(TEST_LIBRARIES pthread gtest_main gtest gmock)
+set(TEST_LIBRARIES pthread gmock_main gtest gmock)
 set(TEST_WORKING_DIRECTORY ${SPADES_MAIN_SRC_DIR}/..)
 set(TEST_COMMAND_ARGS --gtest_color=yes)
 
