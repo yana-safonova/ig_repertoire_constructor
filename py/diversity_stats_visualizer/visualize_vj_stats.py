@@ -53,7 +53,7 @@ class VJMatrix:
         #print sorted_v
         #print sorted_j
         min_v = min(len(sorted_v), 24)
-        min_j = min(len(sorted_j), 100)
+        min_j = min(len(sorted_j), 20)
         v_abun_large = [sorted_v[i][0] for i in range(0, min_v)] #if float(sorted_v[i][1]) / float(self.num_records) < .4]
         j_abun_large = [sorted_j[i][0] for i in range(0, min_j)] #if float(sorted_j[i][1]) / float(self.num_records) < .4]
         #print v_abun_large
@@ -93,7 +93,7 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     pp.close()
     plt.savefig(output_pdf + ".png")
     plt.clf()
-    print "VJ heatmap was written to " + output_pdf + ".pdf and .png"
+    print "VJ heatmap for the most abundant VJ conbinations was written to " + output_pdf + ".pdf and .png"
 
 ############################################################################
 
