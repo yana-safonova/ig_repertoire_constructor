@@ -8,9 +8,7 @@ import os.path
 import tempfile
 from collections import defaultdict
 
-
-from ig_remove_low_abundance_reads import smart_open
-
+from ig_report_supernodes import smart_open
 
 def parse_cluster_mult(id):
     import re
