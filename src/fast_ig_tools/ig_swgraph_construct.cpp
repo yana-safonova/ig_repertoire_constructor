@@ -32,6 +32,7 @@ struct SWGCParam {
     unsigned strategy = 3;
     unsigned max_indels = 0;
     bool export_abundances = false;
+    bool ignore_tails = true;
 };
 
 
@@ -63,6 +64,8 @@ bool parse_cmd_line_arguments(int argc, char **argv, SWGCParam &args) {
     config.add_options()
             ("word-size,k", po::value<unsigned>(&args.k)->default_value(args.k),
              "word size for k-mer index construction")
+            ("ignore-tails,T", po::value<bool>(&args.ignore_tails)->default_value(args.ignore_tails),
+             "wheather to ignore extra tail of the longest read during read comparison")
             ("strategy,S", po::value<unsigned>(&args.strategy)->default_value(args.strategy),
              "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple, etc)")
             ("tau", po::value<unsigned>(&args.tau)->default_value(args.tau),
@@ -214,8 +217,9 @@ int main(int argc, char **argv) {
 
     INFO("Strategy " << args.strategy << " was chosen");
 
-    auto dist_fun = [&args](const Dna5String &s1, const Dna5String &s2) -> unsigned {
-        auto lizard_tail = [](int l) -> int { return 0*l; };
+    auto dist_fun = [&args](const Dna5String& s1, const Dna5String& s2) -> unsigned {
+        auto delta = [&args](int l) -> int { return (bool)(l)*2 * args.tau; };
+        auto lizard_tail = [&args, &delta](int l) -> int { return args.ignore_tails ? 0 : -delta(l); };
         return -half_sw_banded(s1, s2, 0, -1, -1, lizard_tail, args.max_indels);
     };
 
