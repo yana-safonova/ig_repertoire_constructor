@@ -25,4 +25,5 @@ add_executable(analyze_intermed_clusters tools/analyze_intermed_clusters.cpp uti
 add_executable(reads_by_umi_stats stats/reads_by_umi_stats.cpp utils.cpp umi_utils.cpp stats/dist_distribution_stats.cpp)
 add_executable(print_graph_decomposition_stats stats/print_graph_decomposition_stats.cpp utils.cpp)
 
+add_executable(umi_naive naive/umi_naive.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp utils/io.cpp)
 add_executable(cluster_reads cluster_reads.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp utils/io.cpp)

@@ -6,7 +6,6 @@
 #include "utils.hpp"
 #include "umi_utils.hpp"
 #include "../graph_utils/graph_io.hpp"
-#include "disjoint_sets.hpp"
 #include "clusterer.hpp"
 
 namespace {
@@ -19,7 +18,7 @@ namespace {
         bool save_clusters;
     };
 
-    bool read_args(int argc, char **argv, Params& params) {
+    bool read_args(int argc, const char* const* argv, Params& params) {
         namespace po = boost::program_options;
         po::options_description cmdl_options("Is this needed?");
         cmdl_options.add_options()
@@ -89,7 +88,7 @@ namespace {
     }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, const char* const* argv) {
     segfault_handler sh;
     create_console_logger();
 

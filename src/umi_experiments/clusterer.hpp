@@ -20,6 +20,7 @@ namespace clusterer {
 
         ClusteringMode(DistFunction dist_, size_t threshold_) : dist(dist_), threshold(threshold_) { }
 
+        static const DistFunction hamming_dist;
         static const ClusteringMode hamming;
         static const ClusteringMode edit;
     };

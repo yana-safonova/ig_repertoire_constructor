@@ -2,6 +2,10 @@
 
 namespace clusterer {
 
+    const DistFunction ClusteringMode::hamming_dist = [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
+            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1,[](int) -> int { return 0; }, 0));
+    };
+
     const ClusteringMode ClusteringMode::hamming = ClusteringMode(
             [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
                 return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
