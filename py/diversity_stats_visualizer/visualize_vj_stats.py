@@ -81,19 +81,20 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     vj_matrix = VJMatrix(v_hits, j_hits)
     table, v, j = vj_matrix.CreateTable(100)
     mplt.rcParams.update({'font.size': 20})
-    f, ax = plt.subplots(figsize=(15, 15))
+    #plt.figure(figsize=(15, 15))
+    f, ax = plt.subplots(figsize=(10, 15))
     sns.heatmap(table, cmap = plt.cm.jet, xticklabels = v, yticklabels = j, ax = ax)
     ax.tick_params(labelsize = 16)
     x = [i + 0.0 for i in range(0, len(v))]
     y = [i + .5 for i in range(0, len(j))]
-    plt.xticks(x, v, rotation=60, fontsize=16)
-    plt.yticks(y, j, rotation='horizontal', fontsize=16)
+    plt.xticks(x, v, rotation=60, fontsize=14)
+    plt.yticks(y, j, rotation='horizontal', fontsize=14)
     pp = PdfPages(output_pdf + ".pdf")
     pp.savefig()
     pp.close()
     plt.savefig(output_pdf + ".png")
     plt.clf()
-    print "VJ heatmap for the most abundant VJ conbinations was written to " + output_pdf + ".pdf and .png"
+    print "VJ heatmap for the most abundant VJ combinations was written to " + output_pdf + ".pdf and .png"
 
 ############################################################################
 
@@ -113,7 +114,7 @@ def main(argv):
     print "== Output VJ statistics"
     visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap"))
     print ""
-    visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"))
+    #visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"))
     visualize_shm_stats.main(argv[2], output_dir)
 
 if __name__ == "__main__":

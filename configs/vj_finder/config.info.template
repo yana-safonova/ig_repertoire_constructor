@@ -11,7 +11,7 @@ io_params {
         germline_input {
             ig_dir                    IG
             tcr_dir                   TCR
-            germline_filenames_config germline_files_config.txt
+            germline_filenames_config ./configs/vj_finder/germline_files_config.txt
         }
     }
 

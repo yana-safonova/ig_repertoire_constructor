@@ -11,8 +11,8 @@ home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + 
 py_src = os.path.join(home_directory, "src/python_pipeline/")
 cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler/")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
-cdr_labeler_bin = "build/release/bin/cdr_labeler"
-run_cdr_labeler = "build/release/bin/./cdr_labeler"
+cdr_labeler_bin = os.path.join(home_directory, "build/release/bin/cdr_labeler")
+run_cdr_labeler = os.path.join(home_directory, "build/release/bin/./cdr_labeler")
 visualizer_dir = os.path.join(home_directory, "py/diversity_stats_visualizer")
 
 sys.path.append(py_src)
@@ -54,6 +54,7 @@ def SetOutputParams(params, log):
     if params.input_reads != test_reads and params.output_dir == "":
         log.info("ERROR: Output dir (-o) was not specified")
         sys.exit(1)
+    params.output_dir = os.path.abspath(params.output_dir)
     params.config_dir = os.path.join(params.output_dir, "configs")
     params.cdr_config_file = os.path.join(cdr_labeler_config_dir, "config.info")
     params.vj_finder_config_file = os.path.join(vj_finder_config_dir, "config.info")
@@ -76,16 +77,27 @@ def CopyConfigs(params, log):
     if os.path.exists(params.config_dir):
         shutil.rmtree(params.config_dir)
     os.mkdir(params.config_dir)
-    shutil.copytree(cdr_labeler_config_dir, os.path.join(params.config_dir, "cdr_labeler"))
-    shutil.copytree(vj_finder_config_dir, os.path.join(params.config_dir, "vj_finder"))
-    params.vj_finder_config_file = os.path.join(params.config_dir, "vj_finder/config.info")
+    params.cdr_labeler_config_dir = os.path.abspath(os.path.join(params.config_dir, "cdr_labeler"))
+    shutil.copytree(cdr_labeler_config_dir, params.cdr_labeler_config_dir)
+    params.vj_finder_config_dir = os.path.abspath(os.path.join(params.config_dir, "vj_finder"))
+    shutil.copytree(vj_finder_config_dir, params.vj_finder_config_dir)
+    params.vj_finder_config_file = os.path.join(params.vj_finder_config_dir, "config.info")
     if not os.path.exists(params.vj_finder_config_file):
         log.info("ERROR: Config file " + params.vj_finder_config_file + " was not found")
         sys.exit(1)
-    params.cdr_labeler_config_file = os.path.join(params.config_dir, "cdr_labeler/config.info")
+    params.cdr_labeler_config_file = os.path.join(params.cdr_labeler_config_dir, "config.info")
     if not os.path.exists(params.cdr_labeler_config_file):
         log.info("ERROR: Config file " + params.cdr_labeler_config_file + " was not found")
         sys.exit(1)
+
+def UpdateGermlineConfigFile(params, log):
+    lines = open(params.germline_config_file, "r").readlines()
+    fhandler = open(params.germline_config_file, "w")
+    fhandler.write(lines[0].strip() + "\n")
+    for i in range(1, len(lines)):
+        splits = lines[i].strip().split()
+        fhandler.write(splits[0] + "\t" + splits[1] + "\t" + os.path.join(home_directory, splits[2]) + "\n")
+    fhandler.close()
 
 def ModifyConfigFiles(params, log):
     cdr_param_dict = dict()
@@ -94,15 +106,24 @@ def ModifyConfigFiles(params, log):
     cdr_param_dict['vj_finder_config'] = params.vj_finder_config_file
     cdr_param_dict['num_threads'] = params.num_threads
     cdr_param_dict['domain_system'] = params.domain_system
+    # todo: refactor it!
+    cdr_param_dict['imgt_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_imgt.txt')
+    cdr_param_dict['kabat_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_kabat.txt')
+    cdr_param_dict['imgt_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_imgt.txt')
+    cdr_param_dict['kabat_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_kabat.txt')
     process_cfg.substitute_params(params.cdr_labeler_config_file, cdr_param_dict, log)
-
+    ######################
     vj_param_dict = dict()
     vj_param_dict['loci'] = params.loci
+    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/germline")
+    params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
+    vj_param_dict['germline_filenames_config'] = params.germline_config_file
     process_cfg.substitute_params(params.vj_finder_config_file, vj_param_dict, log)
 
 def PrepareConfigs(params, log):
     CopyConfigs(params, log)
     ModifyConfigFiles(params, log)
+    #UpdateGermlineConfigFile(params, log)
 
 ########################################################################################################################
 
