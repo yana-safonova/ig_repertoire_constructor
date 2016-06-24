@@ -38,18 +38,18 @@ def smart_open(filename, mode="r"):
             fh.close()
 
 
-def parse_abundance(s):
+def parse_size(s):
     import re
 
-    m = re.match(r"^.*abundance:(\d+)$", s)
+    m = re.match(r"^.*___size___(\d+)$", s)
 
     if m:
         g = m.groups()
         return int(g[0])
     else:
-        return 1
+        return None
 
-assert(parse_abundance("dsdsfsd_abundance:10") == 10)
+assert(parse_size("dsdsfsd___size___10") == 10)
 
 
 if __name__ == "__main__":
@@ -63,27 +63,26 @@ if __name__ == "__main__":
     parser.add_argument("--limit", "-l",
                         type=int,
                         default=5,
-                        help="abundance limit (default: %(default)s)")
+                        help="size limit (default: %(default)s)")
 
     args = parser.parse_args()
 
     print "Supernode reporter started..."
     print "Command line: %s" % " ".join(sys.argv)
 
-    result = []
-    with smart_open(args.input, "r") as fin:
+    input_size = output_size = 0
+    with smart_open(args.input, "r") as fin, smart_open(args.output, "w") as fout:
         for record in SeqIO.parse(fin, "fasta"):
-            abundance = parse_abundance(str(record.id))
-            if abundance >= args.limit:
-                old_id = str(record.id)
-                if "_abundance" in old_id:
-                    new_id = old_id.replace("_abundance:", "___size___")
-                else:
-                    new_id = "%s___size___%d" % (old_id, abundance)
-                record.id = record.name = record.description = new_id
-                result.append(record)
+            input_size += 1
+            id = str(record.description)
+            size = parse_size(id)
+            assert id is not None
+            if size >= args.limit:
+                SeqIO.write(record, fout, "fasta")
+                output_size += 1
 
-    with smart_open(args.output, "w") as fout:
-        SeqIO.write(result, fout, "fasta")
 
+    print "%d antibody clusters have abundance >= %d" % (output_size, args.limit)
+    print "%d lowly abundant antibody clusters will be discarded" % (input_size - output_size, )
+    print "Highly abundant clusters were written to " + args.output
     print "Supernode reporter done"

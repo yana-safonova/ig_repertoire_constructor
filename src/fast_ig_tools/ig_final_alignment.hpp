@@ -140,12 +140,12 @@ seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads) {
 template<typename T>
 std::vector<size_t> find_abundances(const std::vector<T> &ids) {
     std::vector<size_t> result(ids.size());
-    std::string pat = "_abundance:";
+    const std::string pat = "___size___";
 
     SEQAN_OMP_PRAGMA(parallel for)
     for (size_t i = 0; i < ids.size(); ++i) {
         std::string s = seqan::toCString(ids[i]);
-        size_t pos = s.find("_abundance:");
+        size_t pos = s.find(pat);
 
         if (pos == std::string::npos) {
             result[i] = 1;

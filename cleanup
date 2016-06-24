@@ -1,4 +1,4 @@
 rm *.pyc
-rm -rf igrepcon_test
+rm -rf igrec_test
 rm -rf ms_analyzer_test
 rm *~

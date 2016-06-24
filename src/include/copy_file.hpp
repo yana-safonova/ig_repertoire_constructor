@@ -4,6 +4,8 @@
 //* See file LICENSE for details.
 //****************************************************************************
 
+#pragma once
+
 #include "path_helper.hpp"
 #include <string>
 

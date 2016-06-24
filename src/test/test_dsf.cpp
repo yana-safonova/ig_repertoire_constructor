@@ -81,8 +81,3 @@ TEST_F(DsfTest, TestSupernodesAreSeparated) {
     }
     INFO("Each dense subgraph contains at most one supernode");
 }
-
-int main(int argc, char **argv) {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
-}

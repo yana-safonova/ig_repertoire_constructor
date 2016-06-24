@@ -1,3 +1,5 @@
+#pragma once
+
 #include "include_me.hpp"
 
 class GraphComponentMap {

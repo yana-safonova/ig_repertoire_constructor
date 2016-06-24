@@ -80,7 +80,7 @@ class BlockConfig:
     hit_bit_score = 13
     hit_subject_length = 14
 
-######### VDJ_rearrangement ######### 
+######### VDJ_rearrangement #########
 class VDJ_rearrangement:
     def __init__(self):
         self.chain_type = ""
@@ -98,17 +98,17 @@ class VDJ_rearrangement:
 
     def InitializeFromBlockLines(self, block_lines, block_aux_stats):
         if block_aux_stats.vdj_rearrange_ind == -1:
-            return 
+            return
         vdj_rearrange_str = block_lines[block_aux_stats.vdj_rearrange_ind].strip()
         splits = vdj_rearrange_str.split()
         self.chain_type = splits[len(splits) - BlockConfig.chain_type_ind]
         if self.chain_type == BlockConfig.heavy_chain_str:
             self.top_v_genes = sorted(splits[BlockConfig.top_v_genes_hc_ind].strip().split(','))
-            self.top_d_genes = sorted(splits[BlockConfig.top_d_genes_hc_ind].strip().split(',')) 
-            self.top_j_genes = sorted(splits[BlockConfig.top_j_genes_hc_ind].strip().split(',')) 
+            self.top_d_genes = sorted(splits[BlockConfig.top_d_genes_hc_ind].strip().split(','))
+            self.top_j_genes = sorted(splits[BlockConfig.top_j_genes_hc_ind].strip().split(','))
         else:
             self.top_v_genes = sorted(splits[BlockConfig.top_v_genes_lc_ind].strip().split(','))
-            self.top_j_genes = sorted(splits[BlockConfig.top_j_genes_lc_ind].strip().split(',')) 
+            self.top_j_genes = sorted(splits[BlockConfig.top_j_genes_lc_ind].strip().split(','))
         if splits[len(splits) - BlockConfig.strand_ind] == '-':
             self.direct_strand = False
 
@@ -143,12 +143,12 @@ class IgRegionStats:
         if splits[len(splits) - BlockConfig.to_ind] != "N/A":
             self.to_ind = int(splits[len(splits) - BlockConfig.to_ind]) - 1
         else:
-            return 
+            return
         # length
         if splits[len(splits) - BlockConfig.len_ind] != "N/A":
             self.length = int(splits[len(splits) - BlockConfig.len_ind])
         else:
-            return 
+            return
         # matches
         if splits[len(splits) - BlockConfig.match_ind] != "N/A":
             self.matches = int(splits[len(splits) - BlockConfig.match_ind])
@@ -171,7 +171,7 @@ class IgRegionStats:
             return
         self.valid = True
 
-######### FRs_CDRs ######### 
+######### FRs_CDRs #########
 class FRs_CDRs:
     def __init__(self):
         self.fr1 = IgRegionStats()
@@ -180,9 +180,9 @@ class FRs_CDRs:
         self.cdr2 = IgRegionStats()
         self.fr3 = IgRegionStats()
         self.cdr3 = IgRegionStats()
-    
+
     def __str__(self):
-        string = "FR1: " + str(self.fr1) + "\n" 
+        string = "FR1: " + str(self.fr1) + "\n"
         string += "CDR1: " + str(self.cdr1) + "\n"
         string += "FR2: " + str(self.fr2) + "\n"
         string += "CDR2: " + str(self.cdr2) + "\n"
@@ -191,7 +191,7 @@ class FRs_CDRs:
 
     def InitializeFromBlockLines(self, block_lines, block_aux_stats):
         if block_aux_stats.align_sum_start_ind == -1 or block_aux_stats.align_sum_end_ind == -1:
-            return 
+            return
         for i in range(block_aux_stats.align_sum_start_ind, block_aux_stats.align_sum_end_ind):
             line = block_lines[i].strip()
             if LineStartMatchWithPrefix(line, BlockConfig.fr1_str):
@@ -207,7 +207,7 @@ class FRs_CDRs:
             elif LineStartMatchWithPrefix(line, BlockConfig.cdr3_str):
                 self.cdr3.InitializeFromString(line)
 
-######### BlockAuxStats ######### 
+######### BlockAuxStats #########
 class BlockAuxStats:
     def __init__(self):
         self.vdj_rearrange_ind = -1
@@ -230,7 +230,7 @@ class BlockAuxStats:
         if self.hit_table_end_ind == -1:
             self.hit_table_start_ind = -1
 
-######### HitTableRow ######### 
+######### HitTableRow #########
 class HitTableRow:
     def __init__(self, hit_string):
         splits = hit_string.split()
@@ -248,10 +248,9 @@ class HitTableRow:
         self.s_end = int(splits[BlockConfig.hit_s_end]) - 1
         self.evalue = float(splits[BlockConfig.hit_evalue])
         self.bit_score = float(splits[BlockConfig.hit_bit_score])
-        self.subject_length = int(splits[BlockConfig.hit_subject_length])
 
     def __str__(self):
-        return self.type + ": " + self.query_id + ", " + self.subject_id + ", " + str(self.perc_identity) + ", " + str(self.align_length) + ", " + str(self.mismatches) + ", " + str(self.gap_open) + ", " + str(self.gaps) + ", " + str(self.q_start) + ", " + str(self.q_end) + ", " + str(self.s_start) + ", " + str(self.s_end) + ", " + str(self.evalue) + ", " + str(self.bit_score) + ", " + str(self.subject_length)
+        return self.type + ": " + self.query_id + ", " + self.subject_id + ", " + str(self.perc_identity) + ", " + str(self.align_length) + ", " + str(self.mismatches) + ", " + str(self.gap_open) + ", " + str(self.gaps) + ", " + str(self.q_start) + ", " + str(self.q_end) + ", " + str(self.s_start) + ", " + str(self.s_end) + ", " + str(self.evalue) + ", " + str(self.bit_score)
 
 class HitTable:
     def __init__(self):
@@ -265,7 +264,7 @@ class HitTable:
         res = ""
         for row in self.rows:
             res += str(row) + "\n"
-        return res 
+        return res
 
     def __len__(self):
         return len(self.rows)
@@ -282,13 +281,13 @@ class HitTable:
 
     def InitializeFromBlockLines(self, block_lines, block_aux_stats):
         if block_aux_stats.hit_table_start_ind == -1 or block_aux_stats.hit_table_end_ind == -1:
-            return 
+            return
         for i in range(block_aux_stats.hit_table_start_ind, block_aux_stats.hit_table_end_ind + 1):
             if block_lines[i][0] == "#":
                 return
             self.AddRow(block_lines[i].strip())
 
-######### IgblastBlock ######### 
+######### IgblastBlock #########
 class IgblastBlock:
     def __init__(self):
         self.query_name = ""
@@ -324,7 +323,7 @@ class IgblastBlock:
 
     def ProcessVDJJunction(self, block_lines, block_aux_stats):
         if block_aux_stats.vdj_junction_ind == -1:
-            return 
+            return
         self.vdj_junction = block_lines[block_aux_stats.vdj_junction_ind].strip()
 
     def ProcessAlignmentSummary(self, block_lines, block_aux_stats):
@@ -333,7 +332,7 @@ class IgblastBlock:
     def ProcessHitTable(self, block_lines, block_aux_stats):
         self.hit_table.InitializeFromBlockLines(block_lines, block_aux_stats)
 
-######### IgblastOutput ######### 
+######### IgblastOutput #########
 class IgblastOutput:
     def __init__(self):
         self.blocks = list()
@@ -353,16 +352,16 @@ def LineIsQuery(line):
     return LineStartMatchWithPrefix(line, BlockConfig.query_str)
 
 def LineIsDatabase(line):
-    return LineStartMatchWithPrefix(line, BlockConfig.db_str) 
+    return LineStartMatchWithPrefix(line, BlockConfig.db_str)
 
 def LineIsDomain(line):
     return LineStartMatchWithPrefix(line, BlockConfig.domain_str)
 
 def LineIsVDJRearrangeHeader(line):
-    return LineStartMatchWithPrefix(line, BlockConfig.vdj_rearrange_str) 
+    return LineStartMatchWithPrefix(line, BlockConfig.vdj_rearrange_str)
 
 def LineIsVDJJuncHeader(line):
-    return LineStartMatchWithPrefix(line, BlockConfig.vdj_juction_str) 
+    return LineStartMatchWithPrefix(line, BlockConfig.vdj_juction_str)
 
 def LineIsAlignSummaryHeader(line):
     return LineStartMatchWithPrefix(line, BlockConfig.alignment_str)
@@ -437,10 +436,10 @@ def CreateReadIndexMap(igblast_output):
         index += 1
     #print(igblast_output.read_index)
 
-def ParseIgBlastOutput(igblast_fname, log):
+def ParseIgBlastOutput(igblast_fname, log, openfnc=open):
     if not os.path.exists(igblast_fname):
         log.info("ERROR: IgBlast output file " + igblast_fname + " was not found")
-    output = open(igblast_fname, "r")
+    output = openfnc(igblast_fname, "r")
     lines = output.readlines()
     igblast_output = CreateIgblastOutput(lines)
     CreateReadIndexMap(igblast_output)
@@ -516,7 +515,7 @@ def VJGroupName(vgene, jgene):
 def GetVGroupForRead(igblast_output, genes_align_groups, read_name, log):
     if not read_name in igblast_output.read_index:
         log.info("ERROR: Read " + read_name + " was not found in IgBlast output")
-        sys.exit(1) 
+        sys.exit(1)
     index = igblast_output.read_index[read_name]
     block = igblast_output.blocks[index]
 
@@ -530,7 +529,7 @@ def GetVGroupForRead(igblast_output, genes_align_groups, read_name, log):
 def GetVJGroupForRead(igblast_output, genes_align_groups, read_name, log):
     if not read_name in igblast_output.read_index:
         log.info("ERROR: Read " + read_name + " was not found in IgBlast output")
-        sys.exit(1) 
+        sys.exit(1)
     index = igblast_output.read_index[read_name]
     block = igblast_output.blocks[index]
 

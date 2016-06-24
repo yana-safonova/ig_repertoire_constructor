@@ -62,11 +62,13 @@ ostream& operator<<(ostream &out, const SparseGraph &graph) {
 }
 
 SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++() {
+    VERIFY_MSG(current_ < graph_.Degree(vertex_), "Incrementing past-the-end iterator.");
     current_++;
     return *this;
 }
 
 SparseGraph::EdgesIterator SparseGraph::EdgesIterator::operator++(int) {
+    VERIFY_MSG(current_ < graph_.Degree(vertex_), "Incrementing past-the-end iterator.");
     const SparseGraph::EdgesIterator& itr = SparseGraph::EdgesIterator(*this);
     current_++;
     return itr;
@@ -83,6 +85,9 @@ bool SparseGraph::EdgesIterator::operator!=(SparseGraph::EdgesIterator other) co
 }
 
 size_t SparseGraph::EdgesIterator::operator*() const {
+    VERIFY_MSG(current_ < graph_.Degree(vertex_),
+               "Dereferencing out-of-bounds edge iterator. Vertex " << vertex_ << " (out of " << graph_.N()
+               << "), degree " << graph_.Degree(vertex_) << " current edge #" << current_);
     return graph_.get_edge_at_index(vertex_, current_);
 }
 

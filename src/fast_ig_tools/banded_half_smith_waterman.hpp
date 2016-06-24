@@ -1,5 +1,6 @@
 // half Smith-Waterman distance
 
+#pragma once
 
 // d("", "") = 0
 // d(s, "") = d("", s) = lizard_tail(|s|)

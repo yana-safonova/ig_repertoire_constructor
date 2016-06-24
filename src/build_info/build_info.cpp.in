@@ -1,0 +1,26 @@
+#include <build_info.hpp>
+
+namespace build_info {
+    const char *version = "@BUILD_INFO_VERSION@";
+
+    const char *git_hash = "@BUILD_INFO_GIT_HASH@";
+    const char *git_hash7 = "@BUILD_INFO_GIT_HASH7@";
+    const char *git_refspec = "@BUILD_INFO_GIT_REFSPEC@";
+    const char *git_describe = "@BUILD_INFO_GIT_DESCRIBE@";
+    const char *git_tag = "@BUILD_INFO_GIT_TAG@";
+
+    const char *cmake = "@BUILD_INFO_CMAKE@";
+    const char *system = "@BUILD_INFO_SYSTEM@";
+    const char *cpu = "@BUILD_INFO_CPU@";
+
+    const char *c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@";
+    const char *cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@";
+    const char *c_compiler = "@BUILD_INFO_C_COMPILER@";
+    const char *cxx_compiler = "@BUILD_INFO_CXX_COMPILER@";
+
+    const char *build_type = "@BUILD_INFO_BUILD_TYPE@";
+    const char *c_flags = "@BUILD_INFO_C_FLAGS@";
+    const char *cxx_flags = "@BUILD_INFO_CXX_FLAGS@";
+} // namespace build_info
+
+// vim: ts=4:sw=4
