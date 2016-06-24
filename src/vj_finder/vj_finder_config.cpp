@@ -28,7 +28,7 @@ namespace vj_finder {
         load(ip.input_reads, pt, "input_reads");
         load(ip.config_dir, pt, "config_dir");
         load(ip.germline_input, pt, "germline_input");
-        update_input_config(ip);
+        //update_input_config(ip);
     }
 
     void load(VJFinderConfig::IOParams::OutputParams::OutputDetails & od,

@@ -10,6 +10,7 @@
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
+        using namespace annotation_utils;
         INFO("CDR labeler starts");
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.vj_finder_config.io_params.output_params.output_details.fix_spaces)
@@ -47,8 +48,14 @@ namespace cdr_labeler {
         writer.OutputCompressedCDR3Fasta();
         writer.OutputVGeneAlignment();
         writer.OutputSHMs();
-        //INFO("Diversity analyser starts");
-        //DiversityAnalyser cdr_analyser(config_.output_params.cdr3_compressed_fasta);
+        INFO("Diversity analyser starts");
+        DiversityAnalyser cdr_analyser(annotated_clone_set);
+        INFO("Shannon index. CDR1: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR1) <<
+                ", CDR2: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR2) <<
+                ", CDR3: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR3));
+        INFO("Simpson index. CDR1: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR1) <<
+             ", CDR2: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR2) <<
+             ", CDR3: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR3));
         INFO("CDR labeler ends");
     }
 }

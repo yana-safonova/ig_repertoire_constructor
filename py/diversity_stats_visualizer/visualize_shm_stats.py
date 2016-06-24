@@ -108,7 +108,7 @@ def output_shms_pos(all_shms_pos, colors):
     plt.ylabel("# SHMs", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
-    plt.xlim(0, 1)
+    plt.xlim(0, .75)
 
 def output_num_shms(num_all_shms, colors):
     nums = []
@@ -138,7 +138,7 @@ def visualize_v_mutations_stats(shms_df, output_fname):
             continue
         read_shms = shms_df[it]
         for shm in read_shms:
-            all_shms_pos[it.chain_type].append(float(shm.gene_pos) / float(it.gene_len))
+            all_shms_pos[it.chain_type].append(float(shm.read_pos) / float(it.read_len))
         num_all_shms[it.chain_type].append(len(shms_df[it]))
     plt.figure(1, figsize=(9, 6))
     plt.subplot(211)
@@ -191,13 +191,42 @@ def visualize_aa_substitution_matrix(shms_df, output_fname):
     plt.clf()
     print "Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png"
 
+def nucl_is_valid(nucl):
+    return nucl != 'N'
+
+def visualize_nucl_substitution_matrix(shms_df, output_fname):
+    nucl_list = ['A', 'C', 'G', 'T']
+    nucl_matrix = []
+    for n in nucl_list:
+        nucl_matrix.append([0] * len(nucl_list))
+    for it in shms_df:
+        read_shms = shms_df[it]
+        for shm in read_shms:
+            if not shm.is_substitution():
+                continue
+            if nucl_is_valid(shm.read_nucl) and nucl_is_valid(shm.gene_nucl):
+                nucl_matrix[nucl_list.index(shm.read_nucl)][nucl_list.index(shm.gene_nucl)] += 1
+    fig, ax = plt.subplots()
+    sns.heatmap(nucl_matrix, cmap = plt.cm.Blues, xticklabels = nucl_list, yticklabels = nucl_list, square = True, ax = ax)
+    ax.tick_params(labelsize = 14)
+    plt.xticks(fontsize = 12)
+    plt.yticks(fontsize = 12, rotation='horizontal')
+    plt.xlabel("From", fontsize = 14)
+    plt.ylabel("To", fontsize = 14, rotation='horizontal')
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname + ".png")
+    pp.close()
+    plt.clf()
+    print "Nucleotide substitution heatmap was written to " + output_fname + ".pdf and .png"
+
 def output_synonymous_shms(synonymous_pos, output_fname):
     if len(synonymous_pos) < 100:
         return
     plt.hist(synonymous_pos, color = 'r', bins = 100)
     plt.xlabel("Relative position on V segment", fontsize = 14)
     plt.ylabel("#SHMs", fontsize = 14)
-    plt.xlim(0, 1)
+    plt.xlim(0, .75)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12)
     pp = PdfPages(output_fname + ".pdf")
@@ -217,7 +246,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
         for shm in read_shms:
             if not it.is_variable():
                 continue
-            relative_pos = float(shm.gene_pos) / float(it.gene_len)
+            relative_pos = float(shm.read_pos) / float(it.read_len)
             if shm.synonymous:
                 synonymous_pos.append(relative_pos)
             elif shm.to_stop_codon:
@@ -250,7 +279,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
         return
     #sns.distplot(insertion_pos, hist = False, label = "Insertion SHMs", color = 'orange')
     plt.hist(pos, color = colors, label= labels, bins = 100 / len(pos))
-    plt.xlim(0, 1)
+    plt.xlim(0, .75)
     plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 12, bbox_to_anchor=(0.5, -0.07))
     plt.xlabel("Relative position on V segment", fontsize = 14)
     plt.ylabel("# SHMs", fontsize = 14)
@@ -269,6 +298,7 @@ def main(shm_df_fname, output_dir):
     print str(len(shm_df)) + " records were extracted from " + shm_df_fname
     visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"))
     visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"))
+    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"))
     visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
                                     os.path.join(output_dir, "special_shms_positions"))
 

@@ -32,10 +32,10 @@ namespace cdr_labeler {
 
     class CompressedCDRSet {
         annotation_utils::StructuralRegion region_;
-        const vj_finder::VJAlignmentInfo &alignment_info_;
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
 
         std::unordered_map<CDRKey, size_t, CDRKeyHasher> compressed_cdrs_map_;
+        size_t sum_frequencies_;
 
     public:
         typedef std::pair<CDRKey, size_t> CompressedCDR;
@@ -47,9 +47,7 @@ namespace cdr_labeler {
 
     public:
         CompressedCDRSet(annotation_utils::StructuralRegion region,
-                         const vj_finder::VJAlignmentInfo &alignment_info,
                          const annotation_utils::CDRAnnotatedCloneSet &clone_set) : region_(region),
-                                                                                    alignment_info_(alignment_info),
                                                                                     clone_set_(clone_set) {
             Initialize();
         }
@@ -61,5 +59,7 @@ namespace cdr_labeler {
         CompressedCDRConstIterator cend() const { return compressed_cdrs_.cend(); }
 
         size_t size() const { return compressed_cdrs_.size(); }
+
+        size_t Sum() const { return sum_frequencies_; }
     };
 }

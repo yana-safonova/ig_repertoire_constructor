@@ -28,8 +28,8 @@ namespace cdr_labeler {
             annotation_utils::AnnotatedClone cdr_clone = *it;
             auto vj_hit = alignment_info_.GetVJHitsByRead(cdr_clone.Read());
             out << cdr_clone.Read().name << "\t" << cdr_clone.ChainType() << "\t" <<
-            vj_hit.GetVHitByIndex(0).ImmuneGene().name() << "\t" <<
-            vj_hit.GetJHitByIndex(0).ImmuneGene().name() << "\t" << cdr_clone.AA() << "\t" <<
+            it->VAlignment().subject().name() << "\t" <<
+            it->JAlignment().subject().name() << "\t" << cdr_clone.AA() << "\t" <<
             cdr_clone.HasStopCodon() << "\t" << cdr_clone.InFrame() << "\t" << cdr_clone.Productive() << "\t";
             OutputCloneRegion(out, cdr_clone, annotation_utils::StructuralRegion::CDR1);
             out << "\t";
@@ -78,7 +78,7 @@ namespace cdr_labeler {
     }
 
     void CDRLabelingWriter::OutputCompressedCDR3Fasta() const {
-        CompressedCDRSet compressed_cdr3s(annotation_utils::StructuralRegion::CDR3, alignment_info_, clone_set_);
+        CompressedCDRSet compressed_cdr3s(annotation_utils::StructuralRegion::CDR3, clone_set_);
         seqan::SeqFileOut out(output_config_.cdr3_compressed_fasta.c_str());
         std::vector<seqan::CharString> headers;
         std::vector<seqan::Dna5String> regions;
@@ -98,10 +98,14 @@ namespace cdr_labeler {
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
             auto subject_row = seqan::row(it->VAlignment().Alignment(), 0);
             auto query_row = seqan::row(it->VAlignment().Alignment(), 1);
-            out << ">INDEX:" << index << "|READ:" << it->Read().name << std::endl;
+            out << ">INDEX:" << index << "|READ:" << it->Read().name << "|START_POS:" <<
+                    it->VAlignment().StartSubjectPosition() << "|END_POS:" <<
+                    it->VAlignment().EndSubjectPosition() << std::endl;
             out << query_row << std::endl;
             out << ">INDEX:" << index << "|GENE:" << it->VAlignment().subject().name() <<
-                    "|CHAIN_TYPE:" << it->VAlignment().subject().Chain() << std::endl;
+                    "|START_POS:" << it->VAlignment().StartQueryPosition() << "|END_POS:" <<
+                    it->VAlignment().EndQueryPosition() << "|CHAIN_TYPE:" <<
+                    it->VAlignment().subject().Chain() << std::endl;
             out << subject_row << std::endl;
             index++;
         }

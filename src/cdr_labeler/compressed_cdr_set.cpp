@@ -5,10 +5,9 @@ namespace cdr_labeler {
         for(auto clone_it = clone_set_.cbegin(); clone_it != clone_set_.cend(); clone_it++) {
             if(clone_it->RegionIsEmpty(region_))
                 continue;
-            auto vj_hits = alignment_info_.GetVJHitsByRead(clone_it->Read());
             size_t index = compressed_cdrs_.size();
-            CDRKey cdr_key(vj_hits.GetVHitByIndex(0).ImmuneGene().name(),
-                           vj_hits.GetJHitByIndex(0).ImmuneGene().name(),
+            CDRKey cdr_key(clone_it->VAlignment().subject().name(),
+                           clone_it->JAlignment().subject().name(),
                            clone_it->GetRegionString(region_), index);
             if(compressed_cdrs_map_.find(cdr_key) == compressed_cdrs_map_.end()) {
                 compressed_cdrs_.push_back(std::make_pair(cdr_key, 1));
@@ -17,6 +16,7 @@ namespace cdr_labeler {
             else {
                 index = compressed_cdrs_map_.at(cdr_key);
                 compressed_cdrs_[index].second++;
+                sum_frequencies_++;
             }
         }
         size_t max_abundance = 0;
