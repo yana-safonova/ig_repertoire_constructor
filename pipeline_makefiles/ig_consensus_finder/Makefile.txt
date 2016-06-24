@@ -1,22 +1,23 @@
 include ../Makefile_vars
 
-DENSE_SUBGRAPH_FINDER_PATH = ../dense_subgraph_finder
+COMPRESSED_INTER_PATH = ../intermediate_ig_trie_compressor
+DSF_PATH = ../dense_subgraph_finder
 
 all:
 	$(MAKE) -C $(DENSE_SUBGRAPH_FINDER_PATH)
 	$(MAKE) uncompressed.fa
 
-uncompressed.fa: $(BIN)/ig_consensus_finder $(DENSE_SUBGRAPH_FINDER_PATH)/$(DENSE_SUBGRAPHS)
+final_repertoire_uncompressed.fa, final_repertoire_uncompressed.rcm: $(BIN)/ig_consensus_finder $(DENSE_SUBGRAPH_FINDER_PATH)/$(DENSE_SUBGRAPHS)
 	python $(PY_SRC)/rcm_recoverer.py \
-	--ids-file ../umi_clustering/$(INTER_REP) \
-
-
+	--ids-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+	--compressed-map $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP_RCM) \
+	--cliques-map $(DSF_PATH)/$(DENSE_SUBGRAPHS) \
+	--output final_repertoire_uncompressed.rcm
  	$(BIN)/ig_consensus_finder \
- 	--input-file $(DENSE_SUBGRAPH_FINDER_PATH)/$(DENSE_SUBGRAPHS) \
- 	--graph $(SW_GRAPH) \
- 	--output . \
- 	--threads %THREADS \
- 	--min-snode-size %MIN_SUPER_NODE_SIZE
+ 	--input-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+ 	--rcm-file final_repertoire_uncompressed.rcm \
+ 	--output-file final_repertoire_uncompressed.fa \
+ 	--hamming
 
 clean:
 	$(RM) $(DENSE_SUBGRAPHS)
