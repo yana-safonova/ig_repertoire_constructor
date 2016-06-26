@@ -229,13 +229,94 @@ def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", lo
                      log=log)
 
 
-class RepertoireMatch:
+class MultToMultData:
+
+    def __init__(self, constructed_abundances, constructed_sum, tau=0, reversed=False):
+        import numpy as np
+
+        constructed2reference = zip(constructed_abundances, constructed_sum[:, tau]) if not reversed else zip(constructed_sum[:, tau], constructed_abundances)
+        constructed2reference = [x for x in constructed2reference if min(x[0], x[1]) > 0]
+        constructed2reference.sort(key=lambda x: x[1])
+        constructed_cluster_sizes, reference_cluster_sizes = map(lambda x: np.array(x, dtype=float), zip(*constructed2reference))
+
+        rates = constructed_cluster_sizes / reference_cluster_sizes
+
+        from cumulative_median import reversed_cumulative_median, reversed_cumulative_mean, unique
+        median_rates = reversed_cumulative_median(rates)
+        mean_rates = reversed_cumulative_mean(rates)
+
+        # make theoretical abundances unique
+        mean_rates_unique = unique(reference_cluster_sizes, mean_rates)
+        median_rates_unique = unique(reference_cluster_sizes, median_rates)
+        reference_cluster_sizes_unique = unique(reference_cluster_sizes)
+
+        self.mean_rates_unique = np.array(mean_rates_unique)
+        self.median_rates_unique = np.array(median_rates_unique)
+        self.reference_cluster_sizes_unique = np.array(reference_cluster_sizes_unique)
+
+        self.reference_cluster_sizes = reference_cluster_sizes
+        self.constructed_cluster_sizes = constructed_cluster_sizes
+
+    def median_rate(self, size=1):
+        from bisect import bisect_left
+
+        i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
+        assert i < len(self.reference_cluster_sizes_unique)
+        return self.median_rates_unique[i]
+
+    def mean_rate(self, size=1):
+        from bisect import bisect_left
+
+        i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
+        assert i < len(self.reference_cluster_sizes_unique)
+        return self.mean_rates_unique[i]
+
+    def plot_reference_vs_constructed_size(self, out, title="", format=None):
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        uplimit = max(self.reference_cluster_sizes)
+
+        def round_up(number, ndigits=0):
+            from math import ceil
+            p = 10 ** ndigits
+            return ceil(number * p) / p
+        uplimit = round_up(uplimit, -2)
+
+        g = sns.JointGrid(x=self.reference_cluster_sizes,
+                          y=self.constructed_cluster_sizes,
+                          xlim=(0, uplimit), ylim=(0, uplimit),
+                          ratio=5).set_axis_labels("Reference cluster size", "Constructed cluster size")
+
+        g = g.plot_joint(sns.plt.scatter)
+
+        g.plot_marginals(sns.distplot, kde=True, color=".5")
+
+        ax = g.ax_joint
+        ax.plot([0, uplimit], [0, uplimit], "--", linewidth=0.5, color="black", label="$y = x$")
+        # ax.plot([0, uplimit], [0, uplimit * self.median_rate(5)])
+
+        # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
+        ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
+                label="rate median smoothing")
+
+        g.ax_joint.collections[0].set_label("clusters")
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels, loc=2)
+
+        if title:
+            plt.title(title)
+
+        save_plot(out, format=format)
+        plt.close()
+
+
+class Reperoire2RepertoireMatching:
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
-                 tmp_file=None, max_tau=4,
-                 **kwargs):
-        # TODO make it constructor
+                 tmp_file=None, max_tau=4, log=None):
         if tmp_file is None:
             import tempfile
             tmp_file = tempfile.mkstemp(suffix=".graph", prefix="aimquast_")[1]
@@ -243,167 +324,164 @@ class RepertoireMatch:
         run_ig_matcher2(reference_repertoire, constructed_repertoire,
                         tau=max_tau,
                         output_file=tmp_file, log=log, prefix="")
-        ref_mul = get_clusters_sizes(reference_repertoire)
+        self.reference_abundances = get_clusters_sizes(reference_repertoire)
 
-        self.__make(tmp_file,
-                    reference_abundances=ref_mul,
-                    max_tau=max_tau,
-                    **kwargs)
+        ref_len = len(self.reference_abundances)
 
-        import os
-        os.remove(tmp_file)
+        self.constructed_abundances = []
 
-    def __make(self,
-               filename, reference_abundances,
-               max_tau=4,
-               reference_trash_cutoff=-float("inf"),
-               reference_trust_cutoff=float("inf")):
-        import numpy as np
-
-        assert reference_trash_cutoff <= reference_trust_cutoff
-
-        # if reference_abundances is None:
-        #     reference_abundances = [10005000] * ref_len  # TODO USe a proper infinity
-        #     # TODO Use a proper bipartite graph format
-        #
-        ref_len = len(reference_abundances)
-
-        constructed_abundances = []
-
-        with smart_open(filename) as f:
+        with smart_open(tmp_file) as f:
             header = f.next()
-            V, E, FORMAT = map(int, header.strip().split())
+            cons_len, E, FORMAT = map(int, header.strip().split())
 
-            reference = np.full((ref_len, max_tau + 1), 0, dtype=int)
-            constructed = np.full((V, max_tau + 1), 0, dtype=int)
-            reference_sum = np.full((ref_len, max_tau + 1), 0, dtype=int)
-            constructed_sum = np.full((V, max_tau + 1), 0, dtype=int)
+            self.constructed2reference = [[] for _ in xrange(cons_len)]
+            self.reference2constructed = [[] for _ in xrange(ref_len)]
 
             for i, l in enumerate(f):
                 l = l.strip().split()
                 l = map(int, l)
                 constructed_abundance = l[0]
-                constructed_abundances.append(constructed_abundance)
+                self.constructed_abundances.append(constructed_abundance)
                 l = l[1:]
                 neibs = [n - 1 for n in l[0::2]]
                 dists = l[1::2]
 
                 for j, d in zip(neibs, dists):
-                    reference_abundance = reference_abundances[j]
+                    self.constructed2reference[i].append((j, d))
+                    self.reference2constructed[j].append((i, d))
 
-                    reference_sum[j, d] = reference_sum[j, d] + constructed_abundance
-                    constructed_sum[i, d] = constructed_sum[i, d] + reference_abundance
+        import os
+        os.remove(tmp_file)
 
-                    if reference_abundance >= reference_trust_cutoff:
-                        reference_abundance = float("inf")
-                    if reference_abundance < reference_trash_cutoff:
-                        reference_abundance = -float("inf")
+    def plot_multiplicity_distributions(self,
+                                        out,
+                                        bins=25,
+                                        ylog=True,
+                                        format=format):
+        import numpy as np
+        import matplotlib.pyplot as plt
 
-                    min_abundance = min(constructed_abundance, reference_abundance)
-                    reference[j, d] = max(reference[j, d], min_abundance)
-                    constructed[i, d] = max(constructed[i, d], min_abundance)
+        f, ax = initialize_plot()
+
+        _, bins = np.histogram(self.constructed_abundances + self.reference_abundances,
+                               bins=bins)
+
+        constructed_h, _ = np.histogram(self.constructed_abundances,
+                                        bins=bins)
+        reference_h, _ = np.histogram(self.reference_abundances,
+                                      bins=bins)
+
+        width = (bins[1] - bins[0]) / 3
+        delta_outer = -width / 7
+        delta_inner = width / 10
+
+        if ylog:
+            plt.yscale("log", nonposy="clip")
+
+        ax.bar(bins[:-1] - width + delta_outer,
+               reference_h,
+               width=width - delta_outer - delta_inner,
+               facecolor='cornflowerblue',
+               label="Reference abundancies")
+
+        ax.bar(bins[:-1] + delta_inner,
+               constructed_h,
+               width=width - delta_outer - delta_inner,
+               facecolor='seagreen',
+               label="Constructed abundancies")
+
+        # plt.xticks(range(max_val + 1), labels)
+        xlim = ax.get_xlim()
+        xlim = (-width, xlim[1])
+        ax.set_xlim(xlim)
+
+        handles, labels = ax.get_legend_handles_labels()
+        plt.legend(handles, labels)
+
+        save_plot(out, format=format)
+        plt.close()
+
+
+class RepertoireMatch:
+
+    def __init__(self,
+                 constructed_repertoire, reference_repertoire,
+                 tmp_file=None, max_tau=4,
+                 reference_trash_cutoff=-float("inf"),
+                 reference_trust_cutoff=float("inf"),
+                 log=None):
+        import numpy as np
+
+        self.rep2rep = Reperoire2RepertoireMatching(constructed_repertoire=constructed_repertoire,
+                                                    reference_repertoire=reference_repertoire,
+                                                    max_tau=max_tau,
+                                                    log=log)
+
+        assert reference_trash_cutoff <= reference_trust_cutoff
+
+        ref_len = len(self.rep2rep.reference_abundances)
+        cons_len = len(self.rep2rep.constructed_abundances)
+
+        reference = np.full((ref_len, max_tau + 1), 0, dtype=int)
+        constructed = np.full((cons_len, max_tau + 1), 0, dtype=int)
+        reference_sum = np.full((ref_len, max_tau + 1), 0, dtype=int)
+        constructed_sum = np.full((cons_len, max_tau + 1), 0, dtype=int)
+
+        for i, pairs in enumerate(self.rep2rep.constructed2reference):
+            for j, d in pairs:
+                reference_abundance = self.rep2rep.reference_abundances[j]
+                constructed_abundance = self.rep2rep.constructed_abundances[i]
+
+                reference_sum[j, d] = reference_sum[j, d] + constructed_abundance
+                constructed_sum[i, d] = constructed_sum[i, d] + reference_abundance
+
+                if reference_abundance >= reference_trust_cutoff:
+                    reference_abundance = float("inf")
+                if reference_abundance < reference_trash_cutoff:
+                    reference_abundance = -float("inf")
+
+                min_abundance = min(constructed_abundance, reference_abundance)
+                reference[j, d] = max(reference[j, d], min_abundance)
+                constructed[i, d] = max(constructed[i, d], min_abundance)
 
         for d in xrange(1, max_tau + 1):
             for j in xrange(ref_len):
                 reference[j, d] = max(reference[j, d], reference[j, d - 1])
                 reference_sum[j, d] = reference_sum[j, d] + reference_sum[j, d - 1]
 
-            for i in xrange(V):
+            for i in xrange(cons_len):
                 constructed[i, d] = max(constructed[i, d], constructed[i, d - 1])
                 constructed_sum[i, d] = constructed_sum[i, d] + constructed_sum[i, d - 1]
 
-        # print constructed
-        # print reference
-
-        # one-to-many
-        # for various tau
-        # constructed2reference = zip(constructed_abundances, constructed_sum[:, TAU])
-        # # ADD unmatched references!!!!!
-        # unmathed_references = np.array(reference_abundances)[reference_sum[:, TAU] == 0]
-        # constructed2reference += zip([0] * len(unmathed_references), unmathed_references)
-
-        class MultToMultData:
-
-            def __init__(self, TAU, constructed_abundances, constructed_sum):
-                constructed2reference = zip(constructed_abundances, constructed_sum[:, TAU])
-                constructed2reference = [x for x in constructed2reference if x[1] > 0]
-                constructed2reference.sort(key=lambda x: x[1])
-                constructed_cluster_sizes, reference_cluster_sizes = map(lambda x: np.array(x, dtype=float), zip(*constructed2reference))
-
-                rates = constructed_cluster_sizes / reference_cluster_sizes
-                # print "RATES"
-                # print rates
-
-                from cumulative_median import reversed_cumulative_median, reversed_cumulative_mean, unique
-                median_rates = reversed_cumulative_median(rates)
-                mean_rates = reversed_cumulative_mean(rates)
-                # print median_rates, mean_rates
-
-                # make theoretical abundances unique
-                mean_rates_unique = unique(reference_cluster_sizes, mean_rates)
-                median_rates_unique = unique(reference_cluster_sizes, median_rates)
-                reference_cluster_sizes_unique = unique(reference_cluster_sizes)
-
-                def median_rate(size=1):
-                    from bisect import bisect_left
-
-                    i = bisect_left(reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-                    assert i < len(reference_cluster_sizes_unique)
-                    return median_rates_unique[i]
-
-                def mean_rate(size=1):
-                    from bisect import bisect_left
-
-                    i = bisect_left(reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-                    assert i < len(reference_cluster_sizes_unique)
-                    return mean_rates_unique[i]
-
-                self.mean_rates_unique = np.array(mean_rates_unique)
-                self.median_rates_unique = np.array(median_rates_unique)
-                self.reference_cluster_sizes_unique = np.array(reference_cluster_sizes_unique)
-
-                self.mean_rate = mean_rate
-                self.median_rate = median_rate
-                self.reference_cluster_sizes = reference_cluster_sizes
-                self.constructed_cluster_sizes = constructed_cluster_sizes
-
-        M2MDATA = MultToMultData(0, constructed_abundances, constructed_sum)
-
-        ##################
-
-        ##################
+        self.M2MDATA = MultToMultData(self.rep2rep.reference_abundances, reference_sum, reversed=True)
 
         self.sensitivity_vectors = []
         for col in reference.T:
-            a = col[:]  # TODO try to simplify
-            a.sort()
-            self.sensitivity_vectors.append(a)
+            self.sensitivity_vectors.append(sorted(col))
 
         self.precision_vectors = []
         for col in constructed.T:
-            a = col[:]
-            a.sort()
-            self.precision_vectors.append(a)
+            self.precision_vectors.append(sorted(col))
 
-        constructed_abundances.sort()
-        self.constructed_abundances = constructed_abundances
-        reference_abundances.sort()
-        self.reference_abundances = reference_abundances
-
-        # print sensitivity_vectors
-        # print precision_vectors
+        self.constructed_abundances = sorted(self.rep2rep.constructed_abundances)
+        self.reference_abundances = sorted(self.rep2rep.reference_abundances)
 
         self.max_tau = max_tau
-
         self.reference_trust_cutoff = reference_trust_cutoff
         self.reference_trash_cutoff = reference_trash_cutoff
-        self.M2MDATA = M2MDATA
+
+    def plot_reference_vs_constructed_size(self, *args, **kwargs):
+        return self.M2MDATA.plot_reference_vs_constructed_size(*args, **kwargs)
+
+    def plot_multiplicity_distributions(self, *args, **kwargs):
+        return self.rep2rep.plot_multiplicity_distributions(*args, **kwargs)
 
     def reference_size(self, size=1):
         from cumulative_median import how_many_greater_or_equal
 
         size = min(size, self.reference_trust_cutoff)
-        size = max(size, self.reference_trash_cutoff)  # CHECK!!!!!
+        size = max(size, self.reference_trash_cutoff)
+
         assert size > 0
         return how_many_greater_or_equal(self.reference_abundances, size)
 
@@ -417,6 +495,8 @@ class RepertoireMatch:
         from cumulative_median import how_many_greater_or_equal
 
         assert size > 0
+        assert 0 <= tau <= self.max_tau
+
         return how_many_greater_or_equal(self.sensitivity_vectors[tau], size)
 
     def sensitivity(self, size=1, tau=0):
@@ -424,15 +504,14 @@ class RepertoireMatch:
         identified = self.ref2cons(size, tau)
 
         assert(all >= identified)
-        if all == 0:
-            return 0.
-        else:
-            return float(identified) / float(all)
+        return float(identified) / float(all) if all > 0 else 0.
 
     def cons2ref(self, size=1, tau=0):
         from cumulative_median import how_many_greater_or_equal
 
         assert size > 0
+        assert 0 <= tau <= self.max_tau
+
         return how_many_greater_or_equal(self.precision_vectors[tau], size)
 
     def precision(self, size=1, tau=0):
@@ -440,10 +519,7 @@ class RepertoireMatch:
         true = self.cons2ref(size, tau)
 
         assert(all >= true)
-        if all == 0:
-            return 0.
-        else:
-            return float(true) / float(all)
+        return float(true) / float(all) if all > 0 else 0.
 
     def fdr(self, size=1, tau=0):
         return 1 - self.precision(size, tau)
@@ -477,54 +553,11 @@ class RepertoireMatch:
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
 
-    def plot_reference_vs_constructed_size(self, out, title="", format=None):
-        import seaborn as sns
-
-        f, ax = initialize_plot()
-
-        M2MDATA = self.M2MDATA
-        uplimit = max(M2MDATA.reference_cluster_sizes)
-
-        def round_up(number, ndigits=0):
-            from math import ceil
-            p = 10 ** ndigits
-            return ceil(number * p) / p
-        uplimit = round_up(uplimit, -2)
-
-        g = sns.JointGrid(x=M2MDATA.reference_cluster_sizes,
-                          y=M2MDATA.constructed_cluster_sizes,
-                          xlim=(0, uplimit), ylim=(0, uplimit),
-                          ratio=5).set_axis_labels("Reference cluster size", "Constructed cluster size")
-
-        # g = g.plot_joint(sns.plt.scatter, color="m")
-        g = g.plot_joint(sns.plt.scatter)
-
-        g.plot_marginals(sns.distplot, kde=True, color=".5")
-
-        ax = g.ax_joint
-        ax.plot([0, uplimit], [0, uplimit], "--", linewidth=0.5, color="black", label="$y = x$")
-        # ax.plot([0, uplimit], [0, uplimit * M2MDATA.median_rate(5)])
-
-        # ax.plot(M2MDATA.reference_cluster_sizes_unique, M2MDATA.reference_cluster_sizes_unique * M2MDATA.mean_rates_unique)
-        ax.plot(M2MDATA.reference_cluster_sizes_unique, M2MDATA.reference_cluster_sizes_unique * M2MDATA.median_rates_unique,
-                label="rate median smoothing")
-
-        # TODO Add legend
-        g.ax_joint.collections[0].set_label("clusters")
-        handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles, labels, loc=2)
-
-        if title:
-            plt.title(title)
-
-        save_plot(out, format=format)
-        plt.close()
-
-    def get_measure_for_plotting(self,
-                                 size=1,
-                                 what="sensitivity",
-                                 differential=False,
-                                 max_tau=4):
+    def __get_measure_for_plotting(self,
+                                   size=1,
+                                   what="sensitivity",
+                                   differential=False,
+                                   max_tau=4):
         assert what in ["sensitivity", "fdr", "precision", "recall", "ref2cons", "cons2ref"]
 
         max_tau = min(max_tau, self.max_tau)
@@ -568,7 +601,7 @@ class RepertoireMatch:
 
         f, ax = initialize_plot()
 
-        data = self.get_measure_for_plotting(size=size, what=what, differential=differential, max_tau=max_tau)
+        data = self.__get_measure_for_plotting(size=size, what=what, differential=differential, max_tau=max_tau)
         measures = np.array(data[0])
         taus = np.array(data[1])
         labels = data[2]
@@ -608,7 +641,10 @@ class RepertoireMatch:
             size = sizes[i]
             plt.subplot(2, N, i + 1)
 
-            data = self.get_measure_for_plotting(size=size, what="ref2cons", differential=differential, max_tau=max_tau)
+            data = self.__get_measure_for_plotting(size=size,
+                                                   what="ref2cons",
+                                                   differential=differential,
+                                                   max_tau=max_tau)
             measures = np.array(data[0])
             taus = np.array(data[1])
             labels = data[2]
@@ -623,7 +659,10 @@ class RepertoireMatch:
 
             plt.subplot(2, N, N + i + 1)
 
-            data = self.get_measure_for_plotting(size=size, what="cons2ref", differential=differential, max_tau=max_tau)
+            data = self.__get_measure_for_plotting(size=size,
+                                                   what="cons2ref",
+                                                   differential=differential,
+                                                   max_tau=max_tau)
             measures = np.array(data[0])
             taus = np.array(data[1])
             labels = data[2]
@@ -721,7 +760,11 @@ def get_clusters_sizes(filename):
     sizes = []
     with smart_open(filename) as fin:
         for record in SeqIO.parse(fin, idFormatByFileName(filename)):
-            cluster, mult = parse_cluster_mult(record.description)
+            clm = parse_cluster_mult(record.description)
+            if clm is None:
+                cluster, mult = None, 1
+            else:
+                cluster, mult = parse_cluster_mult(record.description)
             sizes.append(mult)
     return sizes
 
@@ -742,23 +785,23 @@ def parse_rcm(filename):
     return rcm
 
 
-def rcm_count_cluster_sizes(rcm):
-    from collections import defaultdict
-
-    cluster_sizes = defaultdict(int)
-    for cluster in rcm.itervalues():
-        cluster_sizes[cluster] += 1
-
-    return cluster_sizes
-
-
 class RcmVsRcm:
+
+    @staticmethod
+    def rcm_count_cluster_sizes(rcm):
+        from collections import defaultdict
+
+        cluster_sizes = defaultdict(int)
+        for cluster in rcm.itervalues():
+            cluster_sizes[cluster] += 1
+
+        return cluster_sizes
 
     def __init__(self, rcm1, rcm2, fix_nones=True, size=1):
         rcm1, rcm2 = parse_rcm(rcm1), parse_rcm(rcm2)
 
-        sizes1 = rcm_count_cluster_sizes(rcm1)
-        sizes2 = rcm_count_cluster_sizes(rcm2)
+        sizes1 = self.rcm_count_cluster_sizes(rcm1)
+        sizes2 = self.rcm_count_cluster_sizes(rcm2)
 
         ids = list(set(rcm1.keys() + rcm2.keys()))
 
@@ -806,7 +849,7 @@ class RcmVsRcm:
 def reconstruct_rcm(initial_reads, repertoire,
                     tmp_file_matcher=None, tmp_file_reads=None,
                     taus=[1, 2, 4, 8],
-                    fallback_to_exhaustive_mode=False,
+                    fallback_to_exhaustive_mode=True,
                     log=None):
     if log is None:
         log = FakeLog()
@@ -825,9 +868,6 @@ def reconstruct_rcm(initial_reads, repertoire,
         read_ids = [str(record.description) for record in SeqIO.parse(f, idFormatByFileName(initial_reads))]
 
     unmatched_reads = set(read_ids)
-    if tmp_file_matcher is None:
-        import tempfile
-        tmp_file_matcher = tempfile.mkstemp(suffix=".graph", prefix="reconstruct_rcm_")[1]
     if tmp_file_reads is None:
         import tempfile
         tmp_file_reads = tempfile.mkstemp(suffix=".fa", prefix="input_reads_")[1]
@@ -850,23 +890,13 @@ def reconstruct_rcm(initial_reads, repertoire,
                     written_reads += 1
                     read_ids.append(record.description)
 
-        log.info(written_reads, "written to tmp file")
-        run_ig_matcher2(tmp_file_reads, repertoire,
-                        output_file=tmp_file_matcher, log=log, prefix="", tau=tau)
+        log.info("%d reads are written to tmp file" % written_reads)
+        r2r = Reperoire2RepertoireMatching(reference_repertoire=tmp_file_reads,
+                                           tmp_file=tmp_file_matcher,
+                                           constructed_repertoire=repertoire,
+                                           log=log, max_tau=tau)
 
-        read_neibs = defaultdict(list)
-        with smart_open(tmp_file_matcher) as f:
-            header = f.next()
-            V, E, FORMAT = map(int, header.strip().split())
-
-            for i, l in enumerate(f):
-                l = map(int, l.strip().split())
-                neibs = [n - 1 for n in l[1::2]]
-                dists = l[2::2]
-                for n, d in zip(neibs, dists):
-                    read_neibs[n].append((i, d))
-
-        for read_index, l in read_neibs.iteritems():
+        for read_index, l in enumerate(r2r.reference2constructed):
             if l:
                 dists = [d for i, d in l]
                 min_dist = min(dists)
@@ -879,8 +909,7 @@ def reconstruct_rcm(initial_reads, repertoire,
                 rcm[read_ids[read_index]] = cluster_names[assigned_neib]
                 unmatched_reads.remove(read_ids[read_index])
 
-        log.info(len(read_neibs), "reads matched with tau = ", tau)
-        log.info(len(unmatched_reads), "unmatched reads left")
+        log.info("%d unmatched reads left" % len(unmatched_reads))
 
         if not unmatched_reads:
             break
@@ -888,7 +917,6 @@ def reconstruct_rcm(initial_reads, repertoire,
     log.info("Uncertain reads %d" % uncertain)
 
     import os
-    os.remove(tmp_file_matcher)
     os.remove(tmp_file_reads)
     return rcm
 
@@ -1290,9 +1318,10 @@ class Repertoire:
 
         for read in reads:
             cluster, mult = parse_cluster_mult(str(read.description))
-            clusters[cluster].mult = mult
-            clusters[cluster].center = read
-            clusters[cluster].name = cluster
+            if cluster in clusters:
+                clusters[cluster].mult = mult
+                clusters[cluster].center = read
+                clusters[cluster].name = cluster
 
         self.__clusters = clusters
 
@@ -1499,13 +1528,13 @@ class Repertoire:
 
         eps = 1. / len(values) / 10
 
-        cdrs = ax.bar(left=cdr_bins + eps,
-                      height=cdr_values,
-                      width=width - 2 * eps,
-                      align="edge",
-                      # edgecolor='red',
-                      color='red',
-                      label="CDRs")
+        ax.bar(left=cdr_bins + eps,
+               height=cdr_values,
+               width=width - 2 * eps,
+               align="edge",
+               # edgecolor='red',
+               color='red',
+               label="CDRs")
 
         plt.xlim(0, 1)
         ax.set_xlabel("Relative position in read")
@@ -1719,7 +1748,7 @@ class Report:
             import yaml
             with smart_open(filename, "w") as f:
                 yaml.dump(self.__dict__, f,
-                        *kwargs)
+                          *kwargs)
         except ImportError:
             print "Module 'yaml' is absent"
 
@@ -1766,10 +1795,16 @@ if __name__ == "__main__":
         AttachFileLogger(log, args.log)
 
     if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
-        log.info("Try to reconstruct RCM file...")
+        log.info("Try to reconstruct repertoire RCM file...")
         rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
-        write_rcm(rcm, "reconstructed.rcm")
-        args.constructed_rcm = "reconstructed.rcm"
+        args.constructed_rcm = args.output_dir + "/constructed.rcm"
+        write_rcm(rcm, args.constructed_rcm)
+
+    if args.initial_reads and args.reference_repertoire and not args.reference_rcm:
+        log.info("Try to reconstruct reference RCM file...")
+        rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
+        args.reference_rcm = args.output_dir + "/reference.rcm"
+        write_rcm(rcm, args.reference_rcm)
 
     if args.initial_reads and args.reference_repertoire and args.reference_rcm:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
@@ -1829,6 +1864,9 @@ if __name__ == "__main__":
 
             res.plot_reference_vs_constructed_size(out=args.output_dir + "/reference_vs_constructed_size",
                                                    format=args.figure_format)
+
+            res.plot_multiplicity_distributions(out=args.output_dir + "/multiplicity_distribution",
+                                                format=args.figure_format)
 
     if args.constructed_rcm and args.reference_rcm:
         clustering_scores = RcmVsRcm(args.constructed_rcm,
