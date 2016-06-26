@@ -1715,10 +1715,13 @@ class Report:
                       *kwargs)
 
     def toYaml(self, filename, **kwargs):
-        import yaml
-        with smart_open(filename, "w") as f:
-            yaml.dump(self.__dict__, f,
-                      *kwargs)
+        try:
+            import yaml
+            with smart_open(filename, "w") as f:
+                yaml.dump(self.__dict__, f,
+                        *kwargs)
+        except ImportError:
+            print "Module 'yaml' is absent"
 
     def __str__(self):
         s = ""
