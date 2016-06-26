@@ -21,7 +21,7 @@ CUTAIL = 0
 
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
-igrec_dir = current_dir + "/../../../"
+igrec_dir = current_dir
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
@@ -32,8 +32,8 @@ sys.path.append(igrec_dir + "/py")
 from ig_compress_equal_clusters import parse_cluster_mult
 
 
-path_to_ig_simulator = "/ssd/ig_simulator/"
-path_to_mixcr = current_dir + "/mixcr/"
+path_to_ig_simulator = igrec_dir + "/../ig_simulator/"
+path_to_mixcr = current_dir + "/src/extra/aimquast/mixcr/"
 path_to_igrec = igrec_dir
 
 
