@@ -357,17 +357,21 @@ class Reperoire2RepertoireMatching:
         if log is None:
             log = FakeLog()
 
+        cons = []
         for i, neibs in enumerate(self.constructed2reference):
             matches = [j for j, d in neibs if d == 0]
             if len(matches) > 1:
                 log.info("Cons %d matched on several references: %s" % (i, str(matches)))
+                cons.append((i, matches))
 
+        ref = []
         for j, neibs in enumerate(self.reference2constructed):
             matches = [i for i, d in neibs if d == 0]
             if len(matches) > 1:
-                log.info("Ref %d matched on several references: %s" % (j, str(matches)))
+                log.info("Ref %d matched on several constructed: %s" % (j, str(matches)))
+                ref.append((j, matches))
 
-
+        return cons, ref
 
     def plot_multiplicity_distributions(self,
                                         out,
@@ -1858,7 +1862,8 @@ if __name__ == "__main__":
                               tmp_file=None,
                               max_tau=4,
                               reference_trash_cutoff=args.reference_trash_cutoff,
-                              reference_trust_cutoff=args.reference_trust_cutoff)
+                              reference_trust_cutoff=args.reference_trust_cutoff,
+                              log=log)
 
         res.report(report)
 
