@@ -848,8 +848,8 @@ class RcmVsRcm:
 
 def reconstruct_rcm(initial_reads, repertoire,
                     tmp_file_matcher=None, tmp_file_reads=None,
-                    taus=[1, 2, 4, 8, 12, 16],
-                    fallback_to_exhaustive_mode=True,
+                    taus=(1, 2, 4, 8, 12, 16, 20, 24),
+                    fallback_to_exhaustive_mode=False,
                     log=None):
     if log is None:
         log = FakeLog()
