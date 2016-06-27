@@ -17,6 +17,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 # endif()
 
 add_definitions(-DSEQAN_HAS_ZLIB=1)
+add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 # This checking performed BEFORE compilation, so boost_po is not available at this moment
 # find_package(Boost REQUIRED program_options)
