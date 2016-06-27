@@ -7,11 +7,11 @@ all:
 	$(MAKE) $(DENSE_SUBGRAPHS)
 
 $(DENSE_SUBGRAPHS): $(IGREC)/dense_subgraph_finder.py $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH)
- 	$(IGREC)/dense_subgraph_finder.py \
- 	--graph $(SW_GRAPH) \
- 	--output . \
- 	--threads %THREADS \
- 	--min-snode-size %MIN_SUPER_NODE_SIZE
+	$(IGREC)/dense_subgraph_finder.py \
+	--graph $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH) \
+	--output . \
+	--threads %THREADS \
+	--min-snode-size %MIN_SUPER_NODE_SIZE
 
 clean:
 	$(RM) $(DENSE_SUBGRAPHS)

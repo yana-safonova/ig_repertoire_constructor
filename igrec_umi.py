@@ -8,15 +8,16 @@ spades_src = os.path.join(home_directory, "src/python_pipeline/")
 sys.path.append(spades_src)
 import support
 
+
 def HelpAndReturn(log, parser, exit_code = 0):
     log.write = log.info
     parser.print_help(log)
     sys.exit(exit_code)
 
+
 def ParseCommandLineParams(log):
     from argparse import ArgumentParser
-    parser = ArgumentParser(description="IgReC: an algorithm for construction of "
-                                              "antibody repertoire from immunosequencing data",
+    parser = ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
                                   epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
@@ -28,7 +29,7 @@ def ParseCommandLineParams(log):
     input_args.add_argument("-s",
                             dest="single_reads",
                             type=str,
-                            default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
+                            default="",  # FIXME This is only for ace's version of python. Locally it works great w/o it
                             help="Single reads in FASTQ format")
 
     pair_reads = parser.add_argument_group("Paired-end reads")
@@ -65,10 +66,10 @@ def ParseCommandLineParams(log):
                                dest="igrec_tau",
                                help="Maximum allowed mismatches between UMI clusters"
                                     "[default: %(default)d]")
-    optional_args.add_argument("-n", "--min-sread-size",
+    optional_args.add_argument("-n", "--min-super-read-size",
                                type=int,
                                default=5,
-                               dest="min_snode_size",
+                               dest="min_super_read_size",
                                help="Minimum super read size [default: %(default)d]")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
@@ -106,25 +107,32 @@ def CheckParamsCorrectness(parser, params, log):
     elif not params.left_reads or not params.right_reads or not os.path.exists(params.left_reads) or not os.path.exists(params.right_reads):
         HelpAndReturn(log, params, 1)
 
+
 class __StagePrepare:
     MAKEFILE = "Makefile"
 
-    def EnsureExists(self, path):
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def EnsureExists(path):
         if not os.path.exists(path):
             os.makedirs(path)
 
-    def __GetUnusedName(self, dir, default):
+    @staticmethod
+    def __GetUnusedName(dir, default):
         name = default
         import random
         while os.path.exists(os.path.join(dir, name)):
             name = "tmp" + str(random.randint(0, 1e6))
         return name
 
-    def __ReplaceVariables(self, tmp_file, params):
+    @staticmethod
+    def __ReplaceVariables(tmp_file, params, log):
         # Files are rather small, so no problem with first reading them
         lines = [line for line in open(tmp_file, 'r')]
         with open(tmp_file, 'w') as file:
-            for line in lines:
+            for idx, line in enumerate(lines):
                 line = line.replace("%RUN_PATH", home_directory)
                 if params.single_reads:
                     line = line.replace("%INPUT", os.path.abspath(params.single_reads))
@@ -136,9 +144,13 @@ class __StagePrepare:
                 line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
                 line = line.replace("%LOCI", params.loci)
                 line = line.replace("%ORGANISM", params.organism)
-                line = line.replace("%MIN_SUPER_NODE_SIZE", params.min_super_node_size)
+                line = line.replace("%MIN_SUPER_NODE_SIZE", str(params.min_super_read_size))
+                if '%' in line:
+                    log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
+                    exit(1)
                 file.write(line)
 
+    @classmethod
     def Prepare(self, params, stage_template, log, stage_dest = None, makefile_name = MAKEFILE):
         if not stage_dest:
             stage_dest = stage_template
@@ -148,7 +160,7 @@ class __StagePrepare:
         tmp_file_name = self.__GetUnusedName(dest_dir, makefile_name)
         tmp_file = os.path.join(dest_dir, tmp_file_name)
         shutil.copyfile(os.path.join(home_directory, "pipeline_makefiles", stage_template, makefile_name), tmp_file)
-        self.__ReplaceVariables(tmp_file, params)
+        self.__ReplaceVariables(tmp_file, params, log)
         if tmp_file_name == makefile_name:
             return
         import filecmp
@@ -160,20 +172,28 @@ class __StagePrepare:
             os.remove(makefile)
             shutil.move(tmp_file, makefile)
 
+
 def InitMakeFiles(params, log):
-    stage_prepare = __StagePrepare()
-    stage_prepare.EnsureExists(params.output)
-    stage_prepare.Prepare(params, ".", log, makefile_name = "Makefile_vars")
-    stage_prepare.Prepare(params, "compilation", log)
+    __StagePrepare.EnsureExists(params.output)
+    __StagePrepare.Prepare(params, ".", log, makefile_name = "Makefile_vars")
+    __StagePrepare.Prepare(params, "compilation", log)
     if params.single_reads:
-        stage_prepare.Prepare(params, "vj_finder_input", log, stage_dest = "vj_finder")
+        __StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest = "vj_finder")
     else:
-        stage_prepare.Prepare(params, "merged_reads", log)
-        stage_prepare.Prepare(params, "vj_finder", log)
-    stage_prepare.Prepare(params, "umis", log)
-    stage_prepare.Prepare(params, "umi_clustering", log)
-    stage_prepare.Prepare(params, "final_repertoire", log)
-    return os.path.join(params.output, "final_repertoire")
+        __StagePrepare.Prepare(params, "merged_reads", log)
+        __StagePrepare.Prepare(params, "vj_finder", log)
+    __StagePrepare.Prepare(params, "umis", log)
+    __StagePrepare.Prepare(params, "umi_clustering", log)
+    __StagePrepare.Prepare(params, "intermediate_ig_trie_compressor", log)
+    __StagePrepare.Prepare(params, "ig_graph_constructor", log)
+    __StagePrepare.Prepare(params, "dense_subgraph_finder", log)
+    __StagePrepare.Prepare(params, "ig_consensus_finder", log)
+    return os.path.join(params.output, "ig_consensus_finder")
+    # here rcm fixing should go
+
+    # __StagePrepare.Prepare(params, "final_repertoire", log)
+    # return os.path.join(params.output, "final_repertoire")
+
 
 def main():
     log = igrec.CreateLogger()
@@ -191,6 +211,7 @@ def main():
     BuildInfo().Log(log)
     print "================================================"
     support.sys_call("make -C " + final_dir, log)
+
 
 if __name__ == '__main__':
     main()

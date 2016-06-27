@@ -7,12 +7,12 @@ all:
 	$(MAKE) $(SW_GRAPH)
 
 $(SW_GRAPH): $(BIN)/ig_swgraph_construct $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP_RCM)
- 	$(BIN)/ig_swgraph_construct \
- 	--input-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
- 	--output-file $(SW_GRAPH) \
- 	--threads %THREADS \
- 	--tau %IGREC_TAU \
- 	--export-abundances
+	$(BIN)/ig_swgraph_construct \
+	--input-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+	--output-file $(SW_GRAPH) \
+	--threads %THREADS \
+	--tau %IGREC_TAU \
+	--export-abundances
 
 clean:
 	$(RM) $(SW_GRAPH)

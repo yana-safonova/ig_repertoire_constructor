@@ -37,8 +37,7 @@ def smart_open(filename, mode="r"):
             fh.close()
 
 
-def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name,
-                 out_file):
+def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name, out_file):
     # Obtain read ids
     with smart_open(reads_file_name, "r") as fh:
         ids = [str(record.id) for record in SeqIO.parse(fh, "fasta")]

@@ -15,14 +15,19 @@ from ig_remove_low_abundance_reads import smart_open
 def parse_cluster_mult(id):
     import re
     id = str(id)
-    m = re.match(r"^cluster___(\d+)___size___(\d+)$", id)
+    m = re.match(r"^(intermediate_)?cluster___(\d+)___size___(\d+)$", id)
     if m:
         g = m.groups()
-        cluster = int(g[0])
-        mult = int(g[1])
+        cluster = int(g[1])
+        mult = int(g[2])
         return cluster, mult
     else:
         return None
+
+
+assert parse_cluster_mult("cluster___10___size___20") == (10, 20)
+assert parse_cluster_mult("intermediate_cluster___10___size___20") == (10, 20)
+assert parse_cluster_mult("intermediatecluster___10___size___20") == None
 
 
 def check_fa_rcm_consistency(fa_filename, rcm_filename):

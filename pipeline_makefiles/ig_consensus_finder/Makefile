@@ -1,0 +1,24 @@
+include ../Makefile_vars
+
+COMPRESSED_INTER_PATH = ../intermediate_ig_trie_compressor
+DSF_PATH = ../dense_subgraph_finder
+
+all:
+	$(MAKE) -C $(DSF_PATH)
+	$(MAKE) final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm
+
+final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm: $(BIN)/ig_consensus_finder $(DSF_PATH)/$(DENSE_SUBGRAPHS)
+	python $(PY_SRC)/rcm_recoverer.py \
+	--ids-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+	--compressed-map $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP_RCM) \
+	--cliques-map $(DSF_PATH)/$(DENSE_SUBGRAPHS) \
+	--output final_repertoire_uncompressed.rcm
+	$(BIN)/ig_consensus_finder \
+	--input-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+	--rcm-file final_repertoire_uncompressed.rcm \
+	--output-file final_repertoire_uncompressed.fa \
+	--hamming
+
+clean:
+	$(RM) final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm
+	$(MAKE) -C $(IG_GRAPH_CONSTRUCTOR) clean
