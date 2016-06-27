@@ -353,6 +353,22 @@ class Reperoire2RepertoireMatching:
         import os
         os.remove(tmp_file)
 
+    def check(self, log=None):
+        if log is None:
+            log = FakeLog()
+
+        for i, neibs in enumerate(self.constructed2reference):
+            matches = [j for j, d in neibs if d == 0]
+            if len(matches) > 1:
+                log.info("Cons %d matched on several references: %s" % (i, str(matches)))
+
+        for j, neibs in enumerate(self.reference2constructed):
+            matches = [i for i, d in neibs if d == 0]
+            if len(matches) > 1:
+                log.info("Ref %d matched on several references: %s" % (j, str(matches)))
+
+
+
     def plot_multiplicity_distributions(self,
                                         out,
                                         bins=25,
@@ -416,6 +432,8 @@ class RepertoireMatch:
                                                     reference_repertoire=reference_repertoire,
                                                     max_tau=max_tau,
                                                     log=log)
+
+        self.rep2rep.check(log=log)
 
         assert reference_trash_cutoff <= reference_trust_cutoff
 
