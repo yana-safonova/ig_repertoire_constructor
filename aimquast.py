@@ -848,7 +848,7 @@ class RcmVsRcm:
 
 def reconstruct_rcm(initial_reads, repertoire,
                     tmp_file_matcher=None, tmp_file_reads=None,
-                    taus=[1, 2, 4, 8],
+                    taus=[1, 2, 4, 8, 12, 16],
                     fallback_to_exhaustive_mode=True,
                     log=None):
     if log is None:
@@ -1802,7 +1802,7 @@ if __name__ == "__main__":
 
     if args.initial_reads and args.reference_repertoire and not args.reference_rcm:
         log.info("Try to reconstruct reference RCM file...")
-        rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
+        rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
         args.reference_rcm = args.output_dir + "/reference.rcm"
         write_rcm(rcm, args.reference_rcm)
 
