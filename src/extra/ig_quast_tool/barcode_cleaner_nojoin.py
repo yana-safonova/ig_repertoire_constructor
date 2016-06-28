@@ -54,9 +54,6 @@ def discard_close_barcodes(barcodes, tau, barcode2size, discarded):
     return result
 
 
-
-
-
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fix barcode errors in dataset without joining; fixed protocol after discussion with Chudakov's team")
     parser.add_argument("input",
@@ -118,7 +115,6 @@ if __name__ == "__main__":
         print "Discarding close barcodes for distance %d" % tau
         barcodes = discard_close_barcodes(barcodes, tau, barcodes_count, discarded_barcodes)
         print "Barcodes discarded: %d" % len(discarded_barcodes)
-
 
     print "Collecting output..."
     good_out = []
