@@ -55,6 +55,7 @@ int main(int argc, char **argv) {
     std::string output_file = "repertoire.fa";
     std::string rcm_file = "cropped.rcm";
     bool use_hamming_alignment = false;
+    size_t coverage_limit = 100500;
     std::string config_file = "";
 
     // Parse cmd-line arguments
@@ -75,6 +76,8 @@ int main(int argc, char **argv) {
              "input RCM-file")
             ("hamming,H",
              "use Hamming-based (position-wise) multiple alignment instead of seqan's one")
+            ("coverage-limit,l", po::value<size_t>(&coverage_limit)->default_value(coverage_limit),
+             "cut consensus sequence when less than coverage-limit reads contribute, used to handle reads of different lengths, for hamming mode only")
             ;
 
         // Declare a group of options that will be
@@ -194,7 +197,7 @@ int main(int argc, char **argv) {
         }
 
         if (use_hamming_alignment) {
-            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], 1005000);
+            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], coverage_limit);
         } else {
             consensuses[comp] = consensus(input_reads, component2id[comp]);
         }
