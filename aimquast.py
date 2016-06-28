@@ -1745,6 +1745,9 @@ def parse_command_line(description="aimQUAST"):
 
     args.log = args.output_dir + "/aimquast.log"
 
+    args.reference_free_dir = args.output_dir + "/reference_free"
+    args.reference_based_dir = args.output_dir + "/reference_based"
+
     args.figure_format = [fmt.strip() for fmt in args.figure_format.strip().split(",")]
 
     return args
@@ -1829,34 +1832,40 @@ if __name__ == "__main__":
         write_rcm(rcm, args.reference_rcm)
 
     if args.initial_reads and args.reference_repertoire and args.reference_rcm:
+        mkdir_p(args.reference_free_dir)
+
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
-            rep_ideal.plot_cluster_error_profile(out=args.output_dir + "/reference_cluster_error_profile",
+            rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
                                                  format=args.figure_format)
-            rep_ideal.plot_distribution_of_errors_in_reads(out=args.output_dir + "/reference_distribution_of_errors_in_reads",
+            rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
                                                            format=args.figure_format)
-            rep_ideal.plot_estimation_of_max_error_distribution(out=args.output_dir + "/reference_estimation_of_max_error_distribution",
+            rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
                                                                 format=args.figure_format)
 
-        rep_ideal.export_bad_clusters(out=args.output_dir + "/bad_reference_clusters/")
+        rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
         rep_ideal.report(report, "reference_stats")
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm:
+        mkdir_p(args.reference_free_dir)
+
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
-            rep.plot_cluster_error_profile(out=args.output_dir + "/construced_cluster_error_profile",
+            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/construced_cluster_error_profile",
                                            format=args.figure_format)
-            rep.plot_distribution_of_errors_in_reads(out=args.output_dir + "/constructed_distribution_of_errors_in_reads",
+            rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
                                                      format=args.figure_format)
-            rep.plot_estimation_of_max_error_distribution(out=args.output_dir + "/constructed_estimation_of_max_error_distribution",
+            rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
                                                           format=args.figure_format)
 
-        rep.export_bad_clusters(out=args.output_dir + "/bad_constructed_clusters/")
+        rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
         rep.report(report, "constructed_stats")
 
     if args.constructed_repertoire and args.reference_repertoire:
+        mkdir_p(args.reference_based_dir)
+
         res = RepertoireMatch(args.constructed_repertoire,
                               args.reference_repertoire,
                               tmp_file=None,
@@ -1870,25 +1879,25 @@ if __name__ == "__main__":
         if args.figure_format:
             for size in [1, 3, 5, 10]:
                 res.plot_sensitivity_precision(what="ref2cons",
-                                               out=args.output_dir + "/reference_to_constructed_distance_distribution_size_%d" % size,
+                                               out=args.reference_based_dir + "/reference_to_constructed_distance_distribution_size_%d" % size,
                                                size=size, differential=True,
                                                format=args.figure_format)
 
                 res.plot_sensitivity_precision(what="cons2ref",
-                                               out=args.output_dir + "/constructed_to_reference_distance_distribution_size_%d" % size,
+                                               out=args.reference_based_dir + "/constructed_to_reference_distance_distribution_size_%d" % size,
                                                size=size, differential=True,
                                                format=args.figure_format)
 
-                res.plot_octoplot(out=args.output_dir + "/octoplot",
+                res.plot_octoplot(out=args.reference_based_dir + "/octoplot",
                                   format=args.figure_format)
 
-            res.plot_min_cluster_size_choose(out=args.output_dir + "/min_cluster_size_choose",
+            res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/min_cluster_size_choose",
                                              format=args.figure_format)
 
-            res.plot_reference_vs_constructed_size(out=args.output_dir + "/reference_vs_constructed_size",
+            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
                                                    format=args.figure_format)
 
-            res.plot_multiplicity_distributions(out=args.output_dir + "/multiplicity_distribution",
+            res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
     if args.constructed_rcm and args.reference_rcm:
