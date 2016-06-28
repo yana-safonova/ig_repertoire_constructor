@@ -26,7 +26,7 @@ def parse_cluster_mult(id):
 def check_fa_rcm_consistency(fa_filename, rcm_filename):
     cluster_mult_rcm = defaultdict(int)
     num_rcm_reads = 0
-    with open(rcm_filename) as rcm:
+    with smart_open(rcm_filename) as rcm:
         for line in rcm:
             cluster = line.split("\t")[1].strip()
             cluster_mult_rcm[cluster] += 1
@@ -90,12 +90,12 @@ if __name__ == "__main__":
     cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_map_file)
     os.system(cmd_line)
 
-    with open(args.tmp_map_file) as fin:
+    with smart_open(args.tmp_map_file) as fin:
         input_read_num2compressed_cluster = [line.strip() for line in fin]
 
     input_read_num2mult = []
     cluster2input_read_num = {}
-    with open(args.input) as fin:
+    with smart_open(args.input) as fin:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
             cluster, mult = parse_cluster_mult(record.description)
             cluster2input_read_num[cluster] = i
@@ -121,11 +121,11 @@ if __name__ == "__main__":
         if not args.output_rcm:
             args.output_rcm = args.rcm
 
-        with open(args.rcm, "r") as fin:
+        with smart_open(args.rcm, "r") as fin:
             rcm = [line.strip().split("\t") for line in fin]
             rcm = [(id, cluster) for id, cluster in rcm]
 
-        with open(args.output_rcm, "w") as fout:
+        with smart_open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
                 compressed_cluster = input_read_num2compressed_cluster[cluster2input_read_num[cluster]]
                 fout.writelines("%s\t%s\n" % (id, compressed_cluster))
