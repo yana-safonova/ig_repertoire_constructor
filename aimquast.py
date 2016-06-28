@@ -412,6 +412,26 @@ class Reperoire2RepertoireMatching:
         import os
         os.remove(tmp_file)
 
+    @staticmethod
+    def bidirection(constructed_repertoire, reference_repertoire,
+                    tmp_file=None, max_tau=4, log=None):
+        r2c = Reperoire2RepertoireMatching(constructed_repertoire=constructed_repertoire,
+                                           reference_repertoire=reference_repertoire,
+                                           tmp_file=tmp_file, max_tau=max_tau, log=log)
+        c2r = Reperoire2RepertoireMatching(constructed_repertoire=reference_repertoire,
+                                           reference_repertoire=constructed_repertoire,
+                                           tmp_file=tmp_file, max_tau=max_tau, log=log)
+
+        def merge(x, y):
+            assert len(x) == len(y)
+            for i in xrange(len(x)):
+                x[i] = list(set(x[i] + y[i]))  # TODO merge distances properly, use min
+
+        merge(r2c.constructed2reference, c2r.reference2constructed)
+        merge(r2c.reference2constructed, c2r.constructed2reference)
+
+        return r2c
+
     def check(self, log=None):
         if log is None:
             log = FakeLog()
@@ -490,10 +510,10 @@ class RepertoireMatch:
                  log=None):
         import numpy as np
 
-        self.rep2rep = Reperoire2RepertoireMatching(constructed_repertoire=constructed_repertoire,
-                                                    reference_repertoire=reference_repertoire,
-                                                    max_tau=max_tau,
-                                                    log=log)
+        self.rep2rep = Reperoire2RepertoireMatching.bidirection(constructed_repertoire=constructed_repertoire,
+                                                                reference_repertoire=reference_repertoire,
+                                                                max_tau=max_tau,
+                                                                log=log)
 
         self.rep2rep.check(log=log)
 
@@ -1009,10 +1029,10 @@ def reconstruct_rcm(initial_reads, repertoire,
                     read_ids.append(record.description)
 
         log.info("%d reads are written to tmp file" % written_reads)
-        r2r = Reperoire2RepertoireMatching(reference_repertoire=tmp_file_reads,
-                                           tmp_file=tmp_file_matcher,
-                                           constructed_repertoire=repertoire,
-                                           log=log, max_tau=tau)
+        r2r = Reperoire2RepertoireMatching.bidirection(reference_repertoire=tmp_file_reads,
+                                                       tmp_file=tmp_file_matcher,
+                                                       constructed_repertoire=repertoire,
+                                                       log=log, max_tau=tau)
 
         for read_index, l in enumerate(r2r.reference2constructed):
             if l:
