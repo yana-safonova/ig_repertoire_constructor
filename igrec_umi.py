@@ -71,6 +71,11 @@ def ParseCommandLineParams(log):
                                default=5,
                                dest="min_super_read_size",
                                help="Minimum super read size [default: %(default)d]")
+    optional_args.set_defaults(compile = True)
+    optional_args.add_argument("-p", "--no-compilation",
+                               dest="no_compilation",
+                               action="store_true",
+                               help="Exclude c++ code compilation from the pipeline")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
     vj_align_args.add_argument("-l", "--loci",
@@ -176,7 +181,7 @@ class __StagePrepare:
 def InitMakeFiles(params, log):
     __StagePrepare.EnsureExists(params.output)
     __StagePrepare.Prepare(params, ".", log, makefile_name = "Makefile_vars")
-    __StagePrepare.Prepare(params, "compilation", log)
+    __StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest = "compilation")
     if params.single_reads:
         __StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest = "vj_finder")
     else:
@@ -202,7 +207,8 @@ def main():
     igrec.PrintCommandLine(log)
     final_dir = InitMakeFiles(params, log)
     # We need freshly compiled version to get actual build info
-    support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
+    if not params.no_compilation:
+        support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
     from src.build_info.build_info import BuildInfo
     print "===================Build info==================="
     BuildInfo().Log(log)
