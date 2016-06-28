@@ -7,37 +7,20 @@ from Bio import SeqIO
 from collections import defaultdict
 
 
-import contextlib
-@contextlib.contextmanager
-def smart_open(filename, mode="r"):
-    """
-    From http://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
-    """
-    import gzip
-    import re
-    from sys import stdout, stdin
+import os
+import os.path
+import sys
 
-    if "w" in mode:
-        MODE = "w"
-    elif "a" in mode:
-        MODE= "a"
-    else:
-        MODE = "r"
+current_dir = os.path.dirname(os.path.realpath(__file__))
+igrec_dir = current_dir + "/../../../"
+sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
+sys.path.append(igrec_dir + "/src/python_pipeline/")
+import support
+sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, fastx2fastx
 
-    if filename != '-':
-        if re.match(r"^.*\.gz$", filename):
-            assert(MODE != "a")
-            fh = gzip.open(filename, mode=MODE)
-        else:
-            fh = open(filename, mode=mode)
-    else:
-        assert(MODE != "a")
-        fh = stdout if MODE == "w" else stdin
-    try:
-        yield fh
-    finally:
-        if fh is not stdout and fh is not stdin:
-            fh.close()
+sys.path.append(igrec_dir + "/py")
+from ig_compress_equal_clusters import parse_cluster_mult
 
 
 def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):
