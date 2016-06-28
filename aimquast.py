@@ -369,7 +369,6 @@ class MultToMultData:
             plt.title(title)
 
         save_plot(out, format=format)
-        plt.close()
 
 
 class Reperoire2RepertoireMatching:
@@ -479,7 +478,6 @@ class Reperoire2RepertoireMatching:
         plt.legend(handles, labels)
 
         save_plot(out, format=format)
-        plt.close()
 
 
 class RepertoireMatch:
@@ -706,7 +704,6 @@ class RepertoireMatch:
             plt.ylim(0, 1)
 
         save_plot(out, format=format)
-        plt.close()
 
     def plot_octoplot(self, out,
                       sizes=(1, 3, 5, 10),
@@ -758,7 +755,6 @@ class RepertoireMatch:
         plt.tight_layout()
 
         save_plot(out, format=format)
-        plt.close()
 
     def plot_min_cluster_size_choose(self,
                                      what_x="precision",
@@ -833,7 +829,6 @@ class RepertoireMatch:
         ax.legend(handles, labels, loc=3)
 
         save_plot(out, format=format)
-        plt.close()
 
 
 def get_clusters_sizes(filename):
@@ -945,7 +940,6 @@ class RcmVsRcm:
         ax.set_ylabel("Secondary votes")
 
         save_plot(out, format=format)
-        plt.close()
 
     def plot_purity_distribution(self, out, format):
         import numpy as np
@@ -966,7 +960,6 @@ class RcmVsRcm:
         ax.set_xlim((0, 1))
 
         save_plot(out, format=format)
-        plt.close()
 
 
 def reconstruct_rcm(initial_reads, repertoire,
@@ -1214,7 +1207,8 @@ def initialize_plot(figsize=(6, 6)):
 
 def save_plot(plot_name,
               format=None,
-              make_dir=True):
+              make_dir=True,
+              close=True):
     import matplotlib.pyplot as plt
     import os.path
 
@@ -1236,6 +1230,8 @@ def save_plot(plot_name,
 
     if 'svg' in format:
         plt.savefig(plot_name + '.svg', format='svg')
+
+    plt.close()
 
 
 def consensus(reads):
@@ -1591,7 +1587,6 @@ class Repertoire:
             plt.title(title)
 
         save_plot(out, format=format)
-        plt.close()
 
     def plot_cluster_error_profile(self,
                                    out="error_profile",
@@ -1658,7 +1653,6 @@ class Repertoire:
             plt.title(title)
 
         save_plot(out, format=format)
-        plt.close()
 
     # TODO make it biplot
     def plot_distribution_of_errors_in_reads(self,
@@ -1725,7 +1719,6 @@ class Repertoire:
             plt.title(title)
 
         save_plot(out, format=format)
-        plt.close()
 
     def bad_clusters_id(self,
                         error_rate=None,
