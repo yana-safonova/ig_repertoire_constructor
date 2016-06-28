@@ -61,10 +61,10 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Fix barcode errors in dataset without joining; fixed protocol after discussion with Chudakov's team")
     parser.add_argument("input",
                         type=str,
-                        help="input FASTQ file")
+                        help="input FASTA/FASTQ file")
     parser.add_argument("output",
                         type=str,
-                        help="output FASTQ file")
+                        help="output FASTA/FASTQ file")
     parser.add_argument("--rcm", "-r",
                         type=str,
                         help="RCM file for final read-barcode map")
@@ -81,7 +81,7 @@ if __name__ == "__main__":
                         help="minimal barcode size [default %(default)d]")
     parser.add_argument("--bad-output", "-b",
                         type=str,
-                        help="FASTQ file for bad-barcoded reads")
+                        help="FASTA/FASTQ file for bad-barcoded reads")
     # parser.add_argument("--subs-map", "-M",
     #                     type=str,
     #                     help="file for subs table")
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
     print("Reading FASTQ...")
     with smart_open(args.input, "r") as fh:
-        data = list(SeqIO.parse(fh, "fastq"))
+        data = list(SeqIO.parse(fh, idFormatByFileName(args.input)))
 
     if not args.no_fix_spaces:
         for record in data:
@@ -134,11 +134,11 @@ if __name__ == "__main__":
 
     print "Writing output..."
     with smart_open(args.output, "w") as fh:
-        SeqIO.write(good_out, fh, "fastq")
+        SeqIO.write(good_out, fh, idFormatByFileName(args.output))
 
     if args.bad_output:
         with smart_open(args.bad_output, "w") as fh:
-            SeqIO.write(bad_out, fh, "fastq")
+            SeqIO.write(bad_out, fh, idFormatByFileName(args.bad_output))
 
     if args.rcm:
         with smart_open(args.rcm, "w") as fh:
