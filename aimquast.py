@@ -942,17 +942,17 @@ class RcmVsRcm:
             rb[k] = v
 
     @memoize
-    def votes(self):
-        return votes(self.clustering1_none, self.clustering2_none)
+    def votes(self, constructed=True):
+        return votes(self.clustering1_none, self.clustering2_none) if constructed else votes(self.clustering2_none, self.clustering1_none)
 
-    def plot_majority_secondary(self, out, format):
+    def plot_majority_secondary(self, out, format, constructed=True):
         import numpy as np
         import matplotlib.pyplot as plt
         import seaborn as sns
 
         f, ax = initialize_plot()
 
-        votes = self.votes()
+        votes = self.votes(constructed)
         majority_votes = [vote[0] for vote in votes]
         secondary_votes = [vote[1] for vote in votes]
         # sizes = [sum(vote) for vote in votes]
@@ -963,14 +963,31 @@ class RcmVsRcm:
 
         save_plot(out, format=format)
 
-    def plot_purity_distribution(self, out, format):
+    def plot_size_nomajority(self, out, format, constructed=True):
         import numpy as np
         import matplotlib.pyplot as plt
         import seaborn as sns
 
         f, ax = initialize_plot()
 
-        votes = self.votes()
+        votes = self.votes(constructed)
+        majority_votes = np.array([vote[0] for vote in votes])
+        sizes = np.array([sum(vote) for vote in votes])
+
+        ax.plot(sizes, sizes - majority_votes, "bo", label="clusters")
+        ax.set_xlabel("Cluster size")  # Primary
+        ax.set_ylabel("Cluster size - majority votes")
+
+        save_plot(out, format=format)
+
+    def plot_purity_distribution(self, out, format, constructed=True):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        votes = self.votes(constructed)
         majority_votes = [vote[0] for vote in votes]
         # secondary_votes = [vote[1] for vote in votes]
         sizes = [sum(vote) for vote in votes]
@@ -1139,24 +1156,8 @@ def clustering_simularity_indices(X, Y):
 
 
 def purity(X, Y):
-    from collections import defaultdict
-
-    assert len(X) == len(Y)
-
-    class defaultdict_factory:
-
-        def __init__(self, type):
-            self.__type = type
-
-        def __call__(self):
-            return defaultdict(self.__type)
-
-    cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
-    for x, y in zip(X, Y):
-        if x is not None and y is not None:
-            cluster[x][y] += 1
-
-    majority_votes = sum(max(cluster_content.itervalues()) for cluster_content in cluster.itervalues())
+    votes__ = votes(X, Y)
+    majority_votes = sum(vote[0] for vote in votes__)
 
     return float(majority_votes) / float(len(X))
 
@@ -2007,6 +2008,7 @@ if __name__ == "__main__":
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
             clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/majority_secondary", format=args.figure_format)
+            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/size_nomajority", format=args.figure_format)
             clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/purity_distribution", format=args.figure_format)
 
     log.info(report)
