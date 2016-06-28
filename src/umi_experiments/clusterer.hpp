@@ -9,6 +9,7 @@
 #include "umi_utils.hpp"
 #include "disjoint_sets.hpp"
 #include "utils/io.hpp"
+#include "../fast_ig_tools/ig_final_alignment.hpp"
 
 namespace clusterer {
 
@@ -302,8 +303,17 @@ namespace clusterer {
     template <typename ElementType, typename UmiPairsIterable>
     seqan::Dna5String Clusterer<ElementType, UmiPairsIterable>::findNewCenter(std::unordered_set<ElementType>& members) {
         VERIFY_MSG(members.size() >= 2, "Too few elements to find new center.");
-        seqan::Dna5String center = seqan::Dna5String(members.begin()->GetSequence());
-        std::vector<std::vector<size_t> > cnt(length(center), std::vector<size_t>(4));
+        std::vector<seqan::Dna5String> reads(members.size());
+        std::vector<size_t> indices(members.size());
+        size_t current = 0;
+        for (Read member : members) {
+            reads[current] = member.GetSequence();
+            indices[current] = current;
+            current ++;
+        }
+        return consensus_hamming_limited_coverage(reads, indices, 1);
+        /*seqan::Dna5String center = seqan::Dna5String(members.begin()->GetSequence());
+        std::vector<std::vector<size_t>> cnt(length(center), std::vector<size_t>(4));
         for (auto& member : members) {
             size_t limit = std::min(length(member.GetSequence()), length(center));
             for (size_t i = 0; i < limit; i ++) {
@@ -317,7 +327,7 @@ namespace clusterer {
                 }
             }
         }
-        return center;
+        return center;*/
     }
 
     template <typename ElementType>
