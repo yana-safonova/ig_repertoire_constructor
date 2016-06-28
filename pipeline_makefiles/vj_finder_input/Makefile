@@ -3,7 +3,7 @@ include ../Makefile_vars
 all:
 	$(MAKE) cleaned_reads.fa
 
-cleaned_reads.fa: $(BIN)/ig_kplus_vj_finder %INPUT
+cleaned_reads.fa: %INPUT $(BIN)/ig_kplus_vj_finder
 	$(BIN)/ig_kplus_vj_finder \
 	--input-file %INPUT \
 	--output . \

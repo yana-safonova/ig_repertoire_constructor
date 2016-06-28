@@ -4,7 +4,7 @@ from rcm_utils import read_rcm_list, rcm2rcmint
 
 def merge():
     print os.getcwd()
-    print "reading intemed rcm"
+    print "reading intermed rcm"
     inter_rcm = rcm2rcmint(read_rcm_list("umi_clustering/intermediate_repertoire.rcm"))
     print "reading final rcm"
     igrec_rcm_list = read_rcm_list("final_repertoire/final_repertoire.rcm")
@@ -18,8 +18,6 @@ def merge():
     print "writing"
     with open("final_repertoire/final_repertoire_merged.rcm", "w") as fout:
         for original_cleaned, cluster_idx in inter_rcm:
-            # if cluster_idx not in cluster_id_list:
-            #     print original_cleaned
             fout.write(original_cleaned + "\t" + (igrec_rcm_map[cluster_id_list[cluster_idx]] if (cluster_idx in cluster_id_list) else "") + "\n")
     print "done"
 

@@ -8,7 +8,7 @@ all:
 	$(MAKE) -C $(UMIS)
 	$(MAKE) $(INTER_REP)
 
-$(INTER_REP): $(BIN)/cluster_reads $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi.fastq $(UMIS)/cleaned_reads_umi_compressed.fastq $(UMIS)/cleaned_reads_umi_compressed.graph
+$(INTER_REP): $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi.fastq $(UMIS)/cleaned_reads_umi_compressed.fastq $(UMIS)/cleaned_reads_umi_compressed.graph $(BIN)/cluster_reads
 	$(BIN)/cluster_reads \
 	--reads $(VJF)/cleaned_reads.fa \
 	--umi_uncompressed $(UMIS)/cleaned_reads_umi.fastq \

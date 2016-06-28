@@ -188,11 +188,8 @@ def InitMakeFiles(params, log):
     __StagePrepare.Prepare(params, "ig_graph_constructor", log)
     __StagePrepare.Prepare(params, "dense_subgraph_finder", log)
     __StagePrepare.Prepare(params, "ig_consensus_finder", log)
-    return os.path.join(params.output, "ig_consensus_finder")
-    # here rcm fixing should go
-
-    # __StagePrepare.Prepare(params, "final_repertoire", log)
-    # return os.path.join(params.output, "final_repertoire")
+    __StagePrepare.Prepare(params, "final_repertoire", log)
+    return os.path.join(params.output, "final_repertoire")
 
 
 def main():

@@ -6,7 +6,7 @@ all:
 	$(MAKE) -C $(COMPRESSED_INTER_PATH)
 	$(MAKE) $(SW_GRAPH)
 
-$(SW_GRAPH): $(BIN)/ig_swgraph_construct $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP_RCM)
+$(SW_GRAPH): $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) $(BIN)/ig_swgraph_construct
 	$(BIN)/ig_swgraph_construct \
 	--input-file $(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
 	--output-file $(SW_GRAPH) \

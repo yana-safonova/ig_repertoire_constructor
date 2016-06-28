@@ -6,7 +6,7 @@ all:
 	$(MAKE) -C $(IG_GRAPH_CONSTRUCTOR)
 	$(MAKE) $(DENSE_SUBGRAPHS)
 
-$(DENSE_SUBGRAPHS): $(IGREC)/dense_subgraph_finder.py $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH)
+$(DENSE_SUBGRAPHS): $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH) $(IGREC)/dense_subgraph_finder.py
 	$(IGREC)/dense_subgraph_finder.py \
 	--graph $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH) \
 	--output . \
