@@ -77,6 +77,12 @@ if __name__ == "__main__":
                         help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
 
     args = parser.parse_args()
+    # Fix RCM if provided
+    if args.rcm:
+        print "Check input consistency..."
+        if not check_fa_rcm_consistency(args.input, args.rcm):
+            exit(1)
+
 
     if (not args.tmp_fa_file):
         args.tmp_fa_file = tempfile.mkstemp(suffix=".fa", prefix="igrec_")[1]
@@ -114,9 +120,6 @@ if __name__ == "__main__":
     # Fix RCM if provided
     if args.rcm:
         print "Fixing RCM file..."
-        print "Check input consistency..."
-        if not check_fa_rcm_consistency(args.input, args.rcm):
-            exit(1)
 
         if not args.output_rcm:
             args.output_rcm = args.rcm
