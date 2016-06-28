@@ -899,6 +899,8 @@ class RcmVsRcm:
                 if v[i] is None:
                     v[i] = prefix + str(i)
 
+        self.clustering1_none = self.clustering1
+        self.clustering2_none = self.clustering2
         if fix_nones:
             fix_nones(self.clustering1, "__none__clustering1__")
             fix_nones(self.clustering2, "__none__clustering2__")
@@ -921,7 +923,7 @@ class RcmVsRcm:
 
     @memoize
     def votes(self):
-        return votes(self.clustering1, self.clustering2)
+        return votes(self.clustering1_none, self.clustering2_none)
 
     def plot_majority_secondary(self, out, format):
         import numpy as np
@@ -1131,7 +1133,8 @@ def purity(X, Y):
 
     cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
     for x, y in zip(X, Y):
-        cluster[x][y] += 1
+        if x is not None and y is not None:
+            cluster[x][y] += 1
 
     majority_votes = sum(max(cluster_content.itervalues()) for cluster_content in cluster.itervalues())
 
@@ -1153,7 +1156,8 @@ def votes(X, Y):
 
     cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
     for x, y in zip(X, Y):
-        cluster[x][y] += 1
+        if x is not None and y is not None:
+            cluster[x][y] += 1
 
     votes = [sorted(cluster_content.itervalues(), reverse=True) for cluster_content in cluster.itervalues()]
 
