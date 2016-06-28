@@ -767,7 +767,7 @@ class RepertoireMatch:
 
             width = 0.9
             plt.bar(taus + 0.5 - width / 2, measures, width=width,
-                    facecolor='cornflowerblue')
+                    facecolor='orangered')
             plt.xticks(taus + 0.5,
                        labels)
             plt.title("precision, size = %d" % size)
