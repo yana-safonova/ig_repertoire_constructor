@@ -1212,7 +1212,7 @@ def initialize_plot(figsize=(6, 6)):
     # matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
     # matplotlib.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
-    matplotlib.rc('text', usetex=True)
+    # matplotlib.rc('text', usetex=True)
 
     # matplotlib.rcParams['mathtext.fontset'] = 'custom'
     # matplotlib.rcParams['mathtext.tt'] = matplotlib.rcParams['font.monospace']
