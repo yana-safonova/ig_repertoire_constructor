@@ -9,6 +9,66 @@ import os
 CUTAIL = 0
 
 
+def memoize_simple(method):
+    def new_method(self):
+        if "__memoise_cache" not in self.__dict__:
+            self.__memoise_cache = {}
+        if method not in self.__memoise_cache:
+            self.__memoise_cache[method] = method(self)
+        return self.__memoise_cache[method]
+    return new_method
+
+
+def memoize(method):
+    def new_method(self, *args, **kwargs):
+        if "__memoise_cache" not in self.__dict__:
+            self.__memoise_cache = {}
+
+        call = (method, args, tuple(sorted(kwargs.iteritems())))
+
+        if call not in self.__memoise_cache:
+            self.__memoise_cache[call] = method(self, *args, **kwargs)
+
+        return self.__memoise_cache[call]
+    return new_method
+
+
+def memoize_invalidate(method):
+    def new_method(self, *args, **kwargs):
+        self.__memoise_cache = {}
+        return method(self, *args, **kwargs)
+    return new_method
+
+
+# class Test:
+#
+#     @memoize
+#     def test(self):
+#         print "test() called"
+#         return 1
+#
+#     @memoize
+#     def test_a_plus_b(self, a, b):
+#         print "test_a_plus_b() called with", a, b
+#         return a + b
+#
+# test = Test()
+# print test.test()
+# print test.test()
+# print test.test()
+# print test.test()
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 3)
+# print test.test_a_plus_b(1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(b=3, a=1)
+# sys.exit(0)
+
+
 # matplotlib.rcParams['mathtext.fontset'] = 'custom'
 # matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 # matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
@@ -673,11 +733,10 @@ class RepertoireMatch:
 
             width = 0.9
             plt.bar(taus + 0.5 - width / 2, measures, width=width,
-                    facecolor='cornflowerblue',
-                    label="Actual frequencies")
+                    facecolor='cornflowerblue')
             plt.xticks(taus + 0.5,
                        labels)
-            plt.title("ref -> cons, size = %d" % size)
+            plt.title("sensitivity, size = %d" % size)
 
             plt.subplot(2, N, N + i + 1)
 
@@ -691,11 +750,10 @@ class RepertoireMatch:
 
             width = 0.9
             plt.bar(taus + 0.5 - width / 2, measures, width=width,
-                    facecolor='cornflowerblue',
-                    label="Actual frequencies")
+                    facecolor='cornflowerblue')
             plt.xticks(taus + 0.5,
                        labels)
-            plt.title("cons -> ref, size = %d" % size)
+            plt.title("precision, size = %d" % size)
 
         plt.tight_layout()
 
@@ -826,21 +884,20 @@ class RcmVsRcm:
         sizes2 = self.rcm_count_cluster_sizes(rcm2)
 
         ids = list(set(rcm1.keys() + rcm2.keys()))
+        N = len(ids)
 
-        clustering1 = []
-        clustering2 = []
+        self.clustering1 = []
+        self.clustering2 = []
 
         for id in ids:
-            clustering1.append(rcm1[id] if id in rcm1 else None)
-            clustering2.append(rcm2[id] if id in rcm2 else None)
+            self.clustering1.append(rcm1[id] if id in rcm1 else None)
+            self.clustering2.append(rcm2[id] if id in rcm2 else None)
 
-        for i in xrange(len(clustering1)):
-            if sizes1[clustering1[i]] < size:
-                clustering1[i] = None
-
-        for i in xrange(len(clustering2)):
-            if sizes2[clustering2[i]] < size:
-                clustering2[i] = None
+        for i in xrange(N):
+            if sizes1[self.clustering1[i]] < size:
+                self.clustering1[i] = None
+            if sizes2[self.clustering2[i]] < size:
+                self.clustering2[i] = None
 
         def fix_nones(v, prefix):
             for i in xrange(len(v)):
@@ -848,15 +905,15 @@ class RcmVsRcm:
                     v[i] = prefix + str(i)
 
         if fix_nones:
-            fix_nones(clustering1, "__none__clustering1__")
-            fix_nones(clustering2, "__none__clustering2__")
+            fix_nones(self.clustering1, "__none__clustering1__")
+            fix_nones(self.clustering2, "__none__clustering2__")
 
-        res = clustering_simularity_indices(clustering1, clustering2)
+        res = clustering_simularity_indices(self.clustering1, self.clustering2)
         for k, v in res.__dict__.iteritems():
             self.__dict__[k] = v
 
-        self.constructed_purity = purity(clustering1, clustering2)
-        self.reference_purity = purity(clustering2, clustering1)
+        self.constructed_purity = purity(self.clustering1, self.clustering2)
+        self.reference_purity = purity(self.clustering2, self.clustering1)
 
     def report(self, report):
         if "reference_based" not in report.__dict__:
@@ -866,6 +923,50 @@ class RcmVsRcm:
 
         for k, v in self.__dict__.iteritems():
             rb[k] = v
+
+    @memoize
+    def votes(self):
+        return votes(self.clustering1, self.clustering2)
+
+    def plot_majority_secondary(self, out, format):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        votes = self.votes()
+        majority_votes = [vote[0] for vote in votes]
+        secondary_votes = [vote[1] for vote in votes]
+        # sizes = [sum(vote) for vote in votes]
+
+        ax.plot(majority_votes, secondary_votes, "bo", label="clusters")
+        ax.set_xlabel("Majority votes")  # Primary
+        ax.set_ylabel("Secondary votes")
+
+        save_plot(out, format=format)
+        plt.close()
+
+    def plot_purity_distribution(self, out, format):
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        votes = self.votes()
+        majority_votes = [vote[0] for vote in votes]
+        # secondary_votes = [vote[1] for vote in votes]
+        sizes = [sum(vote) for vote in votes]
+
+        purity = np.array(majority_votes, dtype=float) / np.array(sizes, dtype=float)
+
+        sns.distplot(purity, kde=False, bins=25, ax=ax)
+        ax.set_ylabel("Purity")
+        ax.set_xlim((0, 1))
+
+        save_plot(out, format=format)
+        plt.close()
 
 
 def reconstruct_rcm(initial_reads, repertoire,
@@ -1044,6 +1145,32 @@ def purity(X, Y):
     return float(majority_votes) / float(len(X))
 
 
+def votes(X, Y):
+    from collections import defaultdict
+
+    assert len(X) == len(Y)
+
+    class defaultdict_factory:
+
+        def __init__(self, type):
+            self.__type = type
+
+        def __call__(self):
+            return defaultdict(self.__type)
+
+    cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
+    for x, y in zip(X, Y):
+        cluster[x][y] += 1
+
+    votes = [sorted(cluster_content.itervalues(), reverse=True) for cluster_content in cluster.itervalues()]
+
+    for vote in votes:
+        if len(vote) < 2:
+            vote += [0] * (2 - len(vote))
+
+    return votes
+
+
 def dict2list(d, default=int):
     if not d:
         return []
@@ -1063,6 +1190,21 @@ def initialize_plot(figsize=(6, 6)):
     import matplotlib.pyplot as plt
     import seaborn as sns
     matplotlib.rcParams.update({'font.size': 16})
+
+    # matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    # matplotlib.rcParams['font.family'] = 'STIXGeneral'
+
+    # matplotlib.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
+    matplotlib.rc('text', usetex=True)
+
+    # matplotlib.rcParams['mathtext.fontset'] = 'custom'
+    # matplotlib.rcParams['mathtext.tt'] = matplotlib.rcParams['font.monospace']
+    # matplotlib.rcParams['mathtext.sf'] = matplotlib.rcParams['font.sans-serif']
+    # matplotlib.rcParams['mathtext.rm'] = matplotlib.rcParams['font.serif']
+    # # matplotlib.rcParams['mathtext.cal'] = matplotlib.rcParams[]
+    # matplotlib.rcParams['mathtext.it'] = matplotlib.rcParams['font.cursive']
+    # matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+
     sns.set_style("darkgrid")
 
     f, ax = plt.subplots(figsize=figsize)
@@ -1123,66 +1265,6 @@ def consensus(reads):
     return consensus
 
 assert consensus(["GAAA", "AAAC", "AATA"]) == "AAAA"
-
-
-def memoize_simple(method):
-    def new_method(self):
-        if "__memoise_cache" not in self.__dict__:
-            self.__memoise_cache = {}
-        if method not in self.__memoise_cache:
-            self.__memoise_cache[method] = method(self)
-        return self.__memoise_cache[method]
-    return new_method
-
-
-def memoize(method):
-    def new_method(self, *args, **kwargs):
-        if "__memoise_cache" not in self.__dict__:
-            self.__memoise_cache = {}
-
-        call = (method, args, tuple(sorted(kwargs.iteritems())))
-
-        if call not in self.__memoise_cache:
-            self.__memoise_cache[call] = method(self, *args, **kwargs)
-
-        return self.__memoise_cache[call]
-    return new_method
-
-
-def memoize_invalidate(method):
-    def new_method(self, *args, **kwargs):
-        self.__memoise_cache = {}
-        return method(self, *args, **kwargs)
-    return new_method
-
-
-# class Test:
-#
-#     @memoize
-#     def test(self):
-#         print "test() called"
-#         return 1
-#
-#     @memoize
-#     def test_a_plus_b(self, a, b):
-#         print "test_a_plus_b() called with", a, b
-#         return a + b
-#
-# test = Test()
-# print test.test()
-# print test.test()
-# print test.test()
-# print test.test()
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 3)
-# print test.test_a_plus_b(1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(b=3, a=1)
-# sys.exit(0)
 
 
 class Cluster:
@@ -1864,8 +1946,6 @@ if __name__ == "__main__":
         rep.report(report, "constructed_stats")
 
     if args.constructed_repertoire and args.reference_repertoire:
-        mkdir_p(args.reference_based_dir)
-
         res = RepertoireMatch(args.constructed_repertoire,
                               args.reference_repertoire,
                               tmp_file=None,
@@ -1877,6 +1957,8 @@ if __name__ == "__main__":
         res.report(report)
 
         if args.figure_format:
+            mkdir_p(args.reference_based_dir)
+
             for size in [1, 3, 5, 10]:
                 res.plot_sensitivity_precision(what="ref2cons",
                                                out=args.reference_based_dir + "/reference_to_constructed_distance_distribution_size_%d" % size,
@@ -1905,6 +1987,10 @@ if __name__ == "__main__":
                                      args.reference_rcm)
 
         clustering_scores.report(report)
+        if args.figure_format:
+            mkdir_p(args.reference_based_dir)
+            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/majority_secondary", format=args.figure_format)
+            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/purity_distribution", format=args.figure_format)
 
     log.info(report)
 
