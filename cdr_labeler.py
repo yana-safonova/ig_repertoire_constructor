@@ -175,6 +175,12 @@ def main(argv):
                                help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
 
+    optional_args.add_argument('--skip-plots',
+                               action='store_const',
+                               const=True,
+                               dest = "skip_plots",
+                               help = "Skip drawing plots")
+
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
@@ -217,12 +223,13 @@ def main(argv):
     try:
         cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
         support.sys_call(cdr_command_line, log)
-        log.info("\n==== Visualization ====")
-        visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
+        if not params.skip_plots:
+            log.info("\n==== Visualization ====")
+            visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
                                  os.path.join(params.output_dir, "shm_details.txt"),
                                  os.path.join(params.output_dir, "plots")])
-        log.info("\n==== Annotation report creation ====")
-        html_report_writer.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
+            log.info("\n==== Annotation report creation ====")
+            html_report_writer.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
                                 os.path.join(params.output_dir, "shm_details.txt"),
                                 os.path.join(params.output_dir, "plots"),
                                 os.path.join(params.output_dir, "annotation_report.html")])
