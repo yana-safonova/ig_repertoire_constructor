@@ -76,7 +76,10 @@ namespace vj_finder {
 
         int RightShift() const { return block_alignment_.path.right_shift(); }
 
-        virtual void AddShift(int shift) { shift_ = shift; }
+        virtual void AddShift(int shift) {
+            shift_ = shift;
+            block_alignment_.read_shift += shift;
+        }
     };
 
     class VGeneHit : public ImmuneGeneHit {
