@@ -1236,6 +1236,8 @@ def initialize_plot(figsize=(6, 6)):
     import matplotlib.pyplot as plt
     import seaborn as sns
     matplotlib.rcParams.update({'font.size': 16})
+    plt.ioff()
+    # matplotlib.use('Agg')
 
     # matplotlib.rcParams['mathtext.fontset'] = 'stix'
     # matplotlib.rcParams['font.family'] = 'STIXGeneral'
