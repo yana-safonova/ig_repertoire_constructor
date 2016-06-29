@@ -1940,15 +1940,10 @@ class Report:
 
         return s
 
-if __name__ == "__main__":
-    args = parse_command_line()
+def main(args):
     mkdir_p(args.output_dir)
 
     report = Report()
-
-    log = CreateLogger("aimQUAST")
-    if args.log:
-        AttachFileLogger(log, args.log)
 
     if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
         log.info("Try to reconstruct repertoire RCM file...")
@@ -2077,11 +2072,45 @@ if __name__ == "__main__":
         # scores = rcm_vs_rcm(args.constructed_rcm,
         #                     args.reference_rcm, size=100000000)
 
-    # Rands scores (with threshold) Is it possible to EFFICIENTLY compute Rand with
-    # threshold???
-    #
-    # Exclude CDR3 stats
+
+def SupportInfo(log):
+    log.info("\nIn case you have troubles running aimQUAST, "
+             "you can write to igtools_support@googlegroups.com.")
+    log.info("Please provide us with aimquast.log file from the output directory.")
+
+if __name__ == "__main__":
+    args = parse_command_line()
+
+    log = CreateLogger("aimQUAST")
+    if args.log:
+        AttachFileLogger(log, args.log)
+
+    try:
+        main(args)
+        log.info("\nThank you for using aimQUAST!")
+    except (KeyboardInterrupt):
+        log.info("\naimQUAST was interrupted!")
+    except Exception:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+    except BaseException:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+
+    log.info("Log was written to " + args.log)
 # CMD line
-# src/extra/aimquast/aimquast.py -i tmp_dir/merged_reads.fq -c tmp_dir/final_repertoire.fa -o oppo -C tmp_dir/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
-# src/extra/aimquast/aimquast.py -i tmp_dir/merged_reads.fq -c tmp_dir/BAD/final_repertoire.fa -o oppo -C tmp_dir/BAD/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
-# src/extra/aimquast/aimquast.py -s /ssd/simulated/igrec/vj_finder/cleaned_reads.fa -c /ssd/simulated/igrec/final_repertoire.fa  -C /ssd/simulated/igrec/final_repertoire.rcm -o /ssd/simulated/oppo -r /ssd/simulated/ideal_repertoire.clusters.fa -R /ssd/simulated/ideal_repertoire.rcm
+# ./aimquast.py -s tmp_dir/merged_reads.fq -c tmp_dir/final_repertoire.fa -o oppo -C tmp_dir/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
+# ./aimquast.py -s tmp_dir/merged_reads.fq -c tmp_dir/BAD/final_repertoire.fa -o oppo -C tmp_dir/BAD/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
+# ./aimquast.py -s /ssd/simulated/igrec/vj_finder/cleaned_reads.fa -c /ssd/simulated/igrec/final_repertoire.fa  -C /ssd/simulated/igrec/final_repertoire.rcm -o /ssd/simulated/oppo -r /ssd/simulated/ideal_repertoire.clusters.fa -R /ssd/simulated/ideal_repertoire.rcm
