@@ -98,11 +98,11 @@ namespace vj_finder {
             ", S end: " << it->first.last_match_subject_pos());
         }
 
-        VJHits vj_hits(read);
+        VJHits vj_hits(stranded_read);
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
-            vj_hits.AddVHit(VGeneHit(read, v_custom_db_[it->second], it->first, strand));
+            vj_hits.AddVHit(VGeneHit(stranded_read, v_custom_db_[it->second], it->first, strand));
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
-            vj_hits.AddJHit(JGeneHit(read, j_gene_db[it->second], it->first, strand));
+            vj_hits.AddJHit(JGeneHit(stranded_read, j_gene_db[it->second], it->first, strand));
         return vj_hits;
     }
 }
