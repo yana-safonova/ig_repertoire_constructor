@@ -64,6 +64,7 @@ namespace annotation_utils {
         StringSet<String<AminoAcid>, Owner<ConcatDirect<> > > aa_seqs;
         read_orf_ = region_range_map_[StructuralRegion::CDR1].start_pos % 3;
         translate(aa_seqs, suffix(read_.seq, read_orf_), SINGLE_FRAME);
+        VERIFY(seqan::length(aa_seqs) > 0);
         aa_read_seq_ = aa_seqs[0];
         ComputeProductiveness();
         ComputeInFrame();
