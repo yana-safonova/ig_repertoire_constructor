@@ -1938,6 +1938,7 @@ class Report:
             s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
             s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
             s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
+            s += "\t\tAdjusted Rand index:\t\t%(adjusted_rand_index)0.4f\n" % rb
             s += "\t\tReference purity:\t\t%(reference_purity)0.4f\n" % rb
             s += "\t\tConstructed purity:\t\t%(constructed_purity)0.4f\n" % rb
             s += "\n"
