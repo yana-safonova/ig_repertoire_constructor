@@ -922,14 +922,13 @@ class RcmVsRcm:
 
         return cluster_sizes
 
-    def __init__(self, rcm1, rcm2, fix_nones=True, size=1):
+    def __init__(self, rcm1, rcm2):
         rcm1, rcm2 = parse_rcm(rcm1), parse_rcm(rcm2)
 
-        sizes1 = self.rcm_count_cluster_sizes(rcm1)
-        sizes2 = self.rcm_count_cluster_sizes(rcm2)
+        self.sizes1 = self.rcm_count_cluster_sizes(rcm1)
+        self.sizes2 = self.rcm_count_cluster_sizes(rcm2)
 
         ids = list(set(rcm1.keys() + rcm2.keys()))
-        N = len(ids)
 
         self.clustering1 = []
         self.clustering2 = []
@@ -938,42 +937,55 @@ class RcmVsRcm:
             self.clustering1.append(rcm1[id] if id in rcm1 else None)
             self.clustering2.append(rcm2[id] if id in rcm2 else None)
 
-        for i in xrange(N):
-            if sizes1[self.clustering1[i]] < size:
-                self.clustering1[i] = None
-            if sizes2[self.clustering2[i]] < size:
-                self.clustering2[i] = None
+    @memoize
+    def indices(self):
+        from copy import copy
 
         def fix_nones(v, prefix):
             for i in xrange(len(v)):
                 if v[i] is None:
                     v[i] = prefix + str(i)
 
-        self.clustering1_none = self.clustering1
-        self.clustering2_none = self.clustering2
-        if fix_nones:
-            fix_nones(self.clustering1, "__none__clustering1__")
-            fix_nones(self.clustering2, "__none__clustering2__")
+        clustering1 = copy(self.clustering1)
+        clustering2 = copy(self.clustering2)
+        fix_nones(clustering1, "__none__clustering1__")
+        fix_nones(clustering2, "__none__clustering2__")
 
-        res = clustering_simularity_indices(self.clustering1, self.clustering2)
-        for k, v in res.__dict__.iteritems():
-            self.__dict__[k] = v
+        indices = clustering_simularity_indices(clustering1, clustering2)
+        indices.constructed_purity = purity(clustering1, clustering2)
+        indices.reference_purity = purity(clustering2, clustering1)
 
-        self.constructed_purity = purity(self.clustering1, self.clustering2)
-        self.reference_purity = purity(self.clustering2, self.clustering1)
+        return indices
 
-    def report(self, report):
-        if "reference_based" not in report.__dict__:
-            report.reference_based = {}
+    @memoize_invalidate
+    def prune(self, size1=1, size2=1):
+        N = len(self.clustering1)
 
-        rb = report.reference_based
+        for i in xrange(N):
+            if self.sizes1[self.clustering1[i]] < size1:
+                self.clustering1[i] = None
+            if self.sizes2[self.clustering2[i]] < size2:
+                self.clustering2[i] = None
 
-        for k, v in self.__dict__.iteritems():
+    def prune_copy(self, size1=1, size2=1):
+        from copy import deepcopy
+        result = deepcopy(self)
+        result.prune(size1, size2)
+        return result
+
+    def report(self, report, name="reference_based"):
+        if name not in report.__dict__:
+            report.__dict__[name] = {}
+
+        rb = report.__dict__[name]
+
+        indices = self.indices()
+        for k, v in indices.__dict__.iteritems():
             rb[k] = v
 
     @memoize
     def votes(self, constructed=True):
-        return votes(self.clustering1_none, self.clustering2_none) if constructed else votes(self.clustering2_none, self.clustering1_none)
+        return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
 
     def plot_majority_secondary(self, out, format, constructed=True):
         import numpy as np
