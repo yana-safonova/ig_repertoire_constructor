@@ -2064,6 +2064,14 @@ def main(args):
                            args.reference_rcm)
 
         rcm2rcm.report(report)
+
+        size = args.reference_size_cutoff
+
+        rcm2rcm_large = rcm2rcm.prune_copy(size, size)
+
+
+        rcm2rcm_large.report(report, "rcm_large")
+
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
             rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
@@ -2073,6 +2081,14 @@ def main(args):
             rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary", format=args.figure_format, constructed=False)
             rcm2rcm.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority", format=args.figure_format, constructed=False)
             rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
+
+            rcm2rcm_large.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary_large", format=args.figure_format)
+            rcm2rcm_large.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority_large", format=args.figure_format)
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large", format=args.figure_format)
+
+            rcm2rcm_large.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary_large", format=args.figure_format, constructed=False)
+            rcm2rcm_large.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority_large", format=args.figure_format, constructed=False)
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False)
 
     log.info(report)
 
