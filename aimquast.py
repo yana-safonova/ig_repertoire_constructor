@@ -2063,14 +2063,13 @@ def main(args):
         rcm2rcm = RcmVsRcm(args.constructed_rcm,
                            args.reference_rcm)
 
-        rcm2rcm.report(report)
+        rcm2rcm.report(report, "rcm_stats_all_clusters")
 
         size = args.reference_size_cutoff
 
         rcm2rcm_large = rcm2rcm.prune_copy(size, size)
 
-
-        rcm2rcm_large.report(report, "rcm_large")
+        rcm2rcm_large.report(report)
 
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
