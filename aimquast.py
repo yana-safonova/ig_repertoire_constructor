@@ -713,6 +713,8 @@ class RepertoireMatch:
         plt.xticks(taus + 0.5,
                    labels)
 
+        plt.xlim(0, max(taus)+1)
+
         if what in ["sensitivity", "ref2cons"]:
             plt.title("Distribution of distance from reference to constructed sequences")
         elif what in ["precision", "cons2ref"]:
@@ -754,6 +756,7 @@ class RepertoireMatch:
             plt.xticks(taus + 0.5,
                        labels)
             plt.title("sensitivity, size = %d" % size)
+            plt.xlim(0, max(taus)+1)
 
             plt.subplot(2, N, N + i + 1)
 
@@ -771,6 +774,7 @@ class RepertoireMatch:
             plt.xticks(taus + 0.5,
                        labels)
             plt.title("precision, size = %d" % size)
+            plt.xlim(0, max(taus)+1)
 
         plt.tight_layout()
 
