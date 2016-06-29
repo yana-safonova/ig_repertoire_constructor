@@ -1941,8 +1941,6 @@ class Report:
         return s
 
 def main(args):
-    mkdir_p(args.output_dir)
-
     report = Report()
 
     if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
@@ -2080,7 +2078,7 @@ def SupportInfo(log):
 
 if __name__ == "__main__":
     args = parse_command_line()
-
+    mkdir_p(args.output_dir)
     log = CreateLogger("aimQUAST")
     if args.log:
         AttachFileLogger(log, args.log)
