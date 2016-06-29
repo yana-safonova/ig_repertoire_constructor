@@ -1995,7 +1995,7 @@ def main(args):
         if args.figure_format:
             mkdir_p(args.reference_free_dir)
 
-            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/construced_cluster_error_profile",
+            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
                                            format=args.figure_format)
             rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
                                                      format=args.figure_format)
