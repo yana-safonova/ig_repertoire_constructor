@@ -1956,6 +1956,7 @@ class Report:
 
         return s
 
+
 def main(args):
     report = Report()
 
@@ -2059,19 +2060,19 @@ def main(args):
                                                 format=args.figure_format)
 
     if args.constructed_rcm and args.reference_rcm:
-        clustering_scores = RcmVsRcm(args.constructed_rcm,
-                                     args.reference_rcm)
+        rcm2rcm = RcmVsRcm(args.constructed_rcm,
+                           args.reference_rcm)
 
-        clustering_scores.report(report)
+        rcm2rcm.report(report)
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
-            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
-            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority", format=args.figure_format)
-            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format)
+            rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
+            rcm2rcm.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority", format=args.figure_format)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format)
 
-            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary", format=args.figure_format, constructed=False)
-            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority", format=args.figure_format, constructed=False)
-            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
+            rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary", format=args.figure_format, constructed=False)
+            rcm2rcm.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority", format=args.figure_format, constructed=False)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
 
     log.info(report)
 
