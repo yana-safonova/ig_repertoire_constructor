@@ -2011,9 +2011,13 @@ if __name__ == "__main__":
         clustering_scores.report(report)
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
-            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/majority_secondary", format=args.figure_format)
-            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/size_nomajority", format=args.figure_format)
-            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/purity_distribution", format=args.figure_format)
+            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
+            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority", format=args.figure_format)
+            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format)
+
+            clustering_scores.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary", format=args.figure_format, constructed=False)
+            clustering_scores.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority", format=args.figure_format, constructed=False)
+            clustering_scores.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
 
     log.info(report)
 
