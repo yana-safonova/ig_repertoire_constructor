@@ -25,3 +25,15 @@ ${IGREC_DIR}/py/ig_compress_equal_clusters.py ${OUTPUT_CONSENSUS_SHORT} ${OUTPUT
 
 
 ${IGREC_DIR}/igrec.py -s ${OUTPUT_READS} -o ${OUTPUT}/igrec_cleaned/ --loci=all
+
+
+rm -fr ${OUTPUT}/igrec
+
+rm -fr ${OUTPUT}/igrec_cleaned/vj_finder
+
+rm ${OUTPUT}/igrec_cleaned/super_reads.fa
+rm ${OUTPUT}/igrec_cleaned/final_repertoire_large.fa
+
+
+gzip ${OUTPUT}/igrec_cleaned/final_repertoire.fa
+# gzip ${OUTPUT}/igrec_cleaned/final_repertoire.rcm
