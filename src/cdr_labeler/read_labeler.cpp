@@ -4,7 +4,7 @@ namespace cdr_labeler {
     annotation_utils::AnnotatedClone ReadCDRLabeler::CreateAnnotatedClone(const vj_finder::VJHits &vj_hits) {
         auto v_hit = vj_hits.GetVHitByIndex(0);
         auto v_alignment = alignment_converter_.ConvertToAlignment(v_hit.ImmuneGene(),
-                                                                   v_hit.Read(),
+                                                                   vj_hits.Read(),
                                                                    v_hit.BlockAlignment());
         auto v_cdr_labeling = v_labeling_.GetLabelingByGene(v_hit.ImmuneGene());
         annotation_utils::CDRRange read_cdr1(v_alignment.QueryPositionBySubjectPosition(v_cdr_labeling.cdr1.start_pos),
@@ -13,12 +13,12 @@ namespace cdr_labeler {
                                              v_alignment.QueryPositionBySubjectPosition(v_cdr_labeling.cdr2.end_pos));
         auto j_hit = vj_hits.GetJHitByIndex(0);
         auto j_alignment = alignment_converter_.ConvertToAlignment(j_hit.ImmuneGene(),
-                                                                   j_hit.Read(),
+                                                                   vj_hits.Read(),
                                                                    j_hit.BlockAlignment());
         auto j_cdr_labeling = j_labeling_.GetLabelingByGene(j_hit.ImmuneGene());
         annotation_utils::CDRRange read_cdr3(v_alignment.QueryPositionBySubjectPosition(v_cdr_labeling.cdr3.start_pos),
                                              j_alignment.QueryPositionBySubjectPosition(j_cdr_labeling.cdr3.end_pos));
-        return annotation_utils::AnnotatedClone(v_hit.Read(), annotation_utils::CDRLabeling(read_cdr1,
+        return annotation_utils::AnnotatedClone(vj_hits.Read(), annotation_utils::CDRLabeling(read_cdr1,
                                                                                             read_cdr2,
                                                                                             read_cdr3),
                                                 v_alignment,

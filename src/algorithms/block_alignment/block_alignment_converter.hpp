@@ -82,7 +82,10 @@ namespace algorithms {
             }
 
             // Add starting gaps (reverse order since insert_gaps works with VIEW position!)
+            //std::cout << block_alignment.path.first().subject_pos << " - " << block_alignment.path.first().read_pos <<
+            //        " - " << block_alignment.read_shift << std::endl;
             int starting_gap = block_alignment.path.first().subject_pos - block_alignment.path.first().read_pos - block_alignment.read_shift;
+           // std::cout << "Starting gap: " << starting_gap << std::endl;
             if (starting_gap > 0) {
                 insertGaps(row_read, 0, starting_gap);
             } else if (starting_gap < 0) {

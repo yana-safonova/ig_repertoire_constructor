@@ -11,7 +11,7 @@ namespace annotation_utils {
     std::ostream& operator<<(std::ostream& out, const StructuralRegion &region);
 
     class AnnotatedClone {
-        const core::Read &read_;
+        core::Read read_;
 
         std::unordered_map<StructuralRegion, seqan::Dna5String, std::hash<int>> region_string_map_;
         std::unordered_map<StructuralRegion, CDRRange, std::hash<int>> region_range_map_;
@@ -44,7 +44,7 @@ namespace annotation_utils {
         void ComputeInFrame();
 
     public:
-        AnnotatedClone(const core::Read &read,
+        AnnotatedClone(core::Read read,
                        CDRLabeling cdr_labeling,
                        alignment_utils::ImmuneGeneReadAlignment v_alignment,
                        alignment_utils::ImmuneGeneReadAlignment j_alignment) :

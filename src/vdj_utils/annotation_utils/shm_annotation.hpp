@@ -44,14 +44,14 @@ namespace annotation_utils {
 
     // class stores SHMs in the order of increasing positions
     class GeneSegmentSHMs {
-        const core::Read &read_;
+        core::Read read_;
         const germline_utils::ImmuneGene &immune_gene_;
         std::vector<SHM> shms_;
 
         void CheckConsistencyFatal(SHM shm);
 
     public:
-        GeneSegmentSHMs(const core::Read &read, const germline_utils::ImmuneGene &immune_gene) :
+        GeneSegmentSHMs(core::Read read, const germline_utils::ImmuneGene &immune_gene) :
                 read_(read), immune_gene_(immune_gene) { }
 
         void AddSHM(SHM shm);
