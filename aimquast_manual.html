@@ -1,4 +1,5 @@
-<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>aimQUAST Manual</title>
     <style type="text/css">
         .code {
@@ -6,17 +7,143 @@
         }
     </style>
     <style>
+
     </style>
 </head>
 
-<h1>aimQUAST manual</h1>
+<body>
+    <h1>aimQUAST manual</h1> 1. <a href="#intro">What is aimQUAST?</a><br> 2. <a href="#install">Installation</a><br> 3. <a href="#aimquast_usage">aimQUAST usage</a><br> &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#aimquast_basic">Basic options</a><br> &nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#aimquast_advanced">Advanced options</a><br> &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#aimquast_examples">Examples</a><br> &nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#aimquast_output">Output files</a><br> 4. <a href="#feedback">Feedback and bug reports</a><br> &nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href="#citation">Citation</a><br>
 
-<a id="intro"></a>
-<h2>What is aimQUAST?</h2>
-aimQUAST is a tool for adaptive immune repertoires quality assessment.
+    <!-- -------- --->
 
-<!--- ---------------------------------------------------------------- -->
+    <h2 id="intro">1. What is aimQUAST?</h2> aimQUAST (Adaptive IMmune QUality ASsessment Tool) is a tool for adaptive immune repertoires quality assessment. aimQUAST provides reference-based and reference-free analysis and reports various metrics and plots.
+    <br> Plots reported in PNG, PDF and SVG formats. Metrics are reported in text (brief) and JSON (full) formats. YAML format support is experimental and requires <tt>yaml</tt> Python module.
+    <br> aimQUAST can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
 
-<h2>Input:</h2>
 
-<h2>Output:</h2>
+    <h2 id=install>2. Installation</h2> aimQUAST is a part of IgRepertoireConstructor package.<br> See <a href="manual.html#install">IgRepertoireConstructor manual</a> for installation instructions.<br> Please verify your aimQUAST installation prior to initiate the aimQUAST:
+    <pre class="code">
+<code>
+    ./aimquast.py --test
+</code>
+</pre>
+
+    <h2 id="usage">3. aimQUAST usage</h2>
+    <p>
+        aimQUAST takes as an input constructed repertoire only for reference-free analysis or constructed and reference repertoire for reference-based analysis. If reference repertoire is provided, reference-free metrics and plots are computed for reference too. Also the most of metrics and plots require initial RepSeq reads. Initial reads should be properly cropped and reads from negative strand should be reversed. The tool expects that each repertoire is performed by to files: repertoire sequences in FASTA format and read-cluster map (RCM) file in special format. See <a href="manual.html#repertoire_files">IgRepertoireConstructor manual</a> for a comprehensive repertoire format description. One of these two files could be missing, in this case the tool reconstructs it using available information. aimQUAST output is a bunch of figure files and metric reports in text and JSON formats. Also the tool saves its log that can be used for debugging purposes.
+    </p>
+
+    To run aimQUAST, type:
+    <pre class="code">
+    <code>
+    ./aimQUAST.py [options] -s &lt;initial reads&gt; \
+        -c &lt;constructed repertoire FASTA&gt; -C &lt;constructed repertoire RCM&gt; \
+        -r &lt;reference repertoire FASTA&gt; -R &lt;reference repertoire RCM&gt; \
+        -o &lt;output dir for plots&gt;
+    </code>
+</pre>
+
+    <!-- -->
+    <h3 id="aimquastbasic">3.1. Basic options</h3>
+
+    <code>-c / --constructed-repertoire &lt;constructed repertoire FASTA&gt;</code><br> FASTA file with constructed repertoire sequences. Could be gzipped.
+    <br><br>
+
+    <code>-C / --constructed-rcm &lt;constructed repertoire RCM&gt;</code><br> RCM file with constructed repertoire read-cluster map. Could be gzipped.
+    <br><br>
+
+    <code>-r / --reference-repertoire &lt;reference repertoire FASTA&gt;</code><br> FASTA file with reference repertoire sequences. Could be gzipped.
+    <br><br>
+
+    <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Could be gzipped.
+    <br><br>
+
+    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial RepSeq reads in FASTA or FASTQ format. Could be gzipped.
+    <br><br>
+
+    <code>-o / --output-dir &lt;output dir&gt;</code><br> output directory (required).
+    <br><br>
+
+    <code>/ --text &lt;text report file&gt;</code><br> File for text report output.
+    <br><br>
+
+    <code>/ --json &lt;JSON report file&gt;</code><br> File for JSON report output.
+    <br><br>
+
+    <code>/ --yaml &lt;YAML report file&gt;</code><br> File for YAML report output (experimental).
+    <br><br>
+
+    <code>--test</code><br> Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
+    <pre class="code">
+    <code>
+    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test \
+        -c aimquast_test_dataset/igrec_bad/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm \
+        -r aimquast_test_dataset/ideal_final_repertoire.fa -R aimquast_test_dataset/ideal_final_repertoire.rcm \
+        --text aimquast_test/aimquast.txt \
+        --json aimquast_test/aimquast.json \
+        --yaml aimquast_test/aimquast.yaml
+    </code>
+</pre>
+
+    <code>--help</code><br> Printing help.
+    <br><br>
+
+    <h3 id="aimquast_advanced">3.2. Advanced options</h3>
+
+    <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure format(s) for outputted plots. Allowed values are <code>png</code>, <code>pdf</code> and <code>svg</code>. Several values should be separated by commas. Use empty string for non producing plots. Default value is <code>png</code>.
+    <br><br>
+
+    <code>--reference-size-cutoff &lt;positive integer&gt;</code><br> Cutoff for reference cluster size. Lesser reference clusters are discarded during repertoire-to-repertoire comparison. See related paper for comprehensive discussion. Default value is <code>5/<code>.
+    <br><br>
+
+    <code>--export-bad-clusters</code><br> Export bad clusters during reference-free analysis.
+<!-- -->
+
+    <h3 id="aimquast_examples">3.3. Examples</h3>
+    Provide reference-free analysis:
+    <pre class="code">
+    <code>
+    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test \
+        -c aimquast_test_dataset/igrec_good/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm
+    </code>
+</pre>
+
+    Do not plot figures, only make JSON report:
+    <pre class="code">
+    <code>
+    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test \
+        -c aimquast_test_dataset/igrec_good/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm \
+        -r aimquast_test_dataset/ideal_final_repertoire.fa -R aimquast_test_dataset/ideal_final_repertoire.rcm \
+        --figure-format= \
+        --json aimquast_test/aimquast.json 
+    </code>
+</pre>
+
+<h3 id = "aimquast_output">3.4. Output files</h3>
+aimQUAST creates working directory (which name was specified using option <code>-o</code>) and outputs the following files there:
+
+    <ul>
+        <li>
+            <b>aimquast.log</b> &mdash; full log file of aimQUAST.
+        </li>
+        <li>
+            <b>constructed.rcm, reference.rcm, constructed.fa.gz. reference.fa.gz</b> &mdash; Reconstructed missing repertoire files.
+        </li>
+        <li>
+            <b>reference_based</b> &mdash; Directory with reference-based plots.
+        </li>
+        <li>
+            <b>reference_free</b> &mdash; Directory with reference-free plots.
+        </li>
+    </ul>
+
+    Files for reports (in text, JSON and YAML formats) are specified by corresponding options.
+
+    <!-- -------- -->
+    <h2 id="feedback">4. Feedback and bug reports</h2> Your comments, bug reports, and suggestions are very welcome. They will help us to further improve aimQUAST.
+    <br><br> If you have any trouble running aimQUAST, please send us the log file from the output directory.
+    <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
+
+    <h3 id="citation">4.1. Citation</h3> If you use aimQUAST in your research, please refer to TODO Update citation
+    <!-- <a href="http://bioginformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>. -->
+</body>

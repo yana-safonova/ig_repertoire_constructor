@@ -289,6 +289,20 @@ def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", lo
                      log=log)
 
 
+def run_consensus_constructor(initial_reads, rcm_file, output_file, log=None):
+    if log is None:
+        log = FakeLog()
+
+    args = {"path": path_to_igrec,
+            "cc_cmd": path_to_igrec + '/build/release/bin/ig_consensus_finder',
+            "initial_reads": initial_reads,
+            "output_file": output_file,
+            "rcm_file": rcm_file}
+
+    support.sys_call("%(cc_cmd)s -i %(initial_reads)s -R %(rcm_file)s -o %(output_file)s -H " % args,
+                     log=log)
+
+
 class MultToMultData:
 
     def __init__(self, constructed_abundances, constructed_sum, tau=0, reversed=False):
@@ -331,7 +345,8 @@ class MultToMultData:
         assert i < len(self.reference_cluster_sizes_unique)
         return self.mean_rates_unique[i]
 
-    def plot_reference_vs_constructed_size(self, out, title="", format=None):
+    def plot_reference_vs_constructed_size(self, out, title="", format=None,
+                                           marginals=False):
         import seaborn as sns
 
         f, ax = initialize_plot()
@@ -344,16 +359,23 @@ class MultToMultData:
             return ceil(number * p) / p
         uplimit = round_up(uplimit, -2)
 
-        g = sns.JointGrid(x=self.reference_cluster_sizes,
-                          y=self.constructed_cluster_sizes,
-                          xlim=(0, uplimit), ylim=(0, uplimit),
-                          ratio=5).set_axis_labels("Reference cluster size", "Constructed cluster size")
+        if marginals:
+            g = sns.JointGrid(x=self.reference_cluster_sizes,
+                              y=self.constructed_cluster_sizes,
+                              xlim=(0, uplimit), ylim=(0, uplimit),
+                              ratio=5).set_axis_labels("Reference cluster size", "Constructed cluster size")
 
-        g = g.plot_joint(sns.plt.scatter)
+            g = g.plot_joint(sns.plt.scatter)
+            g.plot_marginals(sns.distplot, kde=True, color=".5")
 
-        g.plot_marginals(sns.distplot, kde=True, color=".5")
+            ax = g.ax_joint
+        else:
+            plt.plot(self.reference_cluster_sizes, self.constructed_cluster_sizes, "bo", label="clusters")
+            ax.set_xlim((0, uplimit))
+            ax.set_ylim((0, uplimit))
+            ax.set_xlabel("Reference cluster size")
+            ax.set_ylabel("Constructed cluster size")
 
-        ax = g.ax_joint
         ax.plot([0, uplimit], [0, uplimit], "--", linewidth=0.5, color="black", label="$y = x$")
         # ax.plot([0, uplimit], [0, uplimit * self.median_rate(5)])
 
@@ -361,7 +383,9 @@ class MultToMultData:
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
                 label="rate median smoothing")
 
-        g.ax_joint.collections[0].set_label("clusters")
+        if marginals:
+            g.ax_joint.collections[0].set_label("clusters")
+
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
 
@@ -713,7 +737,7 @@ class RepertoireMatch:
         plt.xticks(taus + 0.5,
                    labels)
 
-        plt.xlim(0, max(taus)+1)
+        plt.xlim(0, max(taus) + 1)
 
         if what in ["sensitivity", "ref2cons"]:
             plt.title("Distribution of distance from reference to constructed sequences")
@@ -756,7 +780,7 @@ class RepertoireMatch:
             plt.xticks(taus + 0.5,
                        labels)
             plt.title("sensitivity, size = %d" % size)
-            plt.xlim(0, max(taus)+1)
+            plt.xlim(0, max(taus) + 1)
 
             plt.subplot(2, N, N + i + 1)
 
@@ -774,7 +798,7 @@ class RepertoireMatch:
             plt.xticks(taus + 0.5,
                        labels)
             plt.title("precision, size = %d" % size)
-            plt.xlim(0, max(taus)+1)
+            plt.xlim(0, max(taus) + 1)
 
         plt.tight_layout()
 
@@ -1835,6 +1859,9 @@ def parse_command_line(description="aimQUAST"):
                         help="file for YAML output")
     parser.add_argument("--text",
                         help="file for text output")
+    parser.add_argument("--export-bad-clusters",
+                        action="store_true",
+                        help="export bad clusters during reference-free analysis")
     parser.add_argument("--figure-format", "-F",
                         default="png",
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
@@ -1845,7 +1872,6 @@ def parse_command_line(description="aimQUAST"):
     assert 0 < args.reference_trash_cutoff <= args.reference_trust_cutoff
 
     assert args.output_dir
-    assert args.constructed_repertoire
 
     args.log = args.output_dir + "/aimquast.log"
 
@@ -1853,6 +1879,7 @@ def parse_command_line(description="aimQUAST"):
     args.reference_based_dir = args.output_dir + "/reference_based"
 
     args.figure_format = [fmt.strip() for fmt in args.figure_format.strip().split(",")]
+    args.figure_format = [format for format in args.figure_format if format in ["svg", "pdf", "png"]]
 
     return args
 
@@ -1929,18 +1956,32 @@ if __name__ == "__main__":
         args.constructed_rcm = args.output_dir + "/constructed.rcm"
         write_rcm(rcm, args.constructed_rcm)
 
+    if args.initial_reads and not args.constructed_repertoire and args.constructed_rcm:
+        log.info("Try to reconstruct repertoire sequence file...")
+        args.constructed_repertoire = args.output_dir + "/constructed.fa.gz"
+        run_consensus_constructor(rcm_file=args.constructed_rcm,
+                                  initial_reads=args.initial_reads,
+                                  output_file=args.constructed_repertoire)
+
     if args.initial_reads and args.reference_repertoire and not args.reference_rcm:
         log.info("Try to reconstruct reference RCM file...")
         rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
         args.reference_rcm = args.output_dir + "/reference.rcm"
         write_rcm(rcm, args.reference_rcm)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm:
-        mkdir_p(args.reference_free_dir)
+    if args.initial_reads and not args.reference_repertoire and args.reference_rcm:
+        log.info("Try to reconstruct reference repertoire sequence file...")
+        args.reference_repertoire = args.output_dir + "/reference.fa.gz"
+        run_consensus_constructor(rcm_file=args.reference_rcm,
+                                  initial_reads=args.initial_reads,
+                                  output_file=args.reference_repertoire)
 
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
+            mkdir_p(args.reference_free_dir)
+
             rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
                                                  format=args.figure_format)
             rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
@@ -1948,15 +1989,17 @@ if __name__ == "__main__":
             rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
                                                                 format=args.figure_format)
 
-        rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
+        if args.export_bad_clusters:
+            mkdir_p(args.reference_free_dir)
+            rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
         rep_ideal.report(report, "reference_stats")
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm:
-        mkdir_p(args.reference_free_dir)
-
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
+            mkdir_p(args.reference_free_dir)
+
             rep.plot_cluster_error_profile(out=args.reference_free_dir + "/construced_cluster_error_profile",
                                            format=args.figure_format)
             rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
@@ -1964,7 +2007,9 @@ if __name__ == "__main__":
             rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
                                                           format=args.figure_format)
 
-        rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
+        if args.export_bad_clusters:
+            mkdir_p(args.reference_free_dir)
+            rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
         rep.report(report, "constructed_stats")
 
     if args.constructed_repertoire and args.reference_repertoire:
