@@ -1,0 +1,24 @@
+io_params {
+    input_params {
+        input_sequences src/vdj_labeler_0.3/test/vdj_labeling.fastq
+        vj_finder_config configs/vj_finder/config.info
+
+    germlines {
+         igh {
+                 variable_genes data/germline/human_walczak_blank/IG/IGHV.fa
+                 diversity_genes data/germline/human_walczak_blank/IG/IGHD.fa
+                 join_genes data/germline/human_walczak_blank/IG/IGHJ.fa
+             }
+    }
+    }
+
+    output_params {
+        output_dir   vdj_test
+        log_filename log.properties    
+    }
+}
+
+run_params {
+    max_memory   250
+    thread_count 16
+}

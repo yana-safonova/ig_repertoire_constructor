@@ -7,14 +7,11 @@
 #include <copy_file.hpp>
 
 #include "vdj_config.hpp"
-// #include "vdj_launch.hpp"
+#include "vdj_launch.hpp"
 
 void create_console_logger(/*std::string cfg_filename*/) {
     using namespace logging;
     std::string log_props_file = "";
-    //if (!path::FileExists(log_props_file)){
-    //    log_props_file = path::append_path(path::parent_path(cfg_filename), log_props_file);
-    //}
     logger *lg = create_logger(path::FileExists(log_props_file) ? log_props_file : "");
     lg->add_writer(std::make_shared<console_writer>());
     attach_logger(lg);
@@ -65,6 +62,6 @@ int main(int argc, char **argv) {
     perf_counter pc;
     create_console_logger();
     vdj_labeler::VDJLabelerConfig config = load_config(argc, argv);
-    // vdj_labeler::VDJLabelerLaunch(config).Launch();
+    vdj_labeler::VDJLabelerLaunch(config).Launch();
     return 0;
 }

@@ -11,26 +11,10 @@ void load(VDJLabelerConfig::IOParams::InputParams::GermlineGenes::IGH_Genes &igh
     load(igh.join_genes, pt, "join_genes");
 }
 
-void load(VDJLabelerConfig::IOParams::InputParams::GermlineGenes::IGL_Genes &igl,
-          boost::property_tree::ptree const &pt, bool) {
-    using config_common::load;
-    load(igl.variable_genes, pt, "variable_genes");
-    load(igl.join_genes, pt, "join_genes");
-}
-
-void load(VDJLabelerConfig::IOParams::InputParams::GermlineGenes::IGK_Genes &igk,
-          boost::property_tree::ptree const &pt, bool) {
-    using config_common::load;
-    load(igk.variable_genes, pt, "variable_genes");
-    load(igk.join_genes, pt, "join_genes");
-}
-
 void load(VDJLabelerConfig::IOParams::InputParams::GermlineGenes &germlines,
           boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(germlines.igh_genes, pt, "igh");
-    load(germlines.igl_genes, pt, "igl");
-    load(germlines.igk_genes, pt, "igk");
 }
 
 void load(VDJLabelerConfig::IOParams::InputParams &input, boost::property_tree::ptree const &pt, bool) {

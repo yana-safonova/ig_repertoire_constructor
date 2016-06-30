@@ -21,19 +21,7 @@ struct VDJLabelerConfig {
                     std::string join_genes;
                 };
 
-                struct IGL_Genes {
-                    std::string variable_genes;
-                    std::string join_genes;
-                };
-
-                struct IGK_Genes {
-                    std::string variable_genes;
-                    std::string join_genes;
-                };
-
                 IGH_Genes igh_genes;
-                IGL_Genes igl_genes;
-                IGK_Genes igk_genes;
             };
 
             GermlineGenes germlines;

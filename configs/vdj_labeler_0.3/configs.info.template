@@ -1,6 +1,6 @@
 io_params {
     input_params {
-        input_sequences src/vdj_labeler/test/vdj_labeling.fastq
+        input_sequences src/vdj_labeler_0.3/test/vdj_labeling.fastq
         vj_finder_config configs/vj_finder/config.info
 
     germlines {

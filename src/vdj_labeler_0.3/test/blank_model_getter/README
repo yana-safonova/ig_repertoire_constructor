@@ -1,0 +1,3 @@
+To get blank model
+    1. Run .R script (this is easy -- works out of box).
+    2. Manually (TODO: bash script) copy all files into one model.
