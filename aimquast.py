@@ -1834,7 +1834,6 @@ def parse_command_line(description="aimQUAST"):
             setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
             setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
             setattr(namespace, "json", "aimquast_test/aimquast.json")
-            setattr(namespace, "yaml", "aimquast_test/aimquast.yaml")
             setattr(namespace, "text", "aimquast_test/aimquast.txt")
 
     parser = argparse.ArgumentParser(description=description)
@@ -1871,8 +1870,6 @@ def parse_command_line(description="aimQUAST"):
                         help="reference size cutoff")
     parser.add_argument("--json",
                         help="file for JSON output")
-    parser.add_argument("--yaml",
-                        help="file for YAML output")
     parser.add_argument("--text",
                         help="file for text output")
     parser.add_argument("--export-bad-clusters",
@@ -2097,11 +2094,6 @@ def main(args):
 
     if args.json:
         report.toJson(args.json)
-
-    if args.yaml:
-        report.toYaml(args.yaml)
-        # scores = rcm_vs_rcm(args.constructed_rcm,
-        #                     args.reference_rcm, size=100000000)
 
 
 def SupportInfo(log):
