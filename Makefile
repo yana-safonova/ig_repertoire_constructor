@@ -24,3 +24,6 @@ vjf:
 
 cdr:
 	$(MAKE) -C build/release/cdr_labeler
+
+vdj:
+	$(MAKE) -C build/release/vdj_labeler_0.3
