@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     barcodes_count = defaultdict(int)
 
-    print("Reading FASTQ...")
+    print("Reading library...")
     with smart_open(args.input, "r") as fh:
         data = list(SeqIO.parse(fh, idFormatByFileName(args.input)))
 
@@ -111,10 +111,10 @@ if __name__ == "__main__":
     barcodes = discard_rare_barcodes(barcodes, args.min_size, barcodes_count, discarded_barcodes)
     print "Barcodes discarded: %d" % len(discarded_barcodes)
 
-    for tau in range(1, args.tau):
-        print "Discarding close barcodes for distance %d" % tau
-        barcodes = discard_close_barcodes(barcodes, tau, barcodes_count, discarded_barcodes)
-        print "Barcodes discarded: %d" % len(discarded_barcodes)
+    args.tau -= 1
+    print "Discarding close barcodes for distance %d" % args.tau
+    barcodes = discard_close_barcodes(barcodes, args.tau, barcodes_count, discarded_barcodes)
+    print "Barcodes discarded: %d" % len(discarded_barcodes)
 
     print "Collecting output..."
     good_out = []
