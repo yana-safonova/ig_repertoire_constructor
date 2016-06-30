@@ -116,9 +116,7 @@ bool parse_cmd_line_arguments(int argc, char **argv, SWGCParam &args) {
         return false;
     }
 
-    if (vm.count("config-file")) {
-        std::string config_file = vm["config-file"].as<std::string>();
-
+    if (config_file != "") {
         std::ifstream ifs(config_file.c_str());
         if (!ifs) {
             cout << "can not open config file: " << config_file << "\n";
