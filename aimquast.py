@@ -13,31 +13,31 @@ CUTAIL = 0
 
 def memoize_simple(method):
     def new_method(self):
-        if "__memoise_cache" not in self.__dict__:
-            self.__memoise_cache = {}
-        if method not in self.__memoise_cache:
-            self.__memoise_cache[method] = method(self)
-        return self.__memoise_cache[method]
+        if "__memoize_cache" not in self.__dict__:
+            self.__memoize_cache = {}
+        if method not in self.__memoize_cache:
+            self.__memoize_cache[method] = method(self)
+        return self.__memoize_cache[method]
     return new_method
 
 
 def memoize(method):
     def new_method(self, *args, **kwargs):
-        if "__memoise_cache" not in self.__dict__:
-            self.__memoise_cache = {}
+        if "__memoize_cache" not in self.__dict__:
+            self.__memoize_cache = {}
 
         call = (method, args, tuple(sorted(kwargs.iteritems())))
 
-        if call not in self.__memoise_cache:
-            self.__memoise_cache[call] = method(self, *args, **kwargs)
+        if call not in self.__memoize_cache:
+            self.__memoize_cache[call] = method(self, *args, **kwargs)
 
-        return self.__memoise_cache[call]
+        return self.__memoize_cache[call]
     return new_method
 
 
 def memoize_invalidate(method):
     def new_method(self, *args, **kwargs):
-        self.__memoise_cache = {}
+        self.__memoize_cache = {}
         return method(self, *args, **kwargs)
     return new_method
 
