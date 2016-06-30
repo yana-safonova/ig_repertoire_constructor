@@ -10,6 +10,7 @@ from collections import defaultdict
 
 from ig_report_supernodes import smart_open
 
+
 def parse_cluster_mult(id):
     import re
     id = str(id)
@@ -83,7 +84,6 @@ if __name__ == "__main__":
         if not check_fa_rcm_consistency(args.input, args.rcm):
             exit(1)
 
-
     if (not args.tmp_fa_file):
         args.tmp_fa_file = tempfile.mkstemp(suffix=".fa", prefix="igrec_")[1]
     if (not args.tmp_map_file):
@@ -136,7 +136,6 @@ if __name__ == "__main__":
         print "Check output consistency..."
         if not check_fa_rcm_consistency(args.output, args.output_rcm):
             exit(1)
-
 
     print "Remove temporary files: %s %s" % (args.tmp_fa_file, args.tmp_map_file)
     os.remove(args.tmp_fa_file)
