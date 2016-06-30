@@ -1286,7 +1286,8 @@ def save_plot(plot_name,
 
     if make_dir:
         dirname = os.path.dirname(plot_name)
-        mkdir_p(dirname)
+        if dirname:
+            mkdir_p(dirname)
 
     if 'png' in format:
         plt.savefig(plot_name + '.png', format='png')
