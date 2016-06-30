@@ -87,7 +87,7 @@ void bestScorePairing(const std::vector<T> &input_reads1,
                       const Tf &score_fun,
                       int tau,
                       int K,
-                      Strategy strategy,
+                      unsigned strategy,
                       const std::string &fname1,
                       const std::string &fname2) {
     std::vector<BestScoreIndices> g1(input_reads1.size());
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     std::string input_file2 = "input2.fa";
     std::string output_file1 = "output1.match";
     std::string output_file2 = "output2.match";
-    int strategy_int = Strategy::TRIPLE;
+    unsigned strategy = 3;
 
     // Parse cmd-line arguments
     try {
@@ -173,8 +173,8 @@ int main(int argc, char **argv) {
         config.add_options()
             ("word-size,k", po::value<int>(&K)->default_value(K),
              "word size for k-mer index construction")
-            ("strategy,S", po::value<int>(&strategy_int)->default_value(strategy_int),
-             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple)")
+            ("strategy,S", po::value<unsigned>(&strategy)->default_value(strategy),
+             "strategy type (0 --- naive, 1 --- single, 2 --- pair, 3 --- triple, etc)")
             ("tau", po::value<int>(&tau)->default_value(tau),
              "maximum distance value for trancated dist-graph construction")
             ("threads,t", po::value<int>(&nthreads)->default_value(nthreads),
@@ -254,7 +254,7 @@ int main(int argc, char **argv) {
     cout << bformat("Reads: %d\n") % length(input_reads2);
 
     cout << "Reads' length checking..." << std::endl;
-    size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+    size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
 
     size_t discarded_reads1 = 0;
     for (const auto &read : input_reads1) {
@@ -279,9 +279,8 @@ int main(int argc, char **argv) {
     auto kmer2reads2 = kmer2reads2_fut.get();
 
     omp_set_num_threads(nthreads);
+    cout << bformat("Strategy %d is used") % strategy << std::endl;
     cout << bformat("Matching (using %d threads)...") % nthreads << std::endl;
-    Strategy strategy = Strategy(strategy_int);
-    cout << toCString(strategy) << std::endl;
 
     /*
     auto score_fun = [tau](const Dna5String &s1, const Dna5String &s2) -> int {
