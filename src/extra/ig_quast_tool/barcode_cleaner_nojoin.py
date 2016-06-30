@@ -30,6 +30,7 @@ sys.path.append(igrec_dir)
 from aimquast import consensus
 from aimquast import initialize_plot, save_plot
 
+
 def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):
     result = []
     for barcode in barcodes:
@@ -125,7 +126,6 @@ if __name__ == "__main__":
         barcodes_count[barcode] += 1
         clusters[barcode].append(str(record.seq))
 
-
     cluster_consensus = {}
     distances = []
     print "Compute consensus by barcodes"
@@ -133,11 +133,11 @@ if __name__ == "__main__":
         cons = cluster_consensus[barcode] = consensus(reads)
         distances += [hamming(cons, read) for read in reads]
 
-
     if args.distance_plot:
         initialize_plot()
         sns.distplot(distances)
         save_plot(args.distance_plot, ("png", "pdf"))
+        print "distance plot saved to %s.{png,pdf}" % args.distance_plot
 
     print("%d barcodes readed, %d unique barcodes" % (sum(barcodes_count.itervalues()),
                                                       len(barcodes_count)))
