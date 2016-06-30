@@ -81,7 +81,9 @@ def parse_command_line(description="aimQUAST"):
     args.reference_trash_cutoff = args.reference_trust_cutoff = args.reference_size_cutoff
     assert 0 < args.reference_trash_cutoff <= args.reference_trust_cutoff
 
-    assert args.output_dir
+    if args.output_dir is None:
+        parser.print_help()
+        sys.exit(1)
 
     args.log = args.output_dir + "/aimquast.log"
 
@@ -248,6 +250,7 @@ if __name__ == "__main__":
         AttachFileLogger(log, args.log)
 
     try:
+        log.info("Command line: %s" % " ".join(sys.argv))
         main(args)
         log.info("\nThank you for using aimQUAST!")
     except (KeyboardInterrupt):
