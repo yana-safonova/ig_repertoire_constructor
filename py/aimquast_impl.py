@@ -240,7 +240,7 @@ class Reperoire2RepertoireMatching:
                                         out,
                                         bins=25,
                                         ylog=True,
-                                        format=format):
+                                        format=None):
         import numpy as np
         import matplotlib.pyplot as plt
 
@@ -297,6 +297,7 @@ class RepertoireMatch:
         self.rep2rep = Reperoire2RepertoireMatching.bidirection(constructed_repertoire=constructed_repertoire,
                                                                 reference_repertoire=reference_repertoire,
                                                                 max_tau=max_tau,
+                                                                tmp_file=tmp_file,
                                                                 log=log)
 
         self.rep2rep.check(log=log)
@@ -516,11 +517,11 @@ class RepertoireMatch:
                       sizes=(1, 3, 5, 10),
                       differential=True,
                       max_tau=4,
-                      format=format):
+                      format=None):
         import numpy as np
         import matplotlib.pyplot as plt
 
-        f, ax = initialize_plot(figsize=(8, 4))
+        initialize_plot(figsize=(8, 4))
 
         N = len(sizes)
         for i in xrange(len(sizes)):
@@ -572,7 +573,7 @@ class RepertoireMatch:
                                      tau=0,
                                      out="fdr_sensitivity",
                                      title="",
-                                     format=format):
+                                     format=None):
         import numpy as np
         import matplotlib.pyplot as plt
         import seaborn as sns
@@ -749,7 +750,7 @@ class RcmVsRcm:
     def votes(self, constructed=True):
         return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
 
-    def plot_majority_secondary(self, out, format, constructed=True):
+    def plot_majority_secondary(self, out, format=None, constructed=True):
         f, ax = initialize_plot()
 
         votes = self.votes(constructed)
@@ -763,7 +764,7 @@ class RcmVsRcm:
 
         save_plot(out, format=format)
 
-    def plot_size_nomajority(self, out, format, constructed=True):
+    def plot_size_nomajority(self, out, format=None, constructed=True):
         import numpy as np
 
         f, ax = initialize_plot()
@@ -778,7 +779,7 @@ class RcmVsRcm:
 
         save_plot(out, format=format)
 
-    def plot_purity_distribution(self, out, format, constructed=True):
+    def plot_purity_distribution(self, out, format=None, constructed=True):
         import numpy as np
         import seaborn as sns
 
@@ -1056,7 +1057,8 @@ def save_plot(plot_name,
     if 'svg' in format:
         plt.savefig(plot_name + '.svg', format='svg')
 
-    plt.close()
+    if close:
+        plt.close()
 
 
 def consensus(reads):
@@ -1418,7 +1420,7 @@ class Repertoire:
                                    bins=25,
                                    title="",
                                    min_size=None,
-                                   format=format):
+                                   format=None):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -1487,7 +1489,7 @@ class Repertoire:
                                              min_size=None,
                                              lam=None,
                                              combine_tail=True,
-                                             format=format):
+                                             format=None):
         import numpy as np
         import matplotlib.pyplot as plt
         from scipy.stats import poisson
