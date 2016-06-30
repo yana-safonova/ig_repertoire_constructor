@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <fstream>
 #include <exception>
+#include <verify.hpp>
 
 #include <seqan/seq_io.h>
 using seqan::length;
@@ -94,7 +95,7 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
 
     auto ans = imults[n - 1][imults[n - 1].size() - 1];
 
-    assert(ans < INF);
+    VERIFY(ans < INF);
 
     std::vector<size_t> result(n);
     // Backward reconstruction
