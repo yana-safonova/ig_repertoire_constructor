@@ -446,7 +446,8 @@ class RepertoireMatch:
 
         max_tau = min(max_tau, self.max_tau)
 
-        func = lambda tau: getattr(self, what)(size=size, tau=tau)
+        def func(tau):
+            return getattr(self, what)(size=size, tau=tau)
 
         taus = range(max_tau + 1)
         measures = map(func, taus)
@@ -581,8 +582,11 @@ class RepertoireMatch:
         assert what_x in ["sensitivity", "fdr", "precision", "recall"]
         assert what_y in ["sensitivity", "fdr", "precision", "recall"]
 
-        func_x = lambda size: getattr(self, what_x)(size=size, tau=tau)
-        func_y = lambda size: getattr(self, what_y)(size=size, tau=tau)
+        def func_x(size):
+            return getattr(self, what_x)(size=size, tau=tau)
+
+        def func_y(size):
+            return getattr(self, what_y)(size=size, tau=tau)
 
         f, ax = initialize_plot()
 
