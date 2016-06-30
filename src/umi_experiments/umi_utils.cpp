@@ -4,6 +4,11 @@
 #include <logger/log_writers.hpp>
 #include "umi_utils.hpp"
 
+void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis) {
+    std::vector<seqan::DnaQString> umi_quals;
+    extract_barcodes_from_read_ids(input_ids, umis, umi_quals);
+}
+
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
                                     std::vector<seqan::DnaQString>& umi_quals) {
     for (auto& id : input_ids) {

@@ -331,24 +331,37 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    size_t count_total_reads_from_umis(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+    size_t count_reads_with_corrected_umi(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters) {
+        const auto& clusters = umi_to_clusters.toSet();
         size_t result = 0;
-        for (const auto& umi : umis_to_clusters.fromSet()) {
-            const auto& clusters = umis_to_clusters.forth(umi);
-            for (const auto& cluster : clusters) {
-                result += cluster->weight;
+        for (const auto& cluster : clusters) {
+            const auto& members = cluster->members;
+            std::vector<seqan::CharString> read_ids(members.size());
+            std::transform(members.begin(), members.end(), read_ids.begin(), [](Read read) -> seqan::CharString { return read.GetReadId(); });
+            std::vector<seqan::Dna5String> umis;
+            extract_barcodes_from_read_ids(read_ids, umis);
+            std::unordered_map<seqan::Dna5String, size_t> umi_to_cnt;
+            for (const seqan::Dna5String& umi : umis) {
+                umi_to_cnt[umi] ++;
+            }
+            size_t max_cnt = 0;
+            for (const auto& entry : umi_to_cnt) {
+                max_cnt = std::max(max_cnt, entry.second);
+            }
+            bool was_max = false;
+            for (const auto& entry : umi_to_cnt) {
+                if (entry.second == max_cnt) {
+                    if (was_max) {
+                        result += entry.second;
+                        INFO("Tie for count " << max_cnt);
+                    }
+                    was_max = true;
+                } else {
+                    result += entry.second;
+                }
             }
         }
         return result;
-    }
-
-    template <typename ElementType>
-    size_t count_reads_with_corrected_umi(const ManyToManyCorrespondenceUmiToCluster<ElementType>& before,
-                                          const ManyToManyCorrespondenceUmiToCluster<ElementType>& after) {
-        size_t before_size = count_total_reads_from_umis(before);
-        size_t after_size = count_total_reads_from_umis(after);
-        VERIFY(after_size >= before_size);
-        return after_size - before_size;
     }
 
     template <typename ElementType>

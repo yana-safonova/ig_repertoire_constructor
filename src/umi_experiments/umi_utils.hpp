@@ -84,6 +84,8 @@ struct UmiPtrHash {
 };
 
 
+void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis);
+
 void extract_barcodes_from_read_ids(const std::vector<seqan::CharString>& input_ids, std::vector<seqan::Dna5String>& umis,
                                     std::vector<seqan::DnaQString>& umi_quals);
 

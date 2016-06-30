@@ -157,8 +157,8 @@ int main(int argc, const char* const* argv) {
             clusterer::ClusteringMode::hamming, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
-    size_t hamm_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_hamm_inside_umi, umi_to_clusters_hamm_adj_umi);
-    INFO(hamm_corrected_reads << " reads have UMI corrected.");
+//    size_t hamm_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_hamm_inside_umi, umi_to_clusters_hamm_adj_umi);
+//    INFO(hamm_corrected_reads << " reads have UMI corrected for hamming dist.");
 
     INFO("Clustering reads by edit distance within single UMIs with threshold " << clusterer::ClusteringMode::edit.threshold);
     const auto umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
@@ -171,8 +171,11 @@ int main(int argc, const char* const* argv) {
             clusterer::ClusteringMode::edit, compressed_umi_ptrs, umi_to_clusters_edit_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
-    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
-    INFO(edit_corrected_reads << " reads have UMI corrected.");
+//    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
+//    INFO(edit_corrected_reads << " reads have UMI corrected for edit dist.");
+//    INFO(hamm_corrected_reads + edit_corrected_reads << " reads total have UMI corrected.");
+    size_t reads_with_corrected_umis = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_adj_umi);
+    INFO(reads_with_corrected_umis << " reads total have UMI corrected.");
 
     INFO("Uniting clusters with identical centers");
     const auto umi_to_clusters_same_centers = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::uniteByCenters(
