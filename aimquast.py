@@ -88,22 +88,13 @@ sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p
+from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, FakeLog
 
 sys.path.append(igrec_dir + "/py")
 from ig_compress_equal_clusters import parse_cluster_mult
 
 
 path_to_igrec = igrec_dir
-
-
-class FakeLog:
-
-    def info(self, msg):
-        print msg
-
-    def warn(self, msg):
-        print msg
 
 
 def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", log=None,

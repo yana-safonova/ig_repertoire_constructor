@@ -10,10 +10,7 @@ sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, fastx2fastx
-
-sys.path.append(igrec_dir)
-from aimquast import FakeLog
+from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, fastx2fastx, FakeLog
 
 
 path_to_ig_simulator = igrec_dir + "/../ig_simulator/"

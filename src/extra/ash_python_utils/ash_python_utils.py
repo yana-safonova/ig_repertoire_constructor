@@ -104,3 +104,12 @@ def mkdir_p(path):
             pass
         else:
             raise
+
+
+class FakeLog:
+
+    def info(self, msg):
+        print msg
+
+    def warn(self, msg):
+        print msg
