@@ -1257,7 +1257,7 @@ class Repertoire:
         if min_size is None:
             min_size = self.__min_size
 
-        nerrors = self.__nerrors_by_read()
+        nerrors = self.__nerrors_by_read(min_size)
 
         # Different strategies
         # MLE

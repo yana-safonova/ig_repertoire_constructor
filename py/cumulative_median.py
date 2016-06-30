@@ -1,7 +1,9 @@
 class MinHeap:
     import heapq
 
-    def __init__(self, initial=[]):
+    def __init__(self, initial=None):
+        if initial is None:
+            initial = []
         self.heap = initial[:]
         self.heapq.heapify(self.heap)
 
@@ -22,7 +24,9 @@ class MinHeap:
 
 
 class MaxHeap:
-    def __init__(self, initial=[]):
+    def __init__(self, initial=None):
+        if initial is None:
+            initial = []
         initial = [-item for item in initial]
         self.min_heap = MinHeap(initial)
 
