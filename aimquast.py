@@ -951,7 +951,7 @@ class RcmVsRcm:
         fix_nones(clustering1, "__none__clustering1__")
         fix_nones(clustering2, "__none__clustering2__")
 
-        indices = clustering_simularity_indices(clustering1, clustering2)
+        indices = clustering_similarity_indices(clustering1, clustering2)
         indices.constructed_purity = purity(clustering1, clustering2)
         indices.reference_purity = purity(clustering2, clustering1)
 
@@ -1124,7 +1124,7 @@ def write_rcm(rcm, filename):
             f.write("%s\t%s\n" % (read, cluster))
 
 
-def clustering_simularity_indices(X, Y):
+def clustering_similarity_indices(X, Y):
     from collections import defaultdict
     from math import sqrt, log
 
@@ -1932,7 +1932,7 @@ class Report:
             s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
             s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
 
-            s += "\tClustering simularity measures:\n"
+            s += "\tClustering similarity measures:\n"
             s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
             s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
             s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
