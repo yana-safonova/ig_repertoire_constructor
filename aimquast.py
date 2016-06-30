@@ -10,67 +10,6 @@ import os
 
 CUTAIL = 0
 
-
-# def memoize_simple(method):
-#     def new_method(self):
-#         if "__memoize_cache" not in self.__dict__:
-#             self.__memoize_cache = {}
-#         if method not in self.__memoize_cache:
-#             self.__memoize_cache[method] = method(self)
-#         return self.__memoize_cache[method]
-#     return new_method
-#
-
-def memoize(method):
-    def new_method(self, *args, **kwargs):
-        if "__memoize_cache" not in self.__dict__:
-            self.__memoize_cache = {}
-
-        call = (method, args, tuple(sorted(kwargs.iteritems())))
-
-        if call not in self.__memoize_cache:
-            self.__memoize_cache[call] = method(self, *args, **kwargs)
-
-        return self.__memoize_cache[call]
-    return new_method
-
-
-def memoize_invalidate(method):
-    def new_method(self, *args, **kwargs):
-        self.__memoize_cache = {}
-        return method(self, *args, **kwargs)
-    return new_method
-
-
-# class Test:
-#
-#     @memoize
-#     def test(self):
-#         print "test() called"
-#         return 1
-#
-#     @memoize
-#     def test_a_plus_b(self, a, b):
-#         print "test_a_plus_b() called with", a, b
-#         return a + b
-#
-# test = Test()
-# print test.test()
-# print test.test()
-# print test.test()
-# print test.test()
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 2)
-# print test.test_a_plus_b(1, 3)
-# print test.test_a_plus_b(1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(a=1, b=3)
-# print test.test_a_plus_b(b=3, a=1)
-# sys.exit(0)
-
-
 # matplotlib.rcParams['mathtext.fontset'] = 'custom'
 # matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
 # matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
@@ -88,7 +27,7 @@ sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, FakeLog
+from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, FakeLog, memoize, memoize_invalidate
 
 sys.path.append(igrec_dir + "/py")
 from ig_compress_equal_clusters import parse_cluster_mult
@@ -1641,6 +1580,64 @@ class Repertoire:
         rf["bad_clusters"] = self.bad_clusters_id()
 
 
+class Report:
+
+    def toText(self, filename):
+        with smart_open(filename, "w") as f:
+            f.write(str(self))
+
+    def toJson(self, filename,
+               indent=4, sort_keys=True,
+               **kwargs):
+        import json
+        with smart_open(filename, "w") as f:
+            json.dump(self.__dict__, f,
+                      indent=indent, sort_keys=sort_keys,
+                      *kwargs)
+
+    def toYaml(self, filename, **kwargs):
+        try:
+            import yaml
+            with smart_open(filename, "w") as f:
+                yaml.dump(self.__dict__, f,
+                          *kwargs)
+        except ImportError:
+            print "Module 'yaml' is absent"
+
+    def __str__(self):
+        s = ""
+
+        if "reference_based" in self.__dict__:
+            rb = self.reference_based
+            s += "Reference-based quality measures (with size threshold = %(min_size)d):\n" % rb
+            s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
+            s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
+            s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+
+            s += "\tClustering similarity measures:\n"
+            s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
+            s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
+            s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
+            s += "\t\tAdjusted Rand index:\t\t%(adjusted_rand_index)0.4f\n" % rb
+            s += "\t\tReference purity:\t\t%(reference_purity)0.4f\n" % rb
+            s += "\t\tConstructed purity:\t\t%(constructed_purity)0.4f\n" % rb
+            s += "\n"
+
+        if "reference_stats" in self.__dict__:
+            st = self.reference_stats
+            s += "Reference repertoire statistics:\n"
+            s += "\tError rate:\t\t\t\t%(error_rate)0.4f\n" % st
+            s += "\n"
+
+        if "constructed_stats" in self.__dict__:
+            st = self.constructed_stats
+            s += "Constructed repertoire statistics:\n"
+            s += "\tError rate:\t\t\t\t%(error_rate)0.4f\n" % st
+            s += "\n"
+
+        return s
+
+
 def parse_command_line(description="aimQUAST"):
     import argparse
 
@@ -1718,64 +1715,6 @@ def parse_command_line(description="aimQUAST"):
     args.figure_format = [format for format in args.figure_format if format in ["svg", "pdf", "png"]]
 
     return args
-
-
-class Report:
-
-    def toText(self, filename):
-        with smart_open(filename, "w") as f:
-            f.write(str(self))
-
-    def toJson(self, filename,
-               indent=4, sort_keys=True,
-               **kwargs):
-        import json
-        with smart_open(filename, "w") as f:
-            json.dump(self.__dict__, f,
-                      indent=indent, sort_keys=sort_keys,
-                      *kwargs)
-
-    def toYaml(self, filename, **kwargs):
-        try:
-            import yaml
-            with smart_open(filename, "w") as f:
-                yaml.dump(self.__dict__, f,
-                          *kwargs)
-        except ImportError:
-            print "Module 'yaml' is absent"
-
-    def __str__(self):
-        s = ""
-
-        if "reference_based" in self.__dict__:
-            rb = self.reference_based
-            s += "Reference-based quality measures (with size threshold = %(min_size)d):\n" % rb
-            s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
-            s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
-            s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
-
-            s += "\tClustering similarity measures:\n"
-            s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
-            s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
-            s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
-            s += "\t\tAdjusted Rand index:\t\t%(adjusted_rand_index)0.4f\n" % rb
-            s += "\t\tReference purity:\t\t%(reference_purity)0.4f\n" % rb
-            s += "\t\tConstructed purity:\t\t%(constructed_purity)0.4f\n" % rb
-            s += "\n"
-
-        if "reference_stats" in self.__dict__:
-            st = self.reference_stats
-            s += "Reference repertoire statistics:\n"
-            s += "\tError rate:\t\t\t\t%(error_rate)0.4f\n" % st
-            s += "\n"
-
-        if "constructed_stats" in self.__dict__:
-            st = self.constructed_stats
-            s += "Constructed repertoire statistics:\n"
-            s += "\tError rate:\t\t\t\t%(error_rate)0.4f\n" % st
-            s += "\n"
-
-        return s
 
 
 def main(args):

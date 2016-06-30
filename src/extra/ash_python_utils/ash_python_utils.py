@@ -113,3 +113,53 @@ class FakeLog:
 
     def warn(self, msg):
         print msg
+
+
+def memoize(method):
+    def new_method(self, *args, **kwargs):
+        if "__memoize_cache" not in self.__dict__:
+            self.__memoize_cache = {}
+
+        call = (method, args, tuple(sorted(kwargs.iteritems())))
+
+        if call not in self.__memoize_cache:
+            self.__memoize_cache[call] = method(self, *args, **kwargs)
+
+        return self.__memoize_cache[call]
+    return new_method
+
+
+def memoize_invalidate(method):
+    def new_method(self, *args, **kwargs):
+        self.__memoize_cache = {}
+        return method(self, *args, **kwargs)
+    return new_method
+
+
+# class Test:
+#
+#     @memoize
+#     def test(self):
+#         print "test() called"
+#         return 1
+#
+#     @memoize
+#     def test_a_plus_b(self, a, b):
+#         print "test_a_plus_b() called with", a, b
+#         return a + b
+#
+# test = Test()
+# print test.test()
+# print test.test()
+# print test.test()
+# print test.test()
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 2)
+# print test.test_a_plus_b(1, 3)
+# print test.test_a_plus_b(1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(a=1, b=3)
+# print test.test_a_plus_b(b=3, a=1)
+# sys.exit(0)
