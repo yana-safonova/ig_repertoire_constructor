@@ -1612,7 +1612,7 @@ class Repertoire:
 
         # print "Median read len ", read_len
 
-        def Q(q, size):
+        def quantile_max_poisson(q, size):
             from scipy.stats import poisson
             import math
             l = read_len
@@ -1643,9 +1643,9 @@ class Repertoire:
         sizes = range(1, int(ax.get_xlim()[1]) + 1)
 
         level = 0.05
-        q_upper = [Q(1. - level / 2, size) for size in sizes]
-        q50 = [Q(0.50, size) for size in sizes]
-        q_lower = [Q(level / 2, size) for size in sizes]
+        q_upper = [quantile_max_poisson(1. - level / 2, size) for size in sizes]
+        q50 = [quantile_max_poisson(0.50, size) for size in sizes]
+        q_lower = [quantile_max_poisson(level / 2, size) for size in sizes]
         ax.plot(sizes, q_upper, "--", color="black", linewidth=0.5)
         ax.plot(sizes, q_lower, "--", color="black", linewidth=0.5)
         ax.plot(sizes, q50, ":", color="black", linewidth=0.5)
