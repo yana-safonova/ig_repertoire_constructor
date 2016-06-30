@@ -7,37 +7,28 @@ from Bio import SeqIO
 from collections import defaultdict
 
 
-import contextlib
-@contextlib.contextmanager
-def smart_open(filename, mode="r"):
-    """
-    From http://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
-    """
-    import gzip
-    import re
-    from sys import stdout, stdin
+import os
+import os.path
+import sys
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-    if "w" in mode:
-        MODE = "w"
-    elif "a" in mode:
-        MODE= "a"
-    else:
-        MODE = "r"
+current_dir = os.path.dirname(os.path.realpath(__file__))
+igrec_dir = current_dir + "/../../../"
+sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
+sys.path.append(igrec_dir + "/src/python_pipeline/")
+import support
+sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, fastx2fastx
 
-    if filename != '-':
-        if re.match(r"^.*\.gz$", filename):
-            assert(MODE != "a")
-            fh = gzip.open(filename, mode=MODE)
-        else:
-            fh = open(filename, mode=mode)
-    else:
-        assert(MODE != "a")
-        fh = stdout if MODE == "w" else stdin
-    try:
-        yield fh
-    finally:
-        if fh is not stdout and fh is not stdin:
-            fh.close()
+sys.path.append(igrec_dir + "/py")
+from ig_compress_equal_clusters import parse_cluster_mult
+
+sys.path.append(igrec_dir)
+from aimquast import consensus
+from aimquast import initialize_plot, save_plot
 
 
 def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):
@@ -71,17 +62,21 @@ def discard_close_barcodes(barcodes, tau, barcode2size, discarded):
     return result
 
 
-
-
+def hamming(X, Y):
+    res = 0
+    for x, y in zip(X, Y):
+        if x != y:
+            res += 1
+    return res
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Fix barcode errors in dataset without joining; fixed protocol after discussion with Chudakov's team")
     parser.add_argument("input",
                         type=str,
-                        help="input FASTQ file")
+                        help="input FASTA/FASTQ file")
     parser.add_argument("output",
                         type=str,
-                        help="output FASTQ file")
+                        help="output FASTA/FASTQ file")
     parser.add_argument("--rcm", "-r",
                         type=str,
                         help="RCM file for final read-barcode map")
@@ -98,7 +93,15 @@ if __name__ == "__main__":
                         help="minimal barcode size [default %(default)d]")
     parser.add_argument("--bad-output", "-b",
                         type=str,
-                        help="FASTQ file for bad-barcoded reads")
+                        help="FASTA/FASTQ file for bad-barcoded reads")
+    parser.add_argument("--distance-plot",
+                        type=str,
+                        default="",
+                        help="Figure file for distance distribution plot")
+    parser.add_argument("--distance-threshold", "-d",
+                        type=int,
+                        default=10,
+                        help="distance threshold [default %(default)d]")
     # parser.add_argument("--subs-map", "-M",
     #                     type=str,
     #                     help="file for subs table")
@@ -107,18 +110,34 @@ if __name__ == "__main__":
 
     barcodes_count = defaultdict(int)
 
-    print("Reading FASTQ...")
+    print("Reading library...")
     with smart_open(args.input, "r") as fh:
-        data = list(SeqIO.parse(fh, "fastq"))
+        data = list(SeqIO.parse(fh, idFormatByFileName(args.input)))
 
     if not args.no_fix_spaces:
         for record in data:
             record.description = str(record.description).replace(" ", "_")
             record.id = record.name = record.description
 
+    clusters = defaultdict(list)
+
     for record in data:
         barcode = extract_barcode(record.id)
         barcodes_count[barcode] += 1
+        clusters[barcode].append(str(record.seq))
+
+    cluster_consensus = {}
+    distances = []
+    print "Compute consensus by barcodes"
+    for barcode, reads in clusters.iteritems():
+        cons = cluster_consensus[barcode] = consensus(reads)
+        distances += [hamming(cons, read) for read in reads]
+
+    if args.distance_plot:
+        initialize_plot()
+        sns.distplot(distances)
+        save_plot(args.distance_plot, ("png", "pdf"))
+        print "distance plot saved to %s.{png,pdf}" % args.distance_plot
 
     print("%d barcodes readed, %d unique barcodes" % (sum(barcodes_count.itervalues()),
                                                       len(barcodes_count)))
@@ -131,18 +150,18 @@ if __name__ == "__main__":
     barcodes = discard_rare_barcodes(barcodes, args.min_size, barcodes_count, discarded_barcodes)
     print "Barcodes discarded: %d" % len(discarded_barcodes)
 
-    for tau in range(1, args.tau):
+    if args.tau:
+        tau = args.tau - 1
         print "Discarding close barcodes for distance %d" % tau
         barcodes = discard_close_barcodes(barcodes, tau, barcodes_count, discarded_barcodes)
         print "Barcodes discarded: %d" % len(discarded_barcodes)
-
 
     print "Collecting output..."
     good_out = []
     bad_out = []
     for record in data:
         barcode = extract_barcode(record.id)
-        if barcode not in discarded_barcodes:
+        if barcode not in discarded_barcodes and hamming(record.seq, cluster_consensus[barcode]) <= args.distance_threshold:
             good_out.append(record)
         else:
             bad_out.append(record)
@@ -151,11 +170,11 @@ if __name__ == "__main__":
 
     print "Writing output..."
     with smart_open(args.output, "w") as fh:
-        SeqIO.write(good_out, fh, "fastq")
+        SeqIO.write(good_out, fh, idFormatByFileName(args.output))
 
     if args.bad_output:
         with smart_open(args.bad_output, "w") as fh:
-            SeqIO.write(bad_out, fh, "fastq")
+            SeqIO.write(bad_out, fh, idFormatByFileName(args.bad_output))
 
     if args.rcm:
         with smart_open(args.rcm, "w") as fh:
