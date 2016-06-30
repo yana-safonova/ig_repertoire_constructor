@@ -1448,7 +1448,7 @@ class Repertoire:
 
         cdr_mask = ((cdr1_start < xs) & (xs < cdr1_end)) | ((cdr2_start < xs) & (xs < cdr2_end)) | ((cdr3_start < xs) & (xs < cdr3_end))
         cdr_values = values[cdr_mask]
-        cdr_bins = bins[cdr_mask]
+        cdr_bins = bins[:-1][cdr_mask]
 
         eps = 1. / len(values) / 10
 
