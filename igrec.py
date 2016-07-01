@@ -453,8 +453,11 @@ class DSFPhase(Phase):
         self.__params.io.CheckSWGraphExistance()
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.io.sw_graph, '-o', self.__params.io.dsf_output, '-t',
-                      str(self.__params.num_threads), '-n', str(self.__params.min_snode_size)]
+        dsf_params = ['-g', self.__params.io.sw_graph,
+                      '-o', self.__params.io.dsf_output,
+                      '-t', str(self.__params.num_threads),
+                      '-n', str(self.__params.min_snode_size),
+                      '-f', str(self.__params.min_fillin)]
         if self.__params.create_trivial_decomposition:
             dsf_params.append('--create-triv-dec')
         if self.__params.save_aux_files:
