@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -125,7 +125,7 @@ class SeedSet;
  *
  * @section Examples
  *
- * @include demos/seeds/seeds_add_seed.cpp
+ * @include demos/dox/seeds/seeds_add_seed.cpp
  *
  * The output is as follows:
  *

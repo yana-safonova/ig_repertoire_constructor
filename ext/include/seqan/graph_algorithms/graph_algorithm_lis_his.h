@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@
 #ifndef SEQAN_HEADER_GRAPH_ALGORITHM_LIS_HIS_H
 #define SEQAN_HEADER_GRAPH_ALGORITHM_LIS_HIS_H
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 struct Lcs_;
@@ -50,7 +50,6 @@ typedef Tag<Lcs_> Lcs;
 template<typename TSortedSequence, typename TKey>
 inline typename TSortedSequence::const_iterator
 _previousInSortedSequence(TSortedSequence const& list, TKey const key) {
-    SEQAN_CHECKPOINT
     typedef typename TSortedSequence::const_iterator TSortedSequenceIter;
 
     TSortedSequenceIter a_k_it = list.lower_bound(key);
@@ -79,7 +78,6 @@ _previousInSortedSequence(TSortedSequence const& list, TKey const key) {
 template<typename TSortedSequence, typename TIterator>
 inline typename TSortedSequence::const_iterator
 _nextInSortedSequence(TSortedSequence const& list, TIterator const& prev) {
-    SEQAN_CHECKPOINT
     typedef typename TSortedSequence::const_iterator TSortedSequenceIter;
 
     TSortedSequenceIter b_l_it;
@@ -108,7 +106,7 @@ _nextInSortedSequence(TSortedSequence const& list, TIterator const& prev) {
  *
  * @section Example
  *
- * @include demos/graph_algorithms/longest_increasing_subsequence.cpp
+ * @include demos/dox/graph_algorithms/longest_increasing_subsequence.cpp
  *
  * @code{.console}
  * 5,3,4,9,6,2,1,8,7,10,
@@ -123,7 +121,6 @@ _nextInSortedSequence(TSortedSequence const& list, TIterator const& prev) {
 template<typename TString, typename TPositions>
 inline void
 longestIncreasingSubsequence(TString const& str, TPositions& pos) {
-    SEQAN_CHECKPOINT
 
     // The list of decreasing covers, only the smallest number must be remembered
     // See Gusfield
@@ -196,7 +193,7 @@ longestIncreasingSubsequence(TString const& str, TPositions& pos) {
  *
  * @section Example
  *
- * @include demos/graph_algorithms/longest_common_subsequence.cpp
+ * @include demos/dox/graph_algorithms/longest_common_subsequence.cpp
  *
  * @code{.console}
  * Score = 3
@@ -218,7 +215,6 @@ longestCommonSubsequence(TString1 const& str1,
                          TNeighborhoodSize nSize,
                          TFinalPos& pos)
 {
-    SEQAN_CHECKPOINT
     typedef typename Value<TString1>::Type TValue;
     typedef typename Size<TString1>::Type TSize;
     typedef typename Position<TString1>::Type TPos;
@@ -273,7 +269,6 @@ globalAlignment(TAlign& align,
                 TStringSet const& str,
                 Lcs)
 {
-    SEQAN_CHECKPOINT
     typedef typename Id<TStringSet>::Type TId;
     typedef typename Size<TStringSet>::Type TSize;
     TId id1 = positionToId(str, 0);
@@ -351,7 +346,7 @@ globalAlignment(TAlign& align,
  *
  * @section Example
  *
- * @include demos/graph_algorithms/heaviest_increasing_subsequence.cpp
+ * @include demos/dox/graph_algorithms/heaviest_increasing_subsequence.cpp
  *
  * @code{.console}
  * z(Weight=1),e(Weight=1),i(Weight=10),t(Weight=1),g(Weight=1),e(Weight=1),i(Weight=1),s(Weight=1),t(Weight=1),
@@ -369,7 +364,6 @@ heaviestIncreasingSubsequence(TString const& str,
                               TWeightMap const& weights,
                               TPositions& pos)
 {
-    SEQAN_CHECKPOINT
     typedef typename Size<TString>::Type TSize;
     typedef typename Value<TString>::Type TValue;
     typedef typename Value<TPositions>::Type TPos;
@@ -450,6 +444,6 @@ heaviestIncreasingSubsequence(TString const& str,
 
 
 
-}// namespace SEQAN_NAMESPACE_MAIN
+}// namespace seqan
 
 #endif //#ifndef SEQAN_HEADER_...

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -115,7 +115,8 @@ typedef Tag<FibreTreeStructure_>    const FibreTreeStructure;
 template <typename TValue, typename TSpec, typename TConfig>
 struct Fibre<RankDictionary<TValue, WaveletTree<TSpec, TConfig> >, FibreRanks>
 {
-    typedef String<RankDictionary<bool, Levels<TSpec, TConfig> > > Type;
+    // TODO(esiragusa): use String and investigate issues with open/save() and valgrind.
+    typedef StringSet<RankDictionary<bool, Levels<TSpec, TConfig> > > Type;
 };
 
 template <typename TValue, typename TSpec, typename TConfig>

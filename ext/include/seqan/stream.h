@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -88,6 +88,19 @@
 #include <seqan/stream/file_stream.h>
 #include <seqan/stream/stream_compressor.h>
 #include <seqan/stream/buffered_stream.h>
+
+#if SEQAN_HAS_ZLIB
+#include <zlib.h>
+#include <seqan/stream/iostream_zutil.h>
+#include <seqan/stream/iostream_zip.h>
+#include <seqan/stream/iostream_zip_impl.h>
+#include <seqan/stream/iostream_bgzf.h>
+#endif
+
+#if SEQAN_HAS_BZIP2
+#include <seqan/stream/iostream_bzip2.h>
+#endif
+
 #include <seqan/stream/virtual_stream.h>
 #include <seqan/stream/formatted_file.h>
 

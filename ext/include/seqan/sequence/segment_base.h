@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@
 #define SEQAN_HEADER_SEGMENT_BASE_H
 
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 /*!
@@ -165,7 +165,7 @@ namespace SEQAN_NAMESPACE_MAIN
  *
  * Segments support element access (reading and writing) as well as random access iteration.
  *
- * @snippet demos/sequence/segment.cpp basic operations
+ * @snippet demos/dox/sequence/segment.cpp basic operations
  *
  * You can get the type of the infix/prefix/suffix of a sequence using @link SegmentableConcept#Infix @endlink,
  * @link SegmentableConcept#Prefix @endlink, and @link SegmentableConcept#Suffix @endlink.  These metafunctions will
@@ -176,12 +176,12 @@ namespace SEQAN_NAMESPACE_MAIN
  * A suffix of a suffix remains a suffix, a prefix of a prefix remains a prefix.  Any other combination leads to
  * the resulting type being a infix segment.
  *
- * @snippet demos/sequence/segment.cpp metafunction examples
+ * @snippet demos/dox/sequence/segment.cpp metafunction examples
  *
  * If you explicitely need a segment and keep the underlying sequence as it is, explicitely use the <tt>Segment</tt>
  * template class.
  *
- * @snippet demos/sequence/segment.cpp explicit segment
+ * @snippet demos/dox/sequence/segment.cpp explicit segment
  *
  * @aka substring
  */
@@ -429,7 +429,6 @@ template <typename THost, typename TSpec>
 inline void const *
 getObjectId(Segment<THost, TSpec> const & me)
 {
-SEQAN_CHECKPOINT
     return getObjectId(host(me));
 }
 
@@ -474,7 +473,6 @@ template <typename THost, typename TSpec>
 SEQAN_HOST_DEVICE inline bool
 empty(Segment<THost, TSpec> const & me)
 {
-    SEQAN_CHECKPOINT;
     return (beginPosition(me) == endPosition(me));
 }
 
@@ -484,7 +482,6 @@ template <typename THost, typename TSpec>
 SEQAN_HOST_DEVICE inline typename Size<Segment<THost, TSpec> const>::Type
 length(Segment<THost, TSpec> const & me)
 {
-SEQAN_CHECKPOINT
     return endPosition(me) - beginPosition(me);
 }
 
@@ -494,7 +491,6 @@ template <typename THost, typename TSpec>
 inline typename Size< Segment<THost, TSpec> const>::Type
 capacity(Segment<THost, TSpec> const & me)
 {
-SEQAN_CHECKPOINT
     return capacity(host(me)) + length(me) - length(host(me));
 }
 
@@ -649,7 +645,6 @@ assign(Segment<THost, TSpec> & target,
        TSource & source,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source);
 }
 template <typename THost, typename TSpec, typename TSource, typename TExpand>
@@ -658,7 +653,6 @@ assign(Segment<THost, TSpec> & target,
        TSource const & source,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source);
 }
 
@@ -669,7 +663,6 @@ assign(Segment<THost, TSpec> & target,
        typename Size< Segment<THost, TSpec> >::Type limit,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source, limit);
 }
 template <typename THost, typename TSpec, typename TSource, typename TExpand>
@@ -679,7 +672,6 @@ assign(Segment<THost, TSpec> & target,
        typename Size< Segment<THost, TSpec> >::Type limit,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source, limit);
 }
 
@@ -691,7 +683,6 @@ assign(Segment<THost, TSpec> const & target,
        TSource & source,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source);
 }
 template <typename THost, typename TSpec, typename TSource, typename TExpand>
@@ -700,7 +691,6 @@ assign(Segment<THost, TSpec> const & target,
        TSource const & source,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source);
 }
 
@@ -711,7 +701,6 @@ assign(Segment<THost, TSpec> const & target,
        typename Size< Segment<THost, TSpec> >::Type limit,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source, limit);
 }
 template <typename THost, typename TSpec, typename TSource, typename TExpand>
@@ -721,7 +710,6 @@ assign(Segment<THost, TSpec> const & target,
        typename Size< Segment<THost, TSpec> >::Type limit,
        Tag<TExpand>)
 {
-SEQAN_CHECKPOINT
     AssignSegment_<Tag<TExpand> >::assign_(target, source, limit);
 }
 
@@ -733,7 +721,6 @@ inline bool
 operator == (Segment<TLeftHost, TLeftSpec> const & left,
             TRight const & right)
 {
-SEQAN_CHECKPOINT
     typename Comparator<Segment<TLeftHost, TLeftSpec> >::Type _lex(left, right);
     return isEqual(_lex);
 }
@@ -745,7 +732,6 @@ inline bool
 operator != (Segment<TLeftHost, TLeftSpec> const & left,
             TRight const & right)
 {
-SEQAN_CHECKPOINT
     typename Comparator<Segment<TLeftHost, TLeftSpec> >::Type _lex(left, right);
     return isNotEqual(_lex);
 }
@@ -757,7 +743,6 @@ inline bool
 operator < (Segment<TLeftHost, TLeftSpec> const & left,
             TRight const & right)
 {
-SEQAN_CHECKPOINT
     return isLess(left, right, typename DefaultPrefixOrder<Segment<TLeftHost, TLeftSpec> >::Type());
 }
 
@@ -768,7 +753,6 @@ inline bool
 operator <= (Segment<TLeftHost, TLeftSpec> const & left,
              TRight const & right)
 {
-SEQAN_CHECKPOINT
     return isLessOrEqual(left, right, typename DefaultPrefixOrder<Segment<TLeftHost, TLeftSpec> >::Type());
 }
 //////////////////////////////////////////////////////////////////////////////
@@ -778,7 +762,6 @@ inline bool
 operator > (Segment<TLeftHost, TLeftSpec> const & left,
             TRight const & right)
 {
-SEQAN_CHECKPOINT
     return isGreater(left, right, typename DefaultPrefixOrder<Segment<TLeftHost, TLeftSpec> >::Type());
 }
 
@@ -789,7 +772,6 @@ inline bool
 operator >= (Segment<TLeftHost, TLeftSpec> const & left,
         TRight const & right)
 {
-SEQAN_CHECKPOINT
     return isGreaterOrEqual(left, right, typename DefaultPrefixOrder<Segment<TLeftHost, TLeftSpec> >::Type());
 }
 
@@ -852,6 +834,6 @@ resize(
 
 // TODO(singer): moveValue still works. Should make the compiler throw an error.
 
-} //namespace SEQAN_NAMESPACE_MAIN
+} //namespace seqan
 
 #endif //#ifndef SEQAN_HEADER_...

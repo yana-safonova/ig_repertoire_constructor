@@ -104,6 +104,7 @@ public:
     public:
         EdgesIterator(const SparseGraph& graph, const size_t vertex, size_t current) :
                 graph_(graph), vertex_(vertex), current_(current) {}
+        EdgesIterator(const EdgesIterator& other) = default;
 
         EdgesIterator operator ++();
 

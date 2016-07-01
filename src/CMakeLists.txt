@@ -8,6 +8,9 @@
 # Hard prerequisites
 cmake_minimum_required(VERSION 2.8.8)
 
+# export compiler arguments (need for autocompletion)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # allow more human readable "if then else" constructs
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 
@@ -53,12 +56,17 @@ include(includes)
 # Handle common libs
 include(libs)
 
+# Enable testing (check & check_essential targets)
+include(check)
+
 configure_file("${SPADES_MAIN_INCLUDE_DIR}/config.hpp.in"
                "${SPADES_BUILT_INCLUDE_DIR}/config.hpp")
 
 # Build external dependencies (if any)
 add_subdirectory("${EXT_DIR}/src" "${Project_BINARY_DIR}/ext")
 add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
+
+add_subdirectory(build_info)
 
 # sub projects
 add_subdirectory(io)

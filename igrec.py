@@ -137,12 +137,11 @@ class IgRepConConfig:
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
         self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
         self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
-        self.run_rcm_recoverer = os.path.join(home_directory, 'src/ig_quast_tool/rcm_recoverer.py')
-        self.run_remove_low_abundance_reads = os.path.join(home_directory, 'src/ig_quast_tool/ig_remove_low_abundance_reads.py')
-        self.run_compress_equal_clusters = os.path.join(home_directory, 'src/ig_quast_tool/ig_compress_equal_clusters.py')
-        self.run_report_supernodes = os.path.join(home_directory, 'src/ig_quast_tool/ig_report_supernodes.py')
+        self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
+        self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
+        self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
-        self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
+        self.path_to_germline = os.path.join(home_directory, "data/germline")
 
     def __init__(self):
         self.__initBinaryPaths()
@@ -158,7 +157,11 @@ class IgRepConConfig:
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_trie_compressor):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.path_to_trie_compressor +") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_report_supernodes):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
@@ -169,16 +172,16 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
-            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
+        if not os.path.exists(self.path_to_consensus_constructor):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if  not os.path.exists(self.run_rcm_recoverer):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_compress_equal_clusters):
             log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.run_remove_low_abundance_reads):
-            log.info("ERROR: Binary file of " + phase_names.GetRemoveLowAbundanceReadsName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
@@ -450,8 +453,11 @@ class DSFPhase(Phase):
         self.__params.io.CheckSWGraphExistance()
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.io.sw_graph, '-o', self.__params.io.dsf_output, '-t',
-                      str(self.__params.num_threads), '-n', str(self.__params.min_snode_size)]
+        dsf_params = ['-g', self.__params.io.sw_graph,
+                      '-o', self.__params.io.dsf_output,
+                      '-t', str(self.__params.num_threads),
+                      '-n', str(self.__params.min_snode_size),
+                      '-f', str(self.__params.min_fillin)]
         if self.__params.create_trivial_decomposition:
             dsf_params.append('--create-triv-dec')
         if self.__params.save_aux_files:
@@ -555,7 +561,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
+        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
                                                 self.__params.io.compressed_final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
                                                 self.__params.min_cluster_size)

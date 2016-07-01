@@ -17,6 +17,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 # endif()
 
 add_definitions(-DSEQAN_HAS_ZLIB=1)
+add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 # This checking performed BEFORE compilation, so boost_po is not available at this moment
 # find_package(Boost REQUIRED program_options)
@@ -56,9 +57,13 @@ link_libraries(input yaml-cpp ${COMMON_LIBRARIES})
 remove_definitions(-Wconversion)
 
 add_executable(ig_trie_compressor ig_trie_compressor.cpp)
+target_link_libraries(ig_trie_compressor build_info)
+
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
 add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
+target_link_libraries(ig_swgraph_construct build_info)
+
 add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)

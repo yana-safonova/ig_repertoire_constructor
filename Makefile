@@ -12,3 +12,9 @@ dsf:
 
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
+
+check: all
+	$(MAKE) -C build/release check
+
+check_essential: all
+	$(MAKE) -C build/release check_essential

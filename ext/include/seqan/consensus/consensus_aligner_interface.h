@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -124,11 +124,11 @@ namespace seqan {
  * <tt>consensusAlignment()</tt> is then used to compute a MSA and the consensus sequence is stored in
  * <tt>store.contigStore[0].seq</tt>.
  *
- * @include demos/consensus/consensus_alignment.cpp
+ * @include demos/dox/consensus/consensus_alignment.cpp
  *
  * The output is as follows:
  *
- * @include demos/consensus/consensus_alignment.cpp.stdout
+ * @include demos/dox/consensus/consensus_alignment.cpp.stdout
  */
 
 template <typename TSpec, typename TConfig>

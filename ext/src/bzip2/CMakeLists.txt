@@ -2,10 +2,11 @@ project(bzip2 C)
 
 include_directories(${EXT_DIR}/include)
 
-file(GLOB bzip2_SRC
-     "*.c"
-)
-
 add_library(bz2 STATIC
-            ${bzip2_SRC})
-
+            blocksort.c
+            huffman.c
+            crctable.c
+            randtable.c
+            compress.c
+            decompress.c
+            bzlib.c)

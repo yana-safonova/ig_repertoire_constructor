@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -134,19 +134,19 @@ class Fragment;
  * Global alignment of two sequences using an @link Align @endlink object and
  * the Needleman-Wunsch algorithm.
  *
- * @include demos/align/global_alignment_unbanded.cpp
+ * @include demos/dox/align/global_alignment_unbanded.cpp
  *
  * The output is as follows:
  *
- * @include demos/align/global_alignment_unbanded.cpp.stdout
+ * @include demos/dox/align/global_alignment_unbanded.cpp.stdout
  *
  * Global banded alignment of two sequences using two @link Gaps @endlink objects and the Gotoh algorithm.
  *
- * @include demos/align/global_alignment_banded.cpp
+ * @include demos/dox/align/global_alignment_banded.cpp
  *
  * The output is as follows:
  *
- * @include demos/align/global_alignment_banded.cpp.stdout
+ * @include demos/dox/align/global_alignment_banded.cpp.stdout
  *
  * http://seqan.readthedocs.org/en/develop/Tutorial/PairwiseSequenceAlignment.html
  *
