@@ -1,8 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include "alignment_positions.hpp"
 
 #include <seqan/align.h>
+
+#include <verify.hpp>
 
 namespace alignment_utils {
     // Versatile pairwise alignment
@@ -124,4 +128,5 @@ namespace alignment_utils {
     };
 
     typedef PairwiseAlignment<germline_utils::ImmuneGene, core::Read> ImmuneGeneReadAlignment;
+    typedef std::shared_ptr<ImmuneGeneReadAlignment> ImmuneGeneReadAlignmentPtr;
 }
