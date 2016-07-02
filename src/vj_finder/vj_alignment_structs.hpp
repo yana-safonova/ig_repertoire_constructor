@@ -82,6 +82,8 @@ namespace vj_finder {
         }
     };
 
+    typedef std::shared_ptr<ImmuneGeneHit> ImmuneGeneHitPtr;
+
     class VGeneHit : public ImmuneGeneHit {
 
     public:
@@ -110,6 +112,8 @@ namespace vj_finder {
             return int(block_alignment_.last_match_read_pos()) + shift_;
         }
     };
+
+    typedef std::shared_ptr<VGeneHit> VGeneHitPtr;
 
     class JGeneHit : public ImmuneGeneHit {
         int left_shift_;
@@ -142,8 +146,11 @@ namespace vj_finder {
         }
     };
 
+    typedef std::shared_ptr<JGeneHit> JGeneHitPtr;
+
     class VJHits {
         core::Read read_;
+    private:
         std::vector<VGeneHit> v_hits_;
         std::vector<JGeneHit> j_hits_;
 
@@ -181,6 +188,14 @@ namespace vj_finder {
         }
 
         const core::Read& Read() const { return read_; }
+
+        const std::vector<VGeneHit> &VHits() const { return v_hits_; }
+
+        const std::vector<JGeneHit> &JHits() const { return j_hits_; }
+
+        std::vector<ImmuneGeneHitPtr> VPtrHits() const;
+
+        std::vector<ImmuneGeneHitPtr> JPtrHits() const;
     };
 
     typedef boost::optional<VJHits> ProcessedVJHits;

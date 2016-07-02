@@ -51,6 +51,8 @@ namespace vj_finder {
         ChainTypeAbundanceConstIter chain_type_cbegin() const { return chain_type_abundance_.cbegin(); }
 
         ChainTypeAbundanceConstIter chain_type_cend() const { return chain_type_abundance_.cend(); }
+
+        const std::vector<VJHits>& AlignmentRecords() const { return alignment_records_; }
     };
 
     class VJAlignmentOutput {

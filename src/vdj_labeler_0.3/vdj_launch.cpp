@@ -6,6 +6,7 @@
 #include <block_alignment/block_alignment_converter.hpp>
 #include <alignment_utils/pairwise_alignment.hpp>
 #include <block_alignment/block_alignment_converter.hpp>
+#include <vdj_alignments/vdj_hits.hpp>
 
 namespace vdj_labeler {
 
@@ -34,10 +35,12 @@ void VDJLabelerLaunch::Launch() {
     INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
         " reads were filtered out");
 
-    // algorithms::BlockAlignmentConverter block_alignment_converter;
-    // for (auto& alignment_record : alignment_info.AlignmentRecords()) {
-    //     block_alignment_converter.ConvertToAlignment(alignment_record.)
-    // }
+    INFO(alignment_info.AlignmentRecords()[2].Read());
+    INFO(alignment_info.AlignmentRecords()[2].VHits()[0].ImmuneGene());
+    // INFO(alignment_info.AlignmentRecords()[0].VHits()[0].Read());
+    // INFO(alignment_info.AlignmentRecords()[0].JHits().size());
+    auto vdj_hits = VDJHits(alignment_info.AlignmentRecords()[2]);
+    INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
 }
 
 }

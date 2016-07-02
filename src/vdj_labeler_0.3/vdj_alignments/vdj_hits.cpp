@@ -1,4 +1,7 @@
+#include <memory>
+
 #include "vdj_hits.hpp"
+#include "immune_gene_alignment_converter.hpp"
 
 namespace vdj_labeler {
 
@@ -12,7 +15,30 @@ alignment_utils::ImmuneGeneReadAlignmentPtr ImmuneGeneSegmentHits::operator[](si
     return hits_[index];
 }
 
+ImmuneGeneSegmentHits::ImmuneGeneSegmentHits(germline_utils::SegmentType segment_type, core::ReadPtr read_ptr,
+                                             const std::vector<vj_finder::ImmuneGeneHitPtr>& hits) :
+    ImmuneGeneSegmentHits(segment_type, read_ptr)
+{
+    vj_finder::ImmuneGeneAlignmentConverter converter;
+    for (auto& hit : hits) {
+        assert(read_ptr != nullptr);
+        // TODO change *read_ptr to hit->Read(). Now hit->Read() supposingly has a bug.
+        auto conv_hit = converter.ConvertToAlignment(hit->ImmuneGene(), *read_ptr, hit->BlockAlignment());
+        hits_.push_back(std::make_shared<decltype(conv_hit)>(conv_hit));
+    }
+}
+
 //-------------------------------------------------------------------------------
+
+VDJHits::VDJHits(const core::ReadPtr read_ptr,
+                 const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
+                 const std::vector<vj_finder::ImmuneGeneHitPtr>& j_hits) :
+    read_ptr_(read_ptr),
+    v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr, v_hits),
+    d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
+    j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
+{ }
+
 void VDJHits::AddIgGeneAlignment(alignment_utils::ImmuneGeneReadAlignmentPtr alignment_ptr) {
     germline_utils::SegmentType segment_type = alignment_ptr->subject().GeneType().Segment();
     AddIgGeneAlignment(segment_type, alignment_ptr);
