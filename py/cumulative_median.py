@@ -122,6 +122,10 @@ def unique(x, y=None):
     if y is None:
         y = x
 
+    assert len(x) == len(y)
+    if len(x) == 0:
+        return []
+
     result = [y[0]]
     for i in xrange(1, len(x)):
         if x[i] != x[i - 1]:

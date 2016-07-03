@@ -30,15 +30,40 @@ def parse_command_line(description="aimQUAST"):
             setattr(namespace, "constructed_rcm", "aimquast_test_dataset/igrec_bad/final_repertoire.rcm")
             setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
             setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
-            setattr(namespace, "json", "aimquast_test/aimquast.json")
-            setattr(namespace, "text", "aimquast_test/aimquast.txt")
+
+    def ActionTestAgeFactory(n):
+        class ActionTestAge(argparse.Action):
+
+            def __init__(self, option_strings, dest, nargs=None, **kwargs):
+                super(ActionTestAge, self).__init__(option_strings, dest, nargs=0, **kwargs)
+
+            def __call__(self, parser, namespace, values, option_string=None):
+                setattr(namespace, "initial_reads", "aimquast_test_dataset/age%d/input_reads.fa.gz" % n)
+                setattr(namespace, "output_dir", "aimquast_test_age%d" % n)
+                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/age%d/igrec/final_repertoire.fa.gz" % n)
+                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/age%d/igrec/final_repertoire.rcm" % n)
+                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/age%d/repertoire.fa.gz" % n)
+                setattr(namespace, "reference_rcm", "aimquast_test_dataset/age%d/repertoire.rcm" % n)
+                setattr(namespace, "json", "aimquast_test_age%d/aimquast.json" % n)
+                setattr(namespace, "text", "aimquast_test_age%d/aimquast.txt" % n)
+                setattr(namespace, "figure_format", "pdf,png")
+
+        return ActionTestAge
 
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("--test",
                         action=ActionTest,
                         default="",
-                        help="Running of test dataset")
+                        help="Running on test dataset")
+    parser.add_argument("--test-age1",
+                        action=ActionTestAgeFactory(1),
+                        default="",
+                        help="Running on age1 dataset")
+    parser.add_argument("--test-age3",
+                        action=ActionTestAgeFactory(3),
+                        default="",
+                        help="Running on age3 dataset")
     parser.add_argument("--initial-reads", "-s",
                         type=str,
                         default="",
@@ -66,15 +91,18 @@ def parse_command_line(description="aimQUAST"):
                         default=5,
                         help="reference size cutoff")
     parser.add_argument("--json",
-                        help="file for JSON output")
+                        help="file for JSON output (default: <output_dir>/aimquast.json)")
     parser.add_argument("--text",
-                        help="file for text output")
+                        help="file for text output (default: <output_dir>/aimquast.txt)")
     parser.add_argument("--export-bad-clusters",
                         action="store_true",
                         help="export bad clusters during reference-free analysis")
     parser.add_argument("--figure-format", "-F",
                         default="png",
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
+    parser.add_argument("--no-reference-free",
+                        action="store_true",
+                        help="disable reference-free measures")
 
     args = parser.parse_args()
 
@@ -86,6 +114,12 @@ def parse_command_line(description="aimQUAST"):
         sys.exit(1)
 
     args.log = args.output_dir + "/aimquast.log"
+
+    if args.json is None:
+        args.json = args.output_dir + "/aimquast.json"
+
+    if args.text is None:
+        args.text = args.output_dir + "/aimquast.txt"
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
@@ -125,7 +159,7 @@ def main(args):
                                   initial_reads=args.initial_reads,
                                   output_file=args.reference_repertoire)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and not args.no_reference_free:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
@@ -143,7 +177,7 @@ def main(args):
             rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
         rep_ideal.report(report, "reference_stats")
 
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm:
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
@@ -192,8 +226,11 @@ def main(args):
             res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/min_cluster_size_choose",
                                              format=args.figure_format)
 
+            res.plot_error_pos_dist(out=args.reference_based_dir + "/error_pos_dist",
+                                    format=args.figure_format)
+
             res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
-                                                   format=args.figure_format)
+                                                   format=args.figure_format, marginals=False)
 
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
@@ -206,8 +243,9 @@ def main(args):
 
         size = args.reference_size_cutoff
 
-        rcm2rcm_large = rcm2rcm.prune_copy(size, size)
+        rcm2rcm_large = rcm2rcm.prune_copy(size, 1)
 
+        # TODO fix report!!!!????
         rcm2rcm_large.report(report)
 
         if args.figure_format:

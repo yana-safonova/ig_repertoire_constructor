@@ -6,29 +6,23 @@ from ig_basic import extract_barcode
 from Bio import SeqIO
 from collections import defaultdict
 
-
 import os
 import os.path
 import sys
 import matplotlib
 matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import seaborn as sns
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../../../"
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
-import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-from ash_python_utils import CreateLogger, AttachFileLogger, idFormatByFileName, smart_open, mkdir_p, fastx2fastx
+from ash_python_utils import idFormatByFileName, smart_open
 
 sys.path.append(igrec_dir + "/py")
-from ig_compress_equal_clusters import parse_cluster_mult
-
-sys.path.append(igrec_dir)
-from aimquast import consensus
-from aimquast import initialize_plot, save_plot
+from aimquast_impl import consensus
+from aimquast_impl import initialize_plot, save_plot
 
 
 def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):
@@ -44,7 +38,7 @@ def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):
 
 def discard_close_barcodes(barcodes, tau, barcode2size, discarded):
     result = []
-    g = hamming_graph(barcodes, tau=tau, method="knuth")
+    g = hamming_graph(barcodes, tau=tau, method="bk")
     vs = list(g.vs())
     vs.sort(key=lambda v: barcode2size[v["read"]])
     for v in vs:
@@ -69,36 +63,40 @@ def hamming(X, Y):
             res += 1
     return res
 
+
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Fix barcode errors in dataset without joining; fixed protocol after discussion with Chudakov's team")
-    parser.add_argument("input",
-                        type=str,
-                        help="input FASTA/FASTQ file")
-    parser.add_argument("output",
-                        type=str,
-                        help="output FASTA/FASTQ file")
-    parser.add_argument("--rcm", "-r",
+    parser = ArgumentParser(
+        description="Fix barcode errors in dataset without joining; fixed protocol after discussion with Chudakov's team")
+    parser.add_argument("input", type=str, help="input FASTA/FASTQ file")
+    parser.add_argument("output", type=str, help="output FASTA/FASTQ file")
+    parser.add_argument("--rcm",
+                        "-r",
                         type=str,
                         help="RCM file for final read-barcode map")
-    parser.add_argument("--tau",
-                        type=int,
-                        default=3,
-                        help="Minimum allowed distance between two barcodes [default %(default)s]")
-    parser.add_argument("--no-fix-spaces", "-S",
+    parser.add_argument(
+        "--tau",
+        type=int,
+        default=3,
+        help="Minimum allowed distance between two barcodes [default %(default)s]")
+    parser.add_argument("--no-fix-spaces",
+                        "-S",
                         action='store_true',
                         help="Do not replace spaces by underlines in read IDs")
-    parser.add_argument("--min-size", "-m",
+    parser.add_argument("--min-size",
+                        "-m",
                         type=int,
                         default=0,
                         help="minimal barcode size [default %(default)d]")
-    parser.add_argument("--bad-output", "-b",
+    parser.add_argument("--bad-output",
+                        "-b",
                         type=str,
                         help="FASTA/FASTQ file for bad-barcoded reads")
     parser.add_argument("--distance-plot",
                         type=str,
                         default="",
                         help="Figure file for distance distribution plot")
-    parser.add_argument("--distance-threshold", "-d",
+    parser.add_argument("--distance-threshold",
+                        "-d",
                         type=int,
                         default=10,
                         help="distance threshold [default %(default)d]")
@@ -118,6 +116,11 @@ if __name__ == "__main__":
         for record in data:
             record.description = str(record.description).replace(" ", "_")
             record.id = record.name = record.description
+
+    # Omit reads with Ns
+    data = [record for record in data if record.seq.count("N") == 0]
+
+    data = [record for record in data if extract_barcode(record.id) is not None]
 
     clusters = defaultdict(list)
 
@@ -139,21 +142,23 @@ if __name__ == "__main__":
         save_plot(args.distance_plot, ("png", "pdf"))
         print "distance plot saved to %s.{png,pdf}" % args.distance_plot
 
-    print("%d barcodes readed, %d unique barcodes" % (sum(barcodes_count.itervalues()),
-                                                      len(barcodes_count)))
+    print("%d barcodes readed, %d unique barcodes" %
+          (sum(barcodes_count.itervalues()), len(barcodes_count)))
 
     barcodes = list(barcodes_count.keys())
 
     discarded_barcodes = set()
 
     print "Discarding rare barcodes for minimal size %d..." % args.min_size
-    barcodes = discard_rare_barcodes(barcodes, args.min_size, barcodes_count, discarded_barcodes)
+    barcodes = discard_rare_barcodes(barcodes, args.min_size, barcodes_count,
+                                     discarded_barcodes)
     print "Barcodes discarded: %d" % len(discarded_barcodes)
 
     if args.tau:
         tau = args.tau - 1
         print "Discarding close barcodes for distance %d" % tau
-        barcodes = discard_close_barcodes(barcodes, tau, barcodes_count, discarded_barcodes)
+        barcodes = discard_close_barcodes(barcodes, tau, barcodes_count,
+                                          discarded_barcodes)
         print "Barcodes discarded: %d" % len(discarded_barcodes)
 
     print "Collecting output..."
@@ -161,7 +166,9 @@ if __name__ == "__main__":
     bad_out = []
     for record in data:
         barcode = extract_barcode(record.id)
-        if barcode not in discarded_barcodes and hamming(record.seq, cluster_consensus[barcode]) <= args.distance_threshold:
+        if barcode not in discarded_barcodes and hamming(
+                record.seq,
+                cluster_consensus[barcode]) <= args.distance_threshold:
             good_out.append(record)
         else:
             bad_out.append(record)
