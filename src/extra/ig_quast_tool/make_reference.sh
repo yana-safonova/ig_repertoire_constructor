@@ -3,38 +3,27 @@
 
 INPUT=$1
 OUTPUT=$2
-OUTPUT_READS="${OUTPUT}/input_reads.fa.gz"
-OUTPUT_CONSENSUS="${OUTPUT}/repertoire.fa.gz"
-OUTPUT_RCM="${OUTPUT}/repertoire.rcm"
 
 IGREC_DIR=/home/ashlemov/Git/ig_repertoire_constructor
 
+BCLEANER=${IGREC_DIR}/src/extra/ig_quast_tool/barcode_cleaner_nojoin.py
+CFINDER="${IGREC_DIR}/build/release/bin/ig_consensus_finder -H"
+CIC="${IGREC_DIR}/py/ig_compress_equal_clusters.py "
 
-# ${IGREC_DIR}/igrec.py -s ${INPUT} -o ${OUTPUT}/igrec/ --loci=all --create-triv-dec
-#
-# ${IGREC_DIR}/src/extra/ig_quast_tool/barcode_cleaner_nojoin.py ${OUTPUT}/igrec/vj_finder/cleaned_reads.fa ${OUTPUT_READS} -r ${OUTPUT_RCM}
-${IGREC_DIR}/src/extra/ig_quast_tool/barcode_cleaner_nojoin.py ${INPUT} ${OUTPUT_READS} -r ${OUTPUT_RCM}
+LOCI=all
 
-${IGREC_DIR}/build/release/bin/ig_consensus_finder -H -R ${OUTPUT_RCM} -i ${OUTPUT_READS} -o ${OUTPUT_CONSENSUS}
-${IGREC_DIR}/py/ig_compress_equal_clusters.py ${OUTPUT_CONSENSUS} ${OUTPUT_CONSENSUS} --rcm ${OUTPUT_RCM} --output-rcm ${OUTPUT_RCM}
+${IGREC_DIR}/igrec.py -s ${INPUT} -o ${OUTPUT}/igrec_for_align/ --loci=${LOCI} --create-triv-dec -t4 --tau=1
 
+mv ${OUTPUT}/igrec_for_align/vj_finder/cleaned_reads.fa ${OUTPUT}/cleaned_reads.fa
+gzip ${OUTPUT}/cleaned_reads.fa -f
+rm -fr ${OUTPUT}/igrec_for_align
 
-rm -fr ${OUTPUT}/igrec
-${IGREC_DIR}/igrec.py -s ${OUTPUT_READS} -o ${OUTPUT}/igrec/ --loci=all
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input1.fa.gz -r ${OUTPUT}/repertoire1.rcm --tau=0 -d100500 --distance-plot=${OUTPUT}/dist
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input2.fa.gz -r ${OUTPUT}/repertoire2.rcm --tau=2 -d100500
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input3.fa.gz -r ${OUTPUT}/repertoire3.rcm --tau=2 -d10
 
-
-
-rm -fr ${OUTPUT}/igrec/vj_finder
-
-rm ${OUTPUT}/igrec/super_reads.fa
-rm ${OUTPUT}/igrec/final_repertoire_large.fa
-
-gzip ${OUTPUT}/igrec/final_repertoire.fa
-
-
-${IGREC_DIR}/igrec.py -s ${OUTPUT_READS} -o ${OUTPUT}/igrec_trivial/ --loci=all --create-triv-dec
-
-rm -fr ${OUTPUT}/igrec_trivial/vj_finder
-rm ${OUTPUT}/igrec_trivial/super_reads.fa
-rm ${OUTPUT}/igrec_trivial/final_repertoire_large.fa
-gzip ${OUTPUT}/igrec_trivial/final_repertoire.fa
+for i in 1 2 3
+do
+    ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
+    ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz
+done

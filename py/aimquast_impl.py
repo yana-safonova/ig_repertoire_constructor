@@ -26,6 +26,34 @@ from ig_compress_equal_clusters import parse_cluster_mult
 path_to_igrec = igrec_dir
 
 
+def hexbinblue(ax, x, y, gridsize=25, xlim=None, ylim=None):
+    import matplotlib.colors as colors
+    import matplotlib.pyplot as plt
+    h = ax.hexbin(x, y,
+                  gridsize=gridsize,
+                  # bins='log',
+                  norm=colors.LogNorm(),
+                  mincnt=1,
+                  edgecolor="darkblue",
+                  linewidths=1,
+                  cmap="Blues")
+    plt.colorbar(h, ax=ax)
+    if xlim is not None:
+        ax.set_xlim(xlim)
+    if ylim is not None:
+        ax.set_ylim(ylim)
+    xlim = ax.get_xlim()
+    ylim = ax.get_ylim()
+    xsize = (xlim[1] - xlim[0]) / float(gridsize)
+    ysize = (ylim[1] - ylim[0]) / float(gridsize)
+    ax.set_xlim((xlim[0] - xsize / 1.5), xlim[1] + xsize / 1.5)
+    ax.set_ylim((ylim[0] - ysize / 1.5), ylim[1] + ysize / 1.5)
+
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    ax.set_aspect(abs(x1 - x0) / abs(y1 - y0))
+
+
 def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", log=None,
                     tau=4, k=10, strategy=3):
     if log is None:
@@ -71,7 +99,12 @@ class MultToMultData:
         constructed2reference = zip(constructed_abundances, constructed_sum[:, tau]) if not reversed else zip(constructed_sum[:, tau], constructed_abundances)
         constructed2reference = [x for x in constructed2reference if min(x[0], x[1]) > 0]
         constructed2reference.sort(key=lambda x: x[1])
-        constructed_cluster_sizes, reference_cluster_sizes = map(lambda x: np.array(x, dtype=float), zip(*constructed2reference))
+        # TODO Proper fix
+        __tmp = map(lambda x: np.array(x, dtype=float), zip(*constructed2reference))
+        if len(__tmp) > 0:
+            constructed_cluster_sizes, reference_cluster_sizes = __tmp
+        else:
+            constructed_cluster_sizes, reference_cluster_sizes = np.array([]), np.array([])
 
         rates = constructed_cluster_sizes / reference_cluster_sizes
 
@@ -93,6 +126,8 @@ class MultToMultData:
 
     def median_rate(self, size=1):
         from bisect import bisect_left
+        if len(self.reference_cluster_sizes_unique) == 0:
+            return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
         assert i < len(self.reference_cluster_sizes_unique)
@@ -100,16 +135,24 @@ class MultToMultData:
 
     def mean_rate(self, size=1):
         from bisect import bisect_left
+        if len(self.reference_cluster_sizes_unique) == 0:
+            return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
         assert i < len(self.reference_cluster_sizes_unique)
         return self.mean_rates_unique[i]
 
     def plot_reference_vs_constructed_size(self, out, title="", format=None,
+                                           points=True,
                                            marginals=False):
         import seaborn as sns
 
         f, ax = initialize_plot()
+
+        if len(self.reference_cluster_sizes) == 0:
+            # TODO Process more gently
+            print "Could not plot"
+            return None
 
         uplimit = max(self.reference_cluster_sizes)
 
@@ -125,14 +168,24 @@ class MultToMultData:
                               xlim=(0, uplimit), ylim=(0, uplimit),
                               ratio=5).set_axis_labels("Reference cluster size", "Constructed cluster size")
 
-            g = g.plot_joint(sns.plt.scatter)
+            g = g.plot_joint(sns.plt.scatter, alpha=0.5, label="clusters")
             g.plot_marginals(sns.distplot, kde=True, color=".5")
 
             ax = g.ax_joint
         else:
-            plt.plot(self.reference_cluster_sizes, self.constructed_cluster_sizes, "bo", label="clusters")
-            ax.set_xlim((0, uplimit))
-            ax.set_ylim((0, uplimit))
+            if points:
+                plt.plot(self.reference_cluster_sizes, self.constructed_cluster_sizes, "bo",
+                         label="clusters", alpha=0.5,
+                         markersize=6)
+
+            else:
+                f, ax = initialize_plot(figsize=(7.5, 6))
+                # ax.set_axis_bgcolor('darkgrey')
+                hexbinblue(ax, self.reference_cluster_sizes, self.constructed_cluster_sizes,
+                           xlim=(0, uplimit), ylim=(0, uplimit))
+                # plt.axes().set_aspect('equal', 'datalim')
+                plt.axes().set_aspect('equal')
+
             ax.set_xlabel("Reference cluster size")
             ax.set_ylabel("Constructed cluster size")
 
@@ -142,9 +195,6 @@ class MultToMultData:
         # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
                 label="rate median smoothing")
-
-        if marginals:
-            g.ax_joint.collections[0].set_label("clusters")
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
@@ -216,7 +266,10 @@ class Reperoire2RepertoireMatching:
 
         return r2c
 
-    def check(self, log=None):
+    def check(self,
+              constructed_repertoire,
+              reference_repertoire,
+              log=None):
         if log is None:
             log = FakeLog()
 
@@ -232,6 +285,9 @@ class Reperoire2RepertoireMatching:
             matches = [i for i, d in neibs if d == 0]
             if len(matches) > 1:
                 log.info("Ref %d matched on several constructed: %s" % (j, str(matches)))
+                print reference_repertoire[j]
+                for i in matches:
+                    print constructed_repertoire[i]
                 ref.append((j, matches))
 
         return cons, ref
@@ -286,13 +342,63 @@ class Reperoire2RepertoireMatching:
 
 class RepertoireMatch:
 
+    @staticmethod
+    def __read_fa(filename):
+        with smart_open(filename) as f:
+            result = map(lambda rec: str(rec.seq), SeqIO.parse(f, idFormatByFileName(filename)))
+
+        return result
+
+    @staticmethod
+    def __errs(s1, s2):
+        result = []
+        for i, l1, l2 in zip(xrange(1000), s1, s2):
+            if l1 != l2:
+                result.append(i)
+
+        return result
+
+    @staticmethod
+    def __hamming(s1, s2):
+        result = 0
+        for l1, l2 in zip(s1, s2):
+            if l1 != l2:
+                result += 1
+
+        return result
+
+    @memoize
+    def __error_positions(self, tau=1, size=5,
+                          reversed=True, relative=False):
+        result = []
+
+        for i in xrange(len(self.reference_repertoire)):
+            if self.reference[i, tau - 1] < size and self.reference[i, tau] >= size:
+                j = self.ref_edge[i, tau]
+                l = len(self.reference_repertoire[i])
+
+                if j > -1:
+                    positions = self.__errs(self.reference_repertoire[i], self.constructed_repertoire[j])
+                    if reversed:
+                        positions = map(lambda pos: l - pos, positions)
+                    if relative:
+                        positions = map(lambda pos: float(pos) / float(l), positions)
+                    result.extend(positions)
+
+        result.sort()
+        return result
+
+
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
-                 tmp_file=None, max_tau=4,
+                 tmp_file=None, max_tau=10,
                  reference_trash_cutoff=-float("inf"),
                  reference_trust_cutoff=float("inf"),
                  log=None):
         import numpy as np
+
+        self.reference_repertoire = self.__read_fa(reference_repertoire)
+        self.constructed_repertoire = self.__read_fa(constructed_repertoire)
 
         self.rep2rep = Reperoire2RepertoireMatching.bidirection(constructed_repertoire=constructed_repertoire,
                                                                 reference_repertoire=reference_repertoire,
@@ -300,7 +406,9 @@ class RepertoireMatch:
                                                                 tmp_file=tmp_file,
                                                                 log=log)
 
-        self.rep2rep.check(log=log)
+        self.rep2rep.check(log=log,
+                           reference_repertoire=self.reference_repertoire,
+                           constructed_repertoire=self.constructed_repertoire)
 
         assert reference_trash_cutoff <= reference_trust_cutoff
 
@@ -309,11 +417,20 @@ class RepertoireMatch:
 
         reference = np.full((ref_len, max_tau + 1), 0, dtype=int)
         constructed = np.full((cons_len, max_tau + 1), 0, dtype=int)
+
+        ref_edge = np.full((ref_len, max_tau + 1), -1, dtype=int)
+        cons_edge = np.full((cons_len, max_tau + 1), -1, dtype=int)
+
         reference_sum = np.full((ref_len, max_tau + 1), 0, dtype=int)
         constructed_sum = np.full((cons_len, max_tau + 1), 0, dtype=int)
 
+        assert len(self.rep2rep.constructed2reference) == len(self.constructed_repertoire)
+        assert len(self.rep2rep.reference2constructed) == len(self.reference_repertoire)
+
         for i, pairs in enumerate(self.rep2rep.constructed2reference):
             for j, d in pairs:
+                assert self.__hamming(self.constructed_repertoire[i], self.reference_repertoire[j]) == d
+
                 reference_abundance = self.rep2rep.reference_abundances[j]
                 constructed_abundance = self.rep2rep.constructed_abundances[i]
 
@@ -326,8 +443,13 @@ class RepertoireMatch:
                     reference_abundance = -float("inf")
 
                 min_abundance = min(constructed_abundance, reference_abundance)
-                reference[j, d] = max(reference[j, d], min_abundance)
-                constructed[i, d] = max(constructed[i, d], min_abundance)
+                if reference[j, d] < min_abundance:
+                    reference[j, d] = min_abundance
+                    ref_edge[j, d] = i
+
+                if constructed[i, d] < min_abundance:
+                    constructed[i, d] = min_abundance
+                    cons_edge[i, d] = j
 
         for d in xrange(1, max_tau + 1):
             for j in xrange(ref_len):
@@ -337,6 +459,11 @@ class RepertoireMatch:
             for i in xrange(cons_len):
                 constructed[i, d] = max(constructed[i, d], constructed[i, d - 1])
                 constructed_sum[i, d] = constructed_sum[i, d] + constructed_sum[i, d - 1]
+
+        self.cons_edge = cons_edge
+        self.ref_edge = ref_edge
+        self.constructed = constructed
+        self.reference = reference
 
         self.M2MDATA = MultToMultData(self.rep2rep.reference_abundances, reference_sum, reversed=True)
 
@@ -438,10 +565,25 @@ class RepertoireMatch:
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
 
+        precision, sizes = self.__get_data(what="precision")
+        sensitivity, _ = self.__get_data(what="sensitivity")
+        rb["__data_sizes"] = list(sizes)
+        rb["__data_sensitivity"] = list(sensitivity)
+        rb["__data_precision"] = list(precision)
+
+        ref2cons5, taus, _ = self.__get_measure_for_plotting(size=5, what="ref2cons")
+        cons2ref5, _, _ = self.__get_measure_for_plotting(size=5, what="cons2ref")
+        rb["__data_taus"] = list(taus)
+        rb["__data_ref2cons5"] = list(ref2cons5)
+        rb["__data_cons2ref5"] = list(cons2ref5)
+
+        rb["error_positions_reversed"] = self.__error_positions(reversed=True)
+        rb["error_positions"] = self.__error_positions(reversed=False)
+
     def __get_measure_for_plotting(self,
                                    size=1,
                                    what="sensitivity",
-                                   differential=False,
+                                   differential=True,
                                    max_tau=4):
         assert what in ["sensitivity", "fdr", "precision", "recall", "ref2cons", "cons2ref"]
 
@@ -485,7 +627,7 @@ class RepertoireMatch:
         import numpy as np
         import matplotlib.pyplot as plt
 
-        f, ax = initialize_plot()
+        f, ax = initialize_plot(font_scale=1)
 
         data = self.__get_measure_for_plotting(size=size, what=what, differential=differential, max_tau=max_tau)
         measures = np.array(data[0])
@@ -500,11 +642,12 @@ class RepertoireMatch:
                    labels)
 
         plt.xlim(0, max(taus) + 1)
+        plt.ylim(0, sum(measures))
 
         if what in ["sensitivity", "ref2cons"]:
             plt.title("Distribution of distance from reference to constructed sequences")
         elif what in ["precision", "cons2ref"]:
-            plt.title("Distribution of distance from reference to constructed sequences")
+            plt.title("Distribution of distance from constructed to reference sequences")
 
         ax.set_xlabel("distance")
         ax.set_ylabel("#clusters")
@@ -521,7 +664,7 @@ class RepertoireMatch:
         import numpy as np
         import matplotlib.pyplot as plt
 
-        initialize_plot(figsize=(8, 4))
+        initialize_plot(figsize=(8, 4), font_scale=1)
 
         N = len(sizes)
         for i in xrange(len(sizes)):
@@ -543,6 +686,7 @@ class RepertoireMatch:
                        labels)
             plt.title("sensitivity, size = %d" % size)
             plt.xlim(0, max(taus) + 1)
+            plt.ylim(0, sum(measures))
 
             plt.subplot(2, N, N + i + 1)
 
@@ -561,15 +705,50 @@ class RepertoireMatch:
                        labels)
             plt.title("precision, size = %d" % size)
             plt.xlim(0, max(taus) + 1)
+            plt.ylim(0, sum(measures))
 
         plt.tight_layout()
 
         save_plot(out, format=format)
 
+    def __get_data(self,
+                   what="precision",
+                   max_size_threshold=75,
+                   tau=0):
+        import numpy as np
+
+        assert tau <= self.max_tau
+
+        assert what in ["sensitivity", "fdr", "precision", "recall"]
+
+        def func(size):
+            return getattr(self, what)(size=size, tau=tau)
+
+        sizes = np.array(range(1, max_size_threshold + 1))
+
+        x = np.array(map(func, sizes))
+
+        return x, sizes
+
+    def plot_error_pos_dist(self, out, format=None):
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        errors = self.__error_positions(reversed=False, relative=True)
+        try:
+            sns.distplot(errors, kde=False, bins=25, ax=ax)
+            ax.set_xlabel("Relative error positions")
+            ax.set_xlim((0., 1.))
+
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
+
     def plot_min_cluster_size_choose(self,
                                      what_x="precision",
                                      what_y="sensitivity",
-                                     max_size_threshold=100,
+                                     max_size_threshold=75,
                                      tau=0,
                                      out="fdr_sensitivity",
                                      title="",
@@ -578,23 +757,10 @@ class RepertoireMatch:
         import matplotlib.pyplot as plt
         import seaborn as sns
 
-        assert tau <= self.max_tau
-
-        assert what_x in ["sensitivity", "fdr", "precision", "recall"]
-        assert what_y in ["sensitivity", "fdr", "precision", "recall"]
-
-        def func_x(size):
-            return getattr(self, what_x)(size=size, tau=tau)
-
-        def func_y(size):
-            return getattr(self, what_y)(size=size, tau=tau)
-
         f, ax = initialize_plot()
 
-        sizes = np.array(range(1, max_size_threshold + 1))
-
-        x = np.array(map(func_x, sizes))
-        y = np.array(map(func_y, sizes))
+        x, sizes = self.__get_data(what=what_x, max_size_threshold=max_size_threshold, tau=tau)
+        y, _ = self.__get_data(what=what_y, max_size_threshold=max_size_threshold, tau=tau)
 
         sns.set_style("darkgrid")
         plt.plot(x, y, "b-", color="cornflowerblue")
@@ -615,7 +781,7 @@ class RepertoireMatch:
             _x = x[size - 1]
             _y = y[size - 1]
 
-            bp = plt.plot(_x, _y, "bo", color="blue", label="min_size")
+            bp = plt.plot(_x, _y, "bo", color="blue", label="min size")
             blue_points.append(bp)
 
             plt.annotate(text, xy=(_x, _y),
@@ -746,25 +912,75 @@ class RcmVsRcm:
         for k, v in indices.__dict__.iteritems():
             rb[k] = v
 
+        constructed_purity = self.purity(constructed=True)
+        reference_purity = self.purity(constructed=False)
+        rb["n_dirty_constructed_clusters"] = sum(constructed_purity < 0.95)
+        rb["n_dirty_reference_clusters"] = sum(reference_purity < 0.95)
+        rb["n_pure_constructed_clusters"] = sum(constructed_purity >= 0.95)
+        rb["n_pure_reference_clusters"] = sum(reference_purity >= 0.95)
+
+        rb["constructed_secondary_votes"] = sum(self.secondary_votes(constructed=True))
+        rb["reference_secondary_votes"] = sum(self.secondary_votes(constructed=False))
+
     @memoize
     def votes(self, constructed=True):
         return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
 
-    def plot_majority_secondary(self, out, format=None, constructed=True):
-        f, ax = initialize_plot()
+    @memoize
+    def purity(self, constructed=True):
+        import numpy as np
 
         votes = self.votes(constructed)
         majority_votes = [vote[0] for vote in votes]
-        secondary_votes = [vote[1] for vote in votes]
-        # sizes = [sum(vote) for vote in votes]
+        # secondary_votes = [vote[1] for vote in votes]
+        sizes = [sum(vote) for vote in votes]
 
-        ax.plot(majority_votes, secondary_votes, "bo", label="clusters")
-        ax.set_xlabel("Majority votes")  # Primary
-        ax.set_ylabel("Secondary votes")
+        return np.array(majority_votes, dtype=float) / np.array(sizes, dtype=float)
+
+    @memoize
+    def majority_votes(self, constructed=True):
+        votes = self.votes(constructed)
+        majority_votes = [vote[0] for vote in votes]
+
+        return majority_votes
+
+    @memoize
+    def secondary_votes(self, constructed=True):
+        votes = self.votes(constructed)
+        secondary_votes = [vote[1] for vote in votes]
+
+        return secondary_votes
+
+    def plot_majority_secondary(self, out, format=None, constructed=True,
+                                points=False):
+        import numpy as np
+        f, ax = initialize_plot()
+
+        votes = self.votes(constructed)
+        majority_votes = np.array([vote[0] for vote in votes])
+        secondary_votes = np.array([vote[1] for vote in votes])
+
+        try:
+            if points:
+                ax.plot(majority_votes, secondary_votes, "bo",
+                        alpha=0.4,
+                        markersize=6,
+                        label="clusters")
+            else:
+                # ax.set_axis_bgcolor('darkgrey')
+                f, ax = initialize_plot(figsize=(7.5, 6))
+                hexbinblue(ax, majority_votes, secondary_votes)
+                # cb = plt.colorbar()
+                # cb.set_label('log10(N)')
+            ax.set_xlabel("Majority votes")  # Primary
+            ax.set_ylabel("Secondary votes")
+        except BaseException as ex:
+            print ex
 
         save_plot(out, format=format)
 
-    def plot_size_nomajority(self, out, format=None, constructed=True):
+    def plot_size_nomajority(self, out, format=None, constructed=True,
+                             points=False):
         import numpy as np
 
         f, ax = initialize_plot()
@@ -773,35 +989,49 @@ class RcmVsRcm:
         majority_votes = np.array([vote[0] for vote in votes])
         sizes = np.array([sum(vote) for vote in votes])
 
-        ax.plot(sizes, sizes - majority_votes, "bo", label="clusters")
-        ax.set_xlabel("Cluster size")  # Primary
-        ax.set_ylabel("Cluster size - majority votes")
+        try:
+            # sns.kdeplot(sizes, sizes - majority_votes, ax=ax,
+            #             cmap="Blues",
+            #             shade_lowest=False,
+            #             shade=True)
+            if points:
+                ax.plot(sizes, sizes - majority_votes, "bo",
+                        alpha=0.4,
+                        markersize=1,
+                        label="clusters")
+            else:
+                # y_formatter = matplotlib.ticker.ScalarFormatter(useOffset=False)
+                # ax.yaxis.set_major_formatter(y_formatter)
+                # ax.xaxis.set_major_formatter(y_formatter)
+                f, ax = initialize_plot(figsize=(7.5, 6))
+                hexbinblue(ax, sizes, sizes - majority_votes)
+            ax.set_xlabel("Cluster size")  # Primary
+            ax.set_ylabel("Cluster size - majority votes")
 
-        save_plot(out, format=format)
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
 
     def plot_purity_distribution(self, out, format=None, constructed=True):
-        import numpy as np
         import seaborn as sns
 
         f, ax = initialize_plot()
 
-        votes = self.votes(constructed)
-        majority_votes = [vote[0] for vote in votes]
-        # secondary_votes = [vote[1] for vote in votes]
-        sizes = [sum(vote) for vote in votes]
+        purity = self.purity(constructed)
+        try:
+            sns.distplot(purity, kde=False, bins=25, ax=ax)
+            ax.set_ylabel("Purity")
+            ax.set_xlim((0, 1))
+            ax.set_ylim((0, len(purity)))
 
-        purity = np.array(majority_votes, dtype=float) / np.array(sizes, dtype=float)
-
-        sns.distplot(purity, kde=False, bins=25, ax=ax)
-        ax.set_ylabel("Purity")
-        ax.set_xlim((0, 1))
-
-        save_plot(out, format=format)
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
 
 
 def reconstruct_rcm(initial_reads, repertoire,
                     tmp_file_matcher=None, tmp_file_reads=None,
-                    taus=(1, 2, 4, 8, 12, 16, 20, 24),
+                    taus=(1, 2, 4, 8, 12),
                     fallback_to_exhaustive_mode=False,
                     log=None):
     if log is None:
@@ -928,10 +1158,15 @@ def clustering_similarity_indices(X, Y):
     prod_comb = (sum_comb_c * sum_comb_k) / float(comb2(N))
     mean_comb = (sum_comb_k + sum_comb_c) / 2.
 
-    class Struct():
-        pass
+    class SimIndices:
 
-    result = Struct()
+        def __init__(self):
+            self.adjusted_rand_index = 1.
+            self.rand_index = 1.
+            self.fowlkes_mallows_index = 1.
+            self.jaccard_index = 1.
+
+    result = SimIndices()
     result.adjusted_rand_index = (sum_comb - prod_comb) / (mean_comb - prod_comb) if mean_comb - prod_comb > 0 else 1.
     result.rand_index = float(S00 + S11) / float(comb2(N))
     result.fowlkes_mallows_index = float(S00) / sqrt(float(S00 + S10) * float(S00 + S01)) if S00 + S10 > 0 and S00 + S01 else 1.
@@ -1001,11 +1236,9 @@ def dict2list(d, default=int):
 assert dict2list({1: 10, 5: 7}) == [0, 10, 0, 0, 0, 7]
 
 
-def initialize_plot(figsize=(6, 6)):
-    import matplotlib
+def initialize_plot(figsize=(6, 6), font_scale=1.5):
     import matplotlib.pyplot as plt
     import seaborn as sns
-    matplotlib.rcParams.update({'font.size': 16})
     plt.ioff()
     # matplotlib.use('Agg')
 
@@ -1024,6 +1257,7 @@ def initialize_plot(figsize=(6, 6)):
     # matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
 
     sns.set_style("darkgrid")
+    sns.set(font_scale=font_scale)
 
     f, ax = plt.subplots(figsize=figsize)
 
@@ -1044,6 +1278,8 @@ def save_plot(plot_name,
         dirname = os.path.dirname(plot_name)
         if dirname:
             mkdir_p(dirname)
+
+    plt.tight_layout()
 
     if 'png' in format:
         plt.savefig(plot_name + '.png', format='png')
@@ -1090,6 +1326,29 @@ def consensus(reads):
 assert consensus(["GAAA", "AAAC", "AATA"]) == "AAAA"
 
 
+def majority_secondary(reads):
+    import numpy as np
+
+    # l = max(len(read) for read in reads)
+    l = min(len(read) for read in reads)
+
+    nuc2idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+
+    reads = [str(read) for read in reads]
+
+    mx = np.zeros(shape=(l, 4))
+    for read in reads:
+        for i in xrange(min(l, len(read))):
+            letter = read[i]
+            idx = nuc2idx[letter]
+            mx[i, idx] += 1
+
+    mx.sort(axis=1)
+    return mx[:, 3], mx[:, 2]
+
+assert consensus(["GAAA", "AAAC", "AATA"]) == "AAAA"
+
+
 class Cluster:
 
     def __init__(self):
@@ -1125,20 +1384,15 @@ class Cluster:
         return min(len(read) for read in self.__reads)
 
     @memoize
-    def nerrors_by_position(self):
+    def majority_secondary(self):
         reads = [str(read.seq) for read in self.__reads]
-        from collections import defaultdict
-        # TODO get rid off dict here
-        center = self.centroid()
-        errors_by_position = defaultdict(int)
+        ms = majority_secondary(reads)
+        l = self.length()
+        return ms[0][:l], ms[1][:l]
 
-        for read in reads:
-            for i in xrange(min(len(read), len(center) - CUTAIL)):
-                if read[i] != center[i]:
-                    errors_by_position[i] += 1
-        errors_by_position = dict2list(errors_by_position)
-
-        return errors_by_position
+    @memoize
+    def nerrors_by_position(self):
+        return self.majority_secondary()[1]
 
     @memoize
     def nerrors_by_read(self):
@@ -1171,8 +1425,7 @@ class Cluster:
 
     @memoize
     def max_error(self):
-        nerrors_by_position = self.nerrors_by_position()
-        return max(nerrors_by_position) if nerrors_by_position else 0
+        return max(self.nerrors_by_position()) if self.length() else 0
 
     @memoize
     def max_ppf(self, q, size, error_rate):
@@ -1181,7 +1434,7 @@ class Cluster:
 
         l = self.length()
 
-        prob_error = float(error_rate) / float(l)
+        prob_error = float(error_rate) / float(l) / 3
         lam = float(prob_error) * float(size)
         return poisson.ppf(math.pow(q, 1. / l), mu=lam)
 
@@ -1191,7 +1444,7 @@ class Cluster:
 
         l = self.length()
 
-        prob_error = float(error_rate) / float(l)
+        prob_error = float(error_rate) / float(l) / 3
         lam = float(prob_error) * float(size)
         return poisson.cdf(x, mu=lam) ** l
 
@@ -1352,15 +1605,19 @@ class Repertoire:
                                                   pv_threshold=0.01,
                                                   title="",
                                                   annotate=False,
-                                                  format=None):
+                                                  points=False,
+                                                  format=None,
+                                                  cis=False):
         import numpy as np
         import matplotlib.pyplot as plt
 
         if error_rate is None:
             error_rate = self.error_rate()
-            title += "$\hat{\lambda} = %.3f$" % error_rate
+            if title:
+                title += "$\hat{\lambda} = %.3f$" % error_rate
         else:
-            title += "$\lambda = %.3f$" % error_rate
+            if title:
+                title += "$\lambda = %.3f$" % error_rate
 
         f, ax = initialize_plot()
 
@@ -1373,7 +1630,7 @@ class Repertoire:
             from scipy.stats import poisson
             import math
             l = read_len
-            prob_error = float(error_rate) / float(l)
+            prob_error = float(error_rate) / float(l) / 3
             lam = float(prob_error) * float(size)
             return poisson.ppf(math.pow(q, 1. / l), mu=lam)
 
@@ -1388,8 +1645,13 @@ class Repertoire:
         ids = np.array(ids)
         good = pvalues >= pv_threshold
 
-        ax.plot(sizes[good], max_errors[good], "bo", color="blue")
-        ax.plot(sizes[~good], max_errors[~good], "bo", color="red")
+        if points:
+            ax.plot(sizes[good], max_errors[good], "bo", color="blue")
+            ax.plot(sizes[~good], max_errors[~good], "bo", color="red")
+        else:
+            # ax.set_axis_bgcolor('blue')
+            f, ax = initialize_plot(figsize=(7.5, 6))
+            hexbinblue(ax, sizes, max_errors)
 
         if annotate:
             for name, size, max_error in zip(ids[~good], sizes[~good], max_errors[~good]):
@@ -1403,12 +1665,13 @@ class Repertoire:
         q_upper = [quantile_max_poisson(1. - level / 2, size) for size in sizes]
         q50 = [quantile_max_poisson(0.50, size) for size in sizes]
         q_lower = [quantile_max_poisson(level / 2, size) for size in sizes]
-        ax.plot(sizes, q_upper, "--", color="black", linewidth=0.5)
-        ax.plot(sizes, q_lower, "--", color="black", linewidth=0.5)
-        ax.plot(sizes, q50, ":", color="black", linewidth=0.5)
+        if cis:
+            ax.plot(sizes, q_upper, "--", color="black", linewidth=0.5)
+            ax.plot(sizes, q_lower, "--", color="black", linewidth=0.5)
+            ax.plot(sizes, q50, ":", color="black", linewidth=0.5)
 
         ax.set_xlabel("Cluster size")
-        ax.set_ylabel("maximum mismatches along profile")
+        ax.set_ylabel("maximum secondary votes along profile")
 
         if title:
             plt.title(title)
@@ -1420,7 +1683,93 @@ class Repertoire:
                                    bins=25,
                                    title="",
                                    min_size=None,
+                                   legend=False,
                                    format=None):
+        import matplotlib.pyplot as plt
+        # import seaborn as sns
+        import numpy as np
+        from matplotlib import patches
+
+        if min_size is None:
+            min_size = self.__min_size
+
+        f, ax = initialize_plot()
+        errors01 = self.__errors01()
+        values, bins = np.histogram(errors01, bins=bins, range=(0., 1.))
+
+        # HARD fix:
+        values[-1:] = np.median(values)
+        values[-2:-1] = np.median(values[:-2])
+
+        widths = bins[1:] - bins[:-1]
+        width = widths[0]
+
+        width_in_bases = width * 450  # TODO Use len from self.
+
+        values / width_in_bases
+
+        xs = bins[:-1] + widths / 2.
+
+        cdr1_start = 0.25
+        cdr1_end = 0.3
+        cdr2_start = 0.41
+        cdr2_end = 0.54
+        cdr3_start = 0.8
+        cdr3_end = 0.86
+
+        cdr_mask = ((cdr1_start < xs) & (xs < cdr1_end)) | ((cdr2_start < xs) & (xs < cdr2_end)) | ((cdr3_start < xs) & (xs < cdr3_end))
+        cdr_values = values[cdr_mask]
+        cdr_bins = bins[:-1][cdr_mask]
+
+        eps = 1. / len(values) / 10
+        cdr_color = "#EFBEBE"
+
+        ax.bar(left=cdr_bins + eps,
+               height=cdr_values,
+               width=width - 2 * eps,
+               align="edge",
+               # edgecolor='red',
+               color=cdr_color,
+               label="CDRs")
+
+        plt.xlim(0, 1)
+        ax.set_xlabel("Relative position in read")
+        ax.set_ylabel("Number of errors")
+
+        if legend:
+            handles, labels = ax.get_legend_handles_labels()
+            plt.legend(handles, labels)
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+
+        max_value = ax.get_ylim()[1]
+        plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, max_value, facecolor=cdr_color, lw=0))
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+
+        if title:
+            plt.title(title)
+
+        save_plot(out, format=format)
+
+    def plot_cluster_error_profile_old(self,
+                                       out="error_profile",
+                                       bins=25,
+                                       title="",
+                                       min_size=None,
+                                       format=None):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -1610,14 +1959,25 @@ class Report:
             s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
             s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
 
-            s += "\tClustering similarity measures:\n"
-            s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
-            s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
-            s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
-            s += "\t\tAdjusted Rand index:\t\t%(adjusted_rand_index)0.4f\n" % rb
-            s += "\t\tReference purity:\t\t%(reference_purity)0.4f\n" % rb
-            s += "\t\tConstructed purity:\t\t%(constructed_purity)0.4f\n" % rb
-            s += "\n"
+            if "jaccard_index" in rb:
+                s += "\tClustering similarity measures:\n"
+                s += "\t\tJaccard index:\t\t\t%(jaccard_index)0.4f\n" % rb
+                s += "\t\tFowlkes-Mallows index:\t\t%(fowlkes_mallows_index)0.4f\n" % rb
+                s += "\t\tRand index:\t\t\t%(rand_index)0.4f\n" % rb
+                s += "\t\tAdjusted Rand index:\t\t%(adjusted_rand_index)0.4f\n" % rb
+                s += "\t\tReference purity:\t\t%(reference_purity)0.4f\n" % rb
+                s += "\t\tConstructed purity:\t\t%(constructed_purity)0.4f\n" % rb
+
+                s += "\tOver/under-correction measures:\n"
+                s += "\t\tpure constr. clusters:\t%(n_pure_constructed_clusters)d\n" % rb
+                s += "\t\tdirty constr. clusters:\t%(n_dirty_constructed_clusters)d\n" % rb
+                s += "\t\tconstr. secondary vote reads:\t%(constructed_secondary_votes)d\n" % rb
+
+                s += "\t\tpure ref. clusters:\t%(n_pure_reference_clusters)d\n" % rb
+                s += "\t\tdirty ref. clusters:\t%(n_dirty_reference_clusters)d\n" % rb
+                s += "\t\tref. secondary vote reads:\t%(reference_secondary_votes)d\n" % rb
+
+                s += "\n"
 
         if "reference_stats" in self.__dict__:
             st = self.reference_stats
@@ -1632,3 +1992,171 @@ class Report:
             s += "\n"
 
         return s
+
+
+def json_from_file(filename):
+    import json
+
+    with smart_open(filename, "r") as f:
+        data = json.load(f)
+
+    return data
+
+
+def get_plot_various_error_rate_data(dir,
+                                     kind="igrec",
+                                     what="sensitivity",
+                                     woans=False):
+    from glob import glob
+
+    suff = "_woans" if woans else ""
+    dirnames = glob(dir + "/errate_?.??" + suff)
+
+    def extract_lambda(dirname):
+        import re
+        m = re.match(r".*/errate_([\d.]+)" + suff, dirname)
+        if m:
+            g = m.groups()
+            return float(g[0].strip())
+        else:
+            return None
+
+    if not woans:
+        assert extract_lambda("fdsfsdfsd/errate_3.14") == 3.14
+
+    def extract_data(dirname):
+        json = json_from_file(dirname + "/" + kind + "/aimquast/aimquast.json")
+        return json["reference_based"][what]
+
+    lambdas = map(extract_lambda, dirnames)
+    data = map(extract_data, dirnames)
+
+    lambdas, data = zip(*sorted(zip(lambdas, data)))
+
+    return lambdas, data
+
+
+def plot_various_error_rate(dir,
+                            out="var_error_rate",
+                            kind1="igrec", kind2="mixcr", what="sensitivity", woans=False,
+                            label1=None, label2=None,
+                            title="",
+                            format=("png", "pdf", "svg")):
+    lambdas, data1 = get_plot_various_error_rate_data(dir, kind=kind1, what=what, woans=woans)
+    lambdas, data2 = get_plot_various_error_rate_data(dir, kind=kind2, what=what, woans=woans)
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    f, ax = initialize_plot()
+
+    if label1 is None:
+        label1 = kind1
+
+    if label2 is None:
+        label2 = kind2
+
+    sns.set_style("darkgrid")
+    plt.plot(lambdas, data1, "b-", color="cornflowerblue", label=label1)
+    plt.plot(lambdas, data2, "b-", color="seagreen", label=label2)
+
+    eps = 0.025
+    plt.ylim((0. - eps, 1. + eps))
+
+    plt.ylabel(what)
+    plt.xlabel("Error rate")
+
+    if title:
+        plt.title(title)
+
+    handles, labels = ax.get_legend_handles_labels()
+    ax.legend(handles, labels, loc=3)
+
+    save_plot(out, format=format)
+
+
+def plot_two_rocs(json1, json2,
+                  label1="1", label2="2",
+                  max_size_threshold=75,
+                  out="two_rocs",
+                  title="",
+                  format=None,
+                  plot_second=True):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    json1 = json_from_file(json1)
+    json2 = json_from_file(json2)
+
+    sensitivity1 = json1["reference_based"]["__data_sensitivity"]
+    sensitivity2 = json2["reference_based"]["__data_sensitivity"]
+    precision1 = json1["reference_based"]["__data_precision"]
+    precision2 = json2["reference_based"]["__data_precision"]
+
+    if len(sensitivity1) > max_size_threshold:
+        sensitivity1 = sensitivity1[:max_size_threshold]
+    if len(sensitivity2) > max_size_threshold:
+        sensitivity2 = sensitivity2[:max_size_threshold]
+    if len(precision1) > max_size_threshold:
+        precision1 = precision1[:max_size_threshold]
+    if len(precision2) > max_size_threshold:
+        precision2 = precision2[:max_size_threshold]
+
+    f, ax = initialize_plot()
+
+    sns.set_style("darkgrid")
+    plt.plot(precision1, sensitivity1, "b-", color="cornflowerblue", label=label1)
+
+    if plot_second:
+        plt.plot(precision2, sensitivity2, "b-", color="seagreen", label=label2)
+
+    eps = 0.025
+    plt.xlim((0 - eps, 1 + eps))
+    plt.ylim((0 - eps, 1 + eps))
+
+    plt.ylabel("sensitivity")
+    plt.xlabel("precision")
+
+    blue_points = []
+
+    def annotation(size, x, y, color, text=None, xshift=0.01, yshift=-0.04):
+        if text is None:
+            text = str(size)
+
+        _x = x[size - 1]
+        _y = y[size - 1]
+
+        bp = plt.plot(_x, _y, "bo", color=color, label="min size")
+        blue_points.append(bp)
+
+        plt.annotate(text, xy=(_x, _y),
+                     color=color,
+                     xytext=(_x + xshift, _y + yshift))
+
+    for i in [1, 3, 5, 10, 50]:
+        annotation(i, precision1, sensitivity1, color="blue")
+        if plot_second:
+            annotation(i, precision2, sensitivity2, color="green", xshift=-0.04)
+
+    def red_point(x, y):
+        reference_trust_cutoff = 5
+        if np.isfinite(reference_trust_cutoff):
+            plt.plot(x[reference_trust_cutoff - 1], y[reference_trust_cutoff - 1], "bo", color="red", label="Reference size threshold")
+
+    red_point(precision1, sensitivity1)
+    if plot_second:
+        red_point(precision2, sensitivity2)
+
+    if title:
+        plt.title(title)
+
+    handles, labels = ax.get_legend_handles_labels()
+    handles = [handles[0], handles[1]]
+    labels = [labels[0], labels[1]]
+
+    if not plot_second:
+        handles, labels = [handles[0]], [labels[0]]
+
+    ax.legend(handles, labels, loc=3)
+
+    save_plot(out, format=format)
