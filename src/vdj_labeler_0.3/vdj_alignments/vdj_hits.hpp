@@ -18,14 +18,14 @@ class ImmuneGeneSegmentHits {
     std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr> hits_;
 
 public:
-    ImmuneGeneSegmentHits(germline_utils::SegmentType gene_type, core::ReadPtr read_ptr) :
+    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type, const core::ReadPtr &read_ptr) :
             segment_type_(gene_type),
             read_ptr_(read_ptr) { }
 
-    ImmuneGeneSegmentHits(germline_utils::SegmentType gene_type, core::ReadPtr read_ptr,
+    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type, const core::ReadPtr &read_ptr,
                           const std::vector<vj_finder::ImmuneGeneHitPtr>&);
 
-    void AddHit(alignment_utils::ImmuneGeneReadAlignmentPtr hit);
+    void AddHit(const alignment_utils::ImmuneGeneReadAlignmentPtr &hit);
 
     size_t size() const { return hits_.size(); }
 
@@ -33,7 +33,7 @@ public:
 
     hits_citerator cend() const { return hits_.cend(); }
 
-    alignment_utils::ImmuneGeneReadAlignmentPtr operator[](size_t index);
+    alignment_utils::ImmuneGeneReadAlignmentPtr operator[](const size_t &index);
 
     germline_utils::SegmentType GeneType() const { return segment_type_; }
 };
@@ -50,17 +50,17 @@ private:
     ImmuneGeneSegmentHits j_hits_;
 
 public:
-    VDJHits(core::ReadPtr read_ptr) :
+    VDJHits(const core::ReadPtr &read_ptr) :
             read_ptr_(read_ptr),
             v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr),
             d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
             j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr) { }
 
-    VDJHits(const core::ReadPtr read_ptr,
+    VDJHits(const core::ReadPtr &read_ptr,
             const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
             const std::vector<vj_finder::ImmuneGeneHitPtr>& j_hits);
 
-    VDJHits(const vj_finder::VJHits vj_hits):
+    VDJHits(const vj_finder::VJHits &vj_hits):
             VDJHits(std::make_shared<core::Read>(vj_hits.Read()),
                     vj_hits.VPtrHits(),
                     vj_hits.JPtrHits())
@@ -68,10 +68,10 @@ public:
 
 
 
-    void AddIgGeneAlignment(germline_utils::SegmentType gene_type,
-                            alignment_utils::ImmuneGeneReadAlignmentPtr alignment_ptr);
+    void AddIgGeneAlignment(const germline_utils::SegmentType &gene_type,
+                            const alignment_utils::ImmuneGeneReadAlignmentPtr &alignment_ptr);
 
-    void AddIgGeneAlignment(alignment_utils::ImmuneGeneReadAlignmentPtr alignment_ptr);
+    void AddIgGeneAlignment(const alignment_utils::ImmuneGeneReadAlignmentPtr &alignment_ptr);
 
     size_t VHitsNumber() const { return v_hits_.size(); }
 
@@ -87,8 +87,8 @@ public:
 
     core::ReadPtr Read() const { return read_ptr_; }
 
-    alignment_utils::ImmuneGeneReadAlignmentPtr GetAlignmentByIndex(germline_utils::SegmentType gene_type,
-                                                                    size_t index);
+    alignment_utils::ImmuneGeneReadAlignmentPtr GetAlignmentByIndex(const germline_utils::SegmentType &gene_type,
+                                                                    const size_t &index);
 };
 
 typedef std::shared_ptr<VDJHits> VDJHitsPtr;

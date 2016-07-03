@@ -30,6 +30,7 @@ add_executable(vdj_labeler_0.3
                 ../vj_finder/vj_query_processing.cpp
                 ../vj_finder/vj_parallel_processor.cpp
                 vdj_alignments/vdj_hits.cpp
+                vdj_alignments/vdj_hits_storage.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler_0.3 core algorithms vdj_utils input yaml-cpp ${COMMON_LIBRARIES})

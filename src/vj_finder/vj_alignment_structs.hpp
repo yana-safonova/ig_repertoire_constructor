@@ -198,6 +198,8 @@ namespace vj_finder {
         std::vector<ImmuneGeneHitPtr> JPtrHits() const;
     };
 
+    typedef std::shared_ptr<VJHits> VJHitsPtr;
+
     typedef boost::optional<VJHits> ProcessedVJHits;
 
     class CustomGermlineDbHelper : public algorithms::KmerIndexHelper<germline_utils::CustomGeneDatabase,

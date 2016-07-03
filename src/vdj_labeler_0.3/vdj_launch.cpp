@@ -4,9 +4,8 @@
 #include <germline_db_generator.hpp>
 #include <vj_parallel_processor.hpp>
 #include <block_alignment/block_alignment_converter.hpp>
-#include <alignment_utils/pairwise_alignment.hpp>
-#include <block_alignment/block_alignment_converter.hpp>
 #include <vdj_alignments/vdj_hits.hpp>
+#include <vdj_alignments/vdj_hits_storage.hpp>
 
 namespace vdj_labeler {
 
@@ -35,12 +34,15 @@ void VDJLabelerLaunch::Launch() {
     INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
         " reads were filtered out");
 
-    INFO(alignment_info.AlignmentRecords()[2].Read());
-    INFO(alignment_info.AlignmentRecords()[2].VHits()[0].ImmuneGene());
+    // INFO(alignment_info.AlignmentRecords()[6].Read());
+    // INFO(alignment_info.AlignmentRecords()[6].VHits()[0].ImmuneGene());
     // INFO(alignment_info.AlignmentRecords()[0].VHits()[0].Read());
     // INFO(alignment_info.AlignmentRecords()[0].JHits().size());
-    auto vdj_hits = VDJHits(alignment_info.AlignmentRecords()[2]);
-    INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
+    // auto vdj_hits = VDJHits(alignment_info.AlignmentRecords()[6]);
+    // INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
+
+    auto vdj_storage = VDJHitsStorage(alignment_info);
+    INFO(*(vdj_storage[0]->Read()));
 }
 
-}
+} // End namespace vdj_labeler
