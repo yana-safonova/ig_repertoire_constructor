@@ -38,7 +38,8 @@ case $arg in
                 $cmd configs/dense_sgraph_finder/config.info.template configs/dense_sgraph_finder/config.info
                 echo -------------configs/dense_sgraph_finder/log.properties---------
                 $cmd configs/dense_sgraph_finder/log.properties.template configs/dense_sgraph_finder/log.properties
- 
+                echo -----------------configs/vj_finder/config.info------------------
+                $cmd configs/vj_finder/config.info.template configs/vj_finder/config.info
 esac
 
 done
