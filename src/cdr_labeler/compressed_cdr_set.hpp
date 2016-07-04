@@ -20,6 +20,14 @@ namespace cdr_labeler {
         bool operator==(const CDRKey& obj) const {
             return v_name == obj.v_name and j_name == obj.j_name and cdr_seq == obj.cdr_seq;
         }
+
+        bool operator<(const CDRKey& obj) const {
+            if(cdr_seq != obj.cdr_seq)
+                return cdr_seq < obj.cdr_seq;
+            if(v_name != obj.v_name)
+                return v_name < obj.v_name;
+            return j_name < obj.j_name;
+        }
     };
 
     struct CDRKeyHasher {
@@ -34,7 +42,7 @@ namespace cdr_labeler {
         annotation_utils::StructuralRegion region_;
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
 
-        std::unordered_map<CDRKey, size_t, CDRKeyHasher> compressed_cdrs_map_;
+        std::map<CDRKey, size_t> compressed_cdrs_map_;
         size_t sum_frequencies_;
 
     public:
@@ -61,5 +69,7 @@ namespace cdr_labeler {
         size_t size() const { return compressed_cdrs_.size(); }
 
         size_t Sum() const { return sum_frequencies_; }
+
+        CompressedCDR operator[](size_t index) const;
     };
 }

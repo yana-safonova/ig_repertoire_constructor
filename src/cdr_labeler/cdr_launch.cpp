@@ -49,13 +49,16 @@ namespace cdr_labeler {
         writer.OutputVGeneAlignment();
         writer.OutputSHMs();
         INFO("Diversity analyser starts");
-        DiversityAnalyser cdr_analyser(annotated_clone_set);
+        DiversityAnalyser cdr_analyser(annotated_clone_set, config_.output_params,
+                                       config_.output_params.cdr3_compressed_fasta);
         INFO("Shannon index. CDR1: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR1) <<
                 ", CDR2: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR2) <<
                 ", CDR3: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR3));
         INFO("Simpson index. CDR1: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR1) <<
              ", CDR2: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR2) <<
              ", CDR3: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR3));
+        INFO("Clonal Shannon index: " << cdr_analyser.ClonalShannonIndex());
+        INFO("Clonal Simpson index: " << cdr_analyser.ClonalSimpsonIndex());
         INFO("CDR labeler ends");
     }
 }

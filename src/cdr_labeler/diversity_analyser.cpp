@@ -46,6 +46,23 @@ namespace cdr_labeler {
     }
      */
 
+    void DiversityAnalyser::InitializeGraph(std::string compressed_cdr3_fasta) {
+        if(compressed_cdr3_fasta == "") {
+            // do something
+        }
+        std::string graph_fname = path::append_path(output_params_.output_dir, "cdr3_graph.graph");
+        std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
+        std::string command_line = run_graph_constructor + " -i " + compressed_cdr3_fasta +
+                                   " -o " + graph_fname + " --tau 3 > " + output_params_.trash_output;
+        int err_code = system(command_line.c_str());
+        VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
+        auto cdr3_graph = GraphReader(graph_fname).CreateGraph();
+        ConnectedComponentGraphSplitter graph_splitter(cdr3_graph);
+        cdr3_graphs_ = graph_splitter.Split();
+        graph_component_map_ = cdr3_graph->GetGraphComponentMap();
+        INFO(cdr3_graphs_.size() << " connected components of CDR3 Hamming graph were created");
+    }
+
     const CompressedCDRSet& DiversityAnalyser::GetCompressedCloneSet(annotation_utils::StructuralRegion region) {
         VERIFY_MSG(region == annotation_utils::StructuralRegion::CDR1 or
                            region == annotation_utils::StructuralRegion::CDR2 or
@@ -73,6 +90,30 @@ namespace cdr_labeler {
         for(auto it = region_set.cbegin(); it != region_set.cend(); it++) {
             double rel_freq = double(it->second) / double(region_set.Sum());
             simpson_index += rel_freq * rel_freq;
+        }
+        return simpson_index;
+    }
+
+    double DiversityAnalyser::ClonalShannonIndex() {
+        double shannon_index = 0;
+        for(size_t i = 0; i < cdr3_graphs_.size(); i++) {
+            size_t multiplicity = 0;
+            for(size_t j = 0; j < cdr3_graphs_[i]->N(); j++)
+                multiplicity += cdr3_compressed_set_[graph_component_map_.GetOldVertexByNewVertex(i, j)].second;
+            double rel_multiplicity = double(multiplicity) / double(cdr3_compressed_set_.Sum());
+            shannon_index += rel_multiplicity * log(rel_multiplicity);
+        }
+        return -shannon_index;
+    }
+
+    double DiversityAnalyser::ClonalSimpsonIndex() {
+        double simpson_index = 0;
+        for(size_t i = 0; i < cdr3_graphs_.size(); i++) {
+            size_t multiplicity = 0;
+            for(size_t j = 0; j < cdr3_graphs_[i]->N(); j++)
+                multiplicity += cdr3_compressed_set_[graph_component_map_.GetOldVertexByNewVertex(i, j)].second;
+            double rel_multiplicity = double(multiplicity) / double(cdr3_compressed_set_.Sum());
+            simpson_index += rel_multiplicity * rel_multiplicity;
         }
         return simpson_index;
     }

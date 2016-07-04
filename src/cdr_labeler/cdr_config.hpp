@@ -17,6 +17,7 @@ namespace cdr_labeler {
             std::string cdr3_fasta;
             std::string cdr3_compressed_fasta;
             std::string v_alignment_fasta;
+            std::string trash_output;
 
             struct SHMOutputDetails {
                 size_t v_start_max_skipped;

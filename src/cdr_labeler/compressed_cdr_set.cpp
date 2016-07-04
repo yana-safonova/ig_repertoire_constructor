@@ -25,4 +25,9 @@ namespace cdr_labeler {
         INFO(compressed_cdrs_.size() << " unique " << region_ << " sequences were created, max abundance: " <<
                      max_abundance);
     }
+
+    CompressedCDRSet::CompressedCDR CompressedCDRSet::operator[](size_t index) const {
+        VERIFY_MSG(index < size(), "Index " << index << " exceeds number of records");
+        return compressed_cdrs_[index];
+    }
 }

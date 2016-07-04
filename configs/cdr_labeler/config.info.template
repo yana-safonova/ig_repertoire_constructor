@@ -11,6 +11,7 @@ output_params {
     cdr3_fasta             cdr3s.fasta
     cdr3_compressed_fasta  compressed_cdr3s.fasta
     v_alignment_fasta      v_alignment.fasta
+    trash_output           trash.out
 
     shm_output_details {
         shm_details          shm_details.txt
