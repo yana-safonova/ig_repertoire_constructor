@@ -11,7 +11,7 @@ namespace cdr_labeler {
                            clone_it->GetRegionString(region_), index);
             if(compressed_cdrs_map_.find(cdr_key) == compressed_cdrs_map_.end()) {
                 compressed_cdrs_.push_back(std::make_pair(cdr_key, 1));
-                compressed_cdrs_map_[cdr_key] =  index;
+                compressed_cdrs_map_[cdr_key] = index;
             }
             else {
                 index = compressed_cdrs_map_.at(cdr_key);

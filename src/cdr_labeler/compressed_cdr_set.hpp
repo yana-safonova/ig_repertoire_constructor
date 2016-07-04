@@ -56,7 +56,8 @@ namespace cdr_labeler {
     public:
         CompressedCDRSet(annotation_utils::StructuralRegion region,
                          const annotation_utils::CDRAnnotatedCloneSet &clone_set) : region_(region),
-                                                                                    clone_set_(clone_set) {
+                                                                                    clone_set_(clone_set),
+                                                                                    sum_frequencies_(0) {
             Initialize();
         }
 
