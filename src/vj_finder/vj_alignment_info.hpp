@@ -67,5 +67,7 @@ namespace vj_finder {
         void OutputAlignmentInfo() const;
 
         void OutputCleanedReads() const;
+
+        void OutputVAlignments() const;
     };
 }

@@ -23,7 +23,7 @@ io_params {
             filtered_reads_fname    filtered_reads.fasta
             alignment_info_fname    alignment_info.csv
             discard_info_filename   oppa4
-            valignments_filename    oppa5
+            valignments_filename    v_alignments.fa
         }
 
         output_details {

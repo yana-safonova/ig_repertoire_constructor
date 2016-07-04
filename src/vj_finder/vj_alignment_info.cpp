@@ -1,5 +1,6 @@
 #include <verify.hpp>
 #include "vj_alignment_info.hpp"
+#include "immune_gene_alignment_converter.hpp"
 
 namespace vj_finder {
     void VJAlignmentInfo::Update(VJAlignmentInfo vj_alignment_info) {
@@ -82,5 +83,29 @@ namespace vj_finder {
         }
         out.close();
         INFO("Cleaned reads were written to " << output_params_.output_files.filtered_reads_fname);
+    }
+
+    void VJAlignmentOutput::OutputVAlignments() const {
+        ImmuneGeneAlignmentConverter alignment_converter;
+        std::ofstream out(output_params_.output_files.valignments_filename);
+        for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
+            auto vj_hits = alignment_info_.GetVJHitsByIndex(0);
+            auto v_hit = vj_hits.GetVHitByIndex(0);
+            auto v_alignment = alignment_converter.ConvertToAlignment(v_hit.ImmuneGene(), vj_hits.Read(),
+                                                                      v_hit.BlockAlignment());
+            auto subject_row = seqan::row(v_alignment.Alignment(), 0);
+            auto query_row = seqan::row(v_alignment.Alignment(), 1);
+            out << ">INDEX:" << i + 1 << "|READ:" << vj_hits.Read().name << "|START_POS:" <<
+                    v_alignment.StartSubjectPosition() << "|END_POS:" <<
+                    v_alignment.EndSubjectPosition() << std::endl;
+            out << query_row << std::endl;
+            out << ">INDEX:" << i + 1 << "|GENE:" << v_alignment.subject().name() <<
+            "|START_POS:" << v_alignment.StartQueryPosition() << "|END_POS:" <<
+                    v_alignment.EndQueryPosition() << "|CHAIN_TYPE:" <<
+                    v_alignment.subject().Chain() << std::endl;
+            out << subject_row << std::endl;
+        }
+        out.close();
+        INFO("V alignments were written to " << output_params_.output_files.valignments_filename);
     }
 }

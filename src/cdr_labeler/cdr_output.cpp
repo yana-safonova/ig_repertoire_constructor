@@ -96,6 +96,7 @@ namespace cdr_labeler {
         std::ofstream out(output_config_.v_alignment_fasta);
         size_t index = 1;
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
+            // todo: remove duplication with VJAlignmentInfoOutput
             auto subject_row = seqan::row(it->VAlignment().Alignment(), 0);
             auto query_row = seqan::row(it->VAlignment().Alignment(), 1);
             out << ">INDEX:" << index << "|READ:" << it->Read().name << "|START_POS:" <<
