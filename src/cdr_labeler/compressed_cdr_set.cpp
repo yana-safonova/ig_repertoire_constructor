@@ -16,8 +16,8 @@ namespace cdr_labeler {
             else {
                 index = compressed_cdrs_map_.at(cdr_key);
                 compressed_cdrs_[index].second++;
-                sum_frequencies_++;
             }
+            sum_frequencies_++;
         }
         size_t max_abundance = 0;
         for(auto it = cbegin(); it != cend(); it++)
