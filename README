@@ -1,3 +1,8 @@
+To test paired reads merger written by Egor Bogomolov, after installation of IgReC use following command:
+./build/release/bin/paired_read_merger --1 test_dataset/left.fastq --2 test_dataset/right.fastq --o test_dataset/merged_reads.fastq --bad test_dataset/bad_reads.fastq
+To feel the difference between different merger settings, use following flag:
+--max-mismatch=0.0001
+
 IgRepertoireConstructor
 Algorithm for construction of antibody repertoire from NGS data and immunoproteogenomics analysis
 Version: see VERSION
