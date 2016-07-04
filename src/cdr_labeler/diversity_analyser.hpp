@@ -22,6 +22,8 @@ namespace cdr_labeler {
 
         const CompressedCDRSet& GetCompressedCloneSet(annotation_utils::StructuralRegion);
 
+        size_t MaxConnectedComponentAbundance();
+
     public:
         DiversityAnalyser(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                           const CDRLabelerConfig::OutputParams &output_params,

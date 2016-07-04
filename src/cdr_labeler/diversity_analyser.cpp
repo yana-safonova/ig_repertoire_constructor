@@ -46,6 +46,17 @@ namespace cdr_labeler {
     }
      */
 
+    size_t DiversityAnalyser::MaxConnectedComponentAbundance() {
+        size_t max_abundance = 0;
+        for(size_t i = 0; i < cdr3_graphs_.size(); i++) {
+            size_t multiplicity = 0;
+            for (size_t j = 0; j < cdr3_graphs_[i]->N(); j++)
+                multiplicity += cdr3_compressed_set_[graph_component_map_.GetOldVertexByNewVertex(i, j)].second;
+            max_abundance = std::max(max_abundance, multiplicity);
+        }
+        return max_abundance;
+    }
+
     void DiversityAnalyser::InitializeGraph(std::string compressed_cdr3_fasta) {
         if(compressed_cdr3_fasta == "") {
             // do something
@@ -61,6 +72,7 @@ namespace cdr_labeler {
         cdr3_graphs_ = graph_splitter.Split();
         graph_component_map_ = cdr3_graph->GetGraphComponentMap();
         INFO(cdr3_graphs_.size() << " connected components of CDR3 Hamming graph were created");
+        INFO("Size of max connected component: " << MaxConnectedComponentAbundance());
     }
 
     const CompressedCDRSet& DiversityAnalyser::GetCompressedCloneSet(annotation_utils::StructuralRegion region) {
