@@ -6,6 +6,8 @@
 #include <block_alignment/block_alignment_converter.hpp>
 #include <vdj_alignments/vdj_hits.hpp>
 #include <vdj_alignments/vdj_hits_storage.hpp>
+#include <alignment_utils/alignment_positions.hpp>
+#include <vdj_alignments/aligners/simple_d_aligner.hpp>
 
 namespace vdj_labeler {
 
@@ -21,9 +23,11 @@ void VDJLabelerLaunch::Launch() {
 
     using namespace germline_utils;
     CustomGeneDatabase v_db(SegmentType::VariableSegment);
+    CustomGeneDatabase d_db(SegmentType::DiversitySegment);
     CustomGeneDatabase j_db(SegmentType::JoinSegment);
 
     v_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::VariableSegment), v_germline_genes_fname);
+    d_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment), d_germline_genes_fname);
     j_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::JoinSegment), j_germline_genes_fname);
     INFO("Generation of DB for join segments...");
     INFO("Alignment against VJ germline segments");
@@ -42,7 +46,16 @@ void VDJLabelerLaunch::Launch() {
     // INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
 
     auto vdj_storage = VDJHitsStorage(alignment_info);
-    INFO(*(vdj_storage[0]->Read()));
+    // INFO(*(vdj_storage[0]->Read()));
+
+    alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(100, read_archive[0].length() - 1),
+                                                            std::make_pair<size_t, size_t>(0, 10));
+
+    alignment_utils::ImmuneGeneAlignmentPositions immune_alignment_positions(alignment_positions,
+                                                                             d_db[0],
+                                                                             read_archive[0]);
+
+    INFO(SimpleDAligner().ComputeAlignment(immune_alignment_positions)->Alignment());
 }
 
 } // End namespace vdj_labeler
