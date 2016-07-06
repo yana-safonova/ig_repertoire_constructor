@@ -15,12 +15,15 @@ namespace vj_finder {
             if (gene_pos >= 0 && gene_pos < static_cast<int>(vj_hits.GetJHitByIndex(0).ImmuneGene().length()))
                 read.seq[i] = vj_hits.GetJHitByIndex(0).ImmuneGene().seq()[gene_pos];
         }
-        VJHits fixed_vj_hits(read);
-        for(size_t i = 0; i < vj_hits.NumVHits(); i++)
-            fixed_vj_hits.AddVHit(vj_hits.GetVHitByIndex(i));
-        for(size_t i = 0; i < vj_hits.NumJHits(); i++)
-            fixed_vj_hits.AddJHit(vj_hits.GetJHitByIndex(i));
-        return fixed_vj_hits;
+        vj_hits.UpdateRead(read);
+        return vj_hits;
+//        VJHits fixed_vj_hits(read);
+//        for(size_t i = 0; i < vj_hits.NumVHits(); i++) {
+//            fixed_vj_hits.AddVHit(vj_hits.GetVHitByIndex(i));
+//        }
+//        for(size_t i = 0; i < vj_hits.NumJHits(); i++)
+//            fixed_vj_hits.AddJHit(vj_hits.GetJHitByIndex(i));
+//        return fixed_vj_hits;
     }
 
     VJHits FillFixCropProcessor::PerformFillingCropping(VJHits vj_hits) {
@@ -56,19 +59,23 @@ namespace vj_finder {
             read.seq = germline_prefix;
             // shift to right all alignment positions of read by length of germline_prefix
         }
-        VJHits filled_cropped_vj_hits(read);
-        VGeneHit v_hit = vj_hits.GetVHitByIndex(0);
-        v_hit.AddShift(left_shift);
-        filled_cropped_vj_hits.AddVHit(v_hit);
-        JGeneHit j_hit = vj_hits.GetJHitByIndex(0);
-        j_hit.AddShift(left_shift + right_shift);
-        filled_cropped_vj_hits.AddJHit(j_hit);
-        TRACE("Start: " << filled_cropped_vj_hits.GetVHitByIndex(0).Start() << ", end: " <<
-                     filled_cropped_vj_hits.GetVHitByIndex(0).End());
-        return filled_cropped_vj_hits;
+        vj_hits.UpdateRead(read);
+        vj_hits.AddLeftShift(left_shift);
+        vj_hits.AddRightShift(left_shift + right_shift);
+        //VJHits filled_cropped_vj_hits(read);
+        //VGeneHit v_hit = vj_hits.GetVHitByIndex(0);
+        //v_hit.AddShift(left_shift);
+        //filled_cropped_vj_hits.AddVHit(v_hit);
+        //JGeneHit j_hit = vj_hits.GetJHitByIndex(0);
+        //j_hit.AddShift(left_shift + right_shift);
+        //filled_cropped_vj_hits.AddJHit(j_hit);
+        TRACE("Start: " << vj_hits.GetVHitByIndex(0).Start() << ", end: " <<
+                      vj_hits.GetVHitByIndex(0).End());
+        return vj_hits;
     }
 
     VJHits FillFixCropProcessor::Process(VJHits vj_hits) {
+        return vj_hits;
         TRACE("Fixing, filling and cropping read " << vj_hits.Read() << " starts");
         VJHits fixed_vj_hits = PerformFixing(vj_hits);
         TRACE("Fixing done");

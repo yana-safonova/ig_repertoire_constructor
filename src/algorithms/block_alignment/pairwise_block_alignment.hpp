@@ -78,7 +78,7 @@ namespace algorithms {
             return this->path.visualize_matches(static_cast<int>(subject_length), static_cast<int>(query_length));
         }
 
-        void add_read_shift(int read_shift) { this->read_shift = read_shift; }
+        void add_read_shift(int read_shift) { this->read_shift += read_shift; }
     };
 
     template<typename SubjectDatabase>
