@@ -31,9 +31,16 @@ namespace alignment_utils {
         size_t num_matches_;
         size_t num_mismatches_;
 
+        double score_;
+        double normalized_score_;
+
         void ComputeAlignmentLengths() {
-            auto subject_row = seqan::row(alignment_, 0);
-            alignment_length_ = seqan::length(subject_row);
+            auto& subject_row = seqan::row(alignment_, 0);
+            auto& query_row = seqan::row(alignment_, 1);
+            subject_alignment_length_ = seqan::length(subject_row);
+            query_alignment_length_ = seqan::length(query_row);
+            alignment_length_ = std::min(subject_alignment_length_,
+                                         query_alignment_length_);
         }
 
         void ComputeAlignmentStats() {
@@ -44,16 +51,21 @@ namespace alignment_utils {
             auto subject_row = seqan::row(alignment_, 0);
             auto query_row = seqan::row(alignment_, 1);
             for(size_t i = 0; i < AlignmentLength(); i++)
-                if(subject_row[i] != '-' and query_row[i] != '-') {
+                if (subject_row[i] != '-' and query_row[i] != '-') {
                     real_start_alignment_pos_ = i;
                     break;
                 }
             for(size_t i = 0; i < AlignmentLength(); i++)
-                if(subject_row[AlignmentLength() - i - 1] != '-' and
-                        query_row[AlignmentLength() - i - 1] != '-') {
+                if (subject_row[AlignmentLength() - i - 1] != '-' and
+                    query_row[AlignmentLength() - i - 1] != '-') {
                     real_end_alignment_pos_ = AlignmentLength() - i - 1;
                     break;
                 }
+        }
+
+        void ComputeNormalizedScore() {
+            auto alignment_row = seqan::row(alignment_, 0);
+            normalized_score_ = score_ / static_cast<double>(seqan::length(alignment_row));
         }
 
     public:
@@ -65,6 +77,19 @@ namespace alignment_utils {
             ComputeStartEndAlignmentPositions();
             //ComputeAlignmentStats();
         }
+
+        PairwiseAlignment(const SubjectTypename &subject,
+                          const QueryTypename &query,
+                          seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment,
+                          double score) :
+                PairwiseAlignment(subject, query, alignment) {
+            score_ = score;
+            ComputeNormalizedScore();
+        }
+
+        double Score() const { return score_; }
+
+        double NormalizedScore() const { return normalized_score_; }
 
         const SubjectTypename & subject() const { return subject_; }
 

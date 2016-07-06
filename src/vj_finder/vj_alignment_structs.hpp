@@ -80,6 +80,10 @@ namespace vj_finder {
             shift_ = shift;
             block_alignment_.read_shift += shift;
         }
+
+        int IntScore() const {
+            VERIFY(!Empty());
+            return block_alignment_.int_score; }
     };
 
     typedef std::shared_ptr<ImmuneGeneHit> ImmuneGeneHitPtr;

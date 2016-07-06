@@ -33,6 +33,7 @@ namespace alignment_utils {
     // Immune Gene Alignment Position
     // ------------------------------------------------------------
     class ImmuneGeneAlignmentPositions {
+    private:
         AlignmentPositions alignment_positions_;
         const germline_utils::ImmuneGene& immune_gene_;
         const core::Read &read_;
@@ -42,6 +43,7 @@ namespace alignment_utils {
 //                immune_gene_(),
 //                read_(NULL) { }
 
+    public:
         ImmuneGeneAlignmentPositions(AlignmentPositions alignment_positions,
                                      const germline_utils::ImmuneGene& immune_gene,
                                      const core::Read &read) :
@@ -57,7 +59,7 @@ namespace alignment_utils {
 
         size_t ReadEndPos() const { return alignment_positions_.query_pos.second; }
 
-        bool IsEmpty() const { return ReadStartPos() > ReadEndPos(); }
+        bool IsEmpty() const { return ReadStartPos() == ReadEndPos(); }
 
         size_t ReadAlignmentLength() const { return alignment_positions_.QueryAlignmentLength(); }
 
@@ -66,6 +68,8 @@ namespace alignment_utils {
         const germline_utils::ImmuneGene& Gene() const { return immune_gene_; }
 
         const core::Read& Read() const { return read_; }
+
+        const AlignmentPositions &AlignmentPositions() const { return alignment_positions_; }
     };
 
     std::ostream& operator<<(std::ostream& out, const ImmuneGeneAlignmentPositions& obj);

@@ -2,7 +2,9 @@
 
 #include "alignment_quality_checker.hpp"
 
-class MatchThresholdAlignmentQualityChecker : public AlignmentQualityChecker {
+namespace vdj_labeler {
+
+class MatchThresholdAlignmentQualityChecker: public AlignmentQualityChecker {
     /*
      * The default value is 5 following IgBlast
      * link: https://nar.oxfordjournals.org/content/early/2013/05/11/nar.gkt382.full.pdf :
@@ -14,7 +16,9 @@ class MatchThresholdAlignmentQualityChecker : public AlignmentQualityChecker {
 
 public:
     MatchThresholdAlignmentQualityChecker(int normalized_score_threshold) :
-            normalized_score_threshold_(normalized_score_threshold) { }
+        normalized_score_threshold_(normalized_score_threshold) { }
 
     bool AlignmentIsGood(alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment);
 };
+
+} // End namespace vdj_labeler

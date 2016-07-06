@@ -1,13 +1,6 @@
 #include "logger/logger.hpp"
 #include "simple_d_aligner.hpp"
 
-#include <seqan/sequence.h>
-#include <seqan/basic.h>
-#include <seqan/stream.h>
-
-#include <iostream>
-
-using namespace std;
 using namespace seqan;
 
 namespace vdj_labeler {
@@ -44,7 +37,7 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
     // ------ set to a relatively high value (-4) to minimize the
     // ------ chance of spurious matches.
     // Score::Score(match, mismatch, gap[, gapOpen]);
-    localAlignment(align, Score<int, Simple>(1, -4, -5, -2));
+    double score = localAlignment(align, Score<int, Simple>(1, -4, -5, -2));
     // localAlignment(align, Score<int, Simple>(1, -4, 0, 0)); // For testing (allows to see many gaps)
 
     Align<Dna5String> align_orig(align);
@@ -63,7 +56,8 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
 
     return std::make_shared<alignment_utils::ImmuneGeneReadAlignment>(alignment_positions.Gene(),
                                                                       alignment_positions.Read(),
-                                                                      align_orig);
+                                                                      align_orig,
+                                                                      score);
 }
 
 } // End namespace vdj_labeler

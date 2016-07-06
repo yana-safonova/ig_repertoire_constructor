@@ -16,7 +16,8 @@ namespace algorithms {
         alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename> ConvertToAlignment(
                 const SubjectTypename &subject,
                 const QueryTypename &query,
-                PairwiseBlockAlignment block_alignment) {
+                PairwiseBlockAlignment block_alignment,
+                bool return_score = false) {
             VERIFY_MSG(block_alignment.path.check_overlaps(), "Overlaps are not correct");
             VERIFY_MSG(!block_alignment.path.empty(), "Alignment path is empty");
 
@@ -96,7 +97,14 @@ namespace algorithms {
                 // Do nothing
             }
 
-            return alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename>(subject, query, align);
+            if (return_score)
+                return alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename>(subject,
+                                                                                          query,
+                                                                                          align,
+                                                                                          block_alignment.score);
+            return alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename>(subject,
+                                                                                      query,
+                                                                                      align);
         }
     };
 }

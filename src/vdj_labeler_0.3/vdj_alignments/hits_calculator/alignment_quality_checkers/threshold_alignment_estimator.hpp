@@ -1,15 +1,19 @@
 #pragma once
 
-#include "alignment_quality_controller.hpp"
+#include "alignment_quality_checker.hpp"
 
-class ThresholdAlignmentEstimator : public AlignmentEstimator {
+namespace vdj_labeler {
+
+class ThresholdAlignmentQualityChecker: public AlignmentQualityChecker {
     double normalized_score_threshold_;
 
 public:
-    ThresholdAlignmentEstimator(double normalized_score_threshold) :
-            normalized_score_threshold_(normalized_score_threshold) { }
+    ThresholdAlignmentQualityChecker(double normalized_score_threshold) :
+        normalized_score_threshold_(normalized_score_threshold) { }
 
-    bool AlignmentIsGood(IgGeneAlignmentPtr ig_gene_alignment) {
+    bool AlignmentIsGood(alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment) {
         return ig_gene_alignment->NormalizedScore() >= normalized_score_threshold_;
     }
 };
+
+} // End namespace vdj_labeler

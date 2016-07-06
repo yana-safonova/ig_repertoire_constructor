@@ -4,10 +4,10 @@
 
 namespace vdj_labeler {
 
-class AlignmentQualityController {
+class AlignmentQualityChecker {
 public:
     virtual bool AlignmentIsGood(alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment) = 0;
-    virtual ~AlignmentEstimator() { }
+    virtual ~AlignmentQualityChecker() { }
 };
 
 } // End namespace vdj_labeler

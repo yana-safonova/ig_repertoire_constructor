@@ -48,7 +48,7 @@ void VDJLabelerLaunch::Launch() {
     auto vdj_storage = VDJHitsStorage(alignment_info);
     // INFO(*(vdj_storage[0]->Read()));
 
-    alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(100, read_archive[0].length() - 1),
+    alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(0, read_archive[0].length() - 1),
                                                             std::make_pair<size_t, size_t>(0, 10));
 
     alignment_utils::ImmuneGeneAlignmentPositions immune_alignment_positions(alignment_positions,
