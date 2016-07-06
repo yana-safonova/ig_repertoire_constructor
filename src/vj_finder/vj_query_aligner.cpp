@@ -60,6 +60,7 @@ namespace vj_finder {
             core::Read read_rc = read.ReverseComplement();
             CustomDbBlockAlignmentHits reverse_v_aligns = v_aligner.Align(read_rc.seq);
             if(v_aligns.BestScore() < reverse_v_aligns.BestScore()) {
+                TRACE("Reverse complementary strand was selected");
                 stranded_read = read_rc;
                 v_aligns = reverse_v_aligns;
                 strand = false;
@@ -89,9 +90,9 @@ namespace vj_finder {
 
         TRACE("Computation of J hits");
         auto j_aligns = j_aligner.Align(dj_read_suffix);
-        for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
-            it->first.add_read_shift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
-        TRACE(v_aligns.size() << " J hits were computed: ")
+        //for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
+        //    it->first.add_read_shift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
+        TRACE(j_aligns.size() << " J hits were computed: ")
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
             TRACE(j_gene_db[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
@@ -101,8 +102,11 @@ namespace vj_finder {
         VJHits vj_hits(stranded_read);
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
             vj_hits.AddVHit(VGeneHit(stranded_read, v_custom_db_[it->second], it->first, strand));
-        for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
-            vj_hits.AddJHit(JGeneHit(stranded_read, j_gene_db[it->second], it->first, strand));
+        for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
+            JGeneHit j_hit(stranded_read, j_gene_db[it->second], it->first, strand);
+            j_hit.AddShift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
+            vj_hits.AddJHit(j_hit);
+        }
         return vj_hits;
     }
 }
