@@ -1,10 +1,15 @@
 #!/usr/bin/env python2
 
 import os
+import os.path
 import fnmatch
 import sys
 import json
 
+current_dir = os.path.dirname(os.path.realpath(__file__))
+igrec_dir = current_dir + "/../../../../"
+sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+from ash_python_utils import mkdir_p
 
 def metadatajson():
     json_file = json.dumps(
@@ -24,6 +29,7 @@ def metadatajson():
         }
     )
     return json_file
+
 
 def showDir(dir):
     import os
@@ -45,7 +51,6 @@ def safe_cast(val, to_type, default=None):
 
 
 if __name__ == "__main__":
-    # load json file
     jsonfile = open('/data/input/AppSession.json')
     jsonObject = json.load(jsonfile)
 
@@ -53,18 +58,16 @@ if __name__ == "__main__":
     runName = jsonObject['Name']
     runName = runName.replace(' ', '_')
 
-    # print jsonObject
-    # showDir("/data")
-
-
     param = {}
     param["threads"] = 32
-    param["min-size"] = 5
+    param["min-cluster-size"] = 5
     param["tau"] = 4
-    param["chain"] = "all"
-    param["additionalfiles"] = True
-    param["pseudogenes"] = True
-
+    param["min-fillin"] = 0.6
+    param["loci"] = "all"
+    param["organism"] = "human"
+    param["additionalfiles"] = False
+    param["pseudogenes"] = False
+    param["AppSessionName"] = "IgReC"
 
     # loop over properties
     for item in jsonObject['Properties']['Items']:
@@ -84,22 +87,28 @@ if __name__ == "__main__":
                 sampleDir = '/data/input/samples/%s' % sample['Id']
 
             for root, dirs, files in os.walk(sampleDir):
-                R1files = fnmatch.filter(files,'*_R1_*')
-                R2files = fnmatch.filter(files,'*_R2_*')
+                R1files = fnmatch.filter(files, '*_R1_*')
+                R2files = fnmatch.filter(files, '*_R2_*')
 
             assert(len(R1files) == len(R2files))
             if len(R1files) != 1:
-                print "WARNING: Samples with multiple files are not supported yet. Onlythe first file pair will be used"
+                print >> sys.stderr, "WARNING: Samples with multiple files are not supported yet. Only the first pair will be used"
 
             param['readtype'] = 'paired'
             param['reads'] = [os.path.join(sampleDir, R1files[0]),
                               os.path.join(sampleDir, R2files[0])]
         elif name == 'Input.tau':
-            param['tau'] = int(item['Content'])
-        elif name == 'Input.chain':
-            param['chain'] = item['Content']
-        elif name == 'Input.min-size':
-            param["min-size"] = safe_cast(item['Content'], int, 5)
+            param['tau'] = safe_cast(item['Content'], int, 4)
+        elif name == 'Input.loci':
+            param['loci'] = item['Content']
+        elif name == 'Input.organism':
+            param['organism'] = item['Content']
+        elif name == 'Input.app-session-name':
+            param['AppSessionName'] = item['Content']
+        elif name == 'Input.min-cluster-size':
+            param["min-cluster-size"] = safe_cast(item['Content'], int, 5)
+        elif name == 'Input.min-fillin':
+            param["min-fillin"] = safe_cast(item['Content'], float, 0.6)
         elif name == 'Input.additionalfiles':
             param["additionalfiles"] = "save" in item['Items']
         elif name == 'Input.pseudogenes':
@@ -107,26 +116,23 @@ if __name__ == "__main__":
         elif name == 'Input.Projects':
             projectID = item['Items'][0]['Id']
 
-    param['outdir'] = '/data/output/appresults/%s/%s' % (projectID, runID)
-    os.system('mkdir -p "%s"' % param['outdir'])
-    print param
+    param['outdir'] = '/data/output/appresults/%s/%s' % (projectID, "IgReC")
+    mkdir_p(param['outdir'])
 
-    igrc_dir = "/ig_repertoire_constructor"
-    igrc_path = os.path.join(igrc_dir, "ig_repertoire_constructor.py")
+    igrec_path = os.path.join(igrec_dir, "igrec.py")
 
     if param['readtype'] == "merged":
-        command = "%s -s %s " % (igrc_path, param["reads"])
+        command = '%s -s "%s" ' % (igrec_path, param["reads"])
     elif param['readtype'] == "paired":
-        command = "%s -1 %s -2 %s " % (igrc_path, param["reads"][0], param["reads"][1])
+        command = '%s -1 "%s" -2 "%s" ' % (igrec_path, param["reads"][0], param["reads"][1])
     else:
         sys.exit(1)
 
-    command += " --tau=%(tau)d --chain=%(chain)s -o %(outdir)s --threads=%(threads)d --min-size=%(min-size)d" % param
+    command += ' --tau=%(tau)d --loci=%(loci)s -o "%(outdir)s" --threads=%(threads)d --min-cluster-size=%(min-cluster-size)d --min-fillin=%(min-fillin)f' % param
     if not param["pseudogenes"]:
         command += " --no-pseudogenes"
     if param["additionalfiles"]:
         command += " --debug"
 
-    print "Command line: %s" % command
-    # os.system('cd %s; %s' % (igrc_dir, command))
+    # print "Command line: %s" % command
     os.system(command)
