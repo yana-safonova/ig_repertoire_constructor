@@ -7,7 +7,7 @@
 #include "read_labeler.hpp"
 #include "cdr_output.hpp"
 #include "diversity_analyser.hpp"
-#include "cdr_annotator.hpp"
+//#include "cdr_annotator.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
