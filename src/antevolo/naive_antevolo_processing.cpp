@@ -17,8 +17,7 @@ namespace antevolo {
         auto vj_decomposition = clone_set_decomposer.CreateDecomposition();
         INFO("VJ decomposition containing " << vj_decomposition.Size() << " classes was created.");
         INFO("Largest class contains " << vj_decomposition.MaxClassSize() << " clone(s)");
-        VERIFY(false);
-        omp_set_num_threads(16); // todo: add in config
+        //omp_set_num_threads(16); // todo: add in config
         INFO("Construction of clonal trees starts");
 //#pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
