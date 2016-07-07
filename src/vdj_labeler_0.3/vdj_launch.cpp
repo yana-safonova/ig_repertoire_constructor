@@ -10,6 +10,7 @@
 #include <vdj_alignments/aligners/simple_d_aligner.hpp>
 #include <model/recombination_model.hpp>
 #include <germline_utils/chain_type.hpp>
+#include <recombination_calculator/hc_model_based_recombination_calculator.hpp>
 
 namespace vdj_labeler {
 
@@ -68,12 +69,12 @@ void VDJLabelerLaunch::Launch() {
     // Andy: Blank model "tested" here
     {
         std::ifstream in("src/vdj_labeler/test/blank_model.csv");
-        HCProbabilityRecombinationModel model(in, hc_db);
-        std::cout << model;
-        // IgGeneProbabilityModel model_V(in, hc_db.VariableGenes());
-        // // cout << model_V;
-        // IgGeneProbabilityModel model_D(in, hc_db.DiversityGenes());
-        // // cout << model_D;
+        // HCProbabilityRecombinationModel model(in, hc_db);
+        // std::cout << model;
+        IgGeneProbabilityModel model_V(in, hc_db.GetDb(germline_utils::SegmentType::VariableSegment));
+        // std::cout << model_V;
+        IgGeneProbabilityModel model_D(in, hc_db.GetDb(germline_utils::SegmentType::DiversitySegment));
+        // std::cout << model_D;
         // IgGeneProbabilityModel model_J(in, hc_db.JoinGenes());
         // // cout << model_J;
         // NongenomicInsertionModel modelVD(in);

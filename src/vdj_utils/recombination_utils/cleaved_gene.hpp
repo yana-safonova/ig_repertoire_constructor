@@ -52,7 +52,7 @@ public:
     // number of somatic mutations in right event
     int NumberRightSHMs() const { return num_right_shms_; }
 
-    // size_t GeneId() const { return gene_alignment_ptr_->GeneId(); }
+    size_t GeneId() const { return gene_alignment_ptr_->subject().id(); }
 
     size_t StartReadPosition() const { return size_t(int(gene_alignment_ptr_->StartQueryPosition()) +
                                               left_cleavage_length_); }
