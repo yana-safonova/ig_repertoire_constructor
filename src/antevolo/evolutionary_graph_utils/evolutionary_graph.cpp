@@ -3,10 +3,10 @@
 
 namespace antevolo {
     size_t EvolutionaryGraph::GetVertexIndex(const annotation_utils::AnnotatedClone &clone) {
-        if(vertex_index_map_.find(clone) != vertex_index_map_.end())
-            return vertex_index_map_[clone];
+        if(vertex_index_map_.find(clone.Read().name) != vertex_index_map_.end())
+            return vertex_index_map_[clone.Read().name];
         size_t map_size = vertex_index_map_.size();
-        vertex_index_map_[clone] =  map_size;
+        vertex_index_map_[clone.Read().name] =  map_size;
         return map_size;
     }
 

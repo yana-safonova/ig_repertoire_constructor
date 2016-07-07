@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 namespace annotation_utils {
     // start and end positions are inclusive
     struct CDRRange {

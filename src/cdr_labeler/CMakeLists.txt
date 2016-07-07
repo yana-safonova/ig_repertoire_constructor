@@ -40,6 +40,7 @@ add_executable(cdr_labeler
         compressed_cdr_set.cpp
         cdr_output.cpp
         diversity_analyser.cpp
+        #cdr_annotator.cpp
         cdr_launch.cpp
         main.cpp)
 

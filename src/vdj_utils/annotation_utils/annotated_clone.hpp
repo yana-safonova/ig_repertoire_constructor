@@ -13,8 +13,8 @@ namespace annotation_utils {
     class AnnotatedClone {
         core::Read read_;
 
-        std::unordered_map<StructuralRegion, seqan::Dna5String, std::hash<int>> region_string_map_;
-        std::unordered_map<StructuralRegion, CDRRange, std::hash<int>> region_range_map_;
+        std::map<StructuralRegion, seqan::Dna5String> region_string_map_;
+        std::map<StructuralRegion, CDRRange> region_range_map_;
 
         alignment_utils::ImmuneGeneReadAlignment v_alignment_;
         alignment_utils::ImmuneGeneReadAlignment j_alignment_;

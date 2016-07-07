@@ -1,8 +1,19 @@
 #include <annotation_utils/shm_comparator.hpp>
 #include "evolutionary_edge.hpp"
-#include <sequence_distance.hpp>
 
 namespace antevolo {
+    //todo: refactor it
+    template<typename T>
+    size_t HammingDistance(T seq1, T seq2) {
+        size_t dist = 0;
+        size_t min_length = std::min<size_t>(seqan::length(seq1), seqan::length(seq2));
+        for(size_t i = 0; i < min_length; i++) {
+            if(seq1[i] != seq2[i])
+                dist++;
+        }
+        return dist;
+    }
+
     std::ostream& operator<<(std::ostream &out, const EvolutionaryEdgeType& edge_type) {
         if(edge_type == EvolutionaryEdgeType::DirectedEdgeType)
             out << "directed";
@@ -19,7 +30,7 @@ namespace antevolo {
         if(edge_type == EvolutionaryEdgeType::UnknownEdgeType)
             return;
         // todo: refactor it. now cdr3s can differ only by mismatches
-        cdr3_distance = core::HammingDistance(src_clone->CDR3(), dst_clone->CDR3());
+        cdr3_distance = HammingDistance(src_clone->CDR3(), dst_clone->CDR3());
         if(edge_type == EvolutionaryEdgeType::UndirectedEdgeType) {
             num_added_v_shms = 0;
             num_intersected_v_shms = 0;

@@ -22,6 +22,20 @@ namespace annotation_utils {
             shm_type = SHMType::SubstitutionSHM;
     }
 
+    bool SHM::operator==(const SHM &shm) const {
+        if(gene_nucl_pos != shm.gene_nucl_pos)
+            return false;
+        if(gene_nucl != shm.gene_nucl)
+            return false;
+        if(read_nucl != shm.read_nucl)
+            return false;
+        return shm_type == shm.shm_type;
+    }
+
+    bool SHM::operator!=(const SHM &shm) const {
+        return !(*this == shm);
+    }
+
     std::ostream& operator<<(std::ostream &out, const SHM& shm) {
         out << shm.gene_nucl_pos << " - " << shm.read_nucl_pos << ", " << shm.gene_nucl << "->" << shm.read_nucl << ", " <<
         shm.gene_aa << "->" << shm.read_aa;

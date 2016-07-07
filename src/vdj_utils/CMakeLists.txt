@@ -18,6 +18,7 @@ add_library(vdj_utils STATIC
         annotation_utils/shm_filter.cpp
         annotation_utils/annotated_clone.cpp
         annotation_utils/annotated_clone_set.cpp
+        annotation_utils/shm_comparator.cpp
         )
 
 target_link_libraries(vdj_utils core ${COMMON_LIBRARIES})

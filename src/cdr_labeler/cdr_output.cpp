@@ -26,7 +26,7 @@ namespace cdr_labeler {
                        "CDR3_nucls\tCDR3_start\tCDR3_end" << std::endl;
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
             annotation_utils::AnnotatedClone cdr_clone = *it;
-            auto vj_hit = alignment_info_.GetVJHitsByRead(cdr_clone.Read());
+            //auto vj_hit = alignment_info_.GetVJHitsByRead(cdr_clone.Read());
             out << cdr_clone.Read().name << "\t" << cdr_clone.ChainType() << "\t" <<
             it->VAlignment().subject().name() << "\t" <<
             it->JAlignment().subject().name() << "\t" << cdr_clone.AA() << "\t" <<

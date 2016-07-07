@@ -38,6 +38,10 @@ namespace annotation_utils {
                 return false;
             return read_aa == '*';
         }
+
+        bool operator==(const SHM& shm) const;
+
+        bool operator!=(const SHM& shm) const;
     };
 
     std::ostream& operator<<(std::ostream &out, const SHM& shm);

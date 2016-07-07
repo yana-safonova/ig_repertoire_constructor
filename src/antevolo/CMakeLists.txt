@@ -38,7 +38,7 @@ add_executable(antevolo
         ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
         ../cdr_labeler/germline_db_labeling.cpp
         ../cdr_labeler/read_labeler.cpp
-        ../cdr_labeler/cdr_annotator.cpp
+#        ../cdr_labeler/cdr_annotator.cpp
 #        compressed_cdr_set.cpp
 #        cdr_output.cpp
 #        diversity_analyser.cpp

@@ -7,6 +7,7 @@
 #include "read_labeler.hpp"
 #include "cdr_output.hpp"
 #include "diversity_analyser.hpp"
+#include "cdr_annotator.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
@@ -40,7 +41,8 @@ namespace cdr_labeler {
 
         ReadCDRLabeler read_labeler(v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
-        CDRLabelingWriter writer(config_.output_params, alignment_info, annotated_clone_set);
+        //auto annotated_clone_set = CDRAnnotator(config_, read_archive, v_db, j_db).AnnotateClones();
+        CDRLabelingWriter writer(config_.output_params, /*alignment_info,*/ annotated_clone_set);
         writer.OutputCDRDetails();
         writer.OutputCDR1Fasta();
         writer.OutputCDR2Fasta();

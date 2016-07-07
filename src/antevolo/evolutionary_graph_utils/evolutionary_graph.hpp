@@ -20,12 +20,12 @@ namespace antevolo {
     class EvolutionaryGraph {
         std::vector<EvolutionaryEdge> edges_;
         //std::unordered_map<EvolutionaryEdge, size_t, EvolutionaryEdgeHasher> edge_index_map_;
-        std::unordered_map<annotation_utils::AnnotatedClone, size_t, AnnotatedCloneHasher> vertex_index_map_;
+        std::map<std::string, size_t> vertex_index_map_;
 
         std::map<size_t, std::vector<size_t>> vertex_edges_map_;
         std::map<size_t, std::vector<size_t>> vertex_neighbours_map_;
 
-        std::unordered_map<EvolutionaryEdgeType, size_t, std::hash<int>> edge_type_counts_;
+        std::map<EvolutionaryEdgeType, size_t> edge_type_counts_;
 
         // if it is not presented in map, add new record
         size_t GetVertexIndex(const annotation_utils::AnnotatedClone& clone);
