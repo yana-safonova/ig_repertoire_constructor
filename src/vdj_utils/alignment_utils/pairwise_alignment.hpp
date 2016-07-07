@@ -30,6 +30,8 @@ namespace alignment_utils {
         size_t num_gaps_;
         size_t num_matches_;
         size_t num_mismatches_;
+        // 06.VII.2016 Yana and Andy decided that for now Shms will include gaps. This may be changed later.
+        size_t num_shms_;
 
         double score_;
         double normalized_score_;
@@ -44,7 +46,18 @@ namespace alignment_utils {
         }
 
         void ComputeAlignmentStats() {
-            VERIFY_MSG(false, "Implement me!");
+            auto& subject_row = seqan::row(alignment_, 0);
+            auto& query_row = seqan::row(alignment_, 1);
+            assert(length(subject_row) == length(query_row));
+            for(size_t i = 0; i < length(subject_row); i++) {
+                if(subject_row[i] == '-' or query_row[i] == '-')
+                    num_gaps_++;
+                if(subject_row[i] == query_row[i])
+                    ++num_matches_;
+                else
+                    num_matches_++;
+            }
+            num_shms_ = num_mismatches_ + num_gaps_;
         }
 
         void ComputeStartEndAlignmentPositions() {
@@ -143,6 +156,7 @@ namespace alignment_utils {
 
         size_t NumberMismatches() const { return num_mismatches_; }
 
+        size_t NumberSHMs() const { return num_shms_; }
 
         size_t QueryPositionBySubjectPosition(size_t subject_pos) const {
             auto subject_row = seqan::row(alignment_, 0);
