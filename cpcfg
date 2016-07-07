@@ -42,6 +42,8 @@ case $arg in
                 $cmd configs/vj_finder/config.info.template configs/vj_finder/config.info
                 echo -----------------configs/cdr_labeler/config.info----------------
                 $cmd configs/cdr_labeler/config.info.template configs/cdr_labeler/config.info
+                echo --------------------configs/antevolo/config.info----------------
+                $cmd configs/antevolo/config.info.template configs/antevolo/config.info
 esac
 
 done

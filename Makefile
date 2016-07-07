@@ -24,3 +24,6 @@ vjf:
 
 cdr:
 	$(MAKE) -C build/release/cdr_labeler
+
+ant:
+	$(MAKE) -C build/release/antevolo
