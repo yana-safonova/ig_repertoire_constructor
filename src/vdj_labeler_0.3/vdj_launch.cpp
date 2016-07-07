@@ -8,6 +8,8 @@
 #include <vdj_alignments/vdj_hits_storage.hpp>
 #include <alignment_utils/alignment_positions.hpp>
 #include <vdj_alignments/aligners/simple_d_aligner.hpp>
+#include <model/recombination_model.hpp>
+#include <germline_utils/chain_type.hpp>
 
 namespace vdj_labeler {
 
@@ -29,6 +31,12 @@ void VDJLabelerLaunch::Launch() {
     v_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::VariableSegment), v_germline_genes_fname);
     d_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment), d_germline_genes_fname);
     j_db.AddDatabase(ImmuneGeneType(ChainType("IGH"), SegmentType::JoinSegment), j_germline_genes_fname);
+
+    germline_utils::ChainDatabase hc_db(germline_utils::ImmuneChainType::HeavyIgChain);
+    hc_db.AddGenesFromFile(SegmentType::VariableSegment, v_germline_genes_fname);
+    hc_db.AddGenesFromFile(SegmentType::DiversitySegment, d_germline_genes_fname);
+    hc_db.AddGenesFromFile(SegmentType::JoinSegment, j_germline_genes_fname);
+
     INFO("Generation of DB for join segments...");
     INFO("Alignment against VJ germline segments");
     vj_finder::VJParallelProcessor processor(read_archive, config_.vj_finder_config.algorithm_params,
@@ -56,6 +64,34 @@ void VDJLabelerLaunch::Launch() {
                                                                              read_archive[0]);
 
     INFO(SimpleDAligner().ComputeAlignment(immune_alignment_positions)->Alignment());
+
+    // Andy: Blank model "tested" here
+    {
+        std::ifstream in("src/vdj_labeler/test/blank_model.csv");
+        HCProbabilityRecombinationModel model(in, hc_db);
+        std::cout << model;
+        // IgGeneProbabilityModel model_V(in, hc_db.VariableGenes());
+        // // cout << model_V;
+        // IgGeneProbabilityModel model_D(in, hc_db.DiversityGenes());
+        // // cout << model_D;
+        // IgGeneProbabilityModel model_J(in, hc_db.JoinGenes());
+        // // cout << model_J;
+        // NongenomicInsertionModel modelVD(in);
+        // NongenomicInsertionModel modelDJ(in);
+        // // cout << modelVD;
+        // // cout << modelDJ;
+        // PalindromeDeletionModel modelDelV(in, hc_db.VariableGenes());
+        // // cout << modelDelV;
+        // // cout << modelDelV.GetIgGeneDatabase() -> GetByIndex(0) -> name() << " ";
+        // // cout << modelDelV.GetDeletionProbability(0, 0) << endl;
+        // PalindromeDeletionModel modelDelJ(in, hc_db.JoinGenes());
+        // // cout << modelDelJ.GetIgGeneDatabase() -> GetByIndex(1) -> name() << " ";
+        // // cout << modelDelJ.GetDeletionProbability(1, -2) << endl;
+        // PalindromeDeletionModel modelDelDL(in, hc_db.DiversityGenes());
+        // PalindromeDeletionModel modelDelDR(in, hc_db.DiversityGenes());
+
+        // HCModelBasedRecombinationCalculator recombination_calculator(model);
+    }
 }
 
 } // End namespace vdj_labeler

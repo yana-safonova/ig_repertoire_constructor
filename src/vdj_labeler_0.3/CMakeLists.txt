@@ -34,6 +34,7 @@ add_executable(vdj_labeler_0.3
                 vdj_alignments/aligners/simple_d_aligner.cpp
                 vdj_alignments/hits_calculator/info_based_d_hits_calculator.cpp
                 vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
+                model/recombination_model.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler_0.3 core algorithms vdj_utils input yaml-cpp ${COMMON_LIBRARIES})
