@@ -53,6 +53,7 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
         if (isGap(align_read, read_pos))
             insertGap(align_origin_read, read_pos);
     }
+    setEndPosition(align_origin_read, beginPosition(align_read) + length(align_read));
 
     return std::make_shared<alignment_utils::ImmuneGeneReadAlignment>(alignment_positions.Gene(),
                                                                       alignment_positions.Read(),
