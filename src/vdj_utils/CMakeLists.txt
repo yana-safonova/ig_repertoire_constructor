@@ -18,6 +18,9 @@ add_library(vdj_utils STATIC
         annotation_utils/shm_filter.cpp
         annotation_utils/annotated_clone.cpp
         annotation_utils/annotated_clone_set.cpp
+        recombination_utils/cleaved_gene.cpp
+        recombination_utils/nongenomic_insertion.cpp
+        recombination_utils/recombination.cpp
 )
 
 target_link_libraries(vdj_utils core ${COMMON_LIBRARIES})
