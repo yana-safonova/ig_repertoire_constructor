@@ -46,7 +46,7 @@ namespace antevolo {
             return 0;
         return edge_type_counts_.at(edge_type);
     }
-
+    /*
     EvolutionaryTree EvolutionaryGraph::GetEvolutionaryTree() {
         std::priority_queue<EvolutionaryEdge, std::vector<EvolutionaryEdge>,
                 WeightEvolutionaryEdgeComparator> edge_queue;
@@ -67,4 +67,5 @@ namespace antevolo {
         TRACE("Evolutionary tree contains " << tree.NumEdges() << " edges");
         return tree;
     }
+    */
 }

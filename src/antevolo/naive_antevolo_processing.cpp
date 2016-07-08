@@ -22,28 +22,26 @@ namespace antevolo {
 //#pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
             auto vj_class = vj_decomposition.GetClass(i);
-            auto candidates_vector = SimilarCDR3CandidateCalculator(clone_set_,
+            auto candidate_calculator = SimilarCDR3CandidateCalculator(clone_set_,
                                                                     config_.output_params,
-                                                                    config_.algorithm_params.similar_cdr3s_params.num_mismatches).
-                    ComputeCandidates(vj_class);
-            TRACE("Candidates vector contains " << candidates_vector.size() << " components");
-            size_t candidate_index = 1;
-            for(auto it = candidates_vector.begin(); it != candidates_vector.end(); it++) {
-                if(it->Empty()) {
-                    TRACE("Candidates are empty");
-                    continue;
+                                                                    config_.algorithm_params);
+            candidate_calculator.CreateUniqueCDR3Map(vj_class);
+            std::string cdrs_fasta = candidate_calculator.WriteUniqueCDR3InFasta(vj_class);
+            std::string graph_fname = candidate_calculator.GetGraphFname(vj_class);
+            TRACE("--------------------------");
+            TRACE("CDR3 fasta: "<< cdrs_fasta << ", CDR3 Hamming graph: " << graph_fname);
+            auto connected_components = candidate_calculator.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
+            TRACE("# connected components: " << connected_components.size());
+            for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
+                EvolutionaryTree tree;
+                candidate_calculator.AddComponentToTheTree(
+                        connected_components[component_index], component_index, tree);
+                std::string output_fname = GetTreeOutputFname(
+                        config_.output_params.tree_dir, i + 1, component_index, tree.NumEdges());
+                if (tree.NumEdges() != 0) {
+                    tree.WriteInFile(output_fname);
+                    TRACE(i + 1 << "-th clonal tree was written to " << output_fname);
                 }
-                EvolutionaryGraphConstructor graph_constructor(config_.algorithm_params, clone_set_, *it);
-                auto graph = graph_constructor.ConstructGraph();
-                TRACE("Evolutionary graph size: " << graph.NumEdges());
-                if(graph.NumEdges() == 0)
-                    continue;
-                auto tree = graph.GetEvolutionaryTree();
-                std::string output_fname = GetTreeOutputFname(config_.output_params.tree_dir, i + 1, candidate_index,
-                                                              tree.NumEdges());
-                tree.WriteInFile(output_fname);
-                TRACE(i + 1 << "-th clonal tree was written to " << output_fname);
-                candidate_index++;
             }
         }
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);

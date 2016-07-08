@@ -30,6 +30,8 @@ namespace antevolo {
             InitializeFields();
         }
 
+        EvolutionaryEdge() {}
+
         EvolutionaryEdge(const EvolutionaryEdge& edge) {
             edge_type = edge.edge_type;
             src_clone = edge.src_clone;
@@ -43,6 +45,8 @@ namespace antevolo {
         bool Empty() const { return edge_type == EvolutionaryEdgeType::UnknownEdgeType; }
 
         bool IsDirected() const { return edge_type == EvolutionaryEdgeType::DirectedEdgeType; };
+
+        bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; };
 
         bool operator==(const EvolutionaryEdge &edge) const {
             return src_clone == edge.src_clone and dst_clone == edge.dst_clone and edge_type == edge.edge_type;

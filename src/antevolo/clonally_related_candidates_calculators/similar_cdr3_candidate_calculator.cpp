@@ -3,6 +3,9 @@
 #include "../../graph_utils/graph_io.hpp"
 #include "../../graph_utils/graph_splitter.hpp"
 #include <convert.hpp>
+#include <annotation_utils/shm_comparator.hpp>
+#include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
+
 
 namespace antevolo {
     void SimilarCDR3CandidateCalculator::Clear() {
@@ -64,6 +67,7 @@ namespace antevolo {
         return connected_components;
     }
 
+    /*
     ClonallyRelatedCandidates SimilarCDR3CandidateCalculator::ComputeCandidatesForGraph(SparseGraphPtr hg_component,
                                                                                         size_t component_id) {
         ClonallyRelatedCandidates candidates(clone_set_);
@@ -88,7 +92,90 @@ namespace antevolo {
             }
         return candidates;
     }
+     */
 
+    EvolutionaryTree SimilarCDR3CandidateCalculator::ComputeTreeForComponent(SparseGraphPtr hg_component,
+                                                                                        size_t component_id) {
+        EvolutionaryTree tree;
+        auto edge_constructor = GetEdgeConstructor();
+        // adding edges between identical CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    tree.Add(clones_sharing_cdr3[it2], edge);
+                }
+        }
+        // adding edges between similar CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
+                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        tree.Add(*it2, edge);
+                    }
+            }
+        return tree;
+    }
+
+    void SimilarCDR3CandidateCalculator::AddComponentToTheTree(SparseGraphPtr hg_component,
+                                                                             size_t component_id, EvolutionaryTree& tree) {
+        auto edge_constructor = GetEdgeConstructor();
+        // adding directed edges between identical CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    tree.Add(clones_sharing_cdr3[it2], edge);
+                }
+        }
+        // adding directed edges between similar CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
+                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        tree.Add(*it2, edge);
+                    }
+            }
+
+        // same with undirected edges
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    tree.AddUndirected(clones_sharing_cdr3[it2], edge);
+                }
+        }
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
+                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        tree.AddUndirected(*it2, edge);
+                    }
+            }
+    }
+
+    /*
     std::vector<ClonallyRelatedCandidates> SimilarCDR3CandidateCalculator::ComputeCandidates(
             core::DecompositionClass decomposition_class) {
         Clear();
@@ -104,4 +191,48 @@ namespace antevolo {
             vector_candidates.push_back(ComputeCandidatesForGraph(connected_components[i], i));
         return vector_candidates;
     }
+     */
+
+
+    EvolutionaryEdgeConstructor* SimilarCDR3CandidateCalculator::GetEdgeConstructor() {
+        return new SimpleEvolutionaryEdgeConstructor(config_.edge_construction_params);
+    }
+
+
+    /*
+    std::vector<std::pair<size_t, size_t>> SimilarCDR3CandidateCalculator::ComputeDirectedEdges(
+            core::DecompositionClass decomposition_class) {
+        Clear();
+        CreateUniqueCDR3Map(decomposition_class);
+        std::pair<size_t, std::string> top_cdr(0, "");
+        std::pair<size_t, std::string> top2_cdr(0, "");
+        for (auto it = unique_cdr3s_.begin(); it != unique_cdr3s_.end(); it++) {
+            size_t cur_cdr_size = unique_cdr3s_map_[*it].size();
+            if (cur_cdr_size > top2_cdr.first) {
+                if (cur_cdr_size > top_cdr.first) {
+                    top2_cdr = top_cdr;
+                    top_cdr = std::make_pair(cur_cdr_size, *it);
+                }
+            }
+        }
+        std::vector<size_t> top2_cdr_set = unique_cdr3s_map_[top2_cdr.second];
+        std::vector<std::pair<size_t, size_t>> top2_cdr_clones;
+        for (auto clone_num : unique_cdr3s_map_[top2_cdr.second]) {
+            top2_cdr_clones.push_back(std::make_pair(clone_set_[clone_num].VSHMs().size(), clone_num));
+        }
+        //sort by the VSHms number
+        std::sort(top2_cdr_clones.begin(), top2_cdr_clones.end());
+        std::vector<std::pair<size_t, size_t>> edges_to_add;
+        for (auto it1 = top2_cdr_clones.rbegin(); it1 != top2_cdr_clones.rend(); it1++) {
+            for (auto it2 = it1 + 1; it2 != top2_cdr_clones.rend(); it2++) {
+                if (annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(clone_set_[it1->second].VSHMs(),
+                                                                           clone_set_[it2->second].VSHMs())) {
+                    edges_to_add.push_back(std::make_pair(it2->second, it1->second));
+                    break;
+                }
+            }
+        }
+        return edges_to_add;
+    }
+     */
 }

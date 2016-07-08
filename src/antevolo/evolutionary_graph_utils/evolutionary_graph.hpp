@@ -41,7 +41,7 @@ namespace antevolo {
 
         size_t NumEdgesOfType(EvolutionaryEdgeType edge_type) const;
 
-        EvolutionaryTree GetEvolutionaryTree();
+        //EvolutionaryTree GetEvolutionaryTree();
 
         typedef std::vector<EvolutionaryEdge>::const_iterator EdgeIterator;
 

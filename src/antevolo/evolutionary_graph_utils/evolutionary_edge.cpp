@@ -42,7 +42,7 @@ namespace antevolo {
                            "# SHMs in destination clone (" << dst_clone->VSHMs().size() <<
                            ") does not exceed # SHMs in source clone (" << src_clone->VSHMs().size() << ")");
                 num_added_v_shms = dst_clone->VSHMs().size() - src_clone->VSHMs().size();
-                num_intersected_v_shms = num_added_v_shms;
+                num_intersected_v_shms = src_clone->VSHMs().size();
                 weight = cdr3_distance + num_added_v_shms;
             }
             else {

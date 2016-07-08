@@ -10,7 +10,7 @@ namespace antevolo {
     public:
         BaseCandidateCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set) : clone_set_(clone_set) { }
 
-        virtual std::vector<ClonallyRelatedCandidates> ComputeCandidates(core::DecompositionClass decomposition_class) = 0;
+        //virtual std::vector<ClonallyRelatedCandidates> ComputeCandidates(core::DecompositionClass decomposition_class) = 0;
 
         virtual ~BaseCandidateCalculator() { }
     };
