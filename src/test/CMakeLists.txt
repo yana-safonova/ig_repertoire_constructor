@@ -1,6 +1,6 @@
 project(tests)
 
-link_libraries(gtest gmock_main gmock graph_utils input ${COMMON_LIBRARIES})
+link_libraries(gtest gmock_main gmock graph_utils vdj_utils input ${COMMON_LIBRARIES})
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
@@ -15,3 +15,5 @@ add_executable(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
                ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
+
+add_executable(test_germline_database test_germline_database.cpp)
