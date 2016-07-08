@@ -10,6 +10,8 @@
 
 #include <seqan/seq_io.h>
 
+namespace fast_ig_tools {
+
 template <typename Tletter = seqan::Dna5>
 class Trie {
 public:
@@ -274,5 +276,5 @@ private:
     TrieNode *root;
     bool compressed = false;
 };
-
+}
 // vim: ts=4:sw=4
