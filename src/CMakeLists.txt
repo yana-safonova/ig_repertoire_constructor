@@ -32,6 +32,7 @@ set(SPADES_CFG_DIR "${CMAKE_SOURCE_DIR}/../configs")
 set(CORE_DIR "${SPADES_MAIN_SRC_DIR}/core")
 set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
 set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
+set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
 
 # Everything option-dependent
 include(options)
