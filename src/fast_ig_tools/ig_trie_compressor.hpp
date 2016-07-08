@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <boost/pool/object_pool.hpp>
 #include <cassert>
 #include <memory>
 #include <unordered_map>
@@ -13,7 +14,10 @@ using seqan::length;
 template <typename Tletter = seqan::Dna5>
 class Trie {
 public:
-    Trie() : root{new TrieNode} {}
+    Trie() {
+        // Do not use :member initialization syntax here. pool should be initialized BEFORE root
+        root = pool.construct();
+    }
     Trie(const Trie &) = delete;
     Trie &operator=(const Trie &) = delete;
     Trie(Trie &&) = default;
@@ -48,14 +52,14 @@ public:
     void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
         assert(!isCompressed());
 
-        typename TrieNode::pointer_type p = this->root.get();
+        typename TrieNode::pointer_type p = root;
 
         for (size_t i = 0; i < length(s); ++i) {
             size_t el = toIndex(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
-                p->children[el] = new TrieNode();
+                p->children[el] = pool.construct();
             }
 
             p = p->children[el];
@@ -259,14 +263,16 @@ private:
                 delete ids;
             }
 
-            for (auto &child : children) {
-                if (child)
-                    delete child;
-            }
+            // Do not do this! Destructors will be called by object_pool
+            // for (auto &child : children) {
+            //     if (child)
+            //         delete child;
+            // }
         }
     };
 
-    std::unique_ptr<TrieNode> root;
+    boost::object_pool<TrieNode> pool;
+    TrieNode *root;
     bool compressed = false;
 };
 
