@@ -1,9 +1,9 @@
 #!/bin/bash
 
-REQUIRED_BOOST_LIBRARIES="regex filesystem random system iostreams program_options "
-REQUIRED_BOOST_LIBRARIES+="format algorithm  property_tree tokenizer bind function optional lexical_cast noncopyable foreach iterator "
-REQUIRED_BOOST_LIBRARIES+="utility type_traits current_function pending"
-REQUIRED_BOOST_LIBRARIES+="pool "
+REQUIRED_BOOST_LIBRARIES=" regex filesystem random system iostreams program_options "
+REQUIRED_BOOST_LIBRARIES+=" format algorithm  property_tree tokenizer bind function optional lexical_cast noncopyable foreach iterator "
+REQUIRED_BOOST_LIBRARIES+=" utility type_traits current_function pending "
+REQUIRED_BOOST_LIBRARIES+=" pool "
 # REQUIRED_BOOST_LIBRARIES+="atomic "  # needed for thread
 
 EXCLUDED_BINARIES=" config serialization thread date_time exception smart_ptr test timer "
