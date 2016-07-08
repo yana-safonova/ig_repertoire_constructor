@@ -1,26 +1,26 @@
 #pragma once
 
-#include <vector>
-#include <array>
-#include <memory>
-#include <cassert>
 #include <algorithm>
+#include <array>
+#include <cassert>
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include <seqan/seq_io.h>
 using seqan::length;
 
-template<typename Tletter = seqan::Dna5>
+template <typename Tletter = seqan::Dna5>
 class Trie {
 public:
-    Trie() : root{new TrieNode} {  }
-    Trie(const Trie&) = delete;
-    Trie& operator=(const Trie&) = delete;
-    Trie(Trie&&) = default;
-    Trie& operator=(Trie&&) = default;
+    Trie() : root{new TrieNode} {}
+    Trie(const Trie &) = delete;
+    Trie &operator=(const Trie &) = delete;
+    Trie(Trie &&) = default;
+    Trie &operator=(Trie &&) = default;
     ~Trie() = default;
 
-    template<typename Tcont>
+    template <typename Tcont>
     Trie(const Tcont &cont) : Trie() {
         size_t i = 0;
         for (const auto &s : cont) {
@@ -29,7 +29,7 @@ public:
         }
     }
 
-    template<typename TcontRead, typename TcontAbun>
+    template <typename TcontRead, typename TcontAbun>
     Trie(const TcontRead &cont_read, const TcontAbun &cont_abun) : Trie() {
         size_t i = 0;
         // Zip!!! I badly need zip!
@@ -41,10 +41,10 @@ public:
             ++i;
         }
 
-        assert(it_read == end_read && it_abun == end_abun); // contairners should have the same length
+        assert(it_read == end_read && it_abun == end_abun);  // contairners should have the same length
     }
 
-    template<typename T, typename Tf>
+    template <typename T, typename Tf>
     void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
         assert(!isCompressed());
 
@@ -68,7 +68,7 @@ public:
         p->ids->add(id, abundance);
     }
 
-    template<typename T>
+    template <typename T>
     void add(const T &s, size_t id) {
         auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
         add(s, id, to_size_t);
@@ -90,7 +90,8 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed()) compress();
+        if (!isCompressed())
+            compress();
 
         std::unordered_map<size_t, size_t> result(nbucket);
         root->checkout(result);
@@ -103,7 +104,8 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed()) compress();
+        if (!isCompressed())
+            compress();
 
         std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
         root->checkout(result);
@@ -140,7 +142,7 @@ private:
 
     class TrieNode {
     public:
-        using pointer_type = TrieNode*;
+        using pointer_type = TrieNode *;
         static const size_t INFu = -1u;
         std::array<pointer_type, card> children;
 
@@ -215,7 +217,8 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child) child->checkout(result);
+                if (child)
+                    child->checkout(result);
             }
         }
 
@@ -228,7 +231,8 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child) child->checkout(result);
+                if (child)
+                    child->checkout(result);
             }
         }
 
@@ -256,7 +260,8 @@ private:
             }
 
             for (auto &child : children) {
-                if (child) delete child;
+                if (child)
+                    delete child;
             }
         }
     };
