@@ -9,7 +9,6 @@
 #include <vector>
 
 #include <seqan/seq_io.h>
-using seqan::length;
 
 template <typename Tletter = seqan::Dna5>
 class Trie {
@@ -54,7 +53,7 @@ public:
 
         typename TrieNode::pointer_type p = root;
 
-        for (size_t i = 0; i < length(s); ++i) {
+        for (size_t i = 0; i < seqan::length(s); ++i) {
             size_t el = toIndex(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
