@@ -5,6 +5,7 @@ include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
+include_directories(${VDJ_LABELER_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms input ${COMMON_LIBRARIES})
 
@@ -41,8 +42,15 @@ make_test(test_germline_cdr test_cdr_labeler.cpp
         ../cdr_labeler/germline_db_labeling.cpp
         )
 
-make_essential_test(test_vdj_utils test_vdj_utils/test_alignment_utils.cpp
+make_test(test_vdj_utils test_vdj_utils/test_alignment_utils.cpp
         test_vdj_utils/test_recombination_utils.cpp
+        )
+
+make_essential_test(test_vdj_labeler
+        test_vdj_labeler/test_recombination_model.cpp
+        ../vdj_labeler_0.3/vdj_config.cpp
+        ../vj_finder/vj_finder_config.cpp
+        ../vdj_labeler_0.3/model/recombination_model.cpp
         )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp

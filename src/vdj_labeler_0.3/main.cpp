@@ -41,7 +41,7 @@ std::string get_config_fname(int argc, char **argv) {
     if(argc == 2 and (std::string(argv[1]) != "--help" and std::string(argv[1]) != "--version" and
                       std::string(argv[1]) != "--help-hidden"))
         return std::string(argv[1]);
-    return "configs/vdj_labeler/config.info";
+    return "configs/vdj_labeler_0.3/configs.info";
 }
 
 

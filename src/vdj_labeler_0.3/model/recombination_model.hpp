@@ -12,7 +12,7 @@
 namespace vdj_labeler {
 
 using IgGeneDatabasePtrConst = std::shared_ptr<const germline_utils::ImmuneGeneDatabase>;
-// here we use only HC
+// Here we use only Heavy Chain (HC).
 using HC_GenesDatabase_PtrConst = std::shared_ptr<const germline_utils::ChainDatabase>;
 
 class IgGeneProbabilityModel {

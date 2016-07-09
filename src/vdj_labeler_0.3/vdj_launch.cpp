@@ -68,7 +68,7 @@ void VDJLabelerLaunch::Launch() {
 
     // Andy: Blank model "tested" here
     {
-        std::ifstream in("src/vdj_labeler/test/blank_model.csv");
+        std::ifstream in("src/vdj_labeler_0.3/test/blank_model.csv");
         // HCProbabilityRecombinationModel model(in, hc_db);
         // std::cout << model;
         IgGeneProbabilityModel model_V(in, hc_db.GetDb(germline_utils::SegmentType::VariableSegment));
