@@ -7,6 +7,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
+#include <limits>
 
 #include <seqan/seq_io.h>
 
@@ -148,10 +149,10 @@ private:
     class TrieNode {
     public:
         using pointer_type = TrieNode *;
-        static const size_t INFu = -1u;
+        static const size_t INF = std::numeric_limits<size_t>::max();
         std::array<pointer_type, card> children;
 
-        TrieNode() : target_node{nullptr}, target_node_distance{INFu}, ids{nullptr} {
+        TrieNode() : target_node{nullptr}, target_node_distance{INF}, ids{nullptr} {
             children.fill(nullptr);
         }
 
@@ -161,7 +162,7 @@ private:
         IdCounter *ids;
 
         void compress_to_longest() {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             for (auto &child : children) {
                 if (child) {
@@ -173,14 +174,14 @@ private:
                 }
             }
 
-            if (target_node_distance == INFu) {
+            if (target_node_distance == INF) {
                 target_node_distance = 0;
                 target_node = this;
             }
         }
 
         void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             if (!p && ids) {
                 p = this;
@@ -200,7 +201,7 @@ private:
         }
 
         void compress_to_itselft() {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             if (ids) {
                 target_node = this;
