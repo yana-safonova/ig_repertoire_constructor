@@ -23,6 +23,8 @@ public:
     size_t EndPosition() const { return end_position_; }
 
     size_t length() const {
+        // This `if` is only for clarification.
+        // See `Valid()` for more details.
         if (end_position_ + 1 == start_position_)
             return 0;
         return end_position_ - start_position_ + 1;

@@ -28,14 +28,7 @@ public:
         vd_insertion_(vd_insertion),
         dj_insertion_(dj_insertion) { }
 
-    HCRecombination(const HCRecombination &obj) :
-        v_gene_(obj.v_gene_),
-        d_gene_(obj.d_gene_),
-        j_gene_(obj.j_gene_) {
-        read_ptr_ = obj.read_ptr_;
-        vd_insertion_ = obj.vd_insertion_;
-        dj_insertion_ = obj.dj_insertion_;
-    }
+    explicit HCRecombination(const HCRecombination &obj) = default;
 
     core::ReadPtr Read() const { return read_ptr_; }
 
@@ -51,7 +44,15 @@ public:
 
     size_t SHMsNumber() const { return v_gene_.SHMsNumber() + d_gene_.SHMsNumber() + j_gene_.SHMsNumber(); }
 
+    // recombination is not valid if v gene event overlaps j gene event or
+    // j gene event overlaps d gene event
+    // it result in invalid vd/dj insertion
     bool Valid() const;
+
+    size_t ReadId() const {
+        assert(read_ptr_ != nullptr);
+        return read_ptr_-> id;
+    }
 };
 
 std::ostream &operator<<(std::ostream &out, const HCRecombination &hc_recombination);

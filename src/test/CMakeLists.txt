@@ -8,7 +8,7 @@ include_directories(${CDR_LABELER_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms input ${COMMON_LIBRARIES})
 
-make_essential_test(test_sparse_graph test_sparse_graph.cpp)
+make_test(test_sparse_graph test_sparse_graph.cpp)
 
 # make_test(test_dsf test_dsf.cpp
 #           ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
@@ -16,15 +16,15 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 #           ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
 #           ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
-add_executable(test_dsf test_dsf.cpp
+make_test(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
                ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
                ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
-add_executable(test_germline_database test_germline_database.cpp)
+make_test(test_germline_database test_germline_database.cpp)
 
-add_executable(test_germline_cdr test_cdr_labeler.cpp
+make_test(test_germline_cdr test_cdr_labeler.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
         ../cdr_labeler/cdr_config.cpp
@@ -39,6 +39,10 @@ add_executable(test_germline_cdr test_cdr_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
         ../cdr_labeler/germline_db_labeling.cpp
+        )
+
+make_essential_test(test_vdj_utils test_vdj_utils/test_alignment_utils.cpp
+        test_vdj_utils/test_recombination_utils.cpp
         )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp
