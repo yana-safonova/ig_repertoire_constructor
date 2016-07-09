@@ -20,10 +20,18 @@ namespace alignment_utils {
         seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment_;
 
         // computed characteristics
-        size_t alignment_length_;
+        // alignment_length_ is min of lens of subject_len and query_len
+        // typically subject_len == query_len
         size_t subject_alignment_length_;
         size_t query_alignment_length_;
+        size_t alignment_length_;
 
+        // left and right positions w/o gaps in both subj and query
+        // Ex:
+        //   ACGT-
+        //   ACGTT
+        //   real_start_alignment_pos_ = 0;
+        //   real_end_alignment_pos_ = 3.
         size_t real_start_alignment_pos_;
         size_t real_end_alignment_pos_;
 
@@ -33,6 +41,8 @@ namespace alignment_utils {
         // 06.VII.2016 Yana and Andy decided that for now Shms will include gaps. This may be changed later.
         size_t num_shms_;
 
+        // Seqan score_ (if provided)
+        // normalized_score_ = score / alignment_length_.
         double score_;
         double normalized_score_;
 
@@ -52,10 +62,10 @@ namespace alignment_utils {
             for(size_t i = 0; i < length(subject_row); i++) {
                 if(subject_row[i] == '-' or query_row[i] == '-')
                     num_gaps_++;
-                if(subject_row[i] == query_row[i])
-                    ++num_matches_;
-                else
+                else if(subject_row[i] == query_row[i])
                     num_matches_++;
+                else
+                    num_mismatches_++;
             }
             num_shms_ = num_mismatches_ + num_gaps_;
         }
@@ -85,10 +95,12 @@ namespace alignment_utils {
         PairwiseAlignment(const SubjectTypename &subject,
                           const QueryTypename &query,
                           seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment) :
-                subject_(subject), query_(query), alignment_(alignment) {
+                subject_(subject), query_(query), alignment_(alignment),
+                num_gaps_(0), num_matches_(0), num_mismatches_(0)
+        {
             ComputeAlignmentLengths();
             ComputeStartEndAlignmentPositions();
-            //ComputeAlignmentStats();
+            ComputeAlignmentStats();
         }
 
         PairwiseAlignment(const SubjectTypename &subject,
