@@ -5,7 +5,7 @@
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
 #include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
-
+//#include <boost/pending/disjoint_sets.hpp>
 
 namespace antevolo {
     void SimilarCDR3CandidateCalculator::Clear() {
@@ -127,31 +127,21 @@ namespace antevolo {
     void SimilarCDR3CandidateCalculator::AddComponentToTheTree(SparseGraphPtr hg_component,
                                                                              size_t component_id, EvolutionaryTree& tree) {
         auto edge_constructor = GetEdgeConstructor();
-        // adding directed edges between identical CDR3s
+        /*
+        std::vector<size_t> vertices_nums;
         for(size_t i = 0; i < hg_component->N(); i++) {
-            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
-            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
-            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
-                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
-                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2], it1, it2);
-                    tree.Add(clones_sharing_cdr3[it2], edge);
-                }
+            vertices_nums.push_back(graph_component_.GetOldVertexByNewVertex(component_id, i));
         }
-        // adding directed edges between similar CDR3s
-        for(size_t i = 0; i < hg_component->N(); i++)
-            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
-                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
-                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
-                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
-                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
-                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
-                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
-                        tree.Add(*it2, edge);
-                    }
-            }
+        std::vector<size_t> rank(vertices_nums.size());
+        std::vector<size_t> parent(vertices_nums.size());
+        boost::disjoint_sets<size_t *, size_t *> ds_on_undirected_edges(&rank[0], &parent[0]);
+        for (size_t i : vertices_nums) {
+            ds_on_undirected_edges.make_set(i);
+        }
+        */
 
-        // same with undirected edges
+
+        //adding undirected edges first
         for(size_t i = 0; i < hg_component->N(); i++) {
             size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
@@ -173,6 +163,37 @@ namespace antevolo {
                         tree.AddUndirected(*it2, edge);
                     }
             }
+
+        // adding directed edges between identical CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    auto edge = edge_constructor->ConstructEdge(
+                            clone_set_[clones_sharing_cdr3[it2]],
+                            clone_set_[clones_sharing_cdr3[it2]],
+                            clones_sharing_cdr3[it1],
+                            clones_sharing_cdr3[it2]);
+                    tree.Add(clones_sharing_cdr3[it2], edge);
+                }
+        }
+        // adding directed edges between similar CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
+                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
+                        tree.Add(*it2, edge);
+                    }
+            }
+
+
+
     }
 
     /*
