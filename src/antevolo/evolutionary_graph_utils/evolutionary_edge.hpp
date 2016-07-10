@@ -11,6 +11,8 @@ namespace antevolo {
         EvolutionaryEdgeType edge_type;
         std::shared_ptr<annotation_utils::AnnotatedClone> src_clone;
         std::shared_ptr<annotation_utils::AnnotatedClone> dst_clone;
+        size_t src_clone_num;
+        size_t dst_clone_num;
 
         size_t num_added_v_shms;
         size_t num_intersected_v_shms;
@@ -23,9 +25,13 @@ namespace antevolo {
         EvolutionaryEdge(EvolutionaryEdgeType edge_type,
                          const annotation_utils::AnnotatedClone &src_clone,
                          const annotation_utils::AnnotatedClone &dst_clone,
+                         size_t src_num,
+                         size_t dst_num,
                          size_t intersected_edge_coeff) : edge_type(edge_type),
                                                           src_clone(std::make_shared<annotation_utils::AnnotatedClone>(src_clone)),
                                                           dst_clone(std::make_shared<annotation_utils::AnnotatedClone>(dst_clone)),
+                                                          src_clone_num(src_num),
+                                                          dst_clone_num(dst_num),
                                                           intersected_edge_coeff_(intersected_edge_coeff) {
             InitializeFields();
         }
@@ -36,6 +42,8 @@ namespace antevolo {
             edge_type = edge.edge_type;
             src_clone = edge.src_clone;
             dst_clone = edge.dst_clone;
+            src_clone_num = edge.src_clone_num;
+            dst_clone_num = edge.dst_clone_num;
             num_added_v_shms = edge.num_added_v_shms;
             num_intersected_v_shms = edge.num_intersected_v_shms;
             cdr3_distance = edge.cdr3_distance;

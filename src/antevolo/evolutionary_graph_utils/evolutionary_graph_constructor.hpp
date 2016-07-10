@@ -19,6 +19,6 @@ namespace antevolo {
                                                                                    clone_set_(clone_set),
                                                                                    candidates_(candidates) { }
 
-        EvolutionaryGraph ConstructGraph();
+       // EvolutionaryGraph ConstructGraph();
     };
 }

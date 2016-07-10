@@ -7,7 +7,9 @@ namespace antevolo {
     class EvolutionaryEdgeConstructor {
     public:
         virtual EvolutionaryEdge ConstructEdge(const annotation_utils::AnnotatedClone &src_clone,
-                              const annotation_utils::AnnotatedClone &dst_clone) const = 0;
+                              const annotation_utils::AnnotatedClone &dst_clone,
+                                               size_t src_num,
+                                               size_t dst_num) const = 0;
 
         virtual ~EvolutionaryEdgeConstructor() { }
     };
@@ -20,6 +22,8 @@ namespace antevolo {
                 params_(params) { }
 
         EvolutionaryEdge ConstructEdge(const annotation_utils::AnnotatedClone &src_clone,
-                                       const annotation_utils::AnnotatedClone &dst_clone) const;
+                                       const annotation_utils::AnnotatedClone &dst_clone,
+                                       size_t src_num,
+                                       size_t dst_num) const;
     };
 }

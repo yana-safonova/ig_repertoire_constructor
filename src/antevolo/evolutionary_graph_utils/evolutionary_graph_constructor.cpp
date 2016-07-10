@@ -4,7 +4,7 @@ namespace antevolo {
     EvolutionaryEdgeConstructor* EvolutionaryGraphConstructor::GetEdgeConstructor() {
         return new SimpleEvolutionaryEdgeConstructor(config_.edge_construction_params);
     }
-
+    /*
     EvolutionaryGraph EvolutionaryGraphConstructor::ConstructGraph() {
         EvolutionaryGraph graph;
         auto edge_constructor = GetEdgeConstructor();
@@ -27,4 +27,5 @@ namespace antevolo {
         //    std::cout << *it << std::endl;
         return graph;
     }
+    */
 }

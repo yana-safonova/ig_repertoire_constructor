@@ -104,7 +104,7 @@ namespace antevolo {
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
-                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2], it1, it2);
                     tree.Add(clones_sharing_cdr3[it2], edge);
                 }
         }
@@ -117,7 +117,7 @@ namespace antevolo {
                 auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
                     for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
                         tree.Add(*it2, edge);
                     }
             }
@@ -133,7 +133,7 @@ namespace antevolo {
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
-                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2], it1, it2);
                     tree.Add(clones_sharing_cdr3[it2], edge);
                 }
         }
@@ -146,7 +146,7 @@ namespace antevolo {
                 auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
                     for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
                         tree.Add(*it2, edge);
                     }
             }
@@ -157,7 +157,7 @@ namespace antevolo {
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
-                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2]);
+                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2], it1, it2);
                     tree.AddUndirected(clones_sharing_cdr3[it2], edge);
                 }
         }
@@ -169,7 +169,7 @@ namespace antevolo {
                 auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
                     for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2]);
+                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
                         tree.AddUndirected(*it2, edge);
                     }
             }
