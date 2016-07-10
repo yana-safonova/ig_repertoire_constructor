@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_trie_compressor.hpp"
+using fast_ig_tools::Trie;
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;

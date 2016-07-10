@@ -1,26 +1,32 @@
 #pragma once
 
-#include <vector>
-#include <array>
-#include <memory>
-#include <cassert>
 #include <algorithm>
+#include <array>
+#include <boost/pool/object_pool.hpp>
+#include <cassert>
+#include <limits>
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include <seqan/seq_io.h>
-using seqan::length;
 
-template<typename Tletter = seqan::Dna5>
+namespace fast_ig_tools {
+
+template <typename Tletter = seqan::Dna5>
 class Trie {
 public:
-    Trie() : root{new TrieNode} {  }
-    Trie(const Trie&) = delete;
-    Trie& operator=(const Trie&) = delete;
-    Trie(Trie&&) = default;
-    Trie& operator=(Trie&&) = default;
+    Trie() {
+        // Do not use :member initialization syntax here. pool should be initialized BEFORE root
+        root = pool.construct();
+    }
+    Trie(const Trie &) = delete;
+    Trie &operator=(const Trie &) = delete;
+    Trie(Trie &&) = default;
+    Trie &operator=(Trie &&) = default;
     ~Trie() = default;
 
-    template<typename Tcont>
+    template <typename Tcont>
     Trie(const Tcont &cont) : Trie() {
         size_t i = 0;
         for (const auto &s : cont) {
@@ -29,7 +35,7 @@ public:
         }
     }
 
-    template<typename TcontRead, typename TcontAbun>
+    template <typename TcontRead, typename TcontAbun>
     Trie(const TcontRead &cont_read, const TcontAbun &cont_abun) : Trie() {
         size_t i = 0;
         // Zip!!! I badly need zip!
@@ -41,21 +47,21 @@ public:
             ++i;
         }
 
-        assert(it_read == end_read && it_abun == end_abun); // contairners should have the same length
+        assert(it_read == end_read && it_abun == end_abun);  // contairners should have the same length
     }
 
-    template<typename T, typename Tf>
+    template <typename T, typename Tf>
     void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
         assert(!isCompressed());
 
-        typename TrieNode::pointer_type p = this->root.get();
+        typename TrieNode::pointer_type p = root;
 
-        for (size_t i = 0; i < length(s); ++i) {
+        for (size_t i = 0; i < seqan::length(s); ++i) {
             size_t el = toIndex(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
-                p->children[el] = new TrieNode();
+                p->children[el] = pool.construct();
             }
 
             p = p->children[el];
@@ -68,7 +74,7 @@ public:
         p->ids->add(id, abundance);
     }
 
-    template<typename T>
+    template <typename T>
     void add(const T &s, size_t id) {
         auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
         add(s, id, to_size_t);
@@ -90,7 +96,9 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed()) compress();
+        if (!isCompressed()) {
+            compress();
+        }
 
         std::unordered_map<size_t, size_t> result(nbucket);
         root->checkout(result);
@@ -103,7 +111,9 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed()) compress();
+        if (!isCompressed()) {
+            compress();
+        }
 
         std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
         root->checkout(result);
@@ -140,11 +150,11 @@ private:
 
     class TrieNode {
     public:
-        using pointer_type = TrieNode*;
-        static const size_t INFu = -1u;
+        using pointer_type = TrieNode *;
+        static const size_t INF = std::numeric_limits<size_t>::max();
         std::array<pointer_type, card> children;
 
-        TrieNode() : target_node{nullptr}, target_node_distance{INFu}, ids{nullptr} {
+        TrieNode() : target_node{nullptr}, target_node_distance{INF}, ids{nullptr} {
             children.fill(nullptr);
         }
 
@@ -154,7 +164,7 @@ private:
         IdCounter *ids;
 
         void compress_to_longest() {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             for (auto &child : children) {
                 if (child) {
@@ -166,14 +176,14 @@ private:
                 }
             }
 
-            if (target_node_distance == INFu) {
+            if (target_node_distance == INF) {
                 target_node_distance = 0;
                 target_node = this;
             }
         }
 
         void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             if (!p && ids) {
                 p = this;
@@ -193,7 +203,7 @@ private:
         }
 
         void compress_to_itselft() {
-            target_node_distance = INFu;
+            target_node_distance = INF;
 
             if (ids) {
                 target_node = this;
@@ -215,7 +225,9 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child) child->checkout(result);
+                if (child) {
+                    child->checkout(result);
+                }
             }
         }
 
@@ -228,7 +240,9 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child) child->checkout(result);
+                if (child) {
+                    child->checkout(result);
+                }
             }
         }
 
@@ -255,14 +269,17 @@ private:
                 delete ids;
             }
 
-            for (auto &child : children) {
-                if (child) delete child;
-            }
+            // Do not do this! Destructors will be called by object_pool
+            // for (auto &child : children) {
+            //     if (child)
+            //         delete child;
+            // }
         }
     };
 
-    std::unique_ptr<TrieNode> root;
+    boost::object_pool<TrieNode> pool;
+    TrieNode *root;
     bool compressed = false;
 };
-
+}
 // vim: ts=4:sw=4
