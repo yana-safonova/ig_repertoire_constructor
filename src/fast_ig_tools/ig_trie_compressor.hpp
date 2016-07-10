@@ -4,10 +4,10 @@
 #include <array>
 #include <boost/pool/object_pool.hpp>
 #include <cassert>
+#include <limits>
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include <limits>
 
 #include <seqan/seq_io.h>
 
@@ -96,8 +96,9 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed())
+        if (!isCompressed()) {
             compress();
+        }
 
         std::unordered_map<size_t, size_t> result(nbucket);
         root->checkout(result);
@@ -110,8 +111,9 @@ public:
             nbucket = root->leaves_count();
         }
 
-        if (!isCompressed())
+        if (!isCompressed()) {
             compress();
+        }
 
         std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
         root->checkout(result);
@@ -223,8 +225,9 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child)
+                if (child) {
                     child->checkout(result);
+                }
             }
         }
 
@@ -237,8 +240,9 @@ private:
 
             // DFS
             for (const auto &child : children) {
-                if (child)
+                if (child) {
                     child->checkout(result);
+                }
             }
         }
 
