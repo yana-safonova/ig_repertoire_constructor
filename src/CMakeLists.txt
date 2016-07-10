@@ -59,6 +59,9 @@ include(libs)
 # Enable testing (check & check_essential targets)
 include(check)
 
+# Enable profiling
+include(gperftools)
+
 configure_file("${SPADES_MAIN_INCLUDE_DIR}/config.hpp.in"
                "${SPADES_BUILT_INCLUDE_DIR}/config.hpp")
 
