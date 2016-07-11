@@ -10,8 +10,8 @@ namespace antevolo {
     public:
         void Add(size_t clone_num, EvolutionaryEdge edge) {
             if(edge.IsDirected()) {
-                if (!Contains(clone_num) || get_parent_edge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
-                    //if clone_set_[*it2] is root or if the new edge is shorter
+                if (!Contains(clone_num) || Get_parent_edge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
+                    //if clone_set_[clone-num] is root or if the new edge is shorter
                     edges_[clone_num] = edge;
                 }
             }
@@ -19,7 +19,7 @@ namespace antevolo {
         void AddUndirected(size_t clone_num, EvolutionaryEdge edge) {
             if(edge.IsUndirected()) {
                 if (!Contains(clone_num)) {
-                    //if clone_set_[*it2] is root or if the new edge is shorter
+                    //if clone_set_[clone_num] is root
                     edges_[clone_num] = edge;
                 }
             }
@@ -29,7 +29,7 @@ namespace antevolo {
             return (edges_.find(clone_num) != edges_.end());
         }
 
-        const EvolutionaryEdge& get_parent_edge(size_t clone_num) {
+        const EvolutionaryEdge& Get_parent_edge(size_t clone_num) {
             return edges_[clone_num];
         }
 
