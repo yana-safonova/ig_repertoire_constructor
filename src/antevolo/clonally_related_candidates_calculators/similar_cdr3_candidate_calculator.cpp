@@ -6,7 +6,7 @@
 #include <annotation_utils/shm_comparator.hpp>
 #include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
 #include <boost/pending/disjoint_sets.hpp>
-#include <map>
+#include <boost/unordered_set.hpp>
 
 namespace antevolo {
     void SimilarCDR3CandidateCalculator::Clear() {
@@ -130,18 +130,25 @@ namespace antevolo {
                                                                              size_t component_id, EvolutionaryTree& tree) {
         auto edge_constructor = GetEdgeConstructor();
 
-        std::vector<size_t> vertices_nums;
+        boost::unordered_set<size_t> vertices_nums;
         for(size_t i = 0; i < hg_component->N(); i++) {
-            vertices_nums.push_back(graph_component_.GetOldVertexByNewVertex(component_id, i));
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t clone_num : clones_sharing_cdr3) {
+                vertices_nums.insert(clone_num);
+            }
         }
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
-        AP_map rank;
-        AP_map parent;
+        //typedef std::map<size_t, size_t> AP_map;
+        std::map<size_t, size_t> rank;
+        std::map<size_t, size_t> parent;
         boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges(rank, parent);
+        boost::disjoint_sets<AP_map, AP_map> ds(
+                boost::make_assoc_property_map(rank),
+                boost::make_assoc_property_map(parent));
         for (size_t i : vertices_nums) {
             ds_on_undirected_edges.make_set(i);
         }
-
 
 
         //adding undirected edges first
@@ -198,14 +205,14 @@ namespace antevolo {
                             dst_num);
                     tree.AddDirected(dst_num, edge);
                     std::vector<std::pair<size_t, size_t>> edge_vector;
-                    tree.Prepare_subtree(edge_vector, dst_num);
+                    tree.PrepareSubtree(edge_vector, dst_num);
                     for (auto p : edge_vector) {
-                        auto edge = edge_constructor->ConstructEdge(
+                        auto edge2 = edge_constructor->ConstructEdge(
                                 clone_set_[p.first],
                                 clone_set_[p.second],
                                 p.first,
                                 p.second);
-                        tree.AddUndirected(p.second, edge);
+                        tree.AddUndirected(p.second, edge2);
                     }
                 }
         }
@@ -225,21 +232,21 @@ namespace antevolo {
                                 *it2);
                         tree.AddDirected(*it2, edge);
                         std::vector<std::pair<size_t, size_t>> edge_vector;
-                        tree.Prepare_subtree(edge_vector, *it2);
+                        tree.PrepareSubtree(edge_vector, *it2);
                         for (auto p : edge_vector) {
-                            auto edge = edge_constructor->ConstructEdge(
+                            auto edge2 = edge_constructor->ConstructEdge(
                                     clone_set_[p.first],
                                     clone_set_[p.second],
                                     p.first,
                                     p.second);
-                            tree.AddUndirected(p.second, edge);
+                            tree.AddUndirected(p.second, edge2);
                         }
                     }
             }
-        auto undirected_graph = tree.Get_undirected_graph();
+        auto undirected_graph = tree.GetUndirectedGraph();
         for (auto p : undirected_graph) {
             std::vector<std::pair<size_t, size_t>> edge_vector;
-            tree.Prepare_subtree(edge_vector, p.first);
+            tree.PrepareSubtree(edge_vector, p.first);
             for (auto p : edge_vector) {
                 auto edge = edge_constructor->ConstructEdge(
                         clone_set_[p.first],

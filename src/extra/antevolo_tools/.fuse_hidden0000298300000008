@@ -2,21 +2,23 @@
 
 import argparse
 import subprocess
+from os import listdir
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-i", "--input", help="input .tree file")
-parser.add_argument("-o", "--output", help="output file")
+parser.add_argument("-i", "--input", help="input dir with clonal trees")
+parser.add_argument("-o", "--output", help="output dir")
 parser.add_argument("-s", "--strategy", help="dot/neato/oth")
+parser.add_argument("-k", "--trees_num", help="number of top-size threes to draw")
 args = parser.parse_args()
 
-def main():
+def draw_tree(tree_file):
+	print "drawing "+tree_file
 	vertex_to_depths = {}
 	depth_to_vertices = {}
 	edges = []
 	max_depth = 0
-	tree_name = args.input.split('/')[-1].split('.')[-2].split('-')[-1]
-	with open(args.input) as inp:
+	with open(tree_file) as inp:
 		inp.readline()
 		for st in inp:
 			arr = st.split()
@@ -42,7 +44,8 @@ def main():
 	fake_vertices = ['Depth_'+str(i) for i in xrange(max_depth+1)]
 
 
-	with open(args.output, 'w') as otp:
+	DOT_OUTPUT_FILE_NAME = args.output+"/"+tree_file.split('/')[-1]+".dot"
+	with open(DOT_OUTPUT_FILE_NAME, 'w') as otp:
 		otp.write("digraph "+'tree'+' {\n')
 		otp.write(''.join( ["\t{\n\t\tnode [shape=box]\n\t\t\n\t\t", ' -> '.join(fake_vertices), ";\n\t}\n\n"] ))
 		for depth in depth_to_vertices:
@@ -58,8 +61,14 @@ def main():
 			elif edge_type == "undirected":
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=blue];\n"]))
 		otp.write("}\n")
+	subprocess.call([args.strategy, '-Tpdf', '-O', DOT_OUTPUT_FILE_NAME])
 
-	#subprocess.call([args.strategy, '-Tpdf', '-O', args.output])
+
+def main():
+	trees = listdir(args.input)
+	trees.sort(key=lambda x: int(x.split('.')[-2].split('_')[-1]))
+	for tree_file in trees[-int(args.trees_num):]:
+		draw_tree(args.input+'/'+tree_file)
 
 if __name__ == "__main__":
 	main()

@@ -11,7 +11,7 @@ namespace antevolo {
     public:
         void AddDirected(size_t clone_num, EvolutionaryEdge edge) {
             if(edge.IsDirected()) {
-                if (!Contains(clone_num) || get_parent_edge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
+                if (!Contains(clone_num) || GetParentEdge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
                     //if clone_set_[*it2] is root or if the new edge is shorter
                     edges_[clone_num] = edge;
                 }
@@ -30,30 +30,38 @@ namespace antevolo {
             }
         }
 
-        void Prepare_subtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num) {
+        void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num) {
             if (undirected_graph_.find(root_num) != undirected_graph_.end()) {
                 for (size_t u : undirected_graph_[root_num]) {
                     undirected_graph_[root_num].erase(u);
                     undirected_graph_[u].erase(root_num);
                     edge_vector.push_back(std::make_pair(root_num, u));
-                    Prepare_subtree(edge_vector, u);
+                    PrepareSubtree(edge_vector, u);
                 }
             }
         }
 
-        boost::unordered_map<size_t, std::set<size_t>>& Get_undirected_graph()
+        boost::unordered_map<size_t, std::set<size_t>>& GetUndirectedGraph()
         { return undirected_graph_; };
 
         bool Contains(size_t clone_num) {
             return (edges_.find(clone_num) != edges_.end());
         }
 
-        const EvolutionaryEdge& get_parent_edge(size_t clone_num) {
+        const EvolutionaryEdge& GetParentEdge(size_t clone_num) {
             return edges_[clone_num];
         }
 
         void WriteInFile(std::string output_fname);
 
         size_t NumEdges() const { return edges_.size(); }
+
+        size_t UndirectedGraphSize() const {
+            size_t res = 0;
+            for (auto it = undirected_graph_.begin(); it != undirected_graph_.end(); it++) {
+                res += it->second.size();
+            }
+            return res;
+        }
     };
 }

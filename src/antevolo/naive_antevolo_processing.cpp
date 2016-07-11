@@ -21,6 +21,7 @@ namespace antevolo {
         INFO("Construction of clonal trees starts");
 //#pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
+        //for(size_t i = 301; i < 302 && i < vj_decomposition.Size(); i++) {
             auto vj_class = vj_decomposition.GetClass(i);
             auto candidate_calculator = SimilarCDR3CandidateCalculator(clone_set_,
                                                                     config_.output_params,
@@ -33,6 +34,7 @@ namespace antevolo {
             auto connected_components = candidate_calculator.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
+            //for(size_t component_index = 5; component_index < 6 && component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree;
                 candidate_calculator.AddComponentToTheTree(
                         connected_components[component_index], component_index, tree);
