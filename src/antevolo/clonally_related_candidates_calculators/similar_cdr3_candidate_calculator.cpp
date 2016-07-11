@@ -5,7 +5,8 @@
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
 #include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
-//#include <boost/pending/disjoint_sets.hpp>
+#include <boost/pending/disjoint_sets.hpp>
+#include <map>
 
 namespace antevolo {
     void SimilarCDR3CandidateCalculator::Clear() {
@@ -93,7 +94,7 @@ namespace antevolo {
         return candidates;
     }
      */
-
+    /*
     EvolutionaryTree SimilarCDR3CandidateCalculator::ComputeTreeForComponent(SparseGraphPtr hg_component,
                                                                                         size_t component_id) {
         EvolutionaryTree tree;
@@ -123,22 +124,24 @@ namespace antevolo {
             }
         return tree;
     }
+    */
 
     void SimilarCDR3CandidateCalculator::AddComponentToTheTree(SparseGraphPtr hg_component,
                                                                              size_t component_id, EvolutionaryTree& tree) {
         auto edge_constructor = GetEdgeConstructor();
-        /*
+
         std::vector<size_t> vertices_nums;
         for(size_t i = 0; i < hg_component->N(); i++) {
             vertices_nums.push_back(graph_component_.GetOldVertexByNewVertex(component_id, i));
         }
-        std::vector<size_t> rank(vertices_nums.size());
-        std::vector<size_t> parent(vertices_nums.size());
-        boost::disjoint_sets<size_t *, size_t *> ds_on_undirected_edges(&rank[0], &parent[0]);
+        typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
+        AP_map rank;
+        AP_map parent;
+        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges(rank, parent);
         for (size_t i : vertices_nums) {
             ds_on_undirected_edges.make_set(i);
         }
-        */
+
 
 
         //adding undirected edges first
@@ -147,8 +150,18 @@ namespace antevolo {
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
-                    auto edge = edge_constructor->ConstructEdge(clone_set_[it1], clone_set_[it2], it1, it2);
-                    tree.AddUndirected(clones_sharing_cdr3[it2], edge);
+                    size_t src_num = clones_sharing_cdr3[it1];
+                    size_t dst_num = clones_sharing_cdr3[it2];
+                    // if clonea are not in the same connected component and
+                    // the edge is undirected
+                    if (ds_on_undirected_edges.find_set(src_num) !=
+                            ds_on_undirected_edges.find_set(dst_num) &&
+                            annotation_utils::SHMComparator::SHMsAreEqual(
+                                    clone_set_[src_num].VSHMs(),
+                                    clone_set_[dst_num].VSHMs())) {
+                        tree.AddUndirectedPair(src_num, dst_num);
+                        ds_on_undirected_edges.union_set(src_num, dst_num);
+                    }
                 }
         }
         for(size_t i = 0; i < hg_component->N(); i++)
@@ -159,8 +172,14 @@ namespace antevolo {
                 auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
                     for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
-                        tree.AddUndirected(*it2, edge);
+                        if (ds_on_undirected_edges.find_set(*it1) !=
+                                    ds_on_undirected_edges.find_set(*it2) &&
+                                annotation_utils::SHMComparator::SHMsAreEqual(
+                                        clone_set_[*it1].VSHMs(),
+                                        clone_set_[*it2].VSHMs())) {
+                            tree.AddUndirectedPair(*it1, *it2);
+                            ds_on_undirected_edges.union_set(*it1, *it2);
+                        }
                     }
             }
 
@@ -170,12 +189,24 @@ namespace antevolo {
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    size_t src_num = clones_sharing_cdr3[it1];
+                    size_t dst_num = clones_sharing_cdr3[it2];
                     auto edge = edge_constructor->ConstructEdge(
-                            clone_set_[clones_sharing_cdr3[it2]],
-                            clone_set_[clones_sharing_cdr3[it2]],
-                            clones_sharing_cdr3[it1],
-                            clones_sharing_cdr3[it2]);
-                    tree.Add(clones_sharing_cdr3[it2], edge);
+                            clone_set_[src_num],
+                            clone_set_[dst_num],
+                            src_num,
+                            dst_num);
+                    tree.AddDirected(dst_num, edge);
+                    std::vector<std::pair<size_t, size_t>> edge_vector;
+                    tree.Prepare_subtree(edge_vector, dst_num);
+                    for (auto p : edge_vector) {
+                        auto edge = edge_constructor->ConstructEdge(
+                                clone_set_[p.first],
+                                clone_set_[p.second],
+                                p.first,
+                                p.second);
+                        tree.AddUndirected(p.second, edge);
+                    }
                 }
         }
         // adding directed edges between similar CDR3s
@@ -187,10 +218,37 @@ namespace antevolo {
                 auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
                     for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
-                        auto edge = edge_constructor->ConstructEdge(clone_set_[*it1], clone_set_[*it2], *it1, *it2);
-                        tree.Add(*it2, edge);
+                        auto edge = edge_constructor->ConstructEdge(
+                                clone_set_[*it1],
+                                clone_set_[*it2],
+                                *it1,
+                                *it2);
+                        tree.AddDirected(*it2, edge);
+                        std::vector<std::pair<size_t, size_t>> edge_vector;
+                        tree.Prepare_subtree(edge_vector, *it2);
+                        for (auto p : edge_vector) {
+                            auto edge = edge_constructor->ConstructEdge(
+                                    clone_set_[p.first],
+                                    clone_set_[p.second],
+                                    p.first,
+                                    p.second);
+                            tree.AddUndirected(p.second, edge);
+                        }
                     }
             }
+        auto undirected_graph = tree.Get_undirected_graph();
+        for (auto p : undirected_graph) {
+            std::vector<std::pair<size_t, size_t>> edge_vector;
+            tree.Prepare_subtree(edge_vector, p.first);
+            for (auto p : edge_vector) {
+                auto edge = edge_constructor->ConstructEdge(
+                        clone_set_[p.first],
+                        clone_set_[p.second],
+                        p.first,
+                        p.second);
+                tree.AddUndirected(p.second, edge);
+            }
+        }
 
 
 
