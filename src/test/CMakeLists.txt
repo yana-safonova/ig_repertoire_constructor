@@ -7,7 +7,7 @@ include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
 include_directories(${VDJ_LABELER_DIR})
 
-link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms input ${COMMON_LIBRARIES})
+link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms build_info boost_program_options input ${COMMON_LIBRARIES})
 
 make_test(test_sparse_graph test_sparse_graph.cpp)
 
@@ -48,9 +48,23 @@ make_test(test_vdj_utils test_vdj_utils/test_alignment_utils.cpp
 
 make_essential_test(test_vdj_labeler
         test_vdj_labeler/test_recombination_model.cpp
-        ../vdj_labeler_0.3/vdj_config.cpp
+        test_vdj_labeler/test_vdj_hits.cpp
+        test_vdj_labeler/test_aligners.cpp
         ../vj_finder/vj_finder_config.cpp
+        ../vj_finder/command_line_routines.cpp
+        ../vj_finder/germline_db_generator.cpp
+        ../vj_finder/vj_alignment_structs.cpp
+        ../vj_finder/vj_query_aligner.cpp
+        ../vj_finder/vj_hits_filter.cpp
+        ../vj_finder/vj_alignment_info.cpp
+        ../vj_finder/vj_query_fix_fill_crop.cpp
+        ../vj_finder/vj_query_processing.cpp
+        ../vj_finder/vj_parallel_processor.cpp
+        ../vdj_labeler_0.3/vdj_config.cpp
         ../vdj_labeler_0.3/model/recombination_model.cpp
+        ../vdj_labeler_0.3/vdj_alignments/vdj_hits.cpp
+        ../vdj_labeler_0.3/vdj_alignments/vdj_hits_storage.cpp
+        ../vdj_labeler_0.3/vdj_alignments/aligners/simple_d_aligner.cpp
         )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp

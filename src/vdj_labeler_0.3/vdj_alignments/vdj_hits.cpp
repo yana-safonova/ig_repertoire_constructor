@@ -13,8 +13,7 @@ ImmuneGeneSegmentHits::ImmuneGeneSegmentHits(const germline_utils::SegmentType &
     vj_finder::ImmuneGeneAlignmentConverter converter;
     for (auto& hit : hits) {
         assert(read_ptr != nullptr);
-        // TODO change *read_ptr to hit->Read(). Now hit->Read() supposingly has a bug.
-        auto conv_hit = converter.ConvertToAlignment(hit->ImmuneGene(), *read_ptr, hit->BlockAlignment(), true);
+        auto conv_hit = converter.ConvertToAlignment(hit->ImmuneGene(), hit->Read(), hit->BlockAlignment(), true);
         hits_.push_back(std::make_shared<decltype(conv_hit)>(conv_hit));
     }
 }
