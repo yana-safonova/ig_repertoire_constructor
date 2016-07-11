@@ -27,7 +27,7 @@ public:
         total_num_shms_ = size_t(int(gene_alignment_ptr_->NumberSHMs()) + num_left_shms_ + num_right_shms_);
     }
 
-    explicit CleavedIgGeneAlignment(const CleavedIgGeneAlignment& cleaved_gene) = default;
+    CleavedIgGeneAlignment(const CleavedIgGeneAlignment& cleaved_gene) = default;
 
     alignment_utils::ImmuneGeneReadAlignmentPtr GeneAlignment() const { return gene_alignment_ptr_; }
 
