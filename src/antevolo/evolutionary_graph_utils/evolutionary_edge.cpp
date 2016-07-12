@@ -33,7 +33,7 @@ namespace antevolo {
         cdr3_distance = HammingDistance(src_clone->CDR3(), dst_clone->CDR3());
         if(edge_type == EvolutionaryEdgeType::UndirectedEdgeType) {
             num_added_v_shms = 0;
-            num_intersected_v_shms = 0;
+            num_intersected_v_shms = src_clone->VSHMs().size();
             weight = cdr3_distance;
         }
         else {

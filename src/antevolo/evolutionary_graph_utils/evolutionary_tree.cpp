@@ -1,6 +1,46 @@
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
+    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge) {
+        if(edge.IsDirected()) {
+            if (!Contains(clone_num) || GetParentEdge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
+                //if clone_set_[*it2] is root or if the new edge is shorter
+                edges_[clone_num] = edge;
+            }
+        }
+    }
+
+    void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdge edge) {
+        if (edge.IsUndirected()) {
+            edges_[clone_num] = edge;
+        }
+    }
+
+    void EvolutionaryTree::AddUndirectedPair(size_t src_num, size_t dst_num) {
+        if (undirected_graph_.find(src_num) == undirected_graph_.end()) {
+            undirected_graph_[src_num] = std::set<size_t>();
+        }
+        if (undirected_graph_.find(dst_num) == undirected_graph_.end()) {
+            undirected_graph_[dst_num] = std::set<size_t>();
+        }
+        if (undirected_graph_[src_num].find(dst_num) == undirected_graph_[src_num].end() &&
+            undirected_graph_[dst_num].find(src_num) == undirected_graph_[dst_num].end()) {
+            undirected_graph_[src_num].insert(dst_num);
+            undirected_graph_[dst_num].insert(src_num);
+        }
+    }
+
+    void EvolutionaryTree::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num) {
+        if (undirected_graph_.find(root_num) != undirected_graph_.end()) {
+            for (size_t u : undirected_graph_[root_num]) {
+                undirected_graph_[root_num].erase(u);
+                undirected_graph_[u].erase(root_num);
+                edge_vector.push_back(std::make_pair(root_num, u));
+                PrepareSubtree(edge_vector, u);
+            }
+        }
+    }
+
     void EvolutionaryTree::WriteInFile(std::string output_fname) {
         std::ofstream out(output_fname);
         out << "Src_num\tDst_num\tSrc_clone\tDst_clone\tNum_Src_V_SHMs\tNum_Dst_V_SHMs\tEdge_type\tNum_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\n";

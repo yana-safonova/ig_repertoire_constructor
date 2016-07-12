@@ -8,7 +8,7 @@
 #include <evolutionary_graph_utils/evolutionary_edge_constructor.hpp>
 
 namespace antevolo {
-    class SimilarCDR3CandidateCalculator : public BaseCandidateCalculator {
+    class UndirectedFirstTreeCalculator : public BaseCandidateCalculator {
         const AntEvoloConfig::AlgorithmParams &config_;
         const AntEvoloConfig::OutputParams &output_params_;
         size_t num_mismatches_;
@@ -26,7 +26,7 @@ namespace antevolo {
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
 
     public:
-        SimilarCDR3CandidateCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        UndirectedFirstTreeCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                        const AntEvoloConfig::OutputParams &output_params,
                                        const AntEvoloConfig::AlgorithmParams &config) :
                 BaseCandidateCalculator(clone_set),
@@ -39,10 +39,7 @@ namespace antevolo {
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
         std::string GetGraphFname(core::DecompositionClass decomposition_class);
         std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
-        //ClonallyRelatedCandidates ComputeCandidatesForGraph(SparseGraphPtr hg_component, size_t component_id);
-        EvolutionaryTree ComputeTreeForComponent(SparseGraphPtr hg_component, size_t component_id);
+        void AddUndirectedForestToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
         void AddComponentToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
-        //std::vector<ClonallyRelatedCandidates> ComputeCandidates(core::DecompositionClass decomposition_class);
-        //std::vector<std::pair<size_t, size_t>> ComputeDirectedEdges(core::DecompositionClass decomposition_class);
     };
 }

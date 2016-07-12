@@ -2,7 +2,7 @@
 
 #include "naive_antevolo_processing.hpp"
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
-#include "clonally_related_candidates_calculators/similar_cdr3_candidate_calculator.hpp"
+#include "clonally_related_candidates_calculators/undirectred_first_tree_calculator.hpp"
 #include "evolutionary_graph_utils/evolutionary_graph_constructor.hpp"
 
 namespace antevolo {
@@ -23,7 +23,7 @@ namespace antevolo {
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
         //for(size_t i = 301; i < 302 && i < vj_decomposition.Size(); i++) {
             auto vj_class = vj_decomposition.GetClass(i);
-            auto candidate_calculator = SimilarCDR3CandidateCalculator(clone_set_,
+            auto candidate_calculator = UndirectedFirstTreeCalculator(clone_set_,
                                                                     config_.output_params,
                                                                     config_.algorithm_params);
             candidate_calculator.CreateUniqueCDR3Map(vj_class);
@@ -36,6 +36,8 @@ namespace antevolo {
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
             //for(size_t component_index = 5; component_index < 6 && component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree;
+                candidate_calculator.AddUndirectedForestToTheTree(
+                        connected_components[component_index], component_index, tree);
                 candidate_calculator.AddComponentToTheTree(
                         connected_components[component_index], component_index, tree);
                 std::string output_fname = GetTreeOutputFname(

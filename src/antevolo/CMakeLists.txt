@@ -45,7 +45,7 @@ add_executable(antevolo
 #        cdr_launch.cpp
         clone_set_decomposers/vj_clone_set_decomposer.cpp
         clonally_related_candidates_calculators/clonally_related_candidates.cpp
-        clonally_related_candidates_calculators/similar_cdr3_candidate_calculator.cpp
+        clonally_related_candidates_calculators/undirectred_first_tree_calculator.cpp
         evolutionary_graph_utils/evolutionary_edge.cpp
         evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
