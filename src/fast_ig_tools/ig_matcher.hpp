@@ -1,22 +1,21 @@
 #pragma once
 
-#include <cassert>
 #include <algorithm>
-#include <vector>
-#include <unordered_map>
-#include <fstream>
+#include <cassert>
 #include <exception>
+#include <fstream>
+#include <unordered_map>
+#include <vector>
 #include <verify.hpp>
 
 #include <seqan/seq_io.h>
 using seqan::length;
 
-
 // TODO Reimplement it as "generator" with O(1) memory consumption
-template<typename T>
+template <typename T>
 std::vector<size_t> polyhashes(const T &s, size_t K) {
     if (length(s) < K) {
-        return {  };
+        return {};
     }
 
     const size_t p = 7;
@@ -33,8 +32,8 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
     result[0] = first;
     for (size_t i = 1; i < result.size(); ++i) {
         first *= p;
-        first += unsigned(s[K + i - 1]); //size_t(s[K + i - 1]);
-        first -= unsigned(s[i - 1]) * p_pow_K; //size_t(s[i - 1]) * p_pow_K;
+        first += unsigned(s[K + i - 1]);        //size_t(s[K + i - 1]);
+        first -= unsigned(s[i - 1]) * p_pow_K;  //size_t(s[i - 1]) * p_pow_K;
         result[i] = first;
     }
 
@@ -44,19 +43,23 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
 bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
                                   const std::vector<int> &multiplicities,
                                   size_t K, size_t n) {
-    if (!std::is_sorted(answer.cbegin(), answer.cend())) return false;
+    if (!std::is_sorted(answer.cbegin(), answer.cend()))
+        return false;
 
     // Check answer size
-    if (answer.size() != n) return false;
+    if (answer.size() != n)
+        return false;
 
     // Check k-mer overlapping
     for (size_t i = 1; i < answer.size(); ++i) {
-        if (answer[i] - answer[i - 1] < K) return false;
+        if (answer[i] - answer[i - 1] < K)
+            return false;
     }
 
     // K-mers should belong interval
     for (size_t kmer_i : answer) {
-        if (kmer_i >= multiplicities.size()) return false;
+        if (kmer_i >= multiplicities.size())
+            return false;
     }
 
     return true;
@@ -71,7 +74,7 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
     assert(n >= 1);
     assert(multiplicities.size() + K - 1 >= n * K);
 
-    const int INF = 1 << 30; // TODO Use exact value
+    const int INF = 1 << 30;  // TODO Use exact value
 
     std::vector<std::vector<int>> imults(n, std::vector<int>(multiplicities.size()));
 
@@ -81,13 +84,13 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
         imults[0][i] = std::min(multiplicities[i], imults[0][i - 1]);
     }
 
-    for (size_t j = 1; j < n; ++j) { // n == 1 is useless
+    for (size_t j = 1; j < n; ++j) {  // n == 1 is useless
         // Kill first K*j elements
-        for (size_t i = 0; i < K*j; ++i) {
+        for (size_t i = 0; i < K * j; ++i) {
             imults[j][i] = INF;
         }
 
-        for (size_t i = K*j; i < imults[j].size(); ++i) {
+        for (size_t i = K * j; i < imults[j].size(); ++i) {
             imults[j][i] = std::min(imults[j][i - 1],
                                     multiplicities[i] + imults[j - 1][i - K]);
         }
@@ -103,7 +106,7 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
     size_t j = n - 1;
 
     while (j > 0) {
-        if (imults[j][i] == multiplicities[i] + imults[j - 1][i - K]) { // Take i-th element
+        if (imults[j][i] == multiplicities[i] + imults[j - 1][i - K]) {  // Take i-th element
             result[j] = i;
             i -= K;
             j -= 1;
@@ -119,7 +122,6 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
     }
     result[0] = ii;
 
-
     // Checking
     int sum = 0;
     for (size_t i : result) {
@@ -132,9 +134,8 @@ std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
     return result;
 }
 
-
-template<typename T1, typename T2 = T1>
-int hamming_rtrim(const T1& s1, const T2 &s2) {
+template <typename T1, typename T2 = T1>
+int hamming_rtrim(const T1 &s1, const T2 &s2) {
     size_t len = std::min<size_t>(length(s1), length(s2));
 
     int res = 0;
@@ -145,8 +146,7 @@ int hamming_rtrim(const T1& s1, const T2 &s2) {
     return res;
 }
 
-
-template<typename T>
+template <typename T>
 void remove_duplicates(std::vector<T> &v, bool sorted = false) {
     // Remove duplicated items
     if (!sorted) {
@@ -156,18 +156,16 @@ void remove_duplicates(std::vector<T> &v, bool sorted = false) {
     v.resize(std::distance(v.begin(), it));
 }
 
-
 using KmerIndex = std::unordered_map<size_t, std::vector<size_t>>;
 
-
-template<typename T>
+template <typename T>
 KmerIndex kmerIndexConstruction(const std::vector<T> &input_reads, size_t K) {
-    size_t initial_hashtable_size = (K <= 13) ? (1 << (2*K)) : (input_reads.size() * 200);
+    size_t initial_hashtable_size = (K <= 13) ? (1 << (2 * K)) : (input_reads.size() * 200);
     KmerIndex kmer2reads(initial_hashtable_size);
 
     for (size_t j = 0; j < input_reads.size(); ++j) {
         for (size_t hash : polyhashes(input_reads[j], K)) {
-            kmer2reads[hash].push_back(j); // Already sorted. Nice!
+            kmer2reads[hash].push_back(j);  // Already sorted. Nice!
         }
     }
 
@@ -178,16 +176,14 @@ KmerIndex kmerIndexConstruction(const std::vector<T> &input_reads, size_t K) {
     return kmer2reads;
 }
 
-
-template<typename T>
+template <typename T>
 size_t count_unique(std::vector<T> v) {
-   remove_duplicates(v);
+    remove_duplicates(v);
 
-   return v.size();
+    return v.size();
 }
 
-
-template<typename T>
+template <typename T>
 std::vector<size_t> find_candidates(const T &read,
                                     const KmerIndex &kmer2reads,
                                     size_t target_size,
@@ -195,15 +191,15 @@ std::vector<size_t> find_candidates(const T &read,
                                     unsigned strategy) {
     size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
     if (length(read) < required_read_length) {
-        return {  };
+        return {};
     }
 
     std::vector<size_t> cand;
 
-    if (strategy == 0) { // Simple O(N*M) strategy
+    if (strategy == 0) {  // Simple O(N*M) strategy
         cand.resize(target_size);
         std::iota(cand.begin(), cand.end(), 0);
-    } else { // Minimizers strategy
+    } else {  // Minimizers strategy
         std::vector<int> multiplicities;
 
         auto hashes = polyhashes(read, K);
@@ -241,9 +237,7 @@ std::vector<size_t> find_candidates(const T &read,
     return cand;
 }
 
-
 using Graph = std::vector<std::vector<std::pair<size_t, int>>>;
-
 
 size_t numEdges(const Graph &graph,
                 bool undirected = true) {
@@ -260,7 +254,6 @@ size_t numEdges(const Graph &graph,
     return nE;
 }
 
-
 void write_metis_graph(const Graph &graph,
                        const std::string &filename,
                        bool undirected = true) {
@@ -270,7 +263,7 @@ void write_metis_graph(const Graph &graph,
     size_t nV = graph.size();
     size_t nE = numEdges(graph, undirected);
 
-    out << nV << " " << nE << " 001\n"; // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+    out << nV << " " << nE << " 001\n";  // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
 
     for (const auto &edges : graph) {
         for (const auto &edge : edges) {
@@ -279,7 +272,6 @@ void write_metis_graph(const Graph &graph,
         out << "\n";
     }
 }
-
 
 void write_metis_graph(const Graph &graph,
                        const std::vector<size_t> &weights,
@@ -293,7 +285,7 @@ void write_metis_graph(const Graph &graph,
     size_t nV = graph.size();
     size_t nE = numEdges(graph, undirected);
 
-    out << nV << " " << nE << " 011\n"; // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
+    out << nV << " " << nE << " 011\n";  // See http://glaros.dtc.umn.edu/gkhome/fetch/sw/metis/manual.pdf
 
     for (size_t i = 0; i < graph.size(); ++i) {
         out << weights[i] << " ";
@@ -304,8 +296,7 @@ void write_metis_graph(const Graph &graph,
     }
 }
 
-
-template<typename T, typename Tf>
+template <typename T, typename Tf>
 Graph tauDistGraph(const std::vector<T> &input_reads,
                    const KmerIndex &kmer2reads,
                    const Tf &dist_fun,
@@ -332,7 +323,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
                 atomic_num_of_dist_computations += 1;
 
                 if (dist <= tau) {
-                    g[j].push_back( { i, dist } );
+                    g[j].push_back({i, dist});
                 }
             }
         }
@@ -342,10 +333,10 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     auto gg = g;
     for (size_t i = 0; i < gg.size(); ++i) {
         for (const auto &_ : gg[i]) {
-            g[_.first].push_back( { i, _.second } );
+            g[_.first].push_back({i, _.second});
         }
     }
-    gg.clear(); // Free memory
+    gg.clear();  // Free memory
 
     SEQAN_OMP_PRAGMA(parallel for schedule(guided, 8))
     for (size_t j = 0; j < g.size(); ++j) {
@@ -357,8 +348,7 @@ Graph tauDistGraph(const std::vector<T> &input_reads,
     return g;
 }
 
-
-template<typename T, typename Tf>
+template <typename T, typename Tf>
 Graph tauMatchGraph(const std::vector<T> &input_reads,
                     const std::vector<T> &reference_reads,
                     const KmerIndex &kmer2reads,
@@ -382,7 +372,7 @@ Graph tauMatchGraph(const std::vector<T> &input_reads,
             atomic_num_of_dist_computations += 1;
 
             if (dist <= tau) {
-                g[j].push_back( { i, dist } );
+                g[j].push_back({i, dist});
             }
         }
     }
