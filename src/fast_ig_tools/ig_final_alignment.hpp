@@ -7,6 +7,7 @@
 #include <seqan/seq_io.h>
 #include <seqan/align.h>
 #include <seqan/graph_msa.h>
+#undef NDEBUG
 
 
 template<typename T = seqan::Dna5>
