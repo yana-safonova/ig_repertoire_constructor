@@ -39,9 +39,9 @@ add_executable(vdj_labeler_0.3
                 recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.cpp
                 recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.cpp
                 recombination_generation/gene_events_generators/shms_calculators/versatile_shms_calculator.cpp
-                # recombination_generation/gene_events_generators/v_recombination_event_generator.cpp
-                # recombination_generation/gene_events_generators/d_recombination_event_generator.cpp
-                # recombination_generation/gene_events_generators/j_recombination_event_generator.cpp
+                recombination_generation/gene_events_generators/v_recombination_event_generator.cpp
+                recombination_generation/gene_events_generators/d_recombination_event_generator.cpp
+                recombination_generation/gene_events_generators/j_recombination_event_generator.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler_0.3 core algorithms vdj_utils input yaml-cpp ${COMMON_LIBRARIES})
