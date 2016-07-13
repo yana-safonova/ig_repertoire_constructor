@@ -24,3 +24,6 @@ vjf:
 
 cdr:
 	$(MAKE) -C build/release/cdr_labeler
+
+pog:
+	$(MAKE) -C build/release/partial_order_graph

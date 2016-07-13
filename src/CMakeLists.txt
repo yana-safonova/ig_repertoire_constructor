@@ -33,6 +33,8 @@ set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
 set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
 
+set(PARTIAL_ORDER_GRAPH_DIR "${SPADES_MAIN_SRC_DIR}/partial_order_graph")
+
 # Everything option-dependent
 include(options)
 
@@ -84,6 +86,7 @@ add_subdirectory(vdj_utils)
 add_subdirectory(vj_finder)
 add_subdirectory(cdr_labeler)
 add_subdirectory(test)
+add_subdirectory(partial_order_graph)
 
 # FIXME: Should we just configure spades_init instead?
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
