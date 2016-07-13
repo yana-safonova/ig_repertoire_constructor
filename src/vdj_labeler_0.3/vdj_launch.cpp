@@ -11,8 +11,60 @@
 #include <model/recombination_model.hpp>
 #include <germline_utils/chain_type.hpp>
 #include <recombination_calculator/hc_model_based_recombination_calculator.hpp>
+#include <recombination_utils/recombination_storage.hpp>
 
 namespace vdj_labeler {
+
+void VDJLabelerLaunch::TestRecombinationCalculator(const core::ReadArchive& reads_archive,
+                                                   VDJHitsStoragePtr &hits_storage)
+{
+    size_t read_index = 3;
+    core::ReadPtr read_3 = std::make_shared<core::Read>(reads_archive[read_index]);
+    VDJHitsPtr hits_3 = (*hits_storage)[read_index];
+    INFO("Read 3. #V: " << hits_3->VHitsNumber() <<
+        ", #D: " << hits_3->DHitsNumber() <<
+        ", #J: " << hits_3->JHitsNumber());
+
+    auto v_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::VariableSegment, 0);
+    recombination_utils::CleavedIgGeneAlignment v_event_0(v_alignment, 0, 0, 0, 0);
+    recombination_utils::CleavedIgGeneAlignment v_event_1(v_alignment, 0, -1, 0, 0);
+    recombination_utils::CleavedIgGeneAlignment v_event_2(v_alignment, 0, -2, 0, 0);
+    recombination_utils::CleavedIgGeneAlignment v_event_3(v_alignment, 0, -3, 0, 1);
+
+    auto d_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, 0);
+    recombination_utils::CleavedIgGeneAlignment d_event_0(d_alignment, 1, 8, 0, 0);
+
+    auto j_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, 0);
+    recombination_utils::CleavedIgGeneAlignment j_event_0(j_alignment, 0, 0, 1, 0);
+    recombination_utils::CleavedIgGeneAlignment j_event_1(j_alignment, 1, 0, 0, 0);
+
+    recombination_utils::NongenomicInsertion vd_insertion_0(425, 441);
+    recombination_utils::NongenomicInsertion vd_insertion_1(426, 441);
+    recombination_utils::NongenomicInsertion vd_insertion_2(427, 441);
+    recombination_utils::NongenomicInsertion vd_insertion_3(428, 441);
+
+    recombination_utils::NongenomicInsertion dj_insertion_0(453, 452);
+    recombination_utils::NongenomicInsertion dj_insertion_1(453, 453);
+
+    recombination_utils::RecombinationStorage<recombination_utils::HCRecombination> recombination_storage(read_3);
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_0,
+                                                           vd_insertion_0, dj_insertion_0));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_0,
+                                                           vd_insertion_1, dj_insertion_0));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_0,
+                                                           vd_insertion_2, dj_insertion_0));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_0,
+                                                           vd_insertion_3, dj_insertion_0));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_1,
+                                                           vd_insertion_0, dj_insertion_1));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_1,
+                                                           vd_insertion_1, dj_insertion_1));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_1,
+                                                           vd_insertion_2, dj_insertion_1));
+    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_1,
+                                                           vd_insertion_3, dj_insertion_1));
+    INFO(recombination_storage.size() << " recombinaions were generated");
+}
 
 void VDJLabelerLaunch::Launch() {
     INFO("VDJ labeler starts");

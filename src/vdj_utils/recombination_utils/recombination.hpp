@@ -28,7 +28,7 @@ public:
         vd_insertion_(vd_insertion),
         dj_insertion_(dj_insertion) { }
 
-    explicit HCRecombination(const HCRecombination &obj) = default;
+    HCRecombination(const HCRecombination &obj) = default;
 
     core::ReadPtr Read() const { return read_ptr_; }
 

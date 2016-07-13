@@ -43,6 +43,7 @@ add_executable(vdj_labeler_0.3
                 recombination_generation/gene_events_generators/d_recombination_event_generator.cpp
                 recombination_generation/gene_events_generators/j_recombination_event_generator.cpp
                 recombination_generation/insertion_events_generators/versatile_insertion_event_generator.cpp
+                recombination_generation/custom_hc_recombination_generator.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler_0.3 core algorithms vdj_utils input yaml-cpp ${COMMON_LIBRARIES})

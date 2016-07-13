@@ -22,7 +22,7 @@ public:
     explicit RecombinationStorage(const core::ReadPtr read_ptr) :
         read_ptr_(read_ptr) { }
 
-    explicit RecombinationStorage(const RecombinationStorage&) = default;
+    RecombinationStorage(const RecombinationStorage&) = default;
 
     void AddRecombination(const Recombination &recombination) {
         if (CheckConsistency(recombination))
@@ -50,7 +50,7 @@ public:
     }
 
     size_t ReadId() const {
-        assert(read_ptr != nullptr);
+        assert(read_ptr_ != nullptr);
         return read_ptr_-> id;
     }
 };
