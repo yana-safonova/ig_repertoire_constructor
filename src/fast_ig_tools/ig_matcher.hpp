@@ -43,23 +43,27 @@ std::vector<size_t> polyhashes(const T &s, size_t K) {
 bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
                                   const std::vector<int> &multiplicities,
                                   size_t K, size_t n) {
-    if (!std::is_sorted(answer.cbegin(), answer.cend()))
+    if (!std::is_sorted(answer.cbegin(), answer.cend())) {
         return false;
+    }
 
     // Check answer size
-    if (answer.size() != n)
+    if (answer.size() != n) {
         return false;
+    }
 
     // Check k-mer overlapping
     for (size_t i = 1; i < answer.size(); ++i) {
-        if (answer[i] - answer[i - 1] < K)
+        if (answer[i] - answer[i - 1] < K) {
             return false;
+        }
     }
 
     // K-mers should belong interval
     for (size_t kmer_i : answer) {
-        if (kmer_i >= multiplicities.size())
+        if (kmer_i >= multiplicities.size()) {
             return false;
+        }
     }
 
     return true;
