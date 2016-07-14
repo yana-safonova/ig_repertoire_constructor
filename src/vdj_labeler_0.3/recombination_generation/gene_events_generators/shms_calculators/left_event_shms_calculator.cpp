@@ -3,8 +3,10 @@
 
 using namespace vdj_labeler;
 
-int LeftEventSHMsCalculator::ComputeNumberCleavedSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                                      size_t cleavage_length) {
+int LeftEventSHMsCalculator::ComputeNumberCleavedSHMs(
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const size_t cleavage_length) const
+{
     TRACE("Computation of # SHMs in left cleavage of length " << cleavage_length);
     // Gene is Subject.
     // If there is (already) the cleavage, then the gene_alignment->StartSubjectPosition() != 0.
@@ -31,8 +33,10 @@ int LeftEventSHMsCalculator::ComputeNumberCleavedSHMs(alignment_utils::ImmuneGen
     return -1 * num_shms;
 }
 
-int LeftEventSHMsCalculator::ComputeNumberPalindromeSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                                         size_t palindrome_length) {
+int LeftEventSHMsCalculator::ComputeNumberPalindromeSHMs(
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const size_t palindrome_length) const
+{
     TRACE("Computation of #SHMs in left palindrome of length " << palindrome_length);
     // if gene has alignment to read with gaps at the end, we can not compute
     assert(gene_alignment->StartSubjectPosition() == 0);
@@ -50,9 +54,11 @@ int LeftEventSHMsCalculator::ComputeNumberPalindromeSHMs(alignment_utils::Immune
     return num_shms;
 }
 
-int LeftEventSHMsCalculator::ComputeNumberSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                               int left_cleavage_length,
-                                               int) {
+int LeftEventSHMsCalculator::ComputeNumberSHMs(
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const int left_cleavage_length,
+        const int) const
+{
     if(left_cleavage_length == 0)
         return 0;
     // if gene was cleaved, number of SHMs would be 0 or negative
@@ -64,8 +70,10 @@ int LeftEventSHMsCalculator::ComputeNumberSHMs(alignment_utils::ImmuneGeneReadAl
     return ComputeNumberPalindromeSHMs(gene_alignment, size_t(left_cleavage_length * -1));
 }
 
-int LeftEventSHMsCalculator::ComputeNumberSHMsForLeftEvent(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                                           int left_cleavage_length) {
+int LeftEventSHMsCalculator::ComputeNumberSHMsForLeftEvent(
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const int left_cleavage_length) const
+{
     if(left_cleavage_length == 0)
         return 0;
     // if gene was cleaved, number of SHMs would be 0 or negative

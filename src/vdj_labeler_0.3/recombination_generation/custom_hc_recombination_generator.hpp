@@ -37,7 +37,8 @@ class CustomHeavyChainRecombinationGenerator :
     // and zero length to the second insertion
     // todo: extract to separate class
     std::pair<recombination_utils::NongenomicInsertion, recombination_utils::NongenomicInsertion>
-            RefineNongenomicInsertions(recombination_utils::NongenomicInsertion vd_insertion, recombination_utils::NongenomicInsertion dj_insertion);
+            RefineNongenomicInsertions(recombination_utils::NongenomicInsertion vd_insertion,
+                                       recombination_utils::NongenomicInsertion dj_insertion);
 
     recombination_utils::HcRecombinationStoragePtr CreateRecombinations(
         recombination_utils::HcRecombinationStoragePtr recombination_storage,

@@ -5,21 +5,21 @@
 namespace vdj_labeler {
 
 class RightEventSHMsCalculator : public SHMsCalculator {
-    int ComputeNumberCleavedSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                 size_t cleavage_length);
+    int ComputeNumberCleavedSHMs(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+                                 const size_t cleavage_length) const;
 
-    int ComputeNumberPalindromeSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                    size_t palindrome_length);
+    int ComputeNumberPalindromeSHMs(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+                                    const size_t palindrome_length) const;
 
 public:
-    int ComputeNumberSHMs(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                          int left_cleavage_length,
-                          int right_cleavage_length);
+    int ComputeNumberSHMs(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+                          const int left_cleavage_length,
+                          const int right_cleavage_length) const;
 
-    int ComputeNumberSHMsForLeftEvent(alignment_utils::ImmuneGeneReadAlignmentPtr, int) { return 0; }
+    int ComputeNumberSHMsForLeftEvent(const alignment_utils::ImmuneGeneReadAlignmentPtr, const int) const { return 0; }
 
-    int ComputeNumberSHMsForRightEvent(alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                       int right_cleavage_length);
+    int ComputeNumberSHMsForRightEvent(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+                                       const int right_cleavage_length) const;
 };
 
 } // End namespace vdj_labeler

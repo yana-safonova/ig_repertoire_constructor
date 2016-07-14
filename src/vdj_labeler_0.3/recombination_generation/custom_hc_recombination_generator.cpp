@@ -51,7 +51,8 @@ void CustomHeavyChainRecombinationGenerator::ComputeJEventStorages(VDJHitsPtr vd
     INFO(j_events_num << " events were computed for " << vdj_hits->JHitsNumber() << " J hits");
 }
 
-std::pair<recombination_utils::NongenomicInsertion, recombination_utils::NongenomicInsertion> CustomHeavyChainRecombinationGenerator::RefineNongenomicInsertions(
+std::pair<recombination_utils::NongenomicInsertion, recombination_utils::NongenomicInsertion>
+CustomHeavyChainRecombinationGenerator::RefineNongenomicInsertions(
         recombination_utils::NongenomicInsertion vd_insertion,
         recombination_utils::NongenomicInsertion dj_insertion)
 {
@@ -66,7 +67,8 @@ recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGene
         recombination_utils::CleavedIgGeneAlignment d_gene,
         recombination_utils::CleavedIgGeneAlignment j_gene,
         recombination_utils::InsertionEventStoragePtr vd_insertions,
-        recombination_utils::InsertionEventStoragePtr dj_insertions) {
+        recombination_utils::InsertionEventStoragePtr dj_insertions)
+{
     for(auto vd_it = vd_insertions->cbegin(); vd_it != vd_insertions->cend(); vd_it++)
         for(auto dj_it = dj_insertions->cbegin(); dj_it != dj_insertions->cend(); dj_it++) {
             recombination_utils::NongenomicInsertion vd_insersion = *vd_it;
