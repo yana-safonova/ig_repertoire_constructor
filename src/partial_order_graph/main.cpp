@@ -19,6 +19,7 @@ struct options {
     std::string logging_level;
     bool no_plots;
     bool show_sequences;
+    bool wo_reverse_complement;
 };
 
 void parse_command_line(int argc, char** argv, options& opts) {
@@ -47,6 +48,7 @@ Usage:
             "Mismatch penalty   (default: -1.4)")
         ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT"),
             "Gap penalty        (default:   -2)")
+        ("wo-rc", "Do not use reverse complement sequences")
         ;
 
     po::options_description output_options("Output options");
@@ -99,6 +101,7 @@ Usage:
     parameters.set_kmer_size(kmer_size);
     opts.no_plots = vm.count("no-plots");
     opts.show_sequences = vm.count("show-sequences");
+    opts.wo_reverse_complement = vm.count("wo-rc");
 }
 
 logging::level string_to_level(std::string const& level_str) {
@@ -123,7 +126,7 @@ void create_console_logger(logging::level log_level) {
     logging::attach_logger(lg);
 }
 
-void plot_if_necessary(options& opts, std::string name) {
+void plot_if_necessary(options& opts, std::string const& name) {
     if (opts.no_plots)
         return;
     INFO("Drawing " + name + " plot");
@@ -141,7 +144,7 @@ int main(int argc, char** argv) {
     }
 
     create_console_logger(string_to_level(opts.logging_level));
-    pog::partial_order_graph graph = pog::from_file(opts.input_file);
+    pog::partial_order_graph graph = pog::from_file(opts.input_file, !opts.wo_reverse_complement);
     INFO("Graph created. Nodes: " << graph.nodes_count());
 
     INFO("Saving");

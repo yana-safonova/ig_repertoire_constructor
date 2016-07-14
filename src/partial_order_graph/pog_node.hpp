@@ -2,16 +2,16 @@
 
 #include <vector>
 #include <utility>
+#include <functional>
 
 #include <boost/unordered_map.hpp>
 #include <seqan/sequence.h>
 
-#include "seqan_read.hpp"
 #include "pog_parameters.hpp"
 
 namespace pog {
 
-struct node;
+using pair_vector = std::vector<std::pair<size_t, size_t>>;
 
 struct kmer {
     // First k letters
@@ -32,33 +32,42 @@ private:
 
 std::vector<kmer> sequence_to_kmers(seq_t const& sequence);
 
-struct node {
-    node();
-    node(kmer const& source, directed_seqan_read* read);
+struct subnode {
+    subnode(kmer const& source, size_t read_number);
 
-    node(node const&) = delete;
-    node& operator=(node const&) = delete;
-
-    void add_read(directed_seqan_read* read, size_t position);
-    void add_output_edge(node* next);
-
-    bool dummy() const noexcept;
-    bool sequences_equal(kmer const& potential_match) const noexcept;
+    void add_read(size_t read_number, size_t position);
+    pair_vector const& get_reads() const noexcept;
     size_t coverage() const noexcept;
-    std::vector<std::pair<directed_seqan_read*, size_t>> const& get_reads() const noexcept;
-    boost::unordered_map<node*, size_t> const& get_output_edges() const noexcept;
     seq_t const& get_sequence() const noexcept;
+    bool equals(kmer const& other) const;
 
 private:
 
     seq_t sequence_;
     u64 hash_;
+    pair_vector reads_;
+};
 
-    //                                    read, sequence position in read
-    std::vector<std::pair<directed_seqan_read*, size_t>> reads_;
-    //                     node, coverage
+struct node {
+
+    node();
+    node(kmer const& source, size_t read_number);
+    node(node const&) = delete;
+    node& operator=(node const&) = delete;
+
+    void add_kmer(kmer const& source, size_t read_number);
+    void add_output_edge(node* next);
+    bool contains(kmer const& potential_match) const;
+    boost::unordered_map<node*, size_t> const& get_output_edges() const noexcept;
+    boost::unordered_map<u64, std::vector<subnode>> const& get_subnodes() const noexcept;
+    void for_every_subnode(std::function<void(subnode const&)> f) const;
+
+private:
+
+    boost::unordered_map<u64, std::vector<subnode>> subnodes_;
     boost::unordered_map<node*, size_t> input_edges_;
     boost::unordered_map<node*, size_t> output_edges_;
+
 };
 
 } // namespace pog

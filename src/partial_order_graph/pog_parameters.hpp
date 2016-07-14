@@ -1,11 +1,18 @@
 #pragma once
 
 #include <cstring> // size_t
-#include "seqan_read.hpp"
+#include <seqan/sequence.h>
+#include <seqan/basic.h>
+#include <logger/logger.hpp>
+#include <logger/log_writers.hpp>
 
 namespace pog {
 
 using u64 = unsigned long long;
+
+using id_t = seqan::CharString;
+using nt_t = seqan::Dna5;
+using seq_t = seqan::String<nt_t>;
 
 struct pog_parameters {
     static pog_parameters& instance();
