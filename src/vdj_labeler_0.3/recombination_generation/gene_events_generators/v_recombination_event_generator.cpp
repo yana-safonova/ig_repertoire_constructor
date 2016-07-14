@@ -4,8 +4,8 @@
 using namespace vdj_labeler;
 
 recombination_utils::CleavedIgGeneAlignment VRecombinationEventGenerator::GenerateCleavageEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        size_t cleavage_length)
+    const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+    const size_t cleavage_length) const
 {
     return recombination_utils::CleavedIgGeneAlignment(v_alignment,
                                                        0, // left cleavage left
@@ -18,8 +18,8 @@ recombination_utils::CleavedIgGeneAlignment VRecombinationEventGenerator::Genera
 }
 
 void VRecombinationEventGenerator::GenerateCleavageEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        recombination_utils::IgGeneRecombinationEventStoragePtr v_events)
+    const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+    const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const
 {
     // if alignment is empty cleavage can not be observed
     if(v_alignment->Empty())
@@ -32,8 +32,8 @@ void VRecombinationEventGenerator::GenerateCleavageEvents(
 }
 
 recombination_utils::CleavedIgGeneAlignment VRecombinationEventGenerator::GeneratePalindromicEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        size_t palindrome_length)
+    const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+    const size_t palindrome_length) const
 {
     int event_length = int(palindrome_length) * - 1;
     return recombination_utils::CleavedIgGeneAlignment(v_alignment,
@@ -46,8 +46,8 @@ recombination_utils::CleavedIgGeneAlignment VRecombinationEventGenerator::Genera
 }
 
 void VRecombinationEventGenerator::GeneratePalindromicEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        recombination_utils::IgGeneRecombinationEventStoragePtr v_events)
+    const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+    const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const
 {
     if(v_alignment->EndSubjectPosition() != v_alignment->subject().length() - 1)
         return;
@@ -60,7 +60,7 @@ void VRecombinationEventGenerator::GeneratePalindromicEvents(
 }
 
 recombination_utils::IgGeneRecombinationEventStoragePtr VRecombinationEventGenerator::ComputeEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment)
+        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment) const
 {
     recombination_utils::IgGeneRecombinationEventStoragePtr v_events(
         new recombination_utils::IgGeneRecombinationEventStorage(germline_utils::SegmentType::VariableSegment));

@@ -3,13 +3,16 @@
 
 using namespace vdj_labeler;
 
-int DRecombinationEventGenerator::ComputeMinLeftBound(alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) {
+int DRecombinationEventGenerator::ComputeMinLeftBound(
+        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
+{
     if(d_alignment->StartSubjectPosition() != 0)
         return int(d_alignment->StartSubjectPosition());
     return int(max_palindrome_) * -1;
 }
 
-int DRecombinationEventGenerator::ComputeMinRightBound(alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) {
+int DRecombinationEventGenerator::ComputeMinRightBound(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
+{
     // if cleavage is occurred at the right end of D segment, min right bound is cleavage size from alignment
     if(d_alignment->EndSubjectPosition() != d_alignment->subject().length() - 1)
         return int(d_alignment->subject().length() - d_alignment->EndSubjectPosition() - 1);
@@ -18,8 +21,8 @@ int DRecombinationEventGenerator::ComputeMinRightBound(alignment_utils::ImmuneGe
 }
 
 size_t DRecombinationEventGenerator::ComputeMaxRightConsistentCleavage(
-        alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
-        int left_event_size)
+        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+        const int left_event_size) const
 {
     size_t min_right_cleavage = d_alignment->subject().length() - d_alignment->EndSubjectPosition() - 1;
     size_t read_cleavage = 0;
@@ -33,9 +36,9 @@ size_t DRecombinationEventGenerator::ComputeMaxRightConsistentCleavage(
 }
 
 void DRecombinationEventGenerator::GenerateRightConsistentEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
-        int left_event_size,
-        recombination_utils::IgGeneRecombinationEventStoragePtr d_events)
+        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+        const int left_event_size,
+        const recombination_utils::IgGeneRecombinationEventStoragePtr d_events) const
 {
     int min_right_bound = ComputeMinRightBound(d_alignment);
     int max_right_bound = int(ComputeMaxRightConsistentCleavage(d_alignment, left_event_size));
@@ -54,7 +57,7 @@ void DRecombinationEventGenerator::GenerateRightConsistentEvents(
 }
 
 recombination_utils::IgGeneRecombinationEventStoragePtr DRecombinationEventGenerator::ComputeEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment)
+        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
 {
     recombination_utils::IgGeneRecombinationEventStoragePtr d_events(
         new recombination_utils::IgGeneRecombinationEventStorage(germline_utils::SegmentType::DiversitySegment));

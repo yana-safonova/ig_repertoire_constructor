@@ -10,28 +10,28 @@ class JRecombinationEventGenerator: public IgGeneRecombinationEventsGenerator {
     size_t max_palindrome_;
 
     recombination_utils::CleavedIgGeneAlignment GenerateCleavageEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        size_t cleavage_length);
+        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+        const size_t cleavage_length) const;
 
-    void GenerateCleavageEvents(alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                recombination_utils::IgGeneRecombinationEventStoragePtr v_events);
+    void GenerateCleavageEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+                                const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
 
     recombination_utils::CleavedIgGeneAlignment GeneratePalindromicEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-        size_t palindrome_length);
+        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+        const size_t palindrome_length) const;
 
-    void GeneratePalindromicEvents(alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                   recombination_utils::IgGeneRecombinationEventStoragePtr v_events);
+    void GeneratePalindromicEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+                                   const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
 
 public:
     JRecombinationEventGenerator(SHMsCalculator &shms_calculator,
-                                 size_t max_cleavage,
-                                 size_t max_palindrome) : shms_calculator_(shms_calculator),
-                                                          max_cleavage_(max_cleavage),
-                                                          max_palindrome_(max_palindrome) { }
+                                 const size_t max_cleavage,
+                                 const size_t max_palindrome) : shms_calculator_(shms_calculator),
+                                                                max_cleavage_(max_cleavage),
+                                                                max_palindrome_(max_palindrome) { }
 
     recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment);
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const;
 };
 
 } // End namespace vdj_labeler

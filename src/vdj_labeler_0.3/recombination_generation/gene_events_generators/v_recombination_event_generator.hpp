@@ -11,16 +11,16 @@ class VRecombinationEventGenerator: public IgGeneRecombinationEventsGenerator {
     size_t max_palindrome_;
 
     recombination_utils::CleavedIgGeneAlignment GenerateCleavageEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment, size_t cleavage_length);
+        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment, const size_t cleavage_length) const;
 
-    void GenerateCleavageEvents(alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                recombination_utils::IgGeneRecombinationEventStoragePtr v_events);
+    void GenerateCleavageEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+                                const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
 
     recombination_utils::CleavedIgGeneAlignment GeneratePalindromicEvent(
-        alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment, size_t palindrome_length);
+        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment, const size_t palindrome_length) const;
 
-    void GeneratePalindromicEvents(alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                   recombination_utils::IgGeneRecombinationEventStoragePtr v_events);
+    void GeneratePalindromicEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+                                   const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
 
 public:
     VRecombinationEventGenerator(SHMsCalculator &shms_calculator,
@@ -31,7 +31,7 @@ public:
         max_palindrome_(max_palindrome) { }
 
     recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment);
+        alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const;
 };
 
 } // End namespace vdj_labeler

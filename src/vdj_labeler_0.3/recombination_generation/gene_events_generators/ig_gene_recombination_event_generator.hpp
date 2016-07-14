@@ -9,7 +9,7 @@ namespace vdj_labeler {
 class IgGeneRecombinationEventsGenerator {
 public:
     virtual recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) = 0;
+        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const = 0;
     virtual ~IgGeneRecombinationEventsGenerator() { }
 };
 
