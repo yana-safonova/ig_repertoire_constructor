@@ -72,15 +72,27 @@ void node::add_read() {
     ++coverage_;
 }
 
-void node::add_output_edge(node* next) {
-    auto it = output_edges_.find(next);
-    if (it == output_edges_.end()) {
-        output_edges_[next] = 1;
-        next->input_edges_[this] = 1;
-    } else {
-        output_edges_[next] += 1;
-        next->input_edges_[this] += 1;
+void node::add_output_edge(node* next, size_t coverage) {
+    output_edges_[next] += coverage;
+    next->input_edges_[this] += coverage;
+}
+
+bool node::self_destruct_if_possible() {
+    if (input_edges_.size() != 1 || dummy())
+        return false;
+
+    auto const& input_edge = *input_edges_.begin();
+    node* prev = input_edge.first;
+    if (prev->output_edges_.size() != 1 || prev->dummy())
+        return false;
+    append(prev->sequence_, back(sequence_));
+
+    for (auto const& entry : output_edges_) {
+        prev->add_output_edge(entry.first, std::min(input_edge.second, entry.second));
+        entry.first->input_edges_.erase(this);
     }
+    prev->output_edges_.erase(this);
+    return true;
 }
 
 bool node::dummy() const noexcept {

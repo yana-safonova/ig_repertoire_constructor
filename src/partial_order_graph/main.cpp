@@ -20,6 +20,7 @@ struct options {
     bool no_plots;
     bool show_sequences;
     bool wo_reverse_complement;
+    bool compress_upaths;
 };
 
 void parse_command_line(int argc, char** argv, options& opts) {
@@ -51,10 +52,15 @@ Usage:
         ("wo-rc", "Do not use reverse complement sequences")
         ;
 
+    po::options_description compress_options("Compress options");
+    compress_options.add_options()
+        ("compress-upaths", "Compress unambigous paths")
+        ;
+
     po::options_description output_options("Output options");
     output_options.add_options()
-        ("no-plots", "do not call graphviz")
-        ("show-sequences", "show sequences on the graph plot")
+        ("no-plots", "Do not call graphviz")
+        ("show-sequences", "Show sequences on the graph plot")
         ;
 
     po::options_description other_options("Other");
@@ -68,6 +74,7 @@ Usage:
     full_description
         .add(required_options)
         .add(construction_options)
+        .add(compress_options)
         .add(output_options)
         .add(other_options)
         ;
@@ -102,6 +109,7 @@ Usage:
     opts.no_plots = vm.count("no-plots");
     opts.show_sequences = vm.count("show-sequences");
     opts.wo_reverse_complement = vm.count("wo-rc");
+    opts.compress_upaths = vm.count("compress-upaths");
 }
 
 logging::level string_to_level(std::string const& level_str) {
@@ -146,6 +154,9 @@ int main(int argc, char** argv) {
     create_console_logger(string_to_level(opts.logging_level));
     pog::partial_order_graph graph = pog::from_file(opts.input_file, !opts.wo_reverse_complement);
     INFO("Graph created. Nodes: " << graph.nodes_count());
+
+    if (opts.compress_upaths)
+        graph.compress_upaths();
 
     INFO("Saving");
     graph.save_nodes(opts.output_directory + "/raw.csv");

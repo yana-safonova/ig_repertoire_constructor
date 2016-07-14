@@ -39,7 +39,8 @@ struct node {
     node& operator=(node const&) = delete;
 
     void add_read();
-    void add_output_edge(node* next);
+    void add_output_edge(node* next, size_t coverage = 1);
+    bool self_destruct_if_possible();
 
     bool dummy() const noexcept;
     bool equals(kmer const& potential_match) const noexcept;

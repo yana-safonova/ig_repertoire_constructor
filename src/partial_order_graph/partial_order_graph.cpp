@@ -30,6 +30,30 @@ void partial_order_graph::add_sequence(seq_t const& sequence, id_t const& read_i
     update_nodes_indexes();
 }
 
+void partial_order_graph::compress_upaths() {
+    std::vector<size_t> to_delete;
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+        if (nodes_[i]->self_destruct_if_possible())
+            to_delete.push_back(i);
+    }
+    to_delete.push_back(nodes_.size()); // Easier for clause below
+
+    std::vector<node*> new_nodes;
+    size_t k = 0;
+
+    for (size_t i = 0; i < nodes_.size(); ++i) {
+        if (i == to_delete[k]) {
+            delete nodes_[i];
+            ++k;
+        }
+        else
+            new_nodes.push_back(nodes_[i]);
+    }
+    nodes_ = new_nodes;
+    update_nodes_indexes();
+    INFO(nodes_.size() << " nodes after compression");
+}
+
 void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vector<float>& scores,
                                      pair_vector& transitions, size_t i, size_t j, size_t m) const {
     static pog_parameters& parameters = pog_parameters::instance();
@@ -62,10 +86,20 @@ void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vec
 pair_vector partial_order_graph::select_matches(std::vector<float> const& scores,
                                                 pair_vector const& transitions, size_t m) const {
     size_t n = nodes_.size() - 2;
+    float max_score = -1e6;
     size_t i = 0;
-    size_t j = 0;
-    pair_vector matches;
 
+    for (auto const& entry : nodes_[0]->get_output_edges()) {
+        size_t k = node_indexes_.at(entry.first) - 1;
+        if (scores[k * (m + 1)] > max_score) {
+            max_score = scores[k * (m + 1)];
+            i = k;
+        }
+    }
+    TRACE("\tScore: " << scores[i * (m + 1)]);
+    size_t j = 0;
+
+    pair_vector matches;
     while (i != n || j != m) {
         size_t i_next;
         size_t j_next;
@@ -80,7 +114,7 @@ pair_vector partial_order_graph::select_matches(std::vector<float> const& scores
     return matches;
 }
 
-// Return value: Vector of matches + mismatches (i, j), i in graph, j in kmer_seq
+// Return value: Vector of matches (i, j), i in graph, j in kmer_seq
 pair_vector partial_order_graph::align(std::vector<kmer> const& kmer_seq) const {
     size_t n = nodes_.size() - 2;
     size_t m = kmer_seq.size();
@@ -96,7 +130,6 @@ pair_vector partial_order_graph::align(std::vector<kmer> const& kmer_seq) const 
         }
     }
 
-    TRACE("\tScore: " << scores[0]);
     return select_matches(scores, transitions, m);
 }
 
@@ -119,7 +152,10 @@ void partial_order_graph::add_mismatching_region(std::vector<node*>& new_nodes,
         new_nodes.back()->add_output_edge(next);
         new_nodes.push_back(next);
     }
-    new_nodes.back()->add_output_edge(nodes_[i2]);
+    if (j1 < j2)
+        new_nodes.back()->add_output_edge(nodes_[i2]);
+    else
+        nodes_[i1]->add_output_edge(nodes_[i2]);
 }
 
 void partial_order_graph::update_nodes(std::vector<kmer> const& kmer_seq,
@@ -158,6 +194,7 @@ void partial_order_graph::save_dot(std::string const& filename, std::string cons
         ERROR("Could not write to " << filename);
         return;
     }
+
     dot_file << "digraph " << graph_name << " {\n";
     for (size_t i = 0; i < nodes_.size(); ++i) {
         dot_file << '\t' << i << " [label = \"#" << i << "\\n" << nodes_[i]->coverage();

@@ -14,6 +14,8 @@ struct partial_order_graph {
     partial_order_graph();
     ~partial_order_graph();
     void add_sequence(seq_t const& sequence, id_t const& read_id);
+    void compress_upaths();
+
     void save_dot(std::string const& filename, std::string const& graph_name, bool print_sequences = false) const;
     void save_nodes(std::string const& filename) const;
     size_t nodes_count() const noexcept;
