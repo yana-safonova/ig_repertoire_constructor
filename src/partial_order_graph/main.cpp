@@ -57,8 +57,9 @@ Usage:
     shrinkage_options.add_options()
         ("shrink-upaths", "Shrink unambigous paths")
         ("shrink-bulges", "Shrink bulges")
-        ("bulges:cov-diff", po::value<float>(&parameters.bulge_coverage_difference)->value_name("FLOAT"),
-            "Difference in coverage for the bulges shrinkage (default: 2)")
+        ("bulges:hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT"),
+            "Hamming distance between nodes <= ceil(bulges:hamming * length): condition "
+            "to join nodes during bulge shrinking (default: 0.3)")
         ;
 
     po::options_description output_options("Output options");

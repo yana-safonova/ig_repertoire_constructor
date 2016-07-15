@@ -2,6 +2,17 @@
 
 namespace pog {
 
+size_t hamming_distance(seq_t const& s1, seq_t const& s2) {
+    if (length(s1) != length(s2)) {
+        WARN("Different lengths, cannot compute Hamming distance: " << length(s1) << " " << length(s2));
+        return -1;
+    }
+    size_t distance = 0;
+    for (size_t i = 0; i < length(s1); ++i)
+        distance += s1[i] != s2[i] ? 1 : 0;
+    return distance;
+}
+
 // ----------------- kmer
 
 kmer::kmer(seq_t const& read_sequence)
@@ -77,14 +88,14 @@ void node::add_output_edge(node* next, float coverage) {
     next->input_edges_[this] += coverage;
 }
 
-void node::on_upath() {
+bool node::on_upath() {
     if (input_edges_.size() != 1 || dummy())
-        return;
+        return false;
 
     auto const& input_edge = *input_edges_.begin();
     node* prev = input_edge.first;
     if (prev->output_edges_.size() != 1 || prev->dummy())
-        return;
+        return false;
 
     if (prev->coverage_ != coverage_) {
         DEBUG("Coverage is different: " << prev->coverage_ << " != " << coverage_);
@@ -102,50 +113,61 @@ void node::on_upath() {
         entry.first->input_edges_.erase(this);
     }
     prev->output_edges_.erase(this);
-}
-
-bool node::join_with_brother(node* brother) {
-    if (coverage_ < pog_parameters::instance().bulge_coverage_difference * brother->coverage_ ||
-            get_length() < brother->get_length())
-        return false;
-    TRACE("Shrinking bulge. Coverages: " << coverage_ << " and " << brother->coverage_
-            << "; lengths: " << get_length() << " and " << brother->get_length());
-    coverage_ += brother->coverage_;
-    brother->sequence_ = "";
-    for (auto& entry : brother->input_edges_)
-        entry.first->output_edges_.erase(brother);
-    for (auto& entry : brother->output_edges_)
-        entry.first->input_edges_.erase(brother);
     return true;
 }
 
+bool node::join_nodes(node* a, node* b) {
+    if (a->get_length() != b->get_length() || a->dummy())
+        return false;
+    if (a->output_edges_.find(b) != a->output_edges_.end() || b->output_edges_.find(a) != b->output_edges_.end())
+        return false;
+    TRACE("\tHamming: " << hamming_distance(a->sequence_, b->sequence_));
+    TRACE("\tMargin:  " << std::ceil(static_cast<float>(length(a->sequence_)) * pog_parameters::instance().bulges_hamming_ratio));
+    if (static_cast<float>(hamming_distance(a->sequence_, b->sequence_))
+            > std::ceil(static_cast<float>(length(a->sequence_)) * pog_parameters::instance().bulges_hamming_ratio))
+        return false;
+
+    if (a->input_edges_.size() + a->output_edges_.size() < b->input_edges_.size() + b->output_edges_.size())
+        std::swap(a, b);
+    TRACE("Joining nodes. Coverage: " << a->coverage_ << " and " << b->coverage_);
+
+    for (auto& input_edge : b->input_edges_) {
+        input_edge.first->output_edges_.erase(b);
+        input_edge.first->add_output_edge(a, input_edge.second);
+    }
+    for (auto& output_edge : b->output_edges_) {
+        output_edge.first->input_edges_.erase(b);
+        a->add_output_edge(output_edge.first, output_edge.second);
+    }
+    a->coverage_ += b->coverage_;
+    b->sequence_ = "";
+    return true;
+}
+
+bool process_brothers(std::vector<node*>& brothers) {
+    size_t n = brothers.size();
+    bool flag = false;
+    for (size_t i = 0; i < n - 1; ++i)
+        for (size_t j = i + 1; j < n; ++j)
+            flag = node::join_nodes(brothers[i], brothers[j]) || flag;
+    return flag;
+}
+
 void node::on_bulge() {
-    if (dummy() || input_edges_.size() != 1 || output_edges_.size() != 1)
-        return;
+    //            node via one, intermediate nodes
+    boost::unordered_map<node*, std::vector<node*>> intermediate_nodes;
+    for (auto const& entry1 : output_edges_)
+        for (auto const& entry2 : entry1.first->output_edges_)
+            intermediate_nodes[entry2.first].push_back(entry1.first);
 
-    auto const& input_edge = *input_edges_.begin();
-    node* prev = input_edge.first;
-    auto const& output_edge = *output_edges_.begin();
-    node* next = output_edge.first;
-
-    for (auto const& entry : prev->output_edges_) {
-        node* brother = entry.first;
-        if (brother == this || brother->output_edges_.find(next) == brother->output_edges_.end())
-            continue;
-        if (brother->input_edges_.size() != 1 || brother->output_edges_.size() != 1)
-            continue;
-        if (join_with_brother(brother)) {
-            on_bulge();
-            on_upath();
-            next->on_upath();
-            return;
-        } else if (brother->join_with_brother(this)) {
-            brother->on_bulge();
-            brother->on_upath();
-            next->on_upath();
-            return;
+    for (auto& entry : intermediate_nodes) {
+        if (entry.second.size() > 1 && process_brothers(entry.second)) {
+            entry.first->on_upath();
         }
     }
+
+    for (auto const& entry : output_edges_)
+        entry.first->on_upath();
 }
 
 bool node::dummy() const noexcept {

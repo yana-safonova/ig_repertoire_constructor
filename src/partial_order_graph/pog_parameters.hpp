@@ -25,7 +25,7 @@ struct pog_parameters {
     float mismatch_penalty = -1.4f;
     float gap_penalty = -2.f;
 
-    float bulge_coverage_difference = 2.f;
+    float bulges_hamming_ratio = 0.3f;
 
 private:
 

@@ -12,6 +12,8 @@ namespace pog {
 
 using pair_vector = std::vector<std::pair<size_t, size_t>>;
 
+size_t hamming_distance(seq_t const& s1, seq_t const& s2);
+
 struct kmer {
     // First k letters
     kmer(seq_t const& read_sequence);
@@ -40,9 +42,9 @@ struct node {
 
     void add_read();
     void add_output_edge(node* next, float coverage = 1.f);
-    void on_upath();
+    bool on_upath();
     void on_bulge();
-    bool join_with_brother(node* brother);
+    static bool join_nodes(node* a, node* b);
 
     bool dummy() const noexcept;
     bool equals(kmer const& potential_match) const noexcept;

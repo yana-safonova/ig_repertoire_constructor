@@ -39,7 +39,7 @@ void partial_order_graph::shrink_upaths() {
 }
 
 void partial_order_graph::shrink_bulges() {
-    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+    for (size_t i = 0; i < nodes_.size() - 1; ++i) {
         nodes_[i]->on_bulge();
     }
     clean_nodes();
@@ -213,7 +213,6 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
         }
     }
 
-
     size_t sum_length = 0;
     float min_coverage = 1e10;
 
@@ -274,9 +273,10 @@ void partial_order_graph::save_nodes(std::string const& filename) const {
     }
 
     nodes_file << "node\tsequence\tlength\tcoverage\n";
-    for (size_t i = 1; i < nodes_.size() - 1; ++i)
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
         nodes_file << i << '\t' << nodes_[i]->get_sequence() << '\t' << nodes_[i]->get_length()
                    << '\t' << nodes_[i]->coverage() << '\n';
+   }
 }
 
 size_t partial_order_graph::nodes_count() const noexcept {
