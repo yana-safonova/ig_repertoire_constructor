@@ -10,6 +10,7 @@
 
 namespace vdj_labeler {
 
+typedef std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr>::iterator hits_iterator;
 typedef std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr>::const_iterator hits_citerator;
 
 class ImmuneGeneSegmentHits {
@@ -29,9 +30,12 @@ public:
 
     size_t size() const { return hits_.size(); }
 
-    hits_citerator cbegin() const  { return hits_.cbegin(); }
-
-    hits_citerator cend() const { return hits_.cend(); }
+    hits_iterator  begin ()       { return hits_.begin (); }
+    hits_citerator begin () const { return hits_.begin (); }
+    hits_citerator cbegin() const { return hits_.cbegin(); }
+    hits_iterator  end   ()       { return hits_.end   (); }
+    hits_citerator end   () const { return hits_.end   (); }
+    hits_citerator cend  () const { return hits_.cend  (); }
 
     alignment_utils::ImmuneGeneReadAlignmentPtr operator[](const size_t &index);
 

@@ -100,15 +100,14 @@ namespace germline_utils {
 
         typedef std::vector<ImmuneGene>::const_iterator ImmuneGeneConstIterator;
 
-        ImmuneGeneConstIterator cbegin() const { return immune_genes_.cbegin(); }
-
-        ImmuneGeneConstIterator cend() const { return immune_genes_.cend(); }
-
         typedef std::vector<ImmuneGene>::iterator ImmuneGeneIterator;
 
-        ImmuneGeneIterator begin() { return immune_genes_.begin(); }
-
-        ImmuneGeneIterator end() { return immune_genes_.end(); }
+        ImmuneGeneIterator      begin ()       { return immune_genes_.begin (); }
+        ImmuneGeneConstIterator begin () const { return immune_genes_.begin (); }
+        ImmuneGeneConstIterator cbegin() const { return immune_genes_.cbegin(); }
+        ImmuneGeneIterator      end   ()       { return immune_genes_.end   (); }
+        ImmuneGeneConstIterator end   () const { return immune_genes_.end   (); }
+        ImmuneGeneConstIterator cend  () const { return immune_genes_.cend  (); }
 
 
         size_t size() const { return immune_genes_.size(); }

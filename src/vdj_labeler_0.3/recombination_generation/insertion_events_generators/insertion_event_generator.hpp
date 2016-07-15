@@ -8,8 +8,8 @@ namespace vdj_labeler {
 class InsertionEventGenerator {
 public:
     virtual recombination_utils::InsertionEventStoragePtr ComputeInsertionEvents(
-        recombination_utils::CleavedIgGeneAlignment left_gene_alignment,
-        recombination_utils::CleavedIgGeneAlignment right_gene_alignment) = 0;
+        const recombination_utils::CleavedIgGeneAlignment &left_gene_alignment,
+        const recombination_utils::CleavedIgGeneAlignment &right_gene_alignment) const = 0;
 
     virtual ~InsertionEventGenerator() { }
 };

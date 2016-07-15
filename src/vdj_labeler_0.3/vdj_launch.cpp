@@ -107,6 +107,12 @@ void VDJLabelerLaunch::Launch() {
     // INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
 
     auto vdj_storage = VDJHitsStorage(alignment_info);
+    for (auto it = vdj_storage.cbegin(); it != vdj_storage.cend(); ++it) {
+        INFO("\nVgene");
+        for (auto vhit_it = (*it)->VHits().cbegin(); vhit_it != (*it)->VHits().cend(); ++vhit_it) {
+            INFO((*vhit_it)->EndQueryPosition());
+        }
+    }
     // INFO(*(vdj_storage[0]->Read()));
 
     alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(0, read_archive[0].length() - 1),

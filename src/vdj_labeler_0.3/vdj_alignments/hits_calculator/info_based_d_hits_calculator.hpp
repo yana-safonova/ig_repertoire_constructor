@@ -6,18 +6,18 @@
 #include "../aligners/gene_segment_aligner.hpp"
 #include "alignment_quality_checkers/alignment_quality_checker.hpp"
 #include "../vdj_hits.hpp"
+#include "abstract_d_gene_hits_calculator.hpp"
+#include "vdj_alignments/vdj_hits_storage.hpp"
 
 namespace vdj_labeler {
 
-class InfoBasedDHitsCalculator {
-    const core::ReadArchive &read_archive_;
-    const vj_finder::VJAlignmentInfo &vj_alignment_info_;
-    const germline_utils::ImmuneGeneDatabase &d_gene_database_;
+class InfoBasedDHitsCalculator : AbstractDGeneHitsCalculator {
+protected:
+    VDJHitsStorage &vdj_hits_storage_;
     GeneSegmentAligner &d_gene_aligner_;
-    vdj_labeler::AlignmentQualityChecker &quality_checker_;
 
-    alignment_utils::AlignmentPositions ComputeDPositions(alignment_utils::ImmuneGeneAlignmentPositions v_positions,
-                                                          alignment_utils::ImmuneGeneAlignmentPositions j_positions);
+protected:
+    alignment_utils::AlignmentPositions ComputeDPositions(size_t right_v, size_t left_j);
 
     alignment_utils::ImmuneGeneAlignmentPositions CreateDAlignmentPositions(
         alignment_utils::AlignmentPositions d_alignment_positions,
@@ -29,18 +29,17 @@ class InfoBasedDHitsCalculator {
 
 public:
     InfoBasedDHitsCalculator(const core::ReadArchive &read_archive,
-                             const vj_finder::VJAlignmentInfo &vj_alignment_info,
+                             VDJHitsStorage &vdj_hits_storage,
                              const germline_utils::ImmuneGeneDatabase &d_gene_database,
                              GeneSegmentAligner &d_gene_aligner,
                              vdj_labeler::AlignmentQualityChecker &quality_checker) :
-        read_archive_(read_archive),
-        vj_alignment_info_(vj_alignment_info),
-        d_gene_database_(d_gene_database),
-        d_gene_aligner_(d_gene_aligner),
-        quality_checker_(quality_checker) { }
+        AbstractDGeneHitsCalculator(read_archive, d_gene_database, quality_checker),
+        vdj_hits_storage_(vdj_hits_storage),
+        d_gene_aligner_(d_gene_aligner)
+    { }
 
-    // TODO Andrey: Implement, when I will see the usage.
-    vdj_labeler::ImmuneGeneSegmentHitsPtr ComputeHits(core::ReadPtr read_ptr);
+    // TODO Andrey: Implement, when I will see theHits(core::ReadPtr read_ptr);
+    ImmuneGeneSegmentHitsPtr ComputeHits(core::ReadPtr read_ptr);
 };
 
 } // End namespace vdj_labeler

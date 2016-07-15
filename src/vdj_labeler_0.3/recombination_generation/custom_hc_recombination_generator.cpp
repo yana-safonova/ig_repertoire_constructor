@@ -9,7 +9,7 @@ void CustomHeavyChainRecombinationGenerator::Clear() {
     j_storages_.clear();
 }
 
-void CustomHeavyChainRecombinationGenerator::ComputeVEventStorages(VDJHitsPtr vdj_hits) {
+void CustomHeavyChainRecombinationGenerator::ComputeVEventStorages(const VDJHitsPtr vdj_hits) {
     INFO("Computation of event vector for V hits starts...");
     size_t v_events_num = 0;
     for(size_t vi = 0; vi < vdj_hits->VHitsNumber(); vi++) {
@@ -21,7 +21,7 @@ void CustomHeavyChainRecombinationGenerator::ComputeVEventStorages(VDJHitsPtr vd
     INFO(v_events_num << " events were computed for " << vdj_hits->VHitsNumber() << " V hits");
 }
 
-void CustomHeavyChainRecombinationGenerator::ComputeDEventStorages(VDJHitsPtr vdj_hits) {
+void CustomHeavyChainRecombinationGenerator::ComputeDEventStorages(const VDJHitsPtr vdj_hits) {
     INFO("Computation of events vector for D hits starts...");
     size_t d_events_num = 0;
     for(size_t di = 0; di < vdj_hits->DHitsNumber(); di++) {
@@ -39,7 +39,7 @@ void CustomHeavyChainRecombinationGenerator::ComputeDEventStorages(VDJHitsPtr vd
     }
 }
 
-void CustomHeavyChainRecombinationGenerator::ComputeJEventStorages(VDJHitsPtr vdj_hits) {
+void CustomHeavyChainRecombinationGenerator::ComputeJEventStorages(const VDJHitsPtr vdj_hits) {
     size_t j_events_num = 0;
     INFO("Computation of events vector for J segments starts...");
     for(size_t ji = 0; ji < vdj_hits->JHitsNumber(); ji++) {
@@ -53,8 +53,8 @@ void CustomHeavyChainRecombinationGenerator::ComputeJEventStorages(VDJHitsPtr vd
 
 std::pair<recombination_utils::NongenomicInsertion, recombination_utils::NongenomicInsertion>
 CustomHeavyChainRecombinationGenerator::RefineNongenomicInsertions(
-        recombination_utils::NongenomicInsertion vd_insertion,
-        recombination_utils::NongenomicInsertion dj_insertion)
+        const recombination_utils::NongenomicInsertion &vd_insertion,
+        const recombination_utils::NongenomicInsertion &dj_insertion) const
 {
     recombination_utils::NongenomicInsertion vd_2(vd_insertion.StartPosition(), dj_insertion.EndPosition());
     recombination_utils::NongenomicInsertion dj_2(dj_insertion.EndPosition(), dj_insertion.EndPosition() - 1);
@@ -62,12 +62,12 @@ CustomHeavyChainRecombinationGenerator::RefineNongenomicInsertions(
 }
 
 recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGenerator::CreateRecombinations(
-        recombination_utils::HcRecombinationStoragePtr recombination_storage,
-        recombination_utils::CleavedIgGeneAlignment v_gene,
-        recombination_utils::CleavedIgGeneAlignment d_gene,
-        recombination_utils::CleavedIgGeneAlignment j_gene,
-        recombination_utils::InsertionEventStoragePtr vd_insertions,
-        recombination_utils::InsertionEventStoragePtr dj_insertions)
+        const recombination_utils::HcRecombinationStoragePtr recombination_storage,
+        const recombination_utils::CleavedIgGeneAlignment &v_gene,
+        const recombination_utils::CleavedIgGeneAlignment &d_gene,
+        const recombination_utils::CleavedIgGeneAlignment &j_gene,
+        const recombination_utils::InsertionEventStoragePtr vd_insertions,
+        const recombination_utils::InsertionEventStoragePtr dj_insertions) const
 {
     for(auto vd_it = vd_insertions->cbegin(); vd_it != vd_insertions->cend(); vd_it++)
         for(auto dj_it = dj_insertions->cbegin(); dj_it != dj_insertions->cend(); dj_it++) {
@@ -91,9 +91,9 @@ recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGene
 
 recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGenerator::CreateRecombinations(
         recombination_utils::HcRecombinationStoragePtr recombination_storage,
-        recombination_utils::IgGeneRecombinationEventStoragePtr v_events,
-        recombination_utils::IgGeneRecombinationEventStoragePtr d_events,
-        recombination_utils::IgGeneRecombinationEventStoragePtr j_events)
+        const recombination_utils::IgGeneRecombinationEventStoragePtr v_events,
+        const recombination_utils::IgGeneRecombinationEventStoragePtr d_events,
+        const recombination_utils::IgGeneRecombinationEventStoragePtr j_events) const
 {
     TRACE(v_events->size() << " V events were computed");
     TRACE(d_events->size() << " D events were computed");
@@ -119,7 +119,7 @@ recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGene
 }
 
 recombination_utils::HcRecombinationStoragePtr CustomHeavyChainRecombinationGenerator::ComputeRecombinations(
-        VDJHitsPtr vdj_hits)
+        const VDJHitsPtr vdj_hits)
 {
     Clear();
     recombination_utils::HcRecombinationStoragePtr recombination_storage(
