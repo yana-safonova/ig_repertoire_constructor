@@ -20,7 +20,8 @@ struct options {
     bool no_plots;
     bool show_sequences;
     bool wo_reverse_complement;
-    bool compress_upaths;
+    bool shrink_upaths;
+    bool shrink_bulges;
 };
 
 void parse_command_line(int argc, char** argv, options& opts) {
@@ -52,9 +53,12 @@ Usage:
         ("wo-rc", "Do not use reverse complement sequences")
         ;
 
-    po::options_description compress_options("Compress options");
-    compress_options.add_options()
-        ("compress-upaths", "Compress unambigous paths")
+    po::options_description shrinkage_options("Shrinkage options");
+    shrinkage_options.add_options()
+        ("shrink-upaths", "Shrink unambigous paths")
+        ("shrink-bulges", "Shrink bulges")
+        ("bulges:cov-diff", po::value<float>(&parameters.bulge_coverage_difference)->value_name("FLOAT"),
+            "Difference in coverage for the bulges shrinkage (default: 2)")
         ;
 
     po::options_description output_options("Output options");
@@ -74,7 +78,7 @@ Usage:
     full_description
         .add(required_options)
         .add(construction_options)
-        .add(compress_options)
+        .add(shrinkage_options)
         .add(output_options)
         .add(other_options)
         ;
@@ -109,7 +113,8 @@ Usage:
     opts.no_plots = vm.count("no-plots");
     opts.show_sequences = vm.count("show-sequences");
     opts.wo_reverse_complement = vm.count("wo-rc");
-    opts.compress_upaths = vm.count("compress-upaths");
+    opts.shrink_upaths = vm.count("shrink-upaths");
+    opts.shrink_bulges = vm.count("shrink-bulges");
 }
 
 logging::level string_to_level(std::string const& level_str) {
@@ -155,8 +160,10 @@ int main(int argc, char** argv) {
     pog::partial_order_graph graph = pog::from_file(opts.input_file, !opts.wo_reverse_complement);
     INFO("Graph created. Nodes: " << graph.nodes_count());
 
-    if (opts.compress_upaths)
-        graph.compress_upaths();
+    if (opts.shrink_upaths)
+        graph.shrink_upaths();
+    if (opts.shrink_bulges)
+        graph.shrink_bulges();
 
     INFO("Saving");
     graph.save_nodes(opts.output_directory + "/raw.csv");

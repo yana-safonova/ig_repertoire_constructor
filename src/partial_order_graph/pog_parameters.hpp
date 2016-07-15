@@ -22,8 +22,10 @@ struct pog_parameters {
 
     static u64 const alphabet_size = static_cast<u64>(seqan::ValueSize<nt_t>::VALUE);
     u64 mask;
-    float mismatch_penalty;
-    float gap_penalty;
+    float mismatch_penalty = -1.4f;
+    float gap_penalty = -2.f;
+
+    float bulge_coverage_difference = 2.f;
 
 private:
 

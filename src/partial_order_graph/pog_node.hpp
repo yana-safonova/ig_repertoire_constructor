@@ -39,24 +39,28 @@ struct node {
     node& operator=(node const&) = delete;
 
     void add_read();
-    void add_output_edge(node* next, size_t coverage = 1);
-    bool self_destruct_if_possible();
+    void add_output_edge(node* next, float coverage = 1.f);
+    void on_upath();
+    void on_bulge();
+    bool join_with_brother(node* brother);
 
     bool dummy() const noexcept;
     bool equals(kmer const& potential_match) const noexcept;
-    size_t coverage() const noexcept;
-    boost::unordered_map<node*, size_t> const& get_output_edges() const noexcept;
+    float coverage() const noexcept;
+    size_t get_length() const noexcept;
+    boost::unordered_map<node*, float> const& get_input_edges() const noexcept;
+    boost::unordered_map<node*, float> const& get_output_edges() const noexcept;
     seq_t const& get_sequence() const noexcept;
 
 private:
 
     seq_t sequence_;
     u64 hash_;
-    size_t coverage_;
+    float coverage_;
 
     //                     node, coverage
-    boost::unordered_map<node*, size_t> input_edges_;
-    boost::unordered_map<node*, size_t> output_edges_;
+    boost::unordered_map<node*, float> input_edges_;
+    boost::unordered_map<node*, float> output_edges_;
 };
 
 } // namespace pog

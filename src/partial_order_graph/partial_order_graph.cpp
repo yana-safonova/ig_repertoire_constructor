@@ -30,28 +30,36 @@ void partial_order_graph::add_sequence(seq_t const& sequence, id_t const& read_i
     update_nodes_indexes();
 }
 
-void partial_order_graph::compress_upaths() {
-    std::vector<size_t> to_delete;
+void partial_order_graph::shrink_upaths() {
     for (size_t i = 1; i < nodes_.size() - 1; ++i) {
-        if (nodes_[i]->self_destruct_if_possible())
-            to_delete.push_back(i);
+        nodes_[i]->on_upath();
     }
-    to_delete.push_back(nodes_.size()); // Easier for clause below
+    clean_nodes();
+    INFO(nodes_.size() << " nodes after shrinking unambigous paths");
+}
 
+void partial_order_graph::shrink_bulges() {
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+        nodes_[i]->on_bulge();
+    }
+    clean_nodes();
+    INFO(nodes_.size() << " nodes after shrinking bulges");
+}
+
+void partial_order_graph::clean_nodes() {
     std::vector<node*> new_nodes;
-    size_t k = 0;
+    new_nodes.push_back(nodes_[0]);
 
-    for (size_t i = 0; i < nodes_.size(); ++i) {
-        if (i == to_delete[k]) {
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+        if (nodes_[i]->dummy())
             delete nodes_[i];
-            ++k;
-        }
         else
             new_nodes.push_back(nodes_[i]);
     }
+
+    new_nodes.push_back(nodes_.back());
     nodes_ = new_nodes;
     update_nodes_indexes();
-    INFO(nodes_.size() << " nodes after compression");
 }
 
 void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vector<float>& scores,
@@ -188,19 +196,68 @@ void partial_order_graph::update_nodes_indexes() {
     }
 }
 
-void partial_order_graph::save_dot(std::string const& filename, std::string const& graph_name, bool print_sequences) const {
+std::vector<size_t> partial_order_graph::most_covered_path() const {
+    size_t n = nodes_.size();
+
+    std::vector<float> coverage(n, 0);
+    std::vector<size_t> next(n);
+
+    for (size_t i = n - 1; i > 0; --i) {
+        for (auto const& entry : nodes_[i]->get_input_edges()) {
+            node* prev = entry.first;
+            size_t k = node_indexes_.at(prev);
+            if (coverage[k] < coverage[i] + prev->coverage()) {
+                coverage[k] = coverage[i] + prev->coverage();
+                next[k] = i;
+            }
+        }
+    }
+
+
+    size_t sum_length = 0;
+    float min_coverage = 1e10;
+
+    std::vector<size_t> path;
+    path.push_back(0);
+    path.push_back(next[0]);
+    while (path.back() != n - 1) {
+        min_coverage = std::min(min_coverage, nodes_[path.back()]->coverage());
+        sum_length += nodes_[path.back()]->get_length();
+        path.push_back(next[path.back()]);
+    }
+    INFO("Most covered path.");
+    INFO("\tAverage coverage: " << (coverage[0] - nodes_[0]->coverage()) / static_cast<float>(sum_length));
+    INFO("\tSum length: " << sum_length);
+    INFO("\tMin coverage on the path: " << min_coverage);
+
+    return path;
+}
+
+void partial_order_graph::save_dot(std::string const& filename, std::string const& graph_name,
+                                   bool print_sequences) const {
     std::ofstream dot_file(filename);
     if (!dot_file) {
         ERROR("Could not write to " << filename);
         return;
     }
 
+    std::vector<size_t> path = most_covered_path();
+    auto it = path.begin();
+
     dot_file << "digraph " << graph_name << " {\n";
     for (size_t i = 0; i < nodes_.size(); ++i) {
-        dot_file << '\t' << i << " [label = \"#" << i << "\\n" << nodes_[i]->coverage();
-        if (print_sequences && length(nodes_[i]->get_sequence()))
-            dot_file << ": " << nodes_[i]->get_sequence();
-        dot_file << "\"]\n";
+        dot_file << '\t' << i << " [label=\"#" << i << "\\nCov: " << nodes_[i]->coverage();
+        if (!nodes_[i]->dummy())
+            dot_file << "\\nLen: " << nodes_[i]->get_length();
+        if (print_sequences)
+            dot_file << "\\n " << nodes_[i]->get_sequence();
+
+        dot_file << "\"";
+        if (*it == i) {
+            dot_file << ", fillcolor=khaki1,style=filled";
+            ++it;
+        }
+        dot_file << "]\n";
 
         for (auto const& entry : nodes_[i]->get_output_edges()) {
             dot_file << '\t' << i << " -> " << node_indexes_.at(entry.first) << " [label = \"" << entry.second << "\"]\n";
@@ -216,9 +273,10 @@ void partial_order_graph::save_nodes(std::string const& filename) const {
         return;
     }
 
-    nodes_file << "node\tsequence\tcoverage\n";
+    nodes_file << "node\tsequence\tlength\tcoverage\n";
     for (size_t i = 1; i < nodes_.size() - 1; ++i)
-        nodes_file << i << '\t' << nodes_[i]->get_sequence() << '\t' << nodes_[i]->coverage() << '\n';
+        nodes_file << i << '\t' << nodes_[i]->get_sequence() << '\t' << nodes_[i]->get_length()
+                   << '\t' << nodes_[i]->coverage() << '\n';
 }
 
 size_t partial_order_graph::nodes_count() const noexcept {
@@ -247,7 +305,8 @@ partial_order_graph from_file(std::string const& filename, bool use_reverse_comp
     while (!atEnd(reader))
     {
         readRecord(id, seq, reader);
-        DEBUG(++count << ": " << id);
+        ++count;
+        DEBUG(count << ": " << id);
         graph.add_sequence(seq, id);
 
         if (use_reverse_complement) {

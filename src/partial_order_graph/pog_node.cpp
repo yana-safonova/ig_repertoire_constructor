@@ -72,27 +72,80 @@ void node::add_read() {
     ++coverage_;
 }
 
-void node::add_output_edge(node* next, size_t coverage) {
+void node::add_output_edge(node* next, float coverage) {
     output_edges_[next] += coverage;
     next->input_edges_[this] += coverage;
 }
 
-bool node::self_destruct_if_possible() {
+void node::on_upath() {
     if (input_edges_.size() != 1 || dummy())
-        return false;
+        return;
 
     auto const& input_edge = *input_edges_.begin();
     node* prev = input_edge.first;
     if (prev->output_edges_.size() != 1 || prev->dummy())
-        return false;
-    append(prev->sequence_, back(sequence_));
+        return;
+
+    if (prev->coverage_ != coverage_) {
+        DEBUG("Coverage is different: " << prev->coverage_ << " != " << coverage_);
+    }
+
+    float prev_length = static_cast<float>(prev->get_length());
+    float curr_length = static_cast<float>(get_length());
+    prev->coverage_ = (prev->coverage_ * prev_length + coverage_ * curr_length) / (prev_length + curr_length);
+
+    append(prev->sequence_, suffix(sequence_, pog_parameters::instance().get_kmer_size() - 1));
+    sequence_ = "";
 
     for (auto const& entry : output_edges_) {
         prev->add_output_edge(entry.first, std::min(input_edge.second, entry.second));
         entry.first->input_edges_.erase(this);
     }
     prev->output_edges_.erase(this);
+}
+
+bool node::join_with_brother(node* brother) {
+    if (coverage_ < pog_parameters::instance().bulge_coverage_difference * brother->coverage_ ||
+            get_length() < brother->get_length())
+        return false;
+    TRACE("Shrinking bulge. Coverages: " << coverage_ << " and " << brother->coverage_
+            << "; lengths: " << get_length() << " and " << brother->get_length());
+    coverage_ += brother->coverage_;
+    brother->sequence_ = "";
+    for (auto& entry : brother->input_edges_)
+        entry.first->output_edges_.erase(brother);
+    for (auto& entry : brother->output_edges_)
+        entry.first->input_edges_.erase(brother);
     return true;
+}
+
+void node::on_bulge() {
+    if (dummy() || input_edges_.size() != 1 || output_edges_.size() != 1)
+        return;
+
+    auto const& input_edge = *input_edges_.begin();
+    node* prev = input_edge.first;
+    auto const& output_edge = *output_edges_.begin();
+    node* next = output_edge.first;
+
+    for (auto const& entry : prev->output_edges_) {
+        node* brother = entry.first;
+        if (brother == this || brother->output_edges_.find(next) == brother->output_edges_.end())
+            continue;
+        if (brother->input_edges_.size() != 1 || brother->output_edges_.size() != 1)
+            continue;
+        if (join_with_brother(brother)) {
+            on_bulge();
+            on_upath();
+            next->on_upath();
+            return;
+        } else if (brother->join_with_brother(this)) {
+            brother->on_bulge();
+            brother->on_upath();
+            next->on_upath();
+            return;
+        }
+    }
 }
 
 bool node::dummy() const noexcept {
@@ -111,11 +164,19 @@ bool node::equals(kmer const& potential_match) const noexcept {
     return true;
 }
 
-size_t node::coverage() const noexcept {
+float node::coverage() const noexcept {
     return coverage_;
 }
 
-boost::unordered_map<node*, size_t> const& node::get_output_edges() const noexcept {
+size_t node::get_length() const noexcept {
+    return length(sequence_) - pog_parameters::instance().get_kmer_size() + 1;
+}
+
+boost::unordered_map<node*, float> const& node::get_input_edges() const noexcept {
+    return input_edges_;
+}
+
+boost::unordered_map<node*, float> const& node::get_output_edges() const noexcept {
     return output_edges_;
 }
 

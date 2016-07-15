@@ -14,9 +14,11 @@ struct partial_order_graph {
     partial_order_graph();
     ~partial_order_graph();
     void add_sequence(seq_t const& sequence, id_t const& read_id);
-    void compress_upaths();
+    void shrink_upaths();
+    void shrink_bulges();
 
-    void save_dot(std::string const& filename, std::string const& graph_name, bool print_sequences = false) const;
+    void save_dot(std::string const& filename, std::string const& graph_name,
+                  bool print_sequences = false) const;
     void save_nodes(std::string const& filename) const;
     size_t nodes_count() const noexcept;
 
@@ -31,6 +33,8 @@ private:
                                 size_t i1, size_t i2, size_t j1, size_t j2);
     void update_nodes(std::vector<kmer> const& kmer_seq, pair_vector const& matches);
     void update_nodes_indexes();
+    void clean_nodes();
+    std::vector<size_t> most_covered_path() const;
 
     std::vector<node*> nodes_;
     boost::unordered_map<node*, size_t> node_indexes_;

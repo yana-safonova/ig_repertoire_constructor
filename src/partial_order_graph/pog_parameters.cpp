@@ -9,8 +9,6 @@ pog_parameters& pog_parameters::instance() {
 
 pog_parameters::pog_parameters() {
     set_kmer_size(10);
-    mismatch_penalty = -1.4f;
-    gap_penalty = -2.f;
 }
 
 void pog_parameters::set_kmer_size(size_t kmer_size) {
