@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -67,7 +67,7 @@ typedef FormattedFile<Ucsc, Input>   UcscFileIn;
 // ----------------------------------------------------------------------------
 
 /*!
- * @class UcscFileInOut
+ * @class UcscFileOut
  * @signature typedef FormattedFile<Ucsc, Output> UcscFileOut;
  * @extends FormattedFileOut
  * @headerfile <seqan/ucsc_io.h>

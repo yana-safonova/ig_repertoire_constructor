@@ -8,17 +8,16 @@ import os.path
 import tempfile
 from collections import defaultdict
 
-
-from ig_remove_low_abundance_reads import smart_open
+from ig_report_supernodes import smart_open
 
 
 def parse_cluster_mult(id):
     import re
     id = str(id)
-    m = re.match(r"^(intermediate_)?cluster___(\d+)___size___(\d+)$", id)
+    m = re.match(r"^(intermediate_)?cluster___([0-9a-zA-Z]+)___size___(\d+)$", id)
     if m:
         g = m.groups()
-        cluster = int(g[1])
+        cluster = g[1].strip()
         mult = int(g[2])
         return cluster, mult
     else:
@@ -33,14 +32,15 @@ assert parse_cluster_mult("intermediatecluster___10___size___20") == None
 def check_fa_rcm_consistency(fa_filename, rcm_filename):
     cluster_mult_rcm = defaultdict(int)
     num_rcm_reads = 0
-    with open(rcm_filename) as rcm:
+    with smart_open(rcm_filename) as rcm:
         for line in rcm:
-            cluster = int(line.split("\t")[1])
+            cluster = line.split("\t")[1].strip()
             cluster_mult_rcm[cluster] += 1
             num_rcm_reads += 1
 
     num_fa_reads = 0
     is_ok = True
+
     with smart_open(fa_filename) as fa:
         for record in SeqIO.parse(fa, "fasta"):
             id = str(record.description)
@@ -83,6 +83,11 @@ if __name__ == "__main__":
                         help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
 
     args = parser.parse_args()
+    # Fix RCM if provided
+    if args.rcm:
+        print "Check input consistency..."
+        if not check_fa_rcm_consistency(args.input, args.rcm):
+            exit(1)
 
     if (not args.tmp_fa_file):
         args.tmp_fa_file = tempfile.mkstemp(suffix=".fa", prefix="igrec_")[1]
@@ -96,12 +101,12 @@ if __name__ == "__main__":
     cmd_line = "%s -i %s -o %s -m %s" % (run_trie_compressor, args.input, args.tmp_fa_file, args.tmp_map_file)
     os.system(cmd_line)
 
-    with open(args.tmp_map_file) as fin:
-        input_read_num2compressed_cluster = [int(line.strip()) for line in fin]
+    with smart_open(args.tmp_map_file) as fin:
+        input_read_num2compressed_cluster = [line.strip() for line in fin]
 
     input_read_num2mult = []
     cluster2input_read_num = {}
-    with open(args.input) as fin:
+    with smart_open(args.input) as fin:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
             cluster, mult = parse_cluster_mult(record.description)
             cluster2input_read_num[cluster] = i
@@ -114,24 +119,21 @@ if __name__ == "__main__":
     # Fix IDs
     with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.output, "w") as fout:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
-            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[i])
+            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[str(i)])
             SeqIO.write(record, fout, "fasta")
 
     # Fix RCM if provided
     if args.rcm:
         print "Fixing RCM file..."
-        print "Check input consistency..."
-        if not check_fa_rcm_consistency(args.input, args.rcm):
-            exit(1)
 
         if not args.output_rcm:
             args.output_rcm = args.rcm
 
-        with open(args.rcm, "r") as fin:
+        with smart_open(args.rcm, "r") as fin:
             rcm = [line.strip().split("\t") for line in fin]
-            rcm = [(id, int(cluster)) for id, cluster in rcm]
+            rcm = [(id, cluster) for id, cluster in rcm]
 
-        with open(args.output_rcm, "w") as fout:
+        with smart_open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
                 compressed_cluster = input_read_num2compressed_cluster[cluster2input_read_num[cluster]]
                 fout.writelines("%s\t%s\n" % (id, compressed_cluster))
@@ -139,7 +141,6 @@ if __name__ == "__main__":
         print "Check output consistency..."
         if not check_fa_rcm_consistency(args.output, args.output_rcm):
             exit(1)
-
 
     print "Remove temporary files: %s %s" % (args.tmp_fa_file, args.tmp_map_file)
     os.remove(args.tmp_fa_file)

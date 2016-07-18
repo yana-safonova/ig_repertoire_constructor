@@ -1,6 +1,6 @@
 project(tests)
 
-link_libraries(gtest gtest_main graph_utils input ${COMMON_LIBRARIES})
+link_libraries(gtest gmock_main gmock graph_utils input ${COMMON_LIBRARIES})
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 

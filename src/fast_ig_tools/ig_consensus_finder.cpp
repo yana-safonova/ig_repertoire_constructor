@@ -55,7 +55,7 @@ int main(int argc, char **argv) {
     std::string output_file = "repertoire.fa";
     std::string rcm_file = "cropped.rcm";
     bool use_hamming_alignment = false;
-    size_t coverage_limit = 100500;
+    size_t coverage_limit = std::numeric_limits<size_t>::max() / 2;
     std::string config_file = "";
 
     // Parse cmd-line arguments

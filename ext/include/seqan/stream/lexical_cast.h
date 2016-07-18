@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -108,9 +108,9 @@ struct BadLexicalCast : ParseError
  *
  * The following example shows some lexical cast from various sequence types to numbers.
  *
- * @include demos/stream/lexical_cast.cpp
+ * @include demos/dox/stream/lexical_cast.cpp
  *
- * @include demos/stream/lexical_cast.cpp.stdout
+ * @include demos/dox/stream/lexical_cast.cpp.stdout
  */
 
 // single char

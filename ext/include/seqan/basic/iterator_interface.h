@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -186,7 +186,6 @@ template <typename T>
 inline typename Reference<T>::Type
 value(T & me)
 {
-    SEQAN_CHECKPOINT;
     return *me;
 }
 
@@ -194,7 +193,6 @@ template <typename T>
 inline typename Reference<T const>::Type
 value(T const & me)
 {
-    SEQAN_CHECKPOINT;
     return *me;
 }
 
@@ -206,7 +204,6 @@ template <typename T>
 inline typename GetValue<T>::Type
 getValue(T & me)
 {
-    SEQAN_CHECKPOINT;
     return value(me);
 }
 
@@ -214,7 +211,6 @@ template <typename T>
 inline typename GetValue<T const>::Type
 getValue(T const & me)
 {
-    SEQAN_CHECKPOINT;
     return value(me);
 }
 
@@ -234,7 +230,6 @@ inline void
 assignValue(T & me,
             TValue const & _value)
 {
-    SEQAN_CHECKPOINT;
     assign(value(me), _value);
 }
 
@@ -244,7 +239,6 @@ inline void
 assignValue(T const & me,
             TValue const & _value)
 {
-    SEQAN_CHECKPOINT;
     assign(value(me), _value);
 }
 
@@ -269,7 +263,6 @@ inline void
 moveValue(T & me,
           TValue const & _value)
 {
-    SEQAN_CHECKPOINT;
     move(value(me), _value);
 }
 
@@ -279,7 +272,6 @@ inline void
 moveValue(T const & me,
           TValue const & _value)
 {
-    SEQAN_CHECKPOINT;
     move(value(me), _value);
 }
 
@@ -292,7 +284,6 @@ inline void
 setValue(T * & ptr,
          TValue & _value)
 {
-    SEQAN_CHECKPOINT;
     ptr = &_value;
 }
 
@@ -302,7 +293,6 @@ inline void
 setValue(T const * & ptr,
          TValue const & _value)
 {
-    SEQAN_CHECKPOINT;
     ptr = &_value;
 }
 
@@ -316,7 +306,6 @@ typename Container<T>::Type &
 container(T me)
 {
     // TODO(holtgrew): Default implementation with auto-sequences, remove?
-    SEQAN_CHECKPOINT;
     return me;
 }
 
@@ -329,7 +318,6 @@ inline typename Position<T>::Type
 position(T * /*me*/)
 {
     // TODO(holtgrew): Default implementation with auto-sequences, remove?
-    SEQAN_CHECKPOINT;
     return 0;
 }
 
@@ -338,7 +326,6 @@ inline SEQAN_HOST_DEVICE typename Position<TContainer>::Type
 position(TIterator const & it,
          TContainer const & me)
 {
-    SEQAN_CHECKPOINT;
     return it - begin(me, Standard());
 }
 
@@ -350,41 +337,10 @@ position(TIterator const & it,
 
 template <typename T, typename TContainer>
 inline SEQAN_HOST_DEVICE bool
-atBegin(T const & it, TContainer const & cont)
+atBegin(T const & it,
+        TContainer const & cont)
 {
-    SEQAN_CHECKPOINT;
     return it == begin(cont, Standard());
-}
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
-atBegin(T const & it, TContainer & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == begin(cont, Standard());
-}
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
-atBegin(T & it, TContainer & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == begin(cont, Standard());
-}
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
-atBegin(T & it, TContainer const & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == begin(cont, Standard());
-}
-
-template <typename T>
-inline SEQAN_HOST_DEVICE bool
-atBegin(T & it)
-{
-    return atBegin(it, container(it));
 }
 
 template <typename T>
@@ -400,53 +356,16 @@ atBegin(T const & it)
 
 template <typename T, typename TContainer>
 inline SEQAN_HOST_DEVICE bool
-atEnd(T & it,
-      TContainer const & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == end(cont, Standard());
-}
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
 atEnd(T const & it,
       TContainer const & cont)
 {
-    SEQAN_CHECKPOINT;
     return it == end(cont, Standard());
 }
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
-atEnd(T & it,
-      TContainer & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == end(cont, Standard());
-}
-
-template <typename T, typename TContainer>
-inline SEQAN_HOST_DEVICE bool
-atEnd(T const & it,
-      TContainer & cont)
-{
-    SEQAN_CHECKPOINT;
-    return it == end(cont, Standard());
-}
-
-//template <typename T>
-//inline SEQAN_HOST_DEVICE bool
-//atEnd(T & it)
-//{
-//    SEQAN_CHECKPOINT;
-//    return atEnd(it, container(it));
-//}
 
 template <typename T>
 inline SEQAN_HOST_DEVICE bool
 atEnd(T const & it)
 {
-    SEQAN_CHECKPOINT;
     return atEnd(it, container(it));
 }
 
@@ -487,7 +406,6 @@ inline SEQAN_HOST_DEVICE void
 goEnd(TIterator & it,
       TContainer & container)
 {
-    SEQAN_CHECKPOINT;
     it = end(container);
 }
 
@@ -496,7 +414,6 @@ inline SEQAN_HOST_DEVICE void
 goEnd(TIterator & it,
       TContainer const & container)
 {
-    SEQAN_CHECKPOINT;
     it = end(container);
 }
 
@@ -504,7 +421,6 @@ template <typename TIterator>
 inline SEQAN_HOST_DEVICE void
 goEnd(TIterator & it)
 {
-    SEQAN_CHECKPOINT;
     goEnd(it, container(it));
 }
 
@@ -516,7 +432,6 @@ template <typename TIterator>
 inline SEQAN_HOST_DEVICE void
 goNext(TIterator & it)
 {
-    SEQAN_CHECKPOINT;
     ++it;
 }
 
@@ -540,7 +455,6 @@ template <typename TIterator>
 inline SEQAN_HOST_DEVICE void
 goPrevious(TIterator & it)
 {
-    SEQAN_CHECKPOINT;
     --it;
 }
 
@@ -554,7 +468,6 @@ typename Difference<TIterator>::Type
 difference(TIterator const & begin,
            TIterator const & end)
 {
-    SEQAN_CHECKPOINT;
     return end - begin;
 }
 
@@ -566,7 +479,6 @@ template <typename TIterator>
 inline void
 goNil(TIterator & me)
 {
-    SEQAN_CHECKPOINT;
     me = TIterator();
 }
 
@@ -574,7 +486,6 @@ template <typename TIterator>
 inline void
 goNil(TIterator * & me)
 {
-    SEQAN_CHECKPOINT;
     me = 0;
 }
 
@@ -586,7 +497,6 @@ template <typename TIterator>
 inline bool
 atNil(TIterator & me)
 {
-    SEQAN_CHECKPOINT;
     return me == TIterator();
 }
 
@@ -594,7 +504,6 @@ template <typename TIterator>
 inline bool
 atNil(TIterator * me)
 {
-    SEQAN_CHECKPOINT;
     return me == 0;
 }
 

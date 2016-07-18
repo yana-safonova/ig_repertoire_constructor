@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -128,6 +128,10 @@ inline void write(TTarget & target,
                   BamIOContext<TNameStore, TNameStoreCache, TStorageSpec> const & context,
                   Sam const & /*tag*/)
 {
+    // Check for valid IO Context.
+    SEQAN_ASSERT_LT_MSG(record.rID, static_cast<int32_t>(length(contigNames(context))), "SAM IO Assertion: Unknown REF ID!");
+    SEQAN_ASSERT_LT_MSG(record.rNextId, static_cast<int32_t>(length(contigNames(context))), "SAM IO Assertion: Unknown NEXT REF ID!");
+
     write(target, record.qName);
     writeValue(target, '\t');
 
@@ -141,12 +145,12 @@ inline void write(TTarget & target,
 
     writeValue(target, '\t');
 
-    SEQAN_ASSERT_EQ((__int32)BamAlignmentRecord::INVALID_POS + 1, (__int32)0);
+    SEQAN_ASSERT_EQ((int32_t)BamAlignmentRecord::INVALID_POS + 1, (int32_t)0);
     appendNumber(target, record.beginPos + 1);
 
     writeValue(target, '\t');
 
-    appendNumber(target, static_cast<__uint16>(record.mapQ));
+    appendNumber(target, static_cast<uint16_t>(record.mapQ));
     writeValue(target, '\t');
 
     if (empty(record.cigar))

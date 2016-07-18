@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -49,7 +49,7 @@
 
 
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -890,6 +890,27 @@ write(TTarget & target,
     }
 }
 
+// ----------------------------------------------------------------------------
+// Function writeRecords()
+// ----------------------------------------------------------------------------
+
+
+/*!
+ * @fn FragmentStore#writeRecords
+ * @brief Write all records to a file.
+ *
+ * @signature void writeRecords(bamFileOut, store);
+ * @signature void writeRecords(gffFileOut, store);
+ * @signature void writeRecords(ucscFileIn, store);
+ *
+ * @param[in,out] bamFileOut  The @link BamFileOut @endlink object to write into.
+ * @param[in,out] gffFileOut  The @link GffFileOut @endlink object to write into.
+ * @param[in,out] ucscFileOut The @link UcscFileOut @endlink object to write into.
+ * @param[in]     store       The @link FragmentStore @endlink object.
+ *
+ * @throw IOError On low-level I/O errors.
+ */
+
 //////////////////////////////////////////////////////////////////////////////
 
 /*!
@@ -913,6 +934,28 @@ bool writeContigs(FormattedFile<Fastq, Output, TSpec> & file, FragmentStore<TFSS
         writeRecord(file, store.contigNameStore[i], store.contigStore[i].seq);
     return true;
 }
+
+// ----------------------------------------------------------------------------
+// Function readRecords()
+// ----------------------------------------------------------------------------
+
+/*!
+ * @fn FragmentStore#readRecords
+ * @brief Read all records from a file.
+ *
+ * @signature void readRecords(store, bamFileIn[, importFlags]);
+ * @signature void readRecords(store, gffFileIn);
+ * @signature void readRecords(store, ucscFileIn);
+ *
+ * @param[in,out] store       The @link FragmentStore @endlink object to store the records into.
+ * @param[in,out] bamFileIn   The @link BamFileIn @endlink object to read from.
+ * @param[in,out] gffFileIn   The @link GffFileIn @endlink object to read from.
+ * @param[in,out] ucscFileIn  The @link UcscFileIn @endlink object to read from.
+ * @param[in]     importFlags The import flags.
+ *
+ * @throw IOError On low-level I/O errors.
+ * @throw ParseError On high-level file format errors.
+ */
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1249,6 +1292,6 @@ bool loadReads(FragmentStore<TSpec, TConfig> & store, TFileName & fileNameL, TFi
     return true;
 }
 
-}  // namespace SEQAN_NAMESPACE_MAIN
+}  // namespace seqan
 
 #endif //#ifndef SEQAN_HEADER_...

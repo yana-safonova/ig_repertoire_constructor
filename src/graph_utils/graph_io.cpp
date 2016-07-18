@@ -47,8 +47,10 @@ public:
             std::string tmp_line;
             getline(graph_stream, tmp_line);
             vector<string> splits = SplitGraphString(tmp_line);
-            if (splits.size() == 0)
+            if (splits.size() == 0) {
+                cur_vertex++;
                 continue;
+            }
             UpdateGraphEdges(cur_vertex, splits);
             cur_vertex++;
         }

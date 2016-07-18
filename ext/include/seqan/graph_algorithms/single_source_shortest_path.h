@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -190,9 +190,9 @@ _relax(Graph<TSpec> const& g,
  *
  * @section Example
  *
- * @include demos/graph_algorithms/dag_shortest_path.cpp
+ * @include demos/dox/graph_algorithms/dag_shortest_path.cpp
  *
- * @include demos/graph_algorithms/dag_shortest_path.cpp.stdout
+ * @include demos/dox/graph_algorithms/dag_shortest_path.cpp.stdout
  *
  * @see bellmanFordAlgorithm
  * @see dijkstra
