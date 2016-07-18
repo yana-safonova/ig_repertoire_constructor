@@ -1,5 +1,7 @@
 import os
 import sys
+from argparse import ArgumentParser
+
 import igrec
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
@@ -18,11 +20,11 @@ def HelpAndReturn(log, parser, exit_code = 0):
 def ParseCommandLineParams(log):
     from argparse import ArgumentParser
     parser = ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
-                                  epilog="""
+                            epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
-                                  """,
-                                  add_help=False)
+                            """,
+                            add_help=False)
 
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=False)
@@ -108,9 +110,14 @@ def ParseCommandLineParams(log):
 def CheckParamsCorrectness(parser, params, log):
     if params.single_reads:
         if not os.path.exists(params.single_reads):
-            HelpAndReturn(log, params, 1)
+            print "File with reads doesn't exist: ", params.single_reads
+            HelpAndReturn(log, parser, 1)
     elif not params.left_reads or not params.right_reads or not os.path.exists(params.left_reads) or not os.path.exists(params.right_reads):
-        HelpAndReturn(log, params, 1)
+        if not params.left_reads or not params.right_reads:
+            print "Both left and right reads should be passed. Otherwise use -s option."
+        else:
+            print "File with reads doesn't exist: ", params.left_reads if not os.path.exists(params.left_reads) else params.right_reads
+        HelpAndReturn(log, parser, 1)
 
 
 class __StagePrepare:
