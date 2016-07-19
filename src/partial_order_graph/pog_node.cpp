@@ -1,5 +1,7 @@
 #include "pog_node.hpp"
 
+#include <algorithm>
+
 namespace pog {
 
 size_t hamming_distance(seq_t const& s1, seq_t const& s2) {
@@ -88,6 +90,11 @@ void node::add_output_edge(node* next, float coverage) {
     next->input_edges_[this] += coverage;
 }
 
+void node::remove_output_edge(node* next) {
+    output_edges_.erase(next);
+    next->input_edges_.erase(this);
+}
+
 bool node::on_upath() {
     if (input_edges_.size() != 1 || dummy())
         return false;
@@ -119,26 +126,25 @@ bool node::on_upath() {
 bool node::join_nodes(node* a, node* b) {
     if (a->get_length() != b->get_length() || a->dummy())
         return false;
-    if (a->output_edges_.find(b) != a->output_edges_.end() || b->output_edges_.find(a) != b->output_edges_.end())
+    if (b->output_edges_.size() != 1 || b->input_edges_.size() != 1)
         return false;
-    TRACE("\tHamming: " << hamming_distance(a->sequence_, b->sequence_));
-    TRACE("\tMargin:  " << std::ceil(static_cast<float>(length(a->sequence_)) * pog_parameters::instance().bulges_hamming_ratio));
+    if (a->coverage_ < b->coverage_ || b->coverage_ > pog_parameters::instance().coverage_threshold)
+        return false;
     if (static_cast<float>(hamming_distance(a->sequence_, b->sequence_))
             > std::ceil(static_cast<float>(length(a->sequence_)) * pog_parameters::instance().bulges_hamming_ratio))
         return false;
 
-    if (a->input_edges_.size() + a->output_edges_.size() < b->input_edges_.size() + b->output_edges_.size())
-        std::swap(a, b);
     TRACE("Joining nodes. Coverage: " << a->coverage_ << " and " << b->coverage_);
+    TRACE("\tLength: " << length(a->sequence_) << ", Hamming: " << hamming_distance(a->sequence_, b->sequence_));
 
-    for (auto& input_edge : b->input_edges_) {
-        input_edge.first->output_edges_.erase(b);
-        input_edge.first->add_output_edge(a, input_edge.second);
-    }
-    for (auto& output_edge : b->output_edges_) {
-        output_edge.first->input_edges_.erase(b);
-        a->add_output_edge(output_edge.first, output_edge.second);
-    }
+    auto const& b_input_edge = *b->input_edges_.begin();
+    b_input_edge.first->output_edges_.erase(b);
+    b_input_edge.first->add_output_edge(a, b_input_edge.second);
+
+    auto const& b_output_edge = *b->output_edges_.begin();
+    b_output_edge.first->input_edges_.erase(b);
+    a->add_output_edge(b_output_edge.first, b_output_edge.second);
+
     a->coverage_ += b->coverage_;
     b->sequence_ = "";
     return true;
@@ -146,6 +152,9 @@ bool node::join_nodes(node* a, node* b) {
 
 bool process_brothers(std::vector<node*>& brothers) {
     size_t n = brothers.size();
+    std::sort(brothers.begin(), brothers.end(),
+        [](node* lhs, node* rhs) -> bool { return lhs->coverage() > rhs->coverage(); });
+
     bool flag = false;
     for (size_t i = 0; i < n - 1; ++i)
         for (size_t j = i + 1; j < n; ++j)
@@ -153,21 +162,33 @@ bool process_brothers(std::vector<node*>& brothers) {
     return flag;
 }
 
-void node::on_bulge() {
+bool node::on_bulge() {
+    bool flag = false;
     //            node via one, intermediate nodes
     boost::unordered_map<node*, std::vector<node*>> intermediate_nodes;
-    for (auto const& entry1 : output_edges_)
-        for (auto const& entry2 : entry1.first->output_edges_)
+    for (auto const& entry1 : input_edges_)
+        for (auto const& entry2 : entry1.first->input_edges_)
             intermediate_nodes[entry2.first].push_back(entry1.first);
 
     for (auto& entry : intermediate_nodes) {
-        if (entry.second.size() > 1 && process_brothers(entry.second)) {
-            entry.first->on_upath();
+        if (entry.second.size() > 1) {
+            flag = process_brothers(entry.second) || flag;
         }
     }
 
-    for (auto const& entry : output_edges_)
+    for (auto const& entry : input_edges_)
         entry.first->on_upath();
+    on_upath();
+    return flag;
+}
+
+void node::remove_node() {
+    sequence_ = "";
+    coverage_ = 0;
+    for (auto& input : input_edges_)
+        input.first->output_edges_.erase(this);
+    for (auto& output : output_edges_)
+        output.first->input_edges_.erase(this);
 }
 
 bool node::dummy() const noexcept {

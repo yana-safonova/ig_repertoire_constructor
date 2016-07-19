@@ -17,11 +17,16 @@ struct options {
     std::string input_file;
     std::string output_directory;
     std::string logging_level;
+    std::string prefix;
     bool no_plots;
     bool show_sequences;
     bool wo_reverse_complement;
     bool shrink_upaths;
     bool shrink_bulges;
+    bool remove_low_covered;
+
+    bool use_forward_reads;
+    bool use_rc_reads;
 };
 
 void parse_command_line(int argc, char** argv, options& opts) {
@@ -42,6 +47,7 @@ Usage:
     pog::pog_parameters& parameters = pog::pog_parameters::instance();
     size_t kmer_size = parameters.get_kmer_size();
 
+    std::string orientation = "fr";
     po::options_description construction_options("Construction options");
     construction_options.add_options()
         (",k", po::value<size_t>(&kmer_size)->value_name("INT"),
@@ -50,22 +56,27 @@ Usage:
             "Mismatch penalty   (default: -1.4)")
         ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT"),
             "Gap penalty        (default:   -2)")
-        ("wo-rc", "Do not use reverse complement sequences")
+        ("orientation", po::value<std::string>(&orientation)->value_name("{f,r,fr}"),
+            "Reads orientation, {f,r,fr}: forward, reverse complement or both, (default: fr)")
         ;
 
     po::options_description shrinkage_options("Shrinkage options");
     shrinkage_options.add_options()
         ("shrink-upaths", "Shrink unambigous paths")
         ("shrink-bulges", "Shrink bulges")
-        ("bulges:hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT"),
+        ("remove-low-covered", "Remove low covered nodes")
+        ("bulges-hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT"),
             "Hamming distance between nodes <= ceil(bulges:hamming * length): condition "
             "to join nodes during bulge shrinking (default: 0.3)")
+        ("coverage-threshold", po::value<float>(&parameters.coverage_threshold)->value_name("FLOAT"),
+            "Coverage threshold to remove vertex during bulge shrinking (default: 10)")
         ;
 
     po::options_description output_options("Output options");
     output_options.add_options()
         ("no-plots", "Do not call graphviz")
         ("show-sequences", "Show sequences on the graph plot")
+        ("prefix,p", po::value<std::string>(&opts.prefix)->value_name("PREFIX"), "File prefix")
         ;
 
     po::options_description other_options("Other");
@@ -116,6 +127,10 @@ Usage:
     opts.wo_reverse_complement = vm.count("wo-rc");
     opts.shrink_upaths = vm.count("shrink-upaths");
     opts.shrink_bulges = vm.count("shrink-bulges");
+    opts.remove_low_covered = vm.count("remove-low-covered");
+
+    opts.use_forward_reads = orientation.find('f') != std::string::npos;
+    opts.use_rc_reads = orientation.find('r') != std::string::npos;
 }
 
 logging::level string_to_level(std::string const& level_str) {
@@ -140,17 +155,21 @@ void create_console_logger(logging::level log_level) {
     logging::attach_logger(lg);
 }
 
-void plot_if_necessary(options& opts, std::string const& name) {
+void plot_if_necessary(options& opts) {
     if (opts.no_plots)
         return;
-    INFO("Drawing " + name + " plot");
-    system(("dot " + opts.output_directory + "/" + name + ".dot -T pdf -o "
-                + opts.output_directory + "/" + name + ".pdf").c_str());
+    INFO("Drawing plot " + opts.prefix + ".pdf");
+    system(("dot " + opts.output_directory + opts.prefix + ".dot -T pdf -o "
+                + opts.output_directory + opts.prefix + ".pdf").c_str());
 }
 
 int main(int argc, char** argv) {
     options opts;
     parse_command_line(argc, argv, opts);
+    opts.output_directory += "/";
+    if (opts.prefix != "")
+        opts.prefix += ".";
+    opts.prefix += std::to_string(pog::pog_parameters::instance().get_kmer_size());
 
     if (!path::check_existence(opts.output_directory) && !path::make_dir(opts.output_directory)) {
         std::cerr << "Could not create directory " << opts.output_directory << std::endl;
@@ -158,17 +177,19 @@ int main(int argc, char** argv) {
     }
 
     create_console_logger(string_to_level(opts.logging_level));
-    pog::partial_order_graph graph = pog::from_file(opts.input_file, !opts.wo_reverse_complement);
+    pog::partial_order_graph graph = pog::from_file(opts.input_file, opts.use_forward_reads, opts.use_rc_reads);
     INFO("Graph created. Nodes: " << graph.nodes_count());
 
     if (opts.shrink_upaths)
         graph.shrink_upaths();
     if (opts.shrink_bulges)
         graph.shrink_bulges();
+    if (opts.remove_low_covered)
+        graph.remove_low_covered();
 
     INFO("Saving");
-    graph.save_nodes(opts.output_directory + "/raw.csv");
-    graph.save_dot(opts.output_directory + "/raw.dot", "raw", opts.show_sequences);
-    plot_if_necessary(opts, "raw");
+    graph.save_nodes(opts.output_directory + opts.prefix + ".csv");
+    graph.save_dot(opts.output_directory + opts.prefix, opts.show_sequences);
+    plot_if_necessary(opts);
     return 0;
 }

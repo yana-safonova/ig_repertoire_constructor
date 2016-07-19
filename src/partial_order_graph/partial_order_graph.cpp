@@ -39,11 +39,35 @@ void partial_order_graph::shrink_upaths() {
 }
 
 void partial_order_graph::shrink_bulges() {
-    for (size_t i = 0; i < nodes_.size() - 1; ++i) {
-        nodes_[i]->on_bulge();
+    bool flag = true;
+    while (flag) {
+        flag = false;
+        for (size_t i = 1; i < nodes_.size(); ++i) {
+            flag = nodes_[i]->on_bulge() || flag;
+        }
+        clean_nodes();
+    }
+    INFO(nodes_.size() << " nodes after shrinking bulges");
+}
+
+void partial_order_graph::remove_low_covered() {
+    auto const& parameters = pog_parameters::instance();
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+        if (nodes_[i]->coverage() <= parameters.coverage_threshold)
+            nodes_[i]->remove_node();
+
+        std::vector<node*> to_remove;
+        for (auto const& entry : nodes_[i]->get_output_edges()) {
+            if (entry.second <= parameters.coverage_threshold)
+                to_remove.push_back(entry.first);
+        }
+        for (node* v : to_remove)
+            nodes_[i]->remove_output_edge(v);
     }
     clean_nodes();
-    INFO(nodes_.size() << " nodes after shrinking bulges");
+    shrink_upaths();
+    shrink_bulges();
+    INFO(nodes_.size() << " nodes after removing low covered nodes and edges");
 }
 
 void partial_order_graph::clean_nodes() {
@@ -206,15 +230,23 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
         for (auto const& entry : nodes_[i]->get_input_edges()) {
             node* prev = entry.first;
             size_t k = node_indexes_.at(prev);
-            if (coverage[k] < coverage[i] + prev->coverage()) {
-                coverage[k] = coverage[i] + prev->coverage();
+            if (coverage[k] < coverage[i] + entry.second) {
+                coverage[k] = coverage[i] + entry.second;
                 next[k] = i;
             }
         }
     }
 
+    return restore_path(next);
+}
+
+
+std::vector<size_t> partial_order_graph::restore_path(std::vector<size_t> const& next) const {
+    size_t n = nodes_.size();
+
     size_t sum_length = 0;
     float min_coverage = 1e10;
+    float sum_coverage = 0;
 
     std::vector<size_t> path;
     path.push_back(0);
@@ -222,28 +254,34 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
     while (path.back() != n - 1) {
         min_coverage = std::min(min_coverage, nodes_[path.back()]->coverage());
         sum_length += nodes_[path.back()]->get_length();
+        sum_coverage += nodes_[path.back()]->coverage();
         path.push_back(next[path.back()]);
     }
     INFO("Most covered path.");
-    INFO("\tAverage coverage: " << (coverage[0] - nodes_[0]->coverage()) / static_cast<float>(sum_length));
+    INFO("\tAverage coverage: " << sum_coverage / static_cast<float>(sum_length));
     INFO("\tSum length: " << sum_length);
     INFO("\tMin coverage on the path: " << min_coverage);
 
     return path;
 }
 
-void partial_order_graph::save_dot(std::string const& filename, std::string const& graph_name,
-                                   bool print_sequences) const {
-    std::ofstream dot_file(filename);
+void partial_order_graph::save_dot(std::string const& filename, bool print_sequences) const {
+    std::ofstream dot_file(filename + ".dot");
     if (!dot_file) {
-        ERROR("Could not write to " << filename);
+        ERROR("Could not write to " << filename << ".dot");
         return;
     }
+    std::ofstream path_file(filename + ".fa");
+    if (!path_file) {
+        ERROR("Could not write to " << filename << ".fa");
+        return;
+    }
+    path_file << ">Most covered path\n";
 
     std::vector<size_t> path = most_covered_path();
     auto it = path.begin();
 
-    dot_file << "digraph " << graph_name << " {\n";
+    dot_file << "digraph {\n";
     for (size_t i = 0; i < nodes_.size(); ++i) {
         dot_file << '\t' << i << " [label=\"#" << i << "\\nCov: " << nodes_[i]->coverage();
         if (!nodes_[i]->dummy())
@@ -254,6 +292,7 @@ void partial_order_graph::save_dot(std::string const& filename, std::string cons
         dot_file << "\"";
         if (*it == i) {
             dot_file << ", fillcolor=khaki1,style=filled";
+            path_file << nodes_[i]->get_sequence();
             ++it;
         }
         dot_file << "]\n";
@@ -263,6 +302,7 @@ void partial_order_graph::save_dot(std::string const& filename, std::string cons
         }
     }
     dot_file <<"}\n";
+    path_file << std::endl;
 }
 
 void partial_order_graph::save_nodes(std::string const& filename) const {
@@ -283,7 +323,7 @@ size_t partial_order_graph::nodes_count() const noexcept {
     return nodes_.size();
 }
 
-partial_order_graph from_file(std::string const& filename, bool use_reverse_complement) {
+partial_order_graph from_file(std::string const& filename, bool use_forward_reads, bool use_rc_reads) {
     seqan::SeqFileIn reader(filename.c_str());
 
     if (!guessFormat(reader)) {
@@ -307,9 +347,10 @@ partial_order_graph from_file(std::string const& filename, bool use_reverse_comp
         readRecord(id, seq, reader);
         ++count;
         DEBUG(count << ": " << id);
-        graph.add_sequence(seq, id);
+        if (use_forward_reads)
+            graph.add_sequence(seq, id);
 
-        if (use_reverse_complement) {
+        if (use_rc_reads) {
             reverseComplement(seq);
             graph.add_sequence(seq, id);
         }

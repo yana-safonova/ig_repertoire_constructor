@@ -26,6 +26,7 @@ struct pog_parameters {
     float gap_penalty = -2.f;
 
     float bulges_hamming_ratio = 0.3f;
+    float coverage_threshold = 10.f;
 
 private:
 

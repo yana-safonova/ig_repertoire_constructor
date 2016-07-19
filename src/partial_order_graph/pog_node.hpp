@@ -42,8 +42,10 @@ struct node {
 
     void add_read();
     void add_output_edge(node* next, float coverage = 1.f);
+    void remove_output_edge(node* next);
     bool on_upath();
-    void on_bulge();
+    bool on_bulge();
+    void remove_node();
     static bool join_nodes(node* a, node* b);
 
     bool dummy() const noexcept;
