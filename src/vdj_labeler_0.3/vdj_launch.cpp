@@ -12,59 +12,61 @@
 #include <germline_utils/chain_type.hpp>
 #include <recombination_calculator/hc_model_based_recombination_calculator.hpp>
 #include <recombination_utils/recombination_storage.hpp>
+#include <vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.hpp>
+#include <vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.hpp>
 
 namespace vdj_labeler {
 
-void VDJLabelerLaunch::TestRecombinationCalculator(const core::ReadArchive& reads_archive,
-                                                   VDJHitsStoragePtr &hits_storage)
-{
-    size_t read_index = 3;
-    core::ReadPtr read_3 = std::make_shared<core::Read>(reads_archive[read_index]);
-    VDJHitsPtr hits_3 = (*hits_storage)[read_index];
-    INFO("Read 3. #V: " << hits_3->VHitsNumber() <<
-        ", #D: " << hits_3->DHitsNumber() <<
-        ", #J: " << hits_3->JHitsNumber());
-
-    auto v_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::VariableSegment, 0);
-    recombination_utils::CleavedIgGeneAlignment v_event_0(v_alignment, 0, 0, 0, 0);
-    recombination_utils::CleavedIgGeneAlignment v_event_1(v_alignment, 0, -1, 0, 0);
-    recombination_utils::CleavedIgGeneAlignment v_event_2(v_alignment, 0, -2, 0, 0);
-    recombination_utils::CleavedIgGeneAlignment v_event_3(v_alignment, 0, -3, 0, 1);
-
-    auto d_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, 0);
-    recombination_utils::CleavedIgGeneAlignment d_event_0(d_alignment, 1, 8, 0, 0);
-
-    auto j_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, 0);
-    recombination_utils::CleavedIgGeneAlignment j_event_0(j_alignment, 0, 0, 1, 0);
-    recombination_utils::CleavedIgGeneAlignment j_event_1(j_alignment, 1, 0, 0, 0);
-
-    recombination_utils::NongenomicInsertion vd_insertion_0(425, 441);
-    recombination_utils::NongenomicInsertion vd_insertion_1(426, 441);
-    recombination_utils::NongenomicInsertion vd_insertion_2(427, 441);
-    recombination_utils::NongenomicInsertion vd_insertion_3(428, 441);
-
-    recombination_utils::NongenomicInsertion dj_insertion_0(453, 452);
-    recombination_utils::NongenomicInsertion dj_insertion_1(453, 453);
-
-    recombination_utils::RecombinationStorage<recombination_utils::HCRecombination> recombination_storage(read_3);
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_0,
-                                                           vd_insertion_0, dj_insertion_0));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_0,
-                                                           vd_insertion_1, dj_insertion_0));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_0,
-                                                           vd_insertion_2, dj_insertion_0));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_0,
-                                                           vd_insertion_3, dj_insertion_0));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_1,
-                                                           vd_insertion_0, dj_insertion_1));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_1,
-                                                           vd_insertion_1, dj_insertion_1));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_1,
-                                                           vd_insertion_2, dj_insertion_1));
-    recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_1,
-                                                           vd_insertion_3, dj_insertion_1));
-    INFO(recombination_storage.size() << " recombinaions were generated");
-}
+// void VDJLabelerLaunch::TestRecombinationCalculator(const core::ReadArchive& reads_archive,
+//                                                    VDJHitsStoragePtr &hits_storage)
+// {
+//     size_t read_index = 3;
+//     core::ReadPtr read_3 = std::make_shared<core::Read>(reads_archive[read_index]);
+//     VDJHitsPtr hits_3 = (*hits_storage)[read_index];
+//     INFO("Read 3. #V: " << hits_3->VHitsNumber() <<
+//         ", #D: " << hits_3->DHitsNumber() <<
+//         ", #J: " << hits_3->JHitsNumber());
+//
+//     auto v_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::VariableSegment, 0);
+//     recombination_utils::CleavedIgGeneAlignment v_event_0(v_alignment, 0, 0, 0, 0);
+//     recombination_utils::CleavedIgGeneAlignment v_event_1(v_alignment, 0, -1, 0, 0);
+//     recombination_utils::CleavedIgGeneAlignment v_event_2(v_alignment, 0, -2, 0, 0);
+//     recombination_utils::CleavedIgGeneAlignment v_event_3(v_alignment, 0, -3, 0, 1);
+//
+//     auto d_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, 0);
+//     recombination_utils::CleavedIgGeneAlignment d_event_0(d_alignment, 1, 8, 0, 0);
+//
+//     auto j_alignment = hits_3->GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, 0);
+//     recombination_utils::CleavedIgGeneAlignment j_event_0(j_alignment, 0, 0, 1, 0);
+//     recombination_utils::CleavedIgGeneAlignment j_event_1(j_alignment, 1, 0, 0, 0);
+//
+//     recombination_utils::NongenomicInsertion vd_insertion_0(425, 441);
+//     recombination_utils::NongenomicInsertion vd_insertion_1(426, 441);
+//     recombination_utils::NongenomicInsertion vd_insertion_2(427, 441);
+//     recombination_utils::NongenomicInsertion vd_insertion_3(428, 441);
+//
+//     recombination_utils::NongenomicInsertion dj_insertion_0(453, 452);
+//     recombination_utils::NongenomicInsertion dj_insertion_1(453, 453);
+//
+//     recombination_utils::RecombinationStorage<recombination_utils::HCRecombination> recombination_storage(read_3);
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_0,
+//                                                            vd_insertion_0, dj_insertion_0));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_0,
+//                                                            vd_insertion_1, dj_insertion_0));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_0,
+//                                                            vd_insertion_2, dj_insertion_0));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_0,
+//                                                            vd_insertion_3, dj_insertion_0));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_0, d_event_0, j_event_1,
+//                                                            vd_insertion_0, dj_insertion_1));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_1, d_event_0, j_event_1,
+//                                                            vd_insertion_1, dj_insertion_1));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_2, d_event_0, j_event_1,
+//                                                            vd_insertion_2, dj_insertion_1));
+//     recombination_storage.AddRecombination(recombination_utils::HCRecombination(read_3, v_event_3, d_event_0, j_event_1,
+//                                                            vd_insertion_3, dj_insertion_1));
+//     INFO(recombination_storage.size() << " recombinaions were generated");
+// }
 
 void VDJLabelerLaunch::Launch() {
     INFO("VDJ labeler starts");
@@ -106,13 +108,13 @@ void VDJLabelerLaunch::Launch() {
     // auto vdj_hits = VDJHits(alignment_info.AlignmentRecords()[6]);
     // INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
 
-    auto vdj_storage = VDJHitsStorage(alignment_info);
-    for (auto it = vdj_storage.cbegin(); it != vdj_storage.cend(); ++it) {
-        INFO("\nVgene");
-        for (auto vhit_it = (*it)->VHits().cbegin(); vhit_it != (*it)->VHits().cend(); ++vhit_it) {
-            INFO((*vhit_it)->EndQueryPosition());
-        }
-    }
+    // auto vdj_storage = VDJHitsStorage(alignment_info);
+    // for (auto it = vdj_storage.cbegin(); it != vdj_storage.cend(); ++it) {
+    //     INFO("\nVgene");
+    //     for (auto vhit_it = (*it)->VHits().cbegin(); vhit_it != (*it)->VHits().cend(); ++vhit_it) {
+    //         INFO((*vhit_it)->EndQueryPosition());
+    //     }
+    // }
     // INFO(*(vdj_storage[0]->Read()));
 
     alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(0, read_archive[0].length() - 1),
@@ -122,7 +124,7 @@ void VDJLabelerLaunch::Launch() {
                                                                              d_db[0],
                                                                              read_archive[0]);
 
-    INFO(SimpleDAligner().ComputeAlignment(immune_alignment_positions)->Alignment());
+    // INFO(SimpleDAligner().ComputeAlignment(immune_alignment_positions)->Alignment());
 
     // Andy: Blank model "tested" here
     {
@@ -150,6 +152,21 @@ void VDJLabelerLaunch::Launch() {
         // PalindromeDeletionModel modelDelDR(in, hc_db.DiversityGenes());
 
         // HCModelBasedRecombinationCalculator recombination_calculator(model);
+    }
+
+    SimpleDAligner d_aligner;
+    MatchThresholdAlignmentQualityChecker quality_checker;
+    InfoBasedDAlignmentPositionChecker position_checker(config_.d_align_quality_params);
+    InfoBasedDHitsCalculator calculator(
+        d_db.GetConstDbByGeneType(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment)),
+        d_aligner, quality_checker, position_checker);
+
+    auto vdj_storage2 = VDJHitsStorage(alignment_info, calculator);
+    for (const auto& vdj_hits : vdj_storage2) {
+        INFO(*(vdj_hits->Read()));
+        INFO(vdj_hits->VHits().size());
+        INFO(vdj_hits->DHits().size());
+        INFO(vdj_hits->JHits().size());
     }
 }
 

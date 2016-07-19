@@ -5,6 +5,10 @@
 
 namespace vdj_labeler {
 
+ImmuneGeneSegmentHits::ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type, const core::ReadPtr &read_ptr) :
+            segment_type_(gene_type),
+            read_ptr_(read_ptr) { }
+
 ImmuneGeneSegmentHits::ImmuneGeneSegmentHits(const germline_utils::SegmentType &segment_type,
                                              const core::ReadPtr &read_ptr,
                                              const std::vector<vj_finder::ImmuneGeneHitPtr>& hits) :
@@ -28,7 +32,31 @@ alignment_utils::ImmuneGeneReadAlignmentPtr ImmuneGeneSegmentHits::operator[](co
     return hits_[index];
 }
 
+germline_utils::SegmentType ImmuneGeneSegmentHits::GeneType() const { return segment_type_; }
+
+size_t ImmuneGeneSegmentHits::size() const { return hits_.size(); }
+
+hits_iterator  ImmuneGeneSegmentHits::begin ()       { return hits_.begin (); }
+hits_citerator ImmuneGeneSegmentHits::begin () const { return hits_.begin (); }
+hits_citerator ImmuneGeneSegmentHits::cbegin() const { return hits_.cbegin(); }
+hits_iterator  ImmuneGeneSegmentHits::end   ()       { return hits_.end   (); }
+hits_citerator ImmuneGeneSegmentHits::end   () const { return hits_.end   (); }
+hits_citerator ImmuneGeneSegmentHits::cend  () const { return hits_.cend  (); }
+
 //-------------------------------------------------------------------------------
+
+VDJHits::VDJHits(const core::ReadPtr &read_ptr):
+    read_ptr_(read_ptr),
+    v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr),
+    d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
+    j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr)
+{ }
+
+VDJHits::VDJHits(const vj_finder::VJHits &vj_hits):
+    VDJHits(std::make_shared<core::Read>(vj_hits.Read()),
+            vj_hits.VPtrHits(),
+            vj_hits.JPtrHits())
+{ }
 
 VDJHits::VDJHits(const core::ReadPtr &read_ptr,
                  const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
@@ -38,6 +66,25 @@ VDJHits::VDJHits(const core::ReadPtr &read_ptr,
     d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
     j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
 { }
+
+VDJHits::VDJHits(const core::ReadPtr &read_ptr,
+                 const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
+                 const std::vector<vj_finder::ImmuneGeneHitPtr>& j_hits,
+                 const AbstractDGeneHitsCalculator &d_gene_calculator) :
+        read_ptr_(read_ptr),
+        v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr, v_hits),
+        d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
+        j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
+{
+    d_hits_ = *(d_gene_calculator.ComputeDHits(read_ptr, v_hits_, j_hits_));
+}
+
+VDJHits::VDJHits(const vj_finder::VJHits &vj_hits, const AbstractDGeneHitsCalculator &d_gene_calculator):
+    VDJHits(std::make_shared<core::Read>(vj_hits.Read()),
+            vj_hits.VPtrHits(),
+            vj_hits.JPtrHits(),
+            d_gene_calculator) { }
+
 
 void VDJHits::AddIgGeneAlignment(const alignment_utils::ImmuneGeneReadAlignmentPtr &alignment_ptr) {
     germline_utils::SegmentType segment_type = alignment_ptr->subject().GeneType().Segment();

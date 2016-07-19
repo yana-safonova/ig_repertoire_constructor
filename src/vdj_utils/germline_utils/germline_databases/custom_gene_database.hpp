@@ -37,11 +37,15 @@ namespace germline_utils {
 
         SegmentType Segment() const { return segment_type_; }
 
-        typedef std::vector<ImmuneGeneType>::const_iterator ImmuneGeneTypeIter;
+        typedef std::vector<ImmuneGeneType>::iterator ImmuneGeneTypeIter;
+        typedef std::vector<ImmuneGeneType>::const_iterator ImmuneGeneTypeConstIter;
 
-        ImmuneGeneTypeIter cbegin() const { return immune_gene_types_.cbegin(); }
-
-        ImmuneGeneTypeIter cend() const { return immune_gene_types_.cend(); }
+        ImmuneGeneTypeIter      begin ()       { return immune_gene_types_.begin(); }
+        ImmuneGeneTypeConstIter begin () const { return immune_gene_types_.begin(); }
+        ImmuneGeneTypeConstIter cbegin() const { return immune_gene_types_.cbegin(); }
+        ImmuneGeneTypeIter      end   ()       { return immune_gene_types_.end(); }
+        ImmuneGeneTypeConstIter end   () const { return immune_gene_types_.end(); }
+        ImmuneGeneTypeConstIter cend  () const { return immune_gene_types_.cend(); }
 
         bool ContainsImmuneGeneType(ImmuneGeneType gene_type) const;
 

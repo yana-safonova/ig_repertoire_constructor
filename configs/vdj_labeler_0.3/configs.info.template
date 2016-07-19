@@ -5,17 +5,9 @@ io_params {
 
     germlines {
          igh {
-                 variable_genes src/fast_ig_tools/germline/human_walczak_blank/heavy_chain/genomicVs.fasta
-                 diversity_genes src/fast_ig_tools/germline/human_walczak_blank/heavy_chain/genomicDs.fasta
-                 join_genes src/fast_ig_tools/germline/human_walczak_blank/heavy_chain/genomicJs.fasta
-             }
-         igl {
-                 variable_genes src/fast_ig_tools/germline/human/IGLV.fa
-                 join_genes src/fast_ig_tools/germline/human/IGLJ.fa
-             }
-         igk {
-                 variable_genes src/fast_ig_tools/germline/human/IGKV.fa
-                 join_genes src/fast_ig_tools/germline/human/IGKJ.fa
+                 variable_genes data/germline/human_walczak_blank/IG/IGHV.fa
+                 diversity_genes data/germline/human_walczak_blank/IG/IGHD.fa
+                 join_genes data/germline/human_walczak_blank/IG/IGHJ.fa
              }
     }
     }
@@ -29,4 +21,8 @@ io_params {
 run_params {
     max_memory   250
     thread_count 16
+}
+
+d_alignment_quality_params {
+    min_coverage 5
 }

@@ -4,10 +4,10 @@
 
 namespace vdj_labeler {
 
-class SimpleDAligner {
+class SimpleDAligner : public GeneSegmentAligner {
 public:
-    alignment_utils::ImmuneGeneReadAlignmentPtr ComputeAlignment(
-        alignment_utils::ImmuneGeneAlignmentPositions alignment_positions);
+    virtual alignment_utils::ImmuneGeneReadAlignmentPtr ComputeAlignment(
+        const alignment_utils::ImmuneGeneAlignmentPositions &alignment_positions) const override;
 };
 
 } // End namespace vdj_labeler

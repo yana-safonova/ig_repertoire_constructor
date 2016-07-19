@@ -42,12 +42,18 @@ void load(VDJLabelerConfig::RunParams &rp, boost::property_tree::ptree const &pt
     load(rp.threads_count, pt, "thread_count");
 }
 
+void load(VDJLabelerConfig::DAlignmentQualityParams &qp, boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(qp.min_coverage, pt, "min_coverage");
+}
+
 void VDJLabelerConfig::load(std::string const &filename) {
     boost::property_tree::ptree pt;
     boost::property_tree::read_info(filename, pt);
     using config_common::load;
     load(io_params, pt, "io_params");
     load(run_params, pt, "run_params");
+    load(d_align_quality_params, pt, "d_alignment_quality_params");
     vj_finder::load(vj_finder_config, io_params.input_params.vj_finder_config);
 }
 

@@ -37,7 +37,7 @@ int RightEventSHMsCalculator::ComputeNumberPalindromeSHMs(
 {
     TRACE("Computation of #SHMs in right palindrome of length " << palindrome_length);
     // if gene has alignment to read with gaps at the end, we can not compute palindrome
-    assert(gene_alignment->EndSubjectPosition() == gene_alignment->GeneLength() - 1);
+    assert(gene_alignment->EndSubjectPosition() == gene_alignment->subject().length() - 1);
     int num_shms = 0;
     for (size_t i = 0; i < palindrome_length; i++) {
         size_t gene_pos = gene_alignment->SubjectAlignmentLength() - 1 - i;

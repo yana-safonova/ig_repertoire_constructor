@@ -41,8 +41,13 @@ struct VDJLabelerConfig {
         unsigned max_memory;
     };
 
+    struct DAlignmentQualityParams {
+        unsigned min_coverage;
+    };
+
     IOParams io_params;
     RunParams run_params;
+    DAlignmentQualityParams d_align_quality_params;
     vj_finder::VJFinderConfig vj_finder_config;
 
     void load(const std::string &filename);

@@ -14,11 +14,15 @@ io_params {
 
     output_params {
         output_dir   vdj_test
-        log_filename log.properties    
+        log_filename log.properties
     }
 }
 
 run_params {
     max_memory   250
     thread_count 16
+}
+
+d_alignment_quality_params {
+    min_coverage 5
 }
