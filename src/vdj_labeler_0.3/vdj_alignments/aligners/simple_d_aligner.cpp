@@ -23,9 +23,9 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
     auto read_segment = infixWithLength(alignment_positions.Read().seq,
                                         alignment_positions.ReadStartPos(),
                                         alignment_positions.ReadAlignmentLength());
-    assignSource(row(align, 0), read_segment);
-    assignSource(row(align, 1), alignment_positions.Gene().seq());
-    auto& align_read = row(align, 0);
+    assignSource(row(align, 0), alignment_positions.Gene().seq());
+    assignSource(row(align, 1), read_segment);
+    auto& align_read = row(align, 1);
 
     TRACE("Read segment (" << length(read_segment) << "): " << read_segment);
 
@@ -44,8 +44,8 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
     // localAlignment(align, Score<int, Simple>(1, -4, 0, 0)); // For testing (allows to see many gaps)
 
     Align<Dna5String> align_orig(align);
-    assignSource(row(align_orig, 0), alignment_positions.Read().seq);
-    auto& align_origin_read = row(align_orig, 0);
+    assignSource(row(align_orig, 1), alignment_positions.Read().seq);
+    auto& align_origin_read = row(align_orig, 1);
 
     setClippedBeginPosition(align_origin_read, alignment_positions.ReadStartPos() + clippedBeginPosition(align_read));
 
@@ -53,13 +53,13 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
         if (isGap(align_read, read_pos))
             insertGap(align_origin_read, read_pos);
     }
-    INFO(align_orig);
+    // INFO(align_orig);
     setEndPosition(align_origin_read, beginPosition(align_origin_read) + length(align_read));
 
-    INFO(length(seqan::row(align_orig, 0)));
-    INFO(length(seqan::row(align_orig, 1)));
-    INFO(beginPosition(seqan::row(align_orig, 0)));
-    INFO(endPosition(seqan::row(align_orig, 0)));
+    // INFO(length(seqan::row(align_orig, 0)));
+    // INFO(length(seqan::row(align_orig, 1)));
+    // INFO(beginPosition(seqan::row(align_orig, 0)));
+    // INFO(endPosition(seqan::row(align_orig, 0)));
     auto result = std::make_shared<alignment_utils::ImmuneGeneReadAlignment>(alignment_positions.Gene(),
                                                                       alignment_positions.Read(),
                                                                       align_orig,
