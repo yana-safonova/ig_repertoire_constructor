@@ -26,7 +26,6 @@ namespace cdr_labeler {
                        "CDR3_nucls\tCDR3_start\tCDR3_end" << std::endl;
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
             annotation_utils::AnnotatedClone cdr_clone = *it;
-            auto vj_hit = alignment_info_.GetVJHitsByRead(cdr_clone.Read());
             out << cdr_clone.Read().name << "\t" << cdr_clone.ChainType() << "\t" <<
             it->VAlignment().subject().name() << "\t" <<
             it->JAlignment().subject().name() << "\t" << cdr_clone.AA() << "\t" <<
@@ -127,11 +126,13 @@ namespace cdr_labeler {
         out << "Read_name:" << shms.Read().name << "\tRead_length:" << shms.Read().length() <<
                 "\tGene_name:" << shms.ImmuneGene().name() << "\tGene_length:" << shms.ImmuneGene().length() <<
                 "\tSegment:" << shms.SegmentType() << "\tChain_type:" << shms.ImmuneGene().Chain() << std::endl;
-        for(auto it = shms.cbegin(); it != shms.cend(); it++)
-            if(!shm_filter.FilterSHM(*it))
-                out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
-                        it->gene_nucl_pos << "\t" << it->read_nucl << "\t" << it->gene_nucl << "\t" << it->read_aa <<
-                        "\t" << it->gene_aa << "\t" << it->IsSynonymous() << "\t" << it->ToStopCodon() << std::endl;
+        for(auto it = shms.cbegin(); it != shms.cend(); it++) {
+            if(shm_filter.FilterSHM(*it))
+                continue;
+            out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
+            it->gene_nucl_pos << "\t" << it->read_nucl << "\t" << it->gene_nucl << "\t" << it->read_aa <<
+            "\t" << it->gene_aa << "\t" << it->IsSynonymous() << "\t" << it->ToStopCodon() << std::endl;
+        }
     }
 
     void CDRLabelingWriter::OutputSHMs() const {
@@ -143,5 +144,15 @@ namespace cdr_labeler {
         }
         out.close();
         INFO("SHM getails were written to " << output_config_.shm_output_details.shm_details);
+    }
+
+    void CDRLabelingWriter::OutputCleanedReads() const {
+        std::ofstream out(output_config_.cleaned_reads);
+        for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
+            out << ">" << it->Read().name << std::endl;
+            out << it->Read().seq << std::endl;
+        }
+        out.close();
+        INFO("Cleaned reads were written to " << output_config_.cleaned_reads);
     }
 }

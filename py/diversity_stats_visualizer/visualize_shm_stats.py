@@ -1,20 +1,14 @@
 import os
 import sys
-import operator
-import warnings
+
+import utils
 
 import matplotlib as mplt
 mplt.use('Agg')
 
-import numpy as np
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
 
 class AlignedRead:
     def _parse_line(self, line):
@@ -129,7 +123,7 @@ def output_num_shms(num_all_shms, colors):
     plt.xlim(0, 150)
     plt.legend(loc = 'upper center', ncol = len(num_all_shms), fontsize = 16)
 
-def visualize_v_mutations_stats(shms_df, output_fname):
+def visualize_v_mutations_stats(shms_df, output_fname, log):
     all_shms_pos = {'IGH': [], 'IGK': [], 'IGL': []}
     num_all_shms = {'IGH': [], 'IGK': [], 'IGL': []}
     colors = {'IGH': 'b', 'IGK': 'g', 'IGL': 'r'}
@@ -150,7 +144,7 @@ def visualize_v_mutations_stats(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of SHM positions in V was written to " + output_fname + ".pdf and .png"
+    log.info("Distribution of SHM positions in V was written to " + output_fname + ".pdf and .png")
 
 def get_aa_list():
     return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
@@ -158,7 +152,7 @@ def get_aa_list():
 def aa_is_valid(aa):
     return aa != '*' and aa != '-' and aa != 'X'
 
-def visualize_aa_substitution_matrix(shms_df, output_fname):
+def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     dict_aa = dict()
     for it in shms_df:
         read_shms = shms_df[it]
@@ -189,12 +183,12 @@ def visualize_aa_substitution_matrix(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png"
+    log.info("Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png")
 
 def nucl_is_valid(nucl):
     return nucl != 'N'
 
-def visualize_nucl_substitution_matrix(shms_df, output_fname):
+def visualize_nucl_substitution_matrix(shms_df, output_fname, log):
     nucl_list = ['A', 'C', 'G', 'T']
     nucl_matrix = []
     for n in nucl_list:
@@ -218,9 +212,9 @@ def visualize_nucl_substitution_matrix(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Nucleotide substitution heatmap was written to " + output_fname + ".pdf and .png"
+    log.info("Nucleotide substitution heatmap was written to " + output_fname + ".pdf and .png")
 
-def output_synonymous_shms(synonymous_pos, output_fname):
+def output_synonymous_shms(synonymous_pos, output_fname, log):
     if len(synonymous_pos) < 100:
         return
     plt.hist(synonymous_pos, color = 'r', bins = 100)
@@ -234,9 +228,9 @@ def output_synonymous_shms(synonymous_pos, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of synonymous SHMs positions in V segment was wirtten to " + output_fname + ".pdf and .png"
+    log.info("Distribution of synonymous SHMs positions in V segment was wirtten to " + output_fname + ".pdf and .png")
 
-def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname):
+def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname, log):
     synonymous_pos = []
     stop_codon_pos = []
     deletion_pos = []
@@ -255,7 +249,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
                 deletion_pos.append(relative_pos)
             elif shm.is_insertion():
                 insertion_pos.append(relative_pos)
-    output_synonymous_shms(synonymous_pos, syn_output_fname)
+    output_synonymous_shms(synonymous_pos, syn_output_fname, log)
     pos = []
     labels = []
     colors = []
@@ -290,21 +284,22 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.savefig(special_output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of special SHMs in V segment was written to " + special_output_fname + ".pdf and .png"
+    log.info("Distribution of special SHMs in V segment was written to " + special_output_fname + ".pdf and .png")
 
-def main(shm_df_fname, output_dir):
-    print "== Output SHMs statistics"
+def main(shm_df_fname, output_dir, log):
+    log.info("== Output SHMs statistics")
     shm_df = SHMs(shm_df_fname)
-    print str(len(shm_df)) + " records were extracted from " + shm_df_fname
-    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"))
-    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"))
-    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"))
+    log.info(str(len(shm_df)) + " records were extracted from " + shm_df_fname)
+    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"), log)
+    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"), log)
+    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"), log)
     visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
-                                    os.path.join(output_dir, "special_shms_positions"))
+                                    os.path.join(output_dir, "special_shms_positions"), log)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print "Invalid input parameters"
-        print "python visualize_shm_stats.py shm_df.txt output_dir"
+        print "python visualize_shm_stats.py shm_df.txt output_dir logger"
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    log = utils.get_logger_by_arg(sys.argv[3])
+    main(sys.argv[1], sys.argv[2], log)

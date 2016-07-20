@@ -7,11 +7,12 @@
 #include "read_labeler.hpp"
 #include "cdr_output.hpp"
 #include "diversity_analyser.hpp"
+//#include "cdr_annotator.hpp"
 
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
         using namespace annotation_utils;
-        INFO("CDR labeler starts");
+        INFO("Diversity Analyzer starts");
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.vj_finder_config.io_params.output_params.output_details.fix_spaces)
             read_archive.FixSpacesInHeaders();
@@ -40,7 +41,9 @@ namespace cdr_labeler {
 
         ReadCDRLabeler read_labeler(v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
-        CDRLabelingWriter writer(config_.output_params, alignment_info, annotated_clone_set);
+        INFO("CDR sequences and SHMs were computed");
+        CDRLabelingWriter writer(config_.output_params, annotated_clone_set);
+        writer.OutputCleanedReads();
         writer.OutputCDRDetails();
         writer.OutputCDR1Fasta();
         writer.OutputCDR2Fasta();
@@ -48,7 +51,7 @@ namespace cdr_labeler {
         writer.OutputCompressedCDR3Fasta();
         writer.OutputVGeneAlignment();
         writer.OutputSHMs();
-        INFO("Diversity analyser starts");
+        INFO("Diversity analysis od CDRs");
         DiversityAnalyser cdr_analyser(annotated_clone_set, config_.output_params,
                                        config_.output_params.cdr3_compressed_fasta);
         INFO("Shannon index. CDR1: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR1) <<
@@ -59,6 +62,6 @@ namespace cdr_labeler {
              ", CDR3: " << cdr_analyser.SimpsonIndex(StructuralRegion::CDR3));
         INFO("Clonal Shannon index: " << cdr_analyser.ClonalShannonIndex());
         INFO("Clonal Simpson index: " << cdr_analyser.ClonalSimpsonIndex());
-        INFO("CDR labeler ends");
+        INFO("Diversity Analyzer ends");
     }
 }

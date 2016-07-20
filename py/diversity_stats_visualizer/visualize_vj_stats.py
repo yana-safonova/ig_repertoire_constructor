@@ -3,6 +3,8 @@ import sys
 import operator
 import warnings
 
+import utils
+
 import matplotlib as mplt
 mplt.use('Agg')
 
@@ -32,8 +34,6 @@ class VJMatrix:
             if vj_key not in self.vj_dict:
                 self.vj_dict[vj_key] = 0
             self.vj_dict[vj_key] += 1
-        print str(len(self.vj_dict)) + " VJ pairs were extracted. Pairs are presented by " + str(len(self.v_set)) + \
-              " V genes & " + str(len(self.j_set)) + " J genes"
 
     def _ComputeVJHitsAbundances(self):
         v_abundance = dict()
@@ -75,10 +75,12 @@ class VJMatrix:
         sorted_j_abun_l.reverse()
         return table, sorted_v_abun_l, sorted_j_abun_l
 
-def visualize_vj_heatmap(labeling_df, output_pdf):
+def visualize_vj_heatmap(labeling_df, output_pdf, log):
     v_hits = list(labeling_df['V_hit'])
     j_hits = list(labeling_df['J_hit'])
     vj_matrix = VJMatrix(v_hits, j_hits)
+    log.info(str(len(vj_matrix.vj_dict)) + " VJ pairs were extracted. Pairs are presented by " +
+             str(len(vj_matrix.v_set)) + " V genes & " + str(len(vj_matrix.j_set)) + " J genes")
     table, v, j = vj_matrix.CreateTable(100)
     mplt.rcParams.update({'font.size': 20})
     #plt.figure(figsize=(15, 15))
@@ -94,7 +96,7 @@ def visualize_vj_heatmap(labeling_df, output_pdf):
     pp.close()
     plt.savefig(output_pdf + ".png")
     plt.clf()
-    print "VJ heatmap for the most abundant VJ combinations was written to " + output_pdf + ".pdf and .png"
+    log.info("VJ heatmap for the most abundant VJ combinations was written to " + output_pdf + ".pdf and .png")
 
 ############################################################################
 
@@ -104,18 +106,19 @@ def checkout_output_dir(output_dir):
 
 def main(argv):
     warnings.filterwarnings('ignore')
-    if len(argv) != 4:
+    if len(argv) != 5:
         print "Invalid input parameters"
-        print "python visualize_vj_stats.py cdr_details.txt shm_details.txt output_dir"
+        print "python visualize_vj_stats.py cdr_details.txt shm_details.txt output_dir logger"
         return
     vj_df = pd.read_table(argv[1], delim_whitespace = True)
     output_dir = argv[3]
+    log = utils.get_logger_by_arg(argv[4], "diversity_analyzer_vis")
     checkout_output_dir(output_dir)
-    print "== Output VJ statistics"
-    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap"))
-    print ""
-    #visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"))
-    visualize_shm_stats.main(argv[2], output_dir)
+    log.info("== Output VJ statistics")
+    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap"), log)
+    log.info("")
+    visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"), log)
+    visualize_shm_stats.main(argv[2], output_dir, log)
 
 if __name__ == "__main__":
     main(sys.argv)

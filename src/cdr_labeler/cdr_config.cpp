@@ -16,6 +16,7 @@ namespace cdr_labeler {
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
         op.cdr3_compressed_fasta = path::append_path(op.output_dir, op.cdr3_compressed_fasta);
         op.v_alignment_fasta = path::append_path(op.output_dir, op.v_alignment_fasta);
+        op.cleaned_reads = path::append_path(op.output_dir, op.cleaned_reads);
         op.shm_output_details.shm_details = path::append_path(op.output_dir, op.shm_output_details.shm_details);
         op.trash_output = path::append_path(op.output_dir, op.trash_output);
     }
@@ -40,6 +41,7 @@ namespace cdr_labeler {
         load(op.cdr3_compressed_fasta, pt, "cdr3_compressed_fasta");
         load(op.v_alignment_fasta, pt, "v_alignment_fasta");
         load(op.shm_output_details, pt, "shm_output_details");
+        load(op.cleaned_reads, pt, "cleaned_reads");
         load(op.trash_output, pt, "trash_output");
         update_output_config(op);
     }

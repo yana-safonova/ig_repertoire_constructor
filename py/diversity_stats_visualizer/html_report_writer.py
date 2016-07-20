@@ -6,7 +6,7 @@ import pandas as pd
 
 import visualize_shm_stats
 import visualize_cdr_stats
-
+import utils
 
 class HTMLReportWriter:
     def _WriteHeader(self, level, text, align):
@@ -138,6 +138,9 @@ def WriteSHMCharacteristics(html_writer, shm_df, images_dict):
     if "aa_substitutions" in images_dict:
         html_writer.WriteH2("Heatmap of amino acid substitutions:")
         html_writer.WriteImage(images_dict["aa_substitutions"], width = 60)
+    if "nucl_substitutions" in images_dict:
+        html_writer.WriteH2("Heatmap of nucleotide substitutions:")
+        html_writer.WriteImage(images_dict["nucl_substitutions"], width = 40)
     if "general_v_mutations" in images_dict:
         html_writer.WriteH2("Distribution of SHM positions in V gene segment (above) and "
                             "distribution of SHM number in V gene segment per sequence (below):")
@@ -192,10 +195,18 @@ def GetLengthAbundanceLargestGroup(locus_df, locus, cdr):
         return 0, 0
     return len(max_group[0]), round(float(len(max_group)) / float(len(region_seq)) * 100, 2)
 
+def ImageDictContainsLocus(image_dict, locus):
+    for im in image_dict:
+        if im[:len(locus)] == locus:
+            return True
+    return False
+
 def WriteCDRPlots(html_writer, vj_df, images_dict):
     loci = ['IGH', 'IGK', 'IGL']
     cdrs = ['CDR1', 'CDR2', 'CDR3']
     for l in loci:
+        if not ImageDictContainsLocus(images_dict, l):
+            continue
         locus_df = vj_df.loc[vj_df['Chain_type'] == l]
         for cdr in cdrs:
             if l + "_" + cdr + "_length" in images_dict:
@@ -223,19 +234,19 @@ def WriteCDRCharacteristics(html_writer, vj_df, images_dict):
 
 #######################################################################################################################
 
-def create_html(output_html_fname, vj_df, shm_df, images_dict):
-    print "Annotation report will be written to " + output_html_fname
-    print "Printing general characteristics of the repertoire"
+def create_html(output_html_fname, vj_df, shm_df, images_dict, log):
+    log.info("Annotation report will be written to " + output_html_fname)
+    log.info("Printing general characteristics of the repertoire")
     html_writer = HTMLReportWriter(output_html_fname)
     WriteGeneralCharacteristics(html_writer, vj_df, images_dict)
     html_writer.WriteHorizontalLine()
-    print "Printing SHM characteristics"
+    log.info("Printing SHM characteristics")
     WriteSHMCharacteristics(html_writer, shm_df, images_dict)
     html_writer.WriteHorizontalLine()
-    print "Printing CDR characteristics"
+    log.info("Printing CDR characteristics")
     WriteCDRCharacteristics(html_writer, vj_df, images_dict)
     html_writer.CloseFile()
-    print "Annotation report was written to " + output_html_fname
+    log.info("Annotation report was written to " + output_html_fname)
 
 #######################################################################################################################
 def add_cdr_plots(image_dict, plots_dir):
@@ -258,6 +269,8 @@ def add_shm_plots(image_dict, plots_dir):
     inner_plots_dir = "plots"
     if os.path.exists(os.path.join(plots_dir, "aa_substitutions.png")):
         image_dict["aa_substitutions"] = os.path.join(inner_plots_dir, "aa_substitutions.png")
+    if os.path.exists(os.path.join(plots_dir, "nucl_substitutions.png")):
+        image_dict["nucl_substitutions"] = os.path.join(plots_dir, "nucl_substitutions.png")
     if os.path.exists(os.path.join(plots_dir, "v_mutations_distribution.png")):
         image_dict["general_v_mutations"] = os.path.join(inner_plots_dir, "v_mutations_distribution.png")
     if os.path.exists(os.path.join(plots_dir, "synonymous_shms_positions.png")):
@@ -276,30 +289,27 @@ def create_image_dict(plots_dir):
 
 #######################################################################################################################
 
-def main(argv):
-    warnings.filterwarnings('ignore')
-    if len(argv) != 5:
-        print "Invalid input"
-        print "python html_report_writer.py cdr_details.txt shm_details.txt plots_dir output.html"
-        sys.exit(1)
-    vj_df_fname = argv[1]
+def main(vj_df_fname, shm_df_fname, plots_dir, output_html_fname, log):
     if not os.path.exists(vj_df_fname):
-        print "CDR details file " + vj_df_fname + " was not found"
+        log.info("CDR details file " + vj_df_fname + " was not found")
         sys.exit(1)
     vj_df = pd.read_table(vj_df_fname, delim_whitespace = True)
-    shm_df_fname = argv[2]
     if not os.path.exists(shm_df_fname):
-        print "SHM details file " + shm_df_fname + " was not found"
+        log.info("SHM details file " + shm_df_fname + " was not found")
         sys.exit(1)
     shm_df = visualize_shm_stats.SHMs(shm_df_fname)
-    plots_dir = argv[3]
     if not os.path.exists(plots_dir):
-        print "Plot directory " + plots_dir + " does not exist"
+        log.info("Plot directory " + plots_dir + " does not exist")
         sys.exit(1)
     image_dict = create_image_dict(plots_dir)
-    output_html_fname = argv[4]
-    create_html(output_html_fname, vj_df, shm_df, image_dict)
+    create_html(output_html_fname, vj_df, shm_df, image_dict, log)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    warnings.filterwarnings('ignore')
+    if len(sys.argv) != 6:
+        print "Invalid input"
+        print "python html_report_writer.py cdr_details.txt shm_details.txt plots_dir output.html logger"
+        sys.exit(1)
+    log = utils.get_logger_by_arg(sys.argv[5], "annotation_report")
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], log)
 
