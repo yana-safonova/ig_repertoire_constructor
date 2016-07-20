@@ -1,8 +1,11 @@
 #pragma once
 
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
+#include <annotation_utils/annotated_clone_set.hpp>
 #include "evolutionary_edge.hpp"
 #include "model_utils/shm_model.hpp"
+#include "evolutionary_edge_constructor.hpp"
 
 namespace antevolo {
     class EvolutionaryTree {
@@ -20,6 +23,16 @@ namespace antevolo {
         void AddUndirectedPair(size_t src_num, size_t dst_num);
 
         void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num);
+
+        void PrepareSubtreeVertices(
+                boost::unordered_set<size_t>& vertices_set,
+                size_t root_num);
+
+        void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
+                                                     size_t root_num,
+                                                     ShmModel& model,
+                                                     const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                     EvolutionaryEdgeConstructor* edge_constructor);
 
         boost::unordered_map<size_t, std::set<size_t>>& GetUndirectedGraph()
         { return undirected_graph_; };

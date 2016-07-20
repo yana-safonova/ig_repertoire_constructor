@@ -90,7 +90,7 @@ namespace antevolo {
         AddUndirectedForestToTheTree(hg_component, component_id, tree, ds_on_undirected_edges);
         //AddComponentToTheTree(hg_component, component_id, tree);
         SetUndirectedComponentsParentEdges(hg_component, component_id, tree, ds_on_undirected_edges);
-        SetDirections(vertices_nums, component_id, tree, ds_on_undirected_edges);
+        SetDirections(vertices_nums, tree, ds_on_undirected_edges);
     }
 
     void UndirectedFirstTreeCalculator::AddUndirectedForestToTheTree(SparseGraphPtr hg_component,
@@ -249,8 +249,8 @@ namespace antevolo {
     }
 
     void UndirectedFirstTreeCalculator::SetDirections(boost::unordered_set<size_t> vertices_nums,
-                                                                           size_t component_id, EvolutionaryTree& tree,
-                                                                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
+                                                      EvolutionaryTree& tree,
+                                                      boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
         auto edge_constructor = GetEdgeConstructor();
 
         auto undirected_graph = tree.GetUndirectedGraph();
@@ -268,12 +268,14 @@ namespace antevolo {
             std::vector<std::pair<size_t, size_t>> edge_vector;
             size_t root = tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(vertex.first));
             if (root != size_t(-1)) {
-                tree.PrepareSubtree(edge_vector, root);
                 const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
                 tree.AddDirected(edge.dst_clone_num, edge, model_);
+                //tree.PrepareSubtree(edge_vector, root);
+                tree.PrepareSubtreeEdmonds(edge_vector, root, model_, clone_set_, edge_constructor);
             }
             else {
-                tree.PrepareSubtree(edge_vector, vertex.first);
+                //tree.PrepareSubtree(edge_vector, vertex.first);
+                tree.PrepareSubtreeEdmonds(edge_vector, vertex.first, model_, clone_set_, edge_constructor);
             }
             for (auto p : edge_vector) {
                 auto edge = edge_constructor->ConstructEdge(

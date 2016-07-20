@@ -1,3 +1,4 @@
+#include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
 #include "model_utils/shm_model.hpp"
 
@@ -60,6 +61,65 @@ namespace antevolo {
                 edge_vector.push_back(std::make_pair(root_num, u));
                 PrepareSubtree(edge_vector, u);
             }
+        }
+    }
+
+    void EvolutionaryTree::PrepareSubtreeVertices(
+            boost::unordered_set<size_t>& vertices_set,
+            size_t root_num) {
+        //we assume that component size is > 1
+        for (size_t u : undirected_graph_[root_num]) {
+            undirected_graph_[root_num].erase(u);
+            undirected_graph_[u].erase(root_num);
+            vertices_set.insert(u);
+            PrepareSubtreeVertices(vertices_set, u);
+        }
+    }
+
+    void EvolutionaryTree::PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
+                                                 size_t root_num,
+                                                 ShmModel& model,
+                                                 const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                 EvolutionaryEdgeConstructor* edge_constructor) {
+        boost::unordered_set<size_t> vertices_set;
+        PrepareSubtreeVertices(vertices_set, root_num);
+        for (size_t v : vertices_set) {
+            undirected_graph_.erase(v);
+        }
+        size_t n = vertices_set.size();
+        boost::unordered_map<size_t, size_t> vertex_to_index;
+        std::vector<size_t> index_to_vertex(n);
+        size_t index = 0;
+        for (size_t vertex : vertices_set) {
+            vertex_to_index[vertex] = index;
+            index_to_vertex[index] = vertex;
+            ++index;
+        }
+        typedef EdmondsTarjanDMSTCalculator::WeightedEdge WeightedEdge;
+        std::vector<WeightedEdge> edges;
+        for (auto v: vertices_set) {
+            for (auto u: vertices_set) {
+                if (u == v) {
+                    continue;
+                }
+                //INFO(index_to_vertex[u] << "->" << index_to_vertex[v]);
+                double dist = model.CDR3TransitionProb(
+                        edge_constructor->ConstructEdge(clone_set[index_to_vertex[v]],
+                                                        clone_set[index_to_vertex[u]],
+                                                        index_to_vertex[v],
+                                                        index_to_vertex[u]));
+                if (dist != 0) {
+                    edges.push_back(WeightedEdge(u, v, log(dist)));
+                }
+            }
+        }
+        EdmondsTarjanDMSTCalculator e_calc(n, edges, root_num);
+        e_calc.EmpondsTarjan();
+        std::vector<WeightedEdge> edges_to_add = e_calc.GetParentEdges();
+        for (auto& we : edges_to_add) {
+            size_t src_clone_num = index_to_vertex[we.src_];
+            size_t dst_clone_num = index_to_vertex[we.dst_];
+            edge_vector.push_back(std::make_pair(src_clone_num, dst_clone_num));
         }
     }
 
