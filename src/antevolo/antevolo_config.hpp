@@ -7,6 +7,7 @@ namespace antevolo {
         struct InputParams {
             std::string input_reads;
             std::string cdr_labeler_config_fname;
+            std::string model_input;
         };
 
         struct OutputParams {

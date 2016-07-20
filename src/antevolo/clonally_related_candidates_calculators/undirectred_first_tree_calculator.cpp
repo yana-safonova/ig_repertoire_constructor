@@ -5,8 +5,8 @@
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
 #include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
-#include <boost/pending/disjoint_sets.hpp>
-#include <boost/unordered_set.hpp>
+
+
 
 namespace antevolo {
     void UndirectedFirstTreeCalculator::Clear() {
@@ -56,7 +56,8 @@ namespace antevolo {
         std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
         std::stringstream ss;
         ss << run_graph_constructor << " -i " << cdr_fasta <<
-                " -o " << graph_fname << " --tau " << num_mismatches_ << " -k 10 > " << output_params_.trash_output;
+                " -o " << graph_fname << " --tau " << num_mismatches_ << " -T " << " 0 " <<
+                " -k 10 > " << output_params_.trash_output;
         int err_code = system(ss.str().c_str());
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
         auto sparse_cdr_graph_ = GraphReader(graph_fname).CreateGraph();
@@ -68,8 +69,8 @@ namespace antevolo {
         return connected_components;
     }
 
-    void UndirectedFirstTreeCalculator::AddUndirectedForestToTheTree(SparseGraphPtr hg_component,
-                                                                             size_t component_id, EvolutionaryTree& tree) {
+    void UndirectedFirstTreeCalculator::AddComponent(SparseGraphPtr hg_component,
+                                                     size_t component_id, EvolutionaryTree& tree) {
         boost::unordered_set<size_t> vertices_nums;
         for (size_t i = 0; i < hg_component->N(); i++) {
             size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
@@ -78,18 +79,23 @@ namespace antevolo {
                 vertices_nums.insert(clone_num);
             }
         }
-        typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
+
         //typedef std::map<size_t, size_t> AP_map;
         std::map<size_t, size_t> rank;
         std::map<size_t, size_t> parent;
         boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges(rank, parent);
-        boost::disjoint_sets<AP_map, AP_map> ds(
-                boost::make_assoc_property_map(rank),
-                boost::make_assoc_property_map(parent));
         for (size_t i : vertices_nums) {
             ds_on_undirected_edges.make_set(i);
         }
+        AddUndirectedForestToTheTree(hg_component, component_id, tree, ds_on_undirected_edges);
+        //AddComponentToTheTree(hg_component, component_id, tree);
+        SetUndirectedComponentsParentEdges(hg_component, component_id, tree, ds_on_undirected_edges);
+        SetDirections(vertices_nums, component_id, tree, ds_on_undirected_edges);
+    }
 
+    void UndirectedFirstTreeCalculator::AddUndirectedForestToTheTree(SparseGraphPtr hg_component,
+                                                                     size_t component_id, EvolutionaryTree& tree,
+                                                                     boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
 
         //adding undirected edges first
         for (size_t i = 0; i < hg_component->N(); i++) {
@@ -146,7 +152,7 @@ namespace antevolo {
                             clone_set_[dst_num],
                             src_num,
                             dst_num);
-                    tree.AddDirected(dst_num, edge);
+                    tree.AddDirected(dst_num, edge, model_);
                     std::vector<std::pair<size_t, size_t>> edge_vector;
                     tree.PrepareSubtree(edge_vector, dst_num);
                     for (auto p : edge_vector) {
@@ -173,7 +179,7 @@ namespace antevolo {
                                 clone_set_[*it2],
                                 *it1,
                                 *it2);
-                        tree.AddDirected(*it2, edge);
+                        tree.AddDirected(*it2, edge, model_);
                         std::vector<std::pair<size_t, size_t>> edge_vector;
                         tree.PrepareSubtree(edge_vector, *it2);
                         for (auto p : edge_vector) {
@@ -190,6 +196,85 @@ namespace antevolo {
         for (auto edges : undirected_graph) {
             std::vector<std::pair<size_t, size_t>> edge_vector;
             tree.PrepareSubtree(edge_vector, edges.first);
+            for (auto p : edge_vector) {
+                auto edge = edge_constructor->ConstructEdge(
+                        clone_set_[p.first],
+                        clone_set_[p.second],
+                        p.first,
+                        p.second);
+                tree.AddUndirected(p.second, edge);
+            }
+        }
+    }
+
+    void UndirectedFirstTreeCalculator::SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
+                                                                           size_t component_id, EvolutionaryTree& tree,
+                                                                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
+        auto edge_constructor = GetEdgeConstructor();
+        // adding directed edges between identical CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+                for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    size_t src_num = clones_sharing_cdr3[it1];
+                    size_t dst_num = clones_sharing_cdr3[it2];
+                    auto edge = edge_constructor->ConstructEdge(
+                            clone_set_[src_num],
+                            clone_set_[dst_num],
+                            src_num,
+                            dst_num);
+                    tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(dst_num),
+                                                          edge, model_);
+                }
+        }
+        // adding directed edges between similar CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
+                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                        auto edge = edge_constructor->ConstructEdge(
+                                clone_set_[*it1],
+                                clone_set_[*it2],
+                                *it1,
+                                *it2);
+                        tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it2),
+                                                              edge, model_);
+                    }
+            }
+    }
+
+    void UndirectedFirstTreeCalculator::SetDirections(boost::unordered_set<size_t> vertices_nums,
+                                                                           size_t component_id, EvolutionaryTree& tree,
+                                                                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
+        auto edge_constructor = GetEdgeConstructor();
+
+        auto undirected_graph = tree.GetUndirectedGraph();
+
+        for (auto clone_num : vertices_nums) {
+            auto vertex_it = undirected_graph.find(clone_num);
+            if (vertex_it == undirected_graph.end()) {
+                if (tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(clone_num)) != size_t(-1)) {
+                    const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(clone_num);
+                    tree.AddDirected(clone_num, edge, model_);
+                };
+                continue;
+            }
+            auto vertex = *vertex_it;
+            std::vector<std::pair<size_t, size_t>> edge_vector;
+            size_t root = tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(vertex.first));
+            if (root != size_t(-1)) {
+                tree.PrepareSubtree(edge_vector, root);
+                const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
+                tree.AddDirected(edge.dst_clone_num, edge, model_);
+            }
+            else {
+                tree.PrepareSubtree(edge_vector, vertex.first);
+            }
             for (auto p : edge_vector) {
                 auto edge = edge_constructor->ConstructEdge(
                         clone_set_[p.first],

@@ -46,6 +46,8 @@ add_executable(antevolo
         clone_set_decomposers/vj_clone_set_decomposer.cpp
         clonally_related_candidates_calculators/clonally_related_candidates.cpp
         clonally_related_candidates_calculators/undirectred_first_tree_calculator.cpp
+        clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.cpp
+        model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_edge.cpp
         evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp

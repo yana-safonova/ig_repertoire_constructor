@@ -1,11 +1,33 @@
 #include "evolutionary_tree.hpp"
+#include "model_utils/shm_model.hpp"
 
 namespace antevolo {
-    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge) {
+    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model) {
         if(edge.IsDirected()) {
-            if (!Contains(clone_num) || GetParentEdge(clone_num).num_added_v_shms > edge.num_added_v_shms) {
+            if (!Contains(clone_num)) {
+                edges_[clone_num] = edge;
+                return;
+            }
+            const EvolutionaryEdge& parent_edge =  edges_[clone_num];
+            if (parent_edge.num_added_v_shms + 1 - model.CDR3TransitionProb(parent_edge) >
+                edge.num_added_v_shms + 1 - model.CDR3TransitionProb(edge)) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 edges_[clone_num] = edge;
+            }
+        }
+    }
+
+    void EvolutionaryTree::SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model) {
+        if(edge.IsDirected()) {
+            if (undirected_components_edges_.find(root_num) == undirected_components_edges_.end()) {
+                undirected_components_edges_[root_num] = edge;
+                return;
+            }
+            const EvolutionaryEdge& parent_edge =  undirected_components_edges_[root_num];
+            if (parent_edge.num_added_v_shms + 1 - model.CDR3TransitionProb(parent_edge) >
+                edge.num_added_v_shms + 1 - model.CDR3TransitionProb(edge)) {
+                //if clone_set_[*it2] is root or if the new edge is shorter
+                undirected_components_edges_[root_num] = edge;
             }
         }
     }
