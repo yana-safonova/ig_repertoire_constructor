@@ -192,6 +192,14 @@ namespace antevolo {
         auto const& src_seq = edge.src_clone->Read().seq;
         auto const& dst_seq = edge.dst_clone->Read().seq;
         std::vector<size_t> diff_positions;
+
+        if (src_seq[src_start_pos - 2] == 'N' || dst_seq[dst_start_pos - 2] == 'N' ||
+            src_seq[src_start_pos - 1] == 'N' || dst_seq[dst_start_pos - 1] == 'N' ||
+            src_seq[src_start_pos + length] == 'N' || dst_seq[dst_start_pos + length] == 'N' ||
+            src_seq[src_start_pos + length + 1] == 'N' || dst_seq[dst_start_pos + length + 1] == 'N') {
+            return 0.00001;
+        }
+
         for (size_t pos = 0; pos < length; ++pos) {
             if (src_seq[src_start_pos + pos] == 'N' || dst_seq[dst_start_pos + pos] == 'N') {
                 return 0.00001;
