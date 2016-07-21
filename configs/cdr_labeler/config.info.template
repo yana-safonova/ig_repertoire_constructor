@@ -5,7 +5,7 @@ input_params {
 
 output_params {
     output_dir             cdr_test
-    cleaned_reads          cleaned_reads.fastq
+    cleaned_reads          cleaned_sequences.fasta
     cdr_details            cdr_details.txt  
     cdr1_fasta             cdr1s.fasta
     cdr2_fasta             cdr2s.fasta 
