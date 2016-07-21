@@ -20,6 +20,7 @@ using seqan::CharString;
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
 #include "ig_final_alignment.hpp"
+#include "utils.hpp"
 #include <build_info.hpp>
 
 struct SWGCParam {

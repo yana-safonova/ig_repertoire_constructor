@@ -11,6 +11,7 @@ using std::endl;
 
 #include "fast_ig_tools.hpp"
 #include "ig_matcher.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;

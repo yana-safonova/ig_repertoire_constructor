@@ -56,18 +56,18 @@ link_libraries(input yaml-cpp ${COMMON_LIBRARIES})
 # TEMPORARY measure! Remove conversion warnings
 remove_definitions(-Wconversion)
 
-add_executable(ig_trie_compressor ig_trie_compressor.cpp)
+add_executable(ig_trie_compressor ig_trie_compressor.cpp fast_ig_tools.cpp utils.cpp)
 target_link_libraries(ig_trie_compressor build_info)
 target_link_libraries(ig_trie_compressor boost_system)
 
-add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
-add_executable(ig_matcher ig_matcher.cpp)
-add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
+add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp fast_ig_tools.cpp utils.cpp)
+add_executable(ig_matcher ig_matcher.cpp fast_ig_tools.cpp utils.cpp)
+add_executable(ig_swgraph_construct ig_swgraph_construct.cpp fast_ig_tools.cpp utils.cpp)
 target_link_libraries(ig_swgraph_construct build_info)
 
-add_executable(ig_kmer_counter ig_kmer_counter.cpp)
-add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
-add_executable(ig_consensus_finder ig_consensus_finder.cpp)
+add_executable(ig_kmer_counter ig_kmer_counter.cpp fast_ig_tools.cpp utils.cpp)
+add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp fast_ig_tools.cpp utils.cpp)
+add_executable(ig_consensus_finder ig_consensus_finder.cpp fast_ig_tools.cpp utils.cpp)
 
 add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

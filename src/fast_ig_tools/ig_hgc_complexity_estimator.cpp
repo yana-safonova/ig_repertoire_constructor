@@ -14,6 +14,7 @@ using std::endl;
 #include "ig_final_alignment.hpp"
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;

@@ -23,6 +23,7 @@ using seqan::CharString;
 
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
+#include "utils.hpp"
 
 class BestScoreIndices {
     public:
@@ -128,7 +129,6 @@ void bestScorePairing(const std::vector<T> &input_reads1,
     write_best_hits(g1, fname1);
     write_best_hits(g2, fname2);
 }
-
 
 int main(int argc, char **argv) {
     auto start_time = std::chrono::high_resolution_clock::now();

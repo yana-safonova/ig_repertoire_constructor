@@ -13,6 +13,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_final_alignment.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
