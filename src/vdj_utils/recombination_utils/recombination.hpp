@@ -7,7 +7,7 @@
 namespace recombination_utils {
 
 class HCRecombination {
-    core::ReadPtr read_ptr_;
+    const core::Read* read_ptr_;
     CleavedIgGeneAlignment v_gene_;
     CleavedIgGeneAlignment d_gene_;
     CleavedIgGeneAlignment j_gene_;
@@ -15,39 +15,63 @@ class HCRecombination {
     NongenomicInsertion dj_insertion_;
 
 public:
-    HCRecombination(core::ReadPtr read_ptr,
+    HCRecombination() : read_ptr_(nullptr),
+                        v_gene_(), d_gene_(), j_gene_(),
+                        vd_insertion_(), dj_insertion_()
+    { }
+
+    HCRecombination(const core::Read* read_ptr,
                     CleavedIgGeneAlignment v_gene,
                     CleavedIgGeneAlignment d_gene,
                     CleavedIgGeneAlignment j_gene,
                     NongenomicInsertion vd_insertion,
                     NongenomicInsertion dj_insertion) :
-        read_ptr_(read_ptr),
-        v_gene_(v_gene),
-        d_gene_(d_gene),
-        j_gene_(j_gene),
-        vd_insertion_(vd_insertion),
-        dj_insertion_(dj_insertion) { }
+        read_ptr_(read_ptr)
+    {
+        std::swap(v_gene_, v_gene);
+        std::swap(d_gene_, d_gene);
+        std::swap(j_gene_, j_gene);
+        std::swap(vd_insertion_, vd_insertion);
+        std::swap(dj_insertion_, dj_insertion);
+    }
 
-    HCRecombination(const HCRecombination &obj) = default;
+    HCRecombination(const core::Read& read,
+                    CleavedIgGeneAlignment v_gene,
+                    CleavedIgGeneAlignment d_gene,
+                    CleavedIgGeneAlignment j_gene,
+                    NongenomicInsertion vd_insertion,
+                    NongenomicInsertion dj_insertion) :
+        HCRecombination(&read,
+                        std::move(v_gene), std::move(d_gene), std::move(j_gene),
+                        std::move(vd_insertion), std::move(dj_insertion))
+    { }
 
-    core::ReadPtr Read() const { return read_ptr_; }
+    HCRecombination(const HCRecombination&) = default;
+    HCRecombination(HCRecombination&&) = default;
+    HCRecombination& operator=(const HCRecombination&) = default;
+    HCRecombination& operator=(HCRecombination&&) = default;
+
+    const core::Read* ReadPtr() const { return read_ptr_; }
+    const core::Read& Read() const {
+        assert(read_ptr_ != nullptr);
+        return *read_ptr_;
+    }
 
     const CleavedIgGeneAlignment &V() const { return v_gene_; }
-
     const CleavedIgGeneAlignment &D() const { return d_gene_; }
-
     const CleavedIgGeneAlignment &J() const { return j_gene_; }
 
-    NongenomicInsertion VDInsertion() const { return vd_insertion_; }
-
-    NongenomicInsertion DJInsertion() const { return dj_insertion_; }
+    const NongenomicInsertion &VDInsertion() const { return vd_insertion_; }
+    const NongenomicInsertion &DJInsertion() const { return dj_insertion_; }
 
     size_t SHMsNumber() const { return v_gene_.SHMsNumber() + d_gene_.SHMsNumber() + j_gene_.SHMsNumber(); }
 
     // recombination is not valid if v gene event overlaps j gene event or
     // j gene event overlaps d gene event
     // it result in invalid vd/dj insertion
-    bool Valid() const;
+    bool Valid() const {
+        return vd_insertion_.Valid() and dj_insertion_.Valid();
+    }
 
     size_t ReadId() const {
         assert(read_ptr_ != nullptr);

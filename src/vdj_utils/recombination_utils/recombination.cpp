@@ -2,12 +2,6 @@
 
 namespace recombination_utils {
 
-// recombination is not valid if v gene event overlaps j gene event or
-// j gene event overlaps d gene event
-// it result in invalid vd/dj insertion
-bool HCRecombination::Valid() const {
-    return vd_insertion_.Valid() and dj_insertion_.Valid();
-}
 
 std::ostream &operator<<(std::ostream &out, const HCRecombination &hc_recombination) {
     out << "HC recombination, # SHMs: " << hc_recombination.SHMsNumber() << ", valid: " <<

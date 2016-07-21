@@ -11,12 +11,19 @@ class NongenomicInsertion {
 public:
     NongenomicInsertion() :
         start_position_(size_t(-1)),
-        end_position_(size_t(-1)) { }
+        end_position_(size_t(-1))
+    { }
 
     NongenomicInsertion(size_t start_position,
                         size_t end_position) :
         start_position_(start_position),
-        end_position_(end_position) { }
+        end_position_(end_position)
+    { }
+
+    NongenomicInsertion(const NongenomicInsertion&) = default;
+    NongenomicInsertion(NongenomicInsertion&&) = default;
+    NongenomicInsertion& operator=(const NongenomicInsertion&) = default;
+    NongenomicInsertion& operator=(NongenomicInsertion&&) = default;
 
     size_t StartPosition() const { return start_position_; }
 
@@ -39,4 +46,4 @@ public:
 
 std::ostream &operator<<(std::ostream &out, const NongenomicInsertion &insertion);
 
-}
+} // End namespace recombination_utils
