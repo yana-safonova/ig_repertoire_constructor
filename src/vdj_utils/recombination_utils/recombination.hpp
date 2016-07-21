@@ -26,14 +26,13 @@ public:
                     CleavedIgGeneAlignment j_gene,
                     NongenomicInsertion vd_insertion,
                     NongenomicInsertion dj_insertion) :
-        read_ptr_(read_ptr)
-    {
-        std::swap(v_gene_, v_gene);
-        std::swap(d_gene_, d_gene);
-        std::swap(j_gene_, j_gene);
-        std::swap(vd_insertion_, vd_insertion);
-        std::swap(dj_insertion_, dj_insertion);
-    }
+        read_ptr_(read_ptr),
+        v_gene_(std::move(v_gene)),
+        d_gene_(std::move(d_gene)),
+        j_gene_(std::move(j_gene)),
+        vd_insertion_(std::move(vd_insertion)),
+        dj_insertion_(std::move(dj_insertion))
+    { }
 
     HCRecombination(const core::Read& read,
                     CleavedIgGeneAlignment v_gene,
