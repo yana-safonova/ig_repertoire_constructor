@@ -77,7 +77,7 @@ namespace vj_finder {
         int RightShift() const { return block_alignment_.path.right_shift(); }
 
         virtual void AddShift(int shift) {
-            shift_ = shift;
+            shift_ += shift;
             block_alignment_.add_read_shift(shift);
         }
 
@@ -106,12 +106,12 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return block_alignment_.start() + shift_;
+            return block_alignment_.start(); // + shift_;
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return int(block_alignment_.last_match_read_pos()) + shift_;
+            return int(block_alignment_.last_match_read_pos()); // + shift_;
         }
     };
 
@@ -138,12 +138,12 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return int(block_alignment_.first_match_read_pos()) + shift_;
+            return int(block_alignment_.first_match_read_pos()); // + shift_;
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.finish() + shift_;
+            return block_alignment_.finish(); // + shift_;
         }
     };
 
