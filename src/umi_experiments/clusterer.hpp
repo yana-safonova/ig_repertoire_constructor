@@ -659,9 +659,9 @@ namespace clusterer {
                     chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
                     chimeras_file << "umi clusters:" << std::endl;
                     for (const auto& c : clusters) {
-                        chimeras_file << c << std::endl;
+                        chimeras_file << c->GetSequence() << std::endl;
                     }
-                } else if ((left_in_all > 1) != (right_in_all > 1)) {
+                } else if ((left_in_all > 0) != (right_in_all > 0)) {
                     found_half_only ++;
                 }
             }
