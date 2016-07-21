@@ -128,6 +128,14 @@ def PrepareConfigs(params, log):
     ModifyConfigFiles(params, log)
     #UpdateGermlineConfigFile(params, log)
 
+def Cleanup(params, log):
+    params.trash_log = os.path.join(params.output_dir, "trash.out")
+    if os.path.exists(params.trash_log):
+        os.remove(params.trash_log)
+    params.cdr3_graph = os.path.join(params.output_dir, "cdr3_graph.graph")
+    if os.path.exists(params.cdr3_graph):
+        os.remove(params.cdr3_graph)
+
 ########################################################################################################################
 
 def main(argv):
@@ -186,10 +194,6 @@ def main(argv):
                                action="help",
                                help="Help message and exit")
 
-    #parser.set_defaults(config_dir=os.path.join(params.output_dir, "configs"),
-    #                    cdr_config_file=os.path.join(cdr_labeler_config_dir, "config.info"),
-    #                    vj_finder_config_file = os.path.join(vj_finder_config_dir, "config.info")))
-
     # prepare log
     log = logging.getLogger('diversity_analyzer')
     log.setLevel(logging.DEBUG)
@@ -234,7 +238,7 @@ def main(argv):
                                 os.path.join(params.output_dir, "shm_details.txt"),
                                 os.path.join(params.output_dir, "plots"),
                                 os.path.join(params.output_dir, "annotation_report.html"), log)
-        #Cleanup(params, log)
+        Cleanup(params, log)
         log.info("\nThank you for using " + tool_name + "!\n")
     except (KeyboardInterrupt):
          log.info("\n" + tool_name + " was interrupted!")
