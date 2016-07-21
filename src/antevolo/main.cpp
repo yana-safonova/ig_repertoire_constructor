@@ -8,6 +8,7 @@
 
 #include "antevolo_config.hpp"
 #include "antevolo_launch.hpp"
+#include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
 
 void create_console_logger(/*std::string cfg_filename*/) {
     using namespace logging;
@@ -63,11 +64,40 @@ antevolo::AntEvoloConfig load_config(int argc, char **argv) {
 
 
 int main(int argc, char **argv) {
+
     segfault_handler sh;
     perf_counter pc;
     create_console_logger();
+    /*
+    using namespace antevolo;
+    std::ifstream in("/home/aslabodkin/trees/Edmonds_test.txt");
+    typedef EdmondsTarjanDMSTCalculator::WeightedEdge WeightedEdge;
+    std::vector<WeightedEdge> edges;
+    size_t E;
+    in >> E;
+    size_t V = 0;
+    for (size_t i = 0; i < E; ++i) {
+        size_t src;
+        size_t dst;
+        double weight;
+        in >> src >> dst >> weight;
+        edges.push_back(WeightedEdge(src, dst, weight));
+        V = std::max(V, src);
+        V = std::max(V, dst);
+    }
+    V++;
+    EdmondsTarjanDMSTCalculator e_calc(V, edges, 0);
+    e_calc.EmpondsTarjan();
+    INFO("Minimal arborescence found");
+    std::vector<WeightedEdge> res = e_calc.GetParentEdges();
+    for (size_t i = 1; i < V; ++i)
+    {
+        std::cout << res[i].src_ << " " << res[i].dst_ << " " << res[i].weight_ << std::endl;
+    }
+    */
     antevolo::AntEvoloConfig config = load_config(argc, argv);
     antevolo::AntEvoloLaunch(config).Launch();
+
     //cdr_labeler::CDRLabelerLaunch(config).Launch();
     return 0;
 }

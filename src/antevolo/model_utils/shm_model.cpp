@@ -170,15 +170,17 @@ namespace antevolo {
             INFO("CDR3 region is empty");
             return 0.00001;
         }
-        auto const& src_start_pos = edge.src_clone->GetRangeByRegion(
+        size_t src_start_pos = edge.src_clone->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).start_pos;
-        auto const& dst_start_pos = edge.dst_clone->GetRangeByRegion(
+        size_t dst_start_pos = edge.dst_clone->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).start_pos;
         size_t length = edge.src_clone->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).length();
         if (length != edge.dst_clone->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).length()) {
-            throw shm_exception("nonequal CDR3 lengths");
+            std::stringstream ss;
+            ss << "nonequal CDR3 lengths: " << edge.src_clone_num << " " << edge.dst_clone_num;
+            throw shm_exception(ss.str());
         }
         if (src_start_pos < 2 ||
                 dst_start_pos < 2 ||

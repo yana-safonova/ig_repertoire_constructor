@@ -271,6 +271,9 @@ namespace antevolo {
                 const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
                 tree.AddDirected(edge.dst_clone_num, edge, model_);
                 //tree.PrepareSubtree(edge_vector, root);
+
+                //INFO("ds root is: " << ds_on_undirected_edges.find_set(vertex.first) << ", root is: " << root <<
+                //" root's ds_root is:" << ds_on_undirected_edges.find_set(root));
                 tree.PrepareSubtreeEdmonds(edge_vector, root, model_, clone_set_, edge_constructor);
             }
             else {

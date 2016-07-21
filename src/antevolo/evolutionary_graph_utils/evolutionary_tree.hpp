@@ -29,7 +29,7 @@ namespace antevolo {
                 size_t root_num);
 
         void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
-                                                     size_t root_num,
+                                                     size_t root_vertex,
                                                      ShmModel& model,
                                                      const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                                                      EvolutionaryEdgeConstructor* edge_constructor);
@@ -68,6 +68,25 @@ namespace antevolo {
                 res += it->second.size();
             }
             return res;
+        }
+
+        std::string clone_to_string(const annotation_utils::AnnotatedClone& clone) {
+            std::stringstream ss;
+            size_t start_pos = clone.GetRangeByRegion(
+                    annotation_utils::StructuralRegion::CDR3).start_pos;
+            size_t end_pos = clone.GetRangeByRegion(
+                    annotation_utils::StructuralRegion::CDR3).end_pos;
+            auto const& seq = clone.Read().seq;
+            for (size_t i = 0; i < seqan::length(seq); ++i) {
+                if (i == start_pos) {
+                    ss << " ";
+                }
+                ss << seq[i];
+                if (i == end_pos) {
+                    ss << " ";
+                }
+            }
+            return ss.str();
         }
     };
 }

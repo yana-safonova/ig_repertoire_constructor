@@ -7,6 +7,7 @@ namespace antevolo {
         in_.push_back(WeightedEdge());
         const_add_.push_back(-1);
         parent_.push_back(size_t(-1));
+        phase_.push_back(size_t(-1));
         children_.push_back(std::vector<size_t>());
         Ps_.push_back(P_queue());
     }
@@ -117,13 +118,17 @@ namespace antevolo {
             std::cout << p.top().weight_ << " ";
         }  std::cout << std::endl;
         */
-        std::vector<size_t> next(vertices_num_, size_t(-1));
+        //std::vector<size_t> next(vertices_num_, size_t(-1));
+        phase_[root_] = 0;
         for (size_t a_start = 0; a_start < n; ++a_start) {
-            size_t a = a_start;
+            size_t crnt_phase = a_start+1;
+            size_t a = parent_label_map_[ds_contract.find_set(a_start)];
+            if (phase_[a] != size_t(-1)) {
+                continue;
+            }
             //INFO("vertex " << a);
-            next.assign(vertices_num_, size_t(-1));
-            while (in_[parent_label_map_[ds_contract.find_set(a)]].weight_ == 400 && !Ps_[a].empty() && a != root_) {
-
+            //next.assign(vertices_num_, size_t(-1));
+            while (!Ps_[a].empty()) {
                 /*
                 for (size_t i = 0; i < vertices_num_; ++i) {
                     std::cout << parent_label_map_[ds_contract.find_set(i)] << " ";
@@ -134,7 +139,7 @@ namespace antevolo {
                     }
                 } std::cout << std::endl;
                */
-
+                phase_[a] = crnt_phase;
 
                 //INFO(a << " p_queue size = " << Ps_[a].size());
                 WeightedEdge e = Ps_[a].top();
@@ -143,28 +148,36 @@ namespace antevolo {
                     Ps_[a].pop();
                     continue;
                 }
-                next[a] = b;
+                //next[a] = b;
                 //INFO("next[" << a << "] = " << b);
                 in_[a] = e;
                 //INFO("src in_edge " << in_[e.src_].src_ << "->" << in_[e.src_].dst_ << " (" << in_[e.src_].weight_ << ")");
-                if (next[b] == size_t(-1)) {
+
+                //if (next[b] == size_t(-1)) {
+                if (phase_[b] == size_t(-1)) {
                     a = b;
                     continue;
                 }
+                if (phase_[b] != crnt_phase) { //if b has been already rooted
+                    break;
+                }
+
                 InitVertex();
-                next.push_back(size_t(-1));
+                //next.push_back(size_t(-1));
                 size_t c = vertices_num_-1;
                 ds_contract.make_set(c);
                 std::vector<size_t> cycle;
                 cycle.push_back(a);
                 //INFO(a);
-                size_t u = parent_label_map_[ds_contract.find_set(next[a])];
+                size_t u = parent_label_map_[ds_contract.find_set(in_[a].src_)];
                 while (u != cycle[0]) {
                     //INFO(c << " | " << u << " " << parent_label_map_[ds_contract.find_set(next[u])]);
                     cycle.push_back(u);
-                    u = parent_label_map_[ds_contract.find_set(next[u])];
+                    u = parent_label_map_[ds_contract.find_set(in_[u].src_)];
                 }
                 for (auto a2 : cycle) {
+                    ds_contract.union_set(c, a2);
+                    parent_label_map_[ds_contract.find_set(c)] = c;
                     //INFO(c << " || " << a2 << " size " << Ps_[a2].size());
                     parent_[a2] = c;
                     //INFO(a2 << " const add " << const_add_[a2]);
@@ -172,6 +185,14 @@ namespace antevolo {
                     while (!Ps_[a2].empty()) {
                         //INFO(c << " " << a2 << " const add " << in_[a2].weight_);
                         WeightedEdge e2 = Ps_[a2].top();
+                        if (parent_label_map_[ds_contract.find_set(e2.dst_)] != c) {
+                            INFO("invalid in_edge, top level: " << c << " bottom level " << a2 << " src " << e2.src_
+                                 << " dst " << e2.dst_);
+                        }
+                        if (parent_label_map_[ds_contract.find_set(e2.src_)] == c) {
+                            Ps_[a2].pop();
+                            continue;
+                        }
                         //if (a2 == e.) {
                         //    e2.weight_ -= in_[a2].weight_;
                         //}
@@ -179,18 +200,9 @@ namespace antevolo {
                         Ps_[a2].pop();
                         Ps_[c].push(e2);
 
-                        ds_contract.union_set(c, a2);
-                        parent_label_map_[ds_contract.find_set(c)] = c;
+
                     }
                     //a = prev_[a];
-                }
-                while (!Ps_[c].empty()) {
-                    WeightedEdge e_temp = Ps_[c].top();
-                    size_t b_temp = parent_label_map_[ds_contract.find_set(e_temp.src_)];
-                    if (parent_[b_temp] != c) { //if e is a selfloop
-                        break;
-                    }
-                    Ps_[c].pop();
                 }
 
                 //WeightedEdge we = Ps_[c].top();
@@ -241,7 +253,7 @@ namespace antevolo {
         //INFO("InEdgeHandling " << u);
         //WeightedEdge in_edge = in_[u];
         //INFO("edge " << in_edge.src_ << "->" << in_edge.dst_ << " (" << in_edge.weight_ << ")");
-        std::vector<size_t> path;
+        //std::vector<size_t> path;
         size_t v = in_[u].dst_;
         while (parent_[v] != u) {
             v = parent_[v];

@@ -60,6 +60,7 @@ namespace antevolo {
         std::vector<WeightedEdge> in_;
         std::vector<double> const_add_;
         std::vector<size_t> parent_;
+        std::vector<size_t> phase_;
         std::vector<std::vector<size_t>> children_;
         std::map<std::pair<size_t, size_t>, double> edge_initial_weight_map_;
         std::map<size_t, size_t> parent_label_map_;
@@ -124,10 +125,12 @@ namespace antevolo {
 
         std::vector<WeightedEdge> GetParentEdges() {
             std::vector<WeightedEdge> res;
-            for (WeightedEdge& e : in_) {
-                WeightedEdge initial_e(e);
-                initial_e.weight_ = edge_initial_weight_map_[std::make_pair(e.src_, e.dst_)];
-                res.push_back(initial_e);
+            for (size_t i = 0; i < in_.size(); ++i) {
+                WeightedEdge initial_e(in_[i]);
+                initial_e.weight_ = edge_initial_weight_map_[std::make_pair(in_[i].src_, in_[i].dst_)];
+                if (i != root_) {
+                    res.push_back(initial_e);
+                }
             }
             return res;
         }
