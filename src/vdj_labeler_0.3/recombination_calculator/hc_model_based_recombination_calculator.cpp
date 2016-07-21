@@ -55,13 +55,13 @@ double HCModelBasedRecombinationCalculator::ComputeAssemblyProbability(
 
     for (size_t i = 0; i < recombination.VDInsertion().length(); ++i)
         VD_non_genomic_ins_prob += log(model_.GetVDNongenomicInsertionModel().GetTransitionProbability(
-            {recombination.Read()->seq[i + recombination.VDInsertion().StartPosition() - 1],
-             recombination.Read()->seq[i + recombination.VDInsertion().StartPosition()]}));
+            {recombination.Read().seq[i + recombination.VDInsertion().StartPosition() - 1],
+             recombination.Read().seq[i + recombination.VDInsertion().StartPosition()]}));
 
     for (size_t i = 0; i < recombination.DJInsertion().length(); ++i)
         DJ_non_genomic_ins_prob += log(model_.GetDJNongenomicInsertionModel().GetTransitionProbability(
-            {recombination.Read()->seq[i + recombination.DJInsertion().StartPosition() - 1],
-             recombination.Read()->seq[i + recombination.DJInsertion().StartPosition()]}));
+            {recombination.Read().seq[i + recombination.DJInsertion().StartPosition() - 1],
+             recombination.Read().seq[i + recombination.DJInsertion().StartPosition()]}));
 
     /** Total log probability */
     double result_probability = id_probs + del_probs + VD_non_genomic_ins_prob + DJ_non_genomic_ins_prob;

@@ -11,8 +11,8 @@ class HCModelBasedRecombinationCalculator:
     HCProbabilityRecombinationModel model_;
 
 public:
-    HCModelBasedRecombinationCalculator(const HCProbabilityRecombinationModel &model) :
-        model_(model) { }
+    HCModelBasedRecombinationCalculator(HCProbabilityRecombinationModel model) :
+        model_(std::move(model)) { }
 
     double ComputeAssemblyProbability(const recombination_utils::HCRecombination &recombination) const;
 };
