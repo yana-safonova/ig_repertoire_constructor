@@ -11,50 +11,50 @@
 
 namespace vdj_labeler {
 
-using IgGeneDatabasePtrConst = std::shared_ptr<const germline_utils::ImmuneGeneDatabase>;
 // Here we use only Heavy Chain (HC).
-using HC_GenesDatabase_PtrConst = std::shared_ptr<const germline_utils::ChainDatabase>;
-
 class IgGeneProbabilityModel {
     using IgGeneProbabilityVector = std::vector<double>;
     IgGeneProbabilityVector ig_gene_probabilities_;
-    IgGeneDatabasePtrConst ig_gene_database_;
+    const germline_utils::ImmuneGeneDatabase* ig_gene_database_;
 
 public:
     IgGeneProbabilityModel() = delete;
 
-    IgGeneProbabilityModel(const IgGeneProbabilityVector &, const IgGeneDatabasePtrConst &);
+    IgGeneProbabilityModel(const IgGeneProbabilityVector&, const germline_utils::ImmuneGeneDatabase*);
 
     IgGeneProbabilityModel(const IgGeneProbabilityModel &) = default;
-
     IgGeneProbabilityModel(IgGeneProbabilityModel &&) = default;
-
     IgGeneProbabilityModel &operator=(const IgGeneProbabilityModel &) = default;
-
     IgGeneProbabilityModel &operator=(IgGeneProbabilityModel &&) = default;
 
     virtual ~IgGeneProbabilityModel() = default;
 
-    const IgGeneProbabilityVector &GetIgGeneProbabilities() const {
-        return ig_gene_probabilities_;
-    }
+    const IgGeneProbabilityVector &GetIgGeneProbabilities() const { return ig_gene_probabilities_; }
 
-    const IgGeneDatabasePtrConst GetIgGeneDatabase() const {
-        return ig_gene_database_;
+    const germline_utils::ImmuneGeneDatabase* GetIgGeneDatabasePtr() const { return ig_gene_database_; }
+
+    const germline_utils::ImmuneGeneDatabase &GetIgGeneDatabase() const {
+        assert(ig_gene_database_ != nullptr);
+        return *ig_gene_database_;
     }
 
     void SetGeneProbabilities(const IgGeneProbabilityVector &ig_gene_probabilities) {
         ig_gene_probabilities_ = ig_gene_probabilities;
     }
 
+    using iterator = IgGeneProbabilityVector::iterator;
     using citerator = IgGeneProbabilityVector::const_iterator;
 
+    iterator  begin ()       { return ig_gene_probabilities_.begin(); }
+    citerator begin () const { return ig_gene_probabilities_.begin(); }
     citerator cbegin() const { return ig_gene_probabilities_.cbegin(); }
-    citerator cend() const { return ig_gene_probabilities_.cend(); }
+    iterator  end   ()       { return ig_gene_probabilities_.end(); }
+    citerator end   () const { return ig_gene_probabilities_.end(); }
+    citerator cend  () const { return ig_gene_probabilities_.cend(); }
 
     size_t size() const;
 
-    IgGeneProbabilityModel(std::ifstream &, const IgGeneDatabasePtrConst &);
+    IgGeneProbabilityModel(std::ifstream &, const germline_utils::ImmuneGeneDatabase*);
 
     IgGeneProbabilityModel(std::ifstream &, const germline_utils::ImmuneGeneDatabase &);
 
@@ -64,6 +64,7 @@ public:
 
 std::ostream &operator<<(std::ostream &, const IgGeneProbabilityModel &);
 
+/***************************************************************************************************/
 
 class NongenomicInsertionModel {
     std::vector<double> insertion_probabilities_;
@@ -108,19 +109,20 @@ public:
 
 std::ostream &operator<<(std::ostream &, const NongenomicInsertionModel &);
 
+/***************************************************************************************************/
 
 class PalindromeDeletionModel {
     using DeletionTableVector = std::vector<std::vector<double>>;
     DeletionTableVector deletion_table_;
     std::vector<int> deletion_length_;
-    IgGeneDatabasePtrConst ig_gene_database_;
+    const germline_utils::ImmuneGeneDatabase* ig_gene_database_;
 
 public:
     PalindromeDeletionModel() = delete;
 
     PalindromeDeletionModel(const DeletionTableVector &,
                             const std::vector<int> &,
-                            const IgGeneDatabasePtrConst &);
+                            const germline_utils::ImmuneGeneDatabase*);
 
     PalindromeDeletionModel(const PalindromeDeletionModel &) = default;
 
@@ -138,20 +140,30 @@ public:
         deletion_table_ = deletion_table;
     }
 
-    const IgGeneDatabasePtrConst GetIgGeneDatabase() const {
+    const germline_utils::ImmuneGeneDatabase* GetIgGeneDatabasePtr() const {
         return ig_gene_database_;
+    }
+
+    const germline_utils::ImmuneGeneDatabase &GetIgGeneDatabase() const {
+        assert(ig_gene_database_ != nullptr);
+        return *ig_gene_database_;
     }
 
     const std::vector<int> &GetDeletionLength() const { return deletion_length_; }
 
+    using iterator = DeletionTableVector::iterator;
     using citerator = DeletionTableVector::const_iterator;
 
+    iterator  begin ()       { return deletion_table_.begin(); }
+    citerator begin () const { return deletion_table_.begin(); }
     citerator cbegin() const { return deletion_table_.cbegin(); }
-    citerator cend() const { return deletion_table_.cend(); }
+    iterator  end   ()       { return deletion_table_.end(); }
+    citerator end   () const { return deletion_table_.end(); }
+    citerator cend  () const { return deletion_table_.cend(); }
 
     size_t size() const { return deletion_table_.size(); }
 
-    PalindromeDeletionModel(std::ifstream &, const IgGeneDatabasePtrConst &);
+    PalindromeDeletionModel(std::ifstream &, const germline_utils::ImmuneGeneDatabase*);
 
     PalindromeDeletionModel(std::ifstream &, const germline_utils::ImmuneGeneDatabase &);
 
@@ -159,6 +171,8 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &, const PalindromeDeletionModel &);
+
+/***************************************************************************************************/
 
 class HCProbabilityRecombinationModel {
     IgGeneProbabilityModel V_gene_probability_model_;
@@ -172,17 +186,13 @@ class HCProbabilityRecombinationModel {
     PalindromeDeletionModel DLeft_palindrome_deletion_model_;
     PalindromeDeletionModel DRight_palindrome_deletion_model_;
 
-    HC_GenesDatabase_PtrConst HC_database;
+    const germline_utils::ChainDatabase* HC_database;
 
 public:
     HCProbabilityRecombinationModel() = delete;
-
     HCProbabilityRecombinationModel(const HCProbabilityRecombinationModel &) = default;
-
     HCProbabilityRecombinationModel(HCProbabilityRecombinationModel &&) = default;
-
     HCProbabilityRecombinationModel &operator=(const HCProbabilityRecombinationModel &) = default;
-
     HCProbabilityRecombinationModel &operator=(HCProbabilityRecombinationModel &&) = default;
 
     virtual ~HCProbabilityRecombinationModel() = default;
@@ -235,8 +245,7 @@ public:
         J_gene_probability_model_ = J_gene_probability_model;
     }
 
-    HCProbabilityRecombinationModel(std::ifstream &, const HC_GenesDatabase_PtrConst &);
-
+    HCProbabilityRecombinationModel(std::ifstream &, const germline_utils::ChainDatabase*);
     HCProbabilityRecombinationModel(std::ifstream &, const germline_utils::ChainDatabase &);
 
     //double GetProbabilityByGenId(const IgGene& ig_gene) const;

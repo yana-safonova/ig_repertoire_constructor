@@ -11,14 +11,15 @@ using boost::escaped_list_separator;
 using Tokenizer = tokenizer<escaped_list_separator<char>>;
 
 IgGeneProbabilityModel::IgGeneProbabilityModel(const IgGeneProbabilityVector &ig_gene_probabilities,
-                                               const IgGeneDatabasePtrConst &ig_gene_database) :
+                                               const germline_utils::ImmuneGeneDatabase* ig_gene_database) :
     ig_gene_probabilities_(ig_gene_probabilities),
-    ig_gene_database_(ig_gene_database) { }
+    ig_gene_database_(ig_gene_database)
+{ }
 
 size_t IgGeneProbabilityModel::size() const { return ig_gene_probabilities_.size(); }
 
 IgGeneProbabilityModel::IgGeneProbabilityModel(std::ifstream &in,
-                                               const IgGeneDatabasePtrConst &ig_gene_database) :
+                                               const germline_utils::ImmuneGeneDatabase* ig_gene_database) :
     ig_gene_database_(ig_gene_database) {
     assert(in.is_open());
     std::string line;
@@ -36,11 +37,12 @@ IgGeneProbabilityModel::IgGeneProbabilityModel(std::ifstream &in,
 }
 
 IgGeneProbabilityModel::IgGeneProbabilityModel(std::ifstream &in, const germline_utils::ImmuneGeneDatabase &database) :
-    IgGeneProbabilityModel(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(database)) { }
+    IgGeneProbabilityModel(in, &database)
+{ }
 
 std::ostream &operator<<(std::ostream &out, const IgGeneProbabilityModel &model) {
     for (size_t i = 0; i < model.size(); ++i)
-        out << "Gene_id: " << model.GetIgGeneDatabase()->operator[](i).name()
+        out << "Gene_id: " << model.GetIgGeneDatabase()[i].name()
             << ", " << "Gene probability: " << model.GetIgGeneProbabilities().at(i) << "\n";
     return out;
 }
@@ -124,14 +126,14 @@ double NongenomicInsertionModel::GetTransitionProbability(
 
 PalindromeDeletionModel::PalindromeDeletionModel(const DeletionTableVector &deletion_table,
                                                  const std::vector<int> &deletion_length,
-                                                 const IgGeneDatabasePtrConst &ig_gene_database) :
+                                                 const germline_utils::ImmuneGeneDatabase* ig_gene_database) :
     deletion_table_(deletion_table),
     deletion_length_(deletion_length),
     ig_gene_database_(ig_gene_database) { }
 
 
 PalindromeDeletionModel::PalindromeDeletionModel(std::ifstream &in,
-                                                 const IgGeneDatabasePtrConst &ig_gene_database) :
+                                                 const germline_utils::ImmuneGeneDatabase* ig_gene_database) :
     ig_gene_database_(ig_gene_database) {
     assert(in.is_open());
     deletion_table_.resize(ig_gene_database->size());
@@ -173,7 +175,7 @@ PalindromeDeletionModel::PalindromeDeletionModel(std::ifstream &in,
 
 PalindromeDeletionModel::PalindromeDeletionModel(std::ifstream &in,
                                                  const germline_utils::ImmuneGeneDatabase &ig_gene_database) :
-    PalindromeDeletionModel(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(ig_gene_database)) { }
+    PalindromeDeletionModel(in, &ig_gene_database) { }
 
 std::ostream &operator<<(std::ostream &out, const PalindromeDeletionModel &model) {
     if (model.GetDeletionTable().empty())
@@ -185,7 +187,7 @@ std::ostream &operator<<(std::ostream &out, const PalindromeDeletionModel &model
     out << "\n";
 
     for (size_t i = 0; i < model.size(); ++i) {
-        out << model.GetIgGeneDatabase()->operator[](i).name() << " ";
+        out << model.GetIgGeneDatabase()[i].name() << " ";
         for (auto it = model.GetDeletionTable().at(i).begin();
              it != model.GetDeletionTable().at(i).end();
              ++it)
@@ -204,22 +206,22 @@ double PalindromeDeletionModel::GetDeletionProbability(const size_t &gene_id, co
 /**************************************************************************************************/
 
 HCProbabilityRecombinationModel::HCProbabilityRecombinationModel(std::ifstream &in,
-                                                                 const HC_GenesDatabase_PtrConst &HC_db) :
-    V_gene_probability_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::VariableSegment))),
-    D_gene_probability_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::DiversitySegment))),
-    J_gene_probability_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::JoinSegment))),
+                                                                 const germline_utils::ChainDatabase* HC_db) :
+    V_gene_probability_model_(in, HC_db->GetDb(germline_utils::VariableSegment)),
+    D_gene_probability_model_(in, HC_db->GetDb(germline_utils::DiversitySegment)),
+    J_gene_probability_model_(in, HC_db->GetDb(germline_utils::JoinSegment)),
     VD_nongenomic_insertion_model_(in),
     DJ_nongenomic_insertion_model_(in),
-    V_palindrome_deletion_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::VariableSegment))),
-    J_palindrome_deletion_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::JoinSegment))),
-    DLeft_palindrome_deletion_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::DiversitySegment))),
-    DRight_palindrome_deletion_model_(in, std::make_shared<const germline_utils::ImmuneGeneDatabase>(HC_db->GetDb(germline_utils::DiversitySegment))),
+    V_palindrome_deletion_model_(in, HC_db->GetDb(germline_utils::VariableSegment)),
+    J_palindrome_deletion_model_(in, HC_db->GetDb(germline_utils::JoinSegment)),
+    DLeft_palindrome_deletion_model_(in, HC_db->GetDb(germline_utils::DiversitySegment)),
+    DRight_palindrome_deletion_model_(in, HC_db->GetDb(germline_utils::DiversitySegment)),
     HC_database(HC_db)
 { }
 
 HCProbabilityRecombinationModel::HCProbabilityRecombinationModel(std::ifstream &in,
                                                                  const germline_utils::ChainDatabase &HC_db) :
-    HCProbabilityRecombinationModel(in, std::make_shared<germline_utils::ChainDatabase>(HC_db)) { }
+    HCProbabilityRecombinationModel(in, &HC_db) { }
 
 std::ostream &operator<<(std::ostream &out, const HCProbabilityRecombinationModel &model) {
     out << "V gene probabilities:\n";
@@ -256,4 +258,4 @@ double HCProbabilityRecombinationModel::GetProbabilityByGenId(germline_utils::Se
     return J_gene_probability_model_.GetProbabilityByGenId(id);
 }
 
-}
+} // End namespace vdj_labeler

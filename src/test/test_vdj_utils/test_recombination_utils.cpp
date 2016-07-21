@@ -33,9 +33,9 @@ TEST_F(RecombinationUtilsTest, TestCleavedGene) {
     double score = globalAlignment(align, Score<int, Simple>(0, -1, -1));
     cout << align;
 
-    auto igal_ptr = make_shared<ImmuneGeneReadAlignment>(immune_gene, read, align, score);
+    auto igal = ImmuneGeneReadAlignment(immune_gene, read, align, score);
     {
-        CleavedIgGeneAlignment clal(igal_ptr, -1, 2, 1, 2);
+        CleavedIgGeneAlignment clal(&igal, -1, 2, 1, 2);
         EXPECT_EQ(clal.GeneId(), size_t(-1));
         EXPECT_EQ(clal.SHMsNumber(), 1 + 2 + 4);
 
