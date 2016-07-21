@@ -66,6 +66,30 @@ TEST_F(CDRLabelerTest, VGermlineCDRsAreIgBlastConsistent) {
 //
 //}
 
+void CheckFirstAnnotatedClone(const annotation_utils::CDRAnnotatedCloneSet &clone_set) {
+    std::string cdr1 = core::seqan_string_to_string(clone_set[0].CDR1());
+    ASSERT_EQ(cdr1, std::string("GGATTCACCTTTGATGATTATGGC"));
+    std::string cdr2 = core::seqan_string_to_string(clone_set[0].CDR2());
+    ASSERT_EQ(cdr2, std::string("ATTAATTGGAATGGTGGTAGCACA"));
+    std::string cdr3 = core::seqan_string_to_string(clone_set[0].CDR3());
+    ASSERT_EQ(cdr3, std::string("GCGAGAGATCATGATAGTAGTAGCCCGGGGTCCAACTGGTTCGACCCC"));
+    std::string aa_seq = core::seqan_string_to_string(clone_set[0].AA());
+    ASSERT_EQ(aa_seq, std::string("QVQLVESGGGVVRPGGSLRLSCAASGFTFDDYGMSWVRQAPGKGLEWVSGINWNGGSTGYADSVKGRFTISRDNAKNSLYLQMNSLRAEDTALYHCARDHDSSSPGSNWFDPWGQGTLVTVSS"));
+    ASSERT_EQ(clone_set[0].VSHMs().size(), 0);
+    ASSERT_EQ(clone_set[0].JSHMs().size(), 0);
+}
+
+void CheckSecondAnnotatedClone(const annotation_utils::CDRAnnotatedCloneSet &clone_set) {
+    std::string cdr1 = core::seqan_string_to_string(clone_set[1].CDR1());
+    ASSERT_EQ(cdr1, std::string("GGATTCACCTTCAGTAGCTATGCT"));
+    std::string cdr2 = core::seqan_string_to_string(clone_set[1].CDR2());
+    ASSERT_EQ(cdr2, std::string("ATTAATTGGAATGGTGGTAGCACA"));
+    std::string cdr3 = core::seqan_string_to_string(clone_set[1].CDR3());
+    ASSERT_EQ(cdr3, std::string("GCGAGGAGATTTTCAGAAGGAGCTTTTGATATC"));
+    ASSERT_EQ(clone_set[1].VSHMs().size(), 16);
+    ASSERT_EQ(clone_set[1].JSHMs().size(), 2);
+}
+
 TEST_F(CDRLabelerTest, ReadCDRsAreIgBlastConsistent) {
     using namespace cdr_labeler;
     auto v_labeling = GermlineDbLabeler(filtered_v_db, config.cdrs_params).ComputeLabeling();
@@ -84,11 +108,7 @@ TEST_F(CDRLabelerTest, ReadCDRsAreIgBlastConsistent) {
     vj_finder::VJAlignmentInfo alignment_info = processor.Process();
     ReadCDRLabeler read_labeler(v_labeling, j_labeling);
     auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
-    ASSERT_EQ(annotated_clone_set.size(), 1);
-    std::string cdr1 = core::dna5String_to_string(annotated_clone_set[0].CDR1());
-    ASSERT_EQ(cdr1, std::string("GGATTCACCTTTGATGATTATGGC"));
-    std::string cdr2 = core::dna5String_to_string(annotated_clone_set[0].CDR2());
-    ASSERT_EQ(cdr2, std::string("ATTAATTGGAATGGTGGTAGCACA"));
-    std::string cdr3 = core::dna5String_to_string(annotated_clone_set[0].CDR3());
-    ASSERT_EQ(cdr3, std::string("GCGAGAGATCATGATAGTAGTAGCCCGGGGTCCAACTGGTTCGACCCC"));
+    ASSERT_EQ(annotated_clone_set.size(), 2);
+    CheckFirstAnnotatedClone(annotated_clone_set);
+    CheckSecondAnnotatedClone(annotated_clone_set);
 }
