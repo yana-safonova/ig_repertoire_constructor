@@ -50,26 +50,10 @@ TEST_F(AlignmentUtilsTest, TestImmuneGeneAlignmentPositions) {
 TEST_F(AlignmentUtilsTest, TestPairwiseAlignment) {
     Align<Dna5String, ArrayGaps> align;
     resize(rows(align), 2);
-    ImmuneGene immune_gene;
-    Read read;
-    {
-        string seq1 = "ACCACCACAGT";
-        string seq2 = "ACTTGCCACAGTA";
-        assignSource(row(align, 0), seq1);
-        assignSource(row(align, 1), seq2);
-        double score = globalAlignment(align, Score<int, Simple>(0, -1, -1));
-
-        ImmuneGeneReadAlignment igal(immune_gene, read, align);
-        EXPECT_EQ(igal.SubjectAlignmentLength(), 13);
-        EXPECT_EQ(igal.QueryAlignmentLength(), 13);
-        EXPECT_EQ(igal.AlignmentLength(), 13);
-        EXPECT_EQ(igal.RealStartAlignmentPos(), 0);
-        EXPECT_EQ(igal.RealEndAlignmentPos(), 11);
-        EXPECT_EQ(igal.NumberMatches(), 9);
-        EXPECT_EQ(igal.NumberMismatches(), 2);
-        EXPECT_EQ(igal.NumberGaps(), 2);
-        EXPECT_EQ(igal.NumberSHMs(), 4);
-    }
+    string immune_gene_seq("AAA");
+    string read_seq("GGG");
+    ImmuneGene immune_gene(ImmuneGeneType(), "ImmuneGene", immune_gene_seq, 0);
+    Read read("Read", read_seq, 0);
     {
         string seq1 = "ACCACCACAGT";
         string seq2 = "ACTTGCCACAGTA";
@@ -78,6 +62,10 @@ TEST_F(AlignmentUtilsTest, TestPairwiseAlignment) {
         double score = globalAlignment(align, Score<int, Simple>(0, -1, -1));
 
         ImmuneGeneReadAlignment igal(immune_gene, read, align, score);
+        String<char, CStyle> query_str = igal.Query().seq;
+        String<char, CStyle> subj_str = igal.Subject().seq();
+        ASSERT_STREQ(query_str, read_seq.c_str());
+        ASSERT_STREQ(subj_str, immune_gene_seq.c_str());
         EXPECT_EQ(igal.SubjectAlignmentLength(), 13);
         EXPECT_EQ(igal.QueryAlignmentLength(), 13);
         EXPECT_EQ(igal.AlignmentLength(), 13);

@@ -1,10 +1,10 @@
 #pragma once
 
 #include <memory>
-
 #include "alignment_positions.hpp"
-
 #include <seqan/align.h>
+#undef NDEBUG
+#include <cassert>
 
 #include <verify.hpp>
 
@@ -14,8 +14,8 @@ namespace alignment_utils {
     // T2 is a type of query (e.g., Read)
     template<typename SubjectTypename, typename QueryTypename>
     class PairwiseAlignment {
-        const SubjectTypename &subject_;
-        const QueryTypename &query_;
+        const SubjectTypename* subject_ptr_;
+        const QueryTypename* query_ptr_;
         //AlignmentPositions positions_; it is important to have alignment positions?
         seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment_;
 
@@ -60,6 +60,7 @@ namespace alignment_utils {
             auto& query_row = seqan::row(alignment_, 1);
             assert(length(subject_row) == length(query_row));
             for(size_t i = 0; i < length(subject_row); i++) {
+                // std::cout << i << " " << length(subject_row) << " " << length(query_row) << std::endl;
                 if(subject_row[i] == '-' or query_row[i] == '-')
                     num_gaps_++;
                 else if(subject_row[i] == query_row[i])
@@ -92,34 +93,69 @@ namespace alignment_utils {
         }
 
     public:
-        PairwiseAlignment(const SubjectTypename &subject,
-                          const QueryTypename &query,
-                          seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment) :
-                subject_(subject), query_(query), alignment_(alignment),
-                num_gaps_(0), num_matches_(0), num_mismatches_(0)
+        PairwiseAlignment() :
+                subject_ptr_(nullptr), query_ptr_(nullptr), alignment_(),
+                num_gaps_(0), num_matches_(0), num_mismatches_()
+        { }
+
+        PairwiseAlignment(const SubjectTypename* subject_ptr,
+                          const QueryTypename* query_ptr,
+                          const seqan::Align<seqan::Dna5String, seqan::ArrayGaps>& alignment,
+                          double score) :
+                subject_ptr_(subject_ptr), query_ptr_(query_ptr), alignment_(alignment),
+                num_gaps_(0), num_matches_(0), num_mismatches_(0), score_(score)
         {
             ComputeAlignmentLengths();
             ComputeStartEndAlignmentPositions();
             ComputeAlignmentStats();
-        }
-
-        PairwiseAlignment(const SubjectTypename &subject,
-                          const QueryTypename &query,
-                          seqan::Align<seqan::Dna5String, seqan::ArrayGaps> alignment,
-                          double score) :
-                PairwiseAlignment(subject, query, alignment) {
-            score_ = score;
             ComputeNormalizedScore();
         }
+
+        PairwiseAlignment(const SubjectTypename* subject_ptr,
+                          const QueryTypename* query_ptr,
+                          seqan::Align<seqan::Dna5String, seqan::ArrayGaps>&& alignment,
+                          double score) :
+            subject_ptr_(subject_ptr), query_ptr_(query_ptr), alignment_(),
+            num_gaps_(0), num_matches_(0), num_mismatches_(0), score_(score)
+        {
+            seqan::move(alignment_, alignment);
+            ComputeAlignmentLengths();
+            ComputeStartEndAlignmentPositions();
+            ComputeAlignmentStats();
+            ComputeNormalizedScore();
+        }
+
+        PairwiseAlignment(const SubjectTypename& subject,
+                          const QueryTypename& query,
+                          const seqan::Align<seqan::Dna5String, seqan::ArrayGaps>& alignment,
+                          double score) :
+            PairwiseAlignment(&subject, &query, alignment, score)
+        { }
+
+        PairwiseAlignment(const SubjectTypename& subject,
+                          const QueryTypename& query,
+                          seqan::Align<seqan::Dna5String, seqan::ArrayGaps>&& alignment,
+                          double score) :
+            PairwiseAlignment(&subject, &query, alignment, score)
+        { }
 
         double Score() const { return score_; }
 
         double NormalizedScore() const { return normalized_score_; }
 
-        const SubjectTypename & subject() const { return subject_; }
+        const SubjectTypename* SubjectPtr() const { return subject_ptr_; }
 
-        const QueryTypename & query() const { return query_; }
+        const QueryTypename* QueryPtr() const { return query_ptr_; }
 
+        const SubjectTypename& Subject() const {
+            assert(subject_ptr_ != nullptr);
+            return *subject_ptr_;
+        }
+
+        const QueryTypename& Query() const {
+            assert(query_ptr_ != nullptr);
+            return *query_ptr_;
+        }
 
         size_t StartSubjectPosition() const {
             auto subject_row = seqan::row(alignment_, 0);
