@@ -70,7 +70,7 @@ namespace algorithms {
             return last_match_subject_pos() - first_match_subject_pos();
         }
 
-        int start() const { return start_; }
+        int start() const { return start_ + read_shift; }
 
         int finish() const { return finish_ + read_shift; }
 

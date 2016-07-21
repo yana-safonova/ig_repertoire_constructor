@@ -1,3 +1,4 @@
+#include <verify.hpp>
 #include "vj_query_fix_fill_crop.hpp"
 
 namespace vj_finder {
@@ -75,7 +76,6 @@ namespace vj_finder {
     }
 
     VJHits FillFixCropProcessor::Process(VJHits vj_hits) {
-        return vj_hits;
         TRACE("Fixing, filling and cropping read " << vj_hits.Read() << " starts");
         VJHits fixed_vj_hits = PerformFixing(vj_hits);
         TRACE("Fixing done");
