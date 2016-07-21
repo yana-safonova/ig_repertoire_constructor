@@ -3,18 +3,18 @@
 namespace clusterer {
 
     const DistFunction ClusteringMode::hamming_dist = [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
-            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1,[](int) -> int { return 0; }, 0));
+            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
     };
 
-    const ClusteringMode ClusteringMode::hamming = ClusteringMode(
-            [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
-                return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-            }, 10);
+    const ClusteringMode ClusteringMode::hamming = ClusteringMode(hamming_dist, 15);
 
-    const ClusteringMode ClusteringMode::edit = ClusteringMode(
-            [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
-                return static_cast<unsigned long>(get_sw_dist(first, second));
-            }, 10);
+    const DistFunction ClusteringMode::edit_dist(size_t max_indels) {
+        return [max_indels](const seqan::Dna5String &first, const seqan::Dna5String &second) {
+            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, (int) max_indels));
+        };
+    }
+
+    const ClusteringMode ClusteringMode::edit = ClusteringMode(edit_dist(15), 15);
 
 
     ReflexiveUmiPairsIterator ReflexiveUmiPairsIterator::operator++() {

@@ -15,7 +15,8 @@ $(INTER_REP): $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi.fastq $(UMIS)/cl
 	--umi_compressed $(UMIS)/cleaned_reads_umi_compressed.fastq \
 	--graph $(UMIS)/cleaned_reads_umi_compressed.graph \
 	--output . \
-	--save-clusters false
+	--save-clusters false \
+	--threads %THREADS
 
 clean:
 	$(MAKE) -C $(VJF) clean
