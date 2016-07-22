@@ -6,7 +6,7 @@ all:
 	$(MAKE) -C $(MERGED)
 	$(MAKE) cleaned_reads.fa
 
-cleaned_reads.fa: $(MERGED)/merged_reads.fastq $(BIN)/ig_kplus_vj_finder
+cleaned_reads.fa: $(MERGED)/merged_reads.fastq !! $(BIN)/ig_kplus_vj_finder
 	$(BIN)/ig_kplus_vj_finder \
 	--input-file $(MERGED)/merged_reads.fastq \
 	--output . \

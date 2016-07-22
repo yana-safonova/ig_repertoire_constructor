@@ -3,11 +3,10 @@ include ../Makefile_vars
 all:
 	$(MAKE) merged_reads.fastq
 
-merged_reads.fastq: $(BIN)/paired_read_merger
-	realpath ../age_ig_s3_R1.fastq
+merged_reads.fastq: %LEFT_INPUT %RIGHT_INPUT !! $(BIN)/paired_read_merger
 	$(BIN)/paired_read_merger \
-	../age_ig_s3_R1.fastq \
-	../age_ig_s3_R2.fastq \
+	%LEFT_INPUT \
+	%RIGHT_INPUT \
 	merged_reads.fastq
 
 clean:

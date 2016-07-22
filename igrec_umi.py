@@ -78,6 +78,10 @@ def ParseCommandLineParams(log):
                                dest="no_compilation",
                                action="store_true",
                                help="Exclude c++ code compilation from the pipeline")
+    optional_args.add_argument("-c", "--ignore_code",
+                               dest="ignore_code_changes",
+                               action="store_true",
+                               help="Ignore code changes when checking stages depensences")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
     vj_align_args.add_argument("-l", "--loci",
@@ -120,8 +124,9 @@ def CheckParamsCorrectness(parser, params, log):
         HelpAndReturn(log, parser, 1)
 
 
-class __StagePrepare:
+class _StagePrepare:
     MAKEFILE = "Makefile"
+    BIN_SEPARATOR = " !! "
 
     def __init__(self):
         pass
@@ -132,7 +137,7 @@ class __StagePrepare:
             os.makedirs(path)
 
     @staticmethod
-    def __GetUnusedName(dir, default):
+    def _GetUnusedName(dir, default):
         name = default
         import random
         while os.path.exists(os.path.join(dir, name)):
@@ -140,11 +145,19 @@ class __StagePrepare:
         return name
 
     @staticmethod
-    def __ReplaceVariables(tmp_file, params, log):
+    def _ReplaceVariables(tmp_file, params, log):
         # Files are rather small, so no problem with first reading them
         lines = [line for line in open(tmp_file, 'r')]
         with open(tmp_file, 'w') as file:
             for idx, line in enumerate(lines):
+                if line.count(_StagePrepare.BIN_SEPARATOR) > 1:
+                    log.error("Too many binary separators '%s' in the line #%d: '%s'" % (_StagePrepare.BIN_SEPARATOR, idx, line))
+                    exit(1)
+                if _StagePrepare.BIN_SEPARATOR in line:
+                    if params.ignore_code_changes:
+                        line = line[:line.find(_StagePrepare.BIN_SEPARATOR)]
+                    else:
+                        line = line.replace(_StagePrepare.BIN_SEPARATOR, " ")
                 line = line.replace("%RUN_PATH", home_directory)
                 if params.single_reads:
                     line = line.replace("%INPUT", os.path.abspath(params.single_reads))
@@ -169,10 +182,10 @@ class __StagePrepare:
         import shutil
         dest_dir = os.path.join(params.output, stage_dest)
         self.EnsureExists(dest_dir)
-        tmp_file_name = self.__GetUnusedName(dest_dir, makefile_name)
+        tmp_file_name = self._GetUnusedName(dest_dir, makefile_name)
         tmp_file = os.path.join(dest_dir, tmp_file_name)
         shutil.copyfile(os.path.join(home_directory, "pipeline_makefiles", stage_template, makefile_name), tmp_file)
-        self.__ReplaceVariables(tmp_file, params, log)
+        self._ReplaceVariables(tmp_file, params, log)
         if tmp_file_name == makefile_name:
             return
         import filecmp
@@ -186,21 +199,21 @@ class __StagePrepare:
 
 
 def InitMakeFiles(params, log):
-    __StagePrepare.EnsureExists(params.output)
-    __StagePrepare.Prepare(params, ".", log, makefile_name = "Makefile_vars")
-    __StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest = "compilation")
+    _StagePrepare.EnsureExists(params.output)
+    _StagePrepare.Prepare(params, ".", log, makefile_name ="Makefile_vars")
+    _StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest ="compilation")
     if params.single_reads:
-        __StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest = "vj_finder")
+        _StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest ="vj_finder")
     else:
-        __StagePrepare.Prepare(params, "merged_reads", log)
-        __StagePrepare.Prepare(params, "vj_finder", log)
-    __StagePrepare.Prepare(params, "umis", log)
-    __StagePrepare.Prepare(params, "umi_clustering", log)
-    __StagePrepare.Prepare(params, "intermediate_ig_trie_compressor", log)
-    __StagePrepare.Prepare(params, "ig_graph_constructor", log)
-    __StagePrepare.Prepare(params, "dense_subgraph_finder", log)
-    __StagePrepare.Prepare(params, "ig_consensus_finder", log)
-    __StagePrepare.Prepare(params, "final_repertoire", log)
+        _StagePrepare.Prepare(params, "merged_reads", log)
+        _StagePrepare.Prepare(params, "vj_finder", log)
+    _StagePrepare.Prepare(params, "umis", log)
+    _StagePrepare.Prepare(params, "umi_clustering", log)
+    _StagePrepare.Prepare(params, "intermediate_ig_trie_compressor", log)
+    _StagePrepare.Prepare(params, "ig_graph_constructor", log)
+    _StagePrepare.Prepare(params, "dense_subgraph_finder", log)
+    _StagePrepare.Prepare(params, "ig_consensus_finder", log)
+    _StagePrepare.Prepare(params, "final_repertoire", log)
     return os.path.join(params.output, "final_repertoire")
 
 
