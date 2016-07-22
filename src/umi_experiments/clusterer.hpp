@@ -657,9 +657,11 @@ namespace clusterer {
                     chimeras_file << "chimera?: " << cluster->GetSequence() << std::endl;
                     chimeras_file << "max consensus: " << max_consensus << std::endl;
                     chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
-                    chimeras_file << "umi clusters:" << std::endl;
+                    chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         chimeras_file << c->GetSequence() << std::endl;
+                        chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
                     }
                 } else if ((left_in_all > 0) != (right_in_all > 0)) {
                     found_half_only ++;
