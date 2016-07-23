@@ -8,32 +8,37 @@ namespace vdj_labeler {
 
 class VDJHitsStorage {
 private:
-    std::vector <VDJHitsPtr> vdj_hits_;
+    std::vector <VDJHits> vdj_hits_;
 
 public:
-    VDJHitsStorage(const vj_finder::VJAlignmentInfo &alignment_info)
-    {
-        for (auto& alignment_record : alignment_info.AlignmentRecords()) {
-            vdj_hits_.emplace_back(std::make_shared<VDJHits>(VDJHits(alignment_record)));
+    VDJHitsStorage()                                 = default;
+    VDJHitsStorage(const VDJHitsStorage&)            = default;
+    VDJHitsStorage(VDJHitsStorage&&)                 = default;
+    VDJHitsStorage& operator=(const VDJHitsStorage&) = default;
+    VDJHitsStorage& operator=(VDJHitsStorage&&)      = default;
+
+    explicit VDJHitsStorage(const vj_finder::VJAlignmentInfo &alignment_info) {
+        for (const auto& alignment_record : alignment_info.AlignmentRecords()) {
+            vdj_hits_.emplace_back(alignment_record);
         }
     }
 
     VDJHitsStorage(const vj_finder::VJAlignmentInfo &alignment_info,
                    AbstractDGeneHitsCalculator &d_gene_calculator)
     {
-        for (auto& alignment_record : alignment_info.AlignmentRecords()) {
-            vdj_hits_.emplace_back(std::make_shared<VDJHits>(VDJHits(alignment_record, d_gene_calculator)));
+        for (const auto& alignment_record : alignment_info.AlignmentRecords()) {
+            vdj_hits_.emplace_back(alignment_record, d_gene_calculator);
         }
     }
 
-    void AddVDJHits(const VDJHitsPtr &vdj_hits_ptr) {
-        vdj_hits_.emplace_back(vdj_hits_ptr);
+    void AddVDJHits(VDJHits vdj_hits) {
+        vdj_hits_.emplace_back(std::move(vdj_hits));
     }
 
     size_t size() const { return vdj_hits_.size(); }
 
-    typedef std::vector<VDJHitsPtr>::iterator vdj_hits_iterator;
-    typedef std::vector<VDJHitsPtr>::const_iterator vdj_hits_const_iterator;
+    typedef std::vector<VDJHits>::iterator vdj_hits_iterator;
+    typedef std::vector<VDJHits>::const_iterator vdj_hits_const_iterator;
 
     vdj_hits_iterator       begin ()       { return vdj_hits_.begin (); }
     vdj_hits_const_iterator begin () const { return vdj_hits_.begin (); }
@@ -42,7 +47,8 @@ public:
     vdj_hits_const_iterator end   () const { return vdj_hits_.end   (); }
     vdj_hits_const_iterator cend  () const { return vdj_hits_.cend  (); }
 
-    VDJHitsPtr operator[](const size_t &index) const {
+    // Users should not change the inside
+    const VDJHits& operator[](const size_t &index) const {
         assert(index < size());
         return vdj_hits_[index];
     }

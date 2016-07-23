@@ -6,7 +6,13 @@ namespace vdj_labeler {
 
 class AlignmentQualityChecker {
 public:
-    virtual bool AlignmentIsGood(alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment) const = 0;
+    AlignmentQualityChecker() { }
+    AlignmentQualityChecker(const AlignmentQualityChecker &) = delete;
+    AlignmentQualityChecker& operator=(const AlignmentQualityChecker&) = delete;
+    AlignmentQualityChecker(AlignmentQualityChecker &&) = delete;
+    AlignmentQualityChecker& operator=(AlignmentQualityChecker&&) = delete;
+
+    virtual bool AlignmentIsGood(const alignment_utils::ImmuneGeneReadAlignment &ig_gene_alignment) const = 0;
     virtual ~AlignmentQualityChecker() { }
 };
 

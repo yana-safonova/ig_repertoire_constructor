@@ -6,7 +6,7 @@ using namespace seqan;
 
 namespace vdj_labeler {
 
-alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
+alignment_utils::ImmuneGeneReadAlignment SimpleDAligner::ComputeAlignment(
         const alignment_utils::ImmuneGeneAlignmentPositions &alignment_positions) const
 {
     TRACE("Computation of D alignment for positions: " << alignment_positions);
@@ -14,9 +14,8 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
     resize(rows(align), 2);
 
     if (alignment_positions.IsEmpty()) {
-        return std::make_shared<alignment_utils::ImmuneGeneReadAlignment>(alignment_positions.Gene(),
-                                                                          alignment_positions.Read(),
-                                                                          align);
+        return alignment_utils::ImmuneGeneReadAlignment(alignment_positions.Gene(), alignment_positions.Read(),
+                                                        align, 0);
     }
     TRACE(alignment_positions.Gene());
 
@@ -60,11 +59,8 @@ alignment_utils::ImmuneGeneReadAlignmentPtr SimpleDAligner::ComputeAlignment(
     // INFO(length(seqan::row(align_orig, 1)));
     // INFO(beginPosition(seqan::row(align_orig, 0)));
     // INFO(endPosition(seqan::row(align_orig, 0)));
-    auto result = std::make_shared<alignment_utils::ImmuneGeneReadAlignment>(alignment_positions.Gene(),
-                                                                      alignment_positions.Read(),
-                                                                      align_orig,
-                                                                      score);
-    return result;
+    return  alignment_utils::ImmuneGeneReadAlignment(
+        alignment_positions.Gene(), alignment_positions.Read(), std::move(align_orig), score);
 }
 
 } // End namespace vdj_labeler

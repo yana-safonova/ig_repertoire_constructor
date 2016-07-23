@@ -10,6 +10,12 @@ namespace vdj_labeler {
 
 class AbstractDAlignmentPositionChecker {
 public:
+    AbstractDAlignmentPositionChecker() = delete;
+    AbstractDAlignmentPositionChecker(const AbstractDAlignmentPositionChecker &) = delete;
+    AbstractDAlignmentPositionChecker& operator=(const AbstractDAlignmentPositionChecker&) = delete;
+    AbstractDAlignmentPositionChecker(AbstractDAlignmentPositionChecker &&) = delete;
+    AbstractDAlignmentPositionChecker& operator=(AbstractDAlignmentPositionChecker&&) = delete;
+
     AbstractDAlignmentPositionChecker(const VDJLabelerConfig::DAlignmentQualityParams) { };
     virtual bool DAlignmentPositionsAreGood(const alignment_utils::AlignmentPositions &d_alignment_positions) const = 0;
 };

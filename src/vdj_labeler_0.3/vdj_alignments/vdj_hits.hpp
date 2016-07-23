@@ -11,86 +11,156 @@
 
 namespace vdj_labeler {
 
-typedef std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr>::iterator hits_iterator;
-typedef std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr>::const_iterator hits_citerator;
-
 class ImmuneGeneSegmentHits {
+protected:
     germline_utils::SegmentType segment_type_;
-    core::ReadPtr read_ptr_;
-    std::vector<alignment_utils::ImmuneGeneReadAlignmentPtr> hits_;
+    const core::Read* read_ptr_;
+    std::vector<alignment_utils::ImmuneGeneReadAlignment> hits_;
 
 public:
-    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type, const core::ReadPtr &read_ptr);
+    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type = germline_utils::SegmentType(),
+                          const core::Read* read_ptr = nullptr);
+    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type,
+                          const core::Read &read);
+    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type,
+                          const core::Read* read_ptr,
+                          const std::vector<vj_finder::ImmuneGeneHit>&);
 
-    ImmuneGeneSegmentHits(const germline_utils::SegmentType &gene_type, const core::ReadPtr &read_ptr,
-                          const std::vector<vj_finder::ImmuneGeneHitPtr>&);
+    ImmuneGeneSegmentHits(const ImmuneGeneSegmentHits&)            = default;
+    ImmuneGeneSegmentHits(ImmuneGeneSegmentHits&&)                 = default;
+    ImmuneGeneSegmentHits& operator=(const ImmuneGeneSegmentHits&) = default;
+    ImmuneGeneSegmentHits& operator=(ImmuneGeneSegmentHits&&)      = default;
 
-    void AddHit(const alignment_utils::ImmuneGeneReadAlignmentPtr &hit);
+    void AddHit(alignment_utils::ImmuneGeneReadAlignment hit);
 
     size_t size() const;
 
-    hits_iterator  begin ();
-    hits_citerator begin () const;
-    hits_citerator cbegin() const;
-    hits_iterator  end   ();
-    hits_citerator end   () const;
-    hits_citerator cend  () const;
+    typedef std::vector<alignment_utils::ImmuneGeneReadAlignment>::iterator hits_iterator;
+    typedef std::vector<alignment_utils::ImmuneGeneReadAlignment>::const_iterator hits_citerator;
 
-    alignment_utils::ImmuneGeneReadAlignmentPtr operator[](const size_t &index);
+    hits_iterator  begin ()       { return hits_.begin (); }
+    hits_citerator begin () const { return hits_.begin (); }
+    hits_citerator cbegin() const { return hits_.cbegin(); }
+    hits_iterator  end   ()       { return hits_.end   (); }
+    hits_citerator end   () const { return hits_.end   (); }
+    hits_citerator cend  () const { return hits_.cend  (); }
 
-    germline_utils::SegmentType GeneType() const;
+    const alignment_utils::ImmuneGeneReadAlignment& operator[](const size_t &index) const;
+
+    const germline_utils::SegmentType& GeneType() const;
+
+    const core::Read* ReadPtr() const { return read_ptr_; }
 };
 
 typedef std::shared_ptr<ImmuneGeneSegmentHits> ImmuneGeneSegmentHitsPtr;
 
 //------------------------------------------------------------
 
+class VGeneHits : public ImmuneGeneSegmentHits {
+public:
+    VGeneHits(const germline_utils::SegmentType &gene_type = germline_utils::SegmentType(),
+          const core::Read* read_ptr = nullptr) :
+        ImmuneGeneSegmentHits(gene_type, read_ptr)
+    { }
+
+    VGeneHits(const germline_utils::SegmentType &gene_type,
+          const core::Read &read) :
+        ImmuneGeneSegmentHits(gene_type, read)
+    { }
+
+    VGeneHits(const germline_utils::SegmentType &gene_type,
+          const core::Read* read_ptr,
+          const std::vector<vj_finder::VGeneHit>& hits);
+
+    VGeneHits(const VGeneHits&)            = default;
+    VGeneHits(VGeneHits&&)                 = default;
+    VGeneHits& operator=(const VGeneHits&) = default;
+    VGeneHits& operator=(VGeneHits&&)      = default;
+};
+
+//------------------------------------------------------------
+
+class JGeneHits : public ImmuneGeneSegmentHits {
+public:
+    JGeneHits(const germline_utils::SegmentType &gene_type = germline_utils::SegmentType(),
+          const core::Read* read_ptr = nullptr) :
+        ImmuneGeneSegmentHits(gene_type, read_ptr)
+    { }
+
+    JGeneHits(const germline_utils::SegmentType &gene_type,
+          const core::Read &read) :
+        ImmuneGeneSegmentHits(gene_type, read)
+    { }
+
+    JGeneHits(const germline_utils::SegmentType &gene_type,
+          const core::Read* read_ptr,
+          const std::vector<vj_finder::JGeneHit>& hits);
+
+    JGeneHits(const JGeneHits&)            = default;
+    JGeneHits(JGeneHits&&)                 = default;
+    JGeneHits& operator=(const JGeneHits&) = default;
+    JGeneHits& operator=(JGeneHits&&)      = default;
+};
+
+//------------------------------------------------------------
+
+typedef ImmuneGeneSegmentHits DGeneHits;
+
+//------------------------------------------------------------
+
 class VDJHits {
 private:
-    core::ReadPtr read_ptr_;
-    ImmuneGeneSegmentHits v_hits_;
-    ImmuneGeneSegmentHits d_hits_;
-    ImmuneGeneSegmentHits j_hits_;
+    const core::Read* read_ptr_;
+    VGeneHits v_hits_;
+    DGeneHits d_hits_;
+    JGeneHits j_hits_;
 
 public:
-    VDJHits(const core::ReadPtr &read_ptr);
+    VDJHits(const core::Read* read_ptr = nullptr);
 
-    VDJHits(const core::ReadPtr &read_ptr,
-            const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
-            const std::vector<vj_finder::ImmuneGeneHitPtr>& j_hits);
+    VDJHits(const core::Read* read_ptr,
+            const std::vector<vj_finder::VGeneHit> &v_hits,
+            const std::vector<vj_finder::JGeneHit> &j_hits);
 
-    VDJHits(const core::ReadPtr &read_ptr,
-            const std::vector<vj_finder::ImmuneGeneHitPtr>& v_hits,
-            const std::vector<vj_finder::ImmuneGeneHitPtr>& j_hits,
-            const AbstractDGeneHitsCalculator &d_gene_calculator);
+    VDJHits(const core::Read* read_ptr,
+            const std::vector<vj_finder::VGeneHit> &v_hits,
+            const std::vector<vj_finder::JGeneHit> &j_hits,
+            AbstractDGeneHitsCalculator &d_gene_calculator);
 
     VDJHits(const vj_finder::VJHits &vj_hits);
 
-    VDJHits(const vj_finder::VJHits &vj_hits, const AbstractDGeneHitsCalculator &d_gene_calculator);
+    VDJHits(const vj_finder::VJHits &vj_hits, AbstractDGeneHitsCalculator &d_gene_calculator);
+
+    VDJHits(const VDJHits&)            = default;
+    VDJHits(VDJHits&&)                 = default;
+    VDJHits& operator=(const VDJHits&) = default;
+    VDJHits& operator=(VDJHits&&)      = default;
 
     void AddIgGeneAlignment(const germline_utils::SegmentType &gene_type,
-                            const alignment_utils::ImmuneGeneReadAlignmentPtr &alignment_ptr);
+                            alignment_utils::ImmuneGeneReadAlignment alignment);
 
-    void AddIgGeneAlignment(const alignment_utils::ImmuneGeneReadAlignmentPtr &alignment_ptr);
+    void AddIgGeneAlignment(alignment_utils::ImmuneGeneReadAlignment alignment);
 
     size_t VHitsNumber() const { return v_hits_.size(); }
-
     size_t DHitsNumber() const { return d_hits_.size(); }
-
     size_t JHitsNumber() const { return j_hits_.size(); }
 
-    const ImmuneGeneSegmentHits &VHits() const { return v_hits_; }
-    const ImmuneGeneSegmentHits &DHits() const { return d_hits_; }
-    const ImmuneGeneSegmentHits &JHits() const { return j_hits_; }
+    const VGeneHits &VHits() const { return v_hits_; }
+    const DGeneHits &DHits() const { return d_hits_; }
+    const JGeneHits &JHits() const { return j_hits_; }
 
-    void SetVHits(const ImmuneGeneSegmentHits &v_hits_) { VDJHits::v_hits_ = v_hits_; }
-    void SetDHits(const ImmuneGeneSegmentHits &d_hits_) { VDJHits::d_hits_ = d_hits_; }
-    void SetJHits(const ImmuneGeneSegmentHits &j_hits_) { VDJHits::j_hits_ = j_hits_; }
+    void SetVHits(const VGeneHits &v_hits) { v_hits_ = v_hits; }
+    void SetDHits(const DGeneHits &d_hits) { d_hits_ = d_hits; }
+    void SetJHits(const JGeneHits &j_hits) { j_hits_ = j_hits; }
 
-    core::ReadPtr Read() const { return read_ptr_; }
+    const core::Read* ReadPtr() const { return read_ptr_; }
+    const core::Read& Read() const {
+        assert(read_ptr_ != nullptr);
+        return *read_ptr_;
+    }
 
-    alignment_utils::ImmuneGeneReadAlignmentPtr GetAlignmentByIndex(const germline_utils::SegmentType &gene_type,
-                                                                    const size_t &index);
+    const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentByIndex(const germline_utils::SegmentType &gene_type,
+                                                                        const size_t &index);
 };
 
 typedef std::shared_ptr<VDJHits> VDJHitsPtr;

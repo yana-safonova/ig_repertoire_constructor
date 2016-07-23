@@ -15,15 +15,21 @@ protected:
     AlignmentQualityChecker &quality_checker_;
 
 public:
+    AbstractDGeneHitsCalculator() = delete;
+    AbstractDGeneHitsCalculator(const AbstractDGeneHitsCalculator &) = delete;
+    AbstractDGeneHitsCalculator& operator=(const AbstractDGeneHitsCalculator &) = delete;
+    AbstractDGeneHitsCalculator(AbstractDGeneHitsCalculator &&) = delete;
+    AbstractDGeneHitsCalculator& operator=(AbstractDGeneHitsCalculator&&) = delete;
+
     AbstractDGeneHitsCalculator(const germline_utils::ImmuneGeneDatabase &d_gene_database,
                                 AlignmentQualityChecker &quality_checker) :
         d_gene_database_(d_gene_database),
         quality_checker_(quality_checker)
     { }
 
-    virtual ImmuneGeneSegmentHitsPtr ComputeDHits(const core::ReadPtr read_ptr,
-                                                  const ImmuneGeneSegmentHits &v_hits,
-                                                  const ImmuneGeneSegmentHits &j_hits) const = 0;
+    virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
+                                               const ImmuneGeneSegmentHits &v_hits,
+                                               const ImmuneGeneSegmentHits &j_hits) const = 0;
 
     virtual ~AbstractDGeneHitsCalculator() { }
 };

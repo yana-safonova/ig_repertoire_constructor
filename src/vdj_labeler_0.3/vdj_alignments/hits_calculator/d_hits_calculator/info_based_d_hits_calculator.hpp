@@ -24,8 +24,8 @@ protected:
 
     alignment_utils::ImmuneGeneAlignmentPositions CreateDAlignmentPositions(
         alignment_utils::AlignmentPositions d_alignment_positions,
-        const germline_utils::ImmuneGene& gene_ptr,
-        const core::ReadPtr read_ptr) const;
+        const germline_utils::ImmuneGene* gene_ptr,
+        const core::Read* read_ptr) const;
 
 public:
     InfoBasedDHitsCalculator(const germline_utils::ImmuneGeneDatabase &d_gene_database,
@@ -37,9 +37,9 @@ public:
         d_alignment_position_checker_(d_alignment_position_checker)
     { }
 
-    virtual ImmuneGeneSegmentHitsPtr ComputeDHits(const core::ReadPtr read_ptr,
-                                                  const ImmuneGeneSegmentHits &v_hits,
-                                                  const ImmuneGeneSegmentHits &j_hits) const override;
+    virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
+                                               const ImmuneGeneSegmentHits &v_hits,
+                                               const ImmuneGeneSegmentHits &j_hits) const override;
 };
 
 } // End namespace vdj_labeler

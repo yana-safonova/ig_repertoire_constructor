@@ -7,7 +7,13 @@ namespace vdj_labeler {
 
 class GeneSegmentAligner {
 public:
-    virtual alignment_utils::ImmuneGeneReadAlignmentPtr ComputeAlignment(
+    GeneSegmentAligner() { }
+    GeneSegmentAligner(const GeneSegmentAligner &) = delete;
+    GeneSegmentAligner& operator=(const GeneSegmentAligner &) = delete;
+    GeneSegmentAligner(GeneSegmentAligner &&) = delete;
+    GeneSegmentAligner& operator=(GeneSegmentAligner&&) = delete;
+
+    virtual alignment_utils::ImmuneGeneReadAlignment ComputeAlignment(
         const alignment_utils::ImmuneGeneAlignmentPositions &alignment_positions) const = 0;
     virtual ~GeneSegmentAligner() { }
 };

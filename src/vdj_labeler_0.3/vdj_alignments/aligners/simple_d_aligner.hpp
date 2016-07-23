@@ -6,7 +6,7 @@ namespace vdj_labeler {
 
 class SimpleDAligner : public GeneSegmentAligner {
 public:
-    virtual alignment_utils::ImmuneGeneReadAlignmentPtr ComputeAlignment(
+    virtual alignment_utils::ImmuneGeneReadAlignment ComputeAlignment(
         const alignment_utils::ImmuneGeneAlignmentPositions &alignment_positions) const override;
 };
 

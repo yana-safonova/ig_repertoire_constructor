@@ -3,11 +3,11 @@
 namespace vdj_labeler {
 
 bool MatchThresholdAlignmentQualityChecker::AlignmentIsGood(
-        alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment) const
+        const alignment_utils::ImmuneGeneReadAlignment &ig_gene_alignment) const
 {
     int cnt_following_matches = 0;
-    auto row1 = seqan::row(ig_gene_alignment->Alignment(), 0);
-    auto row2 = seqan::row(ig_gene_alignment->Alignment(), 1);
+    auto row1 = seqan::row(ig_gene_alignment.Alignment(), 0);
+    auto row2 = seqan::row(ig_gene_alignment.Alignment(), 1);
     for (auto it_row1 = begin(row1), it_row2 = begin(row2);
          it_row1 != end(row1);
          ++it_row1, ++it_row2)

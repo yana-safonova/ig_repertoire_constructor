@@ -5,7 +5,7 @@
 namespace vdj_labeler {
 
 class MatchThresholdAlignmentQualityChecker: public AlignmentQualityChecker {
-    int normalized_score_threshold_;
+    const int normalized_score_threshold_;
 
 public:
     /*
@@ -15,10 +15,10 @@ public:
      * "The default word size is 5, which requires a minimum of five consecutive nucleotide
      * matches for a D gene to be found."
      */
-    MatchThresholdAlignmentQualityChecker(int normalized_score_threshold = 5) :
+    MatchThresholdAlignmentQualityChecker(const int normalized_score_threshold = 5) :
         normalized_score_threshold_(normalized_score_threshold) { }
 
-    bool AlignmentIsGood(alignment_utils::ImmuneGeneReadAlignmentPtr ig_gene_alignment) const override;
+    bool AlignmentIsGood(const alignment_utils::ImmuneGeneReadAlignment &ig_gene_alignment) const override;
 };
 
 } // End namespace vdj_labeler
