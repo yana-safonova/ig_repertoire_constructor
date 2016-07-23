@@ -49,8 +49,8 @@ make_essential_test(test_vdj_utils test_vdj_utils/test_alignment_utils.cpp
 make_test(test_vdj_labeler
          test_vdj_labeler/test_recombination_model.cpp
          test_vdj_labeler/test_vdj_hits.cpp
-#         test_vdj_labeler/test_aligners.cpp
-#         test_vdj_labeler/test_shm_calculators.cpp
+         test_vdj_labeler/test_aligners.cpp
+         test_vdj_labeler/test_shm_calculators.cpp
          ../vj_finder/vj_finder_config.cpp
          ../vj_finder/command_line_routines.cpp
          ../vj_finder/germline_db_generator.cpp
@@ -68,8 +68,8 @@ make_test(test_vdj_labeler
          ../vdj_labeler_0.3/vdj_alignments/aligners/simple_d_aligner.cpp
          ../vdj_labeler_0.3/vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
          ../vdj_labeler_0.3/vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.cpp
-#         ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.cpp
-#         ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.cpp
+         ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.cpp
+         ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.cpp
          )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp

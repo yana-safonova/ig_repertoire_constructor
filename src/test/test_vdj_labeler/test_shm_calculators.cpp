@@ -32,7 +32,7 @@ TEST_F(SHMCalculatorsTest, left_event_shm_calculator) {
         localAlignment(align, Score<int, Simple>(2, -1, -1));
 
 
-        ImmuneGeneReadAlignmentPtr igal = make_shared<ImmuneGeneReadAlignment>(immune_gene, read, align);
+        ImmuneGeneReadAlignment igal(immune_gene, read, align, 0);
         // cout << igal->Alignment();
 
         // Test zero
@@ -45,7 +45,7 @@ TEST_F(SHMCalculatorsTest, left_event_shm_calculator) {
         EXPECT_EQ(calculator.ComputeNumberSHMsForLeftEvent(igal, -3), 2);
 
         // Test cleavage
-        for (int i = 0; i < static_cast<int>(igal->SubjectAlignmentLength()); ++i) {
+        for (int i = 0; i < static_cast<int>(igal.SubjectAlignmentLength()); ++i) {
             EXPECT_EQ(calculator.ComputeNumberSHMsForLeftEvent(igal, i), 0);
         }
     }
@@ -57,7 +57,7 @@ TEST_F(SHMCalculatorsTest, left_event_shm_calculator) {
         localAlignment(align, Score<int, Simple>(2, -1, -1));
 
 
-        ImmuneGeneReadAlignmentPtr igal = make_shared<ImmuneGeneReadAlignment>(immune_gene, read, align);
+        ImmuneGeneReadAlignment igal(immune_gene, read, align, 0);
         // cout << igal->Alignment();
 
         // Test zero
@@ -71,7 +71,7 @@ TEST_F(SHMCalculatorsTest, left_event_shm_calculator) {
 
         // Test cleavage
         EXPECT_EQ(calculator.ComputeNumberSHMsForLeftEvent(igal, 1), 0);
-        for (int i = 2; i < static_cast<int>(igal->SubjectAlignmentLength()); ++i) {
+        for (int i = 2; i < static_cast<int>(igal.SubjectAlignmentLength()); ++i) {
             EXPECT_EQ(calculator.ComputeNumberSHMsForLeftEvent(igal, i), -1);
         }
     }
@@ -90,7 +90,7 @@ TEST_F(SHMCalculatorsTest, right_event_shm_calculator) {
         localAlignment(align, Score<int, Simple>(2, -1, -1));
 
 
-        ImmuneGeneReadAlignmentPtr igal = make_shared<ImmuneGeneReadAlignment>(immune_gene, read, align);
+        ImmuneGeneReadAlignment igal(immune_gene, read, align, 0);
         // cout << igal->Alignment();
 
         // Test zero
@@ -103,7 +103,7 @@ TEST_F(SHMCalculatorsTest, right_event_shm_calculator) {
         EXPECT_EQ(calculator.ComputeNumberSHMsForRightEvent(igal, -3), 2);
 
         // Test cleavage
-        for (int i = 0; i < static_cast<int>(igal->SubjectAlignmentLength()); ++i) {
+        for (int i = 0; i < static_cast<int>(igal.SubjectAlignmentLength()); ++i) {
             EXPECT_EQ(calculator.ComputeNumberSHMsForRightEvent(igal, i), 0);
         }
     }
@@ -115,7 +115,7 @@ TEST_F(SHMCalculatorsTest, right_event_shm_calculator) {
         localAlignment(align, Score<double, Simple>(2., -0.5, -1.));
 
 
-        ImmuneGeneReadAlignmentPtr igal = make_shared<ImmuneGeneReadAlignment>(immune_gene, read, align);
+        ImmuneGeneReadAlignment igal(immune_gene, read, align, 0);
         // cout << igal->Alignment();
 
         // Test zero
@@ -129,7 +129,7 @@ TEST_F(SHMCalculatorsTest, right_event_shm_calculator) {
 
         // Test cleavage
         EXPECT_EQ(calculator.ComputeNumberSHMsForRightEvent(igal, 1), 0);
-        for (int i = 2; i < static_cast<int>(igal->SubjectAlignmentLength()); ++i) {
+        for (int i = 2; i < static_cast<int>(igal.SubjectAlignmentLength()); ++i) {
             EXPECT_EQ(calculator.ComputeNumberSHMsForRightEvent(igal, i), -1);
         }
     }
