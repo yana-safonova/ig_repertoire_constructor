@@ -13,15 +13,15 @@ public:
             right_shms_calculator_(right_shms_calculator)
     { }
 
-    int ComputeNumberSHMs(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+    int ComputeNumberSHMs(const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
                           const int left_cleavage_length,
-                          const int right_cleavage_length) const;
+                          const int right_cleavage_length) const override;
 
-    int ComputeNumberSHMsForLeftEvent(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                      const int left_cleavage_length) const;
+    int ComputeNumberSHMsForLeftEvent(const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
+                                      const int left_cleavage_length) const override;
 
-    int ComputeNumberSHMsForRightEvent(const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
-                                       const int right_cleavage_length) const;
+    int ComputeNumberSHMsForRightEvent(const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
+                                       const int right_cleavage_length) const override;
 };
 
 } // End namespace vdj_labeler;

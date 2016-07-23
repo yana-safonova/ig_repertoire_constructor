@@ -4,16 +4,16 @@
 using namespace vdj_labeler;
 
 int RightEventSHMsCalculator::ComputeNumberCleavedSHMs(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
         const size_t cleavage_length) const
 {
     TRACE("Computation of # SHMs in right cleavage of length " << cleavage_length);
     // We have a test for this function
-    size_t alignment_cleavage = gene_alignment->SubjectAlignmentLength() - 1 - gene_alignment->EndSubjectPosition();
+    size_t alignment_cleavage = gene_alignment.SubjectAlignmentLength() - 1 - gene_alignment.EndSubjectPosition();
     assert(cleavage_length >= alignment_cleavage);
     size_t rel_cleavage_length = cleavage_length - alignment_cleavage;
 
-    auto alignment = gene_alignment->Alignment();
+    auto alignment = gene_alignment.Alignment();
     auto &gene = seqan::row(alignment, 0);
     auto &read = seqan::row(alignment, 1);
     int num_shms = 0;
@@ -32,20 +32,20 @@ int RightEventSHMsCalculator::ComputeNumberCleavedSHMs(
 }
 
 int RightEventSHMsCalculator::ComputeNumberPalindromeSHMs(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
         const size_t palindrome_length) const
 {
     TRACE("Computation of #SHMs in right palindrome of length " << palindrome_length);
     // if gene has alignment to read with gaps at the end, we can not compute palindrome
-    assert(gene_alignment->EndSubjectPosition() == gene_alignment->subject().length() - 1);
+    assert(gene_alignment.EndSubjectPosition() == gene_alignment.Subject().length() - 1);
     int num_shms = 0;
     for (size_t i = 0; i < palindrome_length; i++) {
-        size_t gene_pos = gene_alignment->SubjectAlignmentLength() - 1 - i;
-        size_t read_pos = gene_alignment->EndQueryPosition() + 1 + i;
-        seqan::DnaString nucl(gene_alignment->subject().seq()[gene_pos]);
+        size_t gene_pos = gene_alignment.SubjectAlignmentLength() - 1 - i;
+        size_t read_pos = gene_alignment.EndQueryPosition() + 1 + i;
+        seqan::DnaString nucl(gene_alignment.Subject().seq()[gene_pos]);
         seqan::complement(nucl);
         // nucl has len 1.
-        if (nucl[0] != gene_alignment->query().seq[read_pos])
+        if (nucl[0] != gene_alignment.Query().seq[read_pos])
             num_shms++;
     }
     TRACE("#SHMs: +" << num_shms);
@@ -53,7 +53,7 @@ int RightEventSHMsCalculator::ComputeNumberPalindromeSHMs(
 }
 
 int RightEventSHMsCalculator::ComputeNumberSHMs(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
         const int,
         const int right_cleavage_length) const
 {
@@ -69,7 +69,7 @@ int RightEventSHMsCalculator::ComputeNumberSHMs(
 }
 
 int RightEventSHMsCalculator::ComputeNumberSHMsForRightEvent(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
         const int right_cleavage_length) const
 {
     if (right_cleavage_length == 0)
