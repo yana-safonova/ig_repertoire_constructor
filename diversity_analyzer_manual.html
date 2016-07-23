@@ -325,30 +325,69 @@ If a hit does not contain any SHM, it will be skipped in <b>shm_details.txt</b>.
 Example of the top of <b>shm_details.txt</b> file:
 <pre class="code">
 <code>
-SHM_type    Read_pos    Gene_pos    Read_nucl   Gene_nucl   Read_aa     Gene_aa     Is_synonymous   To_stop_codon
-Read_name:1_merged_read     Read_length:354     Gene_name:IGHV3-20*01   Gene_length:296     Segment:V   Chain_type:IGH
-S       20      20      C       T       S       S       1       0
-S       29      29      C       T       G       G       1       0
-S       35      35      C       A       V       V       1       0
-S       37      37      A       G       Q       R       0       0
-S       45      45      A       G       R       G       0       0
-Read_name:1_merged_read     Read_length:354     Gene_name:IGHJ3*02      Gene_length:50      Segment:J   Chain_type:IGH
-S       30      335     C       A       T       T       1       0
-S       32      337     C       T       T       M       0       0
+  SHM_type    Read_pos    Gene_pos    Read_nucl   Gene_nucl   Read_aa     Gene_aa     Is_synonymous   To_stop_codon
+  Read_name:1_merged_read     Read_length:354     Gene_name:IGHV3-20*01   Gene_length:296     Segment:V   Chain_type:IGH
+  S       20      20      C       T       S       S       1       0
+  S       29      29      C       T       G       G       1       0
+  S       35      35      C       A       V       V       1       0
+  S       37      37      A       G       Q       R       0       0
+  S       45      45      A       G       R       G       0       0
+  Read_name:1_merged_read     Read_length:354     Gene_name:IGHJ3*02      Gene_length:50      Segment:J   Chain_type:IGH
+  S       30      335     C       A       T       T       1       0
+  S       32      337     C       T       T       M       0       0
 </code>
 </pre>
 
 <h3 id = "v_alignments">4.3. V alignments file</h3>
-Sequences in <b>v_alignment.fasta</b> present a list of pairs: input sequence and a corresponding V hit.
+<b>v_alignment.fasta</b> present a paires of aligned sequences: input sequence and corresponding V hit.
+Both sequences in a pair have equal length and may contain gaps.
+Headers contain alignment details.
+An example of <b>v_alignment.fasta</b> is given below:
+<pre class="code">
+<code>
+  >INDEX:1|READ:1_merged_read|START_POS:0|END_POS:49
+  CAGGTGCAGCTGGTGGAGTCTGGGGGAGGTGTGGTACGGCCTG-GGGGTC
+  >INDEX:1|GENE:IGHV3-20*01|START_POS:0|END_POS:50|CHAIN_TYPE:IGH
+  CAGGTGCAGCTGGTGGAGTCTGGGGGAGGTGTGGTACGGCCTGGGGGGTC
+</code>
+</pre>
+Please not that start position (<code>START_POS</code> field in a header) and end position (<code>END_POS</code>) are inclusive.
 
 <!--- -------------------------------------------------------------------- --->
 <h2 id = "plot_descr">5. Plot description</h2>
+Diversity Analyzer reports plots in PNG and PDF formats.
+All plots can be found in <b>plots</b> directory.
+
 <h3 id = "vj_usage_plots">5.1. VJ usage</h3>
 
 <h3 id = "shm_plots">5.2. SHM plots</h3>
+<ul>
+    <li>
+        Matrices for acid acid and nucleotide substitution are reported in <b>plots/aa_substitutions</b> and
+        <b>plots/nucl_substitutions</b> files.
+    </li>
+    <li>
+        Histogram showing distribution of relative positions of synonymous SHM in V gene segments is
+        reported in <b>plots/synonymous_shms_positions</b>
+    </li>
+    <li>
+        Histogram showing distribution of relative positions of SHMs of special types: deletions, insertions, and stop codons.
+        Histogram showing distribution of relative positions is written in <b>plots/special_shms_positions</b>.
+    </li>
+</ul>
+
+
+
 
 <h3 id = "cdr_plots">5.3. CDR plots</h3>
-If chain (IGH / IGK / IGL / TRA / TRB / TRG / TRD)
+If a chain type (IGH / IGK / IGL / TRA / TRB / TRG / TRD) is presented in <b>input_sequences.fasta</b>,
+Diversity Analyzer reports the following plots for CDR1, CDR2 and CDR3 for sequences of this chain type:
+<ul>
+    <li>CDR length distribution.</li>
+    <li>Nucleotide and amino acid variability.
+        To output variability plots, Diversity Analyzer selects length value that is presented by the largest number of CDRs.</li>
+</ul>
+All CDR plots can be found in <b>plots/cdr_plots</b> directory.
 
 <!--- -------------------------------------------------------------------- --->
 <a id="feedback"></a>
