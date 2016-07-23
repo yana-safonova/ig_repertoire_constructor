@@ -87,7 +87,6 @@ namespace vj_finder {
     };
 
     class VGeneHit : public ImmuneGeneHit {
-
     public:
         VGeneHit(const core::Read& read,
                  const germline_utils::ImmuneGene &immune_gene,
@@ -106,19 +105,16 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return block_alignment_.start(); // + shift_;
+            return block_alignment_.start();
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return int(block_alignment_.last_match_read_pos()); // + shift_;
+            return int(block_alignment_.last_match_read_pos());
         }
     };
 
     class JGeneHit : public ImmuneGeneHit {
-        int left_shift_;
-        int right_shift_;
-
     public:
         JGeneHit(const core::Read& read,
                  const germline_utils::ImmuneGene &immune_gene,
@@ -138,12 +134,12 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return int(block_alignment_.first_match_read_pos()); // + shift_;
+            return int(block_alignment_.first_match_read_pos());
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.finish(); // + shift_;
+            return block_alignment_.finish();
         }
     };
 
