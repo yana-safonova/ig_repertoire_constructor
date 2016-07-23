@@ -68,12 +68,12 @@ TEST_F(AlignersTest, SimpleDAlignerTest) {
                                                                                      d_db[i],
                                                                                      *read_it);
             auto alignment = SimpleDAligner().ComputeAlignment(immune_alignment_positions);
-            EXPECT_LE(immune_alignment_positions.ReadStartPos(), alignment->StartQueryPosition());
-            EXPECT_GE(immune_alignment_positions.ReadEndPos(), alignment->EndQueryPosition() - alignment->NumberGaps());
-            EXPECT_EQ(seqan::length(seqan::row(alignment->Alignment(), 0)),
-                      seqan::length(seqan::row(alignment->Alignment(), 1)));
-            EXPECT_EQ(seqan::length(seqan::row(alignment->Alignment(), 0)), alignment->SubjectAlignmentLength());
-            EXPECT_EQ(seqan::length(seqan::row(alignment->Alignment(), 1)), alignment->QueryAlignmentLength());
+            EXPECT_LE(immune_alignment_positions.ReadStartPos(), alignment.StartQueryPosition());
+            EXPECT_GE(immune_alignment_positions.ReadEndPos(), alignment.EndQueryPosition() - alignment.NumberGaps());
+            EXPECT_EQ(seqan::length(seqan::row(alignment.Alignment(), 0)),
+                      seqan::length(seqan::row(alignment.Alignment(), 1)));
+            EXPECT_EQ(seqan::length(seqan::row(alignment.Alignment(), 0)), alignment.SubjectAlignmentLength());
+            EXPECT_EQ(seqan::length(seqan::row(alignment.Alignment(), 1)), alignment.QueryAlignmentLength());
         }
     }
 }
