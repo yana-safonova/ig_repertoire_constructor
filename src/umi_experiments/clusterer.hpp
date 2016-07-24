@@ -551,12 +551,12 @@ namespace clusterer {
         std::vector<seqan::Dna5String> all_left_halves;
         std::vector<seqan::Dna5String> all_right_halves;
         const size_t IG_LEN = 350;
-        std::unordered_map<ClusterPtr<Read>, size_t> cluster_to_idx;
+        std::unordered_map<seqan::Dna5String, size_t> cluster_to_idx;
         for (const auto& cluster : umi_to_clusters.toSet()) {
             const auto& sequence = cluster->GetSequence();
+            cluster_to_idx[cluster->GetSequence()] = all_left_halves.size();
             all_left_halves.push_back(seqan::prefix(sequence, IG_LEN / 2));
             all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
-            cluster_to_idx[cluster] = all_left_halves.size();
         }
 
         size_t tau = 10;
@@ -566,10 +566,11 @@ namespace clusterer {
         Graph right_graph;
         omp_set_num_threads(static_cast<int>(num_threads));
         for (size_t i = 0; i < 2; i ++) {
-            const std::vector<seqan::Dna5String>& all_halves = i == 0 ? all_left_halves : all_right_halves;
+            INFO("constructing graph " << i);
+            const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
             auto kmer2reads = kmerIndexConstruction(all_halves, k);
             size_t num_of_dist_computations = 0;
-            Graph& graph = i == 0 ? left_graph : right_graph;
+            Graph& graph = (i == 0) ? left_graph : right_graph;
             graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::edit_dist(tau),
                                  static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
                                  num_of_dist_computations);
@@ -592,7 +593,6 @@ namespace clusterer {
         std::ofstream out_file(file_name);
         std::ofstream chimeras_file(chimeras_info_file_name);
         const auto& umis = umi_to_clusters.fromSet();
-//        size_t done = 0;
         for (const auto& umi: umis) {
             const auto& clusters = umi_to_clusters.forth(umi);
             size_t max_size = 0;
@@ -607,7 +607,7 @@ namespace clusterer {
             std::unordered_set<size_t> major_umi_clusters_idcs;
             for (const auto& cluster : clusters) {
                 if (cluster->weight == max_size) {
-                    major_umi_clusters_idcs.insert(cluster_to_idx[cluster]);
+                    major_umi_clusters_idcs.insert(cluster_to_idx[cluster->GetSequence()]);
                 }
             }
 
@@ -629,7 +629,7 @@ namespace clusterer {
                 if (cluster->weight == max_size) continue;
 
                 size_t left_in_umi = 0;
-                const auto& left_adjacent = left_graph[cluster_to_idx[cluster]];
+                const auto& left_adjacent = left_graph[cluster_to_idx[cluster->GetSequence()]];
                 size_t left_in_all = left_adjacent.size();
                 for (size_t i = 0; i < left_adjacent.size(); i ++) {
                     if (major_umi_clusters_idcs.count(left_adjacent[i].first)) {
@@ -637,7 +637,7 @@ namespace clusterer {
                     }
                 }
                 size_t right_in_umi = 0;
-                const auto& right_adjacent = right_graph[cluster_to_idx[cluster]];
+                const auto& right_adjacent = right_graph[cluster_to_idx[cluster->GetSequence()]];
                 size_t right_in_all = right_adjacent.size();
                 for (size_t i = 0; i < right_adjacent.size(); i ++) {
                     if (major_umi_clusters_idcs.count(right_adjacent[i].first)) {
@@ -660,6 +660,7 @@ namespace clusterer {
                     chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         chimeras_file << c->GetSequence() << std::endl;
+                        chimeras_file << "cluster size: " << c->weight << ", ";
                         chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
                         chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
                     }
@@ -667,9 +668,6 @@ namespace clusterer {
                     found_half_only ++;
                 }
             }
-
-//            done ++;
-//            INFO(done << " umis processesed of " << umis.size());
         }
 
         INFO("Total clusters, which are minorities in the umi: " << total_minor_clusters);

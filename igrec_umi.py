@@ -155,7 +155,7 @@ class _StagePrepare:
                     exit(1)
                 if _StagePrepare.BIN_SEPARATOR in line:
                     if params.ignore_code_changes:
-                        line = line[:line.find(_StagePrepare.BIN_SEPARATOR)]
+                        line = line[:line.find(_StagePrepare.BIN_SEPARATOR)] + '\n'
                     else:
                         line = line.replace(_StagePrepare.BIN_SEPARATOR, " ")
                 line = line.replace("%RUN_PATH", home_directory)
