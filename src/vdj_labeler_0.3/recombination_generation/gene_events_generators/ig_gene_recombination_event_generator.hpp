@@ -8,8 +8,15 @@ namespace vdj_labeler {
 
 class IgGeneRecombinationEventsGenerator {
 public:
-    virtual recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const = 0;
+    IgGeneRecombinationEventsGenerator() = default;
+
+    IgGeneRecombinationEventsGenerator(const IgGeneRecombinationEventsGenerator &)           = delete;
+    IgGeneRecombinationEventsGenerator& operator=(const IgGeneRecombinationEventsGenerator&) = delete;
+    IgGeneRecombinationEventsGenerator(IgGeneRecombinationEventsGenerator &&)                = delete;
+    IgGeneRecombinationEventsGenerator& operator=(IgGeneRecombinationEventsGenerator&&)      = delete;
+
+    virtual recombination_utils::IgGeneRecombinationEventStorage ComputeEvents(
+        const alignment_utils::ImmuneGeneReadAlignment &gene_segment_alignment) const = 0;
     virtual ~IgGeneRecombinationEventsGenerator() { }
 };
 

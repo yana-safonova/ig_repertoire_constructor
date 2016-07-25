@@ -12,7 +12,7 @@ namespace vdj_labeler {
 
 class CustomHeavyChainRecombinationGenerator :
         public AbstractRecombinationGenerator<recombination_utils::HCRecombination,
-                                              recombination_utils::HcRecombinationStoragePtr>
+                                              recombination_utils::HcRecombinationStorage>
 {
     IgGeneRecombinationEventsGenerator &v_events_generator_;
     IgGeneRecombinationEventsGenerator &d_events_generator_;
@@ -21,17 +21,17 @@ class CustomHeavyChainRecombinationGenerator :
     InsertionEventGenerator& dj_insertion_generator_;
 
     // inner structures
-    std::vector<recombination_utils::IgGeneRecombinationEventStoragePtr> v_storages_;
-    std::vector<recombination_utils::IgGeneRecombinationEventStoragePtr> d_storages_;
-    std::vector<recombination_utils::IgGeneRecombinationEventStoragePtr> j_storages_;
+    std::vector<recombination_utils::IgGeneRecombinationEventStorage> v_storages_;
+    std::vector<recombination_utils::IgGeneRecombinationEventStorage> d_storages_;
+    std::vector<recombination_utils::IgGeneRecombinationEventStorage> j_storages_;
 
     void Clear();
 
-    void ComputeVEventStorages(const VDJHitsPtr vdj_hits);
+    void ComputeVEventStorages(const VDJHits &vdj_hits);
 
-    void ComputeDEventStorages(const VDJHitsPtr vdj_hits);
+    void ComputeDEventStorages(const VDJHits &vdj_hits);
 
-    void ComputeJEventStorages(const VDJHitsPtr vdj_hits);
+    void ComputeJEventStorages(const VDJHits &vdj_hits);
 
     // if d alignment is empty, we will assign length from V end to J start to the first insertion
     // and zero length to the second insertion
@@ -40,19 +40,19 @@ class CustomHeavyChainRecombinationGenerator :
             RefineNongenomicInsertions(const recombination_utils::NongenomicInsertion &vd_insertion,
                                        const recombination_utils::NongenomicInsertion &dj_insertion) const;
 
-    recombination_utils::HcRecombinationStoragePtr CreateRecombinations(
-        const recombination_utils::HcRecombinationStoragePtr recombination_storage,
+    void CreateRecombinations(
+        recombination_utils::HcRecombinationStorage &recombination_storage,
         const recombination_utils::CleavedIgGeneAlignment &v_gene,
         const recombination_utils::CleavedIgGeneAlignment &d_gene,
         const recombination_utils::CleavedIgGeneAlignment &j_gene,
-        const recombination_utils::InsertionEventStoragePtr vd_insertions,
-        const recombination_utils::InsertionEventStoragePtr dj_insertions) const;
+        recombination_utils::InsertionEventStorage &vd_insertions,
+        recombination_utils::InsertionEventStorage &dj_insertions) const;
 
-    recombination_utils::HcRecombinationStoragePtr CreateRecombinations(
-        recombination_utils::HcRecombinationStoragePtr recombination_storage,
-        const recombination_utils::IgGeneRecombinationEventStoragePtr v_events,
-        const recombination_utils::IgGeneRecombinationEventStoragePtr d_events,
-        const recombination_utils::IgGeneRecombinationEventStoragePtr j_events) const;
+    void CreateRecombinations(
+        recombination_utils::HcRecombinationStorage &recombination_storage,
+        const recombination_utils::IgGeneRecombinationEventStorage &v_events,
+        const recombination_utils::IgGeneRecombinationEventStorage &d_events,
+        const recombination_utils::IgGeneRecombinationEventStorage &j_events) const;
 
 public:
     CustomHeavyChainRecombinationGenerator(IgGeneRecombinationEventsGenerator &v_events_generator,
@@ -66,7 +66,7 @@ public:
             vd_insertion_generator_(vd_insertion_generator),
             dj_insertion_generator_(dj_insertion_generator) { }
 
-    recombination_utils::HcRecombinationStoragePtr ComputeRecombinations(const VDJHitsPtr vdj_hits);
+    recombination_utils::HcRecombinationStorage ComputeRecombinations(const VDJHits &vdj_hits) override;
 };
 
 } // End namespace vdj_labeler

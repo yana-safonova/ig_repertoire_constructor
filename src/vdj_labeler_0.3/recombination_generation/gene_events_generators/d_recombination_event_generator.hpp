@@ -10,16 +10,16 @@ class DRecombinationEventGenerator : public IgGeneRecombinationEventsGenerator {
     size_t max_cleavage_;
     size_t max_palindrome_;
 
-    int ComputeMinLeftBound(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const;
+    int ComputeMinLeftBound(const alignment_utils::ImmuneGeneReadAlignment &d_alignment) const;
 
-    int ComputeMinRightBound(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const;
+    int ComputeMinRightBound(const alignment_utils::ImmuneGeneReadAlignment &d_alignment) const;
 
-    size_t ComputeMaxRightConsistentCleavage(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+    size_t ComputeMaxRightConsistentCleavage(const alignment_utils::ImmuneGeneReadAlignment &d_alignment,
                                              const int left_event_size) const;
 
-    void GenerateRightConsistentEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+    void GenerateRightConsistentEvents(const alignment_utils::ImmuneGeneReadAlignment &d_alignment,
                                        const int left_event_size,
-                                       const recombination_utils::IgGeneRecombinationEventStoragePtr d_events) const;
+                                       recombination_utils::IgGeneRecombinationEventStorage &d_events) const;
 
 public:
     DRecombinationEventGenerator(SHMsCalculator& shm_calculator,
@@ -28,8 +28,8 @@ public:
             max_cleavage_(max_cleavage),
             max_palindrome_(max_palindrome) { }
 
-    recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const;
+    recombination_utils::IgGeneRecombinationEventStorage ComputeEvents(
+        const alignment_utils::ImmuneGeneReadAlignment &gene_segment_alignment) const override;
 };
 
 } // End namespace vdj_labeler

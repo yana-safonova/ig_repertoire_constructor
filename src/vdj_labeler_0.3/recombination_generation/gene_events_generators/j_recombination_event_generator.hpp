@@ -10,18 +10,18 @@ class JRecombinationEventGenerator: public IgGeneRecombinationEventsGenerator {
     size_t max_palindrome_;
 
     recombination_utils::CleavedIgGeneAlignment GenerateCleavageEvent(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment &v_alignment,
         const size_t cleavage_length) const;
 
-    void GenerateCleavageEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
+    void GenerateCleavageEvents(const alignment_utils::ImmuneGeneReadAlignment &v_alignment,
+                                recombination_utils::IgGeneRecombinationEventStorage &v_events) const;
 
     recombination_utils::CleavedIgGeneAlignment GeneratePalindromicEvent(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment &v_alignment,
         const size_t palindrome_length) const;
 
-    void GeneratePalindromicEvents(const alignment_utils::ImmuneGeneReadAlignmentPtr v_alignment,
-                                   const recombination_utils::IgGeneRecombinationEventStoragePtr v_events) const;
+    void GeneratePalindromicEvents(const alignment_utils::ImmuneGeneReadAlignment &v_alignment,
+                                   recombination_utils::IgGeneRecombinationEventStorage &v_events) const;
 
 public:
     JRecombinationEventGenerator(SHMsCalculator &shms_calculator,
@@ -30,8 +30,8 @@ public:
                                                                 max_cleavage_(max_cleavage),
                                                                 max_palindrome_(max_palindrome) { }
 
-    recombination_utils::IgGeneRecombinationEventStoragePtr ComputeEvents(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr gene_segment_alignment) const;
+    recombination_utils::IgGeneRecombinationEventStorage ComputeEvents(
+        const alignment_utils::ImmuneGeneReadAlignment &gene_segment_alignment) const override;
 };
 
 } // End namespace vdj_labeler

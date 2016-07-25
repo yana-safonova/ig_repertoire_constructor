@@ -7,7 +7,14 @@ namespace vdj_labeler {
 
 class InsertionEventGenerator {
 public:
-    virtual recombination_utils::InsertionEventStoragePtr ComputeInsertionEvents(
+    InsertionEventGenerator() = default;
+
+    InsertionEventGenerator(const InsertionEventGenerator &)           = delete;
+    InsertionEventGenerator& operator=(const InsertionEventGenerator&) = delete;
+    InsertionEventGenerator(InsertionEventGenerator &&)                = delete;
+    InsertionEventGenerator& operator=(InsertionEventGenerator&&)      = delete;
+
+    virtual recombination_utils::InsertionEventStorage ComputeInsertionEvents(
         const recombination_utils::CleavedIgGeneAlignment &left_gene_alignment,
         const recombination_utils::CleavedIgGeneAlignment &right_gene_alignment) const = 0;
 

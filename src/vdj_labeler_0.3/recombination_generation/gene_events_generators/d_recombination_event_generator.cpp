@@ -4,41 +4,41 @@
 using namespace vdj_labeler;
 
 int DRecombinationEventGenerator::ComputeMinLeftBound(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
+        const alignment_utils::ImmuneGeneReadAlignment &d_alignment) const
 {
-    if(d_alignment->StartSubjectPosition() != 0)
-        return int(d_alignment->StartSubjectPosition());
+    if(d_alignment.StartSubjectPosition() != 0)
+        return int(d_alignment.StartSubjectPosition());
     return int(max_palindrome_) * -1;
 }
 
-int DRecombinationEventGenerator::ComputeMinRightBound(const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
+int DRecombinationEventGenerator::ComputeMinRightBound(const alignment_utils::ImmuneGeneReadAlignment &d_alignment) const
 {
     // if cleavage is occurred at the right end of D segment, min right bound is cleavage size from alignment
-    if(d_alignment->EndSubjectPosition() != d_alignment->subject().length() - 1)
-        return int(d_alignment->subject().length() - d_alignment->EndSubjectPosition() - 1);
+    if(d_alignment.EndSubjectPosition() != d_alignment.Subject().length() - 1)
+        return int(d_alignment.Subject().length() - d_alignment.EndSubjectPosition() - 1);
     // if gene segment is not cleaved, min left bound is max palindrome length
     return int(max_palindrome_) * -1;
 }
 
 size_t DRecombinationEventGenerator::ComputeMaxRightConsistentCleavage(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment &d_alignment,
         const int left_event_size) const
 {
-    size_t min_right_cleavage = d_alignment->subject().length() - d_alignment->EndSubjectPosition() - 1;
+    size_t min_right_cleavage = d_alignment.Subject().length() - d_alignment.EndSubjectPosition() - 1;
     size_t read_cleavage = 0;
     if(left_event_size > 0) {
-        assert(size_t(left_event_size) >= d_alignment->StartSubjectPosition());
-        read_cleavage = left_event_size - d_alignment->StartSubjectPosition();
+        assert(size_t(left_event_size) >= d_alignment.StartSubjectPosition());
+        read_cleavage = left_event_size - d_alignment.StartSubjectPosition();
     }
     return size_t(std::min<int>(static_cast<int>(max_cleavage_),
-                                static_cast<int>(d_alignment->QueryAlignmentLength())) -
+                                static_cast<int>(d_alignment.QueryAlignmentLength())) -
                                     read_cleavage + min_right_cleavage);
 }
 
 void DRecombinationEventGenerator::GenerateRightConsistentEvents(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment,
+        const alignment_utils::ImmuneGeneReadAlignment &d_alignment,
         const int left_event_size,
-        const recombination_utils::IgGeneRecombinationEventStoragePtr d_events) const
+        recombination_utils::IgGeneRecombinationEventStorage &d_events) const
 {
     int min_right_bound = ComputeMinRightBound(d_alignment);
     int max_right_bound = int(ComputeMaxRightConsistentCleavage(d_alignment, left_event_size));
@@ -46,28 +46,27 @@ void DRecombinationEventGenerator::GenerateRightConsistentEvents(
     TRACE("Right bound of right events: " << max_right_bound);
     for(int relen = min_right_bound; relen <= max_right_bound; relen++) {
         TRACE("== Right current event: " << relen << ".");
-        d_events->AddEvent(recombination_utils::CleavedIgGeneAlignment(d_alignment,
-                                                                       left_event_size,
-                                                                       relen,
-                                                                       shm_calculator_.ComputeNumberSHMsForLeftEvent(
-                                                                           d_alignment, left_event_size),
-                                                                       shm_calculator_.ComputeNumberSHMsForRightEvent(
-                                                                           d_alignment, relen)));
+        d_events.AddEvent(recombination_utils::CleavedIgGeneAlignment(d_alignment,
+                                                                      left_event_size,
+                                                                      relen,
+                                                                      shm_calculator_.ComputeNumberSHMsForLeftEvent(
+                                                                          d_alignment, left_event_size),
+                                                                      shm_calculator_.ComputeNumberSHMsForRightEvent(
+                                                                          d_alignment, relen)));
     }
 }
 
-recombination_utils::IgGeneRecombinationEventStoragePtr DRecombinationEventGenerator::ComputeEvents(
-        const alignment_utils::ImmuneGeneReadAlignmentPtr d_alignment) const
+recombination_utils::IgGeneRecombinationEventStorage DRecombinationEventGenerator::ComputeEvents(
+        const alignment_utils::ImmuneGeneReadAlignment &d_alignment) const
 {
-    recombination_utils::IgGeneRecombinationEventStoragePtr d_events(
-        new recombination_utils::IgGeneRecombinationEventStorage(germline_utils::SegmentType::DiversitySegment));
-    if(d_alignment->Empty())
+    recombination_utils::IgGeneRecombinationEventStorage d_events(germline_utils::SegmentType::DiversitySegment);
+    if(d_alignment.Empty())
         return d_events;
     int min_left_bound = ComputeMinLeftBound(d_alignment);
     int max_left_bound =
-        static_cast<int>(std::min<size_t>(d_alignment->QueryAlignmentLength() + d_alignment->StartSubjectPosition(),
+        static_cast<int>(std::min<size_t>(d_alignment.QueryAlignmentLength() + d_alignment.StartSubjectPosition(),
                                           max_cleavage_));
-    TRACE(d_alignment->Alignment());
+    TRACE(d_alignment.Alignment());
     TRACE("Left bound of left events: " << min_left_bound);
     TRACE("Right bound of left events: " << max_left_bound);
     //  we iterate from max allowed palindrome to max allowed cleavage and

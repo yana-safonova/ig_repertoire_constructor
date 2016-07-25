@@ -35,7 +35,7 @@ add_executable(vdj_labeler_0.3
                 vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.cpp
                 vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
                 model/recombination_model.cpp
-                # recombination_calculator/hc_model_based_recombination_calculator.cpp
+                recombination_calculator/hc_model_based_recombination_calculator.cpp
                 recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.cpp
                 recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.cpp
                 recombination_generation/gene_events_generators/shms_calculators/versatile_shms_calculator.cpp
@@ -44,6 +44,7 @@ add_executable(vdj_labeler_0.3
                 recombination_generation/gene_events_generators/j_recombination_event_generator.cpp
                 recombination_generation/insertion_events_generators/versatile_insertion_event_generator.cpp
                 recombination_generation/custom_hc_recombination_generator.cpp
+                recombination_estimators/hc_recombination_estimator.cpp
                 main.cpp)
 
 target_link_libraries(vdj_labeler_0.3 core algorithms vdj_utils input yaml-cpp ${COMMON_LIBRARIES})

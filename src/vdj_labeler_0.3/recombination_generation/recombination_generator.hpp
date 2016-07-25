@@ -4,10 +4,17 @@
 
 namespace vdj_labeler {
 
-template<class Recombination, class RecombinationStoragePtr>
+template<class Recombination, class RecombinationStorage>
 class AbstractRecombinationGenerator {
 public:
-    virtual RecombinationStoragePtr ComputeRecombinations(VDJHitsPtr vdj_hits) = 0;
+    AbstractRecombinationGenerator() = default;
+
+    AbstractRecombinationGenerator(const AbstractRecombinationGenerator &)           = delete;
+    AbstractRecombinationGenerator& operator=(const AbstractRecombinationGenerator&) = delete;
+    AbstractRecombinationGenerator(AbstractRecombinationGenerator &&)                = delete;
+    AbstractRecombinationGenerator& operator=(AbstractRecombinationGenerator&&)      = delete;
+
+    virtual RecombinationStorage ComputeRecombinations(const VDJHits &vdj_hits) = 0;
 
     virtual ~AbstractRecombinationGenerator() { }
 };
