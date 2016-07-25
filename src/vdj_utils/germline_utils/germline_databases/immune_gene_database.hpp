@@ -5,6 +5,7 @@
 
 #include "../chain_type.hpp"
 #include "../germline_gene_type.hpp"
+#include <annotation_utils/aa_annotation/aa_annotation.hpp>
 
 namespace germline_utils {
 

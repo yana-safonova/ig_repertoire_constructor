@@ -38,8 +38,8 @@ namespace cdr_labeler {
         vj_finder::VJAlignmentInfo alignment_info = processor.Process();
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
                      " reads were filtered out");
-
-        ReadCDRLabeler read_labeler(v_labeling, j_labeling);
+        // todo: move shm finding params from output params
+        ReadCDRLabeler read_labeler(config_.output_params.shm_output_details, v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
         INFO("CDR sequences and SHMs were computed");
         CDRLabelingWriter writer(config_.output_params, annotated_clone_set);

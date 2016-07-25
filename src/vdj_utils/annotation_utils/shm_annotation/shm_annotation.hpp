@@ -1,8 +1,8 @@
 #pragma once
 
 #include <verify.hpp>
-#include "../germline_utils/germline_databases/immune_gene_database.hpp"
 #include <read_archive.hpp>
+#include <germline_utils/germline_databases/immune_gene_database.hpp>
 
 namespace annotation_utils {
     enum SHMType { UnknownSHM, SubstitutionSHM, InsertionSHM, DeletionSHM };
@@ -45,14 +45,17 @@ namespace annotation_utils {
     // class stores SHMs in the order of increasing positions
     class GeneSegmentSHMs {
         core::Read read_;
-        const germline_utils::ImmuneGene &immune_gene_;
+        const germline_utils::ImmuneGene *immune_gene_;
+
         std::vector<SHM> shms_;
 
         void CheckConsistencyFatal(SHM shm);
 
     public:
-        GeneSegmentSHMs(core::Read read, const germline_utils::ImmuneGene &immune_gene) :
-                read_(read), immune_gene_(immune_gene) { }
+        GeneSegmentSHMs(core::Read read,
+                        const germline_utils::ImmuneGene &immune_gene) :
+                read_(read),
+                immune_gene_(&immune_gene){ }
 
         void AddSHM(SHM shm);
 
@@ -68,11 +71,11 @@ namespace annotation_utils {
 
         bool operator==(const SHM& obj) const;
 
-        germline_utils::SegmentType SegmentType() const { return immune_gene_.Segment(); }
+        germline_utils::SegmentType SegmentType() const { return immune_gene_->Segment(); }
 
         const core::Read& Read() const { return read_; }
 
-        const germline_utils::ImmuneGene& ImmuneGene() const { return immune_gene_; }
+        const germline_utils::ImmuneGene& ImmuneGene() const { return *immune_gene_; }
     };
 
     std::ostream& operator<<(std::ostream &out, const GeneSegmentSHMs& shms);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <verify.hpp>
 #include "alignment_positions.hpp"
 
 #include <seqan/align.h>

@@ -4,7 +4,6 @@
 
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
-#include <annotation_utils/shm_filter.hpp>
 
 namespace cdr_labeler {
     std::ostream& CDRLabelingWriter::OutputCloneRegion(std::ostream& out,
@@ -114,21 +113,16 @@ namespace cdr_labeler {
     }
 
     void CDRLabelingWriter::OutputSHMsForRead(std::ostream& out, const annotation_utils::GeneSegmentSHMs &shms) const {
-        size_t max_skipped_start = output_config_.shm_output_details.v_start_max_skipped;
-        size_t max_skipped_end = output_config_.shm_output_details.v_end_max_skipped;
-        if(shms.SegmentType() == germline_utils::SegmentType::JoinSegment) {
-            max_skipped_start = output_config_.shm_output_details.j_start_max_skipped;
-            max_skipped_end = output_config_.shm_output_details.j_end_max_skipped;
-        }
-        annotation_utils::PositionalSHMFilter shm_filter(shms, max_skipped_start, max_skipped_end);
-        if(shm_filter.NumGoodSHMs() == 0)
-            return;
+        //size_t max_skipped_start = output_config_.shm_output_details.v_start_max_skipped;
+        //size_t max_skipped_end = output_config_.shm_output_details.v_end_max_skipped;
+        //if(shms.SegmentType() == germline_utils::SegmentType::JoinSegment) {
+        //    max_skipped_start = output_config_.shm_output_details.j_start_max_skipped;
+        //    max_skipped_end = output_config_.shm_output_details.j_end_max_skipped;
+        //}
         out << "Read_name:" << shms.Read().name << "\tRead_length:" << shms.Read().length() <<
                 "\tGene_name:" << shms.ImmuneGene().name() << "\tGene_length:" << shms.ImmuneGene().length() <<
                 "\tSegment:" << shms.SegmentType() << "\tChain_type:" << shms.ImmuneGene().Chain() << std::endl;
         for(auto it = shms.cbegin(); it != shms.cend(); it++) {
-            if(shm_filter.FilterSHM(*it))
-                continue;
             out << it->shm_type << "\t" << it->read_nucl_pos << "\t" <<
             it->gene_nucl_pos << "\t" << it->read_nucl << "\t" << it->gene_nucl << "\t" << it->read_aa <<
             "\t" << it->gene_aa << "\t" << it->IsSynonymous() << "\t" << it->ToStopCodon() << std::endl;
