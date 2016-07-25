@@ -44,7 +44,7 @@ namespace annotation_utils {
 
     // class stores SHMs in the order of increasing positions
     class GeneSegmentSHMs {
-        core::Read read_;
+        const core::Read* read_ptr_;
         const germline_utils::ImmuneGene *immune_gene_;
 
         std::vector<SHM> shms_;
@@ -52,9 +52,9 @@ namespace annotation_utils {
         void CheckConsistencyFatal(SHM shm);
 
     public:
-        GeneSegmentSHMs(core::Read read,
+        GeneSegmentSHMs(const core::Read &read,
                         const germline_utils::ImmuneGene &immune_gene) :
-                read_(read),
+                read_ptr_(&read),
                 immune_gene_(&immune_gene){ }
 
         void AddSHM(SHM shm);
@@ -73,7 +73,7 @@ namespace annotation_utils {
 
         germline_utils::SegmentType SegmentType() const { return immune_gene_->Segment(); }
 
-        const core::Read& Read() const { return read_; }
+        const core::Read& Read() const { return *read_ptr_; }
 
         const germline_utils::ImmuneGene& ImmuneGene() const { return *immune_gene_; }
     };

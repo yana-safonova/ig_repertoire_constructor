@@ -34,8 +34,7 @@ namespace annotation_utils {
 
     //--------------------------------------------------------------------
 
-    void StartEndFilteringSHMCalculator::ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms,
-            size_t start_read_pos, size_t start_gene_pos) {
+    void StartEndFilteringSHMCalculator::ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms) {
         if(all_shms.size() == 0) {
             //std::cout << "SHMs are empty" << std::endl;
             return;
@@ -84,7 +83,7 @@ namespace annotation_utils {
 
     void StartEndFilteringSHMCalculator::ComputeMeaningPositions(const GeneSegmentSHMs& all_shms,
                                                                  const alignment_utils::ImmuneGeneReadAlignment& alignment) {
-        ComputeStartMeaningPositions(all_shms, alignment.StartQueryPosition(), alignment.StartSubjectPosition());
+        ComputeStartMeaningPositions(all_shms);
         ComputeEndMeaningPositions(all_shms, alignment.EndQueryPosition(), alignment.EndSubjectPosition());
     }
 

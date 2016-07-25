@@ -31,8 +31,7 @@ namespace annotation_utils {
         size_t last_meaning_read_pos_; // last position on read corresponding to good SHMs
         size_t last_meaning_gene_pos_; // last position on gene corresponding to good SHMs
 
-        void ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms,
-                size_t start_read_pos, size_t start_gene_pos);
+        void ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms);
 
         void ComputeEndMeaningPositions(const GeneSegmentSHMs &all_shms,
                                         size_t end_read_pos, size_t end_gene_pos);

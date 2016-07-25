@@ -20,8 +20,9 @@ namespace annotation_utils {
 
     void AnnotatedClone::CheckRangeConsistencyFatal(CDRRange range) {
         VERIFY(range.Full());
-        VERIFY_MSG(range.start_pos < read_.length() and range.end_pos < read_.length(), "Start pos (" <<
-                range.start_pos << ") or end pos (" << range.end_pos << ") exceeds read length " << read_.length());
+        VERIFY_MSG(range.start_pos < read_ptr_->length() and range.end_pos < read_ptr_->length(),
+                   "Start pos (" << range.start_pos << ") or end pos (" <<
+                           range.end_pos << ") exceeds read length " << read_ptr_->length());
     }
 
     void AnnotatedClone::UpdateStructuralRegion(StructuralRegion region, CDRRange range) {
@@ -30,7 +31,7 @@ namespace annotation_utils {
         region_range_map_[region] = range;
         seqan::Dna5String cdr_seq;
         if(range.Valid())
-            cdr_seq = seqan::infixWithLength(read_.seq, range.start_pos, range.length());
+            cdr_seq = seqan::infixWithLength(read_ptr_->seq, range.start_pos, range.length());
         region_string_map_[region] = cdr_seq;
     }
 

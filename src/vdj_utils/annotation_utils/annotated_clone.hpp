@@ -12,7 +12,7 @@ namespace annotation_utils {
     std::ostream& operator<<(std::ostream& out, const StructuralRegion &region);
 
     class AnnotatedClone {
-        core::Read read_;
+        const core::Read *read_ptr_;
 
         std::unordered_map<StructuralRegion, seqan::Dna5String, std::hash<int>> region_string_map_;
         std::unordered_map<StructuralRegion, CDRRange, std::hash<int>> region_range_map_;
@@ -32,14 +32,14 @@ namespace annotation_utils {
         void Initialize(CDRLabeling cdr_labeling);
 
     public:
-        AnnotatedClone(core::Read read,
+        AnnotatedClone(const core::Read &read,
                        CDRLabeling cdr_labeling,
                        alignment_utils::ImmuneGeneReadAlignment v_alignment,
                        alignment_utils::ImmuneGeneReadAlignment j_alignment,
                        AminoAcidAnnotation<core::Read> aa_annotation,
                        GeneSegmentSHMs v_shms,
                        GeneSegmentSHMs j_shms) :
-                read_(read),
+                read_ptr_(&read),
                 v_alignment_(v_alignment),
                 j_alignment_(j_alignment),
                 aa_annotation_(aa_annotation),
@@ -66,7 +66,7 @@ namespace annotation_utils {
             return GetRegionString(StructuralRegion::CDR3);
         }
 
-        const core::Read& Read() const { return read_; }
+        const core::Read& Read() const { return *read_ptr_; }
 
         const alignment_utils::ImmuneGeneReadAlignment& VAlignment() const { return v_alignment_; }
 
