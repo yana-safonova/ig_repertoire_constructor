@@ -160,7 +160,7 @@ public:
     }
 
     const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentByIndex(const germline_utils::SegmentType &gene_type,
-                                                                        const size_t &index);
+                                                                        const size_t &index) const;
 };
 
 typedef std::shared_ptr<VDJHits> VDJHitsPtr;

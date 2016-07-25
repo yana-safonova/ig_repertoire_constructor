@@ -134,7 +134,7 @@ void VDJHits::AddIgGeneAlignment(const germline_utils::SegmentType &segment_type
 
 const alignment_utils::ImmuneGeneReadAlignment &VDJHits::GetAlignmentByIndex(
         const germline_utils::SegmentType &segment_type,
-        const size_t &index)
+        const size_t &index) const
 {
     if (segment_type == germline_utils::SegmentType::VariableSegment) {
         assert(index < v_hits_.size());
