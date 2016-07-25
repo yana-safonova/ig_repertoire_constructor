@@ -7,7 +7,6 @@
 #include "../germline_gene_type.hpp"
 
 namespace germline_utils {
-
     class ImmuneGene {
         ImmuneGeneType gene_type_;
         seqan::CharString gene_name_;

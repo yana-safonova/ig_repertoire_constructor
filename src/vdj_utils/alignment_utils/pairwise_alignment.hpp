@@ -139,6 +139,11 @@ namespace alignment_utils {
             PairwiseAlignment(&subject, &query, alignment, score)
         { }
 
+        PairwiseAlignment(const PairwiseAlignment&)            = default;
+        PairwiseAlignment(PairwiseAlignment&&)                 = default;
+        PairwiseAlignment& operator=(const PairwiseAlignment&) = default;
+        PairwiseAlignment& operator=(PairwiseAlignment&&)      = default;
+
         double Score() const { return score_; }
 
         double NormalizedScore() const { return normalized_score_; }

@@ -36,6 +36,16 @@ public:
         total_num_shms_ = size_t(int(gene_alignment_ptr_->NumberSHMs()) + num_left_shms_ + num_right_shms_);
     }
 
+    CleavedIgGeneAlignment(const alignment_utils::ImmuneGeneReadAlignment& gene_alignment,
+                           const int left_cleavage_length,
+                           const int right_cleavage_length,
+                           const int num_left_shms,
+                           const int num_right_shms) :
+            CleavedIgGeneAlignment(&gene_alignment,
+                                   left_cleavage_length, right_cleavage_length,
+                                   num_left_shms, num_right_shms)
+    { }
+
     CleavedIgGeneAlignment(const CleavedIgGeneAlignment&) = default;
     CleavedIgGeneAlignment(CleavedIgGeneAlignment&&) = default;
     CleavedIgGeneAlignment& operator=(const CleavedIgGeneAlignment&) = default;
