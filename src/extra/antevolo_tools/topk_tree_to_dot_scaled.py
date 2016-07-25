@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-i", "--input", help="input dir with clonal trees")
 parser.add_argument("-o", "--output", help="output dir")
 parser.add_argument("-s", "--strategy", help="dot/neato/oth")
-parser.add_argument("-k", "--trees_num", help="number of top-size threes to draw")
+parser.add_argument("-k", "--trees_num", help="number of top-size trees to draw")
 args = parser.parse_args()
 
 def draw_tree(tree_file):

@@ -7,14 +7,34 @@ namespace antevolo {
                                                                       const annotation_utils::AnnotatedClone &dst_clone,
                                                                       size_t src_num,
                                                                       size_t dst_num) const {
-        if(annotation_utils::SHMComparator::SHMsAreEqual(src_clone.VSHMs(), dst_clone.VSHMs()))
+        if (annotation_utils::SHMComparator::SHMsAreEqual(src_clone.VSHMs(), dst_clone.VSHMs()))
             return EvolutionaryEdge(EvolutionaryEdgeType::UndirectedEdgeType, src_clone, dst_clone, src_num, dst_num,
                                     params_.intersected_edge_coeff);
-        if(annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(src_clone.VSHMs(), dst_clone.VSHMs()))
+        if (annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(src_clone.VSHMs(), dst_clone.VSHMs()))
             return EvolutionaryEdge(EvolutionaryEdgeType::DirectedEdgeType, src_clone, dst_clone, src_num, dst_num,
                                     params_.intersected_edge_coeff);
-        if(annotation_utils::SHMComparator::GetNumberOfIntersections(src_clone.VSHMs(), dst_clone.VSHMs()) >=
+        if (annotation_utils::SHMComparator::GetNumberOfIntersections(src_clone.VSHMs(), dst_clone.VSHMs()) >=
                 params_.min_num_intersected_v_shms)
+            return EvolutionaryEdge(EvolutionaryEdgeType::IntersectedEdgeType, src_clone, dst_clone, src_num, dst_num,
+                                    params_.intersected_edge_coeff);
+        return EvolutionaryEdge(EvolutionaryEdgeType::UnknownEdgeType, src_clone, dst_clone, src_num, dst_num,
+                                params_.intersected_edge_coeff);
+    }
+
+    EvolutionaryEdge VJEvolutionaryEdgeConstructor::ConstructEdge(const annotation_utils::AnnotatedClone &src_clone,
+                                                                      const annotation_utils::AnnotatedClone &dst_clone,
+                                                                      size_t src_num,
+                                                                      size_t dst_num) const {
+        if (annotation_utils::SHMComparator::SHMsAreEqual(src_clone.VSHMs(), dst_clone.VSHMs()) &&
+            annotation_utils::SHMComparator::SHMsAreEqual(src_clone.JSHMs(), dst_clone.JSHMs()))
+            return EvolutionaryEdge(EvolutionaryEdgeType::UndirectedEdgeType, src_clone, dst_clone, src_num, dst_num,
+                                    params_.intersected_edge_coeff);
+        if (annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(src_clone.VSHMs(), dst_clone.VSHMs()) &&
+            annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(src_clone.JSHMs(), dst_clone.JSHMs()))
+            return EvolutionaryEdge(EvolutionaryEdgeType::DirectedEdgeType, src_clone, dst_clone, src_num, dst_num,
+                                    params_.intersected_edge_coeff);
+        if (annotation_utils::SHMComparator::GetNumberOfIntersections(src_clone.VSHMs(), dst_clone.VSHMs()) >=
+           params_.min_num_intersected_v_shms)
             return EvolutionaryEdge(EvolutionaryEdgeType::IntersectedEdgeType, src_clone, dst_clone, src_num, dst_num,
                                     params_.intersected_edge_coeff);
         return EvolutionaryEdge(EvolutionaryEdgeType::UnknownEdgeType, src_clone, dst_clone, src_num, dst_num,

@@ -10,8 +10,8 @@ namespace antevolo {
                 return;
             }
             const EvolutionaryEdge& parent_edge =  edges_[clone_num];
-            if (static_cast<double>(parent_edge.num_added_v_shms) + 1.0 - model.CDR3TransitionProb(parent_edge) >
-                static_cast<double>(edge.num_added_v_shms) + 1.0 - model.CDR3TransitionProb(edge)) {
+            if (static_cast<double>(parent_edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(parent_edge) >
+                static_cast<double>(edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(edge)) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 edges_[clone_num] = edge;
             }
@@ -25,8 +25,8 @@ namespace antevolo {
                 return;
             }
             const EvolutionaryEdge& parent_edge =  undirected_components_edges_[root_num];
-            if (static_cast<double>(parent_edge.num_added_v_shms) + 1.0 - model.CDR3TransitionProb(parent_edge) >
-                static_cast<double>(edge.num_added_v_shms) + 1.0 - model.CDR3TransitionProb(edge)) {
+            if (static_cast<double>(parent_edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(parent_edge) >
+                static_cast<double>(edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(edge)) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 undirected_components_edges_[root_num] = edge;
             }
@@ -139,14 +139,44 @@ namespace antevolo {
         //INFO("Minumal arborescence found");
     }
 
+    void EvolutionaryTree::WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) { //no endl
+        out << edge.src_clone->Read().id << "\t" << edge.dst_clone->Read().id << "\t"
+        << edge.src_clone->Read().name << "\t" << edge.dst_clone->Read().name << "\t"
+        << edge.src_clone->VSHMs().size() + edge.src_clone->JSHMs().size() << "\t"
+        << edge.dst_clone->VSHMs().size() + edge.dst_clone->JSHMs().size()<< "\t"
+        << edge.edge_type << "\t" <<  edge.num_intersected_shms << "\t" << edge.num_added_shms
+        << "\t" << edge.cdr3_distance << "\t" << edge.weight << "\t";
+    }
+
     void EvolutionaryTree::WriteInFile(std::string output_fname) {
         std::ofstream out(output_fname);
-        out << "Src_num\tDst_num\tSrc_clone\tDst_clone\tNum_Src_V_SHMs\tNum_Dst_V_SHMs\tEdge_type\tNum_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\n";
+        out << "Src_id\tDst_id\tSrc_clone\tDst_clone\tNum_Src_SHMs\tNum_Dst_SHMs\tEdge_type\tNum_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\n";
         for(auto it = edges_.begin(); it != edges_.end(); it++)
-            out << it->second.src_clone_num << "\t" << it->second.dst_clone_num << "\t" << it->second.src_clone->Read().name << "\t" << it->second.dst_clone->Read().name << "\t" <<
-            it->second.src_clone->VSHMs().size() << "\t" << it->second.dst_clone->VSHMs().size() << "\t" << it->second.edge_type << "\t" <<
-            it->second.num_intersected_v_shms << "\t" << it->second.num_added_v_shms << "\t" << it->second.cdr3_distance << "\t" <<
-            it->second.weight << std::endl;
+            WriteEdge(it->second, out);
+        out << std::endl;
+        out.close();
+    }
+
+    void EvolutionaryTree::WriteInFileWithCDR3s(std::string output_fname) {
+        std::ofstream out(output_fname);
+        out <<
+        "Src_id\tDst_id\tSrc_clone\tDst_clone\tNum_Src_SHMs\tNum_Dst_SHMs\tEdge_type\tNum_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\tSrc_CDR3\tDst_CDR3\n";
+        for(auto it = edges_.begin(); it != edges_.end(); it++) {
+            WriteEdge(it->second, out);
+            std::string src_CDR3_string;
+            std::string dst_CDR3_string;
+            auto const& src_CDR3 = it->second.src_clone->CDR3();
+            auto const& dst_CDR3 = it->second.dst_clone->CDR3();
+            size_t src_CDR3_length = seqan::length(src_CDR3);
+            size_t dst_CDR3_length = seqan::length(dst_CDR3);
+            for (size_t pos = 0; pos < src_CDR3_length; ++pos) {
+                src_CDR3_string.push_back(src_CDR3[pos]);
+            }
+            for (size_t pos = 0; pos < dst_CDR3_length; ++pos) {
+                dst_CDR3_string.push_back(dst_CDR3[pos]);
+            }
+            out << src_CDR3_string << "\t" << dst_CDR3_string << std::endl;
+        }
         out.close();
     }
 }

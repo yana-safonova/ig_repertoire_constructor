@@ -16,6 +16,10 @@ namespace antevolo {
 
         size_t num_added_v_shms;
         size_t num_intersected_v_shms;
+        size_t num_added_j_shms;
+        size_t num_intersected_j_shms;
+        size_t num_added_shms;
+        size_t num_intersected_shms;
         size_t cdr3_distance;
         size_t weight;
 
@@ -46,6 +50,10 @@ namespace antevolo {
             dst_clone_num = edge.dst_clone_num;
             num_added_v_shms = edge.num_added_v_shms;
             num_intersected_v_shms = edge.num_intersected_v_shms;
+            num_added_j_shms = edge.num_added_j_shms;
+            num_intersected_j_shms = edge.num_intersected_j_shms;
+            num_added_shms = edge.num_added_shms;
+            num_intersected_shms = edge.num_intersected_shms;
             cdr3_distance = edge.cdr3_distance;
             weight = edge.weight;
         }

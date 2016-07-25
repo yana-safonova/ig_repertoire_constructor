@@ -58,7 +58,12 @@ namespace antevolo {
             return undirected_components_edges_[root_num];
         }
 
+        void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out); //no endl
+
         void WriteInFile(std::string output_fname);
+        void WriteInFileWithCDR3s(std::string output_fname);
+
+
 
         size_t NumEdges() const { return edges_.size(); }
 

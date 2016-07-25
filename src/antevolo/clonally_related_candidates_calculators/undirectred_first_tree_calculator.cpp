@@ -252,18 +252,21 @@ namespace antevolo {
                                                       EvolutionaryTree& tree,
                                                       boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
         auto edge_constructor = GetEdgeConstructor();
-
         auto undirected_graph = tree.GetUndirectedGraph();
+        boost::unordered_set<size_t> undirected_graph_vertices;
+        for (auto p : undirected_graph) {
+            undirected_graph_vertices.insert(p.first);
+        }
 
         for (auto clone_num : vertices_nums) {
-            auto vertex_it = undirected_graph.find(clone_num);
-            if (vertex_it == undirected_graph.end()) {
+            if (undirected_graph_vertices.find(clone_num) == undirected_graph_vertices.end()) {
                 if (tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(clone_num)) != size_t(-1)) {
                     const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(clone_num);
                     tree.AddDirected(clone_num, edge, model_);
                 };
                 continue;
             }
+            auto vertex_it = undirected_graph.find(clone_num);
             auto vertex = *vertex_it;
             std::vector<std::pair<size_t, size_t>> edge_vector;
             size_t root = tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(vertex.first));
@@ -292,6 +295,6 @@ namespace antevolo {
     }
 
     EvolutionaryEdgeConstructor* UndirectedFirstTreeCalculator::GetEdgeConstructor() {
-        return new SimpleEvolutionaryEdgeConstructor(config_.edge_construction_params);
+        return new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);
     }
 }

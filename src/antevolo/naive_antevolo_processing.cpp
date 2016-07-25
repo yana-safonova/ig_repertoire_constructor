@@ -44,7 +44,7 @@ namespace antevolo {
                 std::string output_fname = GetTreeOutputFname(
                         config_.output_params.tree_dir, i + 1, component_index, tree.NumEdges());
                 if (tree.NumEdges() != 0) {
-                    tree.WriteInFile(output_fname);
+                    tree.WriteInFileWithCDR3s(output_fname);
                     TRACE(i + 1 << "-th clonal tree was written to " << output_fname);
                 }
             }
