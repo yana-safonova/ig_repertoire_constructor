@@ -14,9 +14,12 @@ add_library(vdj_utils STATIC
         alignment_utils/alignment_positions.cpp
         alignment_utils/pairwise_alignment.cpp
         annotation_utils/cdr_labeling_primitives.cpp
-        annotation_utils/shm_annotation.cpp
-        annotation_utils/shm_filter.cpp
+        annotation_utils/shm_annotation/shm_annotation.cpp
+        annotation_utils/shm_annotation/shm_calculator.cpp
+        annotation_utils/aa_annotation/aa_annotation.cpp
+        annotation_utils/aa_annotation/aa_calculator.cpp
         annotation_utils/annotated_clone.cpp
+        annotation_utils/annotated_clone_calculator.cpp
         annotation_utils/annotated_clone_set.cpp
         annotation_utils/shm_comparator.cpp
         )

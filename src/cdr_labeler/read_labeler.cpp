@@ -1,6 +1,23 @@
 #include "read_labeler.hpp"
+#include <annotation_utils/annotated_clone_calculator.hpp>
 
 namespace cdr_labeler {
+    std::shared_ptr<annotation_utils::BaseAACalculator> ReadCDRLabeler::GetAACalculator() {
+        return std::shared_ptr<annotation_utils::BaseAACalculator>(new annotation_utils::SimpleAACalculator());
+    }
+
+    std::shared_ptr<annotation_utils::BaseSHMCalculator> ReadCDRLabeler::GetVSHMCalculator() {
+        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                new annotation_utils::StartEndFilteringSHMCalculator(config_.v_start_max_skipped,
+                                                                     config_.v_end_max_skipped));
+    }
+
+    std::shared_ptr<annotation_utils::BaseSHMCalculator> ReadCDRLabeler::GetJSHMCalculator() {
+        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                new annotation_utils::StartEndFilteringSHMCalculator(config_.j_start_max_skipped,
+                                                                     config_.j_end_max_skipped));
+    }
+
     annotation_utils::AnnotatedClone ReadCDRLabeler::CreateAnnotatedClone(const vj_finder::VJHits &vj_hits) {
         auto v_hit = vj_hits.GetVHitByIndex(0);
         auto v_alignment = alignment_converter_.ConvertToAlignment(v_hit.ImmuneGene(),
@@ -18,11 +35,10 @@ namespace cdr_labeler {
         auto j_cdr_labeling = j_labeling_.GetLabelingByGene(j_hit.ImmuneGene());
         annotation_utils::CDRRange read_cdr3(v_alignment.QueryPositionBySubjectPosition(v_cdr_labeling.cdr3.start_pos),
                                              j_alignment.QueryPositionBySubjectPosition(j_cdr_labeling.cdr3.end_pos));
-        return annotation_utils::AnnotatedClone(vj_hits.Read(), annotation_utils::CDRLabeling(read_cdr1,
-                                                                                            read_cdr2,
-                                                                                            read_cdr3),
-                                                v_alignment,
-                                                j_alignment);
+
+        return clone_calculator_.ComputeAnnotatedClone(vj_hits.Read(),
+                                                       annotation_utils::CDRLabeling(read_cdr1, read_cdr2, read_cdr3),
+                                                       v_alignment, j_alignment);
     }
 
     annotation_utils::CDRAnnotatedCloneSet ReadCDRLabeler::CreateAnnotatedCloneSet(

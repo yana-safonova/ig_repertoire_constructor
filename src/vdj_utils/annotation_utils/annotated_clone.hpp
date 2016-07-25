@@ -1,8 +1,9 @@
 #pragma once
 
 #include "cdr_labeling_primitives.hpp"
-#include "shm_annotation.hpp"
 #include <read_archive.hpp>
+#include <annotation_utils/aa_annotation/aa_annotation.hpp>
+#include <annotation_utils/shm_annotation/shm_annotation.hpp>
 #include "../alignment_utils/pairwise_alignment.hpp"
 
 namespace annotation_utils {
@@ -19,13 +20,10 @@ namespace annotation_utils {
         alignment_utils::ImmuneGeneReadAlignment v_alignment_;
         alignment_utils::ImmuneGeneReadAlignment j_alignment_;
 
+        AminoAcidAnnotation<core::Read> aa_annotation_;
+
         GeneSegmentSHMs v_shms_;
         GeneSegmentSHMs j_shms_;
-
-        seqan::String<seqan::AminoAcid> aa_read_seq_;
-        unsigned read_orf_;
-        bool has_stop_codon_;
-        bool in_frame_;
 
         void CheckRangeConsistencyFatal(CDRRange range);
 
@@ -33,30 +31,21 @@ namespace annotation_utils {
 
         void Initialize(CDRLabeling cdr_labeling);
 
-        char GetAminoAcidByPos(const seqan::String<seqan::AminoAcid> &aa_seq, size_t pos, unsigned orf) const;
-
-        void InitializeSHMs(germline_utils::SegmentType);
-
-        void InitializeAASeq();
-
-        void ComputeProductiveness();
-
-        void ComputeInFrame();
-
     public:
         AnnotatedClone(core::Read read,
                        CDRLabeling cdr_labeling,
                        alignment_utils::ImmuneGeneReadAlignment v_alignment,
-                       alignment_utils::ImmuneGeneReadAlignment j_alignment) :
+                       alignment_utils::ImmuneGeneReadAlignment j_alignment,
+                       AminoAcidAnnotation<core::Read> aa_annotation,
+                       GeneSegmentSHMs v_shms,
+                       GeneSegmentSHMs j_shms) :
                 read_(read),
                 v_alignment_(v_alignment),
                 j_alignment_(j_alignment),
-                v_shms_(read, v_alignment.subject()),
-                j_shms_(read, j_alignment.subject()) {
+                aa_annotation_(aa_annotation),
+                v_shms_(v_shms),
+                j_shms_(j_shms) {
             Initialize(cdr_labeling);
-            InitializeAASeq();
-            InitializeSHMs(germline_utils::SegmentType::VariableSegment);
-            InitializeSHMs(germline_utils::SegmentType::JoinSegment);
         }
 
         bool RegionIsEmpty(StructuralRegion region) const;
@@ -89,13 +78,13 @@ namespace annotation_utils {
 
         const GeneSegmentSHMs& JSHMs() const { return j_shms_; }
 
-        bool HasStopCodon() const { return has_stop_codon_; }
+        bool HasStopCodon() const { return aa_annotation_.HasStopCodon(); }
 
-        bool InFrame() const { return in_frame_; }
+        bool InFrame() const { return aa_annotation_.InFrame(); }
 
         bool Productive() const { return !HasStopCodon() and InFrame(); }
 
-        seqan::String<seqan::AminoAcid> AA() const { return aa_read_seq_; }
+        seqan::String<seqan::AminoAcid> AA() const { return aa_annotation_.AA(); }
 
         const germline_utils::ImmuneGene& VGene() const { return v_alignment_.subject(); }
 

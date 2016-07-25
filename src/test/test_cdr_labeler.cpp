@@ -49,3 +49,57 @@ TEST_F(CDRLabelerTest, GermlineCDRsAreConsistentWithIgBlast) {
     ASSERT_EQ(igblast_cdr1, computed_cdr1);
     ASSERT_EQ(igblast_cdr2, computed_cdr2);
 }
+
+//TEST_F(CDRLabelerTest, JGermlineCDRsAreIgBlastConsistent) {
+//    auto ighj = filtered_j_db[0];
+//    INFO("Testing CDR3 end for gene " << ighj.name());
+//    //auto j_cdrs = j_labeling.GetLabelingByGene(ighj);
+//
+//}
+
+void CheckFirstAnnotatedClone(const annotation_utils::CDRAnnotatedCloneSet &clone_set) {
+    std::string cdr1 = core::seqan_string_to_string(clone_set[0].CDR1());
+    ASSERT_EQ(cdr1, std::string("GGATTCACCTTTGATGATTATGGC"));
+    std::string cdr2 = core::seqan_string_to_string(clone_set[0].CDR2());
+    ASSERT_EQ(cdr2, std::string("ATTAATTGGAATGGTGGTAGCACA"));
+    std::string cdr3 = core::seqan_string_to_string(clone_set[0].CDR3());
+    ASSERT_EQ(cdr3, std::string("GCGAGAGATCATGATAGTAGTAGCCCGGGGTCCAACTGGTTCGACCCC"));
+    std::string aa_seq = core::seqan_string_to_string(clone_set[0].AA());
+    ASSERT_EQ(aa_seq, std::string("EVQLVESGGGVVRPGGSLRLSCAASGFTFDDYGMSWVRQAPGKGLEWVSGINWNGGSTGYADSVKGRFTISRDNAKNSLYLQMNSLRAEDTALYHCARDHDSSSPGSNWFDPWGQGTLVTVSS"));
+    ASSERT_EQ(clone_set[0].VSHMs().size(), 0);
+    ASSERT_EQ(clone_set[0].JSHMs().size(), 0);
+}
+
+void CheckSecondAnnotatedClone(const annotation_utils::CDRAnnotatedCloneSet &clone_set) {
+    std::string cdr1 = core::seqan_string_to_string(clone_set[1].CDR1());
+    ASSERT_EQ(cdr1, std::string("GGATTCACCTTCAGTAGCTATGCT"));
+    std::string cdr2 = core::seqan_string_to_string(clone_set[1].CDR2());
+    ASSERT_EQ(cdr2, std::string("ATTAATTGGAATGGTGGTAGCACA"));
+    std::string cdr3 = core::seqan_string_to_string(clone_set[1].CDR3());
+    ASSERT_EQ(cdr3, std::string("GCGAGGAGATTTTCAGAAGGAGCTTTTGATATC"));
+    ASSERT_EQ(clone_set[1].VSHMs().size(), 16);
+    ASSERT_EQ(clone_set[1].JSHMs().size(), 2);
+}
+
+TEST_F(CDRLabelerTest, ReadCDRsAreIgBlastConsistent) {
+    using namespace cdr_labeler;
+    auto v_labeling = GermlineDbLabeler(filtered_v_db, config.cdrs_params).ComputeLabeling();
+    INFO("CDR labeling for J gene segments");
+    auto j_labeling = GermlineDbLabeler(filtered_j_db, config.cdrs_params).ComputeLabeling();
+    INFO("Creation of labeled V and J databases");
+    auto labeled_v_db = v_labeling.CreateFilteredDb();
+    INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
+    auto labeled_j_db = j_labeling.CreateFilteredDb();
+    INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
+    INFO("Alignment against VJ germline segments");
+    core::ReadArchive read_archive("test_dataset/cdr_labeler_minitest.fastq");
+    vj_finder::VJParallelProcessor processor(read_archive, config.vj_finder_config.algorithm_params,
+                                             labeled_v_db, labeled_j_db,
+                                             config.run_params.num_threads);
+    vj_finder::VJAlignmentInfo alignment_info = processor.Process();
+    ReadCDRLabeler read_labeler(config.output_params.shm_output_details, v_labeling, j_labeling);
+    auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
+    ASSERT_EQ(annotated_clone_set.size(), 2);
+    CheckFirstAnnotatedClone(annotated_clone_set);
+    CheckSecondAnnotatedClone(annotated_clone_set);
+}
