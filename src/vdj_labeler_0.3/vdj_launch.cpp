@@ -14,15 +14,25 @@
 #include <recombination_utils/recombination_storage.hpp>
 #include <vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.hpp>
 #include <vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.hpp>
+#include <recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.hpp>
+#include <recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.hpp>
+#include <recombination_generation/gene_events_generators/shms_calculators/versatile_shms_calculator.hpp>
+#include <recombination_generation/gene_events_generators/v_recombination_event_generator.hpp>
+#include <recombination_generation/gene_events_generators/d_recombination_event_generator.hpp>
+#include <recombination_generation/gene_events_generators/j_recombination_event_generator.hpp>
+#include <recombination_generation/insertion_events_generators/versatile_insertion_event_generator.hpp>
+#include <recombination_generation/custom_hc_recombination_generator.hpp>
+#include <recombination_estimators/hc_recombination_estimator.hpp>
+
 
 namespace vdj_labeler {
 
 // void VDJLabelerLaunch::TestRecombinationCalculator(const core::ReadArchive& reads_archive,
-//                                                    VDJHitsStoragePtr &hits_storage)
+//                                                    const VDJHitsStorage &hits_storage)
 // {
 //     size_t read_index = 3;
 //     core::ReadPtr read_3 = std::make_shared<core::Read>(reads_archive[read_index]);
-//     VDJHitsPtr hits_3 = (*hits_storage)[read_index];
+//     VDJHitsPtr hits_3 = hits_storage[read_index];
 //     INFO("Read 3. #V: " << hits_3->VHitsNumber() <<
 //         ", #D: " << hits_3->DHitsNumber() <<
 //         ", #J: " << hits_3->JHitsNumber());
@@ -101,58 +111,33 @@ void VDJLabelerLaunch::Launch() {
     INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
         " reads were filtered out");
 
-    // INFO(alignment_info.AlignmentRecords()[6].Read());
-    // INFO(alignment_info.AlignmentRecords()[6].VHits()[0].ImmuneGene());
-    // INFO(alignment_info.AlignmentRecords()[0].VHits()[0].Read());
-    // INFO(alignment_info.AlignmentRecords()[0].JHits().size());
-    // auto vdj_hits = VDJHits(alignment_info.AlignmentRecords()[6]);
-    // INFO((*(vdj_hits.VHits().cbegin()))->Alignment());
-
-    // auto vdj_storage = VDJHitsStorage(alignment_info);
-    // for (auto it = vdj_storage.cbegin(); it != vdj_storage.cend(); ++it) {
-    //     INFO("\nVgene");
-    //     for (auto vhit_it = (*it)->VHits().cbegin(); vhit_it != (*it)->VHits().cend(); ++vhit_it) {
-    //         INFO((*vhit_it)->EndQueryPosition());
-    //     }
-    // }
-    // INFO(*(vdj_storage[0]->Read()));
-
-    alignment_utils::AlignmentPositions alignment_positions(std::make_pair<size_t, size_t>(0, read_archive[0].length() - 1),
-                                                            std::make_pair<size_t, size_t>(0, 10));
-
-    alignment_utils::ImmuneGeneAlignmentPositions immune_alignment_positions(alignment_positions,
-                                                                             d_db[0],
-                                                                             read_archive[0]);
-
-    // INFO(SimpleDAligner().ComputeAlignment(immune_alignment_positions)->Alignment());
-
     // Andy: Blank model "tested" here
-    {
-        std::ifstream in("src/vdj_labeler_0.3/test/blank_model.csv");
-        // HCProbabilityRecombinationModel model(in, hc_db);
-        // std::cout << model;
-        IgGeneProbabilityModel model_V(in, hc_db.GetDb(germline_utils::SegmentType::VariableSegment));
-        // std::cout << model_V;
-        IgGeneProbabilityModel model_D(in, hc_db.GetDb(germline_utils::SegmentType::DiversitySegment));
-        // std::cout << model_D;
-        // IgGeneProbabilityModel model_J(in, hc_db.JoinGenes());
-        // // cout << model_J;
-        // NongenomicInsertionModel modelVD(in);
-        // NongenomicInsertionModel modelDJ(in);
-        // // cout << modelVD;
-        // // cout << modelDJ;
-        // PalindromeDeletionModel modelDelV(in, hc_db.VariableGenes());
-        // // cout << modelDelV;
-        // // cout << modelDelV.GetIgGeneDatabase() -> GetByIndex(0) -> name() << " ";
-        // // cout << modelDelV.GetDeletionProbability(0, 0) << endl;
-        // PalindromeDeletionModel modelDelJ(in, hc_db.JoinGenes());
-        // // cout << modelDelJ.GetIgGeneDatabase() -> GetByIndex(1) -> name() << " ";
-        // // cout << modelDelJ.GetDeletionProbability(1, -2) << endl;
-        // PalindromeDeletionModel modelDelDL(in, hc_db.DiversityGenes());
-        // PalindromeDeletionModel modelDelDR(in, hc_db.DiversityGenes());
+    // {
+    //     std::ifstream in("src/vdj_labeler_0.3/test/blank_model.csv");
+    //     // HCProbabilityRecombinationModel model(in, hc_db);
+    //     // std::cout << model;
+    //     IgGeneProbabilityModel model_V(in, hc_db.GetDb(germline_utils::SegmentType::VariableSegment));
+    //     // std::cout << model_V;
+    //     IgGeneProbabilityModel model_D(in, hc_db.GetDb(germline_utils::SegmentType::DiversitySegment));
+    //     // std::cout << model_D;
+    //     // IgGeneProbabilityModel model_J(in, hc_db.JoinGenes());
+    //     // // cout << model_J;
+    //     // NongenomicInsertionModel modelVD(in);
+    //     // NongenomicInsertionModel modelDJ(in);
+    //     // // cout << modelVD;
+    //     // // cout << modelDJ;
+    //     // PalindromeDeletionModel modelDelV(in, hc_db.VariableGenes());
+    //     // // cout << modelDelV;
+    //     // // cout << modelDelV.GetIgGeneDatabase() -> GetByIndex(0) -> name() << " ";
+    //     // // cout << modelDelV.GetDeletionProbability(0, 0) << endl;
+    //     // PalindromeDeletionModel modelDelJ(in, hc_db.JoinGenes());
+    //     // // cout << modelDelJ.GetIgGeneDatabase() -> GetByIndex(1) -> name() << " ";
+    //     // // cout << modelDelJ.GetDeletionProbability(1, -2) << endl;
+    //     // PalindromeDeletionModel modelDelDL(in, hc_db.DiversityGenes());
+    //     // PalindromeDeletionModel modelDelDR(in, hc_db.DiversityGenes());
 
-        // HCModelBasedRecombinationCalculator recombination_calculator(model);
-    }
+    //     // HCModelBasedRecombinationCalculator recombination_calculator(model);
+    // }
 
     SimpleDAligner d_aligner;
     MatchThresholdAlignmentQualityChecker quality_checker;
@@ -161,13 +146,40 @@ void VDJLabelerLaunch::Launch() {
         d_db.GetConstDbByGeneType(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment)),
         d_aligner, quality_checker, position_checker);
 
-    auto vdj_storage2 = VDJHitsStorage(alignment_info, calculator);
-    for (const auto& vdj_hits : vdj_storage2) {
-        INFO(*(vdj_hits->Read()));
-        INFO(vdj_hits->VHits().size());
-        INFO(vdj_hits->DHits().size());
-        INFO(vdj_hits->JHits().size());
+    VDJHitsStorage vdj_storage (alignment_info);
+    VDJHitsStorage vdj_storage2(alignment_info, calculator);
+
+    //TestRecombinationCalculator(read_archive, vdj_storage2);
+
+    INFO(vdj_storage2[0].VHits().size());
+    INFO(vdj_storage2[0].DHits().size());
+    INFO(vdj_storage2[0].JHits().size());
+
+    size_t max_cleavage = 20;
+    size_t max_palindrome = 7;
+    LeftEventSHMsCalculator left_shms_calculator;
+    RightEventSHMsCalculator right_shms_calculator;
+    VersatileGeneSHMsCalculator shms_calculator(left_shms_calculator, right_shms_calculator);
+    VRecombinationEventGenerator v_generator(shms_calculator, max_cleavage, max_palindrome);
+    DRecombinationEventGenerator d_generator(shms_calculator, max_cleavage, max_palindrome);
+    JRecombinationEventGenerator j_generator(shms_calculator, max_cleavage, max_palindrome);
+    VersatileInsertionGenerator insertion_generator;
+    CustomHeavyChainRecombinationGenerator recombination_generator(v_generator,
+                                                                   d_generator,
+                                                                   j_generator,
+                                                                   insertion_generator,
+                                                                   insertion_generator);
+    HcRecombinationEstimator recombination_estimator;
+    INFO("Generator of VDJ recombinations starts");
+    for(auto it = vdj_storage2.cbegin(); it != vdj_storage2.cend(); it++) {
+        auto recombination_storage = recombination_generator.ComputeRecombinations(*it);
+        recombination_estimator.Update(recombination_storage);
     }
+    recombination_storage.
+    INFO("Generator of VDJ recombinations ends");
+    recombination_estimator.OutputRecombinationNumber();
+    recombination_estimator.OutputSHMsDistribution();
+    recombination_estimator.OutputRecombinationEvents();
 }
 
 } // End namespace vdj_labeler

@@ -87,7 +87,7 @@ add_subdirectory(core)
 add_subdirectory(algorithms)
 add_subdirectory(vdj_utils)
 add_subdirectory(vj_finder)
-add_subdirectory(cdr_labeler)
+#add_subdirectory(cdr_labeler)
 add_subdirectory(test)
 add_subdirectory(vdj_labeler_0.3)
 

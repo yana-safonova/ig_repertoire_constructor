@@ -8,8 +8,8 @@ namespace vdj_labeler {
 
 class VDJLabelerLaunch {
     const VDJLabelerConfig &config_;
-    void TestRecombinationCalculator(const core::ReadArchive& reads_archive,
-                                     VDJHitsStoragePtr &hits_storage);
+    void TestRecombinationCalculator(const core::ReadArchive &reads_archive,
+                                     const VDJHitsStorage &hits_storage);
 
 public:
     VDJLabelerLaunch(const VDJLabelerConfig &config) :
