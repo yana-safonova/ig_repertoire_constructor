@@ -52,8 +52,7 @@ alignment_utils::ImmuneGeneReadAlignment SimpleDAligner::ComputeAlignment(
         if (isGap(align_read, read_pos))
             insertGap(align_origin_read, read_pos);
     }
-    // INFO(align_orig);
-    setEndPosition(align_origin_read, beginPosition(align_origin_read) + length(align_read));
+    setClippedEndPosition(align_origin_read, beginPosition(align_origin_read) + length(align_read));
 
     // INFO(length(seqan::row(align_orig, 0)));
     // INFO(length(seqan::row(align_orig, 1)));
