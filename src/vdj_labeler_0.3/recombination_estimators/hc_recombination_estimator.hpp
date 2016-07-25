@@ -1,7 +1,9 @@
 #include "recombination_estimator.hpp"
-#include "../recombination/recombination.hpp"
+#include "recombination_utils/recombination.hpp"
 
-class HcRecombinationEstimator : public RecombinationEstimator<HCRecombination> {
+namespace vdj_labeler {
+
+class HcRecombinationEstimator: public RecombinationEstimator<recombination_utils::HCRecombination> {
     std::vector<size_t> num_recombinations_;
     std::vector<size_t> min_number_shms_;
     std::vector<int> v_event_lens_;
@@ -10,11 +12,13 @@ class HcRecombinationEstimator : public RecombinationEstimator<HCRecombination> 
     std::vector<int> j_event_lens_;
 
 public:
-    void Update(HcRecombinationStoragePtr recombination_storage);
+    void Update(const recombination_utils::HcRecombinationStorage &recombination_storage) override;
 
-    void OutputRecombinationNumber();
+    void OutputRecombinationNumber() const override;
 
-    void OutputSHMsDistribution();
+    void OutputSHMsDistribution() const override;
 
-    void OutputRecombinationEvents();
+    void OutputRecombinationEvents() const;
 };
+
+} // End namespace vdj_labeler

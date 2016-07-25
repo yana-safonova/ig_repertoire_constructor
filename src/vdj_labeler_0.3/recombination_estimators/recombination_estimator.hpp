@@ -1,11 +1,22 @@
-#include "../recombination_generation/recombination_storage.hpp"
+#include "recombination_utils/recombination_storage.hpp"
+
+namespace vdj_labeler {
 
 template<class Recombination>
 class RecombinationEstimator {
 public:
-    virtual void Update(std::shared_ptr<RecombinationStorage<Recombination> > recombination_storage) = 0;
+    RecombinationEstimator() = default;
 
-    virtual void OutputRecombinationNumber() = 0;
+    RecombinationEstimator(const RecombinationEstimator &) = delete;
+    RecombinationEstimator &operator=(const RecombinationEstimator &) = delete;
+    RecombinationEstimator(RecombinationEstimator &&) = delete;
+    RecombinationEstimator &operator=(RecombinationEstimator &&)      = delete;
 
-    virtual void OutputSHMsDistribution() = 0;
+    virtual void Update(const recombination_utils::HcRecombinationStorage &recombination_storage) = 0;
+
+    virtual void OutputRecombinationNumber() const = 0;
+
+    virtual void OutputSHMsDistribution() const = 0;
 };
+
+} // End namespace vdj_labeler
