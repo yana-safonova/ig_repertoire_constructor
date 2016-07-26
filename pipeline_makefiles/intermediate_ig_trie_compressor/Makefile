@@ -6,7 +6,7 @@ all:
 	$(MAKE) -C $(UMI_CLUSTERING)
 	$(MAKE) $(COMPRESSED_INTER_REP)
 
-$(COMPRESSED_INTER_REP): $(UMI_CLUSTERING)/$(INTER_REP) $(UMI_CLUSTERING)/$(INTER_REP_RCM) !! $(PY_SRC)/ig_compress_equal_clusters.py $(BIN)/ig_trie_compressor
+$(COMPRESSED_INTER_REP): $(UMI_CLUSTERING)/$(INTER_REP) $(UMI_CLUSTERING)/$(INTER_REP_RCM) !! $(BIN)/ig_trie_compressor $(PY_SRC)/adhoc_merge_rcm_with_id_list.py
 	$(BIN)/ig_trie_compressor \
 	--input-file $(UMI_CLUSTERING)/$(INTER_REP) \
 	--idmap id_map.tmp \
