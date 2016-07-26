@@ -106,7 +106,7 @@ TEST_F(CDRLabelerTest, ReadCDRsAreIgBlastConsistent) {
                                              labeled_v_db, labeled_j_db,
                                              config.run_params.num_threads);
     vj_finder::VJAlignmentInfo alignment_info = processor.Process();
-    ReadCDRLabeler read_labeler(config.output_params.shm_output_details, v_labeling, j_labeling);
+    ReadCDRLabeler read_labeler(config.shm_params, v_labeling, j_labeling);
     auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
     ASSERT_EQ(annotated_clone_set.size(), 2);
     CheckFirstAnnotatedClone(annotated_clone_set);

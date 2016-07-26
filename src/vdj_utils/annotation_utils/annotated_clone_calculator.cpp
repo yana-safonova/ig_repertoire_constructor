@@ -10,8 +10,8 @@ namespace annotation_utils {
                               v_alignment,
                               j_alignment,
                               aa_annotation,
-                              v_shm_calculator_ptr_->ComputeSHMs(v_alignment, aa_annotation),
-                              j_shm_calculator_ptr_->ComputeSHMs(j_alignment, aa_annotation));
+                              v_shm_calculator_ptr_->ComputeSHMs(v_alignment, aa_annotation, cdr_labeling),
+                              j_shm_calculator_ptr_->ComputeSHMs(j_alignment, aa_annotation, cdr_labeling));
         return res;
     }
 }

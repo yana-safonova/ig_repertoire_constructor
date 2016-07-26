@@ -130,14 +130,14 @@ namespace cdr_labeler {
     }
 
     void CDRLabelingWriter::OutputSHMs() const {
-        std::ofstream out(output_config_.shm_output_details.shm_details);
+        std::ofstream out(output_config_.shm_details);
         out << "SHM_type\tRead_pos\tGene_pos\tRead_nucl\tGene_nucl\tRead_aa\tGene_aa\tIs_synonymous\tTo_stop_codon\n";
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
             OutputSHMsForRead(out, it->VSHMs());
             OutputSHMsForRead(out, it->JSHMs());
         }
         out.close();
-        INFO("SHM getails were written to " << output_config_.shm_output_details.shm_details);
+        INFO("SHM getails were written to " << output_config_.shm_details);
     }
 
     void CDRLabelingWriter::OutputCleanedReads() const {

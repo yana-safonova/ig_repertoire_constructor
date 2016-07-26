@@ -12,6 +12,7 @@ namespace cdr_labeler {
         struct OutputParams {
             std::string output_dir;
             std::string cdr_details;
+            std::string shm_details;
             std::string cdr1_fasta;
             std::string cdr2_fasta;
             std::string cdr3_fasta;
@@ -19,16 +20,6 @@ namespace cdr_labeler {
             std::string v_alignment_fasta;
             std::string cleaned_reads;
             std::string trash_output;
-
-            struct SHMOutputDetails {
-                size_t v_start_max_skipped;
-                size_t v_end_max_skipped;
-                size_t j_start_max_skipped;
-                size_t j_end_max_skipped;
-                std::string shm_details;
-            };
-
-            SHMOutputDetails shm_output_details;
         };
 
         struct RunParams {
@@ -94,14 +85,30 @@ namespace cdr_labeler {
             HCDR2Params hcdr2_params;
             HCDR3Params hcdr3_params;
 
-            enum CDRSearchAlgorithm { UnknownSearchAlgorithm, AnnotatedSearch, DeNovoSearch };
+            enum CDRSearchAlgorithm { UnknownCDRSearchAlgorithm, AnnotatedCDRSearch, DeNovoCDRSearch };
             CDRSearchAlgorithm cdr_search_algorithm;
+        };
+
+        struct SHMFindingParams {
+            struct SHMFilteringParams {
+                size_t v_start_max_skipped;
+                size_t v_end_max_skipped;
+                size_t j_start_max_skipped;
+                size_t j_end_max_skipped;
+            };
+
+            enum SHMFindingAlgorithm { UnknownSHMSearchAlgorithm, FilteringSHMAlgorithm, CDRFilteringSHMAlgorithm };
+
+            SHMFilteringParams shm_filtering_params;
+            SHMFindingAlgorithm shm_finding_algorithm;
         };
 
         InputParams input_params;
         OutputParams output_params;
         RunParams run_params;
         CDRsParams cdrs_params;
+        SHMFindingParams shm_params;
+
         vj_finder::VJFinderConfig vj_finder_config;
 
         void load(std::string config_fname);

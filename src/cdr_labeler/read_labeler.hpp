@@ -11,7 +11,7 @@
 
 namespace cdr_labeler {
     class ReadCDRLabeler {
-        const CDRLabelerConfig::OutputParams::SHMOutputDetails &config_;
+        const CDRLabelerConfig::SHMFindingParams &shm_config_;
         const DbCDRLabeling& v_labeling_;
         const DbCDRLabeling& j_labeling_;
 
@@ -25,9 +25,9 @@ namespace cdr_labeler {
         std::shared_ptr<annotation_utils::BaseSHMCalculator> GetJSHMCalculator();
 
     public:
-        ReadCDRLabeler(const CDRLabelerConfig::OutputParams::SHMOutputDetails &config,
+        ReadCDRLabeler(const CDRLabelerConfig::SHMFindingParams &shm_config,
                 const DbCDRLabeling& v_labeling, const DbCDRLabeling& j_labeling) :
-                config_(config),
+                shm_config_(shm_config),
                 v_labeling_(v_labeling),
                 j_labeling_(j_labeling),
                 clone_calculator_(GetAACalculator(), GetVSHMCalculator(), GetJSHMCalculator()){ }
