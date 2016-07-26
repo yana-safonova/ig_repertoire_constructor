@@ -1,6 +1,5 @@
 import os
 import sys
-from argparse import ArgumentParser
 
 import igrec
 
@@ -78,10 +77,20 @@ def ParseCommandLineParams(log):
                                dest="no_compilation",
                                action="store_true",
                                help="Exclude c++ code compilation from the pipeline")
-    optional_args.add_argument("-c", "--ignore_code",
+    optional_args.add_argument("-c", "--ignore-code",
                                dest="ignore_code_changes",
                                action="store_true",
                                help="Ignore code changes when checking stages depensences")
+    optional_args.add_argument("-k", "--detect-chimeras",
+                               dest="detect_chimeras",
+                               default=True,
+                               help="detect chimeras after clustering, may take significant amount of time")
+    # TODO: hide parameter
+    optional_args.add_argument("--umi-cleavage-length",
+                               type=int,
+                               default=0,
+                               dest="umi_cleavage_length",
+                               help="Cleave UMIs by the specified length (testing purposes only) [default: %(default)d]")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
     vj_align_args.add_argument("-l", "--loci",
@@ -169,7 +178,9 @@ class _StagePrepare:
                 line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
                 line = line.replace("%LOCI", params.loci)
                 line = line.replace("%ORGANISM", params.organism)
+                line = line.replace("%DETECT_CHIMERAS", params.detect_chimeras)
                 line = line.replace("%MIN_SUPER_NODE_SIZE", str(params.min_super_read_size))
+                line = line.replace("%UMI_CLEAVAGE_LENGTH", str(params.umi_cleavage_length))
                 if '%' in line:
                     log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
                     exit(1)

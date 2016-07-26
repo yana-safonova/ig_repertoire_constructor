@@ -12,6 +12,7 @@ cleaned_reads_umi.fastq cleaned_reads_umi_compressed.fastq cleaned_reads_umi_com
 	--output stats \
 	--tmp . \
 	--tau %UMI_GRAPH_TAU \
+	--umi-cleavage-length %UMI_CLEAVAGE_LENGTH \
 	--clean
 
 clean:

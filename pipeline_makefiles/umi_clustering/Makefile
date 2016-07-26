@@ -11,11 +11,12 @@ all:
 $(INTER_REP): $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi.fastq $(UMIS)/cleaned_reads_umi_compressed.fastq $(UMIS)/cleaned_reads_umi_compressed.graph !! $(BIN)/cluster_reads
 	$(BIN)/cluster_reads \
 	--reads $(VJF)/cleaned_reads.fa \
-	--umi_uncompressed $(UMIS)/cleaned_reads_umi.fastq \
-	--umi_compressed $(UMIS)/cleaned_reads_umi_compressed.fastq \
+	--umi-uncompressed $(UMIS)/cleaned_reads_umi.fastq \
+	--umi-compressed $(UMIS)/cleaned_reads_umi_compressed.fastq \
 	--graph $(UMIS)/cleaned_reads_umi_compressed.graph \
 	--output . \
 	--save-clusters false \
+	--detect-chimeras %DETECT_CHIMERAS \
 	--threads %THREADS
 
 clean:

@@ -25,6 +25,7 @@ def ParseCommandLineParams(log):
     parser.add_argument("-c", "--clean", dest="clean", action="store_true", help="Will remove all temporary files")
     parser.add_argument("-t", "--threads", type=int, dest="threads", help="Number of threads to be used")
     parser.add_argument("--tau", type=int, dest="tau", default=1, help="Distance threshold for the UMI graph")
+    parser.add_argument("--umi-cleavage-length", type=int, dest="umi_cleavage_length", default=0, help="Cleave UMIs by the specified length")
 
     if len(sys.argv) == 1:
         parser.print_help()
@@ -98,7 +99,7 @@ class WorkflowRunner:
             single_reads = self.CleanReads(log, merged_reads, params.tmp_dir, params.clean)
         else:
             single_reads = params.input_file
-        umi_fastq = self.ExtractUmi(log, single_reads, params.tmp_dir, params.clean)
+        umi_fastq = self.ExtractUmi(log, single_reads, params.tmp_dir, params.umi_cleavage_length, params.clean)
         umi_compressed = self.CompressFastq(log, umi_fastq, params.tmp_dir, params.clean)
         umi_graph = self.ConstructGraph(log, umi_compressed, params.tmp_dir, params.tau, params.clean)
         self.PrintStats(log, umi_compressed, umi_graph, params.stats_file)
@@ -137,9 +138,9 @@ class WorkflowRunner:
         BinaryRunner(BinaryPaths().vj_finder, input_file, "", params).Run(log, clean, self.threads)
         return output_file
 
-    def ExtractUmi(self, log, input_file, out_dir, clean):
+    def ExtractUmi(self, log, input_file, out_dir, umi_cleavage_length, clean):
         output_file = os.path.join(out_dir, os.path.splitext(os.path.split(input_file)[1])[0] + "_umi.fastq")
-        BinaryRunner(BinaryPaths().umi_to_fastq, input_file, output_file).Run(log, clean)
+        BinaryRunner(BinaryPaths().umi_to_fastq, input_file, output_file, "-c %d" % umi_cleavage_length).Run(log, clean)
         return output_file
 
     def CompressFastq(self, log, input_file, out_dir, clean):

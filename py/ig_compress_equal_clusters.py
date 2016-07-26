@@ -24,8 +24,8 @@ def parse_cluster_mult(id):
         return None
 
 
-assert parse_cluster_mult("cluster___10___size___20") == (10, 20)
-assert parse_cluster_mult("intermediate_cluster___10___size___20") == (10, 20)
+assert parse_cluster_mult("cluster___10___size___20") == ('10', 20)
+assert parse_cluster_mult("intermediate_cluster___10___size___20") == ('10', 20)
 assert parse_cluster_mult("intermediatecluster___10___size___20") == None
 
 

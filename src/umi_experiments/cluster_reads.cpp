@@ -15,6 +15,7 @@ namespace {
         std::string umi_compressed_path;
         std::string umi_graph_path;
         std::string output_dir;
+        bool detect_chimeras;
         bool save_clusters;
         size_t num_threads;
     };
@@ -25,10 +26,11 @@ namespace {
         cmdl_options.add_options()
                 ("help,h", "print help message")
                 ("reads,r", po::value<std::string>(&params.reads_path)->required(), "input file with reads")
-                ("umi_uncompressed,u", po::value<std::string>(&params.umi_uncompressed_path)->required(), "file with UMI records extracted (not compressed)")
-                ("umi_compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
+                ("umi-uncompressed,u", po::value<std::string>(&params.umi_uncompressed_path)->required(), "file with UMI records extracted (not compressed)")
+                ("umi-compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
                 ("graph,g", po::value<std::string>(&params.umi_graph_path)->required(), "file with UMI graph")
                 ("output,o", po::value<std::string>(&params.output_dir)->default_value(""), "output directory path")
+                ("detect-chimeras,k", po::value<bool>(&params.detect_chimeras)->default_value(true), "detect chimeras after clustering, may take significant amount of time")
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ;
@@ -175,9 +177,12 @@ int main(int argc, const char* const* argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
-    clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi, params.output_dir + "/non_major.csv",
-                                              params.output_dir + "/left_graph.graph", params.output_dir + "/right_graph.graph",
-                                              params.output_dir + "/chimeras.txt", params.num_threads);
+    if (params.detect_chimeras) {
+        clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi, params.output_dir + "/non_major.csv",
+                                                  params.output_dir + "/left_graph.graph",
+                                                  params.output_dir + "/right_graph.graph",
+                                                  params.output_dir + "/chimeras.txt", params.num_threads);
+    }
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
 //    INFO(edit_corrected_reads << " reads have UMI corrected for edit dist.");
