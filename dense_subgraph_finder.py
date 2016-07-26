@@ -54,7 +54,7 @@ def SetOutputParams(params, output_dir):
     params.config_file = os.path.join(params.config_dir, params.config_file)
 
 def PrepareOutputDir(params, log):
-    if os.path.exists(params.output):
+    if params.clean_output_dir and os.path.exists(params.output):
         shutil.rmtree(params.output)
     if not os.path.isdir(params.output):
         os.makedirs(params.output)
@@ -157,6 +157,11 @@ def main(argv, external_logger = ""):
                                dest="save_aux_files",
                                help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
                                     "[default: False]")
+    optional_args.add_argument("--clean-output-dir",
+                               type=bool,
+                               default=True,
+                               dest="clean_output_dir",
+                               help="Clean output directory on start [default: True]")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
