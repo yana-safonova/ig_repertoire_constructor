@@ -27,6 +27,13 @@ add_executable(test_germline_database test_germline_database.cpp)
 add_executable(test_germline_cdr test_cdr_labeler.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
+        ../vj_finder/vj_alignment_structs.cpp
+        ../vj_finder/vj_query_aligner.cpp
+        ../vj_finder/vj_hits_filter.cpp
+        ../vj_finder/vj_alignment_info.cpp
+        ../vj_finder/vj_query_fix_fill_crop.cpp
+        ../vj_finder/vj_query_processing.cpp
+        ../vj_finder/vj_parallel_processor.cpp
         ../cdr_labeler/cdr_config.cpp
         ../cdr_labeler/germline_db_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
@@ -39,6 +46,7 @@ add_executable(test_germline_cdr test_cdr_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
         ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
         ../cdr_labeler/germline_db_labeling.cpp
+        ../cdr_labeler/read_labeler.cpp
         )
 
 #add_executable(test_vjf_consistency test_vjf_consistency.cpp

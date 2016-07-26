@@ -1,5 +1,5 @@
-#include "edmonds_tarjan_DMST_calculator.hpp"
 #include <logger/logger.hpp>
+#include "edmonds_tarjan_DMST_calculator.hpp"
 
 namespace antevolo {
     void EdmondsTarjanDMSTCalculator::InitVertex() {

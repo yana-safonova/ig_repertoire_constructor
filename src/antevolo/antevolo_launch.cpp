@@ -43,7 +43,7 @@ namespace antevolo {
         INFO(alignment_info.NumVJHits() << " reads were aligned; " << alignment_info.NumFilteredReads() <<
              " reads were filtered out");
 
-        cdr_labeler::ReadCDRLabeler read_labeler(v_labeling, j_labeling);
+        cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.output_params.shm_output_details, v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
         INFO("Naive tree construction starts");
         NaiveAntEvoloProcessing(config_, annotated_clone_set).ConstructClonalTrees();

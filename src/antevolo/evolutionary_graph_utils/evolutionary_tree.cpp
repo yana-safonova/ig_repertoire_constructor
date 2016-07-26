@@ -1,6 +1,6 @@
+#include "model_utils/shm_model.hpp"
 #include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
-#include "model_utils/shm_model.hpp"
 
 namespace antevolo {
     void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model) {

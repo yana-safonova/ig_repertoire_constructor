@@ -1,6 +1,6 @@
 #pragma once
 
-#include "shm_annotation.hpp"
+#include "shm_annotation/shm_annotation.hpp"
 
 namespace annotation_utils {
     class SHMComparator {

@@ -24,4 +24,11 @@ namespace core {
         ss >> n;
         return n;
     }
+
+    template<typename SeqanStringType>
+    std::string seqan_string_to_string(SeqanStringType seqan_str) {
+        std::stringstream ss;
+        ss << seqan_str;
+        return ss.str();
+    }
 }
