@@ -29,7 +29,7 @@ namespace vj_finder {
             TRACE("Processing read: " << read_archive_[i].name);
             size_t thread_id = omp_get_thread_num();
             thread_id_per_read_[i] = thread_id;
-            VJQueryProcessor vj_query_processor(algorithm_params_, v_db_, j_db_);
+            VJQueryProcessor vj_query_processor(algorithm_params_, read_archive_, v_db_, j_db_);
             auto vj_hits = vj_query_processor.Process(read_archive_[i]);
             if(!vj_hits)
                 info_per_thread[thread_id].UpdateFilteredReads(read_archive_[i]);

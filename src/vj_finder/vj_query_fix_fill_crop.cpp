@@ -16,7 +16,8 @@ namespace vj_finder {
             if (gene_pos >= 0 && gene_pos < static_cast<int>(vj_hits.GetJHitByIndex(0).ImmuneGene().length()))
                 read.seq[i] = vj_hits.GetJHitByIndex(0).ImmuneGene().seq()[gene_pos];
         }
-        vj_hits.UpdateRead(read);
+        read_archive_.UpdateReadByIndex(read.id, read.seq);
+//        vj_hits.UpdateRead(read);
         return vj_hits;
 //        VJHits fixed_vj_hits(read);
 //        for(size_t i = 0; i < vj_hits.NumVHits(); i++) {
@@ -60,7 +61,8 @@ namespace vj_finder {
             read.seq = germline_prefix;
             // shift to right all alignment positions of read by length of germline_prefix
         }
-        vj_hits.UpdateRead(read);
+        read_archive_.UpdateReadByIndex(read.id, read.seq);
+        //vj_hits.UpdateRead(read);
         vj_hits.AddLeftShift(left_shift);
         vj_hits.AddRightShift(left_shift + right_shift);
         //VJHits filled_cropped_vj_hits(read);

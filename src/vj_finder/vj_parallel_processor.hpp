@@ -5,7 +5,7 @@
 
 namespace vj_finder {
     class VJParallelProcessor {
-        const core::ReadArchive &read_archive_;
+        core::ReadArchive &read_archive_;
         const VJFinderConfig::AlgorithmParams &algorithm_params_;
         const germline_utils::CustomGeneDatabase &v_db_;
         const germline_utils::CustomGeneDatabase &j_db_;
@@ -21,7 +21,7 @@ namespace vj_finder {
         VJAlignmentInfo GatherAlignmentInfos();
 
     public:
-        VJParallelProcessor(const core::ReadArchive &read_archive,
+        VJParallelProcessor(core::ReadArchive &read_archive,
                             const VJFinderConfig::AlgorithmParams &algorithm_params,
                             const germline_utils::CustomGeneDatabase &v_db,
                             const germline_utils::CustomGeneDatabase &j_db_,

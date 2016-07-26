@@ -10,7 +10,7 @@
 namespace vj_finder {
     class ImmuneGeneHit {
     protected:
-        core::Read read_;
+        const core::Read *read_ptr_;
         const germline_utils::ImmuneGene* immune_gene_ptr_;
         algorithms::PairwiseBlockAlignment block_alignment_;
         bool strand_;
@@ -18,7 +18,7 @@ namespace vj_finder {
 
     public:
         ImmuneGeneHit() :
-            read_(),
+            read_ptr_(NULL),
             immune_gene_ptr_(NULL),
             block_alignment_(),
             strand_(false),
@@ -28,7 +28,7 @@ namespace vj_finder {
                       const germline_utils::ImmuneGene &immune_gene,
                       algorithms::PairwiseBlockAlignment &block_alignment,
                       bool strand) :
-                read_(read),
+                read_ptr_(&read),
                 immune_gene_ptr_(&immune_gene),
                 block_alignment_(std::move(block_alignment)),
                 strand_(strand),
@@ -38,7 +38,7 @@ namespace vj_finder {
 
         const core::Read& Read() const {
             VERIFY(!Empty());
-            return read_;
+            return *read_ptr_;
         }
 
         const algorithms::PairwiseBlockAlignment& BlockAlignment() const {
@@ -70,7 +70,7 @@ namespace vj_finder {
 
         virtual int End() const = 0;
 
-        bool Empty() const { return /*read_ == NULL or*/ immune_gene_ptr_ == NULL; }
+        bool Empty() const { return read_ptr_ == NULL or immune_gene_ptr_ == NULL; }
 
         int LeftShift() const { return block_alignment_.path.left_shift(); }
 
@@ -79,10 +79,6 @@ namespace vj_finder {
         virtual void AddShift(int shift) {
             shift_ += shift;
             block_alignment_.add_read_shift(shift);
-        }
-
-        void UpdateRead(const core::Read& read) {
-            read_ = read;
         }
     };
 
@@ -129,7 +125,7 @@ namespace vj_finder {
         virtual int RightUncovered() const {
             VERIFY(!Empty());
             //std::cout << block_alignment_.finish() << " - " << read_.length() << std::endl;
-            return std::max(0, block_alignment_.finish() - static_cast<int>(read_.length()));
+            return std::max(0, block_alignment_.finish() - static_cast<int>(read_ptr_->length()));
         }
 
         virtual int Start() const {
@@ -144,7 +140,7 @@ namespace vj_finder {
     };
 
     class VJHits {
-        core::Read read_;
+        const core::Read *read_ptr_;
         std::vector<VGeneHit> v_hits_;
         std::vector<JGeneHit> j_hits_;
 
@@ -153,7 +149,7 @@ namespace vj_finder {
         void CheckConsistencyFatal(const JGeneHit &j_hit);
 
     public:
-        VJHits(const core::Read &read) : read_(read) { }
+        VJHits(const core::Read &read) : read_ptr_(&read) { }
 
         void AddVHit(VGeneHit v_hit) {
             v_hits_.push_back(v_hit);
@@ -181,15 +177,7 @@ namespace vj_finder {
             return GetJHitByIndex(0).End() - GetVHitByIndex(0).Start();
         }
 
-        const core::Read& Read() const { return read_; }
-
-        void UpdateRead(core::Read new_read) {
-            read_ = new_read;
-            for(auto it = v_hits_.begin(); it != v_hits_.end(); it++)
-                it->UpdateRead(read_);
-            for(auto it = j_hits_.begin(); it != j_hits_.end(); it++)
-                it->UpdateRead(read_);
-        }
+        const core::Read& Read() const { return *read_ptr_; }
 
         void AddLeftShift(int shift) {
             for(auto it = v_hits_.begin(); it != v_hits_.end(); it++)

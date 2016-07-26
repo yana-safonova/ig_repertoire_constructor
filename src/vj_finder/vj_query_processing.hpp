@@ -7,6 +7,7 @@
 namespace vj_finder {
     class VJQueryProcessor {
         const VJFinderConfig::AlgorithmParams &params_;
+        core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_db_;
         const germline_utils::CustomGeneDatabase &j_db_;
 
@@ -14,10 +15,12 @@ namespace vj_finder {
 
     public:
         VJQueryProcessor(const VJFinderConfig::AlgorithmParams &params,
+                         core::ReadArchive &read_archive,
                          const germline_utils::CustomGeneDatabase &v_db,
                          const germline_utils::CustomGeneDatabase &j_db) : params_(params),
-                                                                            v_db_(v_db),
-                                                                            j_db_(j_db) { }
+                                                                           read_archive_(read_archive),
+                                                                           v_db_(v_db),
+                                                                           j_db_(j_db) { }
 
         ProcessedVJHits Process(const core::Read &read);
     };

@@ -63,5 +63,7 @@ namespace core {
         size_t GetIndexByReadName(std::string read_name) const;
 
         void FixSpacesInHeaders();
+
+        void UpdateReadByIndex(size_t index, seqan::Dna5String new_seq);
     };
 }
