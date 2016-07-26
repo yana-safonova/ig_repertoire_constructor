@@ -6,6 +6,7 @@ input_params {
 output_params {
     output_dir             cdr_test
     cdr_details            cdr_details.txt  
+    shm_details            shm_details.txt
     cdr1_fasta             cdr1s.fasta
     cdr2_fasta             cdr2s.fasta 
     cdr3_fasta             cdr3s.fasta
@@ -14,7 +15,6 @@ output_params {
     trash_output           trash.out
 
     shm_output_details {
-        shm_details          shm_details.txt
         v_start_max_skipped  5
         v_end_max_skipped    5
         j_start_max_skipped  10
@@ -77,4 +77,15 @@ cdrs_params {
     }
 
     cdr_search_algorithm annotated_search ; de_novo_search
+}
+
+shm_params {
+    shm_filtering_params {
+        v_start_max_skipped  5
+        v_end_max_skipped    5
+        j_start_max_skipped  10
+        j_end_max_skipped    5
+    }
+
+    shm_finding_algorithm filtering_algorithm; cdr_filtering_algorithm
 }

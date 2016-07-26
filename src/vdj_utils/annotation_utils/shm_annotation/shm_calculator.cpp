@@ -15,7 +15,8 @@ namespace annotation_utils {
     }
 
     GeneSegmentSHMs NaiveSHMCalculator::ComputeSHMs(const alignment_utils::ImmuneGeneReadAlignment& alignment,
-                                                    const AminoAcidAnnotation<core::Read>& aa_annotation) {
+                                                    const AminoAcidAnnotation<core::Read>& aa_annotation,
+                                                    const CDRLabeling &cdr_labeling) {
         GeneSegmentSHMs shms(alignment.query(), alignment.subject());
         auto gene_row = seqan::row(alignment.Alignment(), 0);
         auto read_row = seqan::row(alignment.Alignment(), 1);
@@ -90,8 +91,9 @@ namespace annotation_utils {
 
     GeneSegmentSHMs StartEndFilteringSHMCalculator::ComputeSHMs(
             const alignment_utils::ImmuneGeneReadAlignment &alignment,
-            const AminoAcidAnnotation<core::Read> &aa_annotation) {
-        GeneSegmentSHMs all_shms = NaiveSHMCalculator().ComputeSHMs(alignment, aa_annotation);
+            const AminoAcidAnnotation<core::Read> &aa_annotation,
+            const CDRLabeling &cdr_labeling) {
+        GeneSegmentSHMs all_shms = NaiveSHMCalculator().ComputeSHMs(alignment, aa_annotation, cdr_labeling);
         //std::cout << alignment.subject().Segment() << std::endl;
         //std::cout << all_shms << std::endl;
         ComputeMeaningPositions(all_shms, alignment);
@@ -104,5 +106,60 @@ namespace annotation_utils {
                 filtered_shms.AddSHM(*it);
         }
         return filtered_shms;
+    }
+
+    //--------------------------------------------------------------------
+
+    void CDRFilteringSHMCalculator::ComputeStartMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
+                                                                 const GeneSegmentSHMs &all_shms,
+                                                                 const CDRLabeling &cdr_labeling) {
+        if (all_shms.size() == 0) {
+            return;
+        }
+        if (all_shms.SegmentType() == germline_utils::SegmentType::VariableSegment or !cdr_labeling.cdr3.Valid()) {
+            first_meaning_read_pos_ = all_shms[0].read_nucl_pos;
+            first_meaning_gene_pos_ = all_shms[0].gene_nucl_pos;
+            return;
+        }
+        VERIFY_MSG(all_shms.SegmentType() == germline_utils::SegmentType::JoinSegment,
+                   "Segment is not variable and diversity");
+        VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
+        first_meaning_read_pos_ = cdr_labeling.cdr3.end_pos + 1;
+        first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_) + 1;
+    }
+
+    void CDRFilteringSHMCalculator::ComputeEndMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
+                                                               const GeneSegmentSHMs &all_shms,
+                                                               const CDRLabeling &cdr_labeling) {
+        if(all_shms.size() == 0) {
+            return;
+        }
+        if(all_shms.SegmentType() == germline_utils::SegmentType::JoinSegment or !cdr_labeling.cdr3.Valid()) {
+            last_meaning_gene_pos_ = all_shms[all_shms.size() - 1].gene_nucl_pos;
+            last_meaning_read_pos_ = all_shms[all_shms.size() - 1].read_nucl_pos;
+        }
+        VERIFY_MSG(all_shms.SegmentType() == germline_utils::SegmentType::VariableSegment,
+                   "Segment is not variable and diversity");
+        VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
+        last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos + 1;
+        last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_) + 1;
+    }
+
+    void CDRFilteringSHMCalculator::ComputeMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
+                                                            const GeneSegmentSHMs &all_shms,
+                                                            const CDRLabeling &cdr_labeling) {
+        if(all_shms.size() == 0)
+            return;
+        ComputeStartMeaningPositions(alignment, all_shms, cdr_labeling);
+        ComputeEndMeaningPositions(alignment, all_shms, cdr_labeling);
+    }
+
+    GeneSegmentSHMs CDRFilteringSHMCalculator::ComputeSHMs(const alignment_utils::ImmuneGeneReadAlignment &alignment,
+                                                           const AminoAcidAnnotation<core::Read> &aa_annotation,
+                                                           const CDRLabeling &cdr_labeling) {
+        GeneSegmentSHMs all_shms = NaiveSHMCalculator().ComputeSHMs(alignment, aa_annotation, cdr_labeling);
+        ComputeMeaningPositions(alignment, all_shms, cdr_labeling);
+        GeneSegmentSHMs filtered_shms(alignment.query(), alignment.subject());
+        return all_shms;
     }
 }

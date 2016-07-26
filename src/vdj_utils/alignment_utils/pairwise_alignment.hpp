@@ -122,6 +122,13 @@ namespace alignment_utils {
             size_t alignment_pos = seqan::toViewPosition(subject_row, subject_pos);
             return seqan::toSourcePosition(query_row, alignment_pos);
         }
+
+        size_t SubjectPositionByQueryPosition(size_t query_pos) const {
+            auto subject_row = seqan::row(alignment_, 0);
+            auto query_row = seqan::row(alignment_, 1);
+            size_t alignment_pos = seqan::toViewPosition(query_row, query_pos);
+            return seqan::toSourcePosition(subject_row, alignment_pos);
+        }
     };
 
     typedef PairwiseAlignment<germline_utils::ImmuneGene, core::Read> ImmuneGeneReadAlignment;

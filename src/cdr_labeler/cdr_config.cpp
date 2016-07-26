@@ -16,30 +16,22 @@ namespace cdr_labeler {
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
         op.cdr3_compressed_fasta = path::append_path(op.output_dir, op.cdr3_compressed_fasta);
         op.v_alignment_fasta = path::append_path(op.output_dir, op.v_alignment_fasta);
-        op.shm_output_details.shm_details = path::append_path(op.output_dir, op.shm_output_details.shm_details);
+        op.cleaned_reads = path::append_path(op.output_dir, op.cleaned_reads);
+        op.shm_details = path::append_path(op.output_dir, op.shm_details);
         op.trash_output = path::append_path(op.output_dir, op.trash_output);
-    }
-
-    void load(CDRLabelerConfig::OutputParams::SHMOutputDetails &shm_d, boost::property_tree::ptree const &pt,
-              bool) {
-        using config_common::load;
-        load(shm_d.shm_details, pt, "shm_details");
-        load(shm_d.j_end_max_skipped, pt, "j_end_max_skipped");
-        load(shm_d.j_start_max_skipped, pt, "j_start_max_skipped");
-        load(shm_d.v_end_max_skipped, pt, "v_end_max_skipped");
-        load(shm_d.v_start_max_skipped, pt, "v_start_max_skipped");
     }
 
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(op.output_dir, pt, "output_dir");
         load(op.cdr_details, pt, "cdr_details");
+        load(op.shm_details, pt, "shm_details");
         load(op.cdr1_fasta, pt, "cdr1_fasta");
         load(op.cdr2_fasta, pt, "cdr2_fasta");
         load(op.cdr3_fasta, pt, "cdr3_fasta");
         load(op.cdr3_compressed_fasta, pt, "cdr3_compressed_fasta");
         load(op.v_alignment_fasta, pt, "v_alignment_fasta");
-        load(op.shm_output_details, pt, "shm_output_details");
+        load(op.cleaned_reads, pt, "cleaned_reads");
         load(op.trash_output, pt, "trash_output");
         update_output_config(op);
     }
@@ -121,11 +113,11 @@ namespace cdr_labeler {
 
     CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm convert_str_cdr_search_params(std::string str) {
         if(str == "annotated_search")
-            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedSearch;
+            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedCDRSearch;
         if(str == "de_novo_search")
-            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::DeNovoSearch;
+            return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::DeNovoCDRSearch;
         VERIFY_MSG(false, "Unknown CDR search algorithm: " << str);
-        return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::UnknownSearchAlgorithm;
+        return CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::UnknownCDRSearchAlgorithm;
     }
 
     void load(CDRLabelerConfig::CDRsParams &cdrs_p, boost::property_tree::ptree const &pt, bool) {
@@ -139,6 +131,32 @@ namespace cdr_labeler {
         cdrs_p.cdr_search_algorithm = convert_str_cdr_search_params(cdr_search_str);
     }
 
+    void load(CDRLabelerConfig::SHMFindingParams::SHMFilteringParams &shm_fp,
+              boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(shm_fp.v_start_max_skipped, pt, "v_start_max_skipped");
+        load(shm_fp.v_end_max_skipped, pt, "v_end_max_skipped");
+        load(shm_fp.j_start_max_skipped, pt, "j_start_max_skipped");
+        load(shm_fp.j_end_max_skipped, pt, "j_end_max_skipped");
+    }
+
+    CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm convert_str_shm_search_params(std::string str) {
+        if(str == "filtering_algorithm")
+            return CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::FilteringSHMAlgorithm;
+        if(str == "cdr_filtering_algorithm")
+            return CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm;
+        VERIFY_MSG(false, "Unknown SHM finding algorithm: " << str);
+        return CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::UnknownSHMSearchAlgorithm;
+    }
+
+    void load(CDRLabelerConfig::SHMFindingParams &shm_p, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(shm_p.shm_filtering_params, pt, "shm_filtering_params");
+        std::string shm_finding_str;
+        load(shm_finding_str, pt, "shm_finding_algorithm");
+        shm_p.shm_finding_algorithm = convert_str_shm_search_params(shm_finding_str);
+    }
+
     void CDRLabelerConfig::load(std::string config_fname) {
         boost::property_tree::ptree pt;
         boost::property_tree::read_info(config_fname, pt);
@@ -147,8 +165,9 @@ namespace cdr_labeler {
         load(output_params, pt, "output_params", true);
         load(run_params, pt, "run_params", true);
         load(cdrs_params, pt, "cdrs_params", true);
+        load(shm_params, pt, "shm_params", true);
         vj_finder::load(vj_finder_config, input_params.vj_finder_config);
         vj_finder_config.algorithm_params.germline_params.pseudogenes = false;
-        //vj_finder_config.algorithm_params.germline_params.loci = "IG";
+        vj_finder_config.algorithm_params.germline_params.loci = "IG";
     }
 }

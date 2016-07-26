@@ -5,15 +5,15 @@
 
 namespace cdr_labeler {
     BaseImmuneGeneCDRLabelerPtr GermlineDbLabeler::GetImmuneGeneLabeler(germline_utils::ImmuneGeneType gene_type) {
-        if(cdr_params_.cdr_search_algorithm == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedSearch)
+        if(cdr_params_.cdr_search_algorithm == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedCDRSearch)
             return ImmuneGeneLabelingHelper::GetAnnotatedLabeler(gene_type.Segment(), cdr_params_);
         return BaseImmuneGeneCDRLabelerPtr(new DeNovoImmuneGeneCDRLabeler(gene_type, cdr_params_));
     }
 
     std::string cdr_search_algorithm_to_str(CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm alg) {
-        if(alg == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedSearch)
+        if(alg == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::AnnotatedCDRSearch)
             return "annotated";
-        if(alg == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::DeNovoSearch)
+        if(alg == CDRLabelerConfig::CDRsParams::CDRSearchAlgorithm::DeNovoCDRSearch)
             return "de novo";
         return "";
     }

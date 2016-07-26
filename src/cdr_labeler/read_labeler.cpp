@@ -7,15 +7,31 @@ namespace cdr_labeler {
     }
 
     std::shared_ptr<annotation_utils::BaseSHMCalculator> ReadCDRLabeler::GetVSHMCalculator() {
-        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
-                new annotation_utils::StartEndFilteringSHMCalculator(config_.v_start_max_skipped,
-                                                                     config_.v_end_max_skipped));
+        if(shm_config_.shm_finding_algorithm ==
+                CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::FilteringSHMAlgorithm)
+            return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                    new annotation_utils::StartEndFilteringSHMCalculator(shm_config_.shm_filtering_params.v_start_max_skipped,
+                                                                         shm_config_.shm_filtering_params.v_end_max_skipped));
+        if(shm_config_.shm_finding_algorithm ==
+                    CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm)
+            return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                    new annotation_utils::CDRFilteringSHMCalculator());
+        VERIFY_MSG(false, "Unknown SHM finding algorithm");
+        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(NULL);
     }
 
     std::shared_ptr<annotation_utils::BaseSHMCalculator> ReadCDRLabeler::GetJSHMCalculator() {
-        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
-                new annotation_utils::StartEndFilteringSHMCalculator(config_.j_start_max_skipped,
-                                                                     config_.j_end_max_skipped));
+        if(shm_config_.shm_finding_algorithm ==
+           CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::FilteringSHMAlgorithm)
+            return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                    new annotation_utils::StartEndFilteringSHMCalculator(shm_config_.shm_filtering_params.j_start_max_skipped,
+                                                                         shm_config_.shm_filtering_params.j_end_max_skipped));
+        if(shm_config_.shm_finding_algorithm ==
+           CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm)
+            return std::shared_ptr<annotation_utils::BaseSHMCalculator>(
+                    new annotation_utils::CDRFilteringSHMCalculator());
+        VERIFY_MSG(false, "Unknown SHM finding algorithm");
+        return std::shared_ptr<annotation_utils::BaseSHMCalculator>(NULL);
     }
 
     annotation_utils::AnnotatedClone ReadCDRLabeler::CreateAnnotatedClone(const vj_finder::VJHits &vj_hits) {
