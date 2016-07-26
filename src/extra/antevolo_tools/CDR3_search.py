@@ -58,7 +58,7 @@ def search_for_CDR3(tree_file):
 			src_CDR3 = arr[11]
 			dst_CDR3 = arr[12]
 
-			if hamming_distance(CDR3_to_find, src_CDR3) <= 3 or hamming_distance(CDR3_to_find, dst_CDR3) <= 3:
+			if hamming_distance(CDR3_to_find, src_CDR3) <= 0 or hamming_distance(CDR3_to_find, dst_CDR3) <= 0:
 				found = True
 				#print '\n\n'+CDR3_to_find+'\n'+src_CDR3+'\n'+dst_CDR3+'\n\n'
 	if found:
