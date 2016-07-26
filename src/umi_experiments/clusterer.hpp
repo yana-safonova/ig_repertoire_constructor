@@ -548,6 +548,9 @@ namespace clusterer {
     template <typename ElementType>
     void report_non_major_umi_groups_sw(const ManyToManyCorrespondenceUmiToCluster<ElementType> umi_to_clusters, std::string file_name,
                                         std::string left_graph_file_name, std::string right_graph_file_name, std::string chimeras_info_file_name, size_t num_threads) {
+        // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
+        // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
+        // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
         std::vector<seqan::Dna5String> all_left_halves;
         std::vector<seqan::Dna5String> all_right_halves;
         const size_t IG_LEN = 350;
@@ -659,10 +662,10 @@ namespace clusterer {
                     chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
                     chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
-                        chimeras_file << c->GetSequence() << std::endl;
                         chimeras_file << "cluster size: " << c->weight << ", ";
                         chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
                         chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_all > 0) != (right_in_all > 0)) {
                     found_half_only ++;
