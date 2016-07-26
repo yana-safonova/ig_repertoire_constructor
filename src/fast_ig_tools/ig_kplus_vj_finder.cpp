@@ -862,7 +862,7 @@ int main(int argc, char **argv) {
                         add_info_strings[j] = bf.str();
 
                         if (length(cropped_read) >= param.min_len) {
-                            reads[j] = cropped_read;
+                            reads[j] = prefix(cropped_read, length(cropped_read) - 17);
                             output_isok[j] = true;
                         } else {
                             // Read is too short
