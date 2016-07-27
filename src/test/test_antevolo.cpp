@@ -9,6 +9,7 @@
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
 #include <convert.hpp>
+#include <annotation_utils/shm_comparator.hpp>
 
 void create_console_logger() {
     using namespace logging;
@@ -48,5 +49,17 @@ public:
 };
 
 TEST_F(AntEvoloTest, AntEvoloBaseTest) {
+    ASSERT_EQ(annotated_clone_set.size(), 6);
+    INFO("Testing CDR3 filtered SHMs in V");
     ASSERT_EQ(annotated_clone_set[0].VSHMs().size(), 11);
+    INFO("Testing CDR3 filtered SHMs in J");
+    ASSERT_EQ(annotated_clone_set[1].JSHMs().size(), 1);
+    INFO("Testing nested SHMs in V");
+    ASSERT_EQ(annotated_clone_set[2].VSHMs().size(), 4);
+    ASSERT_EQ(annotated_clone_set[3].VSHMs().size(), 7);
+    ASSERT_EQ(annotation_utils::SHMComparator().SHMs1AreNestedInSHMs2(annotated_clone_set[2].VSHMs(),
+                                                                      annotated_clone_set[3].VSHMs()), true);
+    INFO("Testing intersected SHMs in V");
+    ASSERT_EQ(annotation_utils::SHMComparator().GetNumberOfIntersections(annotated_clone_set[4].VSHMs(),
+                                                                         annotated_clone_set[5].VSHMs()), 15);
 }
