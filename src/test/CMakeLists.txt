@@ -49,12 +49,13 @@ add_executable(test_cdr_labeling test_cdr_labeler.cpp
         ../cdr_labeler/read_labeler.cpp
         )
 
-#add_executable(test_vjf_consistency test_vjf_consistency.cpp
-#        ../vj_finder/vj_finder_config.cpp
-#        ../vj_finder/germline_db_generator.cpp
-#        ../vj_finder/vj_alignment_structs.cpp
-#        ../vj_finder/vj_query_aligner.cpp
-#        ../vj_finder/vj_hits_filter.cpp
-#        ../vj_finder/vj_alignment_info.cpp
-#        ../vj_finder/vj_query_fix_fill_crop.cpp
-#        ../vj_finder/vj_query_processing.cpp)
+add_executable(test_vj_finder test_vj_finder.cpp
+        ../vj_finder/vj_finder_config.cpp
+        ../vj_finder/germline_db_generator.cpp
+        ../vj_finder/vj_alignment_structs.cpp
+        ../vj_finder/vj_query_aligner.cpp
+        ../vj_finder/vj_hits_filter.cpp
+        ../vj_finder/vj_alignment_info.cpp
+        ../vj_finder/vj_query_fix_fill_crop.cpp
+        ../vj_finder/vj_query_processing.cpp
+        ../vj_finder/vj_parallel_processor.cpp)
