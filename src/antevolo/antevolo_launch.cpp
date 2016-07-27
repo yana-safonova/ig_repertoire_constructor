@@ -20,8 +20,6 @@ namespace antevolo {
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
         germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
-        //auto annotated_clone_set = cdr_labeler::CDRAnnotator(config_.cdr_labeler_config,
-        //                                                     read_archive, v_db, j_db).AnnotateClones();
         // todo: refactor code duplication
         INFO("CDR labeling for V gene segments");
         auto v_labeling = cdr_labeler::GermlineDbLabeler(v_db,
