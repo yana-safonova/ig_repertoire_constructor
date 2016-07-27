@@ -96,7 +96,10 @@ namespace algorithms {
                 // Do nothing
             }
 
-            return alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename>(subject, query, align);
+            return alignment_utils::PairwiseAlignment<SubjectTypename, QueryTypename>(subject,
+                                                                                      query,
+                                                                                      align,
+                                                                                      block_alignment.score);
         }
     };
 }
