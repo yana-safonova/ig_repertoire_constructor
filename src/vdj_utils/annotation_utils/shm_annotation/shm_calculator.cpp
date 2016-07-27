@@ -16,7 +16,7 @@ namespace annotation_utils {
 
     GeneSegmentSHMs NaiveSHMCalculator::ComputeSHMs(const alignment_utils::ImmuneGeneReadAlignment& alignment,
                                                     const AminoAcidAnnotation<core::Read>& aa_annotation,
-                                                    const CDRLabeling &cdr_labeling) {
+                                                    const CDRLabeling &) {
         GeneSegmentSHMs shms(alignment.query(), alignment.subject());
         auto gene_row = seqan::row(alignment.Alignment(), 0);
         auto read_row = seqan::row(alignment.Alignment(), 1);
