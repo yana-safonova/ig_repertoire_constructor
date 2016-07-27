@@ -46,7 +46,11 @@ namespace core {
         std::unordered_map <std::string, size_t> name_index_map_;
 
     public:
+        ReadArchive() { }
+
         ReadArchive(std::string fastq_file_fname);
+
+        void ExtractFromFile(std::string fastq_file_fname);
 
         size_t size() const;
 

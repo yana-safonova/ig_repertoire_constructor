@@ -17,6 +17,10 @@ namespace core {
 //-----------------------------------------------------------------
 
     ReadArchive::ReadArchive(std::string fastq_file_fname) {
+        ExtractFromFile(fastq_file_fname);
+    }
+
+    void ReadArchive::ExtractFromFile(std::string fastq_file_fname) {
         path::CheckFileExistenceFATAL(fastq_file_fname);
         std::vector <seqan::CharString> read_headers;
         std::vector <seqan::Dna5String> read_seqs;
