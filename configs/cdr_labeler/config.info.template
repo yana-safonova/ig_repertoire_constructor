@@ -11,6 +11,7 @@ output_params {
     cdr2_fasta             cdr2s.fasta 
     cdr3_fasta             cdr3s.fasta
     cdr3_compressed_fasta  compressed_cdr3s.fasta
+    cleaned_reads          cleaned_sequences.fasta
     v_alignment_fasta      v_alignment.fasta
     trash_output           trash.out
 
