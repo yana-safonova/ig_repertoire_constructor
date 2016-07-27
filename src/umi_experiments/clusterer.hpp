@@ -563,6 +563,7 @@ namespace clusterer {
         }
 
         size_t tau = 10;
+        size_t max_indels = 3;
         size_t strategy = 2;
         size_t k = IG_LEN / (tau + strategy) / 2;
         Graph left_graph;
@@ -574,7 +575,7 @@ namespace clusterer {
             auto kmer2reads = kmerIndexConstruction(all_halves, k);
             size_t num_of_dist_computations = 0;
             Graph& graph = (i == 0) ? left_graph : right_graph;
-            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::edit_dist(tau),
+            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::edit_dist(max_indels),
                                  static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
                                  num_of_dist_computations);
             INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
