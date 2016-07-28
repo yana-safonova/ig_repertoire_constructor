@@ -15,15 +15,9 @@ $(COMPRESSED_INTER_REP): $(UMI_CLUSTERING)/$(INTER_REP) $(UMI_CLUSTERING)/$(INTE
 	python $(PY_SRC)/adhoc_merge_rcm_with_id_list.py \
 	$(UMI_CLUSTERING)/$(INTER_REP_RCM) \
 	id_map.tmp \
+	$(UMI_CLUSTERING)/$(INTER_REP) \
+	$(COMPRESSED_INTER_REP) \
 	$(COMPRESSED_INTER_REP_RCM)
-
-#	python $(PY_SRC)/ig_compress_equal_clusters.py \
-#	$(UMI_CLUSTERING)/$(INTER_REP) \
-#	$(COMPRESSED_INTER_REP) \
-#	--tmp-fa-file tmp.fa \
-#	--tmp-map-file tmp.rcm \
-#	--rcm $(UMI_CLUSTERING)/$(INTER_REP_RCM) \
-#	--output-rcm $(COMPRESSED_INTER_REP_RCM)
 
 clean:
 	$(RM) $(COMPRESSED_INTER_REP)

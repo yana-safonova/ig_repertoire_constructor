@@ -12,6 +12,8 @@ final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm: $(VJF)/clean
 	python $(PY_SRC)/adhoc_merge_rcm_with_id_list.py \
 	$(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP_RCM) \
 	$(DSF_PATH)/$(DENSE_SUBGRAPHS) \
+	$(COMPRESSED_INTER_PATH)/$(COMPRESSED_INTER_REP) \
+	- \
 	final_repertoire_uncompressed.rcm
 
 	$(BIN)/ig_consensus_finder \

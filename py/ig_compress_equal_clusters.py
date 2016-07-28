@@ -14,11 +14,11 @@ from ig_report_supernodes import smart_open
 def parse_cluster_mult(id):
     import re
     id = str(id)
-    m = re.match(r"^(intermediate_)?cluster___([0-9a-zA-Z]+)___size___(\d+)$", id)
+    m = re.match(r"^(intermediate_)?cluster___([0-9a-zA-Z]+)(___size___\d+)?___size___(\d+)$", id)
     if m:
         g = m.groups()
         cluster = g[1].strip()
-        mult = int(g[2])
+        mult = int(g[3])
         return cluster, mult
     else:
         return None
@@ -26,6 +26,7 @@ def parse_cluster_mult(id):
 
 assert parse_cluster_mult("cluster___10___size___20") == ('10', 20)
 assert parse_cluster_mult("intermediate_cluster___10___size___20") == ('10', 20)
+assert parse_cluster_mult("intermediate_cluster___10___size___5___size___20") == ('10', 20)
 assert parse_cluster_mult("intermediatecluster___10___size___20") == None
 
 

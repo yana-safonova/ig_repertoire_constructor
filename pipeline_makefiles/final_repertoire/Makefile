@@ -16,6 +16,8 @@ final_repertoire.fa final_repertoire.rcm: $(CONSENSUS)/final_repertoire_uncompre
 	python $(PY_SRC)/adhoc_merge_rcm_with_id_list.py \
 	$(CONSENSUS)/final_repertoire_uncompressed.rcm \
 	id_map.tmp \
+	$(CONSENSUS)/final_repertoire_uncompressed.fa \
+	tmp.fa \
 	final_repertoire.rcm
 
 	python $(PY_SRC)/fix_cluster_ids.py \

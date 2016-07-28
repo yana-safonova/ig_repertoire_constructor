@@ -1,20 +1,60 @@
-import sys
+﻿import sys
+from Bio import SeqIO
+from ig_compress_equal_clusters import parse_cluster_mult
 from rcm_utils import read_rcm_list, rcm2rcmint
 
 
 def merge():
     rcm_file = sys.argv[1]
     id_file = sys.argv[2]
-    output_rcm_file = sys.argv[3]
+    from_read_file = sys.argv[3]
+    to_read_file = sys.argv[4] if sys.argv[4] != "-" else None
+    output_rcm_file = sys.argv[5]
+
     print "reading rcm file from %s" % rcm_file
     rcm = rcm2rcmint(read_rcm_list(rcm_file))
+
     print "reading id list reported by trie compressor from %s" % id_file
     with open(id_file, "r") as ids:
         id_map = [int(line) for line in ids]
+
+    print "reading file with source reads from %s to obtain cluster numbers" % from_read_file
+    from_file_cluster_to_pos = dict()
+    with open(from_read_file, "r") as reads:
+        for i, record in enumerate(SeqIO.parse(reads, "fasta")):
+            from_file_cluster_to_pos[int(parse_cluster_mult(record.id)[0])] = i
+
+    to_file_pos_to_cluster = dict()
+    if to_read_file is None:
+        current = 0
+        for key, value in enumerate(id_map):
+            if not value in to_file_pos_to_cluster:
+                to_file_pos_to_cluster[value] = current
+                current += 1
+    else:
+        print "reading file with destination reads from %s to obtain cluster numbers" % to_read_file
+        with open(to_read_file, "r") as reads:
+            for i, record in enumerate(SeqIO.parse(reads, "fasta")):
+                to_file_pos_to_cluster[i] = int(parse_cluster_mult(record.id)[0])
+
+    result_handle = dict()
     print "merging maps and writing to %s" % output_rcm_file
     with open(output_rcm_file, "w") as output:
         for key, value in rcm:
-            output.write("%s\t%d\n" % (key, id_map[value]))
+            handle = to_file_pos_to_cluster[id_map[from_file_cluster_to_pos[value]]]
+            output.write("%s\t%d\n" % (key, handle))
+            result_handle[key] = handle
+
+    print "checking result"
+    # checking if corresponding clusterings are nested
+    from collections import defaultdict
+    orig_clusters = defaultdict(list)
+    for key, value in rcm:
+        orig_clusters[value].append(key)
+    for orig_handle, ids in orig_clusters.iteritems():
+        handle = result_handle[ids[0]]
+        for id in ids:
+            assert result_handle[id] == handle
 
 
 if __name__ == "__main__":
