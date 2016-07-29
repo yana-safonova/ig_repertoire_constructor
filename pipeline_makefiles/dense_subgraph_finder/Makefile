@@ -12,6 +12,7 @@ $(DENSE_SUBGRAPHS): $(IG_GRAPH_CONSTRUCTOR)/$(SW_GRAPH) !! $(IGREC)/dense_subgra
 	--output . \
 	--threads %THREADS \
 	--min-snode-size %MIN_SUPER_NODE_SIZE \
+	--min-fillin %MIN_FILLIN \
 	--clean-output-dir False
 
 clean:

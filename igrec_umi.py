@@ -72,6 +72,11 @@ def ParseCommandLineParams(log):
                                default=5,
                                dest="min_super_read_size",
                                help="Minimum super read size [default: %(default)d]")
+    optional_args.add_argument("-f", '--min-fillin',
+                               type=float,
+                               default=0.6,
+                               dest="min_fillin",
+                               help='Minimum fill-in of dense subgraphs [default: %(default)f]')
     optional_args.set_defaults(compile = True)
     optional_args.add_argument("-p", "--no-compilation",
                                dest="no_compilation",
@@ -83,6 +88,7 @@ def ParseCommandLineParams(log):
                                help="Ignore code changes when checking stages depensences")
     optional_args.add_argument("-k", "--detect-chimeras",
                                dest="detect_chimeras",
+                               type=bool,
                                default=True,
                                help="detect chimeras after clustering, may take significant amount of time")
     # TODO: hide parameter
@@ -178,8 +184,9 @@ class _StagePrepare:
                 line = line.replace("%UMI_GRAPH_TAU", str(params.umi_graph_tau))
                 line = line.replace("%LOCI", params.loci)
                 line = line.replace("%ORGANISM", params.organism)
-                line = line.replace("%DETECT_CHIMERAS", params.detect_chimeras)
+                line = line.replace("%DETECT_CHIMERAS", str(params.detect_chimeras))
                 line = line.replace("%MIN_SUPER_NODE_SIZE", str(params.min_super_read_size))
+                line = line.replace("%MIN_FILLIN", str(params.min_fillin))
                 line = line.replace("%UMI_CLEAVAGE_LENGTH", str(params.umi_cleavage_length))
                 if '%' in line:
                     log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
