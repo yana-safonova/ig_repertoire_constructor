@@ -56,8 +56,8 @@ namespace antevolo {
         std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
         std::stringstream ss;
         ss << run_graph_constructor << " -i " << cdr_fasta <<
-                " -o " << graph_fname << " --tau " << num_mismatches_ << " -T " << " 0 " <<
-                " -k 10 > " << output_params_.trash_output;
+                " -o " << graph_fname << " --tau " << num_mismatches_ << " -S " << " 0 " <<
+                " -T " << " 0 " << " -k 10 > " << output_params_.trash_output;
         int err_code = system(ss.str().c_str());
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
         auto sparse_cdr_graph_ = GraphReader(graph_fname).CreateGraph();

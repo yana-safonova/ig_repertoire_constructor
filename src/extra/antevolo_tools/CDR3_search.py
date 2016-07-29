@@ -12,6 +12,7 @@ parser.add_argument("-c", "--cdr", help="CDR3 string")
 args = parser.parse_args()
 
 CDR3_to_find = args.cdr
+tau = 3
 #CDR3_to_find = 'GCATTCAGCAGCTGGCAGGGGGAAGTTGACTAC' # 9830, 4th 
 #CDR3_to_find = 'GTCACACTGTTTGGGTGTGACGAC', 49832, 5th
 
@@ -25,6 +26,7 @@ def hamming_distance(a, b):
 	return res
 
 def search_for_CDR3(tree_file):
+	related_trees = set()
 	found = False
 	#print "drawing "+tree_file
 	vertex_to_depths = {}
@@ -58,18 +60,22 @@ def search_for_CDR3(tree_file):
 			src_CDR3 = arr[11]
 			dst_CDR3 = arr[12]
 
-			if hamming_distance(CDR3_to_find, src_CDR3) <= 0 or hamming_distance(CDR3_to_find, dst_CDR3) <= 0:
+			if hamming_distance(CDR3_to_find, src_CDR3) <= tau or hamming_distance(CDR3_to_find, dst_CDR3) <= tau:
 				found = True
 				#print '\n\n'+CDR3_to_find+'\n'+src_CDR3+'\n'+dst_CDR3+'\n\n'
 	if found:
-		print tree_file.split('/')[-1]
+		related_trees.add(tree_file.split('/')[-1])
 
+	#print '\n'.join(related_trees), '\n\n\n\n' 
+	if len(related_trees) != 0:
+		print '\n'.join(related_trees)
 
 def main():
 	trees = listdir(args.input)
 	trees.sort(key=lambda x: int(x.split('.')[-2].split('_')[-1]))
 	for tree_file in trees: #[-int(args.trees_num):]:
 		search_for_CDR3(args.input+'/'+tree_file)
+
 
 if __name__ == "__main__":
 	main()

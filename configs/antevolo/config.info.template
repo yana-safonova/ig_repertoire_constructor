@@ -1,6 +1,7 @@
 input_params {
     input_reads test7_compressed.fq; test_dataset/test7.fastq ;test_dataset/merged_reads.fastq
-    cdr_labeler_config_fname configs/cdr_labeler/config.info    
+    cdr_labeler_config_fname configs/cdr_labeler/config.info  
+    model_input data/shm_model/model_input.csv
 }
 
 output_params {

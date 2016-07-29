@@ -18,6 +18,7 @@ def draw_tree(tree_file):
 	depth_to_vertices = {}
 	edges = []
 	max_depth = 0
+	vertices = {}
 	with open(tree_file) as inp:
 		inp.readline()
 		for st in inp:
@@ -40,6 +41,8 @@ def draw_tree(tree_file):
 			edges.append([src_num, dst_num, edge_type, src_depth, dst_depth])	
 			max_depth = max(max_depth, dst_depth)
 
+			vertices[dst_num] = 'yellow'
+
 
 	fake_vertices = ['Depth_'+str(i) for i in xrange(max_depth+1)]
 
@@ -48,18 +51,24 @@ def draw_tree(tree_file):
 	with open(DOT_OUTPUT_FILE_NAME, 'w') as otp:
 		otp.write("digraph "+'tree'+' {\n')
 		otp.write(''.join( ["\t{\n\t\tnode [shape=box]\n\t\t\n\t\t", ' -> '.join(fake_vertices), ";\n\t}\n\n"] ))
+
 		for depth in depth_to_vertices:
 			otp.write(''.join( ["\t{ rank = same;\n \t\t", 
 								"Depth_"+str(depth)+"; ", 
 								"; ".join(["\""+str(num)+"\"" for num in depth_to_vertices[depth]]),
 								";\n\t};\n"] ))
 		
+		#for v in vertices:
+		#	otp.write(''.join(["\t","\""+str(v)+"\"", " [style=filled, color=", vertices[v], "];\n"]))
+
 		for edge in edges:
 			src_num, dst_num, edge_type, src_depth, dst_depth = edge
 			if edge_type == 'directed':
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=black];\n"]))
 			elif edge_type == "undirected":
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=blue];\n"]))
+
+
 		otp.write("}\n")
 	subprocess.call([args.strategy, '-Tpdf', '-O', DOT_OUTPUT_FILE_NAME])
 
