@@ -32,6 +32,32 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname, log
     log.info(region_name + " length distribution was written to " + output_fname + ".pdf and .png")
 
 ############################################################################
+def visualize_length_abundance_dist(labeling_df, region, region_name, output_fname, log):
+    region_seq = list(labeling_df[region])
+    region_dict = dict()
+    for seq in region_seq:
+        if seq not in region_dict:
+            region_dict[seq] = 0
+        region_dict[seq] += 1
+    abun = []
+    lens = []
+    for seq in region_dict:
+        abun.append(region_dict[seq])
+        lens.append(len(seq))
+    sns.jointplot(abun, lens, kind="hex")
+    plt.xlabel(region_name + ' abundance', fontsize = 16)
+    plt.ylabel(region_name + ' length', fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    plt.xlim(0, 100)
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname + ".png")
+    pp.close()
+    plt.clf()
+    log.info(region_name + " joint distribution of abundances & lengths was written to " + output_fname + ".pdf and .png")
+
+############################################################################
 
 def get_region_largest_group(region_seq):
     len_dict = dict()
@@ -162,6 +188,8 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir, log):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
                              os.path.join(output_dir, locus_name + "_" + region_name + "_length"), log)
+    visualize_length_abundance_dist(locus_df, column_name, locus_name + " " + region_name,
+                            os.path.join(output_dir, locus_name + "_" + region_name + "_abundance_length"), log)
     visualize_largest_region_nucls(locus_df, column_name, locus_name + " " + region_name,
                              os.path.join(output_dir, locus_name + "_" + region_name + "_nucls"), log)
     visualize_largest_group_aa_variability(locus_df, column_name, locus_name + " " + region_name,
