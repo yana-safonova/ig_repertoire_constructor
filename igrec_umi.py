@@ -90,7 +90,12 @@ def ParseCommandLineParams(log):
                                dest="detect_chimeras",
                                type=bool,
                                default=True,
-                               help="detect chimeras after clustering, may take significant amount of time")
+                               help="Detect chimeras after clustering, may take significant amount of time")
+    optional_args.add_argument("--clustering-thr",
+                               type=int,
+                               default=15,
+                               dest="clustering_threshold",
+                               help="Threshold distance to unite clusters")
     # TODO: hide parameter
     optional_args.add_argument("--umi-cleavage-length",
                                type=int,
@@ -188,6 +193,7 @@ class _StagePrepare:
                 line = line.replace("%MIN_SUPER_NODE_SIZE", str(params.min_super_read_size))
                 line = line.replace("%MIN_FILLIN", str(params.min_fillin))
                 line = line.replace("%UMI_CLEAVAGE_LENGTH", str(params.umi_cleavage_length))
+                line = line.replace("%CLUSTERING_THRESHOLD", str(params.clustering_threshold))
                 if '%' in line:
                     log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
                     exit(1)

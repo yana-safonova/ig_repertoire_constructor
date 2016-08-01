@@ -34,7 +34,7 @@ namespace {
                 ("detect-chimeras,k", po::value<bool>(&params.detect_chimeras)->default_value(true), "detect chimeras after clustering, may take significant amount of time")
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
-                ("clustering_thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(15), "threshold distance to unite clusters")
+                ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(15), "threshold distance to unite clusters")
                 ;
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(cmdl_options).run(), vm);
