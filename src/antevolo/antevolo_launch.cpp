@@ -43,7 +43,7 @@ namespace antevolo {
 
         cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.shm_params, v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
-        INFO("Naive tree construction starts");
+        INFO("Tree construction starts");
         NaiveAntEvoloProcessing(config_, annotated_clone_set).ConstructClonalTrees();
         INFO("AntEvolo ends");
     }

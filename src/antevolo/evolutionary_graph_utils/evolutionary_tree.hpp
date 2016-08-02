@@ -28,6 +28,11 @@ namespace antevolo {
                 boost::unordered_set<size_t>& vertices_set,
                 size_t root_num);
 
+        void PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
+                                                     size_t root_vertex,
+                                                     const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                     EvolutionaryEdgeConstructor* edge_constructor);
+
         void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                      size_t root_vertex,
                                                      ShmModel& model,

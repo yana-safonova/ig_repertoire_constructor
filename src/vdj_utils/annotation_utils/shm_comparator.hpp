@@ -10,5 +10,7 @@ namespace annotation_utils {
         static bool SHMs1AreNestedInSHMs2(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
 
         static size_t GetNumberOfIntersections(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
+
+        static bool AddedSHMsAreSynonimous(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
     };
 }

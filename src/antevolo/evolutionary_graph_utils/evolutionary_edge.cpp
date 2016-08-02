@@ -65,6 +65,11 @@ namespace antevolo {
         }
     }
 
+    bool EvolutionaryEdge::IsSynonymous() const {
+        return annotation_utils::SHMComparator::AddedSHMsAreSynonimous(src_clone->JSHMs(), dst_clone->JSHMs()) &&
+               annotation_utils::SHMComparator::AddedSHMsAreSynonimous(src_clone->VSHMs(), dst_clone->VSHMs());
+    }
+
 
     std::ostream& operator<<(std::ostream& out, const EvolutionaryEdge &edge) {
         out << "Type: " << edge.edge_type << ", # added V SHMs: " << edge.num_added_v_shms <<

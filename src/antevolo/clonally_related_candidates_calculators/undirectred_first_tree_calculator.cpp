@@ -110,8 +110,10 @@ namespace antevolo {
                     if (ds_on_undirected_edges.find_set(src_num) !=
                         ds_on_undirected_edges.find_set(dst_num) &&
                         annotation_utils::SHMComparator::SHMsAreEqual(
-                                clone_set_[src_num].VSHMs(),
-                                clone_set_[dst_num].VSHMs())) {
+                                clone_set_[src_num].VSHMs(), clone_set_[dst_num].VSHMs()) &&
+                        annotation_utils::SHMComparator::SHMsAreEqual(
+                                clone_set_[src_num].JSHMs(), clone_set_[dst_num].JSHMs())) {
+                        //wtf? doesnt work
                         tree.AddUndirectedPair(src_num, dst_num);
                         ds_on_undirected_edges.union_set(src_num, dst_num);
                     }
@@ -129,7 +131,10 @@ namespace antevolo {
                             ds_on_undirected_edges.find_set(*it2) &&
                             annotation_utils::SHMComparator::SHMsAreEqual(
                                     clone_set_[*it1].VSHMs(),
-                                    clone_set_[*it2].VSHMs())) {
+                                    clone_set_[*it2].VSHMs()) &&
+                            annotation_utils::SHMComparator::SHMsAreEqual(
+                                    clone_set_[*it1].JSHMs(),
+                                    clone_set_[*it2].JSHMs())) {
                             tree.AddUndirectedPair(*it1, *it2);
                             ds_on_undirected_edges.union_set(*it1, *it2);
                         }
@@ -273,15 +278,18 @@ namespace antevolo {
             if (root != size_t(-1)) {
                 const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
                 tree.AddDirected(edge.dst_clone_num, edge, model_);
-                //tree.PrepareSubtree(edge_vector, root);
+                
 
                 //INFO("ds root is: " << ds_on_undirected_edges.find_set(vertex.first) << ", root is: " << root <<
                 //" root's ds_root is:" << ds_on_undirected_edges.find_set(root));
-                tree.PrepareSubtreeEdmonds(edge_vector, root, model_, clone_set_, edge_constructor);
+                //tree.PrepareSubtree(edge_vector, root);
+                tree.PrepareSubtreeKruskal(edge_vector, root, clone_set_, edge_constructor);
+                //tree.PrepareSubtreeEdmonds(edge_vector, root, model_, clone_set_, edge_constructor);
             }
             else {
                 //tree.PrepareSubtree(edge_vector, vertex.first);
-                tree.PrepareSubtreeEdmonds(edge_vector, vertex.first, model_, clone_set_, edge_constructor);
+                tree.PrepareSubtreeKruskal(edge_vector, vertex.first, clone_set_, edge_constructor);
+                //tree.PrepareSubtreeEdmonds(edge_vector, vertex.first, model_, clone_set_, edge_constructor);
             }
             for (auto p : edge_vector) {
                 auto edge = edge_constructor->ConstructEdge(

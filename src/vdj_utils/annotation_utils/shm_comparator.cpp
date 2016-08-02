@@ -39,4 +39,21 @@ namespace annotation_utils {
         }
         return num_shared_shms;
     }
+
+    bool SHMComparator::AddedSHMsAreSynonimous(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
+        size_t index1 = 0;
+        for(auto it2 = shms2.cbegin(); it2 != shms2.cend(); it2++) {
+            bool shm_found = false;
+            for(size_t i = index1; i < shms1.size(); i++)
+                if(*it2 == shms1[i]) {
+                    index1 = i + 1;
+                    shm_found = true;
+                    break;
+                }
+            if(!shm_found && !it2->IsSynonymous()) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

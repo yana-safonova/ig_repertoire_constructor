@@ -64,6 +64,8 @@ namespace antevolo {
 
         bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; };
 
+        bool IsSynonymous() const;
+
         bool operator==(const EvolutionaryEdge &edge) const {
             return src_clone == edge.src_clone and dst_clone == edge.dst_clone and edge_type == edge.edge_type;
         }
