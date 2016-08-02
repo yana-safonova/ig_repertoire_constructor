@@ -63,6 +63,8 @@ def draw_tree(tree_file):
 
 		for edge in edges:
 			src_num, dst_num, edge_type, src_depth, dst_depth = edge
+			if edge_type == 'undirected' and src_depth == 0:
+				continue
 			if edge_type == 'directed':
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=black];\n"]))
 			elif edge_type == "undirected":

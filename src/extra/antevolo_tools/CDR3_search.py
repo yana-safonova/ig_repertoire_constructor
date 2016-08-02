@@ -57,8 +57,8 @@ def search_for_CDR3(tree_file):
 			edges.append([src_num, dst_num, edge_type, src_depth, dst_depth])	
 			max_depth = max(max_depth, dst_depth)
 			'''
-			src_CDR3 = arr[11]
-			dst_CDR3 = arr[12]
+			src_CDR3 = arr[14]
+			dst_CDR3 = arr[15]
 
 			if hamming_distance(CDR3_to_find, src_CDR3) <= tau or hamming_distance(CDR3_to_find, dst_CDR3) <= tau:
 				found = True

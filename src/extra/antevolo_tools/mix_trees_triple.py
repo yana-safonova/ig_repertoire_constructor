@@ -7,10 +7,12 @@ from sys import argv
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument("-t", "--tree_old", help="input file with old clonal tree")
-parser.add_argument("-r", "--reads_old", help="input file with old reads")
-parser.add_argument("-T", "--tree_new", help="input file with new clonal tree")
-parser.add_argument("-R", "--reads_new", help="input file with new reads")
+parser.add_argument("--tree_1", help="input file with 1st clonal tree")
+parser.add_argument("--tree_2", help="input file with 2nd clonal tree")
+parser.add_argument("--tree_3", help="input file with 3rd clonal tree")
+parser.add_argument("--reads_1", help="input file with 1st day reads")
+parser.add_argument("--reads_2", help="input file with 2nd day reads")
+parser.add_argument("--reads_3", help="input file with 3rd day reads")
 parser.add_argument("-o", "--output", help="output dir")
 args = parser.parse_args()
 IGREC_DIR = '/'.join(argv[0].split('/')[:-1])+'/../../../'
@@ -20,9 +22,9 @@ def abundance_to_size(n):
 	coeff = 1
 	if n < 10: 
 		coeff = 0.8
-	elif n < 100:
+	elif n < 25:
 		coeff = 1.6
-	elif n < 1000:
+	elif n < 50:
 		coeff = 2.4
 	else:
 		coeff = 3.2
@@ -68,7 +70,7 @@ def compute_reads_anc_relations(tree, read, root, name_to_read, read_to_read_anc
 			read_to_read_anc_relations[root][child] = 'ancestor'
 		compute_reads_anc_relations(tree, child, root, name_to_read, read_to_read_anc_relations)
 			
-def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file):
+def draw_colored_tree(mixed_tree_file, output_dir, tree_file_1, tree_file_2, tree_file_3):
 	print "drawing "+mixed_tree_file
 	vertex_to_depths = {}
 	depth_to_vertices = {}
@@ -106,19 +108,35 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 			#	print read_to_read_anc_relations[name_to_read[src_name]], '\n\n\n'
 			
 			src_presented_in = src_name.split('|')[-1]
-			if src_presented_in == 'old':
+			if src_presented_in == '1':
 				src_color = 'red'
-			elif src_presented_in == 'new':
-				src_color = 'blue'
-			elif src_presented_in == 'both':
+			elif src_presented_in == '12':
 				src_color = 'orange'
+			elif src_presented_in == '2':
+				src_color = 'yellow'
+			elif src_presented_in == '23':
+				src_color = 'green'
+			elif src_presented_in == '3':
+				src_color = 'blue'
+			elif src_presented_in == '13':
+				src_color = 'violet'
+			elif src_presented_in == '123':
+				src_color = 'saddlebrown'
 			dst_presented_in = dst_name.split('|')[-1]
-			if dst_presented_in == 'old':
+			if dst_presented_in == '1':
 				dst_color = 'red'
-			elif dst_presented_in == 'new':
-				dst_color = 'blue'
-			elif dst_presented_in == 'both':
+			elif dst_presented_in == '12':
 				dst_color = 'orange'
+			elif dst_presented_in == '2':
+				dst_color = 'yellow'
+			elif dst_presented_in == '23':
+				dst_color = 'green'
+			elif dst_presented_in == '3':
+				dst_color = 'blue'
+			elif dst_presented_in == '13':
+				dst_color = 'violet'
+			elif dst_presented_in == '123':
+				dst_color = 'saddlebrown'
 
 
 			if src_productive:
@@ -147,7 +165,8 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 
 	fake_vertices = ['Depth_'+str(i) for i in xrange(max_depth+1)]
 
-	DOT_OUTPUT_FILE_NAME = output_dir+"/mixed_"+new_tree_file.split('/')[-1] + "__" + old_tree_file.split('/')[-1] + ".dot"
+	DOT_OUTPUT_FILE_NAME = output_dir+"/mixed_"+tree_file_1.split('/')[-1] + "__"\
+	+tree_file_2.split('/')[-1] + "__" + tree_file_3.split('/')[-1] + ".dot"
 	with open(DOT_OUTPUT_FILE_NAME, 'w') as otp:
 		otp.write("digraph "+'tree'+' {\n')
 		otp.write(''.join( ["\t{\n\t\tnode [shape=box]\n\t\t\n\t\t", ' -> '.join(fake_vertices), ";\n\t}\n\n"] ))
@@ -169,6 +188,8 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 		for edge in edges:
 			src_num, dst_num, edge_type, src_depth, dst_depth, synonymous = edge
 			if edge_type == "undirected" and src_depth == 0:
+				continue
+			if edge_type == "undirected" and src_depth == 1:
 				continue
 			if synonymous:
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=magenta];\n"]))
@@ -195,39 +216,51 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 		print "\tno clones presented in both datasets"
 		subprocess.call(['touch', DOT_OUTPUT_FILE_NAME+'.empty.pdf'])
 
-def mix_trees(old_reads_file, old_tree_file, new_reads_file, new_tree_file):
+def mix_trees(reads_file_1, tree_file_1, reads_file_2, tree_file_2, reads_file_3, tree_file_3):
 	
-	antevolo_res_dir = '/temp_antevolo_res_'+new_tree_file.split('/')[-1] + "__" + old_tree_file.split('/')[-1] + '/'
+	antevolo_res_dir = '/temp_antevolo_res_'+tree_file_1.split('/')[-1] + "__" + tree_file_2.split('/')[-1] + "__" \
+	+ tree_file_3.split('/')[-1] + '/'
 
-	old_name_to_read = compute_name_to_read_map(old_reads_file)
-	new_name_to_read = compute_name_to_read_map(new_reads_file)
-
+	name_to_read_1 = compute_name_to_read_map(reads_file_1)
+	name_to_read_2 = compute_name_to_read_map(reads_file_2)
+	name_to_read_3 = compute_name_to_read_map(reads_file_3)
 
 	reads = {}
-	old_names = set()
-	new_names = set()
-	with open(old_tree_file) as inp:
+	names_1 = set()
+	names_2 = set()
+	names_3 = set()
+	with open(tree_file_1) as inp:
 		inp.readline()
 		for st in inp:
 			arr = st.split()
-			old_names.add(arr[2])
-			old_names.add(arr[3])
-	with open(new_tree_file) as inp:
+			names_1.add(arr[2])
+			names_1.add(arr[3])
+	with open(tree_file_2) as inp:
 		inp.readline()
 		for st in inp:
 			arr = st.split()
-			new_names.add(arr[2])
-			new_names.add(arr[3])
+			names_2.add(arr[2])
+			names_2.add(arr[3])
+	with open(tree_file_3) as inp:
+		inp.readline()
+		for st in inp:
+			arr = st.split()
+			names_3.add(arr[2])
+			names_3.add(arr[3])
 
 
-	for name in old_names:
-		read = old_name_to_read[name]
-		reads.setdefault(read, {'old': '', 'new' : ''})
-		reads[read]['old'] = name
-	for name in new_names:
-		read = new_name_to_read[name]
-		reads.setdefault(read, {'old': '', 'new' : ''})
-		reads[read]['new'] = name
+	for name in names_1:
+		read = name_to_read_1[name]
+		reads.setdefault(read, {'1': '', '2' : '', '3' : ''})
+		reads[read]['1'] = name
+	for name in names_2:
+		read = name_to_read_2[name]
+		reads.setdefault(read, {'1': '', '2' : '', '3' : ''})
+		reads[read]['2'] = name
+	for name in names_3:
+		read = name_to_read_3[name]
+		reads.setdefault(read, {'1': '', '2' : '', '3' : ''})
+		reads[read]['3'] = name
 
 	# prepare the antevolo input
 	try :
@@ -235,30 +268,33 @@ def mix_trees(old_reads_file, old_tree_file, new_reads_file, new_tree_file):
 	except Exception:
 		subprocess.check_output(['rm', '-rf',  args.output+antevolo_res_dir])
 
-	both = 0
+	p11 = 0
 	old = 0
 	new = 0
 	with open(args.output+'/mixed_reads.fa', 'w') as otp_reads:
 		for read in reads:
-			if reads[read]['old'] == '' and reads[read]['new'] == '':
+			name = ''
+			if reads[read]['1'] != '':
+				name = reads[read]['1']
+			elif reads[read]['2'] != '':
+				name = reads[read]['2']
+			elif reads[read]['3'] != '':
+				name = reads[read]['3']
+			else:
 				raise Exception("Error: read is not presented in the datasets")
-			if reads[read]['old'] != '' and reads[read]['new'] == '':
-				name = ''.join(['>', reads[read]['old'], '|old', '\n'])
-				otp_reads.write(name)
-				otp_reads.write(read+'\n')
-				old += 1
-			if reads[read]['old'] == '' and reads[read]['new'] != '':
-				name = ''.join(['>', reads[read]['new'], '|new', '\n'])
-				otp_reads.write(name)
-				otp_reads.write(read+'\n')
-				new += 1
-			if reads[read]['old'] != '' and reads[read]['new'] != '':
-				name = ''.join(['>', reads[read]['old'], '|both', '\n'])
-				otp_reads.write(name)
-				otp_reads.write(read+'\n')
-				both += 1
 
-	print '\n\n\n', 'both: ', both, 'new: ', new, 'old: ', old, '\n\n\n'
+			days = []
+			if reads[read]['1'] != '':
+				days.append('1')
+			if reads[read]['2'] != '':
+				days.append('2')
+			if reads[read]['3'] != '':
+				days.append('3')
+				
+			new_name = ''.join(['>', name, '|', ''.join(days), '\n'])
+			otp_reads.write(new_name)
+			otp_reads.write(read+'\n')
+
 	subprocess.call([IGREC_DIR+'antevolo.py', 
 					 '-i', args.output+'/mixed_reads.fa',
 					 '-o', args.output+antevolo_res_dir,
@@ -271,7 +307,7 @@ def mix_trees(old_reads_file, old_tree_file, new_reads_file, new_tree_file):
 	subprocess.call(['rm', '-rf', args.output+antevolo_res_dir])
 	subprocess.call(['rm', args.output+'mixed_reads.fa'])
 
-	draw_colored_tree(args.output+'/'+mixed_trees[-1], args.output+'/', old_tree_file, new_tree_file)
+	draw_colored_tree(args.output+'/'+mixed_trees[-1], args.output+'/',  tree_file_1, tree_file_2, tree_file_3)
 	'''
 	old_tree = compute_tree(old_tree_file, old_name_to_read)
 	read_to_read_anc_relations = {}
@@ -312,7 +348,7 @@ def compare_reads_sets(old_reads_file, new_reads_file, old_tree_file, new_tree_f
 
 
 def main():
-	mix_trees(args.reads_old, args.tree_old, args.reads_new, args.tree_new)
+	mix_trees(args.reads_1, args.tree_1, args.reads_2, args.tree_2, args.reads_3, args.tree_3)
 
 if __name__ == "__main__":
 	main()
