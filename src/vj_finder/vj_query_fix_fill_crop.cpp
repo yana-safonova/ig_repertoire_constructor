@@ -40,7 +40,6 @@ namespace vj_finder {
             read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).LastMatchReadPos());
             read.seq += j_suffix;
         }
-        std::cout << read.seq << std::endl;
 //        if(params_.crop_right and vj_hits.GetJHitByIndex(0).End() < static_cast<int>(read.length())) {
 //            // no alignment editing in this case
 //            read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).End());
