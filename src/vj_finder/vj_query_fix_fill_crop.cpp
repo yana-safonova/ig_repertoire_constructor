@@ -33,18 +33,26 @@ namespace vj_finder {
         core::Read read = vj_hits.Read();
         TRACE("Right filling & cropping...");
         int right_shift = 0;
-        if(params_.crop_right and vj_hits.GetJHitByIndex(0).End() < static_cast<int>(read.length())) {
-            // no alignment editing in this case
-            read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).End());
-        }
-        else if(params_.fill_right and vj_hits.GetJHitByIndex(0).End() > static_cast<int>(read.length())) {
+        // tmp stub: aggressive fix of J gene
+        if(params_.crop_right) {
             auto j_gene = vj_hits.GetJHitByIndex(0).ImmuneGene();
-            auto j_suffix = seqan::suffix(j_gene.seq(),
-                                          j_gene.length() - (vj_hits.GetJHitByIndex(0).End() - read.length()));
+            auto j_suffix = seqan::suffix(j_gene.seq(), vj_hits.GetJHitByIndex(0).LastMatchGenePos());
+            read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).LastMatchReadPos());
             read.seq += j_suffix;
-            // extend end alignment of J gene and read by length of j_suffix
-            right_shift = int(seqan::length(j_suffix));
         }
+        std::cout << read.seq << std::endl;
+//        if(params_.crop_right and vj_hits.GetJHitByIndex(0).End() < static_cast<int>(read.length())) {
+//            // no alignment editing in this case
+//            read.seq = seqan::prefix(read.seq, vj_hits.GetJHitByIndex(0).End());
+//        }
+//        else if(params_.fill_right and vj_hits.GetJHitByIndex(0).End() > static_cast<int>(read.length())) {
+//            auto j_gene = vj_hits.GetJHitByIndex(0).ImmuneGene();
+//            auto j_suffix = seqan::suffix(j_gene.seq(),
+//                                          j_gene.length() - (vj_hits.GetJHitByIndex(0).End() - read.length()));
+//            read.seq += j_suffix;
+//            // extend end alignment of J gene and read by length of j_suffix
+//            right_shift = int(seqan::length(j_suffix));
+//        }
         TRACE("Left filling & cropping...");
         int left_shift = 0;
         if(params_.crop_left and vj_hits.GetVHitByIndex(0).Start() > 0)  {

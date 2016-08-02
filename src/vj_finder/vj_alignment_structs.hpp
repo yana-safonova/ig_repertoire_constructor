@@ -76,6 +76,14 @@ namespace vj_finder {
 
         int RightShift() const { return block_alignment_.path.right_shift(); }
 
+        size_t StartMatchReadPos() const { return block_alignment_.first_match_read_pos(); }
+
+        size_t LastMatchReadPos() const { return block_alignment_.last_match_read_pos(); }
+
+        size_t StartMatchGenePos() const { return block_alignment_.first_match_subject_pos(); }
+
+        size_t LastMatchGenePos() const { return block_alignment_.last_match_subject_pos(); }
+
         virtual void AddShift(int shift) {
             shift_ += shift;
             block_alignment_.add_read_shift(shift);
