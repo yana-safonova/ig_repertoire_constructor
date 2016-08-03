@@ -89,7 +89,7 @@ namespace vj_finder {
         ImmuneGeneAlignmentConverter alignment_converter;
         std::ofstream out(output_params_.output_files.valignments_filename);
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
-            auto vj_hits = alignment_info_.GetVJHitsByIndex(0);
+            auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
             auto v_hit = vj_hits.GetVHitByIndex(0);
             auto v_alignment = alignment_converter.ConvertToAlignment(v_hit.ImmuneGene(), vj_hits.Read(),
                                                                       v_hit.BlockAlignment());
