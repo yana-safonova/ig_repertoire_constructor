@@ -3,6 +3,7 @@
 #include "vj_query_aligner.hpp"
 #include "vj_alignment_structs.hpp"
 #include "vj_finder_config.hpp"
+#include "vj_query_fix_fill_crop.hpp"
 
 namespace vj_finder {
     class VJQueryProcessor {
@@ -12,6 +13,8 @@ namespace vj_finder {
         const germline_utils::CustomGeneDatabase &j_db_;
 
         ProcessedVJHits ComputeFilteringResults(VJHits vj_hits);
+
+        std::shared_ptr<BaseFillFixCropProcessor> GetFillFixCropProcessor();
 
     public:
         VJQueryProcessor(const VJFinderConfig::AlgorithmParams &params,

@@ -77,6 +77,8 @@ namespace vj_finder {
             };
 
             struct FixCropFillParams {
+                enum FixCropFillAlgorithm { UnknowmFCFAlgorithm, AggressiveFCFAlgorithm };
+
                 bool enable_fixing;
                 size_t fix_left;
                 size_t fix_right;
@@ -86,6 +88,7 @@ namespace vj_finder {
                 bool enable_cropping;
                 bool crop_left;
                 bool crop_right;
+                FixCropFillAlgorithm fcf_algorithm;
             };
 
             struct ScoringParams {

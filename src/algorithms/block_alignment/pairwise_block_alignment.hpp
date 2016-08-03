@@ -79,6 +79,14 @@ namespace algorithms {
         }
 
         void add_read_shift(int read_shift) { this->read_shift += read_shift; }
+
+        void extend_first_match(int left_shift) {
+            VERIFY(false);
+        }
+
+        void extend_last_match(int right_shift) {
+            VERIFY(false);
+        }
     };
 
     template<typename SubjectDatabase>

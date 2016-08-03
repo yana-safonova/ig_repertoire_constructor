@@ -3,6 +3,12 @@
 #include "vj_query_fix_fill_crop.hpp"
 
 namespace vj_finder {
+    std::shared_ptr<BaseFillFixCropProcessor> VJQueryProcessor::GetFillFixCropProcessor() {
+        return std::shared_ptr<BaseFillFixCropProcessor>(
+                new AggressiveFillFixCropProcessor(params_.fix_crop_fill_params,
+                                                   read_archive_));
+    }
+
     ProcessedVJHits VJQueryProcessor::ComputeFilteringResults(VJHits vj_hits) {
         bool read_to_be_filtered = false;
         if(params_.filtering_params.enable_filtering) {
@@ -23,7 +29,7 @@ namespace vj_finder {
         if(!hits_after_fitering) {
             return hits_after_fitering;
         }
-        FillFixCropProcessor fix_processor(params_.fix_crop_fill_params, read_archive_);
-        return ProcessedVJHits(fix_processor.Process(*hits_after_fitering));
+        auto fix_fill_crop_processor = GetFillFixCropProcessor();
+        return ProcessedVJHits(fix_fill_crop_processor->Process(*hits_after_fitering));
     }
 }

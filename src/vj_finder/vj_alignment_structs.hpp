@@ -72,14 +72,28 @@ namespace vj_finder {
 
         bool Empty() const { return read_ptr_ == NULL or immune_gene_ptr_ == NULL; }
 
-        int LeftShift() const { return block_alignment_.path.left_shift(); }
+        //int LeftShift() const { return block_alignment_.path.left_shift(); }
 
-        int RightShift() const { return block_alignment_.path.right_shift(); }
+        //int RightShift() const { return block_alignment_.path.right_shift(); }
+
+
+        size_t FirstMatchReadPos() const { return block_alignment_.first_match_read_pos(); }
+
+        size_t FirstMatchGenePos() const { return block_alignment_.first_match_subject_pos(); }
+
+        size_t LastMatchReadPos() const { return block_alignment_.last_match_read_pos(); }
+
+        size_t LastMatchGenePos() const { return block_alignment_.last_match_subject_pos(); }
+
 
         virtual void AddShift(int shift) {
             shift_ += shift;
             block_alignment_.add_read_shift(shift);
         }
+
+        virtual void ExtendFirstMatch(int left_shift) { VERIFY(false); }
+
+        virtual void ExtendLastMatch(int right_shift) { VERIFY(false); }
     };
 
     class VGeneHit : public ImmuneGeneHit {

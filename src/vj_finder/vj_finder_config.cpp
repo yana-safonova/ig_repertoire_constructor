@@ -103,6 +103,13 @@ namespace vj_finder {
         load(fp.min_aligned_length, pt, "min_aligned_length");
     }
 
+    VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm get_fcf_algorithm(std::string str) {
+        if(str == "aggressive_fcf")
+            return VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm::AggressiveFCFAlgorithm;
+        VERIFY_MSG(false, "FCF algorithm was not recognized");
+        return VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm::UnknowmFCFAlgorithm;
+    }
+
     void load(VJFinderConfig::AlgorithmParams::FixCropFillParams &fxp, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(fxp.enable_fixing, pt, "enable_fixing");
@@ -114,6 +121,9 @@ namespace vj_finder {
         load(fxp.crop_right, pt, "crop_right");
         load(fxp.fill_left, pt, "fill_left");
         load(fxp.fill_right, pt, "fill_right");
+        std::string tmp;
+        load(tmp, pt, "fcf_algorithm");
+        fxp.fcf_algorithm = get_fcf_algorithm(tmp);
     }
 
     void load(VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams &vs,
