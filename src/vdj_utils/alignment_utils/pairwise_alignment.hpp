@@ -58,6 +58,7 @@ namespace alignment_utils {
         void ComputeAlignmentStats() {
             auto& subject_row = seqan::row(alignment_, 0);
             auto& query_row = seqan::row(alignment_, 1);
+            // std::cout << length(subject_row) << " " << length(query_row) << std::endl;
             assert(length(subject_row) == length(query_row));
             for(size_t i = 0; i < length(subject_row); i++) {
                 // std::cout << i << " " << length(subject_row) << " " << length(query_row) << std::endl;

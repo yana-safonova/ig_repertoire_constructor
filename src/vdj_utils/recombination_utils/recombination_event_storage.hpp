@@ -14,8 +14,8 @@ class IgGeneRecombinationEventStorage {
     size_t min_left_position_;
     size_t max_left_position_;
 
-    // storage consider that events are added in the order of left event length decreasing:
-    // from the maximal cleavage to maximal palindrome
+    // storage considers that the events are added in an order of left event length decreasing:
+    // from the maximal cleavage to the maximal palindrome
     bool CheckConsistency(const CleavedIgGeneAlignment &new_gene_event);
 
 public:
@@ -36,7 +36,7 @@ public:
     IgGeneRecombinationEventStorage& operator=(const IgGeneRecombinationEventStorage&) = default;
     IgGeneRecombinationEventStorage& operator=(IgGeneRecombinationEventStorage&&) = default;
 
-    void AddEvent(CleavedIgGeneAlignment new_gene_event);
+    void AddEvent(const CleavedIgGeneAlignment &new_gene_event);
 
     typedef std::vector<CleavedIgGeneAlignment>::iterator gene_segment_event_iterator;
     typedef std::vector<CleavedIgGeneAlignment>::const_iterator gene_segment_event_const_iterator;

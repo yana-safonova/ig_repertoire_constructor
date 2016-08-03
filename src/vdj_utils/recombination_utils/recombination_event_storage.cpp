@@ -8,12 +8,15 @@ bool IgGeneRecombinationEventStorage::CheckConsistency(const CleavedIgGeneAlignm
         size_t last_left_position = recombination_events_[recombination_events_.size() - 1].StartReadPosition();
         assert(last_left_position <= new_gene_event.StartReadPosition());
     }
-    return new_gene_event.GeneAlignment().Subject().GeneType().Segment() == segment_type_;
+    if (new_gene_event.GeneAlignment().SubjectPtr() != nullptr) {
+        return new_gene_event.GeneAlignment().Subject().GeneType().Segment() == segment_type_;
+    }
+    return true;
 }
 
-void IgGeneRecombinationEventStorage::AddEvent(CleavedIgGeneAlignment new_gene_event) {
+void IgGeneRecombinationEventStorage::AddEvent(const CleavedIgGeneAlignment &new_gene_event) {
     if(CheckConsistency(new_gene_event))
-        recombination_events_.emplace_back(std::move(new_gene_event));
+        recombination_events_.emplace_back(new_gene_event);
     size_t left_position = new_gene_event.StartReadPosition();
     if(left_position_map_.find(left_position) == left_position_map_.end())
         left_position_map_[left_position] = Range(recombination_events_.size() - 1, size_t(-1));

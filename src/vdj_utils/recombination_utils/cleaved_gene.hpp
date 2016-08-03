@@ -78,11 +78,14 @@ public:
 
     size_t StartReadPosition() const {
         assert(gene_alignment_ptr_ != nullptr);
-        return size_t(int(gene_alignment_ptr_->StartQueryPosition()) + left_cleavage_length_);
+        return size_t(int(gene_alignment_ptr_->StartQueryPosition()) + gene_alignment_ptr_->StartSubjectPosition() * -1
+                          + left_cleavage_length_);
     }
 
     size_t EndReadPosition() const {
         assert(gene_alignment_ptr_ != nullptr);
+        // TODO Andrey. Correct this method. Now it double time substracts cleavage gained through alignment
+        // StartReadPosition above is corrected but needs testing.
         return size_t(int(gene_alignment_ptr_->EndQueryPosition()) + right_cleavage_length_ * -1);
     }
 

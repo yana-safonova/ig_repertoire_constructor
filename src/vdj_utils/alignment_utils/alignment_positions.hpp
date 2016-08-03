@@ -27,9 +27,19 @@ struct AlignmentPositions {
     AlignmentPositions& operator=(const AlignmentPositions&) = default;
     AlignmentPositions& operator=(AlignmentPositions&&) = default;
 
-    size_t QueryAlignmentLength() const { return query_pos.second - query_pos.first + 1; }
+    size_t QueryAlignmentLength() const {
+        if (query_pos.second >= query_pos.first) {
+            return query_pos.second - query_pos.first + 1;
+        }
+        return 0;
+    }
 
-    size_t SubjectAlignmentLength() const { return subject_pos.second - subject_pos.first + 1; }
+    size_t SubjectAlignmentLength() const {
+        if (subject_pos.second >= subject_pos.first) {
+            return subject_pos.second - subject_pos.first + 1;
+        }
+        return 0;
+    }
 };
 
 std::ostream &operator<<(std::ostream &out, const AlignmentPositions &obj);
