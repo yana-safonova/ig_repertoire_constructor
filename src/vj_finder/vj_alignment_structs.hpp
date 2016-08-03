@@ -50,6 +50,7 @@ namespace vj_finder {
             return *immune_gene_ptr_;
         }
 
+
         germline_utils::ChainType Chain()  const {
             VERIFY(!Empty());
             return immune_gene_ptr_->Chain();

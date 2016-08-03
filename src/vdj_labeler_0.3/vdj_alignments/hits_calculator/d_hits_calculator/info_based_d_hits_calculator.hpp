@@ -8,20 +8,18 @@
 #include "vdj_alignments/vdj_hits.hpp"
 #include "abstract_d_gene_hits_calculator.hpp"
 #include "vdj_alignments/vdj_hits_storage.hpp"
-#include "vdj_alignments/hits_calculator/d_alignment_positions_checkers/info_based_d_alignment_position_checker.hpp"
+#include "vdj_alignments/hits_calculator/d_alignment_positions_checkers/abstract_d_alignment_position_checker.hpp"
+#include "vdj_alignments/hits_calculator/d_alignment_positions_calculator/abstract_d_alignment_positions_calculator.hpp"
 
 namespace vdj_labeler {
 
 class InfoBasedDHitsCalculator : public AbstractDGeneHitsCalculator {
 protected:
     GeneSegmentAligner &d_gene_aligner_;
-    InfoBasedDAlignmentPositionChecker &d_alignment_position_checker_;
+    AbstractDAlignmentPositionChecker &d_alignment_position_checker_;
+    AbstractDAlignmentPositionsCalculator &d_alignment_positions_calculator_;
 
 protected:
-    // TODO Andrey: maybe put this method in different class
-    alignment_utils::AlignmentPositions ComputeDPositions(const ImmuneGeneSegmentHits &v_hits,
-                                                          const ImmuneGeneSegmentHits &j_hits) const;
-
     alignment_utils::ImmuneGeneAlignmentPositions CreateDAlignmentPositions(
         alignment_utils::AlignmentPositions d_alignment_positions,
         const germline_utils::ImmuneGene* gene_ptr,
@@ -31,15 +29,17 @@ public:
     InfoBasedDHitsCalculator(const germline_utils::ImmuneGeneDatabase &d_gene_database,
                              GeneSegmentAligner &d_gene_aligner,
                              AlignmentQualityChecker &quality_checker,
-                             InfoBasedDAlignmentPositionChecker &d_alignment_position_checker) :
+                             AbstractDAlignmentPositionChecker &d_alignment_position_checker,
+                             AbstractDAlignmentPositionsCalculator &d_alignment_position_calculator) :
         AbstractDGeneHitsCalculator(d_gene_database, quality_checker),
         d_gene_aligner_(d_gene_aligner),
-        d_alignment_position_checker_(d_alignment_position_checker)
+        d_alignment_position_checker_(d_alignment_position_checker),
+        d_alignment_positions_calculator_(d_alignment_position_calculator)
     { }
 
     virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
-                                               const ImmuneGeneSegmentHits &v_hits,
-                                               const ImmuneGeneSegmentHits &j_hits) const override;
+                                               const std::vector<vj_finder::VGeneHit> &v_hits,
+                                               const std::vector<vj_finder::JGeneHit> &j_hits) const override;
 };
 
 } // End namespace vdj_labeler

@@ -12,7 +12,7 @@ public:
         normalized_score_threshold_(normalized_score_threshold) { }
 
     bool AlignmentIsGood(const alignment_utils::ImmuneGeneReadAlignment &ig_gene_alignment) const override {
-        return ig_gene_alignment->NormalizedScore() >= normalized_score_threshold_;
+        return ig_gene_alignment.NormalizedScore() >= normalized_score_threshold_;
     }
 };
 

@@ -24,20 +24,21 @@ void CustomHeavyChainRecombinationGenerator::ComputeVEventStorages(const VDJHits
 }
 
 void CustomHeavyChainRecombinationGenerator::ComputeDEventStorages(const VDJHits &vdj_hits) {
-    TRACE("Computation of events vector for D hits starts...");
+    INFO("Computation of events vector for D hits starts...");
     size_t d_events_num = 0;
     for(size_t di = 0; di < vdj_hits.DHitsNumber(); di++) {
+        INFO("D hit #" << di << "/" << vdj_hits.DHitsNumber());
         auto &d_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, di);
         auto d_events = d_events_generator_.ComputeEvents(d_alignment);
         d_events_num += d_events.size();
         d_storages_.emplace_back(std::move(d_events));
     }
-    TRACE(d_events_num << " events were computed for " << vdj_hits.DHitsNumber() << " D hits");
+    INFO(d_events_num << " events were computed for " << vdj_hits.DHitsNumber() << " D hits");
     if(d_events_num == 0) {
         assert(vdj_hits.DHitsNumber() == 1);
         d_storages_[0].AddEvent(recombination_utils::CleavedIgGeneAlignment(
                 vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, 0), 0, 0, 0, 0));
-        TRACE("Himeric event was added to D event storage");
+        INFO("Himeric event was added to D event storage");
     }
 }
 
@@ -45,11 +46,8 @@ void CustomHeavyChainRecombinationGenerator::ComputeJEventStorages(const VDJHits
     size_t j_events_num = 0;
     TRACE("Computation of events vector for J segments starts...");
     for(size_t ji = 0; ji < vdj_hits.JHitsNumber(); ji++) {
-        TRACE(ji);
         auto &j_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, ji);
-        TRACE(ji);
         auto j_events = j_events_generator_.ComputeEvents(j_alignment);
-        TRACE(ji);
         j_storages_.emplace_back(std::move(j_events));
         j_events_num += j_events.size();
     }
@@ -114,9 +112,9 @@ void CustomHeavyChainRecombinationGenerator::CreateRecombinations(
             TRACE("J range: " << j_range.first << " - " << j_range.second);
             for(size_t ji = j_range.first; ji <= j_range.second; ji++) {
                 auto dj_insertions = dj_insertion_generator_.ComputeInsertionEvents(d_events[di], j_events[ji]);
-                CreateRecombinations(recombination_storage,
-                                     *vit, d_events[di], j_events[ji],
-                                     vd_insertions, dj_insertions);
+                // CreateRecombinations(recombination_storage,
+                //                      *vit, d_events[di], j_events[ji],
+                //                      vd_insertions, dj_insertions);
             }
         }
     }
@@ -131,18 +129,25 @@ recombination_utils::HcRecombinationStorage CustomHeavyChainRecombinationGenerat
     ComputeVEventStorages(vdj_hits);
     ComputeDEventStorages(vdj_hits);
     ComputeJEventStorages(vdj_hits);
+
+    // for (const auto& j_ejents: j_storages_) {
+    //     for (const auto& j_ejent: j_ejents) {
+    //         INFO(j_ejent);
+    //     }
+    // }
+
     for(size_t vi = 0; vi < vdj_hits.VHitsNumber(); vi++) {
-        // auto &v_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::VariableSegment, vi);
+        auto &v_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::VariableSegment, vi);
         const recombination_utils::IgGeneRecombinationEventStorage &v_events = v_storages_[vi];
         for(size_t di = 0; di < vdj_hits.DHitsNumber(); di++) {
-            // auto &d_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, di);
+            auto &d_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::DiversitySegment, di);
             const recombination_utils::IgGeneRecombinationEventStorage &d_events = d_storages_[di];
             for(size_t ji = 0; ji < vdj_hits.JHitsNumber(); ji++) {
-                // auto &j_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, ji);
+                auto &j_alignment = vdj_hits.GetAlignmentByIndex(germline_utils::SegmentType::JoinSegment, ji);
                 const recombination_utils::IgGeneRecombinationEventStorage &j_events = j_storages_[ji];
-                // std::cout << "V. " << v_alignment.Alignment() << std::endl;
-                // std::cout << "D. " << d_alignment.Alignment() << std::endl;
-                // std::cout << "J. " << j_alignment.Alignment() << std::endl;
+                std::cout << "V. " << vi << "/" << vdj_hits.VHitsNumber() << "\n" << v_alignment.Alignment() << std::endl;
+                std::cout << "D. " << di << "/" << vdj_hits.DHitsNumber() << "\n" << d_alignment.Alignment() << std::endl;
+                std::cout << "J. " << ji << "/" << vdj_hits.JHitsNumber() << "\n" << j_alignment.Alignment() << std::endl;
                 CreateRecombinations(recombination_storage, v_events, d_events, j_events);
             }
         }

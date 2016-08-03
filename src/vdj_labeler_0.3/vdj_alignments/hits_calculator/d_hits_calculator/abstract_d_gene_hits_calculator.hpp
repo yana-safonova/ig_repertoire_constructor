@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vdj_alignments/hits_calculator/alignment_quality_checkers/alignment_quality_checker.hpp"
-#include "vdj_alignments/vdj_hits.hpp"
+#include "vj_alignment_structs.hpp"
 
 namespace vdj_labeler {
 
@@ -28,8 +28,8 @@ public:
     { }
 
     virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
-                                               const ImmuneGeneSegmentHits &v_hits,
-                                               const ImmuneGeneSegmentHits &j_hits) const = 0;
+                                               const std::vector<vj_finder::VGeneHit> &v_hits,
+                                               const std::vector<vj_finder::JGeneHit> &j_hits) const = 0;
 
     virtual ~AbstractDGeneHitsCalculator() { }
 };

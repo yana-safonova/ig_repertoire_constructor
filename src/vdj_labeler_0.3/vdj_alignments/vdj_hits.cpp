@@ -23,14 +23,16 @@ ImmuneGeneSegmentHits::ImmuneGeneSegmentHits(const germline_utils::SegmentType &
     ImmuneGeneSegmentHits(segment_type, read_ptr)
 {
     vj_finder::ImmuneGeneAlignmentConverter converter;
+    assert(read_ptr != nullptr);
     for (const auto& hit : hits) {
-        assert(read_ptr != nullptr);
         hits_.emplace_back(converter.ConvertToAlignment(hit.ImmuneGene(), hit.Read(), hit.BlockAlignment()));
     }
 }
 
 void ImmuneGeneSegmentHits::AddHit(alignment_utils::ImmuneGeneReadAlignment hit) {
-    assert(hit.Subject().GeneType().Segment() == segment_type_);
+    if (hit.SubjectPtr() != nullptr) {
+        assert(hit.Subject().GeneType().Segment() == segment_type_);
+    }
     hits_.emplace_back(std::move(hit));
 }
 
@@ -51,8 +53,8 @@ VGeneHits::VGeneHits(const germline_utils::SegmentType &segment_type,
     VGeneHits(segment_type, read_ptr)
 {
     vj_finder::ImmuneGeneAlignmentConverter converter;
+    assert(read_ptr != nullptr);
     for (const auto& hit : hits) {
-        assert(read_ptr != nullptr);
         hits_.emplace_back(converter.ConvertToAlignment(hit.ImmuneGene(), hit.Read(), hit.BlockAlignment()));
     }
 }
@@ -65,8 +67,8 @@ JGeneHits::JGeneHits(const germline_utils::SegmentType &segment_type,
     JGeneHits(segment_type, read_ptr)
 {
     vj_finder::ImmuneGeneAlignmentConverter converter;
+    assert(read_ptr != nullptr);
     for (const auto& hit : hits) {
-        assert(read_ptr != nullptr);
         hits_.emplace_back(converter.ConvertToAlignment(hit.ImmuneGene(), hit.Read(), hit.BlockAlignment()));
     }
 }
@@ -95,11 +97,9 @@ VDJHits::VDJHits(const core::Read* read_ptr,
                  AbstractDGeneHitsCalculator &d_gene_calculator) :
         read_ptr_(read_ptr),
         v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr, v_hits),
-        d_hits_(germline_utils::SegmentType::DiversitySegment, read_ptr),
+        d_hits_(d_gene_calculator.ComputeDHits(read_ptr, v_hits, j_hits)),
         j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
-{
-    d_hits_ = d_gene_calculator.ComputeDHits(read_ptr, v_hits_, j_hits_);
-}
+{ }
 
 VDJHits::VDJHits(const vj_finder::VJHits &vj_hits):
     VDJHits(&(vj_hits.Read()),

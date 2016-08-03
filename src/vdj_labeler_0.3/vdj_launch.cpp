@@ -12,8 +12,11 @@
 #include <germline_utils/chain_type.hpp>
 #include <recombination_calculator/hc_model_based_recombination_calculator.hpp>
 #include <recombination_utils/recombination_storage.hpp>
+#include <vdj_alignments/hits_calculator/d_alignment_positions_checkers/info_based_d_alignment_position_checker.hpp>
+#include <vdj_alignments/hits_calculator/d_alignment_positions_calculator/custom_d_alignment_positions_calculator.hpp>
 #include <vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.hpp>
 #include <vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.hpp>
+#include <vdj_alignments/hits_calculator/alignment_quality_checkers/threshold_alignment_estimator.hpp>
 #include <recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.hpp>
 #include <recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.hpp>
 #include <recombination_generation/gene_events_generators/shms_calculators/versatile_shms_calculator.hpp>
@@ -140,20 +143,19 @@ void VDJLabelerLaunch::Launch() {
     // }
 
     SimpleDAligner d_aligner;
-    MatchThresholdAlignmentQualityChecker quality_checker;
+    MatchThresholdAlignmentQualityChecker quality_checker(5);
+    // ThresholdAlignmentQualityChecker quality_checker(1);
     InfoBasedDAlignmentPositionChecker position_checker(config_.d_align_quality_params);
+    CustomDAlignmentPositionsCalculator positions_calculator;
     InfoBasedDHitsCalculator calculator(
         d_db.GetConstDbByGeneType(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment)),
-        d_aligner, quality_checker, position_checker);
+        d_aligner, quality_checker, position_checker, positions_calculator);
 
     VDJHitsStorage vdj_storage (alignment_info);
     VDJHitsStorage vdj_storage2(alignment_info, calculator);
 
     //TestRecombinationCalculator(read_archive, vdj_storage2);
 
-    INFO(vdj_storage2[0].VHits().size());
-    INFO(vdj_storage2[0].DHits().size());
-    INFO(vdj_storage2[0].JHits().size());
 
     size_t max_cleavage = 20;
     size_t max_palindrome = 7;
@@ -172,10 +174,14 @@ void VDJLabelerLaunch::Launch() {
     HcRecombinationEstimator recombination_estimator;
     INFO("Generator of VDJ recombinations starts");
     for(auto it = vdj_storage2.cbegin(); it != vdj_storage2.cend(); it++) {
+        INFO(it->Read().name);
+        INFO(it->VHits().size());
+        INFO(it->DHits().size());
+        INFO(it->JHits().size());
+        INFO("");
         auto recombination_storage = recombination_generator.ComputeRecombinations(*it);
-        recombination_estimator.Update(recombination_storage);
+        // recombination_estimator.Update(recombination_storage);
     }
-    recombination_storage.
     INFO("Generator of VDJ recombinations ends");
     recombination_estimator.OutputRecombinationNumber();
     recombination_estimator.OutputSHMsDistribution();
