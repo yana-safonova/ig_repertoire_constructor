@@ -68,6 +68,8 @@ make_test(test_vdj_labeler
          ../vdj_labeler_0.3/vdj_alignments/aligners/simple_d_aligner.cpp
          ../vdj_labeler_0.3/vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
          ../vdj_labeler_0.3/vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.cpp
+         ../vdj_labeler_0.3/vdj_alignments/hits_calculator/d_alignment_positions_calculator/custom_d_alignment_positions_calculator.cpp
+         ../vdj_labeler_0.3/vdj_alignments/hits_calculator/d_alignment_positions_checkers/info_based_d_alignment_position_checker.hpp
          ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/left_event_shms_calculator.cpp
          ../vdj_labeler_0.3/recombination_generation/gene_events_generators/shms_calculators/right_event_shms_calculator.cpp
          )

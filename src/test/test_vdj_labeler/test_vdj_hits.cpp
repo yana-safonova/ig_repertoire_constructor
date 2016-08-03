@@ -14,6 +14,8 @@
 #include <vdj_alignments/aligners/simple_d_aligner.hpp>
 #include <vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.hpp>
 #include <vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.hpp>
+#include <vdj_alignments/hits_calculator/d_alignment_positions_calculator/custom_d_alignment_positions_calculator.hpp>
+#include <vdj_alignments/hits_calculator/d_alignment_positions_checkers/info_based_d_alignment_position_checker.hpp>
 
 using namespace vdj_labeler;
 // using namespace recombination_utils;
@@ -71,9 +73,10 @@ TEST_F(VDJHitsTest, VJDJHitsStorageTest) {
     SimpleDAligner d_aligner;
     MatchThresholdAlignmentQualityChecker quality_checker;
     InfoBasedDAlignmentPositionChecker position_checker(config.d_align_quality_params);
+    CustomDAlignmentPositionsCalculator positions_calculator;
     InfoBasedDHitsCalculator calculator(
         d_db.GetConstDbByGeneType(ImmuneGeneType(ChainType("IGH"), SegmentType::DiversitySegment)),
-        d_aligner, quality_checker, position_checker);
+        d_aligner, quality_checker, position_checker, positions_calculator);
 
     VDJHitsStorage vdj_storage (alignment_info);
     VDJHitsStorage vdj_storage2(alignment_info, calculator);
