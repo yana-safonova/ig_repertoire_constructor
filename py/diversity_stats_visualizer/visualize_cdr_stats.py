@@ -18,6 +18,7 @@ from Bio.Seq import Seq
 def visualize_region_lengths(labeling_df, region, region_name, output_fname, log):
     region_seq = list(labeling_df[region])
     region_len = [len(s) for s in region_seq if len(s) > 1]
+    f, ax = plt.subplots(figsize=(8, 8))
     sns.distplot(region_len, kde = False, rug=False)
     plt.xlabel(region_name + ' length', fontsize = 16)
     plt.ylabel('# ' + region_name + 's', fontsize = 16)
@@ -39,17 +40,24 @@ def visualize_length_abundance_dist(labeling_df, region, region_name, output_fna
         if seq not in region_dict:
             region_dict[seq] = 0
         region_dict[seq] += 1
-    abun = []
-    lens = []
+    abun = [] #np.array()
+    lens = [] #np.array()
     for seq in region_dict:
+        if region_dict[seq]  == 1:
+            continue
         abun.append(region_dict[seq])
         lens.append(len(seq))
-    sns.jointplot(abun, lens, kind="hex")
-    plt.xlabel(region_name + ' abundance', fontsize = 16)
-    plt.ylabel(region_name + ' length', fontsize = 16)
-    plt.xticks(fontsize = 14)
-    plt.yticks(fontsize = 14)
-    plt.xlim(0, 100)
+    abun = np.asarray(abun)
+    lens = np.asarray(lens)
+    f, ax = plt.subplots()
+    sns.jointplot(abun, lens, size = 6)
+    #plt.xlabel(region_name + ' abundance', fontsize = 14)
+    #ax.xaxis.set_label_position('top')
+    #plt.ylabel(region_name + ' length', fontsize = 14)
+    #plt.xticks(fontsize = 14)
+    #plt.yticks(fontsize = 14)
+    #plt.xlim(-1, abun.max() + 1)
+    #plt.ylim(-1, lens.max() + 1)
     pp = PdfPages(output_fname + ".pdf")
     pp.savefig()
     plt.savefig(output_fname + ".png")
@@ -188,8 +196,8 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir, log):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
                              os.path.join(output_dir, locus_name + "_" + region_name + "_length"), log)
-    visualize_length_abundance_dist(locus_df, column_name, locus_name + " " + region_name,
-                            os.path.join(output_dir, locus_name + "_" + region_name + "_abundance_length"), log)
+    #visualize_length_abundance_dist(locus_df, column_name, locus_name + " " + region_name,
+    #                        os.path.join(output_dir, locus_name + "_" + region_name + "_abundance_length"), log)
     visualize_largest_region_nucls(locus_df, column_name, locus_name + " " + region_name,
                              os.path.join(output_dir, locus_name + "_" + region_name + "_nucls"), log)
     visualize_largest_group_aa_variability(locus_df, column_name, locus_name + " " + region_name,
@@ -225,5 +233,5 @@ if __name__ == "__main__":
         print "Invalid input parameters"
         print "python visualize_cdr_stats.py cdr_details.txt output_dir logger"
         sys.exit(1)
-    log = utils.get_logger_by_arg(sys.argv[3])
+    log = utils.get_logger_by_arg(sys.argv[3], "cdr_visualization")
     main(sys.argv[1], sys.argv[2], log)
