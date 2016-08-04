@@ -89,6 +89,8 @@ namespace annotation_utils {
         const germline_utils::ImmuneGene& VGene() const { return v_alignment_.subject(); }
 
         const germline_utils::ImmuneGene& JGene() const { return j_alignment_.subject(); }
+
+        size_t ORF() const { return aa_annotation_.ORF(); }
     };
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj);
