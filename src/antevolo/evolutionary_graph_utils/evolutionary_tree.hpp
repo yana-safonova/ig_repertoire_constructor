@@ -11,7 +11,9 @@ namespace antevolo {
     class EvolutionaryTree {
         boost::unordered_map<size_t, EvolutionaryEdge> edges_;
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
+        boost::unordered_map<size_t, bool> passed_flag_;
         boost::unordered_map<size_t, EvolutionaryEdge> undirected_components_edges_;
+        boost::unordered_set<size_t> vertices_;
 
     public:
         void AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model);
@@ -68,9 +70,10 @@ namespace antevolo {
         void WriteInFile(std::string output_fname);
         void WriteInFileWithCDR3s(std::string output_fname);
 
-
+        void WriteVerticesInFile(std::string output_fname, const annotation_utils::CDRAnnotatedCloneSet& clone_set);
 
         size_t NumEdges() const { return edges_.size(); }
+        size_t NumVertives() const { return passed_flag_.size(); }
 
         size_t UndirectedGraphSize() const {
             size_t res = 0;
@@ -80,6 +83,12 @@ namespace antevolo {
             return res;
         }
 
+        void SetFlag(bool b, size_t clone_num) {
+            passed_flag_[clone_num] = b;
+        }
+        bool GetFlag(size_t clone_num) {
+            return passed_flag_[clone_num];
+        }
         std::string clone_to_string(const annotation_utils::AnnotatedClone& clone) {
             std::stringstream ss;
             size_t start_pos = clone.GetRangeByRegion(

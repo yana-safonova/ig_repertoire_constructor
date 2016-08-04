@@ -12,6 +12,7 @@ namespace antevolo {
     void update_paths(AntEvoloConfig::OutputParams &output_params) {
         output_params.cdr_graph_dir = path::append_path(output_params.output_dir, output_params.cdr_graph_dir);
         output_params.tree_dir = path::append_path(output_params.output_dir, output_params.tree_dir);
+        output_params.vertex_dir = path::append_path(output_params.output_dir, output_params.vertex_dir);
         output_params.trash_output = path::append_path(output_params.output_dir, output_params.trash_output);
     }
 
@@ -21,6 +22,7 @@ namespace antevolo {
         load(output_params.cdr_graph_dir, pt, "cdr_graph_dir");
         load(output_params.trash_output, pt, "trash_output");
         load(output_params.tree_dir, pt, "tree_dir");
+        load(output_params.vertex_dir, pt, "vertex_dir");
         update_paths(output_params);
     }
 
@@ -52,7 +54,7 @@ namespace antevolo {
         load(output_params, pt, "output_params");
         load(algorithm_params, pt, "algorithm_params");
         cdr_labeler_config.load(input_params.cdr_labeler_config_fname);
-        cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IGH";
+        cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IG";
         cdr_labeler_config.shm_params.shm_finding_algorithm =
                 cdr_labeler::CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm;
     }

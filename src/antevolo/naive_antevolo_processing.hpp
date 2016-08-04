@@ -8,7 +8,8 @@ namespace antevolo {
         const AntEvoloConfig& config_;
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
 
-        std::string GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t tree_size);
+        std::string GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
+        std::string GetTreeClonesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
 
     public:
         NaiveAntEvoloProcessing(const AntEvoloConfig& config,

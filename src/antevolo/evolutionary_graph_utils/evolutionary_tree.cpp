@@ -55,12 +55,15 @@ namespace antevolo {
     }
 
     void EvolutionaryTree::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num) {
-        if (undirected_graph_.find(root_num) != undirected_graph_.end()) {
+        if (undirected_graph_.find(root_num) != undirected_graph_.end() && !GetFlag(root_num)) {
+            SetFlag(true, root_num);
             for (size_t u : undirected_graph_[root_num]) {
-                undirected_graph_[root_num].erase(u);
-                undirected_graph_[u].erase(root_num);
-                edge_vector.push_back(std::make_pair(root_num, u));
-                PrepareSubtree(edge_vector, u);
+                //undirected_graph_[root_num].erase(u);
+                //undirected_graph_[u].erase(root_num);
+                if (!GetFlag(u)) {
+                    edge_vector.push_back(std::make_pair(root_num, u));
+                    PrepareSubtree(edge_vector, u);
+                }
             }
         }
     }
@@ -83,10 +86,10 @@ namespace antevolo {
                                                  EvolutionaryEdgeConstructor* edge_constructor) {
         boost::unordered_set<size_t> vertices_set;
         PrepareSubtreeVertices(vertices_set, root_vertex);
-        for (size_t v : vertices_set) {
+        //for (size_t v : vertices_set) {
             //undirected_graph_.erase(v);
-            undirected_graph_[v].clear();
-        }
+        //    undirected_graph_[v].clear();
+        //}
         size_t n = vertices_set.size();
         boost::unordered_map<size_t, size_t> vertex_to_index;
         std::vector<size_t> index_to_vertex(n);
@@ -97,7 +100,7 @@ namespace antevolo {
             index_to_vertex[index] = vertex;
             ++index;
         }
-        size_t root_index = vertex_to_index[root_vertex];
+        //size_t root_index = vertex_to_index[root_vertex];
         typedef EdmondsTarjanDMSTCalculator::WeightedEdge WeightedEdge;
         std::vector<WeightedEdge> edges;
         std::vector<boost::unordered_map<size_t, size_t>> kruskal_graph(n);
@@ -256,6 +259,34 @@ namespace antevolo {
                 dst_CDR3_string.push_back(dst_CDR3[pos]);
             }
             out << "\t" << src_CDR3_string << "\t" << dst_CDR3_string << std::endl;
+        }
+        out.close();
+    }
+
+    void EvolutionaryTree::WriteVerticesInFile(std::string output_fname,
+                                               const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
+        std::ofstream out(output_fname);
+        out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\n";
+        for (auto p : passed_flag_) {
+            auto const& clone = clone_set[p.first];
+            size_t OFR = clone.ORF();
+            size_t start_pos = clone.GetRangeByRegion(
+                    annotation_utils::StructuralRegion::CDR3).start_pos;
+            size_t end_pos = clone.GetRangeByRegion(
+                    annotation_utils::StructuralRegion::CDR3).end_pos;
+            std::string clone_AA_string;
+            auto const& clone_AA_seq = clone.AA();
+            size_t AA_length = seqan::length(clone.AA() );
+            for (size_t i = 0; i < AA_length; ++i) {
+                clone_AA_string.push_back(clone_AA_seq[i]);
+            }
+
+            char left_CDR3_anchor_AA = clone_AA_string[(start_pos - OFR) / 3 - 1];
+            char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - OFR) / 3];
+
+            out << clone.Read().id << "\t" << clone.Read().name << "\t" << clone.Productive() << "\t"
+                << clone_AA_string << "\t" << OFR << "\t"
+                << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\n";
         }
         out.close();
     }

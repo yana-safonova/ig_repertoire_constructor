@@ -34,6 +34,7 @@ std::string running_time_format(const perf_counter &pc) {
 void prepare_output_dir(const antevolo::AntEvoloConfig::OutputParams & op) {
     path::make_dir(op.output_dir);
     path::make_dir(op.tree_dir);
+    path::make_dir(op.vertex_dir);
     path::make_dir(op.cdr_graph_dir);
 }
 

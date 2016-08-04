@@ -8,6 +8,7 @@ output_params {
     output_dir     antevolo_test
     cdr_graph_dir  cdr3_graphs
     tree_dir       clonal_trees
+    vertex_dir     clonal_trees_vertices
     trash_output   trash_output.out
 }
 

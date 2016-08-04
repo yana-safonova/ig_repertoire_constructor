@@ -7,9 +7,14 @@
 
 
 namespace antevolo {
-    std::string NaiveAntEvoloProcessing::GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t tree_size) {
+    std::string NaiveAntEvoloProcessing::GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
         std::stringstream ss;
-        ss << "clonal_tree_" << index1 << "-" << index2 << "_size_" << tree_size << ".tree";
+        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".tree";
+        return path::append_path(output_dir, ss.str());
+    }
+    std::string NaiveAntEvoloProcessing::GetTreeClonesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
+        std::stringstream ss;
+        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".clones";
         return path::append_path(output_dir, ss.str());
     }
 
@@ -41,11 +46,14 @@ namespace antevolo {
                 EvolutionaryTree tree;
                 candidate_calculator.AddComponent(
                         connected_components[component_index], component_index, tree);
-                std::string output_fname = GetTreeOutputFname(
-                        config_.output_params.tree_dir, i + 1, component_index, tree.NumEdges());
+                std::string tree_output_fname = GetTreeOutputFname(
+                        config_.output_params.tree_dir, i + 1, component_index, tree.NumVertives(), tree.NumEdges());
+                std::string vertices_output_fname = GetTreeOutputFname(
+                        config_.output_params.vertex_dir, i + 1, component_index, tree.NumVertives(), tree.NumEdges());
                 if (tree.NumEdges() != 0) {
-                    tree.WriteInFileWithCDR3s(output_fname);
-                    TRACE(i + 1 << "-th clonal tree was written to " << output_fname);
+                    tree.WriteInFileWithCDR3s(tree_output_fname);
+                    tree.WriteVerticesInFile(vertices_output_fname, clone_set_);
+                    TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
                 }
             }
         }

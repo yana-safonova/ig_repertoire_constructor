@@ -14,6 +14,7 @@ namespace antevolo {
             std::string output_dir;
             std::string cdr_graph_dir;
             std::string tree_dir;
+            std::string vertex_dir;
             std::string trash_output;
         };
 

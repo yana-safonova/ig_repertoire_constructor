@@ -101,7 +101,8 @@ namespace antevolo {
         for (size_t i = 0; i < hg_component->N(); i++) {
             size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
             auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
-            for (size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+            for (size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++) {
+                tree.SetFlag(false, clones_sharing_cdr3[it1]);
                 for (size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
                     size_t src_num = clones_sharing_cdr3[it1];
                     size_t dst_num = clones_sharing_cdr3[it2];
@@ -118,6 +119,7 @@ namespace antevolo {
                         ds_on_undirected_edges.union_set(src_num, dst_num);
                     }
                 }
+            }
         }
         for (size_t i = 0; i < hg_component->N(); i++)
             for (size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
@@ -269,6 +271,9 @@ namespace antevolo {
                     const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(clone_num);
                     tree.AddDirected(clone_num, edge, model_);
                 };
+                continue;
+            }
+            if (tree.GetFlag(clone_num)) {
                 continue;
             }
             auto vertex_it = undirected_graph.find(clone_num);
