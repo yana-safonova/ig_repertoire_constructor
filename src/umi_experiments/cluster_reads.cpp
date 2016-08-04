@@ -185,7 +185,9 @@ int main(int argc, const char* const* argv) {
         clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi, params.output_dir + "/non_major.csv",
                                                   params.output_dir + "/left_graph.graph",
                                                   params.output_dir + "/right_graph.graph",
-                                                  params.output_dir + "/chimeras.txt", params.num_threads);
+                                                  params.output_dir + "/chimeras.txt",
+                                                  params.output_dir + "/umi_chimeras.txt",
+                                                  params.num_threads);
     }
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);

@@ -547,7 +547,8 @@ namespace clusterer {
 
     template <typename ElementType>
     void report_non_major_umi_groups_sw(const ManyToManyCorrespondenceUmiToCluster<ElementType> umi_to_clusters, std::string file_name,
-                                        std::string left_graph_file_name, std::string right_graph_file_name, std::string chimeras_info_file_name, size_t num_threads) {
+                                        std::string left_graph_file_name, std::string right_graph_file_name,
+                                        std::string chimeras_info_file_name, std::string umi_chimeras_info_file_name, size_t num_threads) {
         // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
         // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
         // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
@@ -596,6 +597,7 @@ namespace clusterer {
 
         std::ofstream out_file(file_name);
         std::ofstream chimeras_file(chimeras_info_file_name);
+        std::ofstream umi_chimeras_file(umi_chimeras_info_file_name);
         const auto& umis = umi_to_clusters.fromSet();
         for (const auto& umi: umis) {
             const auto& clusters = umi_to_clusters.forth(umi);
@@ -655,10 +657,21 @@ namespace clusterer {
                 }
                 if (left_in_umi > 0 && right_in_umi > 0) {
                     found_within_umi ++;
+                    umi_chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
+                    umi_chimeras_file << "chimera?: " << cluster->GetSequence() << std::endl;
+                    umi_chimeras_file << "max consensus: " << max_consensus << std::endl;
+                    umi_chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
+                    umi_chimeras_file << "umi clusters with dists:" << std::endl;
+                    for (const auto& c : clusters) {
+                        umi_chimeras_file << "cluster size: " << c->weight << ", ";
+                        umi_chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        umi_chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        umi_chimeras_file << c->GetSequence() << std::endl;
+                    }
                 } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
                     chimeras ++;
                     chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
-                    chimeras_file << "chimera?: " << cluster->GetSequence() << std::endl;
+                    chimeras_file << "chimera: " << cluster->GetSequence() << std::endl;
                     chimeras_file << "max consensus: " << max_consensus << std::endl;
                     chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
                     chimeras_file << "umi clusters with dists:" << std::endl;
