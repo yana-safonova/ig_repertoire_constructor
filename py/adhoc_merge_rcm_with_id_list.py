@@ -48,9 +48,6 @@ def merge():
             handle = to_file_pos_to_cluster[id_map[from_file_cluster_to_pos[value]]]
             output.write("%s\t%d\n" % (key, handle))
             result_handle[key] = handle
-            if handle == 0:
-                print "written map to 0"
-                print key, handle
 
     print "checking result"
     # checking if corresponding clusterings are nested
