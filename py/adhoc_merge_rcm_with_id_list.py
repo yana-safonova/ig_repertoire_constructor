@@ -17,6 +17,7 @@ def merge():
     print "reading id list reported by trie compressor from %s" % id_file
     with open(id_file, "r") as ids:
         id_map = [int(line) for line in ids]
+    id_map_set = set(id_map)
 
     print "reading file with source reads from %s to obtain cluster numbers" % from_read_file
     from_file_cluster_to_pos = dict()
@@ -25,17 +26,20 @@ def merge():
             from_file_cluster_to_pos[int(parse_cluster_mult(record.id)[0])] = i
 
     to_file_pos_to_cluster = dict()
-    if to_read_file is None:
+    if to_read_file is not None:
+        print "reading file with destination reads from %s to obtain cluster numbers" % to_read_file
+        with open(to_read_file, "r") as reads:
+            for i, record in enumerate(SeqIO.parse(reads, "fasta")):
+                cluster = int(parse_cluster_mult(record.id)[0])
+                to_file_pos_to_cluster[i] = cluster
+                id_map_set.remove(i)
+        assert not id_map_set
+    else:
         current = 0
         for key, value in enumerate(id_map):
             if not value in to_file_pos_to_cluster:
                 to_file_pos_to_cluster[value] = current
                 current += 1
-    else:
-        print "reading file with destination reads from %s to obtain cluster numbers" % to_read_file
-        with open(to_read_file, "r") as reads:
-            for i, record in enumerate(SeqIO.parse(reads, "fasta")):
-                to_file_pos_to_cluster[i] = int(parse_cluster_mult(record.id)[0])
 
     result_handle = dict()
     print "merging maps and writing to %s" % output_rcm_file
@@ -44,6 +48,9 @@ def merge():
             handle = to_file_pos_to_cluster[id_map[from_file_cluster_to_pos[value]]]
             output.write("%s\t%d\n" % (key, handle))
             result_handle[key] = handle
+            if handle == 0:
+                print "written map to 0"
+                print key, handle
 
     print "checking result"
     # checking if corresponding clusterings are nested
