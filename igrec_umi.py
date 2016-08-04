@@ -88,8 +88,7 @@ def ParseCommandLineParams(log):
                                help="Ignore code changes when checking stages depensences")
     optional_args.add_argument("-k", "--detect-chimeras",
                                dest="detect_chimeras",
-                               type=bool,
-                               default=True,
+                               action="store_true",
                                help="Detect chimeras after clustering, may take significant amount of time")
     optional_args.add_argument("--clustering-thr",
                                type=int,

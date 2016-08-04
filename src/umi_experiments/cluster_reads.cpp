@@ -31,7 +31,7 @@ namespace {
                 ("umi-compressed,c", po::value<std::string>(&params.umi_compressed_path)->required(), "file with UMI records extracted (compressed)")
                 ("graph,g", po::value<std::string>(&params.umi_graph_path)->required(), "file with UMI graph")
                 ("output,o", po::value<std::string>(&params.output_dir)->default_value(""), "output directory path")
-                ("detect-chimeras,k", po::value<bool>(&params.detect_chimeras)->default_value(true), "detect chimeras after clustering, may take significant amount of time")
+                ("detect-chimeras,k", po::value<bool>(&params.detect_chimeras)->default_value(false), "detect chimeras after clustering, may take significant amount of time")
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(15), "threshold distance to unite clusters")
