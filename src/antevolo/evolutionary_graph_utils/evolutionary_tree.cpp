@@ -4,6 +4,7 @@
 
 namespace antevolo {
     void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model) {
+        assert(edge.IsDirected());
         if(edge.IsDirected()) {
             if (!Contains(clone_num)) {
                 edges_[clone_num] = edge;
@@ -269,7 +270,7 @@ namespace antevolo {
         out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\n";
         for (auto p : passed_flag_) {
             auto const& clone = clone_set[p.first];
-            size_t OFR = clone.ORF();
+            size_t ORF = clone.ORF();
             size_t start_pos = clone.GetRangeByRegion(
                     annotation_utils::StructuralRegion::CDR3).start_pos;
             size_t end_pos = clone.GetRangeByRegion(
@@ -280,13 +281,16 @@ namespace antevolo {
             for (size_t i = 0; i < AA_length; ++i) {
                 clone_AA_string.push_back(clone_AA_seq[i]);
             }
-
-            char left_CDR3_anchor_AA = clone_AA_string[(start_pos - OFR) / 3 - 1];
-            char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - OFR) / 3];
+            
+            //assert((static_cast<int>(start_pos) - static_cast<int>(ORF)) % 3 == 0);
+            //assert((static_cast<int>(end_pos) + 1 - static_cast<int>(ORF)) % 3 == 0);
+            char left_CDR3_anchor_AA = clone_AA_string[(start_pos - ORF) / 3 - 1];
+            char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - ORF) / 3];
 
             out << clone.Read().id << "\t" << clone.Read().name << "\t" << clone.Productive() << "\t"
-                << clone_AA_string << "\t" << OFR << "\t"
+                << clone_AA_string << "\t" << ORF << "\t"
                 << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\n";
+
         }
         out.close();
     }

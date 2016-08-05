@@ -28,7 +28,7 @@ namespace antevolo {
 //#pragma omp parallel for schedule(dynamic)
         ShmModel model(5, config_.input_params);
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
-        //for(size_t i = 115; i < vj_decomposition.Size() && i < 116; i++) {
+        //for(size_t i = 59; i < vj_decomposition.Size() && i < 60; i++) {
             auto vj_class = vj_decomposition.GetClass(i);
             auto candidate_calculator = UndirectedFirstTreeCalculator(clone_set_,
                                                                       config_.output_params,
@@ -42,7 +42,7 @@ namespace antevolo {
             auto connected_components = candidate_calculator.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
-            //for(size_t component_index = 2472; component_index < 2473 && component_index < connected_components.size(); component_index++) {
+            //for(size_t component_index = 1; component_index < 2 && component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree;
                 candidate_calculator.AddComponent(
                         connected_components[component_index], component_index, tree);

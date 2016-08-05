@@ -67,9 +67,9 @@ algorithm_params {
         enable_fixing   true
         enable_cropping true
         fill_left       true
-        fill_right      false
+        fill_right      true
         fix_left        3
-        fix_right       0
+        fix_right       3
         crop_left       true
         crop_right      true
     }

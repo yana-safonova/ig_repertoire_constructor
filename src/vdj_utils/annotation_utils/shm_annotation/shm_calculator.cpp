@@ -102,8 +102,9 @@ namespace annotation_utils {
         //std::cout << last_meaning_read_pos_ << " - " << last_meaning_gene_pos_ << std::endl;
         for(auto it = all_shms.cbegin(); it != all_shms.cend(); it++) {
             if(it->read_nucl_pos >= first_meaning_read_pos_ and it->gene_nucl_pos >= first_meaning_gene_pos_ and
-                    it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_)
+                    it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_) {
                 filtered_shms.AddSHM(*it);
+            }
         }
         return filtered_shms;
     }
@@ -125,7 +126,7 @@ namespace annotation_utils {
                    "Segment " << all_shms.SegmentType() << " is not variable or diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
         first_meaning_read_pos_ = cdr_labeling.cdr3.end_pos + 1;
-        first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_) + 1;
+        first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_);
     }
 
     void CDRFilteringSHMCalculator::ComputeEndMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
@@ -143,7 +144,7 @@ namespace annotation_utils {
                    "Segment " << all_shms.SegmentType() << " is not variable or diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
         last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos + 1;
-        last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_) + 1;
+        last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_);
     }
 
     void CDRFilteringSHMCalculator::ComputeMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
@@ -163,8 +164,9 @@ namespace annotation_utils {
         GeneSegmentSHMs filtered_shms(alignment.query(), alignment.subject());
         for(auto it = all_shms.cbegin(); it != all_shms.cend(); it++) {
             if(it->read_nucl_pos >= first_meaning_read_pos_ and it->gene_nucl_pos >= first_meaning_gene_pos_ and
-               it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_)
+               it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_) {
                 filtered_shms.AddSHM(*it);
+            }
         }
         return filtered_shms;
     }
