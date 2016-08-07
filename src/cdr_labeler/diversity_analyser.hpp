@@ -7,7 +7,8 @@
 
 namespace cdr_labeler {
     class DiversityAnalyser {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        //const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CDRLabelerConfig::InputParams &input_params_;
         const CDRLabelerConfig::OutputParams &output_params_;
 
         CompressedCDRSet cdr1_compressed_set_;
@@ -26,9 +27,11 @@ namespace cdr_labeler {
 
     public:
         DiversityAnalyser(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+                          const CDRLabelerConfig::InputParams &input_params,
                           const CDRLabelerConfig::OutputParams &output_params,
                           std::string compressed_cdr3_fasta = "") :
-                clone_set_(clone_set),
+                //clone_set_(clone_set),
+                input_params_(input_params),
                 output_params_(output_params),
                 cdr1_compressed_set_(annotation_utils::StructuralRegion::CDR1, clone_set),
                 cdr2_compressed_set_(annotation_utils::StructuralRegion::CDR2, clone_set),

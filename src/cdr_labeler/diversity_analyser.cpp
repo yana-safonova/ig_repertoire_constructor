@@ -23,7 +23,7 @@ namespace cdr_labeler {
             // do something
         }
         std::string graph_fname = path::append_path(output_params_.output_dir, "cdr3_graph.graph");
-        std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
+        std::string run_graph_constructor = input_params_.run_hg_constructor; //"./build/release/bin/ig_swgraph_construct";
         std::string command_line = run_graph_constructor + " -i " + compressed_cdr3_fasta +
                                    " -o " + graph_fname + " --tau 3 -T 0 > " + output_params_.trash_output;
         int err_code = system(command_line.c_str());

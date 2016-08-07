@@ -7,6 +7,7 @@ namespace cdr_labeler {
         using config_common::load;
         load(ip.input_reads, pt, "input_reads");
         load(ip.vj_finder_config, pt, "vj_finder_config");
+        load(ip.run_hg_constructor, pt, "run_hg_constructor");
     }
 
     void update_output_config(CDRLabelerConfig::OutputParams &op) {

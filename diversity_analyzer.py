@@ -114,6 +114,7 @@ def ModifyConfigFiles(params, log):
     cdr_param_dict['kabat_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_kabat.txt')
     cdr_param_dict['imgt_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_imgt.txt')
     cdr_param_dict['kabat_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_kabat.txt')
+    cdr_param_dict['run_hg_constructor'] = os.path.join(home_directory, './build/release/bin/ig_swgraph_construct')
     process_cfg.substitute_params(params.cdr_labeler_config_file, cdr_param_dict, log)
     ######################
     vj_param_dict = dict()

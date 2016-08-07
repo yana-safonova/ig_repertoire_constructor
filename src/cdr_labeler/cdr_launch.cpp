@@ -51,7 +51,8 @@ namespace cdr_labeler {
         writer.OutputVGeneAlignment();
         writer.OutputSHMs();
         INFO("Diversity analysis od CDRs");
-        DiversityAnalyser cdr_analyser(annotated_clone_set, config_.output_params,
+        DiversityAnalyser cdr_analyser(annotated_clone_set, config_.input_params,
+                                       config_.output_params,
                                        config_.output_params.cdr3_compressed_fasta);
         INFO("Shannon index. CDR1: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR1) <<
                 ", CDR2: " << cdr_analyser.ShannonIndex(StructuralRegion::CDR2) <<
