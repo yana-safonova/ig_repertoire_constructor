@@ -38,7 +38,7 @@ namespace vj_finder {
     class AggressiveFillFixCropProcessor : public BaseFillFixCropProcessor {
     public:
         AggressiveFillFixCropProcessor(const VJFinderConfig::AlgorithmParams::FixCropFillParams &params,
-                                        core::ReadArchive &read_archive) : BaseFillFixCropProcessor(params,
+                                       core::ReadArchive &read_archive) : BaseFillFixCropProcessor(params,
                                                                                                     read_archive) { }
 
 
