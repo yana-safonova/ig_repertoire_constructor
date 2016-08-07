@@ -124,7 +124,7 @@ namespace annotation_utils {
                    "Segment is not variable and diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
         first_meaning_read_pos_ = cdr_labeling.cdr3.end_pos + 1;
-        first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_) + 1;
+        first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_);
     }
 
     void CDRFilteringSHMCalculator::ComputeEndMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
@@ -141,7 +141,7 @@ namespace annotation_utils {
                    "Segment is not variable and diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
         last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos + 1;
-        last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_) + 1;
+        last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_);
     }
 
     void CDRFilteringSHMCalculator::ComputeMeaningPositions(const alignment_utils::ImmuneGeneReadAlignment &alignment,
