@@ -290,6 +290,9 @@ def main(shm_df_fname, output_dir, log):
     log.info("== Output SHMs statistics")
     shm_df = SHMs(shm_df_fname)
     log.info(str(len(shm_df)) + " records were extracted from " + shm_df_fname)
+    if len(shm_df) == 0:
+        log.info("SHM data-frame contains 0 records. SHM visualization will be skipped")
+        return
     visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"), log)
     visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"), log)
     visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"), log)

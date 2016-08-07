@@ -78,6 +78,9 @@ class VJMatrix:
 def visualize_vj_heatmap(labeling_df, output_pdf, log):
     v_hits = list(labeling_df['V_hit'])
     j_hits = list(labeling_df['J_hit'])
+    if len(v_hits) == 0 or len(j_hits) == 0:
+        log.info("VJ data-frame contains 0 records. VJ usage visualization will be skipped")
+        return
     vj_matrix = VJMatrix(v_hits, j_hits)
     log.info(str(len(vj_matrix.vj_dict)) + " VJ pairs were extracted. Pairs are presented by " +
              str(len(vj_matrix.v_set)) + " V genes & " + str(len(vj_matrix.j_set)) + " J genes")
