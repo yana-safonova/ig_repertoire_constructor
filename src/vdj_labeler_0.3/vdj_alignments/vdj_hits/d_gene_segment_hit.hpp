@@ -14,24 +14,25 @@
 
 namespace vdj_labeler {
 
-class DGeneSegmentHit {
+// DGeneHit is a vector of alignments of D genes. This class covers tandem D genes.
+class DGeneHit {
 private:
     const core::Read* read_ptr_;
     std::vector<alignment_utils::ImmuneGeneReadAlignment> d_genes_hits_;
 
 public:
-    DGeneSegmentHit(const core::Read* read_ptr = nullptr) :
+    DGeneHit(const core::Read* read_ptr = nullptr) :
         read_ptr_(read_ptr)
     { }
 
-    DGeneSegmentHit(const core::Read &read) :
-        DGeneSegmentHit(&read)
+    DGeneHit(const core::Read &read) :
+        DGeneHit(&read)
     { }
 
-    DGeneSegmentHit(const DGeneSegmentHit&)            = default;
-    DGeneSegmentHit(DGeneSegmentHit&&)                 = default;
-    DGeneSegmentHit& operator=(const DGeneSegmentHit&) = default;
-    DGeneSegmentHit& operator=(DGeneSegmentHit&&)      = default;
+    DGeneHit(const DGeneHit&)            = default;
+    DGeneHit(DGeneHit&&)                 = default;
+    DGeneHit& operator=(const DGeneHit&) = default;
+    DGeneHit& operator=(DGeneHit&&)      = default;
 
     size_t size() const { return d_genes_hits_.size(); }
 
@@ -60,29 +61,30 @@ public:
 
 //--------------------------------------------------------------------------------/
 
-class DGeneSegmentHits {
+// DGeneHits is a vector of DGeneHit-s. This class is a D gene -analog of SingleImmuneGeneSegment class.
+class DGeneHits {
 private:
     const core::Read* read_ptr_;
-    std::vector<DGeneSegmentHit> hits_;
+    std::vector<DGeneHit> hits_;
 
 public:
-    DGeneSegmentHits(const core::Read* read_ptr = nullptr) :
+    DGeneHits(const core::Read* read_ptr = nullptr) :
         read_ptr_(read_ptr)
     { }
 
-    DGeneSegmentHits(const core::Read &read) :
-        DGeneSegmentHits(&read)
+    DGeneHits(const core::Read &read) :
+        DGeneHits(&read)
     { }
 
-    DGeneSegmentHits(const DGeneSegmentHits&)            = default;
-    DGeneSegmentHits(DGeneSegmentHits&&)                 = default;
-    DGeneSegmentHits& operator=(const DGeneSegmentHits&) = default;
-    DGeneSegmentHits& operator=(DGeneSegmentHits&&)      = default;
+    DGeneHits(const DGeneHits&)            = default;
+    DGeneHits(DGeneHits&&)                 = default;
+    DGeneHits& operator=(const DGeneHits&) = default;
+    DGeneHits& operator=(DGeneHits&&)      = default;
 
     size_t size() const { return hits_.size(); }
 
-    typedef std::vector<DGeneSegmentHit>::iterator hits_iterator;
-    typedef std::vector<DGeneSegmentHit>::const_iterator hits_citerator;
+    typedef std::vector<DGeneHit>::iterator hits_iterator;
+    typedef std::vector<DGeneHit>::const_iterator hits_citerator;
 
     hits_iterator  begin ()       { return hits_.begin (); }
     hits_citerator begin () const { return hits_.begin (); }
@@ -91,7 +93,7 @@ public:
     hits_citerator end   () const { return hits_.end   (); }
     hits_citerator cend  () const { return hits_.cend  (); }
 
-    const DGeneSegmentHit& operator[](const size_t &index) const {
+    const DGeneHit& operator[](const size_t &index) const {
         assert(index < size());
         return hits_[index];
     }

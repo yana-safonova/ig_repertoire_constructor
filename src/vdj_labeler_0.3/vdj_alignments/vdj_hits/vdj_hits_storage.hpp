@@ -23,13 +23,13 @@ public:
         }
     }
 
-    VDJHitsStorage(const vj_finder::VJAlignmentInfo &alignment_info,
-                   AbstractDGeneHitsCalculator &d_gene_calculator)
-    {
-        for (const auto& alignment_record : alignment_info.AlignmentRecords()) {
-            vdj_hits_.emplace_back(alignment_record, d_gene_calculator);
-        }
-    }
+    // VDJHitsStorage(const vj_finder::VJAlignmentInfo &alignment_info,
+    //                AbstractDGeneHitsCalculator &d_gene_calculator)
+    // {
+    //     for (const auto& alignment_record : alignment_info.AlignmentRecords()) {
+    //         vdj_hits_.emplace_back(alignment_record, d_gene_calculator);
+    //     }
+    // }
 
     void AddVDJHits(VDJHits vdj_hits) {
         vdj_hits_.emplace_back(std::move(vdj_hits));

@@ -14,6 +14,8 @@
 
 namespace vdj_labeler {
 
+// This class contains only one alignment with one gene segment. Use case: V, J gene alignments.
+// For D genes see DGeneSegmentHit(s) classes.
 class SingleImmuneGeneSegmentHits {
 private:
     germline_utils::SegmentType segment_type_;
@@ -76,5 +78,8 @@ public:
 
     const core::Read* ReadPtr() const { return read_ptr_; }
 };
+
+typedef SingleImmuneGeneSegmentHits VGeneHits;
+typedef SingleImmuneGeneSegmentHits JGeneHits;
 
 } // End namespace vdj_labeler
