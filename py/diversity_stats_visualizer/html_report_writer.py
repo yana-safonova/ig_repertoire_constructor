@@ -141,10 +141,15 @@ def WriteSHMCharacteristics(html_writer, shm_df, images_dict):
     if "nucl_substitutions" in images_dict:
         html_writer.WriteH2("Heatmap of nucleotide substitutions:")
         html_writer.WriteImage(images_dict["nucl_substitutions"], width = 40)
-    if "general_v_mutations" in images_dict:
-        html_writer.WriteH2("Distribution of SHM positions in V gene segment (above) and "
-                            "distribution of SHM number in V gene segment per sequence (below):")
-        html_writer.WriteImage(images_dict["general_v_mutations"], width = 80)
+    if "ighv_shms" in images_dict:
+        html_writer.WriteH2("Distribution of SHM in IGHV:")
+        html_writer.WriteImage(images_dict["ighv_shms"], width = 60)
+    if "ighk_shms" in images_dict:
+        html_writer.WriteH2("Distribution of SHM in IGHK:")
+        html_writer.WriteImage(images_dict["ighk_shms"], width = 60)
+    if "ighl_shms" in images_dict:
+        html_writer.WriteH2("Distribution of SHM in IGHL:")
+        html_writer.WriteImage(images_dict["ighl_shms"], width = 60)
     if "synonymous_shms" in images_dict:
         html_writer.WriteH2("Distribution of synonymous SHM positions in V gene segment:")
         html_writer.WriteImage(images_dict["synonymous_shms"], width = 60)
@@ -266,17 +271,20 @@ def add_cdr_plots(image_dict, plots_dir):
                     image_dict[f] = os.path.join(inner_plots_dir, file_dict[f])
 
 def add_shm_plots(image_dict, plots_dir):
-    inner_plots_dir = "plots"
     if os.path.exists(os.path.join(plots_dir, "aa_substitutions.png")):
-        image_dict["aa_substitutions"] = os.path.join(inner_plots_dir, "aa_substitutions.png")
+        image_dict["aa_substitutions"] = os.path.join(plots_dir, "aa_substitutions.png")
     if os.path.exists(os.path.join(plots_dir, "nucl_substitutions.png")):
         image_dict["nucl_substitutions"] = os.path.join(plots_dir, "nucl_substitutions.png")
-    if os.path.exists(os.path.join(plots_dir, "v_mutations_distribution.png")):
-        image_dict["general_v_mutations"] = os.path.join(inner_plots_dir, "v_mutations_distribution.png")
+    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHV.png")):
+        image_dict["ighv_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHV.png")
+    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHK.png")):
+        image_dict["ighk_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHK.png")
+    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHL.png")):
+        image_dict["ighl_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHL.png")
     if os.path.exists(os.path.join(plots_dir, "synonymous_shms_positions.png")):
-        image_dict["synonymous_shms"] = os.path.join(inner_plots_dir, "synonymous_shms_positions.png")
+        image_dict["synonymous_shms"] = os.path.join(plots_dir, "synonymous_shms_positions.png")
     if os.path.exists(os.path.join(plots_dir, "special_shms_positions.png")):
-        image_dict["special_shms"] = os.path.join(inner_plots_dir, "special_shms_positions.png")
+        image_dict["special_shms"] = os.path.join(plots_dir, "special_shms_positions.png")
 
 
 def create_image_dict(plots_dir):
