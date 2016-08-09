@@ -50,7 +50,7 @@ namespace cdr_labeler {
         writer.OutputCompressedCDR3Fasta();
         writer.OutputVGeneAlignment();
         writer.OutputSHMs();
-        INFO("Diversity analysis od CDRs");
+        INFO("Diversity analysis of CDRs");
         DiversityAnalyser cdr_analyser(annotated_clone_set, config_.input_params,
                                        config_.output_params,
                                        config_.output_params.cdr3_compressed_fasta);

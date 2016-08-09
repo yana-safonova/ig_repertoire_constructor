@@ -3,12 +3,14 @@ import sys
 
 import utils
 
+import pylab
 import matplotlib as mplt
 mplt.use('Agg')
 
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.patches as patches
 
 class AlignedRead:
     def _parse_line(self, line):
@@ -135,14 +137,27 @@ def output_num_shms(num_all_shms, colors, output_prefix, log):
 def output_shm_stats_for_isotype(num_shms, shm_pos, isotype, output_prefix, log):
     plt.figure(1)
     plt.subplot(211)
+    # plot for SHM positions
     plt.hist(shm_pos, color = isotype_colors[isotype], alpha = .75, bins = 50)
+    #cdr_color = "#EFBEBE"
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR1'][0], 0),
+    #                                      cdr_positions[isotype]['CDR1'][1] - cdr_positions[isotype]['CDR1'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR2'][0], 0),
+    #                                      cdr_positions[isotype]['CDR2'][1] - cdr_positions[isotype]['CDR2'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR3'][0], 0),
+    #                                      cdr_positions[isotype]['CDR3'][1] - cdr_positions[isotype]['CDR3'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #n, bins, p = pylab.hist(shm_pos, color = isotype_colors[isotype], bins = 50)
     plt.xlabel("Relative position of SHM in " + isotype + "V", fontsize = 16)
     plt.ylabel("# SHMs", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
     plt.title("SHMs in " + isotype + "V", fontsize = 18)
+    # plot for SHM number
     plt.subplot(212)
-    plt.hist(num_shms, color = isotype_colors[isotype], alpha = .75, bins = 50)
+    plt.hist(num_shms, color = isotype_colors[isotype], bins = 50, alpha = .75)
     plt.xlabel("# SHMs in " + isotype + "V", fontsize = 16)
     plt.ylabel("# sequences", fontsize = 16)
     plt.xticks(fontsize = 14)
@@ -167,7 +182,7 @@ def visualize_v_mutations_stats(shms_df, output_fname, log):
         num_all_shms[it.chain_type].append(len(shms_df[it]))
     for iso in num_all_shms:
         if len(num_all_shms[iso]) < 10:
-            log.info("# SHMs  for " + iso + " is too small. Plot drawing was skipped")
+            log.info("# SHMs for " + iso + " is too small(" + str(len(num_all_shms[iso])) + "). Plot drawing was skipped")
             continue
         output_shm_stats_for_isotype(num_all_shms[iso], all_shms_pos[iso], iso, output_fname, log)
 
@@ -253,7 +268,7 @@ def output_synonymous_shms(synonymous_pos, output_fname, log):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    log.info("Distribution of synonymous SHMs positions in V segment was wirtten to " + output_fname + ".pdf and .png")
+    log.info("Distribution of synonymous SHM positions in V segment was written to " + output_fname + ".pdf and .png")
 
 def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname, log):
     synonymous_pos = []
@@ -309,7 +324,59 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.savefig(special_output_fname + ".png")
     pp.close()
     plt.clf()
-    log.info("Distribution of special SHMs in V segment was written to " + special_output_fname + ".pdf and .png")
+    log.info("Distribution of special SHM positions in V segment was written to " + special_output_fname + ".pdf and .png")
+
+def visualize_indel_shm_lengths(shm_df, output_fname, log):
+    prev_read_pos = -1
+    prev_gene_pos = -1
+    insertion_length = []
+    deletions_lengths = []
+    in_len = 0
+    del_len = 0
+    for it in shm_df:
+        read_shms = shm_df[it]
+        for shm in read_shms:
+            if shm.is_deletion():
+                if shm.gene_pos - prev_gene_pos == 1:
+                    del_len += 1
+                else:
+                    if del_len > 0:
+                        deletions_lengths.append(del_len)
+                    del_len = 1
+                prev_gene_pos = shm.gene_pos
+            if shm.is_insertion():
+                if shm.read_pos - prev_read_pos == 1:
+                    in_len += 1
+                else:
+                    if in_len > 0:
+                        insertion_length.append(in_len)
+                    in_len = 1
+                prev_read_pos = shm.read_pos
+    if in_len != 0:
+        insertion_length.append(in_len)
+    if del_len != 0:
+        deletions_lengths.append(del_len)
+    dt = []
+    labels = []
+    if len(deletions_lengths) > 10:
+        dt.append(deletions_lengths)
+        labels.append("Deletions")
+    if len(insertion_length) > 10:
+        dt.append(insertion_length)
+        labels.append("Insertions")
+    plt.hist(dt, label = labels, bins = 50)
+    plt.legend(loc = 'upper center', ncol = len(dt), fontsize = 14)
+    plt.xlabel("Insertion / deletion SHM length", fontsize = 16)
+    plt.ylabel("# insertion / deletion SHMs", fontsize = 16)
+    plt.xlim(.5, max(max(deletions_lengths), max(insertion_length)) + .5)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname+ ".png")
+    pp.close()
+    plt.clf()
+    log.info("Distribution of insertion/deletion SHM lengths was written to " + output_fname + ".pdf and .png")
 
 def main(shm_df_fname, output_dir, log):
     log.info("== Output SHMs statistics")
@@ -323,6 +390,7 @@ def main(shm_df_fname, output_dir, log):
     visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"), log)
     visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
                                     os.path.join(output_dir, "special_shms_positions"), log)
+    visualize_indel_shm_lengths(shm_df, os.path.join(output_dir, "indel_shms_length"), log)
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:

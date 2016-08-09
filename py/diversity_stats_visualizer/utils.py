@@ -1,7 +1,7 @@
 import logging
 import sys
 
-def get_logger_by_arg(logger_arg, logger_name):
+def get_logger_by_arg(logger_arg, logger_name = ""):
     if logger_arg != "-":
         return logger_arg
     log = logging.getLogger(logger_name)
