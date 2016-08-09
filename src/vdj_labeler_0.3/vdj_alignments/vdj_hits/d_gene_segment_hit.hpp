@@ -9,7 +9,6 @@
 #include "alignment_utils/pairwise_alignment.hpp"
 #include "germline_utils/germline_gene_type.hpp"
 #include "read_archive.hpp"
-#include "vdj_alignments/hits_calculator/d_hits_calculator/abstract_d_gene_hits_calculator.hpp"
 #include "immune_gene_alignment_converter.hpp"
 
 namespace vdj_labeler {
@@ -27,6 +26,12 @@ public:
 
     DGeneHit(const core::Read &read) :
         DGeneHit(&read)
+    { }
+
+    DGeneHit(const core::Read* read_ptr,
+             std::vector<alignment_utils::ImmuneGeneReadAlignment> d_genes_hits) :
+        read_ptr_(read_ptr),
+        d_genes_hits_(std::move(d_genes_hits))
     { }
 
     DGeneHit(const DGeneHit&)            = default;
@@ -47,12 +52,12 @@ public:
     hits_citerator cend  () const { return d_genes_hits_.cend  (); }
 
     const alignment_utils::ImmuneGeneReadAlignment& operator[](const size_t &index) const {
-        assert(index < size());
+        VERIFY(index < size());
         return d_genes_hits_[index];
     }
 
     const core::Read& Read() const {
-        assert(read_ptr_ != nullptr);
+        VERIFY(read_ptr_ != nullptr);
         return *read_ptr_;
     }
 
@@ -94,16 +99,20 @@ public:
     hits_citerator cend  () const { return hits_.cend  (); }
 
     const DGeneHit& operator[](const size_t &index) const {
-        assert(index < size());
+        VERIFY(index < size());
         return hits_[index];
     }
 
     const core::Read& Read() const {
-        assert(read_ptr_ != nullptr);
+        VERIFY(read_ptr_ != nullptr);
         return *read_ptr_;
     }
 
     const core::Read* ReadPtr() const { return read_ptr_; }
+
+    void AddHit(DGeneHit hit) {
+        hits_.emplace_back(std::move(hit));
+    }
 };
 
 } // End vdj_labeler

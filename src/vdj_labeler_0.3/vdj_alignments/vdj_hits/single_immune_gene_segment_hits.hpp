@@ -42,7 +42,7 @@ public:
         SingleImmuneGeneSegmentHits(segment_type, read_ptr)
     {
         vj_finder::ImmuneGeneAlignmentConverter converter;
-        assert(read_ptr != nullptr);
+        VERIFY(read_ptr != nullptr);
         for (const auto& hit : hits) {
             hits_.emplace_back(converter.ConvertToAlignment(hit.ImmuneGene(), hit.Read(), hit.BlockAlignment()));
         }
@@ -72,7 +72,7 @@ public:
     const germline_utils::SegmentType& GeneType() const { return segment_type_; }
 
     const core::Read& Read() const {
-        assert(read_ptr_ != nullptr);
+        VERIFY(read_ptr_ != nullptr);
         return *read_ptr_;
     }
 

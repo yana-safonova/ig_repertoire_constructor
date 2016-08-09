@@ -27,14 +27,14 @@ public:
             const std::vector<vj_finder::VGeneHit> &v_hits,
             const std::vector<vj_finder::JGeneHit> &j_hits);
 
-    // VDJHits(const core::Read* read_ptr,
-    //         const std::vector<vj_finder::VGeneHit> &v_hits,
-    //         const std::vector<vj_finder::JGeneHit> &j_hits,
-    //         AbstractDGeneHitsCalculator &d_gene_calculator);
+    VDJHits(const core::Read* read_ptr,
+            const std::vector<vj_finder::VGeneHit> &v_hits,
+            const std::vector<vj_finder::JGeneHit> &j_hits,
+            AbstractDGeneHitsCalculator &d_gene_calculator);
 
     VDJHits(const vj_finder::VJHits &vj_hits);
 
-    // VDJHits(const vj_finder::VJHits &vj_hits, AbstractDGeneHitsCalculator &d_gene_calculator);
+    VDJHits(const vj_finder::VJHits &vj_hits, AbstractDGeneHitsCalculator &d_gene_calculator);
 
     VDJHits(const VDJHits&)            = default;
     VDJHits(VDJHits&&)                 = default;
@@ -60,7 +60,7 @@ public:
 
     const core::Read* ReadPtr() const { return read_ptr_; }
     const core::Read& Read() const {
-        assert(read_ptr_ != nullptr);
+        VERIFY(read_ptr_ != nullptr);
         return *read_ptr_;
     }
 

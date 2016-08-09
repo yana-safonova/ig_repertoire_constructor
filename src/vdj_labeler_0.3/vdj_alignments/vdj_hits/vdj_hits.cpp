@@ -24,15 +24,15 @@ VDJHits::VDJHits(const core::Read* read_ptr,
     j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
 { }
 
-// VDJHits::VDJHits(const core::Read* read_ptr,
-//                  const std::vector<vj_finder::VGeneHit> &v_hits,
-//                  const std::vector<vj_finder::JGeneHit> &j_hits,
-//                  AbstractDGeneHitsCalculator &d_gene_calculator) :
-//         read_ptr_(read_ptr),
-//         v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr, v_hits),
-//         d_hits_(d_gene_calculator.ComputeDHits(read_ptr, v_hits, j_hits)),
-//         j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
-// { }
+VDJHits::VDJHits(const core::Read* read_ptr,
+                 const std::vector<vj_finder::VGeneHit> &v_hits,
+                 const std::vector<vj_finder::JGeneHit> &j_hits,
+                 AbstractDGeneHitsCalculator &d_gene_calculator) :
+        read_ptr_(read_ptr),
+        v_hits_(germline_utils::SegmentType::VariableSegment, read_ptr, v_hits),
+        d_hits_(d_gene_calculator.ComputeDHits(read_ptr, v_hits, j_hits)),
+        j_hits_(germline_utils::SegmentType::JoinSegment, read_ptr, j_hits)
+{ }
 
 VDJHits::VDJHits(const vj_finder::VJHits &vj_hits):
     VDJHits(&(vj_hits.Read()),
@@ -41,13 +41,13 @@ VDJHits::VDJHits(const vj_finder::VJHits &vj_hits):
 { }
 
 
-// VDJHits::VDJHits(const vj_finder::VJHits &vj_hits, AbstractDGeneHitsCalculator &d_gene_calculator):
-//     // TODO After refactoring, vj_hits will contain a pointer
-//     VDJHits(&vj_hits.Read(),
-//             vj_hits.VHits(),
-//             vj_hits.JHits(),
-//             d_gene_calculator)
-// { }
+VDJHits::VDJHits(const vj_finder::VJHits &vj_hits, AbstractDGeneHitsCalculator &d_gene_calculator):
+    // TODO After refactoring, vj_hits will contain a pointer
+    VDJHits(&vj_hits.Read(),
+            vj_hits.VHits(),
+            vj_hits.JHits(),
+            d_gene_calculator)
+{ }
 
 
 // void VDJHits::AddIgGeneAlignment(alignment_utils::ImmuneGeneReadAlignment alignment) {
@@ -70,14 +70,14 @@ VDJHits::VDJHits(const vj_finder::VJHits &vj_hits):
 //         const size_t &index) const
 // {
 //     if (segment_type == germline_utils::SegmentType::VariableSegment) {
-//         assert(index < v_hits_.size());
+//         VERIFY(index < v_hits_.size());
 //         return v_hits_[index];
 //     }
 //     else if (segment_type == germline_utils::SegmentType::DiversitySegment) {
-//         assert(index < d_hits_.size());
+//         VERIFY(index < d_hits_.size());
 //         return d_hits_[index];
 //     }
-//     assert(index < j_hits_.size());
+//     VERIFY(index < j_hits_.size());
 //     return j_hits_[index];
 // }
 

@@ -2,12 +2,9 @@
 
 #include "vdj_alignments/hits_calculator/alignment_quality_checkers/alignment_quality_checker.hpp"
 #include "vj_alignment_structs.hpp"
+#include "vdj_alignments/vdj_hits/d_gene_segment_hit.hpp"
 
 namespace vdj_labeler {
-
-// TODO Andrey: forward declaration here maybe is not ok, but I don't see any easy win here
-class ImmuneGeneSegmentHits;
-typedef std::shared_ptr<ImmuneGeneSegmentHits> ImmuneGeneSegmentHitsPtr;
 
 class AbstractDGeneHitsCalculator {
 protected:
@@ -27,9 +24,9 @@ public:
         quality_checker_(quality_checker)
     { }
 
-    virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
-                                               const std::vector<vj_finder::VGeneHit> &v_hits,
-                                               const std::vector<vj_finder::JGeneHit> &j_hits) const = 0;
+    virtual DGeneHits ComputeDHits(const core::Read* read_ptr,
+                                   const std::vector<vj_finder::VGeneHit> &v_hits,
+                                   const std::vector<vj_finder::JGeneHit> &j_hits) const = 0;
 
     virtual ~AbstractDGeneHitsCalculator() { }
 };

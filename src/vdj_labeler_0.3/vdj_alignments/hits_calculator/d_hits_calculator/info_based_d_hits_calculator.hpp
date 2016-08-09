@@ -14,16 +14,31 @@
 namespace vdj_labeler {
 
 class InfoBasedDHitsCalculator : public AbstractDGeneHitsCalculator {
-protected:
+private:
+    static constexpr size_t INDICATE_START_ANSWER = size_t(-1);
     GeneSegmentAligner &d_gene_aligner_;
     AbstractDAlignmentPositionChecker &d_alignment_position_checker_;
     AbstractDAlignmentPositionsCalculator &d_alignment_positions_calculator_;
 
-protected:
+private:
     alignment_utils::ImmuneGeneAlignmentPositions CreateDAlignmentPositions(
         alignment_utils::AlignmentPositions d_alignment_positions,
         const germline_utils::ImmuneGene* gene_ptr,
         const core::Read* read_ptr) const;
+
+    std::vector<alignment_utils::ImmuneGeneReadAlignment> CreateDGeneAlignments(
+        const core::Read* read_ptr,
+        const alignment_utils::AlignmentPositions d_positions) const;
+
+    std::vector<size_t> CreatePreviousDGenesPositions(const std::vector<alignment_utils::ImmuneGeneReadAlignment>&) const;
+
+    std::vector<double> CalcOptimalScore(const std::vector<alignment_utils::ImmuneGeneReadAlignment>& d_gene_hits,
+                                         const std::vector<size_t>& prev_d_gene_pos) const;
+
+    DGeneHits CalcAnswer(const std::vector<alignment_utils::ImmuneGeneReadAlignment>& d_gene_hits,
+                         const std::vector<size_t>& prev_d_gene_pos,
+                         const std::vector<double>& opt_score,
+                         const core::Read* read_ptr) const;
 
 public:
     InfoBasedDHitsCalculator(const germline_utils::ImmuneGeneDatabase &d_gene_database,
@@ -37,9 +52,9 @@ public:
         d_alignment_positions_calculator_(d_alignment_position_calculator)
     { }
 
-    virtual ImmuneGeneSegmentHits ComputeDHits(const core::Read* read_ptr,
-                                               const std::vector<vj_finder::VGeneHit> &v_hits,
-                                               const std::vector<vj_finder::JGeneHit> &j_hits) const override;
+    virtual DGeneHits ComputeDHits(const core::Read* read_ptr,
+                                   const std::vector<vj_finder::VGeneHit> &v_hits,
+                                   const std::vector<vj_finder::JGeneHit> &j_hits) const override;
 };
 
 } // End namespace vdj_labeler

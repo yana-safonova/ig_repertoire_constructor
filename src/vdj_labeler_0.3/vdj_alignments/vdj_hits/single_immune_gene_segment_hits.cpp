@@ -11,15 +11,14 @@
 
 using namespace vdj_labeler;
 
-
 void SingleImmuneGeneSegmentHits::AddHit(alignment_utils::ImmuneGeneReadAlignment hit) {
     if (hit.SubjectPtr() != nullptr) {
-        assert(hit.Subject().GeneType().Segment() == segment_type_);
+        VERIFY(hit.Subject().GeneType().Segment() == segment_type_);
     }
     hits_.emplace_back(std::move(hit));
 }
 
 const alignment_utils::ImmuneGeneReadAlignment& SingleImmuneGeneSegmentHits::operator[](const size_t &index) const {
-    assert(index < size());
+    VERIFY(index < size());
     return hits_[index];
 }

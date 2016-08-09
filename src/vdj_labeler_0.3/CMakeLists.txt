@@ -36,10 +36,10 @@ add_executable(vdj_labeler_0.3
                 vdj_alignments/vdj_hits/vdj_hits_storage.cpp
                 vdj_alignments/vdj_hits/d_gene_segment_hit.cpp
 
-                # vdj_alignments/aligners/simple_d_aligner.cpp
-                # vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
-                # vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.cpp
-                # vdj_alignments/hits_calculator/d_alignment_positions_calculator/custom_d_alignment_positions_calculator.cpp
+                vdj_alignments/aligners/simple_d_aligner.cpp
+                vdj_alignments/hits_calculator/alignment_quality_checkers/match_threshold_alignment_quality_checker.cpp
+                vdj_alignments/hits_calculator/d_hits_calculator/info_based_d_hits_calculator.cpp
+                vdj_alignments/hits_calculator/d_alignment_positions_calculator/custom_d_alignment_positions_calculator.cpp
 
                 # model/recombination_model.cpp
 
