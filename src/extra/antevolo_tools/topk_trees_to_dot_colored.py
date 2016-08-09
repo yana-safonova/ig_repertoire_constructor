@@ -31,7 +31,7 @@ def abundance_to_size(n):
 def draw_tree(tree_file):
 	print "drawing "+tree_file
 	tree_name = tree_file.split('/')[-1].split('.')[-2]
-	vertices_file = args.input + '../clonal_trees_vertices/' + tree_name + '.tree' # CHANGE
+	vertices_file = args.input + '/../clonal_trees_vertices/' + tree_name + '.tree'
 	vertex_to_depths = {}
 	depth_to_vertices = {}
 	edges = []
@@ -57,8 +57,7 @@ def draw_tree(tree_file):
 				clone_shape = 'box'
 
 			clone_abundance = int(clone_name.split('_')[-1].split('|')[0])
-			clone_width, clone_height = abundance_to_size(clone_abundance)
-			clone_abundance = int(clone_name.split('_')[-1].split('|')[0])
+			#clone_abundance = 1
 			clone_width, clone_height = abundance_to_size(clone_abundance)
 
 			clone_color = 'cyan'
@@ -141,6 +140,8 @@ def draw_tree(tree_file):
 def main():
 	trees = listdir(args.input)
 	trees.sort(key=lambda x: int(x.split('.')[-2].split('_')[-1]))
+	for tree_file in trees[-int(args.trees_num):]:
+		print tree_file.split('_')[-1].split('.')[-2]
 	for tree_file in trees[-int(args.trees_num):]:
 		draw_tree(args.input+'/'+tree_file)
 
