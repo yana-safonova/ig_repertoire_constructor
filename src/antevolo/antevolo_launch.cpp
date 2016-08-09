@@ -5,6 +5,7 @@
 #include <germline_db_labeler.hpp>
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
+#include <cdr_output.hpp>
 
 #include "naive_antevolo_processing.hpp"
 
@@ -43,6 +44,10 @@ namespace antevolo {
 
         cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.shm_params, v_labeling, j_labeling);
         auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
+        cdr_labeler::CDRLabelingWriter writer(config_.cdr_labeler_config.output_params,
+                                              annotated_clone_set);
+        writer.OutputCDRDetails();
+        writer.OutputSHMs();
         INFO("Tree construction starts");
         NaiveAntEvoloProcessing(config_, annotated_clone_set).ConstructClonalTrees();
         INFO("AntEvolo ends");

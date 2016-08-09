@@ -39,8 +39,8 @@ add_executable(antevolo
         ../cdr_labeler/germline_db_labeling.cpp
         ../cdr_labeler/read_labeler.cpp
 #        ../cdr_labeler/cdr_annotator.cpp
-#        compressed_cdr_set.cpp
-#        cdr_output.cpp
+        ../cdr_labeler/compressed_cdr_set.cpp
+        ../cdr_labeler/cdr_output.cpp
 #        diversity_analyser.cpp
 #        cdr_launch.cpp
         clone_set_decomposers/vj_clone_set_decomposer.cpp
