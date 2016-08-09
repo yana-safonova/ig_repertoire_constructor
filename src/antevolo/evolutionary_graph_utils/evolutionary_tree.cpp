@@ -73,10 +73,11 @@ namespace antevolo {
             boost::unordered_set<size_t>& vertices_set,
             size_t root_num) {
         //we assume that component size is > 1
+        if (vertices_set.find(root_num) != vertices_set.end()) {
+            return;
+        }
         vertices_set.insert(root_num);
         for (size_t u : undirected_graph_[root_num]) {
-            undirected_graph_[root_num].erase(u);
-            undirected_graph_[u].erase(root_num);
             PrepareSubtreeVertices(vertices_set, u);
         }
     }
