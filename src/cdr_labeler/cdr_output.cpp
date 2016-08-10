@@ -20,7 +20,7 @@ namespace cdr_labeler {
 
     void CDRLabelingWriter::OutputCDRDetails() const {
         std::ofstream out(output_config_.cdr_details);
-        out << "Read_name\tChain_type\tV_hit\tJ_hit\tAA_seq\tHas_stop_codon\tIn-frame\tProductive\t"
+        out << "Read_name\tChain_type\tV_hit\tJ_hit\tORF\tAA_seq\tHas_stop_codon\tIn-frame\tProductive\t"
                        "CDR1_nucls\tCDR1_start\tCDR1_end\tCDR2_nucls\tCDR2_start\tCDR2_end\t"
                        "CDR3_nucls\tCDR3_start\tCDR3_end" << std::endl;
         for(auto it = clone_set_.cbegin(); it != clone_set_.cend(); it++) {
@@ -28,7 +28,8 @@ namespace cdr_labeler {
             //auto vj_hit = alignment_info_.GetVJHitsByRead(cdr_clone.Read());
             out << cdr_clone.Read().name << "\t" << cdr_clone.ChainType() << "\t" <<
             it->VAlignment().subject().name() << "\t" <<
-            it->JAlignment().subject().name() << "\t" << cdr_clone.AA() << "\t" <<
+            it->JAlignment().subject().name() << "\t" <<
+            cdr_clone.ORF() << "\t" << cdr_clone.AA() << "\t" <<
             cdr_clone.HasStopCodon() << "\t" << cdr_clone.InFrame() << "\t" << cdr_clone.Productive() << "\t";
             OutputCloneRegion(out, cdr_clone, annotation_utils::StructuralRegion::CDR1);
             out << "\t";
