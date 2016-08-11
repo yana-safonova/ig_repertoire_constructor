@@ -8,10 +8,6 @@ ggtataactggaacgac
 ggtatagtgggagctactac
 >IGHD1-7*01
 ggtataactggaactac
->IGHD1/OR15-1a*01
-ggtataactggaacaac
->IGHD1/OR15-1b*01
-ggtataactggaacaac
 >IGHD2-15*01
 aggatattgtagtggtggtagctgctactcc
 >IGHD2-2*01
@@ -28,10 +24,6 @@ agcatattgtggtggtgactgctattcc
 aggatattgtactaatggtgtatgctatacc
 >IGHD2-8*02
 aggatattgtactggtggtgtatgctatacc
->IGHD2/OR15-2a*01
-agaatattgtaatagtactactttctatgcc
->IGHD2/OR15-2b*01
-agaatattgtaatagtactactttctatgcc
 >IGHD3-10*01
 gtattactatggttcggggagttattataac
 >IGHD3-10*02
@@ -48,10 +40,6 @@ gtattacgatttttggagtggttattatacc
 gtattagcatttttggagtggttattatacc
 >IGHD3-9*01
 gtattacgatattttgactggttattataac
->IGHD3/OR15-3a*01
-gtattatgatttttggactggttattatacc
->IGHD3/OR15-3b*01
-gtattatgatttttggactggttattatacc
 >IGHD4-11*01
 tgactacagtaactac
 >IGHD4-17*01
@@ -60,10 +48,6 @@ tgactacggtgactac
 tgactacggtggtaactcc
 >IGHD4-4*01
 tgactacagtaactac
->IGHD4/OR15-4a*01
-tgactatggtgctaactac
->IGHD4/OR15-4b*01
-tgactatggtgctaactac
 >IGHD5-12*01
 gtggatatagtggctacgattac
 >IGHD5-18*01
@@ -72,10 +56,6 @@ gtggatacagctatggttac
 gtagagatggctacaattac
 >IGHD5-5*01
 gtggatacagctatggttac
->IGHD5/OR15-5a*01
-gtggatatagtgtctacgattac
->IGHD5/OR15-5b*01
-gtggatatagtgtctacgattac
 >IGHD6-13*01
 gggtatagcagcagctggtac
 >IGHD6-19*01
