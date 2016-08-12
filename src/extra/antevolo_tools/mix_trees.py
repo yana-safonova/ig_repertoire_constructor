@@ -4,6 +4,7 @@ import argparse
 import subprocess
 from os import listdir
 from sys import argv
+from math import log
 
 parser = argparse.ArgumentParser()
 
@@ -26,7 +27,9 @@ def abundance_to_size(n):
 		coeff = 2.4
 	else:
 		coeff = 3.2
-	return coeff*0.75, coeff*0.5
+
+	coeff = log(n+3, 4)
+	return coeff*1.2, 1.2 #coeff*0.8
 
 def compute_name_to_read_map(reads_file):
 	with open(reads_file) as inp_reads:
@@ -70,6 +73,19 @@ def compute_reads_anc_relations(tree, read, root, name_to_read, read_to_read_anc
 			
 def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file):
 	print "drawing "+mixed_tree_file
+	mixed_tree_name = mixed_tree_file.split('/')[-1]
+	vertices_file = '/'.join(mixed_tree_file.split('/')[:-1]) + '/vertices_' + mixed_tree_name
+	print vertices_file
+
+	aa_sequences = {}
+	with open(vertices_file) as inp:
+		inp.readline()
+		for st in inp:
+			arr = st.split()
+			num = int(arr[0])
+			aa_sequences[num] = arr[3]
+
+
 	vertex_to_depths = {}
 	depth_to_vertices = {}
 	edges = []
@@ -122,11 +138,11 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 
 
 			if src_productive:
-				src_shape = 'circle'
+				src_shape = 'ellipse'
 			else:
 				src_shape = 'box'
 			if dst_productive:
-				dst_shape = 'circle'
+				dst_shape = 'ellipse'
 			else:
 				dst_shape = 'box'
 
@@ -135,9 +151,9 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 			dst_abundance = int(dst_name.split('_')[-1].split('|')[0])
 			dst_width, dst_height = abundance_to_size(dst_abundance)
 
-			vertices[src_num] = ''.join(['[fixedsize=true, style=filled, color=', src_color, ", shape=", src_shape, 
+			vertices[src_num] = ''.join(['[fixedsize=true, style=filled, fillcolor=', src_color, ", shape=", src_shape, 
 										 " width=", str(src_width), " height=", str(src_height), ']'])
-			vertices[dst_num] = ''.join(['[fixedsize=true, style=filled, color=', dst_color, ", shape=", dst_shape,
+			vertices[dst_num] = ''.join(['[fixedsize=true, style=filled, fillcolor=', dst_color, ", shape=", dst_shape,
 										 ' width=', str(dst_width), " height=", str(dst_height), ']'])
 
 			
@@ -170,6 +186,8 @@ def draw_colored_tree(mixed_tree_file, output_dir, old_tree_file, new_tree_file)
 			src_num, dst_num, edge_type, src_depth, dst_depth, synonymous = edge
 			if edge_type == "undirected" and src_depth == 0:
 				continue
+
+			synonymous = aa_sequences[src_num] == aa_sequences[dst_num]
 			if synonymous:
 				otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"", " [color=magenta];\n"]))
 			else:
@@ -268,6 +286,7 @@ def mix_trees(old_reads_file, old_tree_file, new_reads_file, new_tree_file):
 	mixed_trees = listdir(args.output+antevolo_res_dir+'clonal_trees/')
 	mixed_trees.sort(key=lambda x: int(x.split('_')[-1].split('.')[0]))
 	subprocess.call(['mv', args.output+antevolo_res_dir+'/clonal_trees/'+mixed_trees[-1], args.output+'/'])
+	subprocess.call(['mv', args.output+antevolo_res_dir+'/clonal_trees_vertices/'+mixed_trees[-1], args.output+'/vertices_'+mixed_trees[-1]])
 	subprocess.call(['rm', '-rf', args.output+antevolo_res_dir])
 	subprocess.call(['rm', args.output+'mixed_reads.fa'])
 

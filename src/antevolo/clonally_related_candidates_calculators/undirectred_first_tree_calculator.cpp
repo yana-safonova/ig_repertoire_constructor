@@ -231,8 +231,24 @@ namespace antevolo {
                             clone_set_[dst_num],
                             src_num,
                             dst_num);
+                    /*
+                    if (edge.dst_clone->Read().id == 4126) {
+                        INFO( "iden new: " << edge.src_clone->Read().id);
+                        INFO( "new dist: " << edge.cdr3_distance);
+                    }
+                    if (clone_set_[src_num].Read().id == 1909 and clone_set_[dst_num].Read().id == 4126) {
+                        INFO( "found iden" << edge.dst_clone->Read().id);
+                    }
+                    */
                     tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(dst_num),
                                                           edge, model_);
+                    auto edge_r = edge_constructor->ConstructEdge(
+                            clone_set_[dst_num],
+                            clone_set_[src_num],
+                            dst_num,
+                            src_num);
+                    tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(src_num),
+                                                          edge_r, model_);
                 }
         }
         // adding directed edges between similar CDR3s
@@ -251,6 +267,13 @@ namespace antevolo {
                                 *it2);
                         tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it2),
                                                               edge, model_);
+                        auto edge_r = edge_constructor->ConstructEdge(
+                                clone_set_[*it2],
+                                clone_set_[*it1],
+                                *it2,
+                                *it1);
+                        tree.SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it1),
+                                                              edge_r, model_);
                     }
             }
     }
@@ -267,10 +290,12 @@ namespace antevolo {
 
         for (auto clone_num : vertices_nums) {
             if (undirected_graph_vertices.find(clone_num) == undirected_graph_vertices.end()) {
+                // if it is an undirected-isolated vertex
                 if (tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(clone_num)) != size_t(-1)) {
                     const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(clone_num);
                     tree.AddDirected(clone_num, edge, model_);
                 };
+
                 continue;
             }
             if (tree.GetFlag(clone_num)) {

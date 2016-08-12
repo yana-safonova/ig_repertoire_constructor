@@ -2,7 +2,8 @@
 
 import argparse
 import subprocess
-from os import listdir
+from os import listdir, rmdir, mkdir
+from shutil import rmtree
 from math import log 
 
 parser = argparse.ArgumentParser()
@@ -142,6 +143,15 @@ def main():
 	trees.sort(key=lambda x: int(x.split('.')[-2].split('_')[-1]))
 	for tree_file in trees[-int(args.trees_num):]:
 		print tree_file.split('_')[-1].split('.')[-2]
+	try:
+		rmtree(args.output)
+	except OSError:
+		try:
+			rmdir(args.output)
+		except OSError:
+			pass
+	finally:
+		mkdir(args.output)
 	for tree_file in trees[-int(args.trees_num):]:
 		draw_tree(args.input+'/'+tree_file)
 
