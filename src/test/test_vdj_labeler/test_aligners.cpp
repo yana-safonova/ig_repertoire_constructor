@@ -8,7 +8,7 @@
 #include <germline_db_generator.hpp>
 #include <vj_parallel_processor.hpp>
 #include <block_alignment/block_alignment_converter.hpp>
-#include <vdj_alignments/vdj_hits.hpp>
+#include <vdj_alignments/vdj_hits/vdj_hits.hpp>
 #include <vdj_alignments/vdj_hits/vdj_hits_storage.hpp>
 #include <alignment_utils/alignment_positions.hpp>
 #include <vdj_alignments/aligners/simple_d_aligner.hpp>
