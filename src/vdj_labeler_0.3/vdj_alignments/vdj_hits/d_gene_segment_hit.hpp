@@ -18,6 +18,7 @@ class DGeneHit {
 private:
     const core::Read* read_ptr_;
     std::vector<alignment_utils::ImmuneGeneReadAlignment> d_genes_hits_;
+public:
 
 public:
     DGeneHit(const core::Read* read_ptr = nullptr) :
@@ -50,6 +51,8 @@ public:
     hits_iterator  end   ()       { return d_genes_hits_.end   (); }
     hits_citerator end   () const { return d_genes_hits_.end   (); }
     hits_citerator cend  () const { return d_genes_hits_.cend  (); }
+
+    const std::vector<alignment_utils::ImmuneGeneReadAlignment> &DGenesHits() const { return d_genes_hits_; }
 
     const alignment_utils::ImmuneGeneReadAlignment& operator[](const size_t &index) const {
         VERIFY(index < size());

@@ -45,6 +45,8 @@ void load(VDJLabelerConfig::RunParams &rp, boost::property_tree::ptree const &pt
 void load(VDJLabelerConfig::DAlignmentQualityParams &qp, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(qp.min_coverage, pt, "min_coverage");
+    load(qp.max_fined_len, pt, "max_fined_len");
+    load(qp.fine_for_short_d_alignment, pt, "fine_for_short_d_alignment");
 }
 
 void VDJLabelerConfig::load(std::string const &filename) {

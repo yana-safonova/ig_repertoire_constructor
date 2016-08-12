@@ -76,8 +76,11 @@ std::vector<double> InfoBasedDHitsCalculator::CalcOptimalScore(
         double score_w_curr_gene = d_gene_hits[i].Score();
         if (prev_d_gene_pos[i] != INDICATE_START_ANSWER) {
             score_w_curr_gene += opt_score[prev_d_gene_pos[i]];
-            if (d_gene_hits[i].AlignmentLength() <= 6) {
-                score_w_curr_gene -= 3;
+            if (d_gene_hits[i].AlignmentLength() <= max_fined_len_) {
+                score_w_curr_gene -= fine_for_short_d_alignment_;
+            }
+            if (d_gene_hits[i].AlignmentLength() >= 10) {
+                score_w_curr_gene *= 3;
             }
         }
         opt_score[i] = std::max<double>(opt_score[i - 1], score_w_curr_gene);
@@ -110,8 +113,7 @@ DGeneHits InfoBasedDHitsCalculator::CalcAnswer(const std::vector<alignment_utils
 
 DGeneHits InfoBasedDHitsCalculator::ComputeDHits(const core::Read* read_ptr,
                                                  const std::vector<vj_finder::VGeneHit> &v_hits,
-                                                 const std::vector<vj_finder::JGeneHit> &j_hits) const
-{
+                                                 const std::vector<vj_finder::JGeneHit> &j_hits) const {
     auto d_positions = d_alignment_positions_calculator_.ComputeDAlignmentPositions(v_hits, j_hits);
 
     if (!d_alignment_position_checker_.DAlignmentPositionsAreGood(d_positions)) {
@@ -122,7 +124,7 @@ DGeneHits InfoBasedDHitsCalculator::ComputeDHits(const core::Read* read_ptr,
     }
 
     auto d_gene_hits = CreateDGeneAlignments(read_ptr, d_positions);
-    // for (const auto & d_gene_hit : d_gene_hits) {
+    // for (const auto &d_gene_hit : d_gene_hits) {
     //     INFO(d_gene_hit.Subject() << " " << d_gene_hit.Score() << " " << d_gene_hit.Alignment());
     // }
 
@@ -135,7 +137,7 @@ DGeneHits InfoBasedDHitsCalculator::ComputeDHits(const core::Read* read_ptr,
     // int i = 0;
     // for (const auto &d_gene_hit : d_gene_hits) {
     //     INFO(i++ << " " << d_gene_hit.Subject().name() << " " << d_gene_hit.StartQueryPosition() <<
-    //                 " " << d_gene_hit.EndQueryPosition() << " " << d_gene_hit.Score());
+    //              " " << d_gene_hit.EndQueryPosition() << " " << d_gene_hit.Score());
     // }
     // Calculate "previous" d genes positions O(n^2) where n = d_gene_hits.size(). Bin Search is possible: O(n log n).
     auto prev_d_gene_pos = CreatePreviousDGenesPositions(d_gene_hits);

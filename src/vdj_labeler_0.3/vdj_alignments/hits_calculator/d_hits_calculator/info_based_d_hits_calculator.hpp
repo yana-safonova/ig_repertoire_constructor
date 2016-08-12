@@ -16,6 +16,9 @@ namespace vdj_labeler {
 class InfoBasedDHitsCalculator : public AbstractDGeneHitsCalculator {
 private:
     static constexpr size_t INDICATE_START_ANSWER = size_t(-1);
+
+    const unsigned max_fined_len_;
+    const unsigned fine_for_short_d_alignment_;
     GeneSegmentAligner &d_gene_aligner_;
     AbstractDAlignmentPositionChecker &d_alignment_position_checker_;
     AbstractDAlignmentPositionsCalculator &d_alignment_positions_calculator_;
@@ -45,8 +48,11 @@ public:
                              GeneSegmentAligner &d_gene_aligner,
                              AlignmentQualityChecker &quality_checker,
                              AbstractDAlignmentPositionChecker &d_alignment_position_checker,
-                             AbstractDAlignmentPositionsCalculator &d_alignment_position_calculator) :
+                             AbstractDAlignmentPositionsCalculator &d_alignment_position_calculator,
+                             const VDJLabelerConfig::DAlignmentQualityParams &config) :
         AbstractDGeneHitsCalculator(d_gene_database, quality_checker),
+        max_fined_len_(config.max_fined_len),
+        fine_for_short_d_alignment_(config.fine_for_short_d_alignment),
         d_gene_aligner_(d_gene_aligner),
         d_alignment_position_checker_(d_alignment_position_checker),
         d_alignment_positions_calculator_(d_alignment_position_calculator)

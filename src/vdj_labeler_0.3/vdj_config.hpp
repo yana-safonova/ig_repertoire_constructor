@@ -43,7 +43,10 @@ struct VDJLabelerConfig {
 
     struct DAlignmentQualityParams {
         unsigned min_coverage;
+        unsigned max_fined_len;
+        unsigned fine_for_short_d_alignment;
     };
+
 
     IOParams io_params;
     RunParams run_params;

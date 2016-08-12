@@ -1,15 +1,17 @@
 io_params {
     input_params {
-        input_sequences src/vdj_labeler_0.3/test/vdj_labeling.fastq
+        ; input_sequences src/vdj_labeler_0.3/test/age_ig_s3_R12_new.fastq
+        ; input_sequences src/vdj_labeler_0.3/test/vdj_labeling.fasta
+        input_sequences src/vdj_labeler_0.3/test/hiv_159_wk181_cleaned_sequences.fasta
         vj_finder_config configs/vj_finder/config.info
 
-    germlines {
-         igh {
-                 variable_genes data/germline/human_walczak_blank/IG/IGHV.fa
-                 diversity_genes data/germline/human_walczak_blank/IG/IGHD.fa
-                 join_genes data/germline/human_walczak_blank/IG/IGHJ.fa
-             }
-    }
+        germlines {
+             igh {
+                     variable_genes data/germline/human/IG/IGHV.fa
+                     diversity_genes data/germline/human/IG/IGHD.fa
+                     join_genes data/germline/human/IG/IGHJ.fa
+                 }
+        }
     }
 
     output_params {
@@ -20,9 +22,11 @@ io_params {
 
 run_params {
     max_memory   250
-    thread_count 16
+    thread_count 3
 }
 
 d_alignment_quality_params {
     min_coverage 5
+    max_fined_len 6
+    fine_for_short_d_alignment 3
 }

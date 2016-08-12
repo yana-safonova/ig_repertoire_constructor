@@ -14,7 +14,7 @@ io_params {
 
     output_params {
         output_dir   vdj_test
-        log_filename log.properties    
+        log_filename log.properties
     }
 }
 
@@ -25,4 +25,6 @@ run_params {
 
 d_alignment_quality_params {
     min_coverage 5
+    max_fined_len 6
+    fine_for_short_d_alignment 3
 }
