@@ -4,7 +4,6 @@ import os
 import shutil
 import sys
 import logging
-import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -662,11 +661,11 @@ def CreateLogger():
 
 def HelpString():
     return "Usage: igrec.py (-s FILENAME | -1 FILENAME -2 FILENAME | --test)\n" +\
-    "\t\t\t(-o OUTPUT_DIR) (-l LOCI)\n" +\
-    "\t\t\t[-t / --threads INT]\n" +\
-    "\t\t\t[--organism ORGANISM] [--no-pseudogenes]\n" +\
-    "\t\t\t[--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
-    "\t\t\t[-h]\n\n" +\
+    "                (-o OUTPUT_DIR) (-l LOCI)\n" +\
+    "                [-t / --threads INT]\n" +\
+    "                [--organism ORGANISM] [--no-pseudogenes]\n" +\
+    "                [--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
+    "                [-h]\n\n" +\
     "IgReC: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
     "Input arguments:\n" +\
     "  -s\t\t\t\tFILENAME\t\tSingle reads in FASTQ format\n" +\
@@ -690,18 +689,19 @@ def HelpString():
     "Please provide us with igrec.log file from the output directory."
 
 def ParseCommandLineParams(log):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="IgReC: an algorithm for construction of "
-                                              "antibody repertoire from immunosequencing data",
-                                  epilog="""
+    import argparse
+    parser = argparse.ArgumentParser(description="IgReC: an algorithm for construction of "
+                                     "antibody repertoire from immunosequencing data",
+                                     epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
-                                  """,
-                                  add_help=False)
+                                     """,
+                                     add_help=False)
 
     class ActionTest(argparse.Action):
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
             super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
+
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, "single_reads", "test_dataset/merged_reads.fastq")
             setattr(namespace, "loci", "all")
@@ -712,7 +712,7 @@ def ParseCommandLineParams(log):
     input_args.add_argument("-s",
                             dest="single_reads",
                             type=str,
-                            default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
+                            default="",  # FIXME This is only for ace's version of python. Locally it works great w/o it
                             help="Single reads in FASTQ format")
 
     input_args.add_argument("--test",
@@ -784,36 +784,36 @@ def ParseCommandLineParams(log):
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
-    dev_args = parser.add_argument_group("_Developer arguments")
+    dev_args = parser.add_argument_group("Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
                           type=float,
                           default=0.6,
-                          help="_Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
+                          help="Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default=PhaseNames().GetPhaseNameBy(0),
-                          help="_Continue from the given stage [default: %(default)s]")
+                          help="Continue from the given stage [default: %(default)s]")
     dev_args.add_argument("--create-triv-dec",
                           action="store_const",
                           const=True,
                           dest="create_trivial_decomposition",
-                          help='_Creating decomposition according to connected components [default: False]')
+                          help='Creating decomposition according to connected components [default: False]')
     dev_args.add_argument("--save-aux-files",
                           action="store_const",
                           const=True,
                           dest="save_aux_files",
-                          help="_Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
+                          help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
                                     "[default: False]")
     dev_args.add_argument("--debug",
                           action="store_const",
                           const=True,
                           dest="debug_mode",
-                          help="_Save auxiliary files [default: False]")
+                          help="Save auxiliary files [default: False]")
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
-                          action="help_hidden",
-                          help="_Show hidden help")
+                          action="help",
+                          help="Show hidden help")
     parser.set_defaults(config_dir="configs",
                         config_file="config.info")
     params = parser.parse_args()
