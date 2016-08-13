@@ -622,12 +622,15 @@ class RepertoireMatch:
                                    size=1,
                                    what="sensitivity",
                                    differential=True,
-                                   max_tau=4,
+                                   max_tau=None,
                                    format=None):
         import numpy as np
         import matplotlib.pyplot as plt
 
         f, ax = initialize_plot(font_scale=1)
+
+        if max_tau is None:
+            max_tau = self.max_tau
 
         data = self.__get_measure_for_plotting(size=size, what=what, differential=differential, max_tau=max_tau)
         measures = np.array(data[0])
@@ -659,10 +662,13 @@ class RepertoireMatch:
     def plot_octoplot(self, out,
                       sizes=(1, 3, 5, 10),
                       differential=True,
-                      max_tau=4,
+                      max_tau=None,
                       format=None):
         import numpy as np
         import matplotlib.pyplot as plt
+
+        if max_tau is None:
+            max_tau = self.max_tau
 
         initialize_plot(figsize=(8, 4), font_scale=1)
 

@@ -87,6 +87,10 @@ def parse_command_line(description="aimQUAST"):
     parser.add_argument("--output-dir", "-o",
                         type=str,
                         help="output dir for results")
+    parser.add_argument("--tau",
+                        type=int,
+                        default=6,
+                        help="maximal distance for repertoire-to-repertoire matching")
     parser.add_argument("--reference-size-cutoff",
                         default=5,
                         help="reference size cutoff")
@@ -199,7 +203,7 @@ def main(args):
         res = RepertoireMatch(args.constructed_repertoire,
                               args.reference_repertoire,
                               tmp_file=None,
-                              max_tau=4,
+                              max_tau=args.tau,
                               reference_trash_cutoff=args.reference_trash_cutoff,
                               reference_trust_cutoff=args.reference_trust_cutoff,
                               log=log)
