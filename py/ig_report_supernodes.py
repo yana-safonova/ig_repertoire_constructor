@@ -5,37 +5,14 @@ from Bio import SeqIO
 import sys
 
 
-import contextlib
-@contextlib.contextmanager
-def smart_open(filename, mode="r"):
-    """
-    From http://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
-    """
-    import gzip
-    import re
-    from sys import stdout, stdin
-
-    if "w" in mode:
-        MODE = "w"
-    elif "a" in mode:
-        MODE= "a"
-    else:
-        MODE = "r"
-
-    if filename != '-':
-        if re.match(r"^.*\.gz$", filename):
-            assert(MODE != "a")
-            fh = gzip.open(filename, mode=MODE)
-        else:
-            fh = open(filename, mode=mode)
-    else:
-        assert(MODE != "a")
-        fh = stdout if MODE == "w" else stdin
-    try:
-        yield fh
-    finally:
-        if fh is not stdout and fh is not stdin:
-            fh.close()
+import os
+current_dir = os.path.dirname(os.path.realpath(__file__))
+igrec_dir = current_dir + "/../"
+sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
+sys.path.append(igrec_dir + "/src/python_pipeline/")
+import support
+sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+from ash_python_utils import idFormatByFileName, smart_open
 
 
 def parse_size(s):
@@ -56,10 +33,10 @@ if __name__ == "__main__":
     parser = ArgumentParser(description="Report supernodes")
     parser.add_argument("input",
                         type=str,
-                        help="input FASTA file with abundances in ids")
+                        help="input FASTA/FASTQ file with abundances in ids")
     parser.add_argument("output",
                         type=str,
-                        help="output FASTA file")
+                        help="output FASTA/FASTQ file")
     parser.add_argument("--limit", "-l",
                         type=int,
                         default=5,
@@ -72,13 +49,13 @@ if __name__ == "__main__":
 
     input_size = output_size = 0
     with smart_open(args.input, "r") as fin, smart_open(args.output, "w") as fout:
-        for record in SeqIO.parse(fin, "fasta"):
+        for record in SeqIO.parse(fin, idFormatByFileName(args.input)):
             input_size += 1
             id = str(record.description)
             size = parse_size(id)
             assert id is not None
             if size >= args.limit:
-                SeqIO.write(record, fout, "fasta")
+                SeqIO.write(record, fout, idFormatByFileName(args.output))
                 output_size += 1
 
 
