@@ -179,8 +179,10 @@ def run_igrec(input_file, output_dir, log=None,
     support.sys_call("%(path)s/igrec.py --tau=%(tau)d --min-fillin=%(min_fillin)f -t %(threads)d --loci %(loci)s -s %(input_file)s -o %(output_dir)s %(additional_args)s" % args,
                      log=log)
     if remove_tmp:
-        import shutil
-        shutil.rmtree(output_dir + "/vj_finder")
+        import os.path
+        if os.path.isfile(output_dir + "/vj_finder"):
+            import shutil
+            shutil.rmtree(output_dir + "/vj_finder")
 
 
 def run_mixcr(input_file, output_dir,
