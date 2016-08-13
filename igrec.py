@@ -140,6 +140,7 @@ class IgRepConConfig:
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
+        self.run_triecmp_to_repertoire = os.path.join(home_directory, 'py/ig_triecmp_to_repertoire.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
         self.path_to_germline = os.path.join(home_directory, "data/germline")
 
@@ -162,6 +163,10 @@ class IgRepConConfig:
             sys.exit(1)
         if not os.path.exists(self.run_report_supernodes):
             log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_triecmp_to_repertoire):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.run_triecmp_to_repertoire + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
@@ -196,6 +201,8 @@ class IgRepConIO:
         self.compressed_reads = os.path.join(output_dir, "compressed_reads.fa")
         self.map_file = os.path.join(output_dir, "cleaned_compressed_map.txt")
         self.supernodes_file = os.path.join(output_dir, "super_reads.fa")
+        self.supernode_repertoire = os.path.join(output_dir, "supernode_repertoire.fa")
+        self.supernode_rcm = os.path.join(output_dir, "supernode_repertoire.rcm")
 
     def __initDSFOutput(self, output_dir):
         self.dsf_output = os.path.join(output_dir, "dense_sgraph_finder")
@@ -407,8 +414,12 @@ class TrieCompressionPhase(Phase):
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
                        " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
         support.sys_call(command_line, self._log)
+        command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
+                       " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
+                       " -r " + self.__params.io.supernode_repertoire + " -R " + self.__params.io.supernode_rcm
+        support.sys_call(command_line, self._log)
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
-                                                self.__params.io.compressed_reads,
+                                                self.__params.io.supernode_repertoire,
                                                 self.__params.io.supernodes_file,
                                                 self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
