@@ -678,6 +678,7 @@ def HelpString():
     "  -t / --threads\t\tINT\t\t\tThread number [default: 16]\n" +\
     "  -h / --help\t\t\t\t\t\tShowing help message and exit\n\n" +\
     "Alignment arguments:\n" +\
+    "  --no-alignment\t\t\t\t\tDo not provide any alignment and filtering\n" +\
     "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required\n" +\
     "  --organism\t\t\tORGANISM\t\tOrganism: human, mouse, pig, rabbit, rat, rhesus_monkey are available [default: human]\n" +\
     "  --no-pseudogenes\t\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n\n" +\
@@ -783,6 +784,10 @@ def ParseCommandLineParams(log):
                                default="human",
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
+
+    vj_align_args.add_argument("--no-alignment",
+                               action="store_true",
+                               help="Do not provide any alignment and filtering")
 
     dev_args = parser.add_argument_group("Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
@@ -963,7 +968,11 @@ def main():
         if params.left_reads:
             ig_repertoire_constructor.Run(start_phase=0)
         else:
-            ig_repertoire_constructor.Run(start_phase=1)
+            if params.no_alignment:
+                params.io.cropped_reads = params.single_reads
+                ig_repertoire_constructor.Run(start_phase=2)
+            else:
+                ig_repertoire_constructor.Run(start_phase=1)
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
         log.info("\nThank you for using IgReC!")
