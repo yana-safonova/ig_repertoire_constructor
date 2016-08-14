@@ -22,7 +22,7 @@ def run_and_quast_all(input_reads,
 
         def __init__(self,
                      name,
-                     tau=3,
+                     tau=4,
                      fillin=0.6,
                      trivial=False,
                      loci="all"):
@@ -43,6 +43,9 @@ def run_and_quast_all(input_reads,
 
     igrec_runs = []
     igrec_runs.append(IgReCRun("igrec_trivial", trivial=True))
+    igrec_runs.append(IgReCRun("igrec_trivial_tau3", tau=3, trivial=True))
+    igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
+    igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
     igrec_runs.append(IgReCRun("igrec"))
     igrec_runs.append(IgReCRun("igrec_f03", fillin=0.3))
@@ -63,7 +66,7 @@ def run_and_quast_all(input_reads,
     igrec_runs.append(IgReCRun("igrec_tau1_f03", tau=1, fillin=0.3))
     # igrec_runs.append(IgReCRun("igrec_tau1_f075", tau=1, fillin=0.75))
     igrec_runs.append(IgReCRun("igrec_tau1_f09", tau=1, fillin=0.9))
-    # igrec_runs.append(IgReCRun("igrec_tau1_f095", tau=1, fillin=0.95))
+    igrec_runs.append(IgReCRun("igrec_tau1_f095", tau=1, fillin=0.95))
 
     if not do_not_run:
         for run in igrec_runs:
