@@ -4,7 +4,7 @@ from test_on_naive_simulation import *
 
 
 def run_and_quast_all_three(input_dir, threads=16):
-    for i in [3]:
+    for i in [1, 2, 3]:
         run_and_quast_all(input_dir + "/input%d.fa.gz" % i,
                           input_dir + "/repertoire%d.fa.gz" % i,
                           input_dir + "/repertoire%d.rcm" % i,
@@ -21,7 +21,8 @@ if __name__ == "__main__":
     datasets = ["AGE3"]
     datasets = []
     datasets = ["FLU_FV_27"]
-    datasets = ["FLU_FV_21", "FLU_FV_22", "FLU_FV_23", "FLU_FV_27"]
+
+    datasets = ["AGE3", "AGE7", "MG91M_IGH", "MG91M_IGL", "MG91M_IGK", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
 
     for dataset in datasets:
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
