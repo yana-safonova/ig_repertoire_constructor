@@ -286,7 +286,7 @@ class Reperoire2RepertoireMatching:
             if len(matches) > 1:
                 log.info("Ref %d matched on several constructed: %s" % (j, str(matches)))
                 # print reference_repertoire[j]
-                for i in matches:
+                # for i in matches:
                     # print constructed_repertoire[i]
                 ref.append((j, matches))
 
