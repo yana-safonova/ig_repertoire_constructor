@@ -429,7 +429,7 @@ class RepertoireMatch:
 
         for i, pairs in enumerate(self.rep2rep.constructed2reference):
             for j, d in pairs:
-                assert self.__hamming(self.constructed_repertoire[i], self.reference_repertoire[j]) == d
+                # assert self.__hamming(self.constructed_repertoire[i], self.reference_repertoire[j]) == d
 
                 reference_abundance = self.rep2rep.reference_abundances[j]
                 constructed_abundance = self.rep2rep.constructed_abundances[i]
