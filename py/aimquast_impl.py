@@ -285,9 +285,9 @@ class Reperoire2RepertoireMatching:
             matches = [i for i, d in neibs if d == 0]
             if len(matches) > 1:
                 log.info("Ref %d matched on several constructed: %s" % (j, str(matches)))
-                print reference_repertoire[j]
+                # print reference_repertoire[j]
                 for i in matches:
-                    print constructed_repertoire[i]
+                    # print constructed_repertoire[i]
                 ref.append((j, matches))
 
         return cons, ref
