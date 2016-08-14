@@ -10,7 +10,7 @@ BCLEANER=${IGREC_DIR}/src/extra/ig_quast_tool/barcode_cleaner_nojoin.py
 CFINDER="${IGREC_DIR}/build/release/bin/ig_consensus_finder -H"
 CIC="${IGREC_DIR}/py/ig_compress_equal_clusters.py "
 
-LOCI=all
+LOCI=${3:-all}
 
 ${IGREC_DIR}/igrec.py -s ${INPUT} -o ${OUTPUT}/igrec_for_align/ --loci=${LOCI} --create-triv-dec -t4 --tau=1
 
