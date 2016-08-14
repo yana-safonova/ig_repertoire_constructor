@@ -91,6 +91,15 @@ def parse_command_line(description="aimQUAST"):
                         type=int,
                         default=6,
                         help="maximal distance for repertoire-to-repertoire matching")
+    parser.add_argument("--rcm-based",
+                        action="store_true",
+                        dest="rcm_based",
+                        help="enable partition-based metrics and plots")
+    parser.add_argument("--no-rcm-based",
+                        action="store_false",
+                        dest="rcm_based",
+                        help="disable partition-based metrics and plots")
+    parser.set_defaults(rcm_based=False)
     parser.add_argument("--reference-size-cutoff",
                         default=5,
                         help="reference size cutoff")
@@ -150,20 +159,20 @@ def main(args):
                                   initial_reads=args.initial_reads,
                                   output_file=args.constructed_repertoire)
 
-    if args.initial_reads and args.reference_repertoire and not args.reference_rcm:
+    if args.initial_reads and args.reference_repertoire and not args.reference_rcm and args.rcm_based:
         log.info("Try to reconstruct reference RCM file...")
         rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
         args.reference_rcm = args.output_dir + "/reference.rcm"
         write_rcm(rcm, args.reference_rcm)
 
-    if args.initial_reads and not args.reference_repertoire and args.reference_rcm:
+    if args.initial_reads and not args.reference_repertoire and args.reference_rcm and args.rcm_based:
         log.info("Try to reconstruct reference repertoire sequence file...")
         args.reference_repertoire = args.output_dir + "/reference.fa.gz"
         run_consensus_constructor(rcm_file=args.reference_rcm,
                                   initial_reads=args.initial_reads,
                                   output_file=args.reference_repertoire)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm and not args.no_reference_free:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and not args.no_reference_free and args.rcm_based:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
@@ -181,7 +190,7 @@ def main(args):
             rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
         rep_ideal.report(report, "reference_stats")
 
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free:
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
@@ -239,7 +248,7 @@ def main(args):
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
-    if args.constructed_rcm and args.reference_rcm:
+    if args.constructed_rcm and args.reference_rcm and args.rcm_based:
         rcm2rcm = RcmVsRcm(args.constructed_rcm,
                            args.reference_rcm)
 
