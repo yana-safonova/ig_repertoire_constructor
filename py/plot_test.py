@@ -15,16 +15,88 @@ def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
                   dir + "/" + tool2 + "/aimquast/aimquast.json",
                   label1=label1, label2=label2,
                   title=title,
+                  format=("png",),
                   out=out)
 
-
-if __name__ == "__main__":
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/",
+def plotplot(dir, out_dir, title):
+    mkdir_p(out_dir)
+    two_rocs(dir,
              tool1="igrec", tool2="mixcr",
              label1="IgReC",
              label2="MiXCR",
-             title="Real data: AGE3",
-             out="sensitivity_precision_plot_age3")
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_mixcr")
+
+    two_rocs(dir,
+             tool1="igrec", tool2="supernode",
+             label1="IgReC",
+             label2="Supernode",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_supernode")
+
+    two_rocs(dir,
+             tool1="igrec", tool2="igrec_tau1",
+             label1="IgReC",
+             label2="IgReC tau=1",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau1")
+
+    two_rocs(dir,
+             tool1="igrec_tau1", tool2="supernode",
+             label1="IgReC tau=1",
+             label2="Supernode",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_tau1_supernode")
+
+    two_rocs(dir,
+             tool1="mixcr", tool2="supernode",
+             label1="MiXCR",
+             label2="Supernode",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_mixcr_supernode")
+
+    two_rocs(dir,
+             tool1="igrec_tau1_f09", tool2="supernode",
+             label1="IgReC tau=1 f09",
+             label2="Supernode",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_tau1_f09_supernode")
+
+    two_rocs(dir,
+             tool1="igrec_tau2", tool2="supernode",
+             label1="IgReC tau=2",
+             label2="Supernode",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_tau2_supernode")
+
+    two_rocs(dir,
+             tool1="igrec", tool2="igrec_tau2",
+             label1="IgReC",
+             label2="IgReC tau=2",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau2")
+
+    two_rocs(dir,
+             tool1="igrec", tool2="igrec_tau3",
+             label1="IgReC",
+             label2="IgReC tau=3",
+             title="Real data: " + title,
+             out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau3")
+
+if __name__ == "__main__":
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="AGE3")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
+    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering3/", "FLU_FV_27_3", title="FLU_FV_27")
+    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering2/", "FLU_FV_27_2", title="FLU_FV_27")
+    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering1/", "FLU_FV_27_1", title="FLU_FV_27")
+    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering3/", "FLU_FV_21_3", title="FLU_FV_21")
+    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering2/", "FLU_FV_21_2", title="FLU_FV_21")
+    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering1/", "FLU_FV_21_1", title="FLU_FV_21")
+
+    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_22/filtering3/", "FLU_FV_22_3", title="FLU_FV_22")
+    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_23/filtering3/", "FLU_FV_23_3", title="FLU_FV_23")
+    sys.exit()
 
     two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21/filtering3/",
              tool1="igrec", tool2="mixcr",
