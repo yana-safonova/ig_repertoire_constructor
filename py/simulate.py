@@ -233,6 +233,53 @@ def run_mixcr(input_file, output_dir,
         os.remove(output_dir + "/mixcr_uncompressed.fa")
 
 
+def parse_presto_id(id):
+    import re
+    id = id.strip()
+
+    m = re.match(r".*DUPCOUNT=(\d+)$", id)
+
+    if m:
+        g = m.groups()
+        return int(g[0])
+    else:
+        return None
+
+assert parse_presto_id("@187968_merged_read_MISEQ2:53:000000000-A2BMV:1:1108:11153:7341_1:N:0:TTAGGC|DUPCOUNT=666") == 666
+
+
+def run_presto(input_file, output_dir,
+               log=None,
+               remove_tmp=True):
+    if log is None:
+        log = FakeLog()
+
+    mkdir_p(output_dir)
+
+    # gunzip
+    input_file_new = "%s/input_reads.fasta" % output_dir
+    fastx2fastx(input_file, input_file_new)
+
+    args = {"input_file": input_file_new,
+            "output_dir": output_dir}
+
+    support.sys_call("CollapseSeq.py -s %(input_file)s --outdir %(output_dir)s --outname presto" % args,
+                     log=log)
+
+    presto_output = output_dir + "/presto_collapse-unique.fasta"
+    repertoire_fa = output_dir + "/final_repertoire.fa"
+    with smart_open(presto_output) as fin, smart_open(repertoire_fa, "w") as fout:
+        for i, record in enumerate(SeqIO.parse(fin, idFormatByFileName(presto_output))):
+            id = record.description
+            size = parse_presto_id(id)
+            record.id = record.description = "cluster___%d___size___%d" % (i, size)
+            SeqIO.write(record, fout, "fasta")
+
+    if remove_tmp:
+        os.remove(input_file_new)
+        os.remove(presto_output)
+
+
 if __name__ == "__main__":
     ig_simulator_output_dir = "/tmp/ig_simulator"
     output_dir = igrec_dir + "/aimquast_test_dataset"

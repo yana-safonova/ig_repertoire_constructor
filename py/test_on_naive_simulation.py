@@ -75,13 +75,15 @@ def run_and_quast_all(input_reads,
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr/final_repertoire.fa"):
             run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
 
+        run_presto(input_reads, output_dir=out_dir + "/presto/")
+
         mkdir_p(out_dir + "/supernode")
         shutil.copy(out_dir + "/igrec/supernode_repertoire.fa",
                     out_dir + "/supernode/final_repertoire.fa")
         shutil.copy(out_dir + "/igrec/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "presto", "mixcr"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
