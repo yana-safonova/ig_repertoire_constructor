@@ -30,7 +30,7 @@ namespace vj_finder {
                     std::string cleaned_reads_fname;
                     std::string filtered_reads_fname;
                     std::string alignment_info_fname;
-                    std::string discard_info_filename;
+                    std::string filtering_info_filename;
                     std::string valignments_filename;
                 };
 

@@ -17,13 +17,13 @@ io_params {
 
      output_params {
         output_files {
-            output_dir              vjf_test
-            log_filename            log.properties
-            cleaned_reads_fname     cleaned_reads.fasta        
-            filtered_reads_fname    filtered_reads.fasta
-            alignment_info_fname    alignment_info.csv
-            discard_info_filename   oppa4
-            valignments_filename    v_alignments.fa
+            output_dir              	vjf_test
+            log_filename           	log.properties
+            cleaned_reads_fname     	cleaned_reads.fasta        
+            filtered_reads_fname    	filtered_reads.fasta
+            alignment_info_fname    	alignment_info.csv
+            filtering_info_filename 	filtering_info.csv
+            valignments_filename    	v_alignments.fa
         }
 
         output_details {

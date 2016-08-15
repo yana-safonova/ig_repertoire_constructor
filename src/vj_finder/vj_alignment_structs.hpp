@@ -204,8 +204,6 @@ namespace vj_finder {
         }
     };
 
-    typedef boost::optional<VJHits> ProcessedVJHits;
-
     class CustomGermlineDbHelper : public algorithms::KmerIndexHelper<germline_utils::CustomGeneDatabase,
             seqan::Dna5String> {
     public:

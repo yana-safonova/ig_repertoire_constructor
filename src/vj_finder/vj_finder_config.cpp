@@ -44,7 +44,7 @@ namespace vj_finder {
         of.log_filename = path::append_path(of.output_dir, of.log_filename);
         of.alignment_info_fname = path::append_path(of.output_dir, of.alignment_info_fname);
         of.filtered_reads_fname = path::append_path(of.output_dir, of.filtered_reads_fname);
-        of.discard_info_filename = path::append_path(of.output_dir, of.discard_info_filename);
+        of.filtering_info_filename = path::append_path(of.output_dir, of.filtering_info_filename);
         of.cleaned_reads_fname = path::append_path(of.output_dir, of.cleaned_reads_fname);
         of.valignments_filename = path::append_path(of.output_dir, of.valignments_filename);
     }
@@ -55,7 +55,7 @@ namespace vj_finder {
         load(of.log_filename, pt, "log_filename");
         load(of.alignment_info_fname, pt, "alignment_info_fname");
         load(of.filtered_reads_fname, pt, "filtered_reads_fname");
-        load(of.discard_info_filename, pt, "discard_info_filename");
+        load(of.filtering_info_filename, pt, "filtering_info_filename");
         load(of.output_dir, pt, "output_dir");
         load(of.cleaned_reads_fname, pt, "cleaned_reads_fname");
         load(of.valignments_filename, pt, "valignments_filename");

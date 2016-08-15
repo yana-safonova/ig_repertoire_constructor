@@ -35,8 +35,9 @@ namespace vj_finder {
         VJAlignmentOutput alignment_info_output(config_.io_params.output_params, alignment_info);
         alignment_info_output.OutputAlignmentInfo();
         alignment_info_output.OutputCleanedReads();
-        alignment_info_output.OutputFilteredReads();
         alignment_info_output.OutputVAlignments();
+        alignment_info_output.OutputFilteredReads();
+        alignment_info_output.OutputFilteringInfo();
         INFO("== VJ Finder ends == ");
     }
 }
