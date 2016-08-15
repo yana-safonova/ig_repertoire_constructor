@@ -26,6 +26,38 @@ from ig_compress_equal_clusters import parse_cluster_mult
 path_to_igrec = igrec_dir
 
 
+def auc(sensitivity, precision):
+    assert len(precision) == len(sensitivity)
+
+    sensitivity = [sensitivity[0]] + sensitivity + [0]
+    precision = [0] + precision + [precision[-1]]
+
+    area = 0
+    for xp, xn, yp, yn in zip(precision[:-1], precision[1:], sensitivity[:-1], sensitivity[1:]):
+        area += (xn * yp - xp * yn)
+
+    area /= 2.0
+
+    return area
+
+
+def __opt_fnc(sensitivity, precision, fnc):
+    assert len(precision) == len(sensitivity)
+
+    i = max(xrange(len(sensitivity)), key=lambda i: fnc([sensitivity[i] + precision[i]]))
+    size = i + 1
+
+    return size, sensitivity[i], precision[i], fnc([sensitivity[i], precision[i]])
+
+
+def opt_sum(sensitivity, precision):
+    return __opt_fnc(sensitivity, precision, sum)
+
+
+def opt_min(sensitivity, precision):
+    return __opt_fnc(sensitivity, precision, min)
+
+
 def hexbinblue(ax, x, y, gridsize=25, xlim=None, ylim=None):
     import matplotlib.colors as colors
     import matplotlib.pyplot as plt
@@ -567,9 +599,14 @@ class RepertoireMatch:
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
-        rb["__data_sizes"] = list(sizes)
-        rb["__data_sensitivity"] = list(sensitivity)
-        rb["__data_precision"] = list(precision)
+        precision, sensitivity, sizes = list(precision), list(sensitivity), list(sizes)
+        rb["__data_sizes"] = sizes
+        rb["__data_sensitivity"] = sensitivity
+        rb["__data_precision"] = precision
+
+        rb["AUC"] = auc(sensitivity, precision)
+        rb["opt_min_size"], rb["opt_min_sensitivity"], rb["opt_min_precision"], rb["opt_min"] = opt_min(sensitivity, precision)
+        rb["opt_sum_size"], rb["opt_sum_sensitivity"], rb["opt_sum_precision"], rb["opt_sum"] = opt_sum(sensitivity, precision)
 
         ref2cons5, taus, _ = self.__get_measure_for_plotting(size=5, what="ref2cons")
         cons2ref5, _, _ = self.__get_measure_for_plotting(size=5, what="cons2ref")
@@ -1964,6 +2001,9 @@ class Report:
             s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
             s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
             s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+            s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
+            s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
+            s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
 
             if "jaccard_index" in rb:
                 s += "\tClustering similarity measures:\n"
