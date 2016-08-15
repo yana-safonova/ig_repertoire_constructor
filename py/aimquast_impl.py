@@ -2120,41 +2120,36 @@ def plot_various_error_rate(dir,
     save_plot(out, format=format)
 
 
-def plot_two_rocs(json1, json2,
-                  label1="1", label2="2",
+def plot_two_rocs(jsons, labels,
                   max_size_threshold=75,
                   out="two_rocs",
                   title="",
-                  format=None,
-                  plot_second=True):
+                  format=None):
     import numpy as np
     import matplotlib.pyplot as plt
     import seaborn as sns
 
-    json1 = json_from_file(json1)
-    json2 = json_from_file(json2)
+    jsons = [json for json in jsons if json is not None]
 
-    sensitivity1 = json1["reference_based"]["__data_sensitivity"]
-    sensitivity2 = json2["reference_based"]["__data_sensitivity"]
-    precision1 = json1["reference_based"]["__data_precision"]
-    precision2 = json2["reference_based"]["__data_precision"]
+    how_many = len(jsons)
+    jsons = map(json_from_file, jsons)
 
-    if len(sensitivity1) > max_size_threshold:
-        sensitivity1 = sensitivity1[:max_size_threshold]
-    if len(sensitivity2) > max_size_threshold:
-        sensitivity2 = sensitivity2[:max_size_threshold]
-    if len(precision1) > max_size_threshold:
-        precision1 = precision1[:max_size_threshold]
-    if len(precision2) > max_size_threshold:
-        precision2 = precision2[:max_size_threshold]
+    sensitivities = [json["reference_based"]["__data_sensitivity"] for json in jsons]
+    precisions = [json["reference_based"]["__data_precision"] for json in jsons]
+
+    def cut_to_threshold(x):
+        return x if len(x) <= max_size_threshold else x[:max_size_threshold]
+
+    sensitivities = map(cut_to_threshold, sensitivities)
+    precisions = map(cut_to_threshold, precisions)
 
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    plt.plot(precision1, sensitivity1, "b-", color="cornflowerblue", label=label1)
 
-    if plot_second:
-        plt.plot(precision2, sensitivity2, "b-", color="seagreen", label=label2)
+    colors = ["cornflowerblue", "seagreen", "yellow", "black"]
+    for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
+        plt.plot(precision, sensitivity, "b-", color=color, label=label)
 
     eps = 0.025
     plt.xlim((0 - eps, 1 + eps))
@@ -2180,28 +2175,27 @@ def plot_two_rocs(json1, json2,
                      xytext=(_x + xshift, _y + yshift))
 
     for i in [1, 3, 5, 10, 50]:
-        annotation(i, precision1, sensitivity1, color="blue")
-        if plot_second:
-            annotation(i, precision2, sensitivity2, color="green", xshift=-0.04)
+        annotation(i, precisions[0], sensitivities[0], color="blue")
+        if len(jsons) > 1:
+            annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
+        if len(jsons) > 2:
+            annotation(i, precisions[2], sensitivities[2], color="yellow", yshift=0.04)
+        if len(jsons) > 3:
+            annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
     def red_point(x, y):
         reference_trust_cutoff = 5
-        if np.isfinite(reference_trust_cutoff):
-            plt.plot(x[reference_trust_cutoff - 1], y[reference_trust_cutoff - 1], "bo", color="red", label="Reference size threshold")
+        plt.plot(x[reference_trust_cutoff - 1], y[reference_trust_cutoff - 1], "bo", color="red", label="Reference size threshold")
 
-    red_point(precision1, sensitivity1)
-    if plot_second:
-        red_point(precision2, sensitivity2)
+    for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
+        red_point(precision, sensitivity)
 
     if title:
         plt.title(title)
 
     handles, labels = ax.get_legend_handles_labels()
-    handles = [handles[0], handles[1]]
-    labels = [labels[0], labels[1]]
-
-    if not plot_second:
-        handles, labels = [handles[0]], [labels[0]]
+    handles = [:how_many]
+    labels = [:how_many]
 
     ax.legend(handles, labels, loc=3)
 
