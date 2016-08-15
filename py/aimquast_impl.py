@@ -2120,12 +2120,11 @@ def plot_various_error_rate(dir,
     save_plot(out, format=format)
 
 
-def plot_two_rocs(jsons, labels,
-                  max_size_threshold=75,
-                  out="two_rocs",
-                  title="",
-                  format=None):
-    import numpy as np
+def plot_rocs(jsons, labels,
+              max_size_threshold=75,
+              out="two_rocs",
+              title="",
+              format=None):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -2147,7 +2146,7 @@ def plot_two_rocs(jsons, labels,
 
     sns.set_style("darkgrid")
 
-    colors = ["cornflowerblue", "seagreen", "yellow", "black"]
+    colors = ["cornflowerblue", "seagreen", "darkgray", "black"]
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision, sensitivity, "b-", color=color, label=label)
 
@@ -2179,7 +2178,7 @@ def plot_two_rocs(jsons, labels,
         if len(jsons) > 1:
             annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
         if len(jsons) > 2:
-            annotation(i, precisions[2], sensitivities[2], color="yellow", yshift=0.04)
+            annotation(i, precisions[2], sensitivities[2], color="grey", yshift=0.04)
         if len(jsons) > 3:
             annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
@@ -2194,8 +2193,8 @@ def plot_two_rocs(jsons, labels,
         plt.title(title)
 
     handles, labels = ax.get_legend_handles_labels()
-    handles = [:how_many]
-    labels = [:how_many]
+    handles = handles[:how_many]
+    labels = labels[:how_many]
 
     ax.legend(handles, labels, loc=3)
 
