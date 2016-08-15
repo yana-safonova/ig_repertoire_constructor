@@ -1,8 +1,35 @@
 #!/usr/bin/env python2
 
 from simulate import *
-from aimquast_impl import plot_two_rocs
+from aimquast_impl import plot_rocs
 from aimquast_impl import plot_various_error_rate
+
+
+# def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
+#     if label1 is None:
+#         label1 = tool1
+#     if label2 is None:
+#         label2 = tool2
+#
+#     plot_rocs([dir + "/" + tool1 + "/aimquast/aimquast.json",
+#                dir + "/" + tool2 + "/aimquast/aimquast.json"],
+#               labels=[label1, label2],
+#               title=title,
+#               format=("png",),
+#               out=out)
+
+
+def rocs(dir, tools, out, labels=None, title=""):
+    if labels is None:
+        labels = tools
+
+    assert len(labels) == len(tools)
+
+    plot_rocs([dir + "/" + tool + "/aimquast/aimquast.json" for tool in tools],
+              labels=labels,
+              title=title,
+              format=("png",),
+              out=out)
 
 
 def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
@@ -11,12 +38,8 @@ def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
     if label2 is None:
         label2 = tool2
 
-    plot_two_rocs(dir + "/" + tool1 + "/aimquast/aimquast.json",
-                  dir + "/" + tool2 + "/aimquast/aimquast.json",
-                  label1=label1, label2=label2,
-                  title=title,
-                  format=("png",),
-                  out=out)
+    rocs(dir, [tool1, tool2], out, [label1, label2], title)
+
 
 def plotplot(dir, out_dir, title):
     mkdir_p(out_dir)
