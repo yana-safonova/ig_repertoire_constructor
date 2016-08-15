@@ -10,7 +10,12 @@ namespace vj_finder {
             read.seq = seqan::prefix(read.seq, j_hit.LastMatchReadPos());
             auto j_suffix = seqan::suffix(j_hit.ImmuneGene().seq(), j_hit.LastMatchGenePos());
             read.seq += j_suffix;
-            // todo: shift left bound of the first match
+            // todo: shift right bound of the last match
+            if(params_.fix_right != 0) {
+                for(size_t i = 0; i < params_.fix_right; i++) {
+                    read.seq[read.length() - i - 1] = j_hit.ImmuneGene().seq()[j_hit.ImmuneGene().length() - i - 1];
+                }
+            }
         }
         int left_shift = 0;
         if(params_.crop_left and params_.fill_right) {
@@ -20,7 +25,12 @@ namespace vj_finder {
             v_prefix += read.seq;
             read.seq = v_prefix;
             left_shift = -int(v_hit.FirstMatchReadPos()) + int(v_hit.FirstMatchGenePos());
-            // todo: shift right bound of the last match
+            // todo: shift left bound of the first match
+            if(params_.fix_left != 0) {
+                for(size_t i = 0; i < params_.fix_left; i++) {
+                    read.seq[i] = v_hit.ImmuneGene().seq()[i];
+                }
+            }
         }
         read_archive_.UpdateReadByIndex(read.id, read.seq);
         vj_hits.AddLeftShift(left_shift);
