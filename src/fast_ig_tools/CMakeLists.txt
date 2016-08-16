@@ -30,7 +30,6 @@ if(SEQAN_INCLUDE_DIR)
 endif()
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
 # link_libraries(pthread)
@@ -61,15 +60,14 @@ target_link_libraries(ig_trie_compressor build_info)
 target_link_libraries(ig_trie_compressor boost_system)
 
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp)
-add_executable(ig_matcher ig_matcher.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp)
 target_link_libraries(ig_swgraph_construct build_info)
 
 add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
+add_executable(hgc hgc.cpp)
+target_link_libraries(hgc build_info)
 
-add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/germline"
-        $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
+add_executable(hogc hogc.cpp)
+target_link_libraries(hogc build_info)

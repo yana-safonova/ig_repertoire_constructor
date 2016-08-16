@@ -132,8 +132,8 @@ class IgRepConConfig:
         self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
         self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
-        self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
-        self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
+        self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/hgc')
+        self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./hgc')
         self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
         self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
@@ -221,7 +221,7 @@ class IgRepConIO:
         self.__log = log
         self.__initVJFinderOutput(output_dir)
         self.__initCompressorOutput(output_dir)
-        self.sw_graph = os.path.join(output_dir, "sw.graph")
+        self.h_graph = os.path.join(output_dir, "h.graph")
         self.__initDSFOutput(output_dir)
         self.__initFinalOutput(output_dir)
         self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_large.fa')
@@ -264,8 +264,8 @@ class IgRepConIO:
             sys.exit(1)
 
     def CheckSWGraphExistance(self):
-        if not os.path.exists(self.sw_graph):
-            self.__log.info("ERROR: File containing Smith-Waterman graph was not found")
+        if not os.path.exists(self.h_graph):
+            self.__log.info("ERROR: File containing Hamming graph was not found")
             SupportInfo(self.__log)
             sys.exit(1)
 
@@ -444,14 +444,14 @@ class GraphConstructionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
-                       " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
+                       " -o " + self.__params.io.h_graph + " -t " + str(self.__params.num_threads) + \
                        " --tau=" + str(self.__params.max_mismatches) + " -A"
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
         self._log.info("\nOutput files:")
-        self._log.info("  * Smith-Waterman graph was written to " + self.__params.io.sw_graph)
+        self._log.info("  * Hamming graph was written to " + self.__params.io.h_graph)
 
 ###########
 class DSFPhase(Phase):
@@ -463,7 +463,7 @@ class DSFPhase(Phase):
         self.__params.io.CheckSWGraphExistance()
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.io.sw_graph,
+        dsf_params = ['-g', self.__params.io.h_graph,
                       '-o', self.__params.io.dsf_output,
                       '-t', str(self.__params.num_threads),
                       '-n', str(self.__params.min_snode_size),
@@ -916,8 +916,8 @@ def RemoveAuxFiles(params):
         os.remove(params.io.map_file)
     if os.path.exists(params.io.compressed_reads):
         os.remove(params.io.compressed_reads)
-    if os.path.exists(params.io.sw_graph):
-        os.remove(params.io.sw_graph)
+    if os.path.exists(params.io.h_graph):
+        os.remove(params.io.h_graph)
     if os.path.exists(params.io.dsf_output) and not params.save_aux_files:
         shutil.rmtree(params.io.dsf_output)
     if os.path.exists(params.io.uncompressed_final_clusters_fa):
