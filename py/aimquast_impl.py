@@ -382,6 +382,13 @@ class RepertoireMatch:
         return result
 
     @staticmethod
+    def __read_fa_cluster_ids(filename):
+        with smart_open(filename) as f:
+            result = map(lambda rec: parse_cluster_mult(rec.id)[0], SeqIO.parse(f, idFormatByFileName(filename)))
+
+        return result
+
+    @staticmethod
     def __errs(s1, s2):
         result = []
         for i, l1, l2 in zip(xrange(1000), s1, s2):
@@ -420,6 +427,13 @@ class RepertoireMatch:
         result.sort()
         return result
 
+    @memoize
+    def extra_clusters(self, cons_size=5, ref_size=5):
+        return [id for id, ab, match in zip(self.constructed_ids, self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
+
+    @memoize
+    def missed_clusters(self, cons_size=5, ref_size=5):
+        return [id for id, ab, match in zip(self.reference_ids, self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
@@ -428,6 +442,9 @@ class RepertoireMatch:
                  reference_trust_cutoff=float("inf"),
                  log=None):
         import numpy as np
+
+        self.reference_ids = self.__read_fa_cluster_ids(reference_repertoire)
+        self.constructed_ids = self.__read_fa_cluster_ids(constructed_repertoire)
 
         self.reference_repertoire = self.__read_fa(reference_repertoire)
         self.constructed_repertoire = self.__read_fa(constructed_repertoire)
@@ -576,6 +593,8 @@ class RepertoireMatch:
     # TODO Add density plot(s)
 
     def report(self, report, size=None):
+        import math
+
         if "reference_based" not in report.__dict__:
             report.reference_based = {}
 
@@ -596,6 +615,7 @@ class RepertoireMatch:
 
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
+        rb["reference_vs_constructed_error_rate_estimation"] = -math.log(float(self.M2MDATA.median_rate(size)))
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
@@ -616,6 +636,9 @@ class RepertoireMatch:
 
         rb["error_positions_reversed"] = self.__error_positions(reversed=True)
         rb["error_positions"] = self.__error_positions(reversed=False)
+
+        rb["missed_clusters"] = self.missed_clusters()
+        rb["extra_clusters"] = self.extra_clusters()
 
     def __get_measure_for_plotting(self,
                                    size=1,
@@ -2001,6 +2024,7 @@ class Report:
             s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
             s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
             s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+            s += "\tError-rate estimation:\t\t\t%(reference_vs_constructed_error_rate_estimation)0.4f\n" % rb
             s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
             s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
             s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
