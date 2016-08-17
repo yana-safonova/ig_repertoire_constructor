@@ -103,27 +103,32 @@ def run_and_quast_all(input_reads,
 
 if __name__ == "__main__":
     ig_simulator_output_dir = "/tmp/ig_simulator"
-    output_dir = igrec_dir + "/various_error_rate"
     run_ig_simulator(ig_simulator_output_dir,
                      chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
 
+    multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
+                         igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+    datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
+                igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
+    output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
+
     lambdas = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
-    # lambdas = [0, 1, 2]
-    for min_error in [0, 1]:
-        for error_rate in lambdas:
-            out_dir = output_dir + "/errate_%0.2f" % error_rate if not min_error else output_dir + "/errate_%0.2f_woans" % error_rate
-            simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta",
-                          out_dir,
-                          error_rate=error_rate,
-                          seed=0,
-                          min_error=min_error,
-                          erroneous_site_len=300)
+    for dataset, output_dir in reversed(zip(datasets, output_dirs)):
+        for min_error in [0, 1]:
+            for error_rate in lambdas:
+                out_dir = output_dir + "/errate_%0.2f" % error_rate if not min_error else output_dir + "/errate_%0.2f_woans" % error_rate
+                simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta",
+                              out_dir,
+                              error_rate=error_rate,
+                              seed=0,
+                              min_error=min_error,
+                              erroneous_site_len=300)
 
-            sizes = get_clusters_sizes(out_dir + "/ideal_final_repertoire.fa")
-            print "Reference consists of %d clusters" % len(sizes)
-            print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
+                sizes = get_clusters_sizes(out_dir + "/ideal_final_repertoire.fa")
+                print "Reference consists of %d clusters" % len(sizes)
+                print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
-            run_and_quast_all(out_dir + "/merged_reads.fa",
-                              out_dir + "/ideal_final_repertoire.fa",
-                              out_dir + "/ideal_final_repertoire.rcm", out_dir,
-                              rerun_mixcr=True)
+                run_and_quast_all(out_dir + "/merged_reads.fa",
+                                  out_dir + "/ideal_final_repertoire.fa",
+                                  out_dir + "/ideal_final_repertoire.rcm", out_dir,
+                                  rerun_mixcr=True)
