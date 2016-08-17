@@ -73,6 +73,15 @@ void TestJSegmentIgBlastConsistent() {
               "IGHJ4*02");
 }
 
+void TestStartAndEndAlignmentPositions() {
+    INFO("Checking start and end alignment positions");
+    for (size_t i = 0; i < alignment_info.NumVJHits(); i++) {
+        ASSERT_EQ(alignment_info.GetVJHitsByIndex(i).GetVHitByIndex(0).FirstMatchReadPos(), 0);
+        ASSERT_EQ(alignment_info.GetVJHitsByIndex(i).GetJHitByIndex(0).LastMatchReadPos(),
+                  read_archive[i].length());
+    }
+}
+
 void TestReadInversion() {
     INFO("Checking read inversion");
     ASSERT_EQ("GAGGTGCAGCTGGTGGAGTCTGGGGGAGGCTTGGTCCAGTCTGGGGGGTCCCTGAGACTCTCCTGTGCAGC"
@@ -110,6 +119,7 @@ TEST_F(VJFinderTest, BaseVJFinderTest) {
     ASSERT_EQ(alignment_info.NumVJHits(), 6);
     TestVSegmentIgBlastConsistent();
     TestJSegmentIgBlastConsistent();
+    TestStartAndEndAlignmentPositions();
     TestReadInversion();
     TestReadLeftRightCropping();
     TestReadLeftRightFilling();

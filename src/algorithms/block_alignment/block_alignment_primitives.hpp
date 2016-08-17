@@ -61,5 +61,19 @@ namespace algorithms {
         std::string visualize_matches(int needle_length, int read_length) const;
 
         bool check_overlaps() const;
+
+        void extend_first_match(int left_shift) {
+            (*this)[0].read_pos += left_shift;
+            (*this)[0].subject_pos += left_shift;
+        }
+
+        void extend_last_match(int left_shift) {
+            (*this)[size() - 1].length = size_t(int((*this)[size() - 1].length) + left_shift);
+        }
+
+        void add_read_shift(int read_shift) {
+            for(size_t i = 0; i < size(); i++)
+                (*this)[i].read_pos += read_shift;
+        }
     };
 }

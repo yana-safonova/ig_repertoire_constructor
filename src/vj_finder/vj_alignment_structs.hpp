@@ -14,15 +14,13 @@ namespace vj_finder {
         const germline_utils::ImmuneGene* immune_gene_ptr_;
         algorithms::PairwiseBlockAlignment block_alignment_;
         bool strand_;
-        int shift_;
 
     public:
         ImmuneGeneHit() :
             read_ptr_(NULL),
             immune_gene_ptr_(NULL),
             block_alignment_(),
-            strand_(false),
-            shift_(0) { }
+            strand_(false) { }
 
         ImmuneGeneHit(const core::Read& read,
                       const germline_utils::ImmuneGene &immune_gene,
@@ -31,8 +29,7 @@ namespace vj_finder {
                 read_ptr_(&read),
                 immune_gene_ptr_(&immune_gene),
                 block_alignment_(std::move(block_alignment)),
-                strand_(strand),
-                shift_(0) { }
+                strand_(strand) { }
 
         bool Strand() const { return strand_; }
 
@@ -72,28 +69,29 @@ namespace vj_finder {
 
         bool Empty() const { return read_ptr_ == NULL or immune_gene_ptr_ == NULL; }
 
-        //int LeftShift() const { return block_alignment_.path.left_shift(); }
 
-        //int RightShift() const { return block_alignment_.path.right_shift(); }
-
-
+        // first match positions are inclusive
         size_t FirstMatchReadPos() const { return block_alignment_.first_match_read_pos(); }
 
         size_t FirstMatchGenePos() const { return block_alignment_.first_match_subject_pos(); }
 
+        // last match positions are exclusive
         size_t LastMatchReadPos() const { return block_alignment_.last_match_read_pos(); }
 
         size_t LastMatchGenePos() const { return block_alignment_.last_match_subject_pos(); }
 
 
         virtual void AddShift(int shift) {
-            shift_ += shift;
             block_alignment_.add_read_shift(shift);
         }
 
-        virtual void ExtendFirstMatch(int left_shift) { VERIFY(false); }
+        virtual void ExtendFirstMatch(int left_shift) {
+            block_alignment_.extend_first_match(left_shift);
+        }
 
-        virtual void ExtendLastMatch(int right_shift) { VERIFY(false); }
+        virtual void ExtendLastMatch(int right_shift) {
+            block_alignment_.extend_last_match(right_shift);
+        }
     };
 
     class VGeneHit : public ImmuneGeneHit {
@@ -201,6 +199,18 @@ namespace vj_finder {
         void AddRightShift(int shift) {
             for(auto it = j_hits_.begin(); it != j_hits_.end(); it++)
                 it->AddShift(shift);
+        }
+
+        void ExtendFirstMatch(int left_shift) {
+            for(auto it = v_hits_.begin(); it != v_hits_.end(); it++) {
+                it->ExtendFirstMatch(left_shift);
+            }
+        }
+
+        void ExtendLastMatch(int right_shift) {
+            for(auto it = j_hits_.begin(); it != j_hits_.end(); it++) {
+                it->ExtendLastMatch(right_shift);
+            }
         }
     };
 

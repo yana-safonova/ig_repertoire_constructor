@@ -41,8 +41,7 @@ namespace algorithms {
             // Add finishing gaps (reverse order since insert_gaps works with VIEW position!)
             // TODO Use SeqAn clipping if possible
             int finishing_gap = (int(gene_len) - block_alignment.path.last().subject_pos) -
-                    (int(read_len) - block_alignment.path.last().read_pos - block_alignment.read_shift);
-                    //(read_len - block_alignment.path.last().read_pos);
+                    (int(read_len) - block_alignment.path.last().read_pos);
             if (finishing_gap > 0) {
                 insertGaps(row_read, read_len, finishing_gap);
             } else if (finishing_gap < 0) {
@@ -57,8 +56,8 @@ namespace algorithms {
             if (block_alignment.path.size() > 1) {
                 for (size_t i = block_alignment.path.size() - 2; i + 1 > 0; --i) {
                     const auto &read_edge = infix(query_string,
-                                                  block_alignment.path[i].read_pos + block_alignment.read_shift + block_alignment.path[i].length,
-                                                  block_alignment.path[i + 1].read_pos + block_alignment.read_shift);
+                                                  block_alignment.path[i].read_pos + block_alignment.path[i].length,
+                                                  block_alignment.path[i + 1].read_pos);
                     const auto &gene_edge = infix(subject_string,
                                                   block_alignment.path[i].subject_pos + block_alignment.path[i].length,
                                                   block_alignment.path[i + 1].subject_pos);
@@ -67,7 +66,7 @@ namespace algorithms {
 
                     if (length(read_edge) < length(gene_edge)) {
                         insertGaps(row_read,
-                                   block_alignment.path[i].read_pos + block_alignment.read_shift + block_alignment.path[i].length +
+                                   block_alignment.path[i].read_pos + block_alignment.path[i].length +
                                            find_simple_gap(read_edge, gene_edge),
                                    length(gene_edge) - length(read_edge));
                     } else if (length(gene_edge) < length(read_edge)) {
@@ -82,10 +81,7 @@ namespace algorithms {
             }
 
             // Add starting gaps (reverse order since insert_gaps works with VIEW position!)
-            //std::cout << block_alignment.path.first().subject_pos << " - " << block_alignment.path.first().read_pos <<
-            //        " - " << block_alignment.read_shift << std::endl;
-            int starting_gap = block_alignment.path.first().subject_pos - block_alignment.path.first().read_pos - block_alignment.read_shift;
-           // std::cout << "Starting gap: " << starting_gap << std::endl;
+            int starting_gap = block_alignment.path.first().subject_pos - block_alignment.path.first().read_pos;
             if (starting_gap > 0) {
                 insertGaps(row_read, 0, starting_gap);
             } else if (starting_gap < 0) {
