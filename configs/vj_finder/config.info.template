@@ -69,7 +69,7 @@ algorithm_params {
         fill_left       true
         fill_right      true
         fix_left        3
-        fix_right       0
+        fix_right       17
         crop_left       true
         crop_right      true
         fcf_algorithm   aggressive_fcf; accurate_fcf - is not implemented yet
