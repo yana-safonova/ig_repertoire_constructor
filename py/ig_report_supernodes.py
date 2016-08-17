@@ -14,7 +14,6 @@ import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ash_python_utils import idFormatByFileName, smart_open
 
-
 def parse_size(s):
     import re
 

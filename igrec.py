@@ -128,8 +128,8 @@ class IgRepConConfig:
     def __initBinaryPaths(self):
         self.path_to_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/paired_read_merger')
         self.run_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/./paired_read_merger')
-        self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/ig_kplus_vj_finder')
-        self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
+        self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/vj_finder') #ig_kplus_vj_finder')
+        self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./vj_finder') #ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
         self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
         self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')

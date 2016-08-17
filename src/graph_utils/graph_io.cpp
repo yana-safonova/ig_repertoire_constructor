@@ -170,15 +170,15 @@ public:
         vector<string> splits = SplitGraphString(header_line);
         size_t num_vertices = GetNumVertices(splits);
         if (GraphIsUnweighted(splits)) {
-            INFO("Unweighted graph reader was chosen");
+            TRACE("Unweighted graph reader was chosen");
             return UnweightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
         if (GraphIsEdgeWeighted(splits)) {
-            INFO("Edge weighted graph reader was chosen");
+            TRACE("Edge weighted graph reader was chosen");
             return EdgeWeightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
         if (GraphIsEdgeVertexWeighted(splits)) {
-            INFO("Edge & vertex graph reader was chosen");
+            TRACE("Edge & vertex graph reader was chosen");
             return EdgeVertexWeightedGraphReader().ReadGraph(num_vertices, graph_stream);
         }
         VERIFY_MSG(false, "Unknown format of graph file!");
@@ -193,13 +193,13 @@ private:
  *
  */
 SparseGraphPtr GraphReader::CreateGraph() {
-    INFO("Trying to extract graph from " + graph_filename);
+    TRACE("Trying to extract graph from " + graph_filename);
     std::ifstream graph_stream(graph_filename);
     if(!graph_stream.good()) {
         WARN("File " + this->graph_filename + " with graph was not found");
         return SparseGraphPtr(NULL);
     }
     SparseGraphPtr graph_ptr = VersatileGraphReader().ReadGraph(graph_stream);
-    INFO("Extracted graph contains " << graph_ptr->N() << " vertices & " << graph_ptr->NZ() << " edges");
+    TRACE("Extracted graph contains " << graph_ptr->N() << " vertices & " << graph_ptr->NZ() << " edges");
     return graph_ptr;
 }

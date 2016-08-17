@@ -35,7 +35,7 @@ def check_fa_rcm_consistency(fa_filename, rcm_filename):
 
     num_fa_reads = 0
     is_ok = True
-
+    
     with smart_open(fa_filename) as fa:
         for record in SeqIO.parse(fa, "fasta"):
             id = str(record.description)
