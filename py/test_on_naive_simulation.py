@@ -117,7 +117,7 @@ if __name__ == "__main__":
         for min_error in [0, 1]:
             for error_rate in lambdas:
                 out_dir = output_dir + "/errate_%0.2f" % error_rate if not min_error else output_dir + "/errate_%0.2f_woans" % error_rate
-                simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta",
+                simulate_data(dataset,
                               out_dir,
                               error_rate=error_rate,
                               seed=0,
