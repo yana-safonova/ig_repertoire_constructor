@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:14.04
 
 MAINTAINER Alexander Shlemov version: 0.1
 
@@ -14,4 +14,4 @@ RUN ./prepare_cfg
 RUN make
 
 RUN ./igrec.py --test
-RUN ./aimquast.py --test
+# RUN ./aimquast.py --test
