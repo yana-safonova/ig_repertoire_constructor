@@ -30,10 +30,11 @@ LOCI=${3:-all}
 #
 
 JITTER=${IGREC_DIR}/py/jit_file.py
-for i in 1 2 3
-do
 for lambda in "0.25" "0.5" "1" "2"
 do
-    ${JITTER} ${OUTPUT}/input${i}.fa.gz ${OUTPUT}/input${i}_jit${lambda}.fa.gz --error-rate=${lambda}
-done
+    for i in 1 2 3
+    do
+        ${JITTER} ${OUTPUT}/input${i}.fa.gz ${OUTPUT}/input${i}_jit${lambda}.fa.gz --error-rate=${lambda} &
+    done
+    wait
 done
