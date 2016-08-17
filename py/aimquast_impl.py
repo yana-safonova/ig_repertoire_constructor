@@ -432,8 +432,16 @@ class RepertoireMatch:
         return [id for id, ab, match in zip(self.constructed_ids, self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
+    def extra_clusters_ref_sizes(self, cons_size=5, ref_size=5):
+        return [match for ab, match in zip(self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
+
+    @memoize
     def missed_clusters(self, cons_size=5, ref_size=5):
         return [id for id, ab, match in zip(self.reference_ids, self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
+
+    @memoize
+    def missed_clusters_cons_sizes(self, cons_size=5, ref_size=5):
+        return [match for ab, match in zip(self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
@@ -639,6 +647,8 @@ class RepertoireMatch:
 
         rb["missed_clusters"] = self.missed_clusters()
         rb["extra_clusters"] = self.extra_clusters()
+        rb["missed_clusters_sizes"] = self.missed_clusters_cons_sizes()
+        rb["extra_clusters_sizes"] = self.extra_clusters_ref_sizes()
 
     def __get_measure_for_plotting(self,
                                    size=1,
@@ -2028,6 +2038,12 @@ class Report:
             s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
             s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
             s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
+
+            extra_clusters_sizes = rb["extra_clusters_sizes"]
+            n_ec4 = sum([1 for size in extra_clusters_sizes if size >= 4])
+            n_ec3 = sum([1 for size in extra_clusters_sizes if size >= 3])
+            s += "\tExtra clusters with size >=4 :\t%d\n" % n_ec4
+            s += "\tExtra clusters with size >=3 :\t%d\n" % n_ec3
 
             if "jaccard_index" in rb:
                 s += "\tClustering similarity measures:\n"
