@@ -63,69 +63,7 @@ def plotplot(dir, out_dir, title):
          labels=["IgReC tau = 1", "pRESTO"],
          title="Real data: " + title,
          out=out_dir + "/sensitivity_precision_plot_all_tau1")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec", tool2="mixcr",
-    #          label1="IgReC",
-    #          label2="MiXCR",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_mixcr")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec", tool2="supernode",
-    #          label1="IgReC",
-    #          label2="Supernode",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_supernode")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec", tool2="igrec_tau1",
-    #          label1="IgReC",
-    #          label2="IgReC tau=1",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau1")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec_tau1", tool2="supernode",
-    #          label1="IgReC tau=1",
-    #          label2="Supernode",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_tau1_supernode")
-    #
-    # two_rocs(dir,
-    #          tool1="mixcr", tool2="supernode",
-    #          label1="MiXCR",
-    #          label2="Supernode",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_mixcr_supernode")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec_tau1_f09", tool2="supernode",
-    #          label1="IgReC tau=1 f09",
-    #          label2="Supernode",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_tau1_f09_supernode")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec_tau2", tool2="supernode",
-    #          label1="IgReC tau=2",
-    #          label2="Supernode",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_tau2_supernode")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec", tool2="igrec_tau2",
-    #          label1="IgReC",
-    #          label2="IgReC tau=2",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau2")
-    #
-    # two_rocs(dir,
-    #          tool1="igrec", tool2="igrec_tau3",
-    #          label1="IgReC",
-    #          label2="IgReC tau=3",
-    #          title="Real data: " + title,
-    #          out=out_dir + "/sensitivity_precision_plot_igrec_igrec_tau3")
+
 
 if __name__ == "__main__":
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering1/", "FLU_FV_21_IGH_1", title="FLU_FV_21_IGH_1")

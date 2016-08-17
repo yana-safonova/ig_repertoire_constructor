@@ -2076,7 +2076,8 @@ def json_from_file(filename):
 def get_plot_various_error_rate_data(dir,
                                      kind="igrec",
                                      what="sensitivity",
-                                     woans=False):
+                                     woans=False,
+                                     size=5):
     from glob import glob
 
     suff = "_woans" if woans else ""
@@ -2096,7 +2097,7 @@ def get_plot_various_error_rate_data(dir,
 
     def extract_data(dirname):
         json = json_from_file(dirname + "/" + kind + "/aimquast/aimquast.json")
-        return json["reference_based"][what]
+        return json["reference_based"]["__data_" + what][size-1]
 
     lambdas = map(extract_lambda, dirnames)
     data = map(extract_data, dirnames)
@@ -2109,12 +2110,13 @@ def get_plot_various_error_rate_data(dir,
 def plot_various_error_rate(dir,
                             kinds,
                             labels,
+                            sizes=[5, 5, 5, 5],
                             out="var_error_rate",
                             what="sensitivity", woans=False,
                             title="",
                             format=("png", "pdf", "svg")):
     lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], what=what, woans=woans)
-    datas = [get_plot_various_error_rate_data(dir, kind=kind, what=what, woans=woans) for kind in kinds]
+    datas = [get_plot_various_error_rate_data(dir, kind=kind, what=what, woans=woans, size=size)[1] for kind, size in zip(kinds, sizes)]
     import matplotlib.pyplot as plt
     import seaborn as sns
 
