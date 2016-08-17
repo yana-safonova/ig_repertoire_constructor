@@ -43,7 +43,7 @@ def multiplex_repertoire(input_file, output_file):
     with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
         for record in SeqIO.parse(fh, input_format):
             cluster, mult = parse_cluster_mult(str(record.description))
-            for i in xrange(mult):
+            for i in xrange(1, mult + 1):
                 record.id = record.description = "antibody_%s_multiplicity_%d_copy_%d" % (cluster, mult, i)
                 SeqIO.write(record, fout, output_format)
 
