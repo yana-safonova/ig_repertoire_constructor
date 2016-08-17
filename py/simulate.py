@@ -50,17 +50,18 @@ def RC(l):
     return random.choice(list(s))
 
 
-def jit_fa_file(input_file, output_file, error_rate=2, random_errors=True,
+def jit_fx_file(input_file, output_file, error_rate=2, random_errors=True,
                 min_error=0, erroneous_site_len=10005000, seed=None):
     import numpy as np
     from Bio import Seq
     import random
 
     output_format = idFormatByFileName(output_file)
+    input_format = idFormatByFileName(input_file)
     random.seed(seed)
 
     with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
-        for record in SeqIO.parse(fh, "fasta"):
+        for record in SeqIO.parse(fh, input_format):
             n_errors = np.random.poisson(error_rate, 1)[0] if random_errors else error_rate
             if n_errors < min_error:
                 n_errors = min_error
@@ -69,12 +70,17 @@ def jit_fa_file(input_file, output_file, error_rate=2, random_errors=True,
             s = list(str(record.seq))
             for pos in positions:
                 s[pos] = RC(s[pos])
-            record.letter_annotations = {}
-            record.seq = Seq.Seq("".join(s))
+
+            if input_format == "fastq":
+                phred_quality = record.letter_annotations["phred_quality"]
+                record.letter_annotations = {}
+                record.seq = Seq.Seq("".join(s))
 
             if output_format == "fastq":
-                record.letter_annotations["phred_quality"] = [random.randint(30, 50) for _ in xrange(len(record))]  # TODO Check it out
-                # record.letter_annotations["phred_quality"] = [50] * len(record)  # TODO Check it out
+                if input_format == "fastq":
+                    record.letter_annotations["phred_quality"] = phred_quality
+                else:
+                    record.letter_annotations["phred_quality"] = [random.randint(30, 50) for _ in xrange(len(record))]  # TODO Check it out
 
             SeqIO.write(record, fout, output_format)
 
@@ -125,7 +131,7 @@ def simulate_data(input_file, output_dir, log=None,
                      log=log)
 
     # TODO factor this stage
-    jit_fa_file(input_file, "%s/merged_reads.fa" % output_dir, **kwargs)
+    jit_fx_file(input_file, "%s/merged_reads.fa" % output_dir, **kwargs)
 
     shutil.rmtree(temp_dir)
 
