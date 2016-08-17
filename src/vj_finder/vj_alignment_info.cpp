@@ -55,17 +55,20 @@ namespace vj_finder {
 
     void VJAlignmentOutput::OutputAlignmentInfo() const {
         std::ofstream out(output_params_.output_files.alignment_info_fname);
+        out << "Read_name\tChain_type\tV_hit\tV_start_pos\tV_end_pos\tV_score\t"
+                       "J_hit\tJ_start_pos\tJ_end_pos\tJ_score" << std::endl;
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
             auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
             for(size_t j = 0; j < output_params_.output_details.num_aligned_candidates; j++)
-                out << vj_hits.Read().name << "\t" << vj_hits.GetVHitByIndex(j).FirstMatchReadPos() + 1 << "\t" <<
+                out << vj_hits.Read().name << "\t" << vj_hits.GetVHitByIndex(0).ImmuneGene().Chain() << "\t" <<
+                        vj_hits.GetVHitByIndex(j).ImmuneGene().name() << "\t" <<
+                        vj_hits.GetVHitByIndex(j).FirstMatchReadPos() + 1 << "\t" <<
                         vj_hits.GetVHitByIndex(j).LastMatchReadPos() << "\t" <<
                         vj_hits.GetVHitByIndex(j).Score() << "\t" <<
-                        vj_hits.GetVHitByIndex(j).ImmuneGene().name() << "\t" <<
+                        vj_hits.GetJHitByIndex(j).ImmuneGene().name() << "\t" <<
                         vj_hits.GetJHitByIndex(j).FirstMatchReadPos() + 1 << "\t" <<
                         vj_hits.GetJHitByIndex(j).LastMatchReadPos() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).Score() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).ImmuneGene().name() << std::endl;
+                        vj_hits.GetJHitByIndex(j).Score() << "\t" << std::endl;
         }
         out.close();
         INFO("Alignment info was written to " << output_params_.output_files.alignment_info_fname);
