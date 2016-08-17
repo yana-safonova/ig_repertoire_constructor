@@ -11,6 +11,7 @@ sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, fastx2fastx, FakeLog
+from ig_compress_equal_clusters import parse_cluster_mult
 
 
 path_to_ig_simulator = igrec_dir + "/../ig_simulator/"
@@ -32,6 +33,19 @@ def parse_final_repertoire_id(id):
 
 
 assert parse_final_repertoire_id("antibody_1_multiplicity_1_copy_1") == (1, 1, 1)
+
+
+def multiplex_repertoire(input_file, output_file):
+    output_format = idFormatByFileName(output_file)
+    input_format = idFormatByFileName(input_file)
+    assert output_format == "fasta" or input_format == "fastq"
+
+    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
+        for record in SeqIO.parse(fh, input_format):
+            cluster, mult = parse_cluster_mult(str(record.description))
+            for i in xrange(mult):
+                record.id = record.description = "antibody_%s_multiplicity_%d_copy_%d" % (cluster, mult, i)
+                SeqIO.write(record, fout, output_format)
 
 
 def simulated_repertoire_to_rcm(input_file, rcm_file):
