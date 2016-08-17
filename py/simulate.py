@@ -74,7 +74,8 @@ def jit_fx_file(input_file, output_file, error_rate=2, random_errors=True,
             if input_format == "fastq":
                 phred_quality = record.letter_annotations["phred_quality"]
                 record.letter_annotations = {}
-                record.seq = Seq.Seq("".join(s))
+
+            record.seq = Seq.Seq("".join(s))
 
             if output_format == "fastq":
                 if input_format == "fastq":
