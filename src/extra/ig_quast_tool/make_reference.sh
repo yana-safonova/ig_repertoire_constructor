@@ -27,3 +27,13 @@ do
     ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
     ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz
 done
+
+
+JITTER=${IGREC_DIR}/py/jit_file.py
+for i in 1 2 3
+do
+for lambda in "0.25" "0.5" "1" "2"
+do
+    ${JITTER} ${OUTPUT}/input${i}.fa.gz ${OUTPUT}/input${i}_jit${lambda}.fa.gz --error-rate=${lambda}
+done
+done
