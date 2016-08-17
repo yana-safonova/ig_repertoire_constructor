@@ -2107,27 +2107,23 @@ def get_plot_various_error_rate_data(dir,
 
 
 def plot_various_error_rate(dir,
+                            kinds,
+                            labels,
                             out="var_error_rate",
-                            kind1="igrec", kind2="mixcr", what="sensitivity", woans=False,
-                            label1=None, label2=None,
+                            what="sensitivity", woans=False,
                             title="",
                             format=("png", "pdf", "svg")):
-    lambdas, data1 = get_plot_various_error_rate_data(dir, kind=kind1, what=what, woans=woans)
-    lambdas, data2 = get_plot_various_error_rate_data(dir, kind=kind2, what=what, woans=woans)
+    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], what=what, woans=woans)
+    datas = [get_plot_various_error_rate_data(dir, kind=kind, what=what, woans=woans) for kind in kinds]
     import matplotlib.pyplot as plt
     import seaborn as sns
 
     f, ax = initialize_plot()
 
-    if label1 is None:
-        label1 = kind1
-
-    if label2 is None:
-        label2 = kind2
-
     sns.set_style("darkgrid")
-    plt.plot(lambdas, data1, "b-", color="cornflowerblue", label=label1)
-    plt.plot(lambdas, data2, "b-", color="seagreen", label=label2)
+    colors = ["cornflowerblue", "seagreen", "darkgray", "black"]
+    for data, color, label in zip(datas, colors, labels):
+        plt.plot(lambdas, data, "b-", color=color, label=label)
 
     eps = 0.025
     plt.ylim((0. - eps, 1. + eps))
