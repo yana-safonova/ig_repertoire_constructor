@@ -10,6 +10,12 @@ def run_and_quast_all_three(input_dir, threads=16):
                           input_dir + "/repertoire%d.rcm" % i,
                           out_dir=input_dir + "/filtering%d" % i,
                           threads=threads)
+        for lam in ["0.5", "1"]:
+            run_and_quast_all(input_dir + "/input%d_jit%s.fa.gz" % (i, lam),
+                              input_dir + "/repertoire%d.fa.gz" % i,
+                              input_dir + "/repertoire%d.rcm" % i,
+                              out_dir=input_dir + "/filtering%d_jit%s" % (i, lam),
+                              threads=threads)
 
 
 if __name__ == "__main__":
@@ -24,6 +30,7 @@ if __name__ == "__main__":
 
     datasets = ["AGE3", "AGE7", "MG91M_IGH", "MG91M_IGL", "MG91M_IGK", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
     datasets = ["AGE7", "MG91M_IGH", "MG91M_IGL", "MG91M_IGK", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
+    datasets = ["FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
 
     for dataset in datasets:
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
