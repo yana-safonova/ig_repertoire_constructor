@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from simulate import jit_fx_file
+import sys
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Add random sequencing errors to FASTA/FASTQ file")
@@ -21,8 +22,11 @@ if __name__ == "__main__":
                         help="random seed (default: %(default)d)")
 
     args = parser.parse_args()
+    print "FASTA/FASTQ file jittering"
+    print "Command line: %s" % " ".join(sys.argv)
 
     jit_fx_file(args.input, args.output, error_rate=args.error_rate,
                 random_errors=True,
                 min_error=0,
-                erroneous_site_len=10005000, seed=args.error_rate)
+                erroneous_site_len=10005000, seed=args.seed)
+    print "Jittering done!"
