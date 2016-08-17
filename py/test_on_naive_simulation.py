@@ -73,10 +73,9 @@ def run_and_quast_all(input_reads,
             run.run()
 
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr/final_repertoire.fa"):
-            pass
-            # run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
+            run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
 
-        # run_presto(input_reads, output_dir=out_dir + "/presto/")
+        run_presto(input_reads, output_dir=out_dir + "/presto/")
 
         mkdir_p(out_dir + "/supernode")
         shutil.copy(out_dir + "/igrec/supernode_repertoire.fa",
