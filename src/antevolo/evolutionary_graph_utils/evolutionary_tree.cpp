@@ -1,13 +1,23 @@
+#include <verify.hpp>
+
 #include "model_utils/shm_model.hpp"
 #include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
+    void EvolutionaryTree::AddEdge(size_t src_id, EvolutionaryEdge edge) {
+        edges_[src_id] = edge;
+        all_edge_vector_.push_back(edge);
+        vertices_.insert(edge.dst_clone_num);
+        vertices_.insert(edge.src_clone_num);
+    }
+
     void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model) {
         assert(edge.IsDirected());
+        //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
         if(edge.IsDirected()) {
             if (!Contains(clone_num)) {
-                edges_[clone_num] = edge;
+                AddEdge(clone_num, edge);
                 return;
             }
             const EvolutionaryEdge& parent_edge =  edges_[clone_num];
@@ -19,12 +29,12 @@ namespace antevolo {
             */
             if (parent_edge.num_added_shms > edge.num_added_shms) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
-                edges_[clone_num] = edge;
+                AddEdge(clone_num, edge);
                 return;
             }
             if (parent_edge.num_added_shms == edge.num_added_shms && parent_edge.cdr3_distance > edge.cdr3_distance) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
-                edges_[clone_num] = edge;
+                AddEdge(clone_num, edge);
                 return;
             }
             /*
@@ -66,7 +76,7 @@ namespace antevolo {
     void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdge edge) {
         assert(edge.IsUndirected());
         if (edge.IsUndirected()) {
-            edges_[clone_num] = edge;
+            AddEdge(clone_num, edge);
         }
     }
 
@@ -323,5 +333,25 @@ namespace antevolo {
 
         }
         out.close();
+    }
+
+    bool EvolutionaryTree::IsRoot(size_t clone_id) const {
+        VERIFY_MSG(vertices_.find(clone_id) != vertices_.end(), "Tree does not contain vertex " << clone_id);
+        return edges_.find(clone_id) == edges_.end();
+    }
+
+    size_t EvolutionaryTree::GetRoot() const {
+        for(auto it = vertices_.begin(); it != vertices_.end(); it++) {
+            if(IsRoot(*it)) {
+                return *it;
+            }
+        }
+        VERIFY_MSG(false, "Root was not found");
+        return size_t(-1);
+    }
+
+    bool EvolutionaryTree::IsLeaf(size_t clone_id) const {
+        VERIFY_MSG(false, "Implement me");
+        return false;
     }
 }

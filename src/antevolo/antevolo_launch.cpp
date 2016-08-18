@@ -8,6 +8,7 @@
 #include <cdr_output.hpp>
 
 #include "antevolo_processor.hpp"
+#include "evolutionary_stats_calculator.hpp"
 
 namespace antevolo {
     void AntEvoloLaunch::Launch() {
@@ -51,6 +52,11 @@ namespace antevolo {
         INFO("Tree construction starts");
         auto tree_storage = AntEvoloProcessor(config_, annotated_clone_set).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
+        INFO("Computation of evolutionary statistics");
+        EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
+        for(auto tree = tree_storage.begin(); tree != tree_storage.end(); tree++) {
+            stats_calculator.ComputeTreeStats(*tree);
+        }
         INFO("AntEvolo ends");
     }
 }

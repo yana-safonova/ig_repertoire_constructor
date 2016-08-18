@@ -10,11 +10,15 @@
 
 namespace antevolo {
     class EvolutionaryTree {
-        boost::unordered_map<size_t, EvolutionaryEdge> edges_;
+        boost::unordered_map<size_t, EvolutionaryEdge> edges_; // key is a src clone
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
         boost::unordered_map<size_t, bool> passed_flag_;
         boost::unordered_map<size_t, EvolutionaryEdge> undirected_components_edges_;
-        boost::unordered_set<size_t> vertices_;
+        std::set<size_t> vertices_;
+
+        std::vector<EvolutionaryEdge> all_edge_vector_;
+
+        void AddEdge(size_t src_id, EvolutionaryEdge edge);
 
     public:
         void AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model);
@@ -112,5 +116,18 @@ namespace antevolo {
             }
             return ss.str();
         }
+
+        typedef std::vector<EvolutionaryEdge>::iterator EdgeIterator;
+
+        EdgeIterator begin() { return all_edge_vector_.begin(); }
+
+        EdgeIterator end() { return all_edge_vector_.end(); }
+
+
+        bool IsRoot(size_t clone_id) const;
+
+        bool IsLeaf(size_t clone_id) const;
+
+        size_t GetRoot() const;
     };
 }

@@ -56,4 +56,22 @@ namespace annotation_utils {
         }
         return true;
     }
+
+    // return a vector of SHMs that appeared in SHM2, but not presented in SHM1
+    std::vector<SHM> SHMComparator::GetAddedSHMs(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
+        std::vector<SHM> added_shms;
+        for(auto it2 = shms2.cbegin(); it2 != shms2.cend(); it2++) {
+            bool shm_found = false;
+            for(auto it1 = shms1.cbegin(); it1 != shms1.cend(); it1++) {
+                if(*it1 == *it2) {
+                    shm_found = true;
+                    break;
+                }
+            }
+            if(!shm_found) {
+                added_shms.push_back(*it2);
+            }
+        }
+        return added_shms;
+    }
 }

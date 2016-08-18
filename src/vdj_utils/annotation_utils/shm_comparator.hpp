@@ -12,5 +12,7 @@ namespace annotation_utils {
         static size_t GetNumberOfIntersections(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
 
         static bool AddedSHMsAreSynonimous(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
+
+        static std::vector<SHM> GetAddedSHMs(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
     };
 }
