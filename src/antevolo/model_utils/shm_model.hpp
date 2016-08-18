@@ -6,6 +6,7 @@
 #include <boost/lexical_cast.hpp>
 #include <antevolo_config.hpp>
 #include "evolutionary_graph_utils/evolutionary_edge.hpp"
+
 namespace antevolo {
     class shm_exception : public std::exception {
         std::string what_;

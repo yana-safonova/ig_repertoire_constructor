@@ -19,7 +19,7 @@ namespace antevolo {
         };
 
         struct RunParams {
-            size_t num_threads;
+            int num_threads;
         };
 
         struct AlgorithmParams {

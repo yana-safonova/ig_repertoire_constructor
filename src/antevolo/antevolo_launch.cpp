@@ -53,6 +53,7 @@ namespace antevolo {
         auto tree_storage = AntEvoloProcessor(config_, annotated_clone_set).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
+        // todo: implement splitter into connected components
         EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
         for(auto tree = tree_storage.begin(); tree != tree_storage.end(); tree++) {
             stats_calculator.ComputeTreeStats(*tree);

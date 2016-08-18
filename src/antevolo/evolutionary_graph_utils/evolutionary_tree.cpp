@@ -5,8 +5,9 @@
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
-    void EvolutionaryTree::AddEdge(size_t src_id, EvolutionaryEdge edge) {
-        edges_[src_id] = edge;
+    void EvolutionaryTree::AddEdge(size_t dst_id, EvolutionaryEdge edge) {
+        VERIFY(dst_id == edge.dst_clone_num);
+        edges_[dst_id] = edge;
         all_edge_vector_.push_back(edge);
         vertices_.insert(edge.dst_clone_num);
         vertices_.insert(edge.src_clone_num);

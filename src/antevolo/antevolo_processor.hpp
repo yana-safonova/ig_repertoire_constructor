@@ -22,7 +22,7 @@ namespace antevolo {
                           const annotation_utils::CDRAnnotatedCloneSet &clone_set) :
                 config_(config),
                 clone_set_(clone_set) {
-            for(size_t i = 0; i < config.run_params.num_threads; i++)
+            for(int i = 0; i < config.run_params.num_threads; i++)
                 thread_tree_storages_.push_back(EvolutionaryTreeStorage(clone_set));
         }
 
