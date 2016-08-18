@@ -7,7 +7,7 @@
 #include <read_labeler.hpp>
 #include <cdr_output.hpp>
 
-#include "naive_antevolo_processing.hpp"
+#include "antevolo_processor.hpp"
 
 namespace antevolo {
     void AntEvoloLaunch::Launch() {
@@ -49,7 +49,8 @@ namespace antevolo {
         writer.OutputCDRDetails();
         writer.OutputSHMs();
         INFO("Tree construction starts");
-        NaiveAntEvoloProcessing(config_, annotated_clone_set).ConstructClonalTrees();
+        auto tree_storage = AntEvoloProcessor(config_, annotated_clone_set).ConstructClonalTrees();
+        INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("AntEvolo ends");
     }
 }

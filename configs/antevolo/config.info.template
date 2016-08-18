@@ -12,6 +12,10 @@ output_params {
     trash_output   trash_output.out
 }
 
+run_params {
+    num_threads    1
+}
+
 algorithm_params {
     similar_cdr3s_params {
         num_mismatches   3

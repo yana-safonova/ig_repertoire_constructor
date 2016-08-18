@@ -2,10 +2,11 @@
 
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
-#include <annotation_utils/annotated_clone_set.hpp>
-#include "evolutionary_edge.hpp"
+
 #include "model_utils/shm_model.hpp"
+#include "evolutionary_edge.hpp"
 #include "evolutionary_edge_constructor.hpp"
+#include <annotation_utils/annotated_clone_set.hpp>
 
 namespace antevolo {
     class EvolutionaryTree {
@@ -65,6 +66,7 @@ namespace antevolo {
             return undirected_components_edges_[root_num];
         }
 
+        // todo: move all output methods from EvolutionaryTree
         void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out); //no endl
 
         void WriteInFile(std::string output_fname);
@@ -83,12 +85,15 @@ namespace antevolo {
             return res;
         }
 
+        // what are these methods about?
         void SetFlag(bool b, size_t clone_num) {
             passed_flag_[clone_num] = b;
         }
         bool GetFlag(size_t clone_num) {
             return passed_flag_[clone_num];
         }
+
+        // why clone to string is a part of EvolutionaryTree class?
         std::string clone_to_string(const annotation_utils::AnnotatedClone& clone) {
             std::stringstream ss;
             size_t start_pos = clone.GetRangeByRegion(

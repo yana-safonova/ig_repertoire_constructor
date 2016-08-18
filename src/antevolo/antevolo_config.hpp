@@ -18,6 +18,10 @@ namespace antevolo {
             std::string trash_output;
         };
 
+        struct RunParams {
+            size_t num_threads;
+        };
+
         struct AlgorithmParams {
             struct SimilarCDR3Params {
                 size_t num_mismatches;
@@ -35,6 +39,7 @@ namespace antevolo {
 
         InputParams input_params;
         OutputParams output_params;
+        RunParams run_params;
         AlgorithmParams algorithm_params;
         cdr_labeler::CDRLabelerConfig cdr_labeler_config;
 

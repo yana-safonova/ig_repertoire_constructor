@@ -26,6 +26,11 @@ namespace antevolo {
         update_paths(output_params);
     }
 
+    void load(AntEvoloConfig::RunParams &run_params, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(run_params.num_threads, pt, "num_threads");
+    }
+
     void load(AntEvoloConfig::AlgorithmParams::SimilarCDR3Params &similar_cdr3s_params, boost::property_tree::ptree const &pt,
               bool) {
         using config_common::load;
@@ -52,6 +57,7 @@ namespace antevolo {
         using config_common::load;
         load(input_params, pt, "input_params");
         load(output_params, pt, "output_params");
+        load(run_params, pt, "run_params");
         load(algorithm_params, pt, "algorithm_params");
         cdr_labeler_config.load(input_params.cdr_labeler_config_fname);
         cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IG";

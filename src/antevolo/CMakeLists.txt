@@ -53,8 +53,9 @@ add_executable(antevolo
         evolutionary_graph_utils/evolutionary_tree.cpp
         evolutionary_graph_utils/evolutionary_graph.cpp
         evolutionary_graph_utils/evolutionary_graph_constructor.cpp
+        evolutionary_tree_storage.cpp
         antevolo_config.cpp
-        naive_antevolo_processing.cpp
+        antevolo_processor.cpp
         antevolo_launch.cpp
         main.cpp)
 
