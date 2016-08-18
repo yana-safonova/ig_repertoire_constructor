@@ -2184,7 +2184,7 @@ def plot_rocs(jsons, labels,
 
     sns.set_style("darkgrid")
 
-    colors = ["cornflowerblue", "seagreen", "darkgray", "black"]
+    colors = ["cornflowerblue", "seagreen", "orange", "black"]
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision, sensitivity, "b-", color=color, label=label)
 
@@ -2211,12 +2211,13 @@ def plot_rocs(jsons, labels,
                      color=color,
                      xytext=(_x + xshift, _y + yshift))
 
-    for i in [1, 3, 5, 10, 50]:
+    # for i in [1, 3, 5, 10, 50]:
+    for i in []:
         annotation(i, precisions[0], sensitivities[0], color="blue")
         if len(jsons) > 1:
             annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
         if len(jsons) > 2:
-            annotation(i, precisions[2], sensitivities[2], color="grey", yshift=0.04)
+            annotation(i, precisions[2], sensitivities[2], color="yellow", yshift=0.04)
         if len(jsons) > 3:
             annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
