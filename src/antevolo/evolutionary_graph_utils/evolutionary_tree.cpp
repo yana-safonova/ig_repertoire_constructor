@@ -355,4 +355,24 @@ namespace antevolo {
         VERIFY_MSG(false, "Implement me");
         return false;
     }
+
+    bool EvolutionaryTree::IsForest() const {
+        size_t num_roots = 0;
+        for(auto it = vertices_.begin(); it != vertices_.end(); it++) {
+            if(IsRoot(*it)) {
+                num_roots++;
+            }
+        }
+        return num_roots > 1;
+    }
+
+    size_t EvolutionaryTree::GetRootNumber() const {
+        size_t num_roots = 0;
+        for(auto it = vertices_.begin(); it != vertices_.end(); it++) {
+            if(IsRoot(*it)) {
+                num_roots++;
+            }
+        }
+        return num_roots;
+    }
 }

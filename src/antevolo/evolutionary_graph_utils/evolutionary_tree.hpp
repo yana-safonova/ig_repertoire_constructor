@@ -140,5 +140,9 @@ namespace antevolo {
         bool ContainsClone(size_t clone_id) const {
             return vertices_.find(clone_id) != vertices_.end();
         }
+
+        bool IsForest() const;
+
+        size_t GetRootNumber() const;
     };
 }

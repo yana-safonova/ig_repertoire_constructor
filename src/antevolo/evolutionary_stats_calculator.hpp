@@ -7,6 +7,10 @@ namespace antevolo {
     class EvolutionaryStatsCalculator {
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
 
+        AnnotatedEvolutionaryTree AddSHMsFromRoot(AnnotatedEvolutionaryTree annotated_tree);
+
+        AnnotatedEvolutionaryTree AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree);
+
     public:
         EvolutionaryStatsCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set) :
                 clone_set_(clone_set) { }
