@@ -32,8 +32,8 @@ class ShmKmerLikelihoodOptimizator:
                                  np.sum(shm_kmer_likelihood.mutated_sample, axis=1, dtype=float)).T
         dir_lambda = np.mean(scaled_mutated_sample, axis=0, dtype=float)
         dir_lambda *= scale_dir
-        # return np.array([beta_shape1, beta_shape2]), dir_lambda
-        return np.array([beta_shape1, beta_shape2]), np.ones(3)
+        return np.array([beta_shape1, beta_shape2]), dir_lambda
+        # return np.array([beta_shape1, beta_shape2]), np.ones(3)
 
     def maximize(self):
         minimize_result_beta = minimize(fun=self.lkhd_beta,
@@ -46,4 +46,4 @@ class ShmKmerLikelihoodOptimizator:
                                        bounds=self.bounds_dir,
                                        method=self.method,
                                        jac=self.grad_dir)
-        return minimize_result_beta, minimize_result_dir
+        return self.x0_beta, self.x0_dir, minimize_result_beta, minimize_result_dir

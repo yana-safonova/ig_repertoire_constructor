@@ -14,11 +14,13 @@ class ShmKmerModelEstimator:
                            itertools.product(self.bases, repeat=self.kmer_len)]
         self.column_names = ['beta_shape1', 'beta_shape2',
                              'dir_shape1', 'dir_shape2', 'dir_shape3',
-                             'success_optim_beta', 'success_optim_dir']
+                             'success_optim_beta', 'success_optim_dir',
+                             'start_point_beta_shape1', 'start_point_beta_shape2',
+                             'start_point_dir_shape1', 'start_point_dir_shape2', 'start_point_dir_shape_3']
         self.numb = (lambda x: (x % self.n_nucl**(self.half_kmer_len + 1)) // self.n_nucl**self.half_kmer_len)
         for i in xrange(len(self.bases)**self.kmer_len):
             assert self.kmer_names[i][self.half_kmer_len] == self.bases[self.numb(i)]
-        self.n_param = 7
+        self.n_param = 12
 
     def estimate_model(self, tuple_datasets):
         all_samples = np.concatenate(tuple_datasets, axis=0)
@@ -27,10 +29,11 @@ class ShmKmerModelEstimator:
         results = np.empty((n_kmer, self.n_param))
         for i in xrange(n_kmer):
             lkho = ShmKmerLikelihood(all_samples[:,i,:], self.numb(i))
-            optim_res_beta, optim_res_dir = ShmKmerLikelihoodOptimizator(lkho).maximize()
+            start_p_beta, start_p_dir, optim_res_beta, optim_res_dir = ShmKmerLikelihoodOptimizator(lkho).maximize()
             results[i,] = np.concatenate((optim_res_beta.x, optim_res_dir.x,
                                           np.array([optim_res_beta.success,
-                                                    optim_res_dir.success])))
+                                                    optim_res_dir.success]),
+                                          start_p_beta, start_p_dir))
         return pd.DataFrame(data=results,
                             index=self.kmer_names,
                             columns=self.column_names)
