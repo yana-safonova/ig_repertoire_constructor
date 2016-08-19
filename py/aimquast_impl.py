@@ -2139,7 +2139,7 @@ def plot_various_error_rate(dir,
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "darkgray", "black"]
+    colors = ["cornflowerblue", "seagreen", "orange", "black"]
     for data, color, label in zip(datas, colors, labels):
         plt.plot(lambdas, data, "b-", color=color, label=label)
 
@@ -2197,27 +2197,28 @@ def plot_rocs(jsons, labels,
 
     blue_points = []
 
-    def annotation(size, x, y, color, text=None, xshift=0.01, yshift=-0.04):
-        if text is None:
-            text = str(size)
-
+    def annotation(size, x, y, color, text=None, xshift=0.01, yshift=-0.04,
+                   add_text=False):
         _x = x[size - 1]
         _y = y[size - 1]
 
         bp = plt.plot(_x, _y, "bo", color=color, label="min size")
         blue_points.append(bp)
 
-        plt.annotate(text, xy=(_x, _y),
-                     color=color,
-                     xytext=(_x + xshift, _y + yshift))
+        if add_text:
+            if text is None:
+                text = str(size)
+            plt.annotate(text, xy=(_x, _y),
+                         color=color,
+                         xytext=(_x + xshift, _y + yshift))
 
-    # for i in [1, 3, 5, 10, 50]:
-    for i in []:
+    for i in [1, 3, 5, 10, 50]:
+    # for i in []:
         annotation(i, precisions[0], sensitivities[0], color="blue")
         if len(jsons) > 1:
             annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
         if len(jsons) > 2:
-            annotation(i, precisions[2], sensitivities[2], color="yellow", yshift=0.04)
+            annotation(i, precisions[2], sensitivities[2], color="gold", yshift=0.04)
         if len(jsons) > 3:
             annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
