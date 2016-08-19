@@ -54,8 +54,8 @@ namespace antevolo {
             return (edges_.find(clone_num) != edges_.end());
         }
 
-        const EvolutionaryEdge& GetParentEdge(size_t clone_num) {
-            return edges_[clone_num];
+        const EvolutionaryEdge& GetParentEdge(size_t clone_num) const {
+            return edges_.at(clone_num);
         }
 
         size_t GetUndirectedCompopentRoot(size_t root_num) {

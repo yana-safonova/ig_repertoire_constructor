@@ -24,7 +24,7 @@ namespace annotation_utils {
             if(gene_row[i] != read_row[i]) {
                 size_t real_read_pos = seqan::toSourcePosition(read_row, i);
                 size_t real_gene_pos = seqan::toSourcePosition(gene_row, i);
-                SHM shm(real_gene_pos, real_read_pos, gene_row[i], read_row[i],
+                SHM shm(alignment.subject().Segment(), real_gene_pos, real_read_pos, gene_row[i], read_row[i],
                         get_aa_by_pos(alignment.subject().aa_seq(), real_gene_pos, alignment.subject().ORF()),
                         aa_annotation.GetAminoAcidByPos(real_read_pos));
                 shms.AddSHM(shm);

@@ -10,6 +10,7 @@ namespace annotation_utils {
     std::ostream& operator<<(std::ostream& out, const SHMType &shm_type);
 
     struct SHM {
+        germline_utils::SegmentType segment_type;
         SHMType shm_type;
         size_t gene_nucl_pos;
         size_t read_nucl_pos;
@@ -20,10 +21,19 @@ namespace annotation_utils {
 
         void ComputeType();
 
-        SHM(size_t gene_nucl_pos, size_t read_nucl_pos, char gene_nucl, char read_nucl,
-            char gene_aa, char read_aa) :
-                gene_nucl_pos(gene_nucl_pos), read_nucl_pos(read_nucl_pos),
-                gene_nucl(gene_nucl), read_nucl(read_nucl), gene_aa(gene_aa), read_aa(read_aa) {
+        SHM(germline_utils::SegmentType segment_type,
+            size_t gene_nucl_pos,
+            size_t read_nucl_pos,
+            char gene_nucl,
+            char read_nucl,
+            char gene_aa,
+            char read_aa) : segment_type(segment_type),
+                            gene_nucl_pos(gene_nucl_pos),
+                            read_nucl_pos(read_nucl_pos),
+                            gene_nucl(gene_nucl),
+                            read_nucl(read_nucl),
+                            gene_aa(gene_aa),
+                            read_aa(read_aa) {
             ComputeType();
         }
 

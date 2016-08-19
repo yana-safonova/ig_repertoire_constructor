@@ -42,7 +42,8 @@ namespace antevolo {
         annotated_tree = AddSHMsFromRoot(annotated_tree);
         annotated_tree = AddSHMsFromEdges(annotated_tree);
         INFO("Total number of SHMs in a tree with " << tree.NumVertives() << " vertices: " <<
-                     annotated_tree.NumUniqueSHms());
+                     annotated_tree.NumUniqueSHms() << ". # synonymous SHMs: " <<
+                     annotated_tree.NumSynonymousSHMs());
         return annotated_tree;
     }
 }

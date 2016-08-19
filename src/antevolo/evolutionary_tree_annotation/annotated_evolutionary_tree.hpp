@@ -27,5 +27,7 @@ namespace antevolo {
         const EvolutionaryTree& Tree() const { return *tree_ptr_; }
 
         size_t NumUniqueSHms() const { return num_unique_shms_; }
+
+        size_t NumSynonymousSHMs() const;
     };
 }

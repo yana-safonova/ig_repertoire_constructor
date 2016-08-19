@@ -15,4 +15,15 @@ namespace antevolo {
         unique_shms_[clone_id].push_back(shm_annotator_.GetAnnotation(clone_id, shm));
         num_unique_shms_++;
     }
+
+    size_t AnnotatedEvolutionaryTree::NumSynonymousSHMs() const {
+        size_t num_synonymous_shms = 0;
+        for(auto it = unique_shms_.begin(); it != unique_shms_.end(); it++) {
+            auto shm_vector = it->second;
+            for(auto it2 = shm_vector.begin(); it2 != shm_vector.end(); it2++)
+                if(it2->synonymous)
+                    num_synonymous_shms++;
+        }
+        return num_synonymous_shms;
+    }
 }

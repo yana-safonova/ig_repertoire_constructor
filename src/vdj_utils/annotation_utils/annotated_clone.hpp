@@ -91,6 +91,11 @@ namespace annotation_utils {
         const germline_utils::ImmuneGene& JGene() const { return j_alignment_.subject(); }
 
         size_t ORF() const { return aa_annotation_.ORF(); }
+
+        const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentBySegment(
+                germline_utils::SegmentType segment_type) const;
+
+        char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
     };
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj);

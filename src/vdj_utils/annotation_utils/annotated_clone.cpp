@@ -59,6 +59,21 @@ namespace annotation_utils {
         return region_range_map_.at(region);
     }
 
+    const alignment_utils::ImmuneGeneReadAlignment& AnnotatedClone::GetAlignmentBySegment(
+            germline_utils::SegmentType segment_type) const {
+        VERIFY_MSG(segment_type == germline_utils::SegmentType::VariableSegment or
+                           segment_type == germline_utils::SegmentType::JoinSegment,
+                   "Segment " << segment_type << "is not variable or join");
+        if(segment_type == germline_utils::SegmentType::VariableSegment)
+            return VAlignment();
+        return JAlignment();
+    }
+
+    char AnnotatedClone::GetAminoAcidByNucleotidePos(size_t nucl_pos) const {
+        VERIFY_MSG(nucl_pos < read_.length(), "Position " << nucl_pos << " exceeds sequence length");
+        return aa_annotation_.AA()[(nucl_pos - ORF()) / 3];
+    }
+
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj) {
         out << obj.Read() << std::endl;
         if(!obj.RegionIsEmpty(StructuralRegion::CDR1))
