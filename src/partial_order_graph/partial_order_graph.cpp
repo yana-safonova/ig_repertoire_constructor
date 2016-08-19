@@ -1,6 +1,7 @@
 #include "partial_order_graph.hpp"
 
 #include <fstream>
+#include <seqan/sequence.h>
 
 namespace pog {
 
@@ -25,9 +26,26 @@ void partial_order_graph::add_sequence(seq_t const& sequence, id_t const& read_i
     std::vector<kmer> kmer_seq = sequence_to_kmers(sequence);
     TRACE("\tThere are " << kmer_seq.size() << " consecutive kmers in the sequence");
 
-    pair_vector matches = align(kmer_seq);
+    auto scores_and_transitions = align(kmer_seq);
+    pair_vector matches = select_matches(scores_and_transitions.first, scores_and_transitions.second, kmer_seq.size());
     update_nodes(kmer_seq, matches);
     update_nodes_indexes();
+}
+
+seq_t partial_order_graph::correct_read(seq_t const& sequence, id_t const& read_id) const {
+    TRACE("Correcting " << read_id);
+    if (length(sequence) < pog_parameters::instance().get_kmer_size()) {
+        DEBUG(read_id << " is too short: " << length(sequence));
+        return sequence;
+    }
+
+    std::vector<kmer> kmer_seq = sequence_to_kmers(sequence);
+    size_t m = kmer_seq.size();
+    TRACE("\tThere are " << m << " consecutive kmers in the sequence");
+
+    auto scores_and_transitions = align(kmer_seq);
+    size_t start = starting_point(scores_and_transitions.first, m);
+    return rebuild_read(start, scores_and_transitions.second, m);
 }
 
 void partial_order_graph::shrink_upaths() {
@@ -64,9 +82,11 @@ void partial_order_graph::remove_low_covered() {
         for (node* v : to_remove)
             nodes_[i]->remove_output_edge(v);
     }
+    for (size_t i = 1; i < nodes_.size() - 1; ++i) {
+        if (!nodes_[i]->dummy() && (nodes_[i]->get_input_edges().size() == 0 || nodes_[i]->get_output_edges().size() == 0))
+            nodes_[i]->remove_node();
+    }
     clean_nodes();
-    shrink_upaths();
-    shrink_bulges();
     INFO(nodes_.size() << " nodes after removing low covered nodes and edges");
 }
 
@@ -115,9 +135,7 @@ void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vec
     }
 }
 
-pair_vector partial_order_graph::select_matches(std::vector<float> const& scores,
-                                                pair_vector const& transitions, size_t m) const {
-    size_t n = nodes_.size() - 2;
+size_t partial_order_graph::starting_point(std::vector<float> const& scores, size_t m) const {
     float max_score = -1e6;
     size_t i = 0;
 
@@ -128,6 +146,13 @@ pair_vector partial_order_graph::select_matches(std::vector<float> const& scores
             i = k;
         }
     }
+    return i;
+}
+
+pair_vector partial_order_graph::select_matches(std::vector<float> const& scores,
+                                                pair_vector const& transitions, size_t m) const {
+    size_t n = nodes_.size() - 2;
+    size_t i = starting_point(scores, m);
     TRACE("\tScore: " << scores[i * (m + 1)]);
     size_t j = 0;
 
@@ -146,8 +171,8 @@ pair_vector partial_order_graph::select_matches(std::vector<float> const& scores
     return matches;
 }
 
-// Return value: Vector of matches (i, j), i in graph, j in kmer_seq
-pair_vector partial_order_graph::align(std::vector<kmer> const& kmer_seq) const {
+// Return value: scores, transitions
+std::pair<std::vector<float>, pair_vector> partial_order_graph::align(std::vector<kmer> const& kmer_seq) const {
     size_t n = nodes_.size() - 2;
     size_t m = kmer_seq.size();
 
@@ -162,7 +187,24 @@ pair_vector partial_order_graph::align(std::vector<kmer> const& kmer_seq) const 
         }
     }
 
-    return select_matches(scores, transitions, m);
+    return std::make_pair(scores, transitions);
+}
+
+seq_t partial_order_graph::rebuild_read(size_t start, pair_vector const& transitions, size_t m) const {
+    size_t n = nodes_.size() - 2;
+    size_t i = start;
+    size_t j = 0;
+    seq_t result = seqan::prefix(nodes_[start + 1]->get_sequence(), pog_parameters::instance().get_kmer_size() - 1);
+
+    while (i != n || j != m) {
+        size_t i_next;
+        std::tie(i_next, j) = transitions[i * (m + 1) + j];
+        if (i != i_next) {
+            append(result, seqan::suffix(nodes_[i + 1]->get_sequence(), pog_parameters::instance().get_kmer_size() - 1));
+        }
+        i = i_next;
+    }
+    return result;
 }
 
 // Inserting nodes [i1, i2) from graph, then [j1, j2) from kmer_seq, then i2 from graph.
@@ -224,7 +266,7 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
     size_t n = nodes_.size();
 
     std::vector<float> coverage(n, 0);
-    std::vector<size_t> next(n);
+    std::vector<size_t> next(n, -1);
 
     for (size_t i = n - 1; i > 0; --i) {
         for (auto const& entry : nodes_[i]->get_input_edges()) {
@@ -242,8 +284,6 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
 
 
 std::vector<size_t> partial_order_graph::restore_path(std::vector<size_t> const& next) const {
-    size_t n = nodes_.size();
-
     size_t sum_length = 0;
     float min_coverage = 1e10;
     float sum_coverage = 0;
@@ -251,7 +291,7 @@ std::vector<size_t> partial_order_graph::restore_path(std::vector<size_t> const&
     std::vector<size_t> path;
     path.push_back(0);
     path.push_back(next[0]);
-    while (path.back() != n - 1) {
+    while (path.back() != static_cast<size_t>(-1)) {
         min_coverage = std::min(min_coverage, nodes_[path.back()]->coverage());
         sum_length += nodes_[path.back()]->get_length();
         sum_coverage += nodes_[path.back()]->coverage();
@@ -265,20 +305,23 @@ std::vector<size_t> partial_order_graph::restore_path(std::vector<size_t> const&
     return path;
 }
 
-void partial_order_graph::save_dot(std::string const& filename, bool print_sequences) const {
-    std::ofstream dot_file(filename + ".dot");
+void partial_order_graph::save_dot(std::string const& prefix, bool print_sequences) const {
+    std::ofstream dot_file(prefix + ".dot");
     if (!dot_file) {
-        ERROR("Could not write to " << filename << ".dot");
+        ERROR("Could not write to " << prefix << ".dot");
         return;
     }
-    std::ofstream path_file(filename + ".fa");
+    std::ofstream path_file(prefix + "_path.fa");
     if (!path_file) {
-        ERROR("Could not write to " << filename << ".fa");
+        ERROR("Could not write to " << prefix << "_path.fa");
         return;
     }
     path_file << ">Most covered path\n";
 
     std::vector<size_t> path = most_covered_path();
+    if (path.size() > 1) {
+        path_file << seqan::prefix(nodes_[path[1]]->get_sequence(), pog_parameters::instance().get_kmer_size() - 1);
+    }
     auto it = path.begin();
 
     dot_file << "digraph {\n";
@@ -288,11 +331,13 @@ void partial_order_graph::save_dot(std::string const& filename, bool print_seque
             dot_file << "\\nLen: " << nodes_[i]->get_length();
         if (print_sequences)
             dot_file << "\\n " << nodes_[i]->get_sequence();
-
         dot_file << "\"";
+
         if (*it == i) {
             dot_file << ", fillcolor=khaki1,style=filled";
-            path_file << nodes_[i]->get_sequence();
+            if (!nodes_[i]->dummy()) {
+                path_file << seqan::suffix(nodes_[i]->get_sequence(), pog_parameters::instance().get_kmer_size() - 1);
+            }
             ++it;
         }
         dot_file << "]\n";
@@ -323,7 +368,21 @@ size_t partial_order_graph::nodes_count() const noexcept {
     return nodes_.size();
 }
 
-partial_order_graph from_file(std::string const& filename, bool use_forward_reads, bool use_rc_reads) {
+void partial_order_graph::clear() {
+    DEBUG("Clearing graph");
+    for (node* v : nodes_)
+        delete v;
+    nodes_.clear();
+    node_indexes_.clear();
+
+    nodes_.push_back(new node());
+    nodes_.push_back(new node());
+    update_nodes_indexes();
+    DEBUG("Graph cleared");
+}
+
+void from_file(partial_order_graph& graph, std::string const& filename,
+               bool use_forward_reads, bool use_rc_reads) {
     seqan::SeqFileIn reader(filename.c_str());
 
     if (!guessFormat(reader)) {
@@ -340,7 +399,6 @@ partial_order_graph from_file(std::string const& filename, bool use_forward_read
 
     INFO("Starting reading from " << filename);
 
-    partial_order_graph graph;
     size_t count = 0;
     while (!atEnd(reader))
     {
@@ -357,7 +415,62 @@ partial_order_graph from_file(std::string const& filename, bool use_forward_read
     }
 
     INFO(filename << ": " << count << " reads");
-    return graph;
+    INFO(graph.nodes_count() << " nodes");
+}
+
+void correct_reads(partial_order_graph const& graph, std::string const& filename_in, std::string const& filename_out,
+                   bool use_forward_reads, bool use_rc_reads) {
+    seqan::SeqFileIn reader(filename_in.c_str());
+
+    if (!guessFormat(reader)) {
+        ERROR("Could not detect file format " << filename_in);
+        exit(1);
+    }
+
+    id_t id;
+    seq_t seq;
+    if (atEnd(reader)) {
+        ERROR("Cannot read from file " << filename_in);
+        exit(1);
+    }
+
+    seqan::SeqFileOut writer(filename_out.c_str());
+
+    INFO("Starting correcting reads " << filename_in << " -> " << filename_out);
+
+    size_t count = 0;
+    while (!atEnd(reader))
+    {
+        readRecord(id, seq, reader);
+        ++count;
+        DEBUG(count << ": " << id);
+        if (use_forward_reads) {
+            seq_t corrected = graph.correct_read(seq, id);
+            writeRecord(writer, id, corrected);
+        }
+
+        if (use_rc_reads) {
+            reverseComplement(seq);
+            append(id, ".rc");
+            seq_t corrected = graph.correct_read(seq, id);
+            writeRecord(writer, id, corrected);
+        }
+    }
+
+    INFO(filename_in << " -> " << filename_out << ": " << count << " reads");
+}
+
+void save_graph(partial_order_graph const& graph, std::string const& prefix, bool show_sequences) {
+    INFO("Saving");
+    graph.save_nodes(prefix + ".csv");
+    DEBUG("Nodes saved");
+    graph.save_dot(prefix, show_sequences);
+    DEBUG("Dot saved");
+}
+
+void draw_graph(std::string const& prefix) {
+    INFO("Drawing plot " + prefix + ".pdf");
+    system(("dot " + prefix + ".dot -T pdf -o " + prefix + ".pdf").c_str());
 }
 
 } // namespace pog

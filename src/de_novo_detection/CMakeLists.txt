@@ -8,18 +8,10 @@ project(partial_order_graph CXX)
 
 include_directories(SYSTEM ${SEQAN_INCLUDE_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${PARTIAL_ORDER_GRAPH_DIR})
 
-add_executable(partial_order_graph
-    partial_order_graph.cpp
-    pog_parameters.cpp
-    pog_node.cpp
+add_executable(de_novo_detection
     main.cpp
     )
 
-add_library(pog_library STATIC
-    partial_order_graph.cpp
-    pog_parameters.cpp
-    pog_node.cpp
-    )
-
-target_link_libraries(partial_order_graph core boost_program_options ${COMMON_LIBRARIES})
+target_link_libraries(de_novo_detection pog_library core boost_program_options ${COMMON_LIBRARIES})
