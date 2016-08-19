@@ -41,6 +41,7 @@ def run_and_quast_all(input_reads,
                       min_fillin=self.fillin,
                       threads=threads,
                       loci=self.loci,
+                      min_sread_size=self.min_sread_size,
                       output_dir=out_dir + "/" + self.name + "/")
 
     igrec_runs = []
@@ -50,7 +51,7 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
     igrec_runs.append(IgReCRun("igrec"))
-    igrec_runs.append(IgReCRun("igreci_msns3", min_sread_size=3))
+    igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
     # igrec_runs.append(IgReCRun("igrec_f03", fillin=0.3))
     # igrec_runs.append(IgReCRun("igrec_f075", fillin=0.75))
     # igrec_runs.append(IgReCRun("igrec_f09", fillin=0.9))
@@ -118,7 +119,7 @@ if __name__ == "__main__":
     for dataset, output_dir in reversed(zip(datasets, output_dirs)):
         for min_error in [0, 1]:
             for error_rate in lambdas:
-                out_dir = output_dir + "/errate_%0.2f" % error_rate if not min_error else output_dir + "/errate_%0.2f_woans" % error_rate
+                out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
                 simulate_data(dataset,
                               out_dir,
                               error_rate=error_rate,
