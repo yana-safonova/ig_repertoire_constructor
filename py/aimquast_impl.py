@@ -2130,7 +2130,9 @@ def plot_various_error_rate(dir,
                             out="var_error_rate",
                             what="sensitivity", woans=False,
                             title="",
-                            format=("png", "pdf", "svg")):
+                            format=("png", "pdf", "svg"),
+                            legend=True,
+                            which=None):
     lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], what=what, woans=woans)
     datas = [get_plot_various_error_rate_data(dir, kind=kind, what=what, woans=woans, size=size)[1] for kind, size in zip(kinds, sizes)]
     import matplotlib.pyplot as plt
@@ -2140,7 +2142,11 @@ def plot_various_error_rate(dir,
 
     sns.set_style("darkgrid")
     colors = ["cornflowerblue", "seagreen", "orange", "black"]
-    for data, color, label in zip(datas, colors, labels):
+
+    zipped = zip(datas, colors, labels)
+    if which is not None:
+        zipped = [zipped[i] for i in which]
+    for data, color, label in zipped:
         plt.plot(lambdas, data, "b-", color=color, label=label)
 
     eps = 0.025
@@ -2152,8 +2158,9 @@ def plot_various_error_rate(dir,
     if title:
         plt.title(title)
 
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles, labels, loc=3)
+    if legend:
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels, loc=3)
 
     save_plot(out, format=format)
 
@@ -2173,6 +2180,9 @@ def plot_rocs(jsons, labels,
 
     sensitivities = [json["reference_based"]["__data_sensitivity"] for json in jsons]
     precisions = [json["reference_based"]["__data_precision"] for json in jsons]
+    def opt_size(sensitivity, precision):
+        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+    opt_sizes = [opt_size(sensitivity, precision) for sensitivity, precision in zip(sensitivities, precisions)]
 
     def cut_to_threshold(x):
         return x if len(x) <= max_size_threshold else x[:max_size_threshold]
@@ -2184,9 +2194,12 @@ def plot_rocs(jsons, labels,
 
     sns.set_style("darkgrid")
 
+    skip = 2
+    skip = 0
+
     colors = ["cornflowerblue", "seagreen", "orange", "black"]
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
-        plt.plot(precision, sensitivity, "b-", color=color, label=label)
+        plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
 
     eps = 0.025
     plt.xlim((0 - eps, 1 + eps))
@@ -2213,6 +2226,8 @@ def plot_rocs(jsons, labels,
                          xytext=(_x + xshift, _y + yshift))
 
     for i in [1, 3, 5, 10, 50]:
+        if i <= skip:
+            continue
     # for i in []:
         annotation(i, precisions[0], sensitivities[0], color="blue")
         if len(jsons) > 1:
@@ -2222,12 +2237,11 @@ def plot_rocs(jsons, labels,
         if len(jsons) > 3:
             annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
-    def red_point(x, y):
-        reference_trust_cutoff = 5
+    def red_point(x, y, reference_trust_cutoff):
         plt.plot(x[reference_trust_cutoff - 1], y[reference_trust_cutoff - 1], "bo", color="red", label="Reference size threshold")
 
-    for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
-        red_point(precision, sensitivity)
+    for precision, sensitivity, color, label, opt_size in zip(precisions, sensitivities, colors, labels, opt_sizes):
+        red_point(precision, sensitivity, opt_size)
 
     if title:
         plt.title(title)

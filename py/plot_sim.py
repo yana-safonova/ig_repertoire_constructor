@@ -52,11 +52,21 @@ if __name__ == "__main__":
          title="Error-rate = 0.5, with answer",
          out="sensitivity_precision_plot_er0.5_real")
 
+    for i, toolname in enumerate(["igrec", "mixcr", "presto"]):
+        plot_various_error_rate(igrec_dir + "/various_error_rate", what="sensitivity", out="sensitivity_%s" % toolname,
+                                which=[i],
+                                kinds=["igrec_tau3_f03", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                                legend=False)
+        plot_various_error_rate(igrec_dir + "/various_error_rate", what="precision", out="precision_%s" % toolname,
+                                which=[i],
+                                kinds=["igrec_tau3_f03", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                                legend=False)
 
     plot_various_error_rate(igrec_dir + "/various_error_rate", what="sensitivity", out="sensitivity",
-                            kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
+                            kinds=["igrec_tau3_f03", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
     plot_various_error_rate(igrec_dir + "/various_error_rate", what="precision", out="precision",
-                            kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
+                            kinds=["igrec_tau3_f03", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
+
     plot_various_error_rate(igrec_dir + "/various_error_rate", what="sensitivity", out="sensitivity_woans", woans=True,
                             kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
     plot_various_error_rate(igrec_dir + "/various_error_rate", what="precision", out="precision_woans", woans=True,
