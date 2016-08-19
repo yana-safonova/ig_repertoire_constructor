@@ -84,7 +84,6 @@ def run_and_quast_all(input_reads,
                     out_dir + "/supernode/final_repertoire.rcm")
 
     kinds = [run.name for run in igrec_runs] + ["supernode", "presto", "mixcr"]
-    kinds = [run.name for run in igrec_runs] + ["supernode"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,

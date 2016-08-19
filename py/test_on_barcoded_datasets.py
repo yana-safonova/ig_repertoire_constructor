@@ -3,14 +3,15 @@
 from test_on_naive_simulation import *
 
 
-def run_and_quast_all_three(input_dir, threads=16):
+def run_and_quast_all_three(input_dir, threads=16, do_not_run=False):
     # for i in [1, 2, 3]:
     for i in [3]:
         run_and_quast_all(input_dir + "/input%d.fa.gz" % i,
                           input_dir + "/repertoire%d.fa.gz" % i,
                           input_dir + "/repertoire%d.rcm" % i,
                           out_dir=input_dir + "/filtering%d" % i,
-                          threads=threads)
+                          threads=threads,
+                          do_not_run=do_not_run)
         # for lam in ["0.5", "1"]:
         #     run_and_quast_all(input_dir + "/input%d_jit%s.fa.gz" % (i, lam),
         #                       input_dir + "/repertoire%d.fa.gz" % i,
@@ -39,4 +40,4 @@ if __name__ == "__main__":
     for dataset in datasets:
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
         if os.path.isfile(ddir + "/input1.fa.gz"):
-            run_and_quast_all_three(ddir)
+            run_and_quast_all_three(ddir, do_not_run=True)
