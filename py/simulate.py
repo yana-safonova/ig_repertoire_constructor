@@ -185,6 +185,7 @@ def run_igrec(input_file, output_dir, log=None,
               tau=4,
               min_fillin=0.6,
               loci="all", threads=16, additional_args="",
+              min_sread_size=5,
               remove_tmp=True):
     if log is None:
         log = FakeLog()
@@ -196,8 +197,9 @@ def run_igrec(input_file, output_dir, log=None,
             "threads": threads,
             "input_file": input_file,
             "output_dir": output_dir,
+            "min_sread_size": min_sread_size,
             "additional_args": additional_args}
-    support.sys_call("%(path)s/igrec.py --tau=%(tau)d --min-fillin=%(min_fillin)f -t %(threads)d --loci %(loci)s -s %(input_file)s -o %(output_dir)s %(additional_args)s" % args,
+    support.sys_call("%(path)s/igrec.py --tau=%(tau)d --min-fillin=%(min_fillin)f -t %(threads)d --loci %(loci)s -s %(input_file)s -o %(output_dir)s --min-sread-size %(min_sread_size)d %(additional_args)s" % args,
                      log=log)
     if remove_tmp:
         import os.path
