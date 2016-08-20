@@ -51,8 +51,9 @@ add_executable(antevolo
         evolutionary_graph_utils/evolutionary_edge.cpp
         evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
-        evolutionary_graph_utils/evolutionary_graph.cpp
-        evolutionary_graph_utils/evolutionary_graph_constructor.cpp
+        #evolutionary_graph_utils/evolutionary_graph.cpp
+        #evolutionary_graph_utils/evolutionary_graph_constructor.cpp
+        evolutionary_graph_utils/evolutionary_tree_splitter.cpp
         evolutionary_tree_storage.cpp
         evolutionary_tree_annotation/annotated_evolutionary_tree.cpp
         evolutionary_tree_annotation/tree_based_shm_annotator.cpp

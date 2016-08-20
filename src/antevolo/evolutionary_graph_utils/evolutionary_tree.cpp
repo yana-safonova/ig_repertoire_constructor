@@ -318,7 +318,7 @@ namespace antevolo {
                     annotation_utils::StructuralRegion::CDR3).end_pos;
             std::string clone_AA_string;
             auto const& clone_AA_seq = clone.AA();
-            size_t AA_length = seqan::length(clone.AA() );
+            size_t AA_length = seqan::length(clone.AA());
             for (size_t i = 0; i < AA_length; ++i) {
                 clone_AA_string.push_back(clone_AA_seq[i]);
             }

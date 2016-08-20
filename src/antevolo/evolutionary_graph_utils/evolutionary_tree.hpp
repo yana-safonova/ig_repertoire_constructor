@@ -80,7 +80,7 @@ namespace antevolo {
         void WriteVerticesInFile(std::string output_fname, const annotation_utils::CDRAnnotatedCloneSet& clone_set);
 
         size_t NumEdges() const { return edges_.size(); }
-        size_t NumVertives() const { return passed_flag_.size(); }
+        size_t NumVertices() const { return passed_flag_.size(); }
 
         size_t UndirectedGraphSize() const {
             size_t res = 0;

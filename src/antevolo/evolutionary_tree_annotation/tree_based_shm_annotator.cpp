@@ -3,16 +3,15 @@
 namespace antevolo {
     EvolutionaryAnnotatedSHM TreeBasedSHMAnnotator::GetAnnotationForRoot(size_t root_id, annotation_utils::SHM shm) {
         VERIFY_MSG(tree_ptr_->IsRoot(root_id), "Vertex " << root_id << " is not root");
-        return EvolutionaryAnnotatedSHM(shm, false, tree_ptr_->NumVertives() > 1);
+        return EvolutionaryAnnotatedSHM(shm, false, tree_ptr_->NumVertices() > 1);
     }
 
     // todo: write unit test
     bool TreeBasedSHMAnnotator::SHMIsSynonymousWrtToParent(size_t dst_clone, annotation_utils::SHM shm) {
         size_t src_clone = tree_ptr_->GetParentEdge(dst_clone).src_clone_num;
         auto src_gene_alignment = (*clone_set_ptr_)[src_clone].GetAlignmentBySegment(shm.segment_type);
-        auto dst_gene_alignment = (*clone_set_ptr_)[dst_clone].GetAlignmentBySegment(shm.segment_type);
-        size_t dst_nucl_pos = dst_gene_alignment.QueryPositionBySubjectPosition(shm.gene_nucl_pos);
-        return shm.read_aa == (*clone_set_ptr_)[dst_clone].GetAminoAcidByNucleotidePos(dst_nucl_pos);
+        size_t src_nucl_pos = src_gene_alignment.QueryPositionBySubjectPosition(shm.gene_nucl_pos);
+        return shm.read_aa == (*clone_set_ptr_)[src_clone].GetAminoAcidByNucleotidePos(src_nucl_pos);
     }
 
     EvolutionaryAnnotatedSHM TreeBasedSHMAnnotator::GetAnnotationForNodeWithParent(size_t clone_id,

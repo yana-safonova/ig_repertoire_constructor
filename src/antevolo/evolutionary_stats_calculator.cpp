@@ -18,14 +18,18 @@ namespace antevolo {
     AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree) {
         const EvolutionaryTree& tree = annotated_tree.Tree();
         for (auto edge = tree.cbegin(); edge != tree.cend(); edge++) {
+            //std::cout << edge->dst_clone_num << " -> " << edge->src_clone_num << std::endl;
             auto added_v_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set_[edge->src_clone_num].VSHMs(),
                                                                               clone_set_[edge->dst_clone_num].VSHMs());
             auto added_j_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set_[edge->src_clone_num].JSHMs(),
                                                                               clone_set_[edge->dst_clone_num].JSHMs());
+            //std::cout << added_v_shms.size() << " - " << added_j_shms.size() << std::endl;
             for (auto it = added_v_shms.begin(); it != added_v_shms.end(); it++)
                 annotated_tree.AddSHMForClone(edge->dst_clone_num, *it);
             for (auto it = added_j_shms.begin(); it != added_j_shms.end(); it++)
                 annotated_tree.AddSHMForClone(edge->dst_clone_num, *it);
+            //std::cout << clone_set_[edge->src_clone_num].CDR3() << " - " <<
+            //        clone_set_[edge->dst_clone_num].CDR3() << std::endl;
             // todo: add SHMs in CDR3
         }
         return annotated_tree;
@@ -41,9 +45,10 @@ namespace antevolo {
         }
         annotated_tree = AddSHMsFromRoot(annotated_tree);
         annotated_tree = AddSHMsFromEdges(annotated_tree);
-        INFO("Total number of SHMs in a tree with " << tree.NumVertives() << " vertices: " <<
-                     annotated_tree.NumUniqueSHms() << ". # synonymous SHMs: " <<
-                     annotated_tree.NumSynonymousSHMs());
+        INFO("# vertices: " << tree.NumEdges() + 1 << ", root depth: " << annotated_tree.RootDepth() <<
+                     ", # unique SHMs: " << annotated_tree.NumUniqueSHms() <<
+                     ", # added SHMs: " << annotated_tree.NumAddedSHMs() <<
+                     ", # synonymous SHMs: " << annotated_tree.NumSynonymousSHMs());
         return annotated_tree;
     }
 }

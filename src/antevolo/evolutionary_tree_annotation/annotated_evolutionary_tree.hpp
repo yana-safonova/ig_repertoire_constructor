@@ -29,5 +29,9 @@ namespace antevolo {
         size_t NumUniqueSHms() const { return num_unique_shms_; }
 
         size_t NumSynonymousSHMs() const;
+
+        size_t RootDepth() const;
+
+        size_t NumAddedSHMs() const; // return numner of SHMs that were added wrt to tree root
     };
 }

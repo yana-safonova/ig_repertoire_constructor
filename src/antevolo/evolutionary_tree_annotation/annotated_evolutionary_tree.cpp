@@ -26,4 +26,13 @@ namespace antevolo {
         }
         return num_synonymous_shms;
     }
+
+    size_t AnnotatedEvolutionaryTree::RootDepth() const {
+        size_t root_id = tree_ptr_->GetRoot();
+        return (*clone_set_prt_)[root_id].VSHMs().size() + (*clone_set_prt_)[root_id].JSHMs().size();
+    }
+
+    size_t AnnotatedEvolutionaryTree::NumAddedSHMs() const {
+        return NumUniqueSHms() - RootDepth();
+    }
 }

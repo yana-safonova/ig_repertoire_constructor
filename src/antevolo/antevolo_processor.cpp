@@ -56,9 +56,9 @@ namespace antevolo {
                 candidate_calculator.AddComponent(
                         connected_components[component_index], component_index, tree);
                 std::string tree_output_fname = GetTreeOutputFname(
-                        config_.output_params.tree_dir, i + 1, component_index, tree.NumVertives(), tree.NumEdges());
+                        config_.output_params.tree_dir, i + 1, component_index, tree.NumVertices(), tree.NumEdges());
                 std::string vertices_output_fname = GetTreeOutputFname(
-                        config_.output_params.vertex_dir, i + 1, component_index, tree.NumVertives(), tree.NumEdges());
+                        config_.output_params.vertex_dir, i + 1, component_index, tree.NumVertices(), tree.NumEdges());
                 if (tree.NumEdges() != 0) {
                     tree.WriteInFileWithCDR3s(tree_output_fname);
                     tree.WriteVerticesInFile(vertices_output_fname, clone_set_);
