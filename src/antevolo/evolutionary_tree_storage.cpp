@@ -17,4 +17,8 @@ namespace antevolo {
         VERIFY_MSG(index < size(), "Index " << index << " exceeds size of evolutionary tree storage: " << size());
         return trees_[index];
     }
+
+    const EvolutionaryTree& EvolutionaryTreeStorage::operator[](size_t index) const {
+        return GetTreeByIndex(index);
+    }
 }

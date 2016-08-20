@@ -12,8 +12,9 @@ namespace antevolo {
         if(unique_shms_.find(clone_id) == unique_shms_.end()) {
             unique_shms_[clone_id] = std::vector<EvolutionaryAnnotatedSHM>();
         }
-        unique_shms_[clone_id].push_back(shm_annotator_.GetAnnotation(clone_id, shm));
-        num_unique_shms_++;
+        auto annotated_shm = shm_annotator_.GetAnnotation(clone_id, shm);
+        unique_shms_[clone_id].push_back(annotated_shm);
+        all_unique_shms_.push_back(annotated_shm);
     }
 
     size_t AnnotatedEvolutionaryTree::NumSynonymousSHMs() const {

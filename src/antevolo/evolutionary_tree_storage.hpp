@@ -31,5 +31,7 @@ namespace antevolo {
         size_t size() const { return trees_.size(); }
 
         const EvolutionaryTree& GetTreeByIndex(size_t index) const;
+
+        const EvolutionaryTree& operator[](size_t index) const;
     };
 }

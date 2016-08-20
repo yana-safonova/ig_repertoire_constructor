@@ -11,7 +11,7 @@ namespace antevolo {
         TreeBasedSHMAnnotator shm_annotator_;
 
         std::map<size_t, std::vector<EvolutionaryAnnotatedSHM> > unique_shms_;
-        size_t num_unique_shms_;
+        std::vector<EvolutionaryAnnotatedSHM> all_unique_shms_;
 
         void CheckConsistencyFatal(size_t clone_id);
 
@@ -19,14 +19,13 @@ namespace antevolo {
         AnnotatedEvolutionaryTree(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                   const EvolutionaryTree &tree) : clone_set_prt_(&clone_set),
                                                                   tree_ptr_(&tree),
-                                                                  shm_annotator_(clone_set, tree),
-                                                                  num_unique_shms_(0) { }
+                                                                  shm_annotator_(clone_set, tree) { }
 
         void AddSHMForClone(size_t clone_id, annotation_utils::SHM shm);
 
         const EvolutionaryTree& Tree() const { return *tree_ptr_; }
 
-        size_t NumUniqueSHms() const { return num_unique_shms_; }
+        size_t NumUniqueSHms() const { return all_unique_shms_.size(); }
 
         size_t NumSynonymousSHMs() const;
 
