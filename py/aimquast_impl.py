@@ -2047,8 +2047,12 @@ class Report:
             extra_clusters_sizes = rb["extra_clusters_sizes"]
             n_ec4 = sum([1 for size in extra_clusters_sizes if size >= 4])
             n_ec3 = sum([1 for size in extra_clusters_sizes if size >= 3])
-            s += "\tExtra clusters with size >=4 :\t%d\n" % n_ec4
-            s += "\tExtra clusters with size >=3 :\t%d\n" % n_ec3
+            n_ec2 = sum([1 for size in extra_clusters_sizes if size >= 2])
+            n_ec1 = sum([1 for size in extra_clusters_sizes if size >= 1])
+            s += "\tExtra clusters with size >=4:\t\t%d\n" % n_ec4
+            s += "\tExtra clusters with size >=3:\t\t%d\n" % n_ec3
+            s += "\tExtra clusters with size >=2:\t\t%d\n" % n_ec2
+            s += "\tExtra clusters with size >=1:\t\t%d\n" % n_ec1
 
             if "jaccard_index" in rb:
                 s += "\tClustering similarity measures:\n"
