@@ -436,21 +436,21 @@ class RepertoireMatch:
 
     @memoize
     def extra_clusters(self, cons_size=5, ref_size=5):
-        assert len(self.constructed_ids) == len(self.rep2rep.constructed_abundances) == len(self.constructed[:, 0])
-        return [id for id, ab, match in zip(self.constructed_ids, self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
+        assert len(self.constructed_ids) == len(self.rep2rep.constructed_abundances) == len(self.constructed_new[:, 0])
+        return [id for id, ab, match in zip(self.constructed_ids, self.rep2rep.constructed_abundances, self.constructed_new[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
     def extra_clusters_ref_sizes(self, cons_size=5, ref_size=5):
-        return [match for ab, match in zip(self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
+        return [match for ab, match in zip(self.rep2rep.constructed_abundances, self.constructed_new[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
     def missed_clusters(self, cons_size=5, ref_size=5):
-        assert len(self.reference_ids) == len(self.rep2rep.reference_abundances) == len(self.reference[:, 0])
-        return [id for id, ab, match in zip(self.reference_ids, self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
+        assert len(self.reference_ids) == len(self.rep2rep.reference_abundances) == len(self.reference_new[:, 0])
+        return [id for id, ab, match in zip(self.reference_ids, self.rep2rep.reference_abundances, self.reference_new[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
     def missed_clusters_cons_sizes(self, cons_size=5, ref_size=5):
-        return [match for ab, match in zip(self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
+        return [match for ab, match in zip(self.rep2rep.reference_abundances, self.reference_new[:, 0]) if ab >= cons_size and match < ref_size]
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
@@ -484,6 +484,9 @@ class RepertoireMatch:
         reference = np.full((ref_len, max_tau + 1), 0, dtype=int)
         constructed = np.full((cons_len, max_tau + 1), 0, dtype=int)
 
+        reference_new = np.full((ref_len, max_tau + 1), 0, dtype=int)
+        constructed_new = np.full((cons_len, max_tau + 1), 0, dtype=int)
+
         ref_edge = np.full((ref_len, max_tau + 1), -1, dtype=int)
         cons_edge = np.full((cons_len, max_tau + 1), -1, dtype=int)
 
@@ -503,6 +506,9 @@ class RepertoireMatch:
                 reference_sum[j, d] = reference_sum[j, d] + constructed_abundance
                 constructed_sum[i, d] = constructed_sum[i, d] + reference_abundance
 
+                reference_new[j, d] = max(reference_new[j, d], constructed_abundance)
+                constructed_new[i, d] = max(constructed_new[i, d], reference_abundance)
+
                 if reference_abundance >= reference_trust_cutoff:
                     reference_abundance = float("inf")
                 if reference_abundance < reference_trash_cutoff:
@@ -520,16 +526,20 @@ class RepertoireMatch:
         for d in xrange(1, max_tau + 1):
             for j in xrange(ref_len):
                 reference[j, d] = max(reference[j, d], reference[j, d - 1])
+                reference_new[j, d] = max(reference_new[j, d], reference_new[j, d - 1])
                 reference_sum[j, d] = reference_sum[j, d] + reference_sum[j, d - 1]
 
             for i in xrange(cons_len):
                 constructed[i, d] = max(constructed[i, d], constructed[i, d - 1])
+                constructed_new[i, d] = max(constructed_new[i, d], constructed_new[i, d - 1])
                 constructed_sum[i, d] = constructed_sum[i, d] + constructed_sum[i, d - 1]
 
         self.cons_edge = cons_edge
         self.ref_edge = ref_edge
         self.constructed = constructed
         self.reference = reference
+        self.constructed_new = constructed_new
+        self.reference_new = reference_new
 
         self.M2MDATA = MultToMultData(self.rep2rep.reference_abundances, reference_sum, reversed=True)
 
