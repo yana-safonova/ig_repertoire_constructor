@@ -436,6 +436,7 @@ class RepertoireMatch:
 
     @memoize
     def extra_clusters(self, cons_size=5, ref_size=5):
+        assert len(self.constructed_ids) == len(self.rep2rep.constructed_abundances) == len(self.constructed[:, 0])
         return [id for id, ab, match in zip(self.constructed_ids, self.rep2rep.constructed_abundances, self.constructed[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
@@ -444,6 +445,7 @@ class RepertoireMatch:
 
     @memoize
     def missed_clusters(self, cons_size=5, ref_size=5):
+        assert len(self.reference_ids) == len(self.rep2rep.reference_abundances) == len(self.reference[:, 0])
         return [id for id, ab, match in zip(self.reference_ids, self.rep2rep.reference_abundances, self.reference[:, 0]) if ab >= cons_size and match < ref_size]
 
     @memoize
