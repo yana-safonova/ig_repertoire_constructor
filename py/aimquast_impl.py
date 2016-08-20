@@ -25,6 +25,13 @@ from ig_compress_equal_clusters import parse_cluster_mult
 
 path_to_igrec = igrec_dir
 
+def safe_log(x):
+    from math import log
+    try:
+        result = log(x)
+    except:
+        result = float("-inf")
+    return result
 
 def auc(sensitivity, precision):
     assert len(precision) == len(sensitivity)
@@ -601,8 +608,6 @@ class RepertoireMatch:
     # TODO Add density plot(s)
 
     def report(self, report, size=None):
-        import math
-
         if "reference_based" not in report.__dict__:
             report.reference_based = {}
 
@@ -623,7 +628,7 @@ class RepertoireMatch:
 
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
-        rb["reference_vs_constructed_error_rate_estimation"] = -math.log(float(self.M2MDATA.median_rate(size)))
+        rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
@@ -1614,7 +1619,7 @@ class Repertoire:
         # first - len MLE by ideal
         import math
         if errordist[0] > 0:
-            res.first_len = - math.log(float(errordist[0]) / N)
+            res.first_len = -safe_log(float(errordist[0]) / N)
         else:
             res.fist_len = res.mle
 
