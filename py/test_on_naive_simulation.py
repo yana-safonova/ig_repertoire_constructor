@@ -2,6 +2,7 @@
 
 from simulate import *
 from aimquast_impl import get_clusters_sizes
+import os.path
 
 path_to_aimquast = igrec_dir + "/aimquast.py"
 
@@ -112,14 +113,19 @@ if __name__ == "__main__":
     run_ig_simulator(ig_simulator_output_dir,
                      chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
 
-    multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
-                         igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+    try:
+        multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz", igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+    except:
+        print "Cannot multiplex reperoire, file not found"
+
     datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
     output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
 
     lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
     for dataset, output_dir in reversed(zip(datasets, output_dirs)):
+        if not os.path.isfile(dataset):
+            continue
         for min_error in [0, 1]:
             for error_rate in lambdas:
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
@@ -130,11 +136,11 @@ if __name__ == "__main__":
                               min_error=min_error,
                               erroneous_site_len=300)
 
-                sizes = get_clusters_sizes(out_dir + "/ideal_final_repertoire.fa")
+                sizes = get_clusters_sizes(out_dir + "/ideal_final_repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
                 print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
-                run_and_quast_all(out_dir + "/merged_reads.fa",
-                                  out_dir + "/ideal_final_repertoire.fa",
+                run_and_quast_all(out_dir + "/merged_reads.fa.gz",
+                                  out_dir + "/ideal_final_repertoire.fa.gz",
                                   out_dir + "/ideal_final_repertoire.rcm", out_dir,
                                   rerun_mixcr=True)

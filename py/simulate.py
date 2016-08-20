@@ -137,16 +137,16 @@ def simulate_data(input_file, output_dir, log=None,
 
     simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
 
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
 
     args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa",
+            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
             "rcm": output_dir + "/ideal_final_repertoire.rcm"}
     support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
                      log=log)
 
     # TODO factor this stage
-    jit_fx_file(input_file, "%s/merged_reads.fa" % output_dir, **kwargs)
+    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
 
     shutil.rmtree(temp_dir)
 
