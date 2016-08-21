@@ -52,6 +52,7 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
     igrec_runs.append(IgReCRun("igrec"))
+    igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
     igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
     igrec_runs.append(IgReCRun("igrec_msns4", min_sread_size=4))
     # igrec_runs.append(IgReCRun("igrec_f03", fillin=0.3))
@@ -64,6 +65,7 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_tau3_f075", tau=3, fillin=0.75))
     # igrec_runs.append(IgReCRun("igrec_tau3_f09", tau=3, fillin=0.9))
     igrec_runs.append(IgReCRun("igrec_tau3_f095", tau=3, fillin=0.95))
+    igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau2_f03", tau=2, fillin=0.3))
     # igrec_runs.append(IgReCRun("igrec_tau2_f075", tau=2, fillin=0.75))
