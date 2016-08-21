@@ -133,4 +133,6 @@ namespace vj_finder {
     void load(VJFinderConfig &cfg, std::string const &filename);
 
     typedef config_common::config<VJFinderConfig> vjf_cfg;
+    
+    void update_output_files_config(VJFinderConfig::IOParams::OutputParams::OutputFiles & of);
 }

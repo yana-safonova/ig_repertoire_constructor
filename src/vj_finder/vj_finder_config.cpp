@@ -59,7 +59,7 @@ namespace vj_finder {
         load(of.output_dir, pt, "output_dir");
         load(of.cleaned_reads_fname, pt, "cleaned_reads_fname");
         load(of.valignments_filename, pt, "valignments_filename");
-        update_output_files_config(of);
+        //update_output_files_config(of);
     }
 
     void load(VJFinderConfig::IOParams::OutputParams & op, boost::property_tree::ptree const &pt, bool) {

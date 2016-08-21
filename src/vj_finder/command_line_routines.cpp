@@ -209,4 +209,7 @@ void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, char** ar
         ERROR("Unknown exception: " << e.what());
         exit(1);
     }
+
+    std::cout << cfg.io_params.output_params.output_files.output_dir << std::endl;
+    update_output_files_config(cfg.io_params.output_params.output_files);
 }
