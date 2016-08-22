@@ -3,6 +3,7 @@
 from simulate import *
 from aimquast_impl import get_clusters_sizes
 import os.path
+from joblib import Parallel, delayed
 
 path_to_aimquast = igrec_dir + "/aimquast.py"
 
@@ -102,7 +103,7 @@ def run_and_quast_all(input_reads,
         shutil.copy(out_dir + "/igrec/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "presto", "mixcr"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
@@ -143,7 +144,7 @@ if __name__ == "__main__":
             continue
         min_error_interval = [0, 1] if "real" not in dataset else [0]
         for min_error in min_error_interval:
-            for error_rate in lambdas:
+            def JOB(error_rate):
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
                 simulate_data(dataset,
                               out_dir,
@@ -160,3 +161,5 @@ if __name__ == "__main__":
                                   out_dir + "/ideal_final_repertoire.fa.gz",
                                   out_dir + "/ideal_final_repertoire.rcm", out_dir,
                                   rerun_mixcr=True)
+
+            Parallel(n_jobs=4)(delayed(JOB)(error_rate) for error_rate in lambdas)
