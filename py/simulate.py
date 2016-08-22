@@ -29,10 +29,37 @@ def parse_final_repertoire_id(id):
         g = m.groups()
         return int(g[0]), int(g[1]), int(g[2])
     else:
-        return 1
+        return None
 
 
 assert parse_final_repertoire_id("antibody_1_multiplicity_1_copy_1") == (1, 1, 1)
+
+
+def parse_abvitro_assembled_header(id):
+    import re
+    id = id.strip()
+
+    m = re.match(r"^([ACGTN]+)\|CONSCOUNT=(\d+),.*$", id)
+
+    if m:
+        g = m.groups()
+        return g[0].strip(), int(g[1])
+    else:
+        return None
+
+assert parse_abvitro_assembled_header("NNATCACTTATAATCCT|CONSCOUNT=777,1|PRCONS=p5-hIGLC_bs-0") == ("NNATCACTTATAATCCT", 777)
+
+
+def convert_abvitro_to_repertoire(input_file, output_file):
+    output_format = idFormatByFileName(output_file)
+    input_format = idFormatByFileName(input_file)
+    assert output_format == "fasta" or input_format == "fastq"
+
+    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
+        for record in SeqIO.parse(fh, input_format):
+            cluster, mult = parse_abvitro_assembled_header(str(record.description))
+            record.id = record.description = "cluster___%s___size___%d" % (cluster, mult)
+            SeqIO.write(record, fout, output_format)
 
 
 def multiplex_repertoire(input_file, output_file):

@@ -116,7 +116,10 @@ if __name__ == "__main__":
                      chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
 
     try:
-        multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz", igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+        convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
+                                      igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz")
+        multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
+                             igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
     except:
         print "Cannot multiplex reperoire, file not found"
 
@@ -128,7 +131,8 @@ if __name__ == "__main__":
     for dataset, output_dir in reversed(zip(datasets, output_dirs)):
         if not os.path.isfile(dataset):
             continue
-        for min_error in [0, 1]:
+        min_error_interval = [0, 1] if "real" not in dataset else [0]
+        for min_error in min_error_interval:
             for error_rate in lambdas:
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
                 simulate_data(dataset,
