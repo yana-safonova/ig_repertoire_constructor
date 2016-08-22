@@ -75,12 +75,17 @@ if __name__ == "__main__":
                             kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
 
 
-    plot_various_error_rate(igrec_dir + "/various_error_rate", what="sensitivity", out="sensitivity_woans", woans=True,
-                            title="SIMULATED, sensitivity, without answer",
-                            kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
-    plot_various_error_rate(igrec_dir + "/various_error_rate", what="precision", out="precision_woans", woans=True,
-                            title="SIMULATED, precision, without answer",
-                            kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
+    plot_two_sums(igrec_dir + "/various_error_rate", out="two_sum",
+                  title="SIMULATED, sensitivity, without answer",
+                  kind="igrec", label="IgReC")
+
+
+    # plot_various_error_rate(igrec_dir + "/various_error_rate", what="sensitivity", out="sensitivity_woans", woans=True,
+    #                         title="SIMULATED, sensitivity, without answer",
+    #                         kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
+    # plot_various_error_rate(igrec_dir + "/various_error_rate", what="precision", out="precision_woans", woans=True,
+    #                         title="SIMULATED, precision, without answer",
+    #                         kinds=["igrec_tau3", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
 
     # plot_various_error_rate(igrec_dir + "/v_e_r_r", what="sensitivity", out="sensitivity_flu",
     #                         title="SYNTHETIC FLU, sensitivity",
