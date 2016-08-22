@@ -4,7 +4,6 @@ dsf_test
 .idea
 src/.idea/
 build/
-<<<<<<< HEAD
 
 # cmake files
 CMakeCache.txt
@@ -19,6 +18,4 @@ CTestTestfile.cmake
 *.la
 *.a
 *.so
-=======
 divan_test
->>>>>>> cdr_labeler
