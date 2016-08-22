@@ -28,6 +28,7 @@ bool readArgs(int argc, char **argv, std::string& reads_file, std::string& graph
 }
 
 void extract_abundances(const std::vector<seqan::CharString>& ids, std::vector<size_t>& abundances) {
+    // error somewhere here on age3
     for (auto& id : ids) {
         const std::string& id_string = seqan_string_to_string(id);
         const std::string& abundance_string = id_string.substr(id_string.find_last_of("___") + 1);
