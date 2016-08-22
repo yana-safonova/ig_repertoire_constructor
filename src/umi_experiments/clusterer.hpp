@@ -312,7 +312,7 @@ namespace clusterer {
             indices[current] = current;
             current ++;
         }
-        return consensus_hamming_limited_coverage(reads, indices, 1);
+        return consensus_hamming_limited_coverage(reads, indices, std::vector<size_t>(reads.size(), 1), 1);
         /*seqan::Dna5String center = seqan::Dna5String(members.begin()->GetSequence());
         std::vector<std::vector<size_t>> cnt(length(center), std::vector<size_t>(4));
         for (auto& member : members) {

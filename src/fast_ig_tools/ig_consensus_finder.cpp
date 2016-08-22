@@ -183,7 +183,10 @@ int main(int argc, char **argv) {
     }
     INFO(bformat("Size of maximal cluster: %d") % max_component_size);
 
+    auto abundances = find_abundances(input_ids);
+
     std::vector<Dna5String> consensuses(component2id.size());
+    std::vector<size_t> comp_abundances(component2id.size());
 
     omp_set_num_threads(nthreads);
     INFO(bformat("Computation of consensus using %d threads starts") % nthreads);
@@ -195,9 +198,13 @@ int main(int argc, char **argv) {
         }
 
         if (use_hamming_alignment) {
-            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], coverage_limit);
+            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], abundances, coverage_limit);
         } else {
             consensuses[comp] = consensus(input_reads, component2id[comp]);
+        }
+
+        for (size_t i : component2id[comp]) {
+            comp_abundances[comp] += abundances[i];
         }
     }
 
@@ -210,7 +217,7 @@ int main(int argc, char **argv) {
             continue;
         }
 
-        size_t abundance = component2id[comp].size();
+        size_t abundance = comp_abundances[comp];
 
         bformat fmt("cluster___%s___size___%d");
         fmt % rcm.second[comp] % abundance;

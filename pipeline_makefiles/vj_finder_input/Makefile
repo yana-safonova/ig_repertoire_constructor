@@ -3,10 +3,11 @@ include ../Makefile_vars
 all:
 	$(MAKE) cleaned_reads.fa
 
-cleaned_reads.fa: %INPUT !! $(BIN)/ig_kplus_vj_finder
-	$(BIN)/ig_kplus_vj_finder \
+cleaned_reads.fa: %INPUT !! $(BIN)/$(VJ_FINDER)
+	cd $(IGREC); \
+	$(BIN)/$(VJ_FINDER) \
 	--input-file %INPUT \
-	--output . \
+	--output-dir $(CURDIR)/ \
 	--db-directory $(IGREC)/data/germline \
 	--threads %THREADS \
 	--loci %LOCI \

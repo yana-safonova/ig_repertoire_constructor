@@ -180,7 +180,7 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if  not os.path.exists(self.run_rcm_recoverer):
+        if not os.path.exists(self.run_rcm_recoverer):
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
