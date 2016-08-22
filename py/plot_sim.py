@@ -76,7 +76,7 @@ if __name__ == "__main__":
 
 
     plot_two_sums(igrec_dir + "/various_error_rate", out="two_sum",
-                  title="SIMULATED, sensitivity, without answer",
+                  title="SIMULATED, sens + prec, with/without answer",
                   kind="igrec", label="IgReC")
 
 
