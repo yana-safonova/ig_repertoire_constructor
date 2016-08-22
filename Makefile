@@ -18,3 +18,9 @@ check: all
 
 check_essential: all
 	$(MAKE) -C build/release check_essential
+
+vjf:
+	$(MAKE) -C build/release/vj_finder
+
+cdr:
+	$(MAKE) -C build/release/cdr_labeler

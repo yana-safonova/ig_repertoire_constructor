@@ -30,6 +30,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SPADES_TOOLS_BINARY_DIR})
 set(EXT_DIR "${CMAKE_SOURCE_DIR}/../ext")
 set(SPADES_CFG_DIR "${CMAKE_SOURCE_DIR}/../configs")
 
+set(CORE_DIR "${SPADES_MAIN_SRC_DIR}/core")
+set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
+set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
+set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
+set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
+
 # Everything option-dependent
 include(options)
 
@@ -75,6 +81,11 @@ add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
 add_subdirectory(graph_utils)
+add_subdirectory(core)
+add_subdirectory(algorithms)
+add_subdirectory(vdj_utils)
+add_subdirectory(vj_finder)
+add_subdirectory(cdr_labeler)
 add_subdirectory(test)
 add_subdirectory(umi_experiments)
 

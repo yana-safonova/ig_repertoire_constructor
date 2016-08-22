@@ -61,6 +61,8 @@ target_link_libraries(ig_trie_compressor build_info)
 target_link_libraries(ig_trie_compressor boost_system)
 
 add_executable(ig_kplus_vj_finder ig_kplus_vj_finder.cpp fast_ig_tools.cpp utils.cpp)
+target_link_libraries(ig_kplus_vj_finder build_info)
+
 add_executable(ig_matcher ig_matcher.cpp fast_ig_tools.cpp utils.cpp)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp fast_ig_tools.cpp utils.cpp)
 target_link_libraries(ig_swgraph_construct build_info)
@@ -69,7 +71,36 @@ add_executable(ig_kmer_counter ig_kmer_counter.cpp fast_ig_tools.cpp utils.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp fast_ig_tools.cpp utils.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp fast_ig_tools.cpp utils.cpp)
 
-add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${PROJECT_SOURCE_DIR}/germline"
-        $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
+make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
+
+# add_executable(test1 test_ig_kplus_vj_finder.cpp)
+# target_link_libraries(test1 gtest_main gtest)
+# add_test(NAME mytest1 COMMAND test1)
+# add_test(NAME mytest2222 COMMAND test1)
+# add_test(NAME mytest3 COMMAND test1)
+#
+# include(CTest)
+
+# make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
+# make_test(test1 test_ig_kplus_vj_finder.cpp)
+# make_test(test2 test_ig_kplus_vj_finder.cpp)
+# make_test(test3 test_ig_kplus_vj_finder.cpp)
+
+# add_custom_target(meow COMMAND ${CMAKE_CTEST_COMMAND} -V)
+# function(new_test test)
+#   if (NOT TARGET ${test})
+#     add_executable(${test} ${ARGN})
+#     target_link_libraries(${test} gtest_main gtest)
+#     add_test(NAME ${test} COMMAND ${test})
+#   endif(NOT TARGET ${test})
+#
+#   add_dependencies(meow ${test})
+#   set_target_properties(${test} PROPERTIES EXCLUDE_FROM_ALL 1)
+# endfunction(make_test)
+
+
+
+# add_custom_command(TARGET ig_kplus_vj_finder POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         "${PROJECT_SOURCE_DIR}/germline"
+#         $<TARGET_FILE_DIR:ig_kplus_vj_finder>/germline)
