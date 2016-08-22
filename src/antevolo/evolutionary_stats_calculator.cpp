@@ -48,7 +48,8 @@ namespace antevolo {
         INFO("# vertices: " << tree.NumEdges() + 1 << ", root depth: " << annotated_tree.RootDepth() <<
                      ", # unique SHMs: " << annotated_tree.NumUniqueSHms() <<
                      ", # added SHMs: " << annotated_tree.NumAddedSHMs() <<
-                     ", # synonymous SHMs: " << annotated_tree.NumSynonymousSHMs());
+                     ", # synonymous SHMs: " << annotated_tree.NumSynonymousSHMs() <<
+                     ", # synonymous SHMs wrt to germline: " << annotated_tree.NumSynonymousWrtGermlineSHMs());
         return annotated_tree;
     }
 }

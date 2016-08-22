@@ -28,6 +28,17 @@ namespace antevolo {
         return num_synonymous_shms;
     }
 
+    size_t AnnotatedEvolutionaryTree::NumSynonymousWrtGermlineSHMs() const {
+        size_t num_synonymous_shms = 0;
+        for(auto it = unique_shms_.begin(); it != unique_shms_.end(); it++) {
+            auto shm_vector = it->second;
+            for(auto it2 = shm_vector.begin(); it2 != shm_vector.end(); it2++)
+                if(it2->shm.IsSynonymous())
+                    num_synonymous_shms++;
+        }
+        return num_synonymous_shms;
+    }
+
     size_t AnnotatedEvolutionaryTree::RootDepth() const {
         size_t root_id = tree_ptr_->GetRoot();
         return (*clone_set_prt_)[root_id].VSHMs().size() + (*clone_set_prt_)[root_id].JSHMs().size();

@@ -29,6 +29,8 @@ namespace antevolo {
 
         size_t NumSynonymousSHMs() const;
 
+        size_t NumSynonymousWrtGermlineSHMs() const;
+
         size_t RootDepth() const;
 
         size_t NumAddedSHMs() const; // return numner of SHMs that were added wrt to tree root
