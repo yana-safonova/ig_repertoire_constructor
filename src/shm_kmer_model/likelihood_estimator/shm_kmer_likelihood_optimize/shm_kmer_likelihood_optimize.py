@@ -1,4 +1,4 @@
-from shm_kmer_likelihood import ShmKmerLikelihood
+from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
 from scipy.optimize import minimize
 import numpy as np
 

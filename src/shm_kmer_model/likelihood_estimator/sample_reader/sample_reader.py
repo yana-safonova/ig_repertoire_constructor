@@ -8,8 +8,8 @@ class SampleReader:
         self.filename_kmer_statistics = 'kmer_statistics.csv'
         self.sep = ';'
     
-    def read(self, root_dir, ignore_indiv_number=[]):
-        working_dir = os.path.join(root_dir, self.dir_kmer_statistics)
+    def read(self, root_dir, ignore_indiv_number=[], prefix_dir='/Users/andrewbzikadze/chihua/Sid/abzikadze/datasets/'):
+        working_dir = os.path.join(prefix_dir, root_dir, self.dir_kmer_statistics)
         chain_types = os.listdir(working_dir)
         
         samples = {}

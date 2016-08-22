@@ -1,6 +1,6 @@
 from scipy.special import gammaln, betaln, psi
 from scipy.optimize import check_grad
-from math_special_functions import multibetaln, dibetaln, dimultibetaln
+from math_special_functions.math_special_functions import multibetaln, dibetaln, dimultibetaln
 import numpy as np
 
 class ShmKmerLikelihood:

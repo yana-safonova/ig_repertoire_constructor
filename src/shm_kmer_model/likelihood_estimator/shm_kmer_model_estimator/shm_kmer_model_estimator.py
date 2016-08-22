@@ -1,26 +1,24 @@
 import itertools
 import pandas as pd
 import numpy as np
-from shm_kmer_likelihood_optimize import ShmKmerLikelihood,\
+from shm_kmer_likelihood_optimize.shm_kmer_likelihood_optimize import ShmKmerLikelihood,\
         ShmKmerLikelihoodOptimizator
+import kmer_utilities.kmer_utilities as kmer_utils
 
 class ShmKmerModelEstimator:
     def __init__(self, kmer_len=5):
-        self.bases = ['A', 'C', 'G', 'T'] # TODO Biopython
+        self.bases = kmer_utils.nucl_bases()
         self.n_nucl = len(self.bases)
         self.kmer_len = kmer_len
         self.half_kmer_len = kmer_len // 2
-        self.kmer_names = [''.join(p) for p in \
-                           itertools.product(self.bases, repeat=self.kmer_len)]
+        self.kmer_names = kmer_utils.kmer_names(kmer_len)
         self.column_names = ['beta_shape1', 'beta_shape2',
                              'dir_shape1', 'dir_shape2', 'dir_shape3',
                              'success_optim_beta', 'success_optim_dir',
                              'start_point_beta_shape1', 'start_point_beta_shape2',
                              'start_point_dir_shape1', 'start_point_dir_shape2', 'start_point_dir_shape_3']
-        self.numb = (lambda x: (x % self.n_nucl**(self.half_kmer_len + 1)) // self.n_nucl**self.half_kmer_len)
-        for i in xrange(len(self.bases)**self.kmer_len):
-            assert self.kmer_names[i][self.half_kmer_len] == self.bases[self.numb(i)]
-        self.n_param = 12
+        self.central_nucl_indexes = kmer_utils.central_nucl_indexes(kmer_len)
+        self.n_param = len(self.column_names)
 
     def estimate_model(self, tuple_datasets):
         all_samples = np.concatenate(tuple_datasets, axis=0)
@@ -28,7 +26,7 @@ class ShmKmerModelEstimator:
 
         results = np.empty((n_kmer, self.n_param))
         for i in xrange(n_kmer):
-            lkho = ShmKmerLikelihood(all_samples[:,i,:], self.numb(i))
+            lkho = ShmKmerLikelihood(all_samples[:,i,:], self.central_nucl_indexes[i])
             start_p_beta, start_p_dir, optim_res_beta, optim_res_dir = ShmKmerLikelihoodOptimizator(lkho).maximize()
             results[i,] = np.concatenate((optim_res_beta.x, optim_res_dir.x,
                                           np.array([optim_res_beta.success,
