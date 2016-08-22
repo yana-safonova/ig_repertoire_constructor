@@ -23,16 +23,17 @@ def parse_final_repertoire_id(id):
     import re
     id = id.strip()
 
-    m = re.match(r"^antibody_(\d+)_multiplicity_(\d+)_copy_(\d+)$", id)
+    m = re.match(r"^antibody_([a-zA-Z_0-9]+)_multiplicity_(\d+)_copy_(\d+)$", id)
 
     if m:
         g = m.groups()
-        return int(g[0]), int(g[1]), int(g[2])
+        return g[0].strip(), int(g[1]), int(g[2])
     else:
         return None
 
 
-assert parse_final_repertoire_id("antibody_1_multiplicity_1_copy_1") == (1, 1, 1)
+assert parse_final_repertoire_id("antibody_1_multiplicity_1_copy_1") == ("1", 1, 1)
+assert parse_final_repertoire_id("antibody_NNAAT_multiplicity_1_copy_1") == ("NNAAT", 1, 1)
 
 
 def parse_abvitro_assembled_header(id):

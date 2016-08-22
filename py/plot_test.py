@@ -19,7 +19,7 @@ from aimquast_impl import plot_various_error_rate
 #               out=out)
 
 
-def rocs(dir, tools, out, labels=None, title=""):
+def rocs(dir, tools, out, labels=None, title="", **kwargs):
     if labels is None:
         labels = tools
 
@@ -29,7 +29,8 @@ def rocs(dir, tools, out, labels=None, title=""):
               labels=labels,
               title=title,
               format=("png", "pdf"),
-              out=out)
+              out=out,
+              **kwargs)
 
 
 def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
@@ -41,18 +42,20 @@ def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
     rocs(dir, [tool1, tool2], out, [label1, label2], title)
 
 
-def plotplot(dir, out_dir, title):
+def plotplot(dir, out_dir, title, **kwargs):
     mkdir_p(out_dir)
     rocs(dir,
          tools=["igrec", "mixcr", "supernode"],
          labels=["IgReC", "MiXCR", "pRESTO"],
          title="Real data: " + title,
-         out=out_dir + "/sensitivity_precision_plot_all")
+         out=out_dir + "/sensitivity_precision_plot_all",
+         **kwargs)
     rocs(dir,
          tools=["igrec_tau3", "mixcr", "supernode"],
          labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
          title="Real data: " + title,
-         out=out_dir + "/sensitivity_precision_plot_all_tau3")
+         out=out_dir + "/sensitivity_precision_plot_all_tau3",
+         **kwargs)
     # rocs(dir,
     #      tools=["igrec_tau2", "supernode"],
     #      labels=["IgReC tau = 2", "pRESTO"],
@@ -66,7 +69,7 @@ def plotplot(dir, out_dir, title):
 
 
 if __name__ == "__main__":
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="AGE3")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="AGE3", show_coords=True)
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
 

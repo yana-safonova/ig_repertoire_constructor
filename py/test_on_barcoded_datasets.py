@@ -36,6 +36,7 @@ if __name__ == "__main__":
     datasets = ["MG91M_IGH", "MG91M_IGL", "MG91M_IGK", "HD09M_IGH", "HD09M_IGL", "HD09M_IGK"]
     # MG91M is BAAAAAD!
     datasets = ["AGE3", "AGE7", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
+    datasets = ["AGE3", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL", "AGE7"]
 
     for dataset in datasets:
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
