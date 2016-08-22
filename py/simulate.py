@@ -138,7 +138,7 @@ def simulated_repertoire_to_final_repertoire(input_file, output_file):
             id = record.description
             cluster, size, copy = parse_final_repertoire_id(id)
             if copy == 1:
-                record.id = record.description = "cluster___%d___size___%d" % (cluster, size)
+                record.id = record.description = "cluster___%s___size___%d" % (cluster, size)
                 record.letter_annotations = {}
 
                 if output_format == "fastq":
