@@ -53,11 +53,14 @@ def run_and_quast_all(input_reads,
 
     igrec_runs.append(IgReCRun("igrec"))
     igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
-    igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
+    # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
+    # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
 
     igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
     igrec_runs.append(IgReCRun("igrec_tau3_msns2", tau=3, min_sread_size=2))
-    igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
+    # igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
+    # igrec_runs.append(IgReCRun("igrec_tau1_msns2", tau=1, min_sread_size=2))
+
     # # igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
     # # igrec_runs.append(IgReCRun("igrec_msns4", min_sread_size=4))
     # # igrec_runs.append(IgReCRun("igrec_f03", fillin=0.3))
@@ -133,8 +136,8 @@ if __name__ == "__main__":
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
     output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
 
-    lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
-    lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5]
+    # lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
+    lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     for dataset, output_dir in reversed(zip(datasets, output_dirs)):
         if not os.path.isfile(dataset):
             continue

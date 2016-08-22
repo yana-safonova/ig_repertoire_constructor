@@ -2192,7 +2192,8 @@ def plot_rocs(jsons, labels,
               max_size_threshold=75,
               out="two_rocs",
               title="",
-              format=None):
+              format=None,
+              show_coords=False):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -2217,7 +2218,7 @@ def plot_rocs(jsons, labels,
 
     sns.set_style("darkgrid")
 
-    skip = 2
+    # skip = 2
     skip = 0
 
     colors = ["cornflowerblue", "seagreen", "orange", "black"]
@@ -2260,11 +2261,19 @@ def plot_rocs(jsons, labels,
         if len(jsons) > 3:
             annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
 
-    def red_point(x, y, reference_trust_cutoff):
-        plt.plot(x[reference_trust_cutoff - 1], y[reference_trust_cutoff - 1], "bo", color="red", label="Reference size threshold")
+    def red_point(x, y, size, label="NOLABEL", do_plot=True):
+        if do_plot:
+            plt.plot(x[size - 1], y[size - 1], "bo", color="red", label="Reference size threshold")
+        if show_coords:
+            print "%s, precision = %1.4f, sensitivity = %1.4f, minsize = %d" % (label, x[size - 1], y[size - 1], size)
+
+    if show_coords:
+        print "Dataset " + title
+    for precision, sensitivity, color, label, opt_size in zip(precisions, sensitivities, colors, labels, opt_sizes):
+        red_point(precision, sensitivity, opt_size, label)
 
     for precision, sensitivity, color, label, opt_size in zip(precisions, sensitivities, colors, labels, opt_sizes):
-        red_point(precision, sensitivity, opt_size)
+        red_point(precision, sensitivity, 5, label, do_plot=False)
 
     if title:
         plt.title(title)
