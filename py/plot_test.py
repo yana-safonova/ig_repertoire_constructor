@@ -94,7 +94,13 @@ def plot_various_error_rate(dir,
     elif what == "sum":
         plt.ylim((1. - eps, 2. + eps))
 
-    plt.ylabel(what)
+    if what in ["sensitivity", "precision"]:
+        plt.ylabel(what)
+    elif what == "sum":
+        plt.ylabel("sensitivity + precision")
+    elif what == "minsize":
+        plt.ylabel("optimal constructed min size")
+
     plt.xlabel("Error rate")
 
     if title:
