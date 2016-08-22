@@ -47,13 +47,13 @@ def plotplot(dir, out_dir, title, **kwargs):
     rocs(dir,
          tools=["igrec", "mixcr", "supernode"],
          labels=["IgReC", "MiXCR", "pRESTO"],
-         title="Real data: " + title,
+         title=title,
          out=out_dir + "/sensitivity_precision_plot_all",
          **kwargs)
     rocs(dir,
          tools=["igrec_tau3", "mixcr", "supernode"],
          labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
-         title="Real data: " + title,
+         title=title,
          out=out_dir + "/sensitivity_precision_plot_all_tau3",
          **kwargs)
     # rocs(dir,
