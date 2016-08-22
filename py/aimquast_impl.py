@@ -2120,7 +2120,7 @@ def get_plot_various_error_rate_data(dir,
     from glob import glob
 
     suff = "_woans" if woans else ""
-    dirnames = glob(dir + "/errate_?.??" + suff)
+    dirnames = glob(dir + "/errate_?.????" + suff)
 
     def extract_lambda(dirname):
         import re
@@ -2136,12 +2136,13 @@ def get_plot_various_error_rate_data(dir,
 
     def extract_data(dirname):
         json = json_from_file(dirname + "/" + kind + "/aimquast/aimquast.json")
-        return json["reference_based"]["__data_" + what][size-1]
+        return json
 
     lambdas = map(extract_lambda, dirnames)
     data = map(extract_data, dirnames)
 
-    lambdas, data = zip(*sorted(zip(lambdas, data)))
+    print lambdas
+    lambdas, data = zip(*sorted([(l, d) for l, d in zip(lambdas, data) if l < 2.00001]))
 
     return lambdas, data
 
@@ -2149,15 +2150,15 @@ def get_plot_various_error_rate_data(dir,
 def plot_various_error_rate(dir,
                             kinds,
                             labels,
-                            sizes=[5, 5, 5, 5],
+                            sizes=None,
                             out="var_error_rate",
                             what="sensitivity", woans=False,
                             title="",
                             format=("png", "pdf", "svg"),
                             legend=True,
                             which=None):
-    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], what=what, woans=woans)
-    datas = [get_plot_various_error_rate_data(dir, kind=kind, what=what, woans=woans, size=size)[1] for kind, size in zip(kinds, sizes)]
+    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans)
+    datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans)[1] for kind in kinds]
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -2166,14 +2167,38 @@ def plot_various_error_rate(dir,
     sns.set_style("darkgrid")
     colors = ["cornflowerblue", "seagreen", "orange", "black"]
 
-    zipped = zip(datas, colors, labels)
+    def opt_size(sensitivity, precision):
+        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+
+    def get_what(dataset, what, cur_sizes):
+        if what in ["sensitivity", "precision"]:
+            return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "sum":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "minsize":
+            return [size for data, size in zip(dataset, cur_sizes)]
+        else:
+            return None
+
+    forplot = []
+    for dataset in datas:
+        if sizes is None:
+            cur_sizes = [opt_size(data["reference_based"]["__data_sensitivity"], data["reference_based"]["__data_precision"]) for data in dataset]
+        else:
+            cur_sizes = [sizes] * len(dataset)
+        cur_for_plot = get_what(dataset, what, cur_sizes)
+        forplot.append(cur_for_plot)
+
+    zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
-    for data, color, label in zipped:
-        plt.plot(lambdas, data, "b-", color=color, label=label)
+    for y, color, label in zipped:
+        plt.plot(lambdas, y,
+                 "b-", color=color, label=label)
 
-    eps = 0.025
-    plt.ylim((0. - eps, 1. + eps))
+    if what in ["sensitivity", "precision"]:
+        eps = 0.025
+        plt.ylim((0. - eps, 1. + eps))
 
     plt.ylabel(what)
     plt.xlabel("Error rate")
@@ -2204,8 +2229,10 @@ def plot_rocs(jsons, labels,
 
     sensitivities = [json["reference_based"]["__data_sensitivity"] for json in jsons]
     precisions = [json["reference_based"]["__data_precision"] for json in jsons]
+
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+
     opt_sizes = [opt_size(sensitivity, precision) for sensitivity, precision in zip(sensitivities, precisions)]
 
     def cut_to_threshold(x):
