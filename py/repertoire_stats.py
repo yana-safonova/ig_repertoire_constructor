@@ -17,3 +17,4 @@ if __name__ == "__main__":
     print "Reference consists of %d reads" % sum(sizes)
     print "Reference consists of %d clusters" % len(sizes)
     print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
+    print "Max cluster size %d" % max(sizes)
