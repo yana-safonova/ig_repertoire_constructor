@@ -132,6 +132,7 @@ class IgRepConConfig:
         self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./vj_finder') #ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
         self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
+        self.run_fake_trie_compressor = os.path.join(home_directory, 'py/ig_fake_trie_compressor.py')
         self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
         self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
@@ -411,8 +412,9 @@ class TrieCompressionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
-                       " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+                    " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
         support.sys_call(command_line, self._log)
+
         command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
                        " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
                        " -r " + self.__params.io.supernode_repertoire + " -R " + self.__params.io.supernode_rcm
@@ -422,6 +424,12 @@ class TrieCompressionPhase(Phase):
                                                 self.__params.io.supernodes_file,
                                                 self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
+
+        if not self.__params.equal_compression:
+            command_line = IgRepConConfig().run_fake_trie_compressor + " -i " + self.__params.io.cropped_reads + \
+                        " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+            support.sys_call(command_line, self._log)
+
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -767,6 +775,17 @@ def ParseCommandLineParams(log):
                                help="Showing help message and exit")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
+    # TODO Add it into the help
+    vj_align_args.add_argument("--no-equal-compression",
+                               action="store_false",
+                               dest="equal_compression",
+                               help="Disable equal read compression before graph construction")
+    vj_align_args.add_argument("--equal-compression",
+                               action="store_true",
+                               dest="equal_compression",
+                               help="Enable equal read compression before graph construction (default)")
+    parser.set_defaults(equal_compression=False)
+
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
                                dest="loci",
