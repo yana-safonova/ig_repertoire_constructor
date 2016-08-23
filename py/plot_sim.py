@@ -36,18 +36,18 @@ if __name__ == "__main__":
          out="sensitivity_precision_plot_er05_woanswer")
 
     rocs(igrec_dir + "/v_e_r_r/errate_2.0000",
-         tools=["igrec", "supernode"],
-         labels=["IgReC", "pRESTO"],
+         tools=["igrec", "mixcr", "supernode"],
+         labels=["IgReC", "MiXCR", "pRESTO"],
          title="SYNTHETIC, error rate = 2, with answer",
          out="sensitivity_precision_plot_er2_real")
     rocs(igrec_dir + "/v_e_r_r/errate_1.0000",
-         tools=["igrec", "supernode"],
-         labels=["IgReC", "pRESTO"],
+         tools=["igrec", "mixcr", "supernode"],
+         labels=["IgReC", "MiXCR", "pRESTO"],
          title="SYNTHETIC, error rate = 1, with answer",
          out="sensitivity_precision_plot_er1_real")
     rocs(igrec_dir + "/v_e_r_r/errate_0.5000",
-         tools=["igrec", "supernode"],
-         labels=["IgReC", "pRESTO"],
+         tools=["igrec", "mixcr", "supernode"],
+         labels=["IgReC", "MiXCR", "pRESTO"],
          title="SYNTHETIC, error rate = 0.5, with answer",
          out="sensitivity_precision_plot_er05_real")
 
@@ -89,13 +89,13 @@ if __name__ == "__main__":
 
     plot_various_error_rate(igrec_dir + "/v_e_r_r", what="sensitivity", out="sensitivity_flu",
                             title="SYNTHETIC FLU, sensitivity",
-                            kinds=["igrec", "supernode"], labels=["IgReC", "pRESTO"])
+                            kinds=["igrec", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
     plot_various_error_rate(igrec_dir + "/v_e_r_r", what="precision", out="precision_flu",
                             title="SYNTHETIC FLU, precision",
-                            kinds=["igrec", "supernode"], labels=["IgReC", "pRESTO"])
+                            kinds=["igrec", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
     plot_various_error_rate(igrec_dir + "/v_e_r_r", out="sensitivity_plus_precision_flu", what="sum",
                             title="SYNTHETIC FLU, sensitivity + precision",
-                            kinds=["igrec", "supernode"], labels=["IgReC", "pRESTO"])
+                            kinds=["igrec", "mixcr", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
 
     # plot_various_error_rate(igrec_dir + "/various_error_rate",
     #                         kind1="igrec_tau3_f03", kind2="mixcr",
