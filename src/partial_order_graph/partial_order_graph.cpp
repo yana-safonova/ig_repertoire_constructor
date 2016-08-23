@@ -1,19 +1,67 @@
 #include "partial_order_graph.hpp"
 
 #include <fstream>
+#include <regex>
 #include <seqan/sequence.h>
 
 namespace pog {
 
 partial_order_graph::partial_order_graph() {
-    nodes_.push_back(new node());
-    nodes_.push_back(new node());
+    for (size_t i = 0; i < 2; ++i) {
+        nodes_.push_back(std::make_shared<node>(id_map_));
+        id_map_[nodes_.back()->get_id()] = nodes_.back();
+    }
     update_nodes_indexes();
 }
 
 partial_order_graph::~partial_order_graph() {
-    for (node* v : nodes_)
-        delete v;
+    // EMPTY
+}
+
+void partial_order_graph::load(std::string const& prefix) {
+    INFO("Loading graph from " << prefix << ".csv and " << prefix << ".dot");
+    nodes_.clear();
+    id_map_.clear();
+
+    std::ifstream csv_file(prefix + ".csv");
+    // Ignore one line
+    csv_file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    size_t node_number;
+    std::string sequence;
+    size_t length;
+    float coverage;
+
+    nodes_.push_back(std::make_shared<node>(id_map_));
+    bool flag = true;
+    while (csv_file >> node_number) {
+        csv_file >> sequence >> length >> coverage;
+        if (flag) {
+            pog_parameters::instance().set_kmer_size(length);
+            flag = false;
+        }
+        nodes_.push_back(std::make_shared<node>(kmer(seq_t(sequence)), id_map_));
+        nodes_.back()->set_coverage(coverage);
+    }
+    nodes_.push_back(std::make_shared<node>(id_map_));
+    update_nodes_indexes();
+
+    for (auto const& node : nodes_)
+        id_map_[node->get_id()] = node;
+
+    std::regex edge("([0-9]+) *-> *([0-9]+)[^\"]*\"([0-9]+)\"");
+    std::smatch match;
+    std::ifstream dot_file(prefix + ".dot");
+    for (std::string line; std::getline(dot_file, line); ) {
+        if (!std::regex_search(line, match, edge))
+            continue;
+        size_t from = stoi(match[1].str());
+        size_t to = stoi(match[2].str());
+        float cov = stof(match[3].str());
+
+        nodes_[from]->add_output_edge(nodes_[to], cov);
+    }
+    DEBUG("Graph loaded");
 }
 
 void partial_order_graph::add_sequence(seq_t const& sequence, id_t const& read_id) {
@@ -26,7 +74,7 @@ void partial_order_graph::add_sequence(seq_t const& sequence, id_t const& read_i
     std::vector<kmer> kmer_seq = sequence_to_kmers(sequence);
     TRACE("\tThere are " << kmer_seq.size() << " consecutive kmers in the sequence");
 
-    auto scores_and_transitions = align(kmer_seq);
+    auto scores_and_transitions = align(kmer_seq, false);
     pair_vector matches = select_matches(scores_and_transitions.first, scores_and_transitions.second, kmer_seq.size());
     update_nodes(kmer_seq, matches);
     update_nodes_indexes();
@@ -43,7 +91,7 @@ seq_t partial_order_graph::correct_read(seq_t const& sequence, id_t const& read_
     size_t m = kmer_seq.size();
     TRACE("\tThere are " << m << " consecutive kmers in the sequence");
 
-    auto scores_and_transitions = align(kmer_seq);
+    auto scores_and_transitions = align(kmer_seq, true);
     size_t start = starting_point(scores_and_transitions.first, m);
     return rebuild_read(start, scores_and_transitions.second, m);
 }
@@ -73,14 +121,22 @@ void partial_order_graph::remove_low_covered() {
     for (size_t i = 1; i < nodes_.size() - 1; ++i) {
         if (nodes_[i]->coverage() <= parameters.coverage_threshold)
             nodes_[i]->remove_node();
+        else {
+            for (auto const& nt : nodes_[i]->get_sequence())  {
+                if (nt == 'N') {
+                    nodes_[i]->remove_node();
+                    break;
+                }
+            }
+        }
 
-        std::vector<node*> to_remove;
+        std::vector<size_t> to_remove;
         for (auto const& entry : nodes_[i]->get_output_edges()) {
             if (entry.second <= parameters.coverage_threshold)
                 to_remove.push_back(entry.first);
         }
-        for (node* v : to_remove)
-            nodes_[i]->remove_output_edge(v);
+        for (size_t v : to_remove)
+            nodes_[i]->remove_output_edge(id_map_.at(v));
     }
     for (size_t i = 1; i < nodes_.size() - 1; ++i) {
         if (!nodes_[i]->dummy() && (nodes_[i]->get_input_edges().size() == 0 || nodes_[i]->get_output_edges().size() == 0))
@@ -91,12 +147,14 @@ void partial_order_graph::remove_low_covered() {
 }
 
 void partial_order_graph::clean_nodes() {
-    std::vector<node*> new_nodes;
+    std::vector<std::shared_ptr<node>> new_nodes;
     new_nodes.push_back(nodes_[0]);
 
     for (size_t i = 1; i < nodes_.size() - 1; ++i) {
-        if (nodes_[i]->dummy())
-            delete nodes_[i];
+        if (nodes_[i]->dummy()) {
+            nodes_[i]->set_index(-1);
+            id_map_.erase(nodes_[i]->get_id());
+        }
         else
             new_nodes.push_back(nodes_[i]);
     }
@@ -107,12 +165,21 @@ void partial_order_graph::clean_nodes() {
 }
 
 void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vector<float>& scores,
-                                     pair_vector& transitions, size_t i, size_t j, size_t m) const {
+                                     pair_vector& transitions, size_t i, size_t j, size_t m,
+                                     bool relative_mismatch_penalty) const {
     static pog_parameters& parameters = pog_parameters::instance();
 
     float align_score = 0;
-    if (j < m)
-        align_score = nodes_[i + 1]->equals(kmer_seq[j]) ? 1 : parameters.mismatch_penalty;
+    if (j < m) {
+        if (nodes_[i + 1]->equals(kmer_seq[j]))
+            align_score = 1;
+        else {
+            align_score = parameters.mismatch_penalty;
+            if (relative_mismatch_penalty && total_coverage() >= 50)
+                align_score += nodes_[i + 1]->coverage() / total_coverage() * (1 - parameters.mismatch_penalty) / 2;
+        }
+        //align_score = nodes_[i + 1]->equals(kmer_seq[j]) ? 1 : parameters.mismatch_penalty;
+    }
 
     float& current_score = scores[i * (m + 1) + j];
     current_score = -1e6f;
@@ -123,7 +190,7 @@ void partial_order_graph::align_cell(std::vector<kmer> const& kmer_seq, std::vec
         current_transition = std::make_pair(i, j + 1);
     }
     for (auto const& output_edge : nodes_[i + 1]->get_output_edges()) {
-        size_t k = node_indexes_.at(output_edge.first) - 1;
+        size_t k = id_map_.at(output_edge.first)->get_index() - 1;
         if (j < m && scores[k * (m + 1) + j + 1] + align_score > current_score) {
             current_score = scores[k * (m + 1) + j + 1] + align_score;
             current_transition = std::make_pair(k, j + 1);
@@ -140,7 +207,7 @@ size_t partial_order_graph::starting_point(std::vector<float> const& scores, siz
     size_t i = 0;
 
     for (auto const& entry : nodes_[0]->get_output_edges()) {
-        size_t k = node_indexes_.at(entry.first) - 1;
+        size_t k = id_map_.at(entry.first)->get_index() - 1;
         if (scores[k * (m + 1)] > max_score) {
             max_score = scores[k * (m + 1)];
             i = k;
@@ -161,7 +228,7 @@ pair_vector partial_order_graph::select_matches(std::vector<float> const& scores
         size_t i_next;
         size_t j_next;
         std::tie(i_next, j_next) = transitions[i * (m + 1) + j];
-        if (scores[i * (m + 1) + j] == scores[i_next * (m + 1) + j_next] + 1) {
+        if (scores[i * (m + 1) + j] >= scores[i_next * (m + 1) + j_next] + .95f) {
             matches.push_back(std::make_pair(i, j));
         }
         i = i_next;
@@ -172,7 +239,8 @@ pair_vector partial_order_graph::select_matches(std::vector<float> const& scores
 }
 
 // Return value: scores, transitions
-std::pair<std::vector<float>, pair_vector> partial_order_graph::align(std::vector<kmer> const& kmer_seq) const {
+std::pair<std::vector<float>, pair_vector> partial_order_graph::align(std::vector<kmer> const& kmer_seq,
+                                                                      bool relative_mismatch_penalty) const {
     size_t n = nodes_.size() - 2;
     size_t m = kmer_seq.size();
 
@@ -183,7 +251,7 @@ std::pair<std::vector<float>, pair_vector> partial_order_graph::align(std::vecto
     for (size_t i = n; i <= n; --i) {
         for (size_t j = m; j <= m; --j) {
             if (i < n || j < m)
-                align_cell(kmer_seq, scores, transitions, i, j, m);
+                align_cell(kmer_seq, scores, transitions, i, j, m, relative_mismatch_penalty);
         }
     }
 
@@ -210,19 +278,21 @@ seq_t partial_order_graph::rebuild_read(size_t start, pair_vector const& transit
 // Inserting nodes [i1, i2) from graph, then [j1, j2) from kmer_seq, then i2 from graph.
 // Increasing coverage of every node, except i2
 // If j1 >= j2 adding edge between i1, i2
-void partial_order_graph::add_mismatching_region(std::vector<node*>& new_nodes,
+void partial_order_graph::add_mismatching_region(std::vector<std::shared_ptr<node>>& new_nodes,
             std::vector<kmer> const& kmer_seq, size_t i1, size_t i2, size_t j1, size_t j2) {
     for (size_t i = i1; i < i2; ++i)
         new_nodes.push_back(nodes_[i]);
     nodes_[i1]->add_read();
 
     if (j1 < j2) {
-        new_nodes.push_back(new node(kmer_seq[j1]));
+        new_nodes.push_back(std::make_shared<node>(kmer_seq[j1], id_map_));
+        id_map_[new_nodes.back()->get_id()] = new_nodes.back();
         nodes_[i1]->add_output_edge(new_nodes.back());
     }
 
     for (size_t j = j1 + 1; j < j2; ++j) {
-        node* next = new node(kmer_seq[j]);
+        auto next = std::make_shared<node>(kmer_seq[j], id_map_);
+        id_map_[next->get_id()] = next;
         new_nodes.back()->add_output_edge(next);
         new_nodes.push_back(next);
     }
@@ -236,7 +306,7 @@ void partial_order_graph::update_nodes(std::vector<kmer> const& kmer_seq,
                                        pair_vector const& matches) {
     size_t n = nodes_.size() - 1;
     size_t m = kmer_seq.size();
-    std::vector<node*> new_nodes;
+    std::vector<std::shared_ptr<node>> new_nodes;
 
     size_t i_prev = 0;
     size_t j_prev = 0;
@@ -256,9 +326,8 @@ void partial_order_graph::update_nodes(std::vector<kmer> const& kmer_seq,
 
 void partial_order_graph::update_nodes_indexes() {
     DEBUG("Nodes: " << nodes_.size());
-    node_indexes_.clear();
     for (size_t i = 0; i < nodes_.size(); ++i) {
-        node_indexes_[nodes_[i]] = i;
+        nodes_[i]->set_index(i);
     }
 }
 
@@ -270,8 +339,7 @@ std::vector<size_t> partial_order_graph::most_covered_path() const {
 
     for (size_t i = n - 1; i > 0; --i) {
         for (auto const& entry : nodes_[i]->get_input_edges()) {
-            node* prev = entry.first;
-            size_t k = node_indexes_.at(prev);
+            size_t k = id_map_.at(entry.first)->get_index();
             if (coverage[k] < coverage[i] + entry.second) {
                 coverage[k] = coverage[i] + entry.second;
                 next[k] = i;
@@ -343,7 +411,8 @@ void partial_order_graph::save_dot(std::string const& prefix, bool print_sequenc
         dot_file << "]\n";
 
         for (auto const& entry : nodes_[i]->get_output_edges()) {
-            dot_file << '\t' << i << " -> " << node_indexes_.at(entry.first) << " [label = \"" << entry.second << "\"]\n";
+            dot_file << '\t' << i << " -> " << id_map_.at(entry.first)->get_index()
+                     << " [label = \"" << entry.second << "\"]\n";
         }
     }
     dot_file <<"}\n";
@@ -368,15 +437,19 @@ size_t partial_order_graph::nodes_count() const noexcept {
     return nodes_.size();
 }
 
+float partial_order_graph::total_coverage() const noexcept {
+    return nodes_[0]->coverage();
+}
+
 void partial_order_graph::clear() {
     DEBUG("Clearing graph");
-    for (node* v : nodes_)
-        delete v;
     nodes_.clear();
-    node_indexes_.clear();
+    id_map_.clear();
 
-    nodes_.push_back(new node());
-    nodes_.push_back(new node());
+    for (size_t i = 0; i < 2; ++i) {
+        nodes_.push_back(std::make_shared<node>(id_map_));
+        id_map_[nodes_.back()->get_id()] = nodes_.back();
+    }
     update_nodes_indexes();
     DEBUG("Graph cleared");
 }

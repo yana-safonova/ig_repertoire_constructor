@@ -12,6 +12,7 @@ namespace po = boost::program_options;
 
 struct options {
     std::string input_file;
+    std::string graph_prefix;
     std::string output_directory;
     std::string logging_level;
     bool no_plots;
@@ -31,36 +32,36 @@ void parse_command_line(int argc, char** argv, options& opts) {
     R"(De novo IGHV construction
 
 Usage:
-  )" + name + R"( -i <in.*> -o <out-dir> [options]
+  )" + name + R"( -i <in.*> [-g <graph>] -o <out-dir> [options]
 )";
 
     po::options_description required_options("Required options");
     required_options.add_options()
         (",i", po::value<std::string>(&opts.input_file)->value_name("<in.*>"), "Input sequences")
+        (",g", po::value<std::string>(&opts.graph_prefix)->value_name("<graph>"),
+               "Graph prefix. Should exist files \"<graph>.csv\" and \"<graph>.dot\"")
         (",o", po::value<std::string>(&opts.output_directory)->value_name("<out-dir>"), "Output directory")
         ;
 
     pog::pog_parameters& parameters = pog::pog_parameters::instance();
+    parameters.mismatch_penalty = -1.4f;
+    parameters.gap_penalty = -2.0f;
+    std::string orientation = "f";
+    parameters.bulges_hamming_ratio = .3f;
+    parameters.coverage_threshold = 10.0f;
 
-    po::options_description construction_options("De novo construction options");
-    construction_options.add_options()
-        ("step", po::value<size_t>(&opts.k_step)->value_name("INT")->default_value(1), "k-mer size step (default: 1)")
-        ("stop", po::value<size_t>(&opts.k_stop)->value_name("INT")->default_value(5), "max k-mer size (default: 5)")
-        ;
-
-    std::string orientation = "fr";
     po::options_description pog_options("Partial order graph options");
     pog_options.add_options()
-        ("mismatch-penalty", po::value<float>(&parameters.mismatch_penalty)->value_name("FLOAT")->default_value(-1.4f),
+        ("mismatch-penalty", po::value<float>(&parameters.mismatch_penalty)->value_name("FLOAT"),
             "Mismatch penalty   (default: -1.4)")
-        ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT")->default_value(-2.0f),
+        ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT"),
             "Gap penalty        (default:   -2)")
-        ("orientation", po::value<std::string>(&orientation)->value_name("{f,r,fr}")->default_value("fr"),
-            "Reads orientation, {f,r,fr}: forward, reverse complement or both, (default: fr)")
-        ("bulges-hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT")->default_value(0.3f),
+        ("orientation", po::value<std::string>(&orientation)->value_name("{f,r,fr}"),
+            "Reads orientation, {f,r,fr}: forward, reverse complement or both, (default: fr")
+        ("bulges-hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT"),
             "Hamming distance between nodes <= ceil(bulges:hamming * length): condition "
             "to join nodes during bulge shrinking (default: 0.3)")
-        ("cov-threshold", po::value<float>(&parameters.coverage_threshold)->value_name("FLOAT")->default_value(10.0f),
+        ("cov-threshold", po::value<float>(&parameters.coverage_threshold)->value_name("FLOAT"),
             "Coverage threshold to remove vertex during bulge shrinking (default: 10)")
         ;
 
@@ -80,7 +81,6 @@ Usage:
     po::options_description full_description;
     full_description
         .add(required_options)
-        .add(construction_options)
         .add(pog_options)
         .add(output_options)
         .add(other_options)
@@ -111,6 +111,10 @@ Usage:
         std::cerr << "Output directory \"-o <out-dir>\" is required" << std::endl;
         exit(1);
     }
+    if (!path::check_existence(opts.output_directory) && !path::make_dir(opts.output_directory)) {
+        std::cerr << "Could not create directory " << opts.output_directory << std::endl;
+        exit(1);
+    }
     opts.output_directory += '/';
 
     opts.no_plots = vm.count("no-plots");
@@ -128,7 +132,11 @@ void construct(options& opts) {
     params.set_kmer_size(1);
 
     pog::partial_order_graph graph;
-    pog::from_file(graph, opts.input_file, opts.use_forward_reads, opts.use_rc_reads);
+    if (opts.graph_prefix.empty())
+        pog::from_file(graph, opts.input_file, opts.use_forward_reads, opts.use_rc_reads);
+    else
+        graph.load(opts.graph_prefix);
+
     graph.remove_low_covered();
     pog::save_graph(graph, opts.output_directory + "1", opts.show_sequences);
     if (!opts.no_plots)
@@ -136,22 +144,7 @@ void construct(options& opts) {
     pog::correct_reads(graph, opts.input_file, opts.output_directory + "1.fa",
                        opts.use_forward_reads,
                        opts.use_rc_reads);
-    graph.clear();
-
-    for (size_t k = 1 + opts.k_step; k <= opts.k_stop; k += opts.k_step) {
-        INFO("k = " << k);
-        params.set_kmer_size(k);
-        std::string k_str = std::to_string(k);
-        std::string k_prev = std::to_string(k - opts.k_step);
-
-        pog::from_file(graph, opts.output_directory + k_prev + ".fa", true, false);
-        graph.remove_low_covered();
-        pog::save_graph(graph, opts.output_directory + k_str, opts.show_sequences);
-        if (!opts.no_plots)
-            pog::draw_graph(opts.output_directory + k_str);
-        pog::correct_reads(graph, opts.output_directory + k_prev + ".fa", opts.output_directory + k_str + ".fa", true, false);
-        graph.clear();
-    }
+    // graph.clear();
 }
 
 logging::level string_to_level(std::string const& level_str) {

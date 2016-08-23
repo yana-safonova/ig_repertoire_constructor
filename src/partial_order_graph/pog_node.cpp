@@ -66,18 +66,26 @@ std::vector<kmer> sequence_to_kmers(seq_t const& sequence) {
 
 // ----------------- node
 
-node::node()
+size_t node::global_id = 0;
+
+node::node(boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map)
         : hash_(-1)
-        , coverage_(0) {
+        , coverage_(0)
+        , index_(-1)
+        , id_(global_id++)
+        , id_map_(id_map) {
     // EMPTY
 }
 
-node::node(kmer const& source)
+node::node(kmer const& source, boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map)
         : sequence_(seqan::infixWithLength(source.read_sequence,
                                            source.get_start(),
                                            pog_parameters::instance().get_kmer_size()))
         , hash_(source.get_hash())
-        , coverage_(1) {
+        , coverage_(1)
+        , index_(-1)
+        , id_(global_id++)
+        , id_map_(id_map) {
     // EMPTY
 }
 
@@ -85,14 +93,18 @@ void node::add_read() {
     ++coverage_;
 }
 
-void node::add_output_edge(node* next, float coverage) {
-    output_edges_[next] += coverage;
-    next->input_edges_[this] += coverage;
+void node::set_coverage(float coverage) {
+    coverage_ = coverage;
 }
 
-void node::remove_output_edge(node* next) {
-    output_edges_.erase(next);
-    next->input_edges_.erase(this);
+void node::add_output_edge(std::shared_ptr<node> const& next, float coverage) {
+    output_edges_[next->id_] += coverage;
+    next->input_edges_[id_] += coverage;
+}
+
+void node::remove_output_edge(std::shared_ptr<node> const& next) {
+    output_edges_.erase(next->id_);
+    next->input_edges_.erase(id_);
 }
 
 bool node::on_upath() {
@@ -100,7 +112,7 @@ bool node::on_upath() {
         return false;
 
     auto const& input_edge = *input_edges_.begin();
-    node* prev = input_edge.first;
+    auto prev = id_map_.at(input_edge.first);
     if (prev->output_edges_.size() != 1 || prev->dummy())
         return false;
 
@@ -116,14 +128,16 @@ bool node::on_upath() {
     sequence_ = "";
 
     for (auto const& entry : output_edges_) {
-        prev->add_output_edge(entry.first, std::min(input_edge.second, entry.second));
-        entry.first->input_edges_.erase(this);
+        auto next = id_map_.at(entry.first);
+        prev->add_output_edge(next, std::min(input_edge.second, entry.second));
+        next->input_edges_.erase(id_);
     }
-    prev->output_edges_.erase(this);
+    prev->output_edges_.erase(id_);
     return true;
 }
 
-bool node::join_nodes(node* a, node* b) {
+bool node::join_nodes(std::shared_ptr<node>& a, std::shared_ptr<node>& b,
+                      boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map) {
     if (a->get_length() != b->get_length() || a->dummy())
         return false;
     if (b->output_edges_.size() != 1 || b->input_edges_.size() != 1)
@@ -138,46 +152,48 @@ bool node::join_nodes(node* a, node* b) {
     TRACE("\tLength: " << length(a->sequence_) << ", Hamming: " << hamming_distance(a->sequence_, b->sequence_));
 
     auto const& b_input_edge = *b->input_edges_.begin();
-    b_input_edge.first->output_edges_.erase(b);
-    b_input_edge.first->add_output_edge(a, b_input_edge.second);
+    id_map.at(b_input_edge.first)->output_edges_.erase(b->id_);
+    id_map.at(b_input_edge.first)->add_output_edge(a, b_input_edge.second);
 
     auto const& b_output_edge = *b->output_edges_.begin();
-    b_output_edge.first->input_edges_.erase(b);
-    a->add_output_edge(b_output_edge.first, b_output_edge.second);
+    id_map.at(b_output_edge.first)->input_edges_.erase(b->id_);
+    a->add_output_edge(id_map.at(b_output_edge.first), b_output_edge.second);
 
     a->coverage_ += b->coverage_;
     b->sequence_ = "";
     return true;
 }
 
-bool process_brothers(std::vector<node*>& brothers) {
+bool process_brothers(std::vector<std::shared_ptr<node>>& brothers,
+                      boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map) {
     size_t n = brothers.size();
     std::sort(brothers.begin(), brothers.end(),
-        [](node* lhs, node* rhs) -> bool { return lhs->coverage() > rhs->coverage(); });
+        [](std::shared_ptr<node> const& lhs, std::shared_ptr<node> const& rhs) -> bool {
+            return lhs->coverage() > rhs->coverage(); });
 
     bool flag = false;
     for (size_t i = 0; i < n - 1; ++i)
         for (size_t j = i + 1; j < n; ++j)
-            flag = node::join_nodes(brothers[i], brothers[j]) || flag;
+            flag = node::join_nodes(brothers[i], brothers[j], id_map) || flag;
     return flag;
 }
 
 bool node::on_bulge() {
     bool flag = false;
     //            node via one, intermediate nodes
-    boost::unordered_map<node*, std::vector<node*>> intermediate_nodes;
+    boost::unordered_map<size_t, std::vector<std::shared_ptr<node>>> intermediate_nodes;
     for (auto const& entry1 : input_edges_)
-        for (auto const& entry2 : entry1.first->input_edges_)
-            intermediate_nodes[entry2.first].push_back(entry1.first);
+        for (auto const& entry2 : id_map_.at(entry1.first)->input_edges_)
+            intermediate_nodes[entry2.first].push_back(id_map_.at(entry1.first));
 
     for (auto& entry : intermediate_nodes) {
         if (entry.second.size() > 1) {
-            flag = process_brothers(entry.second) || flag;
+            flag = process_brothers(entry.second, id_map_) || flag;
         }
     }
 
     for (auto const& entry : input_edges_)
-        entry.first->on_upath();
+        id_map_.at(entry.first)->on_upath();
     on_upath();
     return flag;
 }
@@ -186,9 +202,9 @@ void node::remove_node() {
     sequence_ = "";
     coverage_ = 0;
     for (auto& input : input_edges_)
-        input.first->output_edges_.erase(this);
+        id_map_.at(input.first)->output_edges_.erase(id_);
     for (auto& output : output_edges_)
-        output.first->input_edges_.erase(this);
+        id_map_.at(output.first)->input_edges_.erase(id_);
 }
 
 bool node::dummy() const noexcept {
@@ -215,11 +231,23 @@ size_t node::get_length() const noexcept {
     return length(sequence_) - pog_parameters::instance().get_kmer_size() + 1;
 }
 
-boost::unordered_map<node*, float> const& node::get_input_edges() const noexcept {
+void node::set_index(size_t index) {
+    index_ = index;
+}
+
+size_t node::get_index() const noexcept {
+    return index_;
+}
+
+size_t node::get_id() const noexcept {
+    return id_;
+}
+
+boost::unordered_map<size_t, float> const& node::get_input_edges() const noexcept {
     return input_edges_;
 }
 
-boost::unordered_map<node*, float> const& node::get_output_edges() const noexcept {
+boost::unordered_map<size_t, float> const& node::get_output_edges() const noexcept {
     return output_edges_;
 }
 

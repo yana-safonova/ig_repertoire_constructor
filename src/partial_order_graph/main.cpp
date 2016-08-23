@@ -15,9 +15,10 @@ namespace po = boost::program_options;
 
 struct options {
     std::string input_file;
-    std::string output_directory;
+    std::string directory;
     std::string logging_level;
     std::string prefix;
+
     bool no_plots;
     bool show_sequences;
     bool shrink_upaths;
@@ -35,41 +36,45 @@ void parse_command_line(int argc, char** argv, options& opts) {
     R"(Partial order graph construction and shrinkage
 
 Usage:
-  )" + name + R"( -i <in.*> -o <out-dir> [options]
+  )" + name + R"( -i <in.*> [-d <directory> | -p <prefix>] -k INT [options]
 )";
 
+    size_t kmer_size = -1;
     po::options_description required_options("Required options");
     required_options.add_options()
         (",i", po::value<std::string>(&opts.input_file)->value_name("<in.*>"), "Input sequences")
-        (",o", po::value<std::string>(&opts.output_directory)->value_name("<out-dir>"), "Output directory")
+        (",d", po::value<std::string>(&opts.directory)->value_name("<directory>"), "Output directory")
+        (",p", po::value<std::string>(&opts.prefix)->value_name("<prefix>"), "Prefix for output files")
+        (",k", po::value<size_t>(&kmer_size)->value_name("INT"), "k-mer size (default: 10)")
         ;
 
     pog::pog_parameters& parameters = pog::pog_parameters::instance();
-    size_t kmer_size = parameters.get_kmer_size();
 
-    std::string orientation = "fr";
+    parameters.mismatch_penalty = -1.4f;
+    parameters.gap_penalty = -2.0f;
+    std::string orientation = "f";
     po::options_description construction_options("Construction options");
     construction_options.add_options()
-        (",k", po::value<size_t>(&kmer_size)->value_name("INT")->default_value(10),
-            "k-mer size         (default:   10)")
-        ("mismatch-penalty", po::value<float>(&parameters.mismatch_penalty)->value_name("FLOAT")->default_value(-1.4f),
+        ("mismatch-penalty", po::value<float>(&parameters.mismatch_penalty)->value_name("FLOAT"),
             "Mismatch penalty   (default: -1.4)")
-        ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT")->default_value(-2.0f),
+        ("gap-penalty", po::value<float>(&parameters.gap_penalty)->value_name("FLOAT"),
             "Gap penalty        (default:   -2)")
-        ("orientation", po::value<std::string>(&orientation)->value_name("{f,r,fr}")->default_value("fr"),
-            "Reads orientation, {f,r,fr}: forward, reverse complement or both, (default: fr)")
+        ("orientation", po::value<std::string>(&orientation)->value_name("{f,r,fr}"),
+            "Reads orientation, {f,r,fr}: forward, reverse complement or both, (default: f)")
         ;
 
+    parameters.bulges_hamming_ratio = .3f;
+    parameters.coverage_threshold = 10.0f;
     po::options_description shrinkage_options("Shrinkage options");
     shrinkage_options.add_options()
         ("shrink-upaths", "Shrink unambigous paths")
         ("shrink-bulges", "Shrink bulges")
         ("remove-low-covered", "Remove low covered nodes")
         ("correct", "Correct reads")
-        ("bulges-hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT")->default_value(.3f),
+        ("bulges-hamming", po::value<float>(&parameters.bulges_hamming_ratio)->value_name("FLOAT"),
             "Hamming distance between nodes <= ceil(bulges:hamming * length): condition "
             "to join nodes during bulge shrinking (default: 0.3)")
-        ("cov-threshold", po::value<float>(&parameters.coverage_threshold)->value_name("FLOAT")->default_value(10.0f),
+        ("cov-threshold", po::value<float>(&parameters.coverage_threshold)->value_name("FLOAT"),
             "Coverage threshold to remove vertex during bulge shrinking (default: 10)")
         ;
 
@@ -77,13 +82,12 @@ Usage:
     output_options.add_options()
         ("no-plots", "Do not call graphviz")
         ("show-sequences", "Show sequences on the graph plot")
-        ("prefix,p", po::value<std::string>(&opts.prefix)->value_name("PREFIX"), "File prefix")
         ;
 
     po::options_description other_options("Other");
     other_options.add_options()
         ("help,h", "Show this message")
-        ("log-level", po::value<std::string>(&opts.logging_level)->value_name("LEVEL")->default_value("info"),
+        ("log-level", po::value<std::string>(&opts.logging_level)->value_name("LEVEL"),
             "Logging level {trace, debug, info, warn, error} (default: info)")
         ;
 
@@ -113,16 +117,29 @@ Usage:
         exit(0);
     }
 
+    if (kmer_size == static_cast<size_t>(-1)) {
+        std::cerr << "K-mer size \"-k INT\" is required" << std::endl;
+        exit(1);
+    }
+    parameters.set_kmer_size(kmer_size);
+
     if (opts.input_file.empty()) {
         std::cerr << "Input sequences \"-i <in.*>\" are required" << std::endl;
         exit(1);
     }
-    if (opts.output_directory.empty()) {
-        std::cerr << "Output directory \"-o <out-dir>\" is required" << std::endl;
+    if (opts.directory.empty() == opts.prefix.empty()) {
+        std::cerr << "Specify either \"-d <dir>\" or \"-p <prefix>\"" << std::endl;
         exit(1);
     }
 
-    parameters.set_kmer_size(kmer_size);
+    if (!opts.directory.empty()) {
+        if (!path::check_existence(opts.directory) && !path::make_dir(opts.directory)) {
+            std::cerr << "Could not create directory " << opts.directory << std::endl;
+            exit(1);
+        }
+        opts.prefix = opts.directory + "/" + std::to_string(kmer_size);
+    }
+
     opts.no_plots = vm.count("no-plots");
     opts.show_sequences = vm.count("show-sequences");
     opts.shrink_upaths = vm.count("shrink-upaths");
@@ -162,11 +179,11 @@ void correct_reads(options& opts) {
     INFO("Graph created. Nodes: " << graph.nodes_count());
 
     graph.remove_low_covered();
-    pog::save_graph(graph, opts.output_directory + opts.prefix, opts.show_sequences);
+    pog::save_graph(graph, opts.prefix, opts.show_sequences);
     if (!opts.no_plots)
-        pog::draw_graph(opts.output_directory + opts.prefix);
+        pog::draw_graph(opts.prefix);
 
-    pog::correct_reads(graph, opts.input_file, opts.output_directory + opts.prefix + "corr.fa",
+    pog::correct_reads(graph, opts.input_file, opts.prefix + "corr.fa",
                        opts.use_forward_reads,
                        opts.use_rc_reads);
 }
@@ -174,15 +191,6 @@ void correct_reads(options& opts) {
 int main(int argc, char** argv) {
     options opts;
     parse_command_line(argc, argv, opts);
-    opts.output_directory += "/";
-    if (opts.prefix != "")
-        opts.prefix += ".";
-    opts.prefix += std::to_string(pog::pog_parameters::instance().get_kmer_size());
-
-    if (!path::check_existence(opts.output_directory) && !path::make_dir(opts.output_directory)) {
-        std::cerr << "Could not create directory " << opts.output_directory << std::endl;
-        return 1;
-    }
 
     create_console_logger(string_to_level(opts.logging_level));
     if (opts.correct) {
@@ -194,16 +202,17 @@ int main(int argc, char** argv) {
     pog::from_file(graph, opts.input_file, opts.use_forward_reads, opts.use_rc_reads);
     INFO("Graph created. Nodes: " << graph.nodes_count());
 
+
+    if (opts.remove_low_covered)
+        graph.remove_low_covered();
     if (opts.shrink_upaths)
         graph.shrink_upaths();
     if (opts.shrink_bulges)
         graph.shrink_bulges();
-    if (opts.remove_low_covered)
-        graph.remove_low_covered();
 
-    pog::save_graph(graph, opts.output_directory + opts.prefix, opts.show_sequences);
+    pog::save_graph(graph, opts.prefix, opts.show_sequences);
     if (!opts.no_plots)
-        pog::draw_graph(opts.output_directory + opts.prefix);
+        pog::draw_graph(opts.prefix);
 
     return 0;
 }

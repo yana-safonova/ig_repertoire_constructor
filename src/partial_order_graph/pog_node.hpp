@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <utility>
 
 #include <boost/unordered_map.hpp>
@@ -33,38 +34,51 @@ private:
 
 std::vector<kmer> sequence_to_kmers(seq_t const& sequence);
 
+
 struct node {
-    node();
-    node(kmer const& source);
+    node(boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map);
+    node(kmer const& source, boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map);
 
     node(node const&) = delete;
     node& operator=(node const&) = delete;
 
     void add_read();
-    void add_output_edge(node* next, float coverage = 1.f);
-    void remove_output_edge(node* next);
+    void set_coverage(float coverage);
+    void add_output_edge(std::shared_ptr<node> const& next, float coverage = 1.f);
+    void remove_output_edge(std::shared_ptr<node> const& next);
     bool on_upath();
     bool on_bulge();
     void remove_node();
-    static bool join_nodes(node* a, node* b);
+    static bool join_nodes(std::shared_ptr<node>& a, std::shared_ptr<node>& b,
+                           boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map);
 
     bool dummy() const noexcept;
     bool equals(kmer const& potential_match) const noexcept;
     float coverage() const noexcept;
     size_t get_length() const noexcept;
-    boost::unordered_map<node*, float> const& get_input_edges() const noexcept;
-    boost::unordered_map<node*, float> const& get_output_edges() const noexcept;
+    boost::unordered_map<size_t, float> const& get_input_edges() const noexcept;
+    boost::unordered_map<size_t, float> const& get_output_edges() const noexcept;
     seq_t const& get_sequence() const noexcept;
 
+    void set_index(size_t index);
+    size_t get_index() const noexcept;
+    size_t get_id() const noexcept;
+
 private:
+
+    static size_t global_id;
 
     seq_t sequence_;
     u64 hash_;
     float coverage_;
+    size_t index_;
+    size_t const id_;
 
-    //                     node, coverage
-    boost::unordered_map<node*, float> input_edges_;
-    boost::unordered_map<node*, float> output_edges_;
+    //                  node id, coverage
+    boost::unordered_map<size_t, float> input_edges_;
+    boost::unordered_map<size_t, float> output_edges_;
+    boost::unordered_map<size_t, std::shared_ptr<node>> const& id_map_;
+
 };
 
 } // namespace pog
