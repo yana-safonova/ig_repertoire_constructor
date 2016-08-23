@@ -34,5 +34,11 @@ namespace antevolo {
         size_t RootDepth() const;
 
         size_t NumAddedSHMs() const; // return numner of SHMs that were added wrt to tree root
+
+        typedef std::vector<EvolutionaryAnnotatedSHM>::const_iterator SHMConstIterator;
+
+        SHMConstIterator cbegin() const { return all_unique_shms_.cbegin(); }
+
+        SHMConstIterator cend() const { return all_unique_shms_.cend(); }
     };
 }

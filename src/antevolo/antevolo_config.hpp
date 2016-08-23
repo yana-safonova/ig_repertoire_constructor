@@ -16,6 +16,9 @@ namespace antevolo {
             std::string tree_dir;
             std::string vertex_dir;
             std::string trash_output;
+
+            std::string tree_details;
+            std::string tree_shms;
         };
 
         struct RunParams {

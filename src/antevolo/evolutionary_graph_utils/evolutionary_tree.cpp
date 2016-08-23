@@ -375,4 +375,9 @@ namespace antevolo {
         }
         return num_roots;
     }
+
+    size_t EvolutionaryTree::Depth() const {
+        //VERIFY_MSG(false, "Implement me!");
+        return 0;
+    }
 }

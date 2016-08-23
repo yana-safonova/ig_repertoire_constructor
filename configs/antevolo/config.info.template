@@ -10,6 +10,8 @@ output_params {
     tree_dir       clonal_trees
     vertex_dir     clonal_trees_vertices
     trash_output   trash_output.out
+    tree_details   tree_details.txt
+    tree_shms      tree_shms.txt
 }
 
 run_params {

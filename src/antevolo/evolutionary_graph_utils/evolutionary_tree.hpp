@@ -144,5 +144,7 @@ namespace antevolo {
         bool IsForest() const;
 
         size_t GetRootNumber() const;
+
+        size_t Depth() const;
     };
 }

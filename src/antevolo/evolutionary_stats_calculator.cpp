@@ -2,7 +2,7 @@
 #include <annotation_utils/shm_comparator.hpp>
 
 namespace antevolo {
-    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromRoot(AnnotatedEvolutionaryTree annotated_tree) {
+    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromRoot(AnnotatedEvolutionaryTree annotated_tree) const {
         auto root_id = annotated_tree.Tree().GetRoot();
         auto v_shms = clone_set_[root_id].VSHMs();
         for(auto it = v_shms.cbegin(); it != v_shms.cend(); it++) {
@@ -15,7 +15,7 @@ namespace antevolo {
         return annotated_tree;
     }
 
-    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree) {
+    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree) const {
         const EvolutionaryTree& tree = annotated_tree.Tree();
         for (auto edge = tree.cbegin(); edge != tree.cend(); edge++) {
             //std::cout << edge->dst_clone_num << " -> " << edge->src_clone_num << std::endl;
@@ -35,7 +35,7 @@ namespace antevolo {
         return annotated_tree;
     }
 
-    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::ComputeTreeStats(const EvolutionaryTree &tree) {
+    AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::ComputeStatsForTree(const EvolutionaryTree &tree) const {
         AnnotatedEvolutionaryTree annotated_tree(clone_set_, tree);
         if(tree.IsForest()) {
             // todo: after implementation of tree splitting turn this into assert
@@ -51,5 +51,14 @@ namespace antevolo {
                      ", # synonymous SHMs: " << annotated_tree.NumSynonymousSHMs() <<
                      ", # synonymous SHMs wrt to germline: " << annotated_tree.NumSynonymousWrtGermlineSHMs());
         return annotated_tree;
+    }
+
+    AnnotatedTreeStorage EvolutionaryStatsCalculator::ComputeStatsForStorage(
+            const EvolutionaryTreeStorage &storage) const {
+        AnnotatedTreeStorage annotated_storage(clone_set_);
+        for(auto it = storage.cbegin(); it != storage.cend(); it++) {
+            annotated_storage.AddAnnotatedTree(ComputeStatsForTree(*it));
+        }
+        return annotated_storage;
     }
 }

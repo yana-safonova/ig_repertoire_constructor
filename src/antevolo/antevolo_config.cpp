@@ -14,6 +14,8 @@ namespace antevolo {
         output_params.tree_dir = path::append_path(output_params.output_dir, output_params.tree_dir);
         output_params.vertex_dir = path::append_path(output_params.output_dir, output_params.vertex_dir);
         output_params.trash_output = path::append_path(output_params.output_dir, output_params.trash_output);
+        output_params.tree_details = path::append_path(output_params.output_dir, output_params.tree_details);
+        output_params.tree_shms = path::append_path(output_params.output_dir, output_params.tree_shms);
     }
 
     void load(AntEvoloConfig::OutputParams &output_params, boost::property_tree::ptree const &pt, bool) {
@@ -23,6 +25,8 @@ namespace antevolo {
         load(output_params.trash_output, pt, "trash_output");
         load(output_params.tree_dir, pt, "tree_dir");
         load(output_params.vertex_dir, pt, "vertex_dir");
+        load(output_params.tree_details, pt, "tree_details");
+        load(output_params.tree_shms, pt, "tree_shms");
         update_paths(output_params);
     }
 

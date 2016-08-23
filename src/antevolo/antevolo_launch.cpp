@@ -9,6 +9,7 @@
 
 #include "antevolo_processor.hpp"
 #include "evolutionary_stats_calculator.hpp"
+#include "antevolo_output_writer.hpp"
 
 namespace antevolo {
     void AntEvoloLaunch::Launch() {
@@ -55,9 +56,11 @@ namespace antevolo {
         INFO("Computation of evolutionary statistics");
         // todo: implement splitter into connected components
         EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
-        for(auto tree = tree_storage.begin(); tree != tree_storage.end(); tree++) {
-            stats_calculator.ComputeTreeStats(*tree);
-        }
+        auto annotated_storage = stats_calculator.ComputeStatsForStorage(tree_storage);
+        INFO(annotated_storage.size() << " trees were annotated");
+        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
+        output_writer.OutputTreeStats();
+        output_writer.OutputSHMForTrees();
         INFO("AntEvolo ends");
     }
 }
