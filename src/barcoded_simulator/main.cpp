@@ -11,9 +11,10 @@ struct Options {
     std::string output_file_path;
     size_t barcode_length;
     size_t pcr_cycles;
-    float pcr_error_prob_first;
-    float pcr_error_prob_last;
-    float amplification_rate;
+    double pcr_error_prob_first;
+    double pcr_error_prob_last;
+    double amplification_rate;
+    size_t output_estimation_limit;
 };
 
 Options parse_options(int argc, const char* const* argv) {
@@ -29,12 +30,14 @@ Options parse_options(int argc, const char* const* argv) {
              "length of generated barcodes (defaults to 14)")
             ("pcr-cycles,c", po::value<size_t>(&options.pcr_cycles)->default_value(25),
              "number of PCR cycles to simulate (defaults to 25)")
-            ("pcr-error1,e", po::value<float>(&options.pcr_error_prob_first),
+            ("pcr-error1,e", po::value<double>(&options.pcr_error_prob_first)->required(),
              "probability of PCR error on the first PCR cycle")
-            ("pcr-error2,E", po::value<float>(&options.pcr_error_prob_last),
+            ("pcr-error2,E", po::value<double>(&options.pcr_error_prob_last)->required(),
              "probability of PCR error on the last PCR cycle (probability on the other cycles are interpolated)")
-            ("pcr-rate,r", po::value<float>(&options.amplification_rate)->default_value(1.0),
+            ("pcr-rate,r", po::value<double>(&options.amplification_rate)->default_value(0.1),
              "probability for each molecule to be amplified on each PCR cycle (defaults to 1.0)")
+            ("output-limit,m", po::value<size_t>(&options.output_estimation_limit)->default_value(static_cast<size_t>(1e8)),
+             "the program will exit if expected number of reads exceeds this parameter (defaults to 100,000,000)")
             ;
     po::variables_map vm;
     store(po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
@@ -73,14 +76,14 @@ std::vector<seqan::Dna5String> attach_barcodes(size_t count, size_t barcode_leng
     return barcodes;
 }
 
-void amplify(std::vector<seqan::Dna5String> reads, std::vector<seqan::Dna5String> barcodes, float pcr_error_prob, float amplification_rate) {
+void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, double pcr_error_prob, double amplification_rate) {
     size_t size = reads.size();
     for (size_t read_idx = 0; read_idx < size; read_idx ++) {
-        if (std::rand() <= static_cast<float>(RAND_MAX) * amplification_rate) {
+        if (std::rand() <= static_cast<double>(RAND_MAX) * amplification_rate) {
             seqan::Dna5String read = reads[read_idx];
             seqan::Dna5String barcode = barcodes[read_idx];
             for (size_t pos = 0; pos < length(barcode) + length(read); pos ++) {
-                if (std::rand() <= RAND_MAX * pcr_error_prob) {
+                if (std::rand() <= static_cast<double>(RAND_MAX) * pcr_error_prob) {
                     auto current_value = pos < length(barcode) ? barcode[pos] : read[pos - length(barcode)];
                     int new_value_candidate = std::rand() % 3;
                     int new_value = new_value_candidate + (new_value_candidate >= current_value ? 1 : 0);
@@ -94,9 +97,9 @@ void amplify(std::vector<seqan::Dna5String> reads, std::vector<seqan::Dna5String
 }
 
 void simulate_pcr(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, size_t cycles,
-                  float pcr_error_prob_first, float pcr_error_prob_last, float amplification_rate) {
+                  double pcr_error_prob_first, double pcr_error_prob_last, double amplification_rate) {
     for (size_t i = 0; i < cycles; i ++) {
-        amplify(reads, barcodes, pcr_error_prob_first + (pcr_error_prob_last - pcr_error_prob_first) * static_cast<float>(i) / (cycles - 1), amplification_rate);
+        amplify(reads, barcodes, pcr_error_prob_first + (pcr_error_prob_last - pcr_error_prob_first) * static_cast<double>(i) / static_cast<double>(cycles - 1), amplification_rate);
     }
 }
 
@@ -117,6 +120,8 @@ int main(int argc, const char* const* argv) {
     const Options& options = parse_options(argc, argv);
 
     auto reads = read_repertoire(options.repertoire_file_path);
+    double exp_reads_count = static_cast<double>(reads.size()) * pow(1.0 + options.amplification_rate, static_cast<double>(options.pcr_cycles));
+    VERIFY(exp_reads_count <= options.output_estimation_limit);
     std::srand(495634);
     auto barcodes = attach_barcodes(reads.size(), options.barcode_length);
     simulate_pcr(reads, barcodes, options.pcr_cycles, options.pcr_error_prob_first, options.pcr_error_prob_last, options.amplification_rate);
