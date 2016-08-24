@@ -784,7 +784,7 @@ def ParseCommandLineParams(log):
                                action="store_true",
                                dest="equal_compression",
                                help="Enable equal read compression before graph construction (default)")
-    parser.set_defaults(equal_compression=False)
+    parser.set_defaults(equal_compression=True)
 
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
