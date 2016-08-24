@@ -160,4 +160,6 @@ namespace antevolo {
 
         size_t EdgeDepth() const;
     };
+
+    std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree);
 }

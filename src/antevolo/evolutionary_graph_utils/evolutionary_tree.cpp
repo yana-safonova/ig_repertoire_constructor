@@ -400,4 +400,11 @@ namespace antevolo {
         }
         return roots;
     }
+
+
+    std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree) {
+        for(auto it = tree.cbegin(); it != tree.cend(); it++)
+            out << *it << std::endl;
+        return out;
+    }
 }

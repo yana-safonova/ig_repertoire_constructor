@@ -16,6 +16,14 @@ namespace antevolo {
                     it->RootDepth() << "\t" << it->NumUniqueSHms() << "\t" << it->NumAddedSHMs() <<
                     "\t" << it->NumSynonymousSHMs() << std::endl;
             tree_index++;
+//            if(it->SHMDepth() == 0) {
+//                INFO("Tree with zero SHM depth:");
+//                for(auto edge_it = it->Tree().cbegin(); edge_it != it->Tree().cend(); edge_it++) {
+//                    std::cout << *edge_it << std::endl;
+//                    std::cout << clone_set_[edge_it->src_clone_num].Read().seq << std::endl;
+//                    std::cout << clone_set_[edge_it->dst_clone_num].Read().seq << std::endl;
+//                }
+//            }
         }
         INFO("Tree statistics were written to " << output_params_.tree_details);
         out.close();

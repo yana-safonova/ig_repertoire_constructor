@@ -6,12 +6,15 @@
 namespace antevolo {
     class AntEvoloOutputWriter {
         const AntEvoloConfig::OutputParams &output_params_;
+        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
         const AnnotatedTreeStorage &annotated_storage_;
 
     public:
         AntEvoloOutputWriter(const AntEvoloConfig::OutputParams &output_params,
+                             const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                              const AnnotatedTreeStorage &annotated_storage) :
                 output_params_(output_params),
+                clone_set_(clone_set),
                 annotated_storage_(annotated_storage) { }
 
         void OutputTreeStats() const;

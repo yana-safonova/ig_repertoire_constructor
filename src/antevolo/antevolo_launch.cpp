@@ -68,7 +68,7 @@ namespace antevolo {
         EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
         auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
         INFO(annotated_storage.size() << " annotations were computed");
-        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
+        AntEvoloOutputWriter output_writer(config_.output_params, annotated_clone_set, annotated_storage);
         output_writer.OutputTreeStats();
         //output_writer.OutputSHMForTrees();
         INFO("AntEvolo ends");
