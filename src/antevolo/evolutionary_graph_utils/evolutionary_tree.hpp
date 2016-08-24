@@ -17,11 +17,12 @@ namespace antevolo {
         std::set<size_t> vertices_;
 
         std::vector<EvolutionaryEdge> all_edge_vector_;
+        std::map<size_t, std::vector<EvolutionaryEdge>> outgoing_edges_;
 
         void AddEdge(size_t dst_id, EvolutionaryEdge edge);
 
     public:
-        void AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model);
+        void AddDirected(size_t clone_num, EvolutionaryEdge edge);
 
         void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model);
 
@@ -52,10 +53,6 @@ namespace antevolo {
 
         bool Contains(size_t clone_num) {
             return (edges_.find(clone_num) != edges_.end());
-        }
-
-        const EvolutionaryEdge& GetParentEdge(size_t clone_num) const {
-            return edges_.at(clone_num);
         }
 
         size_t GetUndirectedCompopentRoot(size_t root_num) {
@@ -131,6 +128,20 @@ namespace antevolo {
         ConstEdgeIterator cend() const { return all_edge_vector_.cend(); }
 
 
+        typedef std::set<size_t>::const_iterator ConstVertexIterator;
+
+        ConstVertexIterator c_vertex_begin() const { return vertices_.cbegin(); }
+
+        ConstVertexIterator c_vertex_end() const { return vertices_.cend(); }
+
+
+        const EvolutionaryEdge& GetParentEdge(size_t clone_num) const {
+            return edges_.at(clone_num);
+        }
+
+        const std::vector<EvolutionaryEdge>& OutgoingEdges(size_t clone_id) const;
+
+
         bool IsRoot(size_t clone_id) const;
 
         bool IsLeaf(size_t clone_id) const;
@@ -145,6 +156,8 @@ namespace antevolo {
 
         size_t GetRootNumber() const;
 
-        size_t Depth() const;
+        std::vector<size_t> GetRoots() const;
+
+        size_t EdgeDepth() const;
     };
 }

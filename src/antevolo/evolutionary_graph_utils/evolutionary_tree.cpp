@@ -11,9 +11,13 @@ namespace antevolo {
         all_edge_vector_.push_back(edge);
         vertices_.insert(edge.dst_clone_num);
         vertices_.insert(edge.src_clone_num);
+        if(outgoing_edges_.find(edge.src_clone_num) == outgoing_edges_.end()) {
+            outgoing_edges_[edge.src_clone_num] = std::vector<EvolutionaryEdge>();
+        }
+        outgoing_edges_[edge.src_clone_num].push_back(edge);
     }
 
-    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge, ShmModel& model) {
+    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge) {
         assert(edge.IsDirected());
         //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
         if(edge.IsDirected()) {
@@ -352,8 +356,8 @@ namespace antevolo {
     }
 
     bool EvolutionaryTree::IsLeaf(size_t clone_id) const {
-        VERIFY_MSG(false, "Implement me");
-        return false;
+        VERIFY_MSG(ContainsClone(clone_id), "Tree does not contain vertex " << clone_id);
+        return outgoing_edges_.find(clone_id) == outgoing_edges_.end();
     }
 
     bool EvolutionaryTree::IsForest() const {
@@ -376,8 +380,24 @@ namespace antevolo {
         return num_roots;
     }
 
-    size_t EvolutionaryTree::Depth() const {
-        //VERIFY_MSG(false, "Implement me!");
+    size_t EvolutionaryTree::EdgeDepth() const {
+        VERIFY_MSG(false, "Implement me!");
         return 0;
+    }
+
+    const std::vector<EvolutionaryEdge>& EvolutionaryTree::OutgoingEdges(size_t clone_id) const {
+        VERIFY_MSG(ContainsClone(clone_id), "Tree does not contain vertex " << clone_id);
+        VERIFY_MSG(!IsLeaf(clone_id), "Vertex " << clone_id << " is leaf");
+        return outgoing_edges_.at(clone_id);
+    }
+
+    std::vector<size_t> EvolutionaryTree::GetRoots() const {
+        std::vector<size_t> roots;
+        for(auto it = vertices_.begin(); it != vertices_.end(); it++) {
+            if(IsRoot(*it)) {
+                roots.push_back(*it);
+            }
+        }
+        return roots;
     }
 }

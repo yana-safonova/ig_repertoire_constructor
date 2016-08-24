@@ -5,15 +5,35 @@
 #include "tree_based_shm_annotator.hpp"
 
 namespace antevolo {
+    struct CDR3SHM {
+        size_t src_pos;
+        size_t dst_pos;
+        char src_nucl;
+        char dst_nucl;
+        char src_aa;
+        char dst_aa;
+
+        CDR3SHM(size_t src_pos, size_t dst_pos, char src_nucl, char dst_nucl, char src_aa, char dst_aa) :
+                src_pos(src_pos), dst_pos(dst_pos), src_nucl(src_nucl), dst_nucl(dst_nucl), src_aa(src_aa), dst_aa(dst_aa) { }
+
+        bool IsSynonymous() const { return src_aa == dst_aa; }
+    };
+
     class AnnotatedEvolutionaryTree {
         const annotation_utils::CDRAnnotatedCloneSet* clone_set_prt_;
         const EvolutionaryTree *tree_ptr_;
         TreeBasedSHMAnnotator shm_annotator_;
 
-        std::map<size_t, std::vector<EvolutionaryAnnotatedSHM> > unique_shms_;
-        std::vector<EvolutionaryAnnotatedSHM> all_unique_shms_;
+        // segment SHMs
+        std::map<size_t, std::vector<EvolutionaryAnnotatedSHM> > segment_shms_map_;
+        std::vector<EvolutionaryAnnotatedSHM> all_segment_shms_;
 
-        void CheckConsistencyFatal(size_t clone_id);
+        // CDR3 SHMs
+        std::map<size_t, std::vector<CDR3SHM> > cdr3_shms_map_;
+        std::vector<CDR3SHM> all_cdr3_shms_;
+
+
+        void CheckConsistencyFatal(size_t clone_id) const;
 
     public:
         AnnotatedEvolutionaryTree(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
@@ -21,11 +41,13 @@ namespace antevolo {
                                                                   tree_ptr_(&tree),
                                                                   shm_annotator_(clone_set, tree) { }
 
-        void AddSHMForClone(size_t clone_id, annotation_utils::SHM shm);
+        void AddSegmentSHMForClone(size_t clone_id, annotation_utils::SHM shm);
+
+        void AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t src_pos, size_t dst_pos);
 
         const EvolutionaryTree& Tree() const { return *tree_ptr_; }
 
-        size_t NumUniqueSHms() const { return all_unique_shms_.size(); }
+        size_t NumUniqueSHms() const { return all_segment_shms_.size() + all_cdr3_shms_.size(); }
 
         size_t NumSynonymousSHMs() const;
 
@@ -33,12 +55,18 @@ namespace antevolo {
 
         size_t RootDepth() const;
 
+        size_t SHMDepth() const;
+
         size_t NumAddedSHMs() const; // return numner of SHMs that were added wrt to tree root
+
+        size_t GetNumCDR3SHMsForClone(size_t clone_id) const;
 
         typedef std::vector<EvolutionaryAnnotatedSHM>::const_iterator SHMConstIterator;
 
-        SHMConstIterator cbegin() const { return all_unique_shms_.cbegin(); }
+        SHMConstIterator cbegin() const { return all_segment_shms_.cbegin(); }
 
-        SHMConstIterator cend() const { return all_unique_shms_.cend(); }
+        SHMConstIterator cend() const { return all_segment_shms_.cend(); }
+
+        size_t GetNumCDR3SHMsFromCloneToRoot(size_t clone_id) const;
     };
 }

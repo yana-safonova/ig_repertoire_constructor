@@ -159,7 +159,7 @@ namespace antevolo {
                             clone_set_[dst_num],
                             src_num,
                             dst_num);
-                    tree.AddDirected(dst_num, edge, model_);
+                    tree.AddDirected(dst_num, edge/*, model_*/);
                     std::vector<std::pair<size_t, size_t>> edge_vector;
                     tree.PrepareSubtree(edge_vector, dst_num);
                     for (auto p : edge_vector) {
@@ -186,7 +186,7 @@ namespace antevolo {
                                 clone_set_[*it2],
                                 *it1,
                                 *it2);
-                        tree.AddDirected(*it2, edge, model_);
+                        tree.AddDirected(*it2, edge/*, model_*/);
                         std::vector<std::pair<size_t, size_t>> edge_vector;
                         tree.PrepareSubtree(edge_vector, *it2);
                         for (auto p : edge_vector) {
@@ -293,7 +293,7 @@ namespace antevolo {
                 // if it is an undirected-isolated vertex
                 if (tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(clone_num)) != size_t(-1)) {
                     const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(clone_num);
-                    tree.AddDirected(clone_num, edge, model_);
+                    tree.AddDirected(clone_num, edge/*, model_*/);
                 };
 
                 continue;
@@ -307,7 +307,7 @@ namespace antevolo {
             size_t root = tree.GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(vertex.first));
             if (root != size_t(-1)) {
                 const EvolutionaryEdge& edge = tree.GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
-                tree.AddDirected(edge.dst_clone_num, edge, model_);
+                tree.AddDirected(edge.dst_clone_num, edge/*, model_*/);
                 
 
                 //INFO("ds root is: " << ds_on_undirected_edges.find_set(vertex.first) << ", root is: " << root <<

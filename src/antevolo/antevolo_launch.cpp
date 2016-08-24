@@ -6,6 +6,7 @@
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
 #include <cdr_output.hpp>
+#include <evolutionary_graph_utils/evolutionary_tree_splitter.hpp>
 
 #include "antevolo_processor.hpp"
 #include "evolutionary_stats_calculator.hpp"
@@ -54,13 +55,22 @@ namespace antevolo {
         auto tree_storage = AntEvoloProcessor(config_, annotated_clone_set).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
-        // todo: implement splitter into connected components
+        // todo: add refactoring!!!
+        EvolutionaryTreeStorage connected_tree_storage(annotated_clone_set);
+        for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+            ConnectedTreeSplitter tree_splitter;
+            auto connected_trees = tree_splitter.Split(*it);
+            for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++)
+                connected_tree_storage.Add(*it2);
+        }
+        INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
+                     " connected trees");
         EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
-        auto annotated_storage = stats_calculator.ComputeStatsForStorage(tree_storage);
-        INFO(annotated_storage.size() << " trees were annotated");
+        auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
+        INFO(annotated_storage.size() << " annotations were computed");
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
-        output_writer.OutputSHMForTrees();
+        //output_writer.OutputSHMForTrees();
         INFO("AntEvolo ends");
     }
 }

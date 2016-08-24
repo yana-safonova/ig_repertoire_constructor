@@ -66,6 +66,18 @@ namespace annotation_utils {
             return GetRegionString(StructuralRegion::CDR3);
         }
 
+        CDRRange CDR1Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR1);
+        }
+
+        CDRRange CDR2Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR2);
+        }
+
+        CDRRange CDR3Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR3);
+        }
+
         const core::Read& Read() const { return read_; }
 
         const alignment_utils::ImmuneGeneReadAlignment& VAlignment() const { return v_alignment_; }
