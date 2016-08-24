@@ -10,11 +10,10 @@ import kmer_utilities.kmer_utilities as kmer_utilities
 
 
 class AbstractSHM_Model(object):
-    def __init__(self, dataset, kmer_len=5):
+    def __init__(self, dataset=None, kmer_len=5):
         self.dataset = dataset
         self.kmer_len = kmer_len
         self.kmer_names = kmer_utilities.kmer_names(kmer_len)
-        assert (self.kmer_names == self.dataset.index).all()
 
     def get_raw_dataset(self):
         return self.dataset
@@ -129,9 +128,12 @@ class YaleSHM_Model(AbstractSHM_Model):
     substitution_path = os.path.join('yale_model', 'Substitution.csv')
 
     def __init__(self):
+        super(YaleSHM_Model, self).__init__(None, kmer_len=5)
         self.mutability_dataset = pd.read_csv(self.mutability_path, sep=' ')
         self.mutability_dataset.set_index(self.mutability_dataset.Fivemer, inplace=True)
         self.mutability_dataset = self.mutability_dataset.drop('Fivemer', 1)
+        self.mutability_dataset['Mutability'] /= \
+                self.mutability_dataset['Mutability'].max()
 
         self.substitution_dataset = pd.read_csv(self.substitution_path, sep=' ')
         self.substitution_dataset.set_index(self.substitution_dataset.Fivemer, inplace=True)

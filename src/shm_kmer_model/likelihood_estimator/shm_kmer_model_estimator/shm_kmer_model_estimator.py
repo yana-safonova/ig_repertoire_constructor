@@ -19,7 +19,7 @@ class ShmKmerModelEstimator:
                              'start_point_beta_shape1', 'start_point_beta_shape2',
                              'start_point_dir_shape1',
                              'start_point_dir_shape2',
-                             'start_point_dir_shape_3']
+                             'start_point_dir_shape3']
         self.central_nucl_indexes = kmer_utils.central_nucl_indexes(kmer_len)
         self.n_param = len(self.column_names)
 
