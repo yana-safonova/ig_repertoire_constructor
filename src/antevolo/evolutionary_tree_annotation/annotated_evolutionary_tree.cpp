@@ -15,21 +15,23 @@ namespace antevolo {
         auto annotated_shm = shm_annotator_.GetAnnotation(clone_id, shm);
         segment_shms_map_[clone_id].push_back(annotated_shm);
         all_segment_shms_.push_back(annotated_shm);
+        unique_segment_shms_.insert(annotated_shm);
     }
 
-    size_t AnnotatedEvolutionaryTree::NumSynonymousSHMs() const {
+    size_t AnnotatedEvolutionaryTree::NumSynonymousSegmentSHMs() const {
         size_t num_synonymous_shms = 0;
-        for(auto it = segment_shms_map_.begin(); it != segment_shms_map_.end(); it++) {
-            auto shm_vector = it->second;
-            for(auto it2 = shm_vector.begin(); it2 != shm_vector.end(); it2++)
-                if(it2->synonymous)
-                    num_synonymous_shms++;
+        for(auto it = unique_segment_shms_.begin(); it != unique_segment_shms_.end(); it++) {
+            if(it->synonymous)
+                num_synonymous_shms++;
         }
-        for(auto it = cdr3_shms_map_.begin(); it != cdr3_shms_map_.end(); it++) {
-            auto shm_vector = it->second;
-            for(auto it2 = shm_vector.begin(); it2 != shm_vector.end(); it2++)
-                if(it2->IsSynonymous())
-                    num_synonymous_shms++;
+        return num_synonymous_shms;
+    }
+
+    size_t AnnotatedEvolutionaryTree::NumSynonymousCDR3SHMs() const {
+        size_t num_synonymous_shms = 0;
+        for(auto it = unique_cdr3_shms_.begin(); it != unique_cdr3_shms_.end(); it++) {
+            if (it->IsSynonymous())
+                num_synonymous_shms++;
         }
         return num_synonymous_shms;
     }
@@ -66,19 +68,23 @@ namespace antevolo {
         return shm_depth;
     }
 
-    void AnnotatedEvolutionaryTree::AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t src_pos, size_t dst_pos) {
+    void AnnotatedEvolutionaryTree::AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t rel_src_pos, size_t rel_dst_pos) {
         CheckConsistencyFatal(src_id);
         CheckConsistencyFatal(dst_id);
         if(cdr3_shms_map_.find(dst_id) != cdr3_shms_map_.end()) {
             cdr3_shms_map_[dst_id] = std::vector<CDR3SHM>();
         }
+        size_t src_pos = (*clone_set_prt_)[src_id].CDR3Range().start_pos + rel_src_pos;
+        size_t dst_pos = (*clone_set_prt_)[dst_id].CDR3Range().start_pos + rel_dst_pos;
         CDR3SHM cdr3_shm(src_pos, dst_pos,
+                         rel_src_pos, rel_dst_pos,
                          (*clone_set_prt_)[src_id].Read().seq[src_pos],
                          (*clone_set_prt_)[dst_id].Read().seq[dst_pos],
                          (*clone_set_prt_)[src_id].GetAminoAcidByNucleotidePos(src_pos),
                          (*clone_set_prt_)[dst_id].GetAminoAcidByNucleotidePos(dst_pos));
         cdr3_shms_map_[dst_id].push_back(cdr3_shm);
         all_cdr3_shms_.push_back(cdr3_shm);
+        unique_cdr3_shms_.insert(cdr3_shm);
     }
 
     size_t AnnotatedEvolutionaryTree::GetNumCDR3SHMsForClone(size_t clone_id) const {

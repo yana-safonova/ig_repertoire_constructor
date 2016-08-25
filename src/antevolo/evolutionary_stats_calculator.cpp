@@ -37,9 +37,7 @@ namespace antevolo {
                     if(src_cdr3[i] != dst_cdr3[i]) {
                         //std::cout << clone_set_[edge->src_clone_num].CDR3Range().start_pos << std::endl;
                         //std::cout << clone_set_[edge->dst_clone_num].CDR3Range().start_pos << std::endl;
-                        annotated_tree.AddCDR3SHMForClone(edge->src_clone_num, edge->dst_clone_num,
-                                                          clone_set_[edge->src_clone_num].CDR3Range().start_pos + i,
-                                                          clone_set_[edge->dst_clone_num].CDR3Range().start_pos + i);
+                        annotated_tree.AddCDR3SHMForClone(edge->src_clone_num, edge->dst_clone_num, i, i);
                     }
                 }
             }

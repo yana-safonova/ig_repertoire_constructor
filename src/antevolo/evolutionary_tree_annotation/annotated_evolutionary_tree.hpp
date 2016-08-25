@@ -5,20 +5,6 @@
 #include "tree_based_shm_annotator.hpp"
 
 namespace antevolo {
-    struct CDR3SHM {
-        size_t src_pos;
-        size_t dst_pos;
-        char src_nucl;
-        char dst_nucl;
-        char src_aa;
-        char dst_aa;
-
-        CDR3SHM(size_t src_pos, size_t dst_pos, char src_nucl, char dst_nucl, char src_aa, char dst_aa) :
-                src_pos(src_pos), dst_pos(dst_pos), src_nucl(src_nucl), dst_nucl(dst_nucl), src_aa(src_aa), dst_aa(dst_aa) { }
-
-        bool IsSynonymous() const { return src_aa == dst_aa; }
-    };
-
     class AnnotatedEvolutionaryTree {
         const annotation_utils::CDRAnnotatedCloneSet* clone_set_prt_;
         const EvolutionaryTree *tree_ptr_;
@@ -27,11 +13,12 @@ namespace antevolo {
         // segment SHMs
         std::map<size_t, std::vector<EvolutionaryAnnotatedSHM> > segment_shms_map_;
         std::vector<EvolutionaryAnnotatedSHM> all_segment_shms_;
+        std::set<EvolutionaryAnnotatedSHM, EvolutionaryAnnotatedSHMComparator> unique_segment_shms_;
 
         // CDR3 SHMs
         std::map<size_t, std::vector<CDR3SHM> > cdr3_shms_map_;
         std::vector<CDR3SHM> all_cdr3_shms_;
-
+        std::set<CDR3SHM, CDR3SHMComparator> unique_cdr3_shms_;
 
         void CheckConsistencyFatal(size_t clone_id) const;
 
@@ -43,15 +30,23 @@ namespace antevolo {
 
         void AddSegmentSHMForClone(size_t clone_id, annotation_utils::SHM shm);
 
-        void AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t src_pos, size_t dst_pos);
+        // rel_src_pos and rel_dst_pos - positions wrt to start of CDR3
+        void AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t rel_src_pos, size_t rel_dst_pos);
 
         const EvolutionaryTree& Tree() const { return *tree_ptr_; }
 
-        size_t NumUniqueSHms() const { return all_segment_shms_.size() + all_cdr3_shms_.size(); }
-
-        size_t NumSynonymousSHMs() const;
+        size_t NumUniqueSHms() const { return /*all_segment_shms_.size() + all_cdr3_shms_.size();*/
+                    unique_segment_shms_.size() + unique_cdr3_shms_.size(); }
 
         size_t NumSynonymousWrtGermlineSHMs() const;
+
+        size_t NumCDR3SHMs() const { return unique_cdr3_shms_.size(); }
+
+        size_t NumSynonymousSHMs() const { return NumSynonymousSegmentSHMs() + NumSynonymousCDR3SHMs(); }
+
+        size_t NumSynonymousSegmentSHMs() const;
+
+        size_t NumSynonymousCDR3SHMs() const;
 
         size_t RootDepth() const;
 

@@ -54,6 +54,10 @@ namespace annotation_utils {
         bool operator!=(const SHM& shm) const;
     };
 
+    struct TrivialSHMComparator {
+        bool operator()(const SHM& shm1, const SHM& shm2);
+    };
+
     std::ostream& operator<<(std::ostream &out, const SHM& shm);
 
     // class stores SHMs in the order of increasing positions
