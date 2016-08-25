@@ -378,15 +378,19 @@ class VJAlignmentPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.single_reads + \
-                       " -o " + self.__params.io.vj_finder_output + \
-                       " --db-directory " + IgRepConConfig().path_to_germline + \
+        command_line = os.path.abspath(IgRepConConfig().run_vj_aligner) + \
+                       " -i " + os.path.abspath(self.__params.single_reads) + \
+                       " -o " + os.path.abspath(self.__params.io.vj_finder_output) + \
+                       " --db-directory " + os.path.abspath(IgRepConConfig().path_to_germline) + \
                        " -t " + str(self.__params.num_threads) + \
                        " --loci " + self.__params.loci + \
                        " --organism " + self.__params.organism
         if self.__params.no_pseudogenes:
             command_line += " --no-pseudogenes"
+        cwd = os.getcwd()
+        os.chdir(home_directory)
         support.sys_call(command_line, self._log)
+        os.chdir(cwd)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
