@@ -135,8 +135,8 @@ class IgRepConConfig:
         self.run_fake_trie_compressor = os.path.join(home_directory, 'py/ig_fake_trie_compressor.py')
         self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
-        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
-        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
+        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_component_splitter')
+        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_component_splitter')
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
@@ -526,8 +526,10 @@ class ConsensusConstructionPhase(Phase):
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
                        " -R " + self.__params.io.uncompressed_final_rcm + \
+                       " -M " + self.__params.io.uncompressed_final_rcm + \
                        " -o " + self.__params.io.uncompressed_final_clusters_fa + \
-                       " -H " + " -t " + str(self.__params.num_threads)
+                       " -t " + str(self.__params.num_threads) + \
+                       " --max_votes " + str(self.__params.max_votes)
         support.sys_call(command_line, self._log)
 
 
@@ -755,6 +757,10 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
+    optional_args.add_argument("-V", "--max_votes",
+                               type=int,
+                               default=10005000,
+                               help="Maximun secondary votes threshold [default: %(default)d]")
     optional_args.add_argument("--tau",
                                type=int,
                                default=4,
