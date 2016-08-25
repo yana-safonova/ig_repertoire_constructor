@@ -162,4 +162,6 @@ if __name__ == "__main__":
                                   out_dir + "/ideal_final_repertoire.rcm", out_dir,
                                   rerun_mixcr=True)
 
-            Parallel(n_jobs=4)(delayed(JOB)(error_rate) for error_rate in lambdas)
+            import multiprocessing
+            n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 4
+            Parallel(n_jobs=n_jobs)(delayed(JOB)(error_rate) for error_rate in lambdas)
