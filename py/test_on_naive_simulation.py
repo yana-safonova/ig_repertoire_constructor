@@ -27,19 +27,27 @@ def run_and_quast_all(input_reads,
                      tau=4,
                      fillin=0.6,
                      min_sread_size=5,
+                     max_votes=1000500,
                      trivial=False,
-                     loci="all"):
+                     loci="all",
+                     additional_args=" "):
             self.name = name
             self.tau = tau
             self.fillin = fillin
             self.trivial = trivial
             self.loci = loci
             self.min_sread_size = min_sread_size
+            self.additional_args = additional_args
+            self.max_votes = max_votes
 
         def run(self):
+            additional_args = " --no-alignment --max-votes=%d" % self.max_votes
+            if self.trivial:
+                additional_args += " --create-triv-dec "
+            additional_args += " " + self.additional_args
             run_igrec(input_reads,
                       tau=self.tau,
-                      additional_args=" --create-triv-dec --no-alignment" if self.trivial else " --no-alignment",
+                      additional_args=additional_args,
                       min_fillin=self.fillin,
                       threads=threads,
                       loci=self.loci,
@@ -52,13 +60,18 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
-    igrec_runs.append(IgReCRun("igrec"))
+    igrec_runs.append(IgReCRun("igrec", additional_args = "--debug"))
+    igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
     igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
+    igrec_runs.append(IgReCRun("igrec_spliti_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
 
     igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
     igrec_runs.append(IgReCRun("igrec_tau3_msns2", tau=3, min_sread_size=2))
+
+    igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
+    igrec_runs.append(IgReCRun("igrec_tau3_vote", tau=3, max_votes=1))
     # igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_tau1_msns2", tau=1, min_sread_size=2))
 
@@ -121,6 +134,9 @@ def run_and_quast_all(input_reads,
 
 
 if __name__ == "__main__":
+    mkdir_p("various_error_rate")
+    mkdir_p("var_err_rate_real")
+
     ig_simulator_output_dir = "/tmp/ig_simulator"
     run_ig_simulator(ig_simulator_output_dir,
                      chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
@@ -130,8 +146,10 @@ if __name__ == "__main__":
                                       igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz")
         multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
                              igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
-    except:
+    except BaseException as ex:
+        print ex
         print "Cannot multiplex reperoire, file not found"
+        sys.exit()
 
     datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
@@ -139,7 +157,8 @@ if __name__ == "__main__":
 
     # lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
     lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-    for dataset, output_dir in reversed(zip(datasets, output_dirs)):
+    # for dataset, output_dir in reversed(zip(datasets, output_dirs)):
+    for dataset, output_dir in zip(datasets, output_dirs):
         if not os.path.isfile(dataset):
             continue
         min_error_interval = [0, 1] if "real" not in dataset else [0]
