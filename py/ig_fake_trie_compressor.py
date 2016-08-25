@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print "Fake trie_compressor started"
     read_count = 0
     with smart_open(args.input, "r") as fin, smart_open(args.output, "w") as fout:
         for record in SeqIO.parse(fin, idFormatByFileName(args.input)):
@@ -43,3 +44,5 @@ if __name__ == "__main__":
         with smart_open(args.id_map, "w") as f_id_map:
             for i in xrange(read_count):
                 f_id_map.write("%d\n" % i)
+
+    print "Fake trie_compressor finished"
