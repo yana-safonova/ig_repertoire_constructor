@@ -34,7 +34,7 @@ std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> rea
         if (barcode2num.count(target) == 0) { // TODO Use iterator here??
             barcode2num[target] = num++;
             targets.push_back(target);
-            assert(targets.size() == num);
+            VERIFY(targets.size() == num);
         }
 
         result[id] = barcode2num[target];
@@ -64,7 +64,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     size_t len = length(reads[indices[0]]);
     for (size_t i : indices) {
-        assert(length(reads[i]) == i);
+        VERIFY(length(reads[i]) == len);
     }
 
     resize(profile, len);
