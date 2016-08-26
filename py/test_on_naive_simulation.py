@@ -154,6 +154,12 @@ if __name__ == "__main__":
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
     output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
 
+    for dataset, output_dir in zip(datasets, output_dirs):
+        if not os.path.isfile(dataset):
+            continue
+        simulate_data_wo_errors(dataset,
+                                output_dir + "/data")
+
     # lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
     lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
     # for dataset, output_dir in reversed(zip(datasets, output_dirs)):
@@ -164,20 +170,20 @@ if __name__ == "__main__":
         for min_error in min_error_interval:
             def JOB(error_rate):
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
-                simulate_data(dataset,
-                              out_dir,
-                              error_rate=error_rate,
-                              seed=0,
-                              min_error=min_error,
-                              erroneous_site_len=300)
+                simulate_data_from_dir(output_dir + "/data",
+                                       out_dir,
+                                       error_rate=error_rate,
+                                       seed=0,
+                                       min_error=min_error,
+                                       erroneous_site_len=300)
 
-                sizes = get_clusters_sizes(out_dir + "/ideal_final_repertoire.fa.gz")
+                sizes = get_clusters_sizes(output_dir + "/data/ideal_final_repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
                 print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
                 run_and_quast_all(out_dir + "/merged_reads.fa.gz",
-                                  out_dir + "/ideal_final_repertoire.fa.gz",
-                                  out_dir + "/ideal_final_repertoire.rcm", out_dir,
+                                  output_dir + "/data/ideal_final_repertoire.fa.gz",
+                                  output_dir + "/data/ideal_final_repertoire.rcm", out_dir,
                                   rerun_mixcr=True)
 
             import multiprocessing
