@@ -51,7 +51,6 @@ std::string get_config_fname(int argc, char **argv) {
 
 std::string load_config(int argc, char **argv) {
     std::string cfg_filename = get_config_fname(argc, argv);
-    path::CheckFileExistenceFATAL(cfg_filename);
     if (!path::FileExists(cfg_filename)) {
         std::cout << "File " << cfg_filename << " doesn't exist or can't be read!" << std::endl;
         exit(-1);
