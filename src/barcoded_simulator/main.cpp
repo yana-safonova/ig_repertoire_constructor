@@ -68,11 +68,14 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
-std::vector<seqan::Dna5String> read_repertoire(std::string file_name) {
+std::vector<seqan::Dna5String> read_repertoire(Options options) {
     std::vector<seqan::CharString> read_ids;
     std::vector<seqan::Dna5String> reads;
-    seqan::SeqFileIn reads_file(file_name.c_str());
+    seqan::SeqFileIn reads_file(options.repertoire_file_path.c_str());
     readRecords(read_ids, reads, reads_file);
+    double exp_reads_count = static_cast<double>(reads.size()) *
+                             pow(1.0 + options.pcr_options.amplification_rate + options.pcr_options.chimeras_rate, static_cast<double>(options.pcr_options.cycles_count));
+    VERIFY(exp_reads_count <= options.output_estimation_limit);
     return reads;
 }
 
@@ -149,22 +152,23 @@ int main(int argc, const char* const* argv) {
     perf_counter pc;
     segfault_handler sh;
     create_console_logger();
+    std::srand(495634);
+    auto random_engine = std::default_random_engine(8356);
+
     const Options& options = parse_options(argc, argv);
 
-    auto reads = read_repertoire(options.repertoire_file_path);
-    double exp_reads_count = static_cast<double>(reads.size()) *
-            pow(1.0 + options.pcr_options.amplification_rate + options.pcr_options.chimeras_rate, static_cast<double>(options.pcr_options.cycles_count));
-    VERIFY(exp_reads_count <= options.output_estimation_limit);
+    auto reads = read_repertoire(options);
     std::vector<seqan::CharString> ids(reads.size());
     for (size_t i = 0; i < reads.size(); i ++) {
         ids[i] = "original_" + std::to_string(i);
     }
-    std::srand(495634);
     auto barcodes = generate_barcodes(reads.size(), options.barcode_length);
-    auto random_engine = std::default_random_engine(8356);
+
     simulate_pcr(reads, barcodes, ids, options.pcr_options, random_engine);
+
     std::vector<size_t> perm(reads.size());
     std::iota(perm.begin(), perm.end(), 0);
     std::shuffle(perm.begin(), perm.end(), random_engine);
+
     write_repertoire(reads, barcodes, ids, perm, options.output_file_path);
 }
