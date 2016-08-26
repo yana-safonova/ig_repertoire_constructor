@@ -61,17 +61,19 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
     igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
-    igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
-    igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
-    igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
+    # igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
+    # igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
+    # igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
 
     igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
-    igrec_runs.append(IgReCRun("igrec_tau3_msns2", tau=3, min_sread_size=2))
+    # igrec_runs.append(IgReCRun("igrec_tau3_msns2", tau=3, min_sread_size=2))
 
     igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
+    igrec_runs.append(IgReCRun("igrec_vote2", max_votes=2))
     igrec_runs.append(IgReCRun("igrec_tau3_vote", tau=3, max_votes=1))
+    igrec_runs.append(IgReCRun("igrec_tau3_vote2", tau=3, max_votes=2))
     # igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_tau1_msns2", tau=1, min_sread_size=2))
 
@@ -112,7 +114,7 @@ def run_and_quast_all(input_reads,
         mkdir_p(out_dir + "/supernode")
         shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.fa",
                     out_dir + "/supernode/final_repertoire.fa")
-        shutil.copy(out_dir + "/" + igrec_runs[0].name + "/igrec/supernode_repertoire.rcm",
+        shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
     kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr"]
@@ -137,35 +139,35 @@ if __name__ == "__main__":
     mkdir_p("var_err_rate_real")
 
     ig_simulator_output_dir = "/tmp/ig_simulator"
-    run_ig_simulator(ig_simulator_output_dir,
-                     chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
-
-    try:
-        convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
-                                      igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz")
-        multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
-                             igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
-    except BaseException as ex:
-        print ex
-        print "Cannot multiplex reperoire, file not found"
-
     datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
     output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
 
-    for dataset, output_dir in zip(datasets, output_dirs):
-        if not os.path.isfile(dataset):
-            continue
-        simulate_data_wo_errors(dataset,
-                                output_dir + "/data")
+    if False:
+        run_ig_simulator(ig_simulator_output_dir,
+                         chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
+
+        try:
+            convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
+                                          igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz")
+            multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
+                                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+        except BaseException as ex:
+            print ex
+            print "Cannot multiplex reperoire, file not found"
+
+        for dataset, output_dir in zip(datasets, output_dirs):
+            if not os.path.isfile(dataset):
+                continue
+            simulate_data_wo_errors(dataset,
+                                    output_dir + "/data")
 
     # lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
     lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-    # for dataset, output_dir in reversed(zip(datasets, output_dirs)):
-    for dataset, output_dir in zip(datasets, output_dirs):
-        if not os.path.isfile(dataset):
+    for output_dir in output_dirs:
+        if not os.path.isfile(output_dir + "/data/error_free_reads.fa.gz"):
             continue
-        min_error_interval = [0, 1] if "real" not in dataset else [0]
+        min_error_interval = [0, 1] if "real" not in output_dir else [0]
         for min_error in min_error_interval:
             def JOB(error_rate):
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
