@@ -38,7 +38,10 @@ if __name__ == "__main__":
     datasets = ["AGE3", "AGE7", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL"]
     datasets = ["AGE3", "FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK", "FLU_FV_27_IGH", "FLU_FV_27_IGK", "FLU_FV_27_IGL", "AGE7"]
 
-    for dataset in datasets:
+    def JOB(dataset):
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
         if os.path.isfile(ddir + "/input1.fa.gz"):
             run_and_quast_all_three(ddir, do_not_run=False)
+    import multiprocessing
+    n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 2
+    Parallel(n_jobs=n_jobs)(delayed(JOB)(dataset) for dataset in datasets)
