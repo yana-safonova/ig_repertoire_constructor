@@ -529,7 +529,7 @@ class ConsensusConstructionPhase(Phase):
                        " -M " + self.__params.io.uncompressed_final_rcm + \
                        " -o " + self.__params.io.uncompressed_final_clusters_fa + \
                        " -t " + str(self.__params.num_threads) + \
-                       " --max_votes " + str(self.__params.max_votes)
+                       " --max-votes " + str(self.__params.max_votes)
         support.sys_call(command_line, self._log)
 
 
@@ -757,7 +757,7 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
-    optional_args.add_argument("-V", "--max_votes",
+    optional_args.add_argument("-V", "--max-votes",
                                type=int,
                                default=10005000,
                                help="Maximun secondary votes threshold [default: %(default)d]")

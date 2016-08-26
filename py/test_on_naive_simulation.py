@@ -149,7 +149,6 @@ if __name__ == "__main__":
     except BaseException as ex:
         print ex
         print "Cannot multiplex reperoire, file not found"
-        sys.exit()
 
     datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]

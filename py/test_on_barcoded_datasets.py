@@ -41,4 +41,4 @@ if __name__ == "__main__":
     for dataset in datasets:
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
         if os.path.isfile(ddir + "/input1.fa.gz"):
-            run_and_quast_all_three(ddir, do_not_run=True)
+            run_and_quast_all_three(ddir, do_not_run=False)
