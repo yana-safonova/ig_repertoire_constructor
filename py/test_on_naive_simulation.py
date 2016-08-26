@@ -60,10 +60,10 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
-    igrec_runs.append(IgReCRun("igrec", additional_args = "--debug"))
+    igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
     igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
     igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
-    igrec_runs.append(IgReCRun("igrec_spliti_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
+    igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
 
@@ -110,10 +110,9 @@ def run_and_quast_all(input_reads,
         run_presto(input_reads, output_dir=out_dir + "/presto/")
 
         mkdir_p(out_dir + "/supernode")
-        # TODO use runs instead of hardcoded igrec
-        shutil.copy(out_dir + "/igrec/supernode_repertoire.fa",
+        shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.fa",
                     out_dir + "/supernode/final_repertoire.fa")
-        shutil.copy(out_dir + "/igrec/supernode_repertoire.rcm",
+        shutil.copy(out_dir + "/" + igrec_runs[0].name + "/igrec/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
     kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr"]
