@@ -7,10 +7,11 @@ import pandas as pd
 
 import likelihood_calculator.likelihood_calculator as likelihood_calculator
 import mismatch_finder.mismatch_finder as mismatch_finder
+import shm_kmer_model.shm_kmer_model as shm_kmer_model
 
 class TreeTester(object):
     def __init__(self, minimal_size_filtered_tree=20):
-        self.minimal_size_filtered_tree=minimal_size_filtered_tree
+        self.minimal_size_filtered_tree = minimal_size_filtered_tree
 
     def __read_tree(self, tree_path):
         tree = pd.read_csv(tree_path, sep='\t')
@@ -34,8 +35,9 @@ class TreeTester(object):
         tree = tree.loc[mutated_indexes]
         return tree
 
-    def get_consistency_statistics(self, model, tree_path=None, tree=None,
-                                   mismatch_strategy='NoKNeighbours'):
+    def get_likelihood_statistics(self, model, tree_path=None, tree=None,
+                                   mismatch_strategy='NoKNeighbours',
+                                   model_mode=shm_kmer_model.ModelMode.Both):
         if tree_path is None and tree is None:
             raise ValueError('tree itself or tree_path must be supplied')
         if tree is None:
@@ -43,13 +45,14 @@ class TreeTester(object):
 
         tree = self.__filter_tree(tree, mismatch_strategy)
         if tree.shape[0] < self.minimal_size_filtered_tree:
-            return np.array([])
+            return np.array([], dtype=np.dtype('float, float'))
 
-        lkhd_calc = likelihood_calculator.LikehoodCalculator(model)
+        lkhd_calc = likelihood_calculator.LikehoodCalculator(model,
+                    model_mode=model_mode)
 
         results = []
         for source, destination in tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
-            results += [lkhd_calc.calculate_likelihood(source, destination) < \
-                        lkhd_calc.calculate_likelihood(destination, source)]
+            results.append( (lkhd_calc.calculate_likelihood(source, destination),
+                             lkhd_calc.calculate_likelihood(destination, source)) )
 
-        return np.array(results)
+        return np.array(results, dtype=np.dtype('float, float'))

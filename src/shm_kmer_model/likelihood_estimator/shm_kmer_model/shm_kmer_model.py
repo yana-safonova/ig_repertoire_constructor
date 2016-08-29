@@ -8,6 +8,8 @@ import pandas as pd
 from abc import abstractmethod
 import kmer_utilities.kmer_utilities as kmer_utilities
 
+class ModelMode(object):
+    Mutation, Substitution, Both = range(3)
 
 class AbstractSHM_Model(object):
     def __init__(self, dataset=None, kmer_len=5):
@@ -44,6 +46,13 @@ class AbstractSHM_Model(object):
 class CAB_SHM_Model(AbstractSHM_Model):
     def __init__(self, dataset, kmer_len=5):
         super(CAB_SHM_Model, self).__init__(dataset, kmer_len)
+
+    def dump(self, filename):
+        import pickle
+        try:
+            pickle.dump(self, filename)
+        except:
+            raise ValueError('Wrong filename')
 
     def beta_params(self, kmer):
         assert kmer in self.kmer_names
