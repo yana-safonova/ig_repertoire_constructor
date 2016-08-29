@@ -2,6 +2,7 @@
 
 #include "antevolo_config.hpp"
 #include "evolutionary_tree_annotation/annotated_tree_storage.hpp"
+#include "evolutionary_graph_utils/evolutionary_tree.hpp"
 
 namespace antevolo {
     class AntEvoloOutputWriter {
@@ -20,5 +21,17 @@ namespace antevolo {
         void OutputTreeStats() const;
 
         void OutputSHMForTrees() const;
+
+        void WriteTreeInFile(const EvolutionaryTree& tree) const;
+
+        void WriteTreeVerticesInFile(const EvolutionaryTree& tree,
+                                                   const annotation_utils::CDRAnnotatedCloneSet& clone_set);
+
+
+    private:
+
+
+        void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) const;
+
     };
 }

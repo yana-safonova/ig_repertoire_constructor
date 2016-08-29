@@ -19,6 +19,9 @@ namespace antevolo {
         std::vector<EvolutionaryEdge> all_edge_vector_;
         std::map<size_t, std::vector<EvolutionaryEdge>> outgoing_edges_;
 
+        std::string tree_output_fname_;
+        std::string vertices_output_fname_;
+
         void AddEdge(size_t dst_id, EvolutionaryEdge edge);
 
     public:
@@ -68,13 +71,16 @@ namespace antevolo {
             return undirected_components_edges_[root_num];
         }
 
+
         // todo: move all output methods from EvolutionaryTree
+        /*
         void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out); //no endl
 
         void WriteInFile(std::string output_fname);
         void WriteInFileWithCDR3s(std::string output_fname);
 
         void WriteVerticesInFile(std::string output_fname, const annotation_utils::CDRAnnotatedCloneSet& clone_set);
+        */
 
         size_t NumEdges() const { return edges_.size(); }
         size_t NumVertices() const { return passed_flag_.size(); }
@@ -93,26 +99,6 @@ namespace antevolo {
         }
         bool GetFlag(size_t clone_num) {
             return passed_flag_[clone_num];
-        }
-
-        // why clone to string is a part of EvolutionaryTree class?
-        std::string clone_to_string(const annotation_utils::AnnotatedClone& clone) {
-            std::stringstream ss;
-            size_t start_pos = clone.GetRangeByRegion(
-                    annotation_utils::StructuralRegion::CDR3).start_pos;
-            size_t end_pos = clone.GetRangeByRegion(
-                    annotation_utils::StructuralRegion::CDR3).end_pos;
-            auto const& seq = clone.Read().seq;
-            for (size_t i = 0; i < seqan::length(seq); ++i) {
-                if (i == start_pos) {
-                    ss << " ";
-                }
-                ss << seq[i];
-                if (i == end_pos) {
-                    ss << " ";
-                }
-            }
-            return ss.str();
         }
 
         typedef std::vector<EvolutionaryEdge>::iterator EdgeIterator;
@@ -159,6 +145,12 @@ namespace antevolo {
         std::vector<size_t> GetRoots() const;
 
         size_t EdgeDepth() const;
+
+        // todo: refactor this method: too many arguments
+        void SetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
+        std::string GetTreeOutputFname() const;
+        void SetVerticesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
+        std::string GetVerticesOutputFname() const;
     };
 
     std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree);

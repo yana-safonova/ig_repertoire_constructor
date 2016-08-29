@@ -69,8 +69,9 @@ namespace antevolo {
         return connected_components;
     }
 
-    void UndirectedFirstTreeCalculator::AddComponent(SparseGraphPtr hg_component,
-                                                     size_t component_id, EvolutionaryTree& tree) {
+    EvolutionaryTree UndirectedFirstTreeCalculator::AddComponent(SparseGraphPtr hg_component,
+                                                     size_t component_id) {
+        EvolutionaryTree tree;
         boost::unordered_set<size_t> vertices_nums;
         for (size_t i = 0; i < hg_component->N(); i++) {
             size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
@@ -91,6 +92,7 @@ namespace antevolo {
         //AddComponentToTheTree(hg_component, component_id, tree);
         SetUndirectedComponentsParentEdges(hg_component, component_id, tree, ds_on_undirected_edges);
         SetDirections(vertices_nums, tree, ds_on_undirected_edges);
+        return tree;
     }
 
     void UndirectedFirstTreeCalculator::AddUndirectedForestToTheTree(SparseGraphPtr hg_component,

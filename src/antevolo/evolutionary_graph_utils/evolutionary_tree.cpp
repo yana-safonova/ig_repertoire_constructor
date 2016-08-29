@@ -263,6 +263,7 @@ namespace antevolo {
         }
     }
 
+    /*
     void EvolutionaryTree::WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) { //no endl
         out << edge.src_clone->Read().id << "\t" << edge.dst_clone->Read().id << "\t"
         << edge.src_clone->Read().name << "\t" << edge.dst_clone->Read().name << "\t"
@@ -339,6 +340,7 @@ namespace antevolo {
         }
         out.close();
     }
+    */
 
     bool EvolutionaryTree::IsRoot(size_t clone_id) const {
         VERIFY_MSG(vertices_.find(clone_id) != vertices_.end(), "Tree does not contain vertex " << clone_id);
@@ -399,6 +401,23 @@ namespace antevolo {
             }
         }
         return roots;
+    }
+
+    void EvolutionaryTree::SetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
+        std::stringstream ss;
+        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".tree";
+        tree_output_fname_ = path::append_path(output_dir, ss.str());
+    }
+    std::string EvolutionaryTree::GetTreeOutputFname() const{
+        return tree_output_fname_;
+    }
+    void EvolutionaryTree::SetVerticesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
+        std::stringstream ss;
+        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".tree";
+        vertices_output_fname_ = path::append_path(output_dir, ss.str());
+    }
+    std::string EvolutionaryTree::GetVerticesOutputFname() const{
+        return vertices_output_fname_;
     }
 
 

@@ -7,16 +7,6 @@
 
 
 namespace antevolo {
-    std::string AntEvoloProcessor::GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
-        std::stringstream ss;
-        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".tree";
-        return path::append_path(output_dir, ss.str());
-    }
-    std::string AntEvoloProcessor::GetTreeClonesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num) {
-        std::stringstream ss;
-        ss << "clonal_tree_" << index1 << "-" << index2 << "_Vsize_" << v_num << "_Esize_" << e_num << ".clones";
-        return path::append_path(output_dir, ss.str());
-    }
 
     EvolutionaryTreeStorage AntEvoloProcessor::JoinEvolutionaryStoragesFromThreads() {
         EvolutionaryTreeStorage resulting_tree_storage(clone_set_)  ;
@@ -50,24 +40,18 @@ namespace antevolo {
             auto connected_components = candidate_calculator.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
-            //for(size_t component_index = 1; component_index < 2 && component_index < connected_components.size(); component_index++) {
-                // todo: do not pass resulting evolutionary tree as a method argument, use return
-                EvolutionaryTree tree;
-                candidate_calculator.AddComponent(
-                        connected_components[component_index], component_index, tree);
-                std::string tree_output_fname = GetTreeOutputFname(
-                        config_.output_params.tree_dir, i + 1, component_index, tree.NumVertices(), tree.NumEdges());
-                std::string vertices_output_fname = GetTreeOutputFname(
-                        config_.output_params.vertex_dir, i + 1, component_index, tree.NumVertices(), tree.NumEdges());
+                EvolutionaryTree tree = candidate_calculator.AddComponent(
+                        connected_components[component_index], component_index);
+                tree.SetTreeOutputFname(config_.output_params.tree_dir,
+                                        i + 1, component_index, tree.NumVertices(), tree.NumEdges());
+                tree.SetVerticesOutputFname(config_.output_params.vertex_dir,
+                                        i + 1, component_index, tree.NumVertices(), tree.NumEdges());
                 if (tree.NumEdges() != 0) {
-                    tree.WriteInFileWithCDR3s(tree_output_fname);
-                    tree.WriteVerticesInFile(vertices_output_fname, clone_set_);
                     thread_tree_storages_[thread_id].Add(tree);
-                    TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
+                    //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
                 }
             }
         }
-        INFO("Clonal trees were written to " << config_.output_params.tree_dir);
         return JoinEvolutionaryStoragesFromThreads();
     }
 }

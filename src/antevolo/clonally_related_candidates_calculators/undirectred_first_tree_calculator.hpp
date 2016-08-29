@@ -56,6 +56,6 @@ namespace antevolo {
         void SetDirections(boost::unordered_set<size_t> vertices_nums,
                                                 EvolutionaryTree& tree,
                                                 boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        void AddComponent(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
+        EvolutionaryTree AddComponent(SparseGraphPtr hg_component, size_t component_id);
     };
 }

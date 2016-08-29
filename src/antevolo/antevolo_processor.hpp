@@ -11,10 +11,6 @@ namespace antevolo {
 
         std::vector<EvolutionaryTreeStorage> thread_tree_storages_;
 
-        // todo: refactor this methods: too many arguments
-        std::string GetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
-        std::string GetTreeClonesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
-
         EvolutionaryTreeStorage JoinEvolutionaryStoragesFromThreads();
 
     public:
