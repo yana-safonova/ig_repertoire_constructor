@@ -55,12 +55,13 @@ def run_and_quast_all(input_reads,
                       output_dir=out_dir + "/" + self.name + "/")
 
     igrec_runs = []
-    # igrec_runs.append(IgReCRun("igrec_trivial", trivial=True))
+    igrec_runs.append(IgReCRun("igrec_trivial", trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau3", tau=3, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau1", tau=1, trivial=True))
 
-    igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
+    # igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
+    igrec_runs.append(IgReCRun("igrec"))
     # igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
     # igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
@@ -68,12 +69,13 @@ def run_and_quast_all(input_reads,
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
 
     igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
+    igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
     # igrec_runs.append(IgReCRun("igrec_tau3_msns2", tau=3, min_sread_size=2))
 
     igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
     igrec_runs.append(IgReCRun("igrec_vote2", max_votes=2))
-    igrec_runs.append(IgReCRun("igrec_tau3_vote", tau=3, max_votes=1))
-    igrec_runs.append(IgReCRun("igrec_tau3_vote2", tau=3, max_votes=2))
+    # igrec_runs.append(IgReCRun("igrec_tau3_vote", tau=3, max_votes=1))
+    # igrec_runs.append(IgReCRun("igrec_tau3_vote2", tau=3, max_votes=2))
     # igrec_runs.append(IgReCRun("igrec_tau2_msns2", tau=2, min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_tau1_msns2", tau=1, min_sread_size=2))
 
