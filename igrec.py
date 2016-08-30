@@ -529,6 +529,7 @@ class ConsensusConstructionPhase(Phase):
                        " -M " + self.__params.io.uncompressed_final_rcm + \
                        " -o " + self.__params.io.uncompressed_final_clusters_fa + \
                        " -t " + str(self.__params.num_threads) + \
+                       " -D " + str(self.__params.discard) + \
                        " --max-votes " + str(self.__params.max_votes)
         support.sys_call(command_line, self._log)
 
@@ -761,6 +762,14 @@ def ParseCommandLineParams(log):
                                type=int,
                                default=10005000,
                                help="Maximun secondary votes threshold [default: %(default)d]")
+    optional_args.add_argument("-D", "--discard",
+                               action="store_true",
+                               dest="discard",
+                               help="Discard seconary vote clusters")
+    optional_args.add_argument("--no-discard",
+                               action="store_false",
+                               help="Do not discard seconary vote clusters (default)")
+    parser.set_defaults(discard=True)
     optional_args.add_argument("--tau",
                                type=int,
                                default=4,

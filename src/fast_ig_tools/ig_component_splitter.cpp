@@ -48,7 +48,8 @@ template<typename T = seqan::Dna5>
 void split_component(const std::vector<seqan::String<T>> &reads,
                      const std::vector<size_t> &indices,
                      std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> &out,
-                     size_t max_votes = 1) {
+                     size_t max_votes = 1,
+                     bool discard = false) {
     if (indices.size() == 0) {
         return;
     }
@@ -129,7 +130,13 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     INFO("Component splitted " << indices1.size() << " + " << indices2.size());
     split_component(reads, indices1, out);
-    split_component(reads, indices2, out);
+    if (discard) {
+        for (size_t index : indices2) {
+            out.push_back({ reads[index], { index } });
+        }
+    } else {
+        split_component(reads, indices2, out);
+    }
 }
 
 
@@ -137,9 +144,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 template<typename T = seqan::Dna5>
 std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(const std::vector<seqan::String<T>> &reads,
                                                                               const std::vector<size_t> &indices,
-                                                                              size_t max_votes = 1) {
+                                                                              size_t max_votes = 1,
+                                                                              bool discard = false) {
     std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> result;
-    split_component(reads, indices, result, max_votes);
+    split_component(reads, indices, result, max_votes, discard);
 
     return result;
 }
@@ -158,6 +166,7 @@ int main(int argc, char **argv) {
     std::string output_rcm_file = "cropped.rcm";
     std::string config_file = "";
     size_t max_votes = 1;
+    bool discard = false;
 
     // Parse cmd-line arguments
     try {
@@ -187,6 +196,8 @@ int main(int argc, char **argv) {
              "the number of parallel threads")
             ("max-votes,V", po::value<size_t>(&max_votes)->default_value(max_votes),
              "max secondary votes threshold")
+            ("disacrd,D", po::value<bool>(&discard)->default_value(discard),
+             "whether to discard secondary votes")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -294,10 +305,9 @@ int main(int argc, char **argv) {
     using T = seqan::Dna5;
 
     std::vector<std::vector<std::pair<seqan::String<T>, std::vector<size_t>>>> results(component2id.size());
-    // TODO fix MT
     SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
     for (size_t comp = 0; comp < component2id.size(); ++comp) {
-        results[comp] = split_component(input_reads, component2id[comp], max_votes);
+        results[comp] = split_component(input_reads, component2id[comp], max_votes, discard);
     }
 
     INFO("Saving results");
