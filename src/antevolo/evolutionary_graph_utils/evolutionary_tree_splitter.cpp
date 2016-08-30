@@ -34,6 +34,7 @@ namespace antevolo {
         return connected_tree;
     }
 
+    // todo: add tree_index (3rd) assigning
     std::vector<EvolutionaryTree> ConnectedTreeSplitter::Split(const EvolutionaryTree &tree) {
         std::vector<EvolutionaryTree> connected_trees;
         if(tree.GetRootNumber() == 1) {

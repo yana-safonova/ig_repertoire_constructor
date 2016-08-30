@@ -39,8 +39,8 @@ namespace antevolo {
             << "\t" << edge.cdr3_distance << "\t" << edge.weight << "\t"
             << edge.src_clone->Productive() << "\t" << edge.dst_clone->Productive() << "\t" << edge.IsSynonymous();
     }
-    void AntEvoloOutputWriter::WriteTreeInFile(const EvolutionaryTree& tree) const {
-        std::string output_fname = tree.GetTreeOutputFname();
+    void AntEvoloOutputWriter::WriteTreeInFile(std::string output_dir, const EvolutionaryTree& tree) const {
+        std::string output_fname = tree.GetTreeOutputFname(output_dir);
         std::ofstream out(output_fname);
         out << "Src_id\tDst_id\tSrc_clone\tDst_clone\tNum_Src_SHMs\tNum_Dst_SHMs\tEdge_type\t";
         out << "Num_shared_SHMs\tNum_added_SHMs\tCDR3_dist\tWeight\t";
@@ -65,9 +65,9 @@ namespace antevolo {
         out.close();
     }
 
-    void AntEvoloOutputWriter::WriteTreeVerticesInFile(const EvolutionaryTree& tree,
-                                               const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
-        std::string output_fname = tree.GetVerticesOutputFname();
+    void AntEvoloOutputWriter::WriteTreeVerticesInFile(std::string output_dir, const EvolutionaryTree& tree,
+                                               const annotation_utils::CDRAnnotatedCloneSet& clone_set) const {
+        std::string output_fname = tree.GetTreeOutputFname(output_dir);
         std::ofstream out(output_fname);
         out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\n";
         for (auto it = tree.c_vertex_begin(); it != tree.c_vertex_end(); it++) {

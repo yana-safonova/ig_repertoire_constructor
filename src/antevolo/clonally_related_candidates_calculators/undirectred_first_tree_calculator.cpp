@@ -4,7 +4,6 @@
 #include "../../graph_utils/graph_splitter.hpp"
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
-#include <evolutionary_graph_utils/evolutionary_graph_constructor.hpp>
 
 
 

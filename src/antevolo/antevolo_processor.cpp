@@ -3,7 +3,6 @@
 #include "antevolo_processor.hpp"
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
 #include "clonally_related_candidates_calculators/undirectred_first_tree_calculator.hpp"
-#include "evolutionary_graph_utils/evolutionary_graph_constructor.hpp"
 
 
 namespace antevolo {
@@ -42,10 +41,7 @@ namespace antevolo {
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree = candidate_calculator.AddComponent(
                         connected_components[component_index], component_index);
-                tree.SetTreeOutputFname(config_.output_params.tree_dir,
-                                        i + 1, component_index, tree.NumVertices(), tree.NumEdges());
-                tree.SetVerticesOutputFname(config_.output_params.vertex_dir,
-                                        i + 1, component_index, tree.NumVertices(), tree.NumEdges());
+                tree.SetTreeIndices(i+1, component_index, 0);
                 if (tree.NumEdges() != 0) {
                     thread_tree_storages_[thread_id].Add(tree);
                     //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);

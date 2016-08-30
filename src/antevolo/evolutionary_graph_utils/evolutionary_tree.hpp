@@ -11,86 +11,30 @@
 namespace antevolo {
     class EvolutionaryTree {
         boost::unordered_map<size_t, EvolutionaryEdge> edges_; // key is a src clone
-        boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
-        boost::unordered_map<size_t, bool> passed_flag_;
-        boost::unordered_map<size_t, EvolutionaryEdge> undirected_components_edges_;
         std::set<size_t> vertices_;
 
         std::vector<EvolutionaryEdge> all_edge_vector_;
         std::map<size_t, std::vector<EvolutionaryEdge>> outgoing_edges_;
 
-        std::string tree_output_fname_;
-        std::string vertices_output_fname_;
+        size_t VJ_class_index_;
+        size_t connected_component_index_;
+        size_t tree_index_;
+        //std::string tree_output_fname_;
+        //std::string vertices_output_fname_;
 
         void AddEdge(size_t dst_id, EvolutionaryEdge edge);
 
     public:
         void AddDirected(size_t clone_num, EvolutionaryEdge edge);
 
-        //void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model);
-
         void AddUndirected(size_t clone_num, EvolutionaryEdge edge);
 
-        //void AddUndirectedPair(size_t src_num, size_t dst_num);
-
-        //void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num);
-
-        void PrepareSubtreeVertices(
-                boost::unordered_set<size_t>& vertices_set,
-                size_t root_num);
-
-        //void PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
-        //                                             size_t root_vertex,
-        //                                             const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-        //                                             EvolutionaryEdgeConstructor* edge_constructor);
-
-        //void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
-        //                                             size_t root_vertex,
-        //                                             ShmModel& model,
-        //                                             const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-        //                                             EvolutionaryEdgeConstructor* edge_constructor);
-
-        boost::unordered_map<size_t, std::set<size_t>>& GetUndirectedGraph() {
-            return undirected_graph_;
-        };
-
-        bool Contains(size_t clone_num) {
+        bool Contains(size_t clone_num) const {
             return (edges_.find(clone_num) != edges_.end());
         }
 
-        size_t GetUndirectedCompopentRoot(size_t root_num) {
-            if (undirected_components_edges_.find(root_num) != undirected_components_edges_.end()){
-                return undirected_components_edges_[root_num].dst_clone_num;
-            }
-            else {
-                return size_t(-1);
-            }
-        }
-
-        const EvolutionaryEdge& GetUndirectedComponentParentEdge(size_t root_num) {
-            return undirected_components_edges_[root_num];
-        }
-
-
         size_t NumEdges() const { return edges_.size(); }
-        size_t NumVertices() const { return passed_flag_.size(); }
-
-        size_t UndirectedGraphSize() const {
-            size_t res = 0;
-            for (auto it = undirected_graph_.begin(); it != undirected_graph_.end(); it++) {
-                res += it->second.size();
-            }
-            return res;
-        }
-
-        /*
-        void SetFlag(bool b, size_t clone_num) {
-            passed_flag_[clone_num] = b;
-        }
-        bool GetFlag(size_t clone_num) {
-            return passed_flag_[clone_num];
-        }
-        */
+        size_t NumVertices() const { return vertices_.size(); }
 
         typedef std::vector<EvolutionaryEdge>::iterator EdgeIterator;
 
@@ -137,11 +81,14 @@ namespace antevolo {
 
         size_t EdgeDepth() const;
 
-        // todo: refactor this method: too many arguments
-        void SetTreeOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
-        std::string GetTreeOutputFname() const;
-        void SetVerticesOutputFname(std::string output_dir, size_t index1, size_t index2, size_t v_num, size_t e_num);
-        std::string GetVerticesOutputFname() const;
+        void SetTreeIndices(size_t VJ_class_index,
+                            size_t connected_component_index,
+                            size_t tree_index);
+        std::string GetTreeOutputFname(std::string output_dir) const;
+
+        size_t GetVJClassIndex() const { return VJ_class_index_;}
+        size_t GetConnectedComponentIndex() const { return connected_component_index_;}
+        size_t GetTreeIndex() const { return tree_index_;}
     };
 
     std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree);

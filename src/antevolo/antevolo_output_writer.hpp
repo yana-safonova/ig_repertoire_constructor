@@ -22,14 +22,13 @@ namespace antevolo {
 
         void OutputSHMForTrees() const;
 
-        void WriteTreeInFile(const EvolutionaryTree& tree) const;
+        void WriteTreeInFile(std::string output_dir, const EvolutionaryTree& tree) const;
 
-        void WriteTreeVerticesInFile(const EvolutionaryTree& tree,
-                                                   const annotation_utils::CDRAnnotatedCloneSet& clone_set);
+        void WriteTreeVerticesInFile(std::string output_dir, const EvolutionaryTree& tree,
+                                                   const annotation_utils::CDRAnnotatedCloneSet& clone_set) const;
 
 
     private:
-
 
         void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) const;
 

@@ -72,8 +72,8 @@ namespace antevolo {
         output_writer.OutputTreeStats();
 
         for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
-            output_writer.WriteTreeInFile(*it);
-            output_writer.WriteTreeVerticesInFile(*it, annotated_clone_set);
+            output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
+            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it, annotated_clone_set);
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
         }
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
