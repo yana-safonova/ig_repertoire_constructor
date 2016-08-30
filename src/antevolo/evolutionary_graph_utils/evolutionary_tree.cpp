@@ -26,12 +26,6 @@ namespace antevolo {
                 return;
             }
             const EvolutionaryEdge& parent_edge =  edges_[clone_num];
-            /*
-            if (edge.dst_clone->Read().id == 4126) {
-                INFO("old: " << parent_edge.src_clone->Read().id << ", new: " << edge.src_clone->Read().id);
-                INFO("old dist: " << parent_edge.cdr3_distance << ", new dist: " << edge.cdr3_distance);
-            }
-            */
             if (parent_edge.num_added_shms > edge.num_added_shms) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 AddEdge(clone_num, edge);
@@ -42,13 +36,6 @@ namespace antevolo {
                 AddEdge(clone_num, edge);
                 return;
             }
-            /*
-            if (static_cast<double>(parent_edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(parent_edge) >
-                static_cast<double>(edge.num_added_shms) + 1.0 - model.CDR3TransitionProb(edge)) {
-                //if clone_set_[*it2] is root or if the new edge is shorter
-                edges_[clone_num] = edge;
-            }
-            */
         }
     }
 
@@ -59,12 +46,6 @@ namespace antevolo {
                 return;
             }
             const EvolutionaryEdge& parent_edge =  undirected_components_edges_[root_num];
-            /*
-            if (edge.dst_clone->Read().id == 4126) {
-                INFO("old: " << parent_edge.src_clone->Read().id << ", new: " << edge.src_clone->Read().id);
-                INFO("old dist: " << parent_edge.cdr3_distance << ", new dist: " << edge.cdr3_distance);
-            }
-            */
             if (parent_edge.num_added_shms > edge.num_added_shms) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 undirected_components_edges_[root_num] = edge;
