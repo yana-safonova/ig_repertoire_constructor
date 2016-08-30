@@ -18,7 +18,7 @@ namespace antevolo {
     }
 
     void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge) {
-        assert(edge.IsDirected());
+        VERIFY(edge.IsDirected());
         //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
         if(edge.IsDirected()) {
             if (!Contains(clone_num)) {
@@ -39,6 +39,7 @@ namespace antevolo {
         }
     }
 
+    /*
     void EvolutionaryTree::SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model) {
         if(edge.IsDirected()) {
             if (undirected_components_edges_.find(root_num) == undirected_components_edges_.end()) {
@@ -58,14 +59,16 @@ namespace antevolo {
             }
         }
     }
+    */
 
     void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdge edge) {
-        assert(edge.IsUndirected());
+        VERIFY(edge.IsUndirected());
         if (edge.IsUndirected()) {
             AddEdge(clone_num, edge);
         }
     }
 
+    /*
     void EvolutionaryTree::AddUndirectedPair(size_t src_num, size_t dst_num) {
         if (undirected_graph_.find(src_num) == undirected_graph_.end()) {
             undirected_graph_[src_num] = std::set<size_t>();
@@ -79,7 +82,9 @@ namespace antevolo {
             undirected_graph_[dst_num].insert(src_num);
         }
     }
+    */
 
+    /*
     void EvolutionaryTree::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num) {
         if (undirected_graph_.find(root_num) != undirected_graph_.end() && !GetFlag(root_num)) {
             SetFlag(true, root_num);
@@ -196,11 +201,6 @@ namespace antevolo {
         size_t n = vertices_set.size();
         boost::unordered_map<size_t, size_t> vertex_to_index;
 
-        /*
-        for (auto v : vertices_set) {
-            std::cout << v << " ";
-        } std::cout << std::endl;
-        */
         std::vector<size_t> index_to_vertex(n);
         size_t index = 0;
         for (size_t vertex : vertices_set) {
@@ -243,6 +243,7 @@ namespace antevolo {
             //std::cout << we.src_ << " " << we.dst_ << " (" << we.weight_ <<  ")"  << std::endl;
         }
     }
+    */
 
     /*
     void EvolutionaryTree::WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) { //no endl

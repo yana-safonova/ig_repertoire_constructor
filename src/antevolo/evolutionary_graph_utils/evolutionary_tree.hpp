@@ -27,28 +27,28 @@ namespace antevolo {
     public:
         void AddDirected(size_t clone_num, EvolutionaryEdge edge);
 
-        void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model);
+        //void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge, ShmModel& model);
 
         void AddUndirected(size_t clone_num, EvolutionaryEdge edge);
 
-        void AddUndirectedPair(size_t src_num, size_t dst_num);
+        //void AddUndirectedPair(size_t src_num, size_t dst_num);
 
-        void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num);
+        //void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector, size_t root_num);
 
         void PrepareSubtreeVertices(
                 boost::unordered_set<size_t>& vertices_set,
                 size_t root_num);
 
-        void PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
-                                                     size_t root_vertex,
-                                                     const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                                                     EvolutionaryEdgeConstructor* edge_constructor);
+        //void PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
+        //                                             size_t root_vertex,
+        //                                             const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+        //                                             EvolutionaryEdgeConstructor* edge_constructor);
 
-        void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
-                                                     size_t root_vertex,
-                                                     ShmModel& model,
-                                                     const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                                                     EvolutionaryEdgeConstructor* edge_constructor);
+        //void PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
+        //                                             size_t root_vertex,
+        //                                             ShmModel& model,
+        //                                             const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+        //                                             EvolutionaryEdgeConstructor* edge_constructor);
 
         boost::unordered_map<size_t, std::set<size_t>>& GetUndirectedGraph() {
             return undirected_graph_;
@@ -59,7 +59,7 @@ namespace antevolo {
         }
 
         size_t GetUndirectedCompopentRoot(size_t root_num) {
-            if (undirected_components_edges_.find(root_num) != edges_.end()){
+            if (undirected_components_edges_.find(root_num) != undirected_components_edges_.end()){
                 return undirected_components_edges_[root_num].dst_clone_num;
             }
             else {
@@ -72,16 +72,6 @@ namespace antevolo {
         }
 
 
-        // todo: move all output methods from EvolutionaryTree
-        /*
-        void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out); //no endl
-
-        void WriteInFile(std::string output_fname);
-        void WriteInFileWithCDR3s(std::string output_fname);
-
-        void WriteVerticesInFile(std::string output_fname, const annotation_utils::CDRAnnotatedCloneSet& clone_set);
-        */
-
         size_t NumEdges() const { return edges_.size(); }
         size_t NumVertices() const { return passed_flag_.size(); }
 
@@ -93,13 +83,14 @@ namespace antevolo {
             return res;
         }
 
-        // what are these methods about?
+        /*
         void SetFlag(bool b, size_t clone_num) {
             passed_flag_[clone_num] = b;
         }
         bool GetFlag(size_t clone_num) {
             return passed_flag_[clone_num];
         }
+        */
 
         typedef std::vector<EvolutionaryEdge>::iterator EdgeIterator;
 

@@ -64,7 +64,10 @@ add_executable(antevolo
         antevolo_config.cpp
         antevolo_processor.cpp
         antevolo_launch.cpp
-        main.cpp cluster_to_forest_calculators/base_cluster_to_forest_calculator.cpp cluster_to_forest_calculators/base_cluster_to_forest_calculator.h)
+        main.cpp
+        cluster_to_forest_calculators/base_cluster_to_forest_calculator.cpp
+        cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.cpp
+        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

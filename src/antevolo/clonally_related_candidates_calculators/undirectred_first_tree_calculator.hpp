@@ -3,11 +3,7 @@
 #include <decomposition.hpp>
 #include <antevolo_config.hpp>
 #include "candidate_calculator.hpp"
-#include "../../graph_utils/sparse_graph.hpp"
-#include <evolutionary_graph_utils/evolutionary_tree.hpp>
-#include <evolutionary_graph_utils/evolutionary_edge_constructor.hpp>
-#include <boost/pending/disjoint_sets.hpp>
-#include <boost/unordered_set.hpp>
+#include "../cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.hpp"
 
 namespace antevolo {
     class UndirectedFirstTreeCalculator : public BaseCandidateCalculator {
@@ -41,21 +37,21 @@ namespace antevolo {
                 num_mismatches_(config.similar_cdr3s_params.num_mismatches),
                 model_(model) { }
 
-        EvolutionaryEdgeConstructor* GetEdgeConstructor();
+        //EvolutionaryEdgeConstructor* GetEdgeConstructor();
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
         std::string GetGraphFname(core::DecompositionClass decomposition_class);
         std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
-        void AddUndirectedForestToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree,
-                                          boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        void AddComponentToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
-        void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
-                                                size_t component_id,
-                                                EvolutionaryTree& tree,
-                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        void SetDirections(boost::unordered_set<size_t> vertices_nums,
-                                                EvolutionaryTree& tree,
-                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
+        //void AddUndirectedForestToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree,
+        //                                  boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
+        //void AddComponentToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
+        //void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
+        //                                        size_t component_id,
+        //                                        EvolutionaryTree& tree,
+        //                                        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
+        //void SetDirections(boost::unordered_set<size_t> vertices_nums,
+        //                                        EvolutionaryTree& tree,
+        //                                        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
         EvolutionaryTree AddComponent(SparseGraphPtr hg_component, size_t component_id);
     };
 }
