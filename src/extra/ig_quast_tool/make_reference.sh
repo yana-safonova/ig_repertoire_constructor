@@ -28,7 +28,7 @@ ${CIC} -r ${OUTPUT}/repertoire3.rcm ${OUTPUT}/repertoire4.fa.gz ${OUTPUT}/repert
 for i in 1 2 3
 do
     ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
-    ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz
+    ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz -S ${OUTPUT}/barcode_stats${i}.tsv
 done
 
 
