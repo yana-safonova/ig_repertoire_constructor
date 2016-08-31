@@ -12,27 +12,30 @@ CIC="${IGREC_DIR}/py/ig_compress_equal_clusters.py "
 
 LOCI=${3:-all}
 
-# ${IGREC_DIR}/igrec.py -s ${INPUT} -o ${OUTPUT}/igrec_for_align/ --loci=${LOCI} --create-triv-dec -t4 --tau=1
-#
-# mv ${OUTPUT}/igrec_for_align/vj_finder/cleaned_reads.fa ${OUTPUT}/cleaned_reads.fa
-# gzip ${OUTPUT}/cleaned_reads.fa -f
-# rm -fr ${OUTPUT}/igrec_for_align
-#
-# ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input1.fa.gz -r ${OUTPUT}/repertoire1.rcm --tau=0 -d100500 --distance-plot=${OUTPUT}/dist
-# ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input2.fa.gz -r ${OUTPUT}/repertoire2.rcm --tau=2 -d100500
-# ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input3.fa.gz -r ${OUTPUT}/repertoire3.rcm --tau=2 -d10
-#
-# for i in 1 2 3
-# do
-#     ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
-#     ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz
-# done
-#
+${IGREC_DIR}/igrec.py -s ${INPUT} -o ${OUTPUT}/igrec_for_align/ --loci=${LOCI} --create-triv-dec -t4 --tau=1
+
+mv ${OUTPUT}/igrec_for_align/vj_finder/cleaned_reads.fa ${OUTPUT}/cleaned_reads.fa
+gzip ${OUTPUT}/cleaned_reads.fa -f
+rm -fr ${OUTPUT}/igrec_for_align
+
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input1.fa.gz -r ${OUTPUT}/repertoire1.rcm --tau=0 -d100500 --distance-plot=${OUTPUT}/dist
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input2.fa.gz -r ${OUTPUT}/repertoire2.rcm --tau=2 -d100500
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input3.fa.gz -r ${OUTPUT}/repertoire3.rcm --tau=2 -d10
+
+
+${CIC} -r ${OUTPUT}/repertoire3.rcm ${OUTPUT}/repertoire4.fa.gz ${OUTPUT}/repertoire4.fa.gz -b 2
+
+for i in 1 2 3
+do
+    ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
+    ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz
+done
+
 
 JITTER=${IGREC_DIR}/py/jit_file.py
 for lambda in "0.25" "0.5" "1" "2"
 do
-    for i in 1 2 3
+    for i in 1 2 3 4
     do
         ${JITTER} ${OUTPUT}/input${i}.fa.gz ${OUTPUT}/input${i}_jit${lambda}.fa.gz --error-rate=${lambda} &
     done
