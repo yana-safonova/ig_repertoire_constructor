@@ -113,9 +113,16 @@ def parse_command_line(description="aimQUAST"):
     parser.add_argument("--figure-format", "-F",
                         default="png",
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
+
     parser.add_argument("--no-reference-free",
+                        dest="no_reference_free",
                         action="store_true",
                         help="disable reference-free measures")
+    parser.add_argument("--reference-free",
+                        dest="no_reference_free",
+                        action="store_false",
+                        help="enable reference-free measures (default)")
+    parser.set_defaults(no_reference_free=False)
 
     args = parser.parse_args()
 
