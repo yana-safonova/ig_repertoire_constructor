@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_final_alignment.hpp"
+#include "ig_matcher.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -79,11 +80,13 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     // Find secondary votes
     struct PositionVote {
-        size_t votes;
-        size_t letter;
+        size_t majory_votes;
+        size_t majory_letter;
+        size_t secondary_votes;
+        size_t secondary_letter;
         size_t position;
         bool operator<(const PositionVote &b) const {
-            return votes < b.votes;
+            return secondary_votes < b.secondary_votes;
         }
     };
 
@@ -96,16 +99,13 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
         // Use nth element here???
         std::sort(v.rbegin(), v.rend());
-        secondary_votes.push_back({ v[1].first, v[1].second, j });
+        secondary_votes.push_back({ v[0].first, v[0].second, v[1].first, v[1].second, j });
     }
+
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
 
-    size_t position = maximal_mismatch.position;
-    size_t letter = maximal_mismatch.letter;
-    size_t votes = maximal_mismatch.votes;
-
-    INFO("VOTES: " << votes << " POSITION: " << position)
-    if (votes <= max_votes) {
+    INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
+    if (maximal_mismatch.secondary_votes <= max_votes) {
         // call consensus from this string
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
@@ -119,23 +119,42 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         return;
     }
 
-    std::vector<size_t> indices1, indices2;
+    std::vector<size_t> indices_majory, indices_secondary, indices_other;
     for (size_t i : indices) {
-        if (reads[i][position] == letter) {
-            indices2.push_back(i);
+        if (reads[i][maximal_mismatch.position] == maximal_mismatch.majory_letter) {
+            indices_majory.push_back(i);
+        } else if (reads[i][maximal_mismatch.position] == maximal_mismatch.secondary_letter) {
+            indices_secondary.push_back(i);
         } else {
-            indices1.push_back(i);
+            indices_other.push_back(i);
         }
     }
 
-    INFO("Component splitted " << indices1.size() << " + " << indices2.size());
-    split_component(reads, indices1, out);
+    auto majory_consensus = consensus(reads, indices_majory);
+    auto secondary_consensus = consensus(reads, indices_secondary);
+
+    for (size_t i : indices_other) {
+        auto dist_majory = hamming_rtrim(reads[i], majory_consensus);
+        auto dist_secondary = hamming_rtrim(reads[i], secondary_consensus);
+
+        if (dist_majory <= dist_secondary) {
+            indices_majory.push_back(i);
+        } else {
+            indices_secondary.push_back(i);
+        }
+    }
+
+    VERIFY(indices_majory.size() + indices_secondary.size() == indices.size());
+
+    INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
+    split_component(reads, indices_majory, out);
+
     if (discard) {
-        for (size_t index : indices2) {
+        for (size_t index : indices_secondary) {
             out.push_back({ reads[index], { index } });
         }
     } else {
-        split_component(reads, indices2, out);
+        split_component(reads, indices_secondary, out);
     }
 }
 
