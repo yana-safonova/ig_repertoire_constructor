@@ -76,6 +76,10 @@ if __name__ == "__main__":
                         type=str,
                         default="",
                         help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
+    parser.add_argument("--barcode-coverage-stats", "-S",
+                        type=str,
+                        default="",
+                        help="file for output barcode coverage statistics; empty for non-producing (default: <empty>)")
     parser.add_argument("--barcode-threshold", "-b",
                         type=int,
                         default=1,
@@ -125,6 +129,14 @@ if __name__ == "__main__":
     for compressed_cluster, mult in zip(input_read_num2compressed_cluster, input_read_num2mult):
         compressed_cluster2mult[compressed_cluster] += mult
         compressed_cluster2barcodes_number[compressed_cluster] += 1
+
+    if args.barcode_coverage_stats:
+        with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.barcode_coverage_stats, "w") as fout:
+            fout.write("%s\t%s\t%s\n" % ("cluster", "barcodes", "size"))
+            for i, record in enumerate(SeqIO.parse(fin, "fasta")):
+                n_barcodes = compressed_cluster2barcodes_number[str(i)]
+                mult = compressed_cluster2mult[str(i)]
+                fout.write("%d\t%d\t%d\n" % (i, n_barcodes, mult))
 
     # Fix IDs
     with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.output, "w") as fout:
