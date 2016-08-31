@@ -35,7 +35,7 @@ def check_fa_rcm_consistency(fa_filename, rcm_filename):
 
     num_fa_reads = 0
     is_ok = True
-    
+
     with smart_open(fa_filename) as fa:
         for record in SeqIO.parse(fa, "fasta"):
             id = str(record.description)
@@ -76,6 +76,19 @@ if __name__ == "__main__":
                         type=str,
                         default="",
                         help="output rcm file for fixup, empty for rewriting existance file (default: <empty>)")
+    parser.add_argument("--barcode-threshold", "-b",
+                        type=int,
+                        default=1,
+                        help="minimal number of different supporting barcodes (default: %(default)d)")
+    parser.add_argument("--barcode", "-B",
+                        action="store_true",
+                        dest="count_barcodes",
+                        help="add the number of different barcodes forming a cluster into cluster ID")
+    parser.add_argument("--no-barcode",
+                        action="store_false",
+                        dest="count_barcodes",
+                        help="do not add the number of different barcodes forming a cluster into cluster ID (default)")
+    parser.set_defaults(count_barcodes=False)
 
     args = parser.parse_args()
     # Fix RCM if provided
@@ -108,13 +121,21 @@ if __name__ == "__main__":
             input_read_num2mult.append(mult)
 
     compressed_cluster2mult = defaultdict(int)
+    compressed_cluster2barcodes_number = defaultdict(int)
     for compressed_cluster, mult in zip(input_read_num2compressed_cluster, input_read_num2mult):
         compressed_cluster2mult[compressed_cluster] += mult
+        compressed_cluster2barcodes_number[compressed_cluster] += 1
 
     # Fix IDs
     with smart_open(args.tmp_fa_file, "r") as fin, smart_open(args.output, "w") as fout:
         for i, record in enumerate(SeqIO.parse(fin, "fasta")):
-            record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[str(i)])
+            n_barcodes = compressed_cluster2barcodes_number[str(i)]
+            if args.barcode_threshold > n_barcodes:
+                continue
+            if args.count_barcodes:
+                record.id = record.description = "cluster___%dB%d___size___%d" % (i, n_barcodes, compressed_cluster2mult[str(i)])
+            else:
+                record.id = record.description = "cluster___%d___size___%d" % (i, compressed_cluster2mult[str(i)])
             SeqIO.write(record, fout, "fasta")
 
     # Fix RCM if provided
@@ -131,6 +152,11 @@ if __name__ == "__main__":
         with smart_open(args.output_rcm, "w") as fout:
             for id, cluster in rcm:
                 compressed_cluster = input_read_num2compressed_cluster[cluster2input_read_num[cluster]]
+                n_barcodes = compressed_cluster2barcodes_number[compressed_cluster]
+                if args.barcode_threshold > n_barcodes:
+                    continue
+                if args.count_barcodes:
+                    compressed_cluster += "B" + str(n_barcodes)
                 fout.writelines("%s\t%s\n" % (id, compressed_cluster))
 
         print "Check output consistency..."
