@@ -191,6 +191,20 @@ public:
             result = pre;
         }
 
+        // HACK!!!!!
+        // Ensure genes ends fixing
+        if (crop_left && fill_left && fix_left) {
+            for (size_t i = 0; i < fix_left; ++i) {
+                result[i] = v_gene[i];
+            }
+        }
+
+        if (crop_right && fill_right && fix_right) {
+            for (size_t i = 0; i < fix_right; ++i) {
+                result[length(result) - i - 1] = j_gene[length(j_gene) - i - 1];
+            }
+        }
+
         return result;
     }
 

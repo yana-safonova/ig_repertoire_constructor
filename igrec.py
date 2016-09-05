@@ -132,10 +132,11 @@ class IgRepConConfig:
         self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./vj_finder') #ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
         self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
+        self.run_fake_trie_compressor = os.path.join(home_directory, 'py/ig_fake_trie_compressor.py')
         self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
-        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
-        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
+        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_component_splitter')
+        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_component_splitter')
         self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
@@ -415,8 +416,9 @@ class TrieCompressionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
-                       " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+                    " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
         support.sys_call(command_line, self._log)
+
         command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
                        " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
                        " -r " + self.__params.io.supernode_repertoire + " -R " + self.__params.io.supernode_rcm
@@ -426,6 +428,12 @@ class TrieCompressionPhase(Phase):
                                                 self.__params.io.supernodes_file,
                                                 self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
+
+        if not self.__params.equal_compression:
+            command_line = IgRepConConfig().run_fake_trie_compressor + " -i " + self.__params.io.cropped_reads + \
+                        " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+            support.sys_call(command_line, self._log)
+
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -449,7 +457,7 @@ class GraphConstructionPhase(Phase):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
-                       " --tau=" + str(self.__params.max_mismatches) + " -A"
+                       " --tau=" + str(self.__params.max_mismatches) + " -A" + " -Toff"
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
@@ -518,8 +526,11 @@ class ConsensusConstructionPhase(Phase):
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
                        " -R " + self.__params.io.uncompressed_final_rcm + \
+                       " -M " + self.__params.io.uncompressed_final_rcm + \
                        " -o " + self.__params.io.uncompressed_final_clusters_fa + \
-                       " -H " + " -t " + str(self.__params.num_threads)
+                       " -t " + str(self.__params.num_threads) + \
+                       " -D " + str(self.__params.discard) + \
+                       " --max-votes " + str(self.__params.max_votes)
         support.sys_call(command_line, self._log)
 
 
@@ -812,12 +823,34 @@ def ParseCommandLineParams(log):
                           const=True,
                           dest="save_aux_files",
                           help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
-                                    "[default: False]")
+                          "[default: False]")
     dev_args.add_argument("--debug",
                           action="store_const",
                           const=True,
                           dest="debug_mode",
                           help="Save auxiliary files [default: False]")
+    dev_args.add_argument("-V", "--max-votes",
+                          type=int,
+                          default=10005000,
+                          help="Maximun secondary votes threshold [default: %(default)d]")
+    dev_args.add_argument("-D", "--discard",
+                          action="store_true",
+                          dest="discard",
+                          help="Discard seconary vote clusters")
+    dev_args.add_argument("--no-discard",
+                          action="store_false",
+                          help="Do not discard seconary vote clusters (default)")
+    parser.set_defaults(discard=True)
+    # TODO Add it into the help
+    dev_args.add_argument("--no-equal-compression",
+                          action="store_false",
+                          dest="equal_compression",
+                          help="Disable equal read compression before graph construction")
+    dev_args.add_argument("--equal-compression",
+                          action="store_true",
+                          dest="equal_compression",
+                          help="Enable equal read compression before graph construction (default)")
+    parser.set_defaults(equal_compression=True)
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
