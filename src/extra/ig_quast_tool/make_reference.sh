@@ -18,7 +18,7 @@ mv ${OUTPUT}/igrec_for_align/vj_finder/cleaned_reads.fa ${OUTPUT}/cleaned_reads.
 gzip ${OUTPUT}/cleaned_reads.fa -f
 rm -fr ${OUTPUT}/igrec_for_align
 
-${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input1.fa.gz -r ${OUTPUT}/repertoire1.rcm --tau=0 -d100500 --distance-plot=${OUTPUT}/dist
+${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input1.fa.gz -r ${OUTPUT}/repertoire1.rcm --tau=0 -d100500 --distance-plot=${OUTPUT}/dist --lengths ${OUTPUT}/lengths.txt
 ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input2.fa.gz -r ${OUTPUT}/repertoire2.rcm --tau=2 -d100500
 ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input3.fa.gz -r ${OUTPUT}/repertoire3.rcm --tau=2 -d10
 

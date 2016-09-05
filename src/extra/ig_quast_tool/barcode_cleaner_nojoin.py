@@ -73,11 +73,10 @@ if __name__ == "__main__":
                         "-r",
                         type=str,
                         help="RCM file for final read-barcode map")
-    parser.add_argument(
-        "--tau",
-        type=int,
-        default=3,
-        help="Minimum allowed distance between two barcodes [default %(default)s]")
+    parser.add_argument("--tau",
+                        type=int,
+                        default=3,
+                        help="Minimum allowed distance between two barcodes [default %(default)s]")
     parser.add_argument("--no-fix-spaces",
                         "-S",
                         action='store_true',
@@ -100,6 +99,9 @@ if __name__ == "__main__":
                         type=int,
                         default=10,
                         help="distance threshold [default %(default)d]")
+    parser.add_argument("--lengths",
+                        type=str,
+                        help="file for read length stats")
     # parser.add_argument("--subs-map", "-M",
     #                     type=str,
     #                     help="file for subs table")
@@ -127,12 +129,13 @@ if __name__ == "__main__":
     for record in data:
         barcode = extract_barcode(record.id)
         barcodes_count[barcode] += 1
-        clusters[barcode].append(str(record.seq))
+        clusters[barcode].append(record)
 
     cluster_consensus = {}
     distances = []
     print "Compute consensus by barcodes"
     for barcode, reads in clusters.iteritems():
+        reads = [str(read.seq) for read in reads]
         cons = cluster_consensus[barcode] = consensus(reads)
         distances += [hamming(cons, read) for read in reads]
 
@@ -189,4 +192,23 @@ if __name__ == "__main__":
                 barcode = extract_barcode(record.id)
                 fh.write("%s\t%s\n" % (record.id, barcode))
 
-    print "Done!"
+    barcode2lengths = defaultdict(list)
+    if args.lengths:
+        with smart_open(args.lengths, "w") as fh:
+            for record in good_out:
+                barcode = extract_barcode(record.id)
+                l = len(record.seq)
+                barcode2lengths[barcode].append(l)
+
+            for barcode, lst in barcode2lengths.iteritems():
+                count = defaultdict(int)
+                for l in lst:
+                    count[l] += 1
+                if len(count) > 1:
+                    items = list(count.iteritems())
+                    items.sort()
+                    out = ", ".join(["%d: %d" % (l, c) for l, c in items])
+                    fh.write("%s: %s\n" % (barcode, out))
+                    for read in clusters[barcode]:
+                        SeqIO.write(read, fh, "fasta")
+    print "Done with " + args.input
