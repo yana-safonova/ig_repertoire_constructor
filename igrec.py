@@ -758,18 +758,6 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
-    optional_args.add_argument("-V", "--max-votes",
-                               type=int,
-                               default=10005000,
-                               help="Maximun secondary votes threshold [default: %(default)d]")
-    optional_args.add_argument("-D", "--discard",
-                               action="store_true",
-                               dest="discard",
-                               help="Discard seconary vote clusters")
-    optional_args.add_argument("--no-discard",
-                               action="store_false",
-                               help="Do not discard seconary vote clusters (default)")
-    parser.set_defaults(discard=True)
     optional_args.add_argument("--tau",
                                type=int,
                                default=4,
@@ -794,17 +782,6 @@ def ParseCommandLineParams(log):
                                help="Showing help message and exit")
 
     vj_align_args = parser.add_argument_group("Algorithm arguments")
-    # TODO Add it into the help
-    vj_align_args.add_argument("--no-equal-compression",
-                               action="store_false",
-                               dest="equal_compression",
-                               help="Disable equal read compression before graph construction")
-    vj_align_args.add_argument("--equal-compression",
-                               action="store_true",
-                               dest="equal_compression",
-                               help="Enable equal read compression before graph construction (default)")
-    parser.set_defaults(equal_compression=True)
-
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
                                dest="loci",
@@ -846,12 +823,34 @@ def ParseCommandLineParams(log):
                           const=True,
                           dest="save_aux_files",
                           help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
-                                    "[default: False]")
+                          "[default: False]")
     dev_args.add_argument("--debug",
                           action="store_const",
                           const=True,
                           dest="debug_mode",
                           help="Save auxiliary files [default: False]")
+    dev_args.add_argument("-V", "--max-votes",
+                          type=int,
+                          default=10005000,
+                          help="Maximun secondary votes threshold [default: %(default)d]")
+    dev_args.add_argument("-D", "--discard",
+                          action="store_true",
+                          dest="discard",
+                          help="Discard seconary vote clusters")
+    dev_args.add_argument("--no-discard",
+                          action="store_false",
+                          help="Do not discard seconary vote clusters (default)")
+    parser.set_defaults(discard=True)
+    # TODO Add it into the help
+    dev_args.add_argument("--no-equal-compression",
+                          action="store_false",
+                          dest="equal_compression",
+                          help="Disable equal read compression before graph construction")
+    dev_args.add_argument("--equal-compression",
+                          action="store_true",
+                          dest="equal_compression",
+                          help="Enable equal read compression before graph construction (default)")
+    parser.set_defaults(equal_compression=True)
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
