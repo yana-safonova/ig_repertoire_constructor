@@ -12,6 +12,9 @@ include_directories(${CORE_DIR})
 include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
 
+add_definitions(-DSEQAN_HAS_ZLIB=1)
+add_definitions(-DSEQAN_HAS_BZIP2=1)
+
 add_executable(vj_finder
         vj_finder_config.cpp
         command_line_routines.cpp

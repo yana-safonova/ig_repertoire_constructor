@@ -16,9 +16,6 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 #   add_definitions(-DSEQAN_HAS_ZLIB=0)
 # endif()
 
-add_definitions(-DSEQAN_HAS_ZLIB=1)
-add_definitions(-DSEQAN_HAS_BZIP2=1)
-
 # This checking performed BEFORE compilation, so boost_po is not available at this moment
 # find_package(Boost REQUIRED program_options)
 
@@ -70,6 +67,8 @@ target_link_libraries(ig_swgraph_construct build_info)
 add_executable(ig_kmer_counter ig_kmer_counter.cpp)
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp)
 add_executable(ig_consensus_finder ig_consensus_finder.cpp)
+add_executable(ig_component_splitter ig_component_splitter.cpp)
+target_link_libraries(ig_component_splitter build_info)
 
 make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
 

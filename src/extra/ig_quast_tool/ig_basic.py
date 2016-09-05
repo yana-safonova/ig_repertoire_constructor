@@ -80,7 +80,7 @@ def hamming_graph_knuth(reads, tau=1, **kwargs):
     for j in range(tau + 1):
         sets = defaultdict(list)
         for i in range(len(reads)):
-            substr = reads[i][j*piece_len:j*piece_len + piece_lens[j]]
+            substr = reads[i][j * piece_len:j * piece_len + piece_lens[j]]
             sets[substr].append(i)
 
         for v_list in sets.itervalues():
@@ -111,7 +111,6 @@ def hamming_graph_vp(reads, tau=1, **kwargs):
 
     for read in reads:
         assert(len(read) == l)
-
 
     g = ig.Graph(len(reads))
     g.vs["read"] = reads
@@ -146,7 +145,6 @@ def hamming_graph_bk(reads, tau=1, **kwargs):
 
     for read in reads:
         assert(len(read) == l)
-
 
     g = ig.Graph(len(reads))
     g.vs["read"] = reads
@@ -277,7 +275,7 @@ def findDuplicates(l):
 
 
 def count_triplet(s, t, align=0):
-    return sum([s[i:(i+3)] == t for i in range(align, len(s) - 3 + 1, 3)])
+    return sum([s[i:(i + 3)] == t for i in range(align, len(s) - 3 + 1, 3)])
 
 
 def stop_codons_count(s, align=0):
@@ -300,8 +298,8 @@ def optimal_align_using_stop_codons(reads):
 
 def stop_codon_indices(s):
     res = []
-    for i in range(len(s)-3+1):
-        if s[i:i+3] in ["TAG", "TAA", "TGA"]:
+    for i in range(len(s) - 3 + 1):
+        if s[i:i + 3] in ["TAG", "TAA", "TGA"]:
             res.append(i)
     return res
 
@@ -314,7 +312,7 @@ def stop_codon_indices_all(reads):
     return res
 
 
-def extract_barcode(s):
+def extract_barcode_age(s):
     """
     @M01691:10:000000000-A7F7L:1:2107:21387:4106_2:N:0:1_UMI:CTGACGTTACTCGG:GGGGGGGGGGGGGG_517009
     ->
@@ -322,13 +320,37 @@ def extract_barcode(s):
     """
     import re
 
-    m = re.match(r".*UMI:([ACTG]{12,14}):.*", s)
+    m = re.match(r".*UMI:([ACTG]{12,17}):.*", s)
     return m.groups()[0] if m else None
 
 
-assert(extract_barcode("@M01691:10:000000000-A7F7L:1:2107:21387:4106_2:N:0:1_UMI:CTGACGTTACTCGG:GGGGGGGGGGGGGG_517009") == "CTGACGTTACTCGG")
-assert(extract_barcode("@M01691:10:000000000-A7F7L:1:2109:5441:12945_1:N:0:1_UMI:AAGTATTTAGTAAC:FFEFFGGGGGGFG9_565461") == "AAGTATTTAGTAAC")
-assert(extract_barcode("M01691:56:000000000-ABFHP:1:1101:11306:1728 1:N:0:1 UMI:CTTTACGTACGT:<FFGGGGFF@@F") == "CTTTACGTACGT")
+def extract_barcode_yale(s):
+    """
+    1_merged_read_MISEQ:166:000000000-AAYHL:1:1101:11497:1414_1:N:0:TGACCA|SEQORIENT=F|PRIMER=Human-IGK|BARCODE=ACGTGTAGTAAAATAAT
+    ->
+    A CGTG TAGT AAAA TAAT
+    """
+    import re
+
+    m = re.match(r".*BARCODE=([ACTG]{17}).*", s)
+    return m.groups()[0] if m else None
+
+
+def extract_barcode(s):
+    bc = extract_barcode_age(s)
+    if bc is not None:
+        return bc
+    else:
+        return extract_barcode_yale(s)
+
+assert extract_barcode("2_merged_read_MISEQ:166:000000000-AAYHL:1:1101:19266:1412_1:N:0:TGACCA|SEQORIENT=F|PRIMER=Human-IGK|BARCODE=CTGCGAGCACGACTACG") == "CTGCGAGCACGACTACG"
+assert extract_barcode("1_merged_read_MISEQ:166:000000000-AAYHL:1:1101:11497:1414_1:N:0:TGACCA|SEQORIENT=F|PRIMER=Human-IGK|BARCODE=ACGTGTAGTAAAATAAT") == "ACGTGTAGTAAAATAAT"
+
+assert extract_barcode("@M01691:10:000000000-A7F7L:1:2107:21387:4106_2:N:0:1_UMI:CTGACGTTACTCGG:GGGGGGGGGGGGGG_517009") == "CTGACGTTACTCGG"
+assert extract_barcode("@M01691:10:000000000-A7F7L:1:2109:5441:12945_1:N:0:1_UMI:AAGTATTTAGTAAC:FFEFFGGGGGGFG9_565461") == "AAGTATTTAGTAAC"
+assert extract_barcode("M01691:56:000000000-ABFHP:1:1101:11306:1728 1:N:0:1 UMI:CTTTACGTACGT:<FFGGGGFF@@F") == "CTTTACGTACGT"
+
+assert extract_barcode("@98_merged_read_HWI-M01418:310:000000000-AAH58:1:1101:22293:2129_1:N:0:ATTCCT_UMI:TATAGAATATAATTTAA:-AC<,,C,,,<CF<,CD") == "TATAGAATATAATTTAA"
 
 
 def most_popular_element(l):
@@ -343,4 +365,3 @@ def most_popular_element(l):
         return None
     else:
         return max(count.keys(), key=lambda k: count[k])
-
