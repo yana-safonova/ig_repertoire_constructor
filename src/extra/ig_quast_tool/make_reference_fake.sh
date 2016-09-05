@@ -11,3 +11,5 @@ CFINDER="${IGREC_DIR}/build/release/bin/ig_consensus_finder -H"
 CIC="${IGREC_DIR}/py/ig_compress_equal_clusters.py "
 
 ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input_fake.fa.gz -r ${OUTPUT}/repertoire_fake.rcm --tau=0 -d100500 --lengths ${OUTPUT}/lengths.txt
+rm ${OUTPUT}/input_fake.fa.gz
+rm ${OUTPUT}/repertoire_fake.rcm
