@@ -182,7 +182,7 @@ def visualize_v_mutations_stats(shms_df, output_fname, log):
         num_all_shms[it.chain_type].append(len(shms_df[it]))
     for iso in num_all_shms:
         if len(num_all_shms[iso]) < 10:
-            log.info("# SHMs for " + iso + " is too small(" + str(len(num_all_shms[iso])) + "). Plot drawing was skipped")
+            log.info("# SHMs for " + iso + " is too small (" + str(len(num_all_shms[iso])) + "). Plot drawing was skipped")
             continue
         output_shm_stats_for_isotype(num_all_shms[iso], all_shms_pos[iso], iso, output_fname, log)
 
@@ -310,6 +310,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
         labels.append('Insertions')
         colors.append('orange')
     if len(pos) == 0:
+        log.info("Output contains very low number of special SHMs. Plot drawing will be skipped")
         return
     #sns.distplot(insertion_pos, hist = False, label = "Insertion SHMs", color = 'orange')
     plt.hist(pos, color = colors, label= labels, bins = 100 / len(pos))
@@ -364,6 +365,9 @@ def visualize_indel_shm_lengths(shm_df, output_fname, log):
     if len(insertion_length) > 10:
         dt.append(insertion_length)
         labels.append("Insertions")
+    if len(dt) == 0:
+        log.info("Output contains very low number of indel SHMs. Plot drawing was skipped")
+        return
     plt.hist(dt, label = labels, bins = 50)
     plt.legend(loc = 'upper center', ncol = len(dt), fontsize = 14)
     plt.xlabel("Insertion / deletion SHM length", fontsize = 16)
