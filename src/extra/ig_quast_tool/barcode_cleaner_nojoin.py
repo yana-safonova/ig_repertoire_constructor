@@ -205,10 +205,12 @@ if __name__ == "__main__":
                 for l in lst:
                     count[l] += 1
                 if len(count) > 1:
-                    items = list(count.iteritems())
-                    items.sort()
-                    out = ", ".join(["%d: %d" % (l, c) for l, c in items])
-                    fh.write("%s: %s\n" % (barcode, out))
-                    for read in clusters[barcode]:
-                        SeqIO.write(read, fh, "fasta")
+                    items = count.items()
+                    items.sort(key=lambda x: x[1], reverse=True)
+                    assert items[0][1] >= items[1][1]
+                    if items[1][1] >= 3:
+                        out = ", ".join(["%d: %d" % (l, c) for l, c in items])
+                        fh.write("%s: %s\n" % (barcode, out))
+                        for read in clusters[barcode]:
+                            SeqIO.write(read, fh, "fasta")
     print "Done with " + args.input
