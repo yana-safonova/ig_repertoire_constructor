@@ -71,6 +71,7 @@ add_executable(ig_component_splitter ig_component_splitter.cpp)
 target_link_libraries(ig_component_splitter build_info)
 
 make_essential_test(test_ig_kplus_vj_finder test_ig_kplus_vj_finder.cpp)
+make_essential_test(test_ig_trie_compressor test_ig_trie_compressor.cpp)
 
 # add_executable(test1 test_ig_kplus_vj_finder.cpp)
 # target_link_libraries(test1 gtest_main gtest)
