@@ -86,7 +86,6 @@ public:
 
     void compress() {
         if (!isCompressed()) {
-            // root->compress_to_longest();
             root->compress_to_shortest();
         }
     }
@@ -154,37 +153,15 @@ private:
         static const size_t INF = std::numeric_limits<size_t>::max();
         std::array<pointer_type, card> children;
 
-        TrieNode() : target_node{nullptr}, target_node_distance{INF}, ids{nullptr} {
+        TrieNode() : target_node{nullptr}, ids{nullptr} {
             children.fill(nullptr);
         }
 
         pointer_type target_node;
 
-        size_t target_node_distance;
         IdCounter *ids;
 
-        void compress_to_longest() {
-            target_node_distance = INF;
-
-            for (auto &child : children) {
-                if (child) {
-                    child->compress_to_longest();
-                    if (target_node_distance > child->target_node_distance + 1) {
-                        target_node_distance = child->target_node_distance;
-                        target_node = child->target_node;
-                    }
-                }
-            }
-
-            if (target_node_distance == INF) {
-                target_node_distance = 0;
-                target_node = this;
-            }
-        }
-
         void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
-            target_node_distance = INF;
-
             if (!p && ids) {
                 p = this;
                 dist = 0;
@@ -192,7 +169,6 @@ private:
 
             if (ids) {
                 target_node = p;
-                target_node_distance = dist;
             }
 
             for (auto &child : children) {
@@ -203,11 +179,9 @@ private:
         }
 
         void compress_to_itselft() {
-            target_node_distance = INF;
 
             if (ids) {
                 target_node = this;
-                target_node_distance = 0;
             }
 
             for (auto &child : children) {
