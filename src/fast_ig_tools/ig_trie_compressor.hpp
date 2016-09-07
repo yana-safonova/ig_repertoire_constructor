@@ -26,38 +26,26 @@ public:
     Trie &operator=(Trie &&) = default;
     ~Trie() = default;
 
+
+    size_t size() const {
+        return size__;
+    }
+
     template <typename Tcont>
     Trie(const Tcont &cont) : Trie() {
-        size_t i = 0;
         for (const auto &s : cont) {
-            add(s, i);
-            ++i;
+            add(s);
         }
     }
 
-    template <typename TcontRead, typename TcontAbun>
-    Trie(const TcontRead &cont_read, const TcontAbun &cont_abun) : Trie() {
-        size_t i = 0;
-        // Zip!!! I badly need zip!
-
-        auto it_read = cont_read.cbegin(), end_read = cont_read.cend();
-        auto it_abun = cont_abun.cbegin(), end_abun = cont_abun.cend();
-        for (; it_read != end_read && it_abun != end_abun; ++it_read, ++it_abun) {
-            add(*it_read, i, *it_abun);
-            ++i;
-        }
-
-        assert(it_read == end_read && it_abun == end_abun);  // contairners should have the same length
-    }
-
-    template <typename T, typename Tf>
-    void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
+    template <typename T>
+    void add(const T &s) {
         assert(!isCompressed());
 
-        typename TrieNode::pointer_type p = root;
+        TrieNode *p = root;
 
         for (size_t i = 0; i < seqan::length(s); ++i) {
-            size_t el = toIndex(s[i]);
+            size_t el = seqan::ordValue(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
@@ -71,13 +59,8 @@ public:
             p->ids = new IdCounter;
         }
 
-        p->ids->add(id, abundance);
-    }
-
-    template <typename T>
-    void add(const T &s, size_t id) {
-        auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
-        add(s, id, to_size_t);
+        p->ids->add(size__);
+        size__++;
     }
 
     bool isCompressed() const {
@@ -88,6 +71,18 @@ public:
         if (!isCompressed()) {
             root->compress_to_shortest();
         }
+    }
+
+    std::vector<size_t> checkout_vector() {
+        if (!isCompressed()) {
+            compress();
+        }
+
+        std::vector<size_t> result(this->size());
+        root->checkout_vector(result);
+
+        return result;
+
     }
 
     std::unordered_map<size_t, size_t> checkout(size_t nbucket = 0) {
@@ -121,23 +116,23 @@ public:
     }
 
 private:
+    class TrieNode;
     static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
 
     struct IdCounter {
         std::vector<size_t> id_vector;
-        size_t count = 0;
+        TrieNode *target_node = nullptr;
 
-        void add(size_t id, size_t abundance = 1) {
+        void add(size_t id) {
             id_vector.push_back(id);
-            count += abundance;
         }
 
         bool empty() const {
-            return count == 0;
+            return id_vector.empty();
         }
 
         size_t size() const {
-            return count;
+            return id_vector.size();
         }
 
         size_t represent() const {
@@ -149,51 +144,52 @@ private:
 
     class TrieNode {
     public:
-        using pointer_type = TrieNode *;
         static const size_t INF = std::numeric_limits<size_t>::max();
-        std::array<pointer_type, card> children;
+        std::array<TrieNode*, card> children;
 
-        TrieNode() : target_node{nullptr}, ids{nullptr} {
+        TrieNode() : ids{nullptr} {
             children.fill(nullptr);
         }
 
-        pointer_type target_node;
-
         IdCounter *ids;
 
-        void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
+        // Compression to prefix
+        void compress_to_shortest(TrieNode *p = nullptr) {
             if (!p && ids) {
                 p = this;
-                dist = 0;
             }
 
             if (ids) {
-                target_node = p;
+                ids->target_node = p;
             }
 
             for (auto &child : children) {
                 if (child) {
-                    child->compress_to_shortest(p, dist + 1);
+                    child->compress_to_shortest(p);
                 }
             }
         }
 
-        void compress_to_itselft() {
-
-            if (ids) {
-                target_node = this;
+        void checkout_vector(std::vector<size_t> &result) const {
+            if (ids && !ids->empty()) {
+                size_t target_id = ids->target_node->ids->represent();
+                for (size_t id : ids->id_vector) {
+                    result[id] = target_id;
+                }
             }
 
-            for (auto &child : children) {
+            // DFS
+            for (const auto &child : children) {
                 if (child) {
-                    child->compress_to_itselft();
+                    child->checkout_vector(result);
                 }
             }
         }
+
 
         void checkout(std::unordered_map<size_t, size_t> &result) const {
             if (ids && !ids->empty()) {
-                size_t id = target_node->ids->represent();
+                size_t id = ids->target_node->ids->represent();
                 result[id] += ids->size();
             }
 
@@ -207,8 +203,8 @@ private:
 
         void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
             if (ids && !ids->empty()) {
-                assert(!target_node->ids->empty());
-                size_t id = target_node->ids->represent();
+                assert(!ids->target_node->ids->empty());
+                size_t id = ids->target_node->ids->represent();
                 result[id].insert(result[id].end(), ids->id_vector.cbegin(), ids->id_vector.cend());
             }
 
@@ -254,6 +250,28 @@ private:
     boost::object_pool<TrieNode> pool;
     TrieNode *root;
     bool compressed = false;
+    size_t size__ = 0;
 };
+
+template<typename Tletter=seqan::Dna5>
+std::vector<size_t> compressed_reads_indices(const std::vector<seqan::String<Tletter>> &reads) {
+    Trie<seqan::Dna5> trie(reads);
+
+    return trie.checkout_vector();
+}
+
+template<typename Tletter=seqan::Dna5>
+std::vector<seqan::String<Tletter>> compressed_reads(const std::vector<seqan::String<Tletter>> &reads) {
+    Trie<seqan::Dna5> trie(reads);
+
+    auto indices = trie.checkout_vector();
+
+    std::vector<seqan::String<Tletter>> result;
+    for (size_t i = 0; i < indices.size(); ++i) {
+        if (indices[i] == i) {
+            result.push_back(reads[i]);
+        }
+    }
+}
 }
 // vim: ts=4:sw=4
