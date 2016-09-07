@@ -13,7 +13,7 @@
 
 namespace fast_ig_tools {
 
-template <typename Tletter = seqan::Dna5>
+template <typename TValue = seqan::Dna5>
 class Trie {
 public:
     Trie() {
@@ -87,7 +87,7 @@ public:
 
 private:
     class TrieNode;
-    static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
+    static constexpr size_t card = seqan::ValueSize<TValue>::VALUE;
 
     struct IdCounter {
         std::vector<size_t> id_vector;
@@ -175,18 +175,23 @@ private:
     size_t size__ = 0;
 };
 
-template<typename Tletter=seqan::Dna5>
-std::vector<size_t> compressed_reads_indices(const std::vector<seqan::String<Tletter>> &reads) {
-    Trie<seqan::Dna5> trie(reads);
+template <typename TString>
+using ValueType = typename std::decay<decltype((TString())[0])>::type;
+
+template <typename TVector>
+std::vector<size_t> compressed_reads_indices(const TVector &reads) {
+    using TValue = ValueType<ValueType<TVector>>;
+    Trie<TValue> trie(reads);
 
     return trie.checkout();
 }
 
-template<typename Tletter=seqan::Dna5>
-std::vector<seqan::String<Tletter>> compressed_reads(const std::vector<seqan::String<Tletter>> &reads) {
+template <typename TVector>
+auto compressed_reads(const TVector &reads) -> std::vector<seqan::String<ValueType<ValueType<TVector>>>>  {
     auto indices = compressed_reads_indices(reads);
 
-    std::vector<seqan::String<Tletter>> result;
+    using TValue = ValueType<ValueType<TVector>>;
+    std::vector<seqan::String<TValue>> result;
     for (size_t i = 0; i < indices.size(); ++i) {
         if (indices[i] == i) {
             result.push_back(reads[i]);
