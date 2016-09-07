@@ -72,10 +72,11 @@ def ReportCorrectedUmiErrors(log, read_id_to_read, rcm, umis, output_path):
     read_id_to_umi = dict()
     umi_to_read_ids = dict()
     for record in umis:
-        read_id_to_umi[record.id] = str(record.seq)
-        if record.seq not in umi_to_read_ids:
-            umi_to_read_ids[record.seq] = []
-        umi_to_read_ids[record.seq].append(record.id)
+        sequence = str(record.seq)
+        read_id_to_umi[record.id] = sequence
+        if sequence not in umi_to_read_ids:
+            umi_to_read_ids[sequence] = []
+        umi_to_read_ids[sequence].append(record.id)
     assert len(umis) == len(read_id_to_umi)
 
     cluster_to_read_id = dict()
