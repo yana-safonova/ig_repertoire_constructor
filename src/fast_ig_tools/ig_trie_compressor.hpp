@@ -69,11 +69,11 @@ public:
 
     void compress() {
         if (!isCompressed()) {
-            root->compress_to_shortest();
+            root->compress_to_prefix();
         }
     }
 
-    std::vector<size_t> checkout_vector() {
+    std::vector<size_t> checkout() {
         if (!isCompressed()) {
             compress();
         }
@@ -83,36 +83,6 @@ public:
 
         return result;
 
-    }
-
-    std::unordered_map<size_t, size_t> checkout(size_t nbucket = 0) {
-        if (nbucket == 0) {
-            nbucket = root->leaves_count();
-        }
-
-        if (!isCompressed()) {
-            compress();
-        }
-
-        std::unordered_map<size_t, size_t> result(nbucket);
-        root->checkout(result);
-
-        return result;
-    }
-
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket = 0) {
-        if (nbucket == 0) {
-            nbucket = root->leaves_count();
-        }
-
-        if (!isCompressed()) {
-            compress();
-        }
-
-        std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
-        root->checkout(result);
-
-        return result;
     }
 
 private:
@@ -154,7 +124,7 @@ private:
         IdCounter *ids;
 
         // Compression to prefix
-        void compress_to_shortest(TrieNode *p = nullptr) {
+        void compress_to_prefix(TrieNode *p = nullptr) {
             if (!p && ids) {
                 p = this;
             }
@@ -165,7 +135,7 @@ private:
 
             for (auto &child : children) {
                 if (child) {
-                    child->compress_to_shortest(p);
+                    child->compress_to_prefix(p);
                 }
             }
         }
@@ -184,54 +154,6 @@ private:
                     child->checkout_vector(result);
                 }
             }
-        }
-
-
-        void checkout(std::unordered_map<size_t, size_t> &result) const {
-            if (ids && !ids->empty()) {
-                size_t id = ids->target_node->ids->represent();
-                result[id] += ids->size();
-            }
-
-            // DFS
-            for (const auto &child : children) {
-                if (child) {
-                    child->checkout(result);
-                }
-            }
-        }
-
-        void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
-            if (ids && !ids->empty()) {
-                assert(!ids->target_node->ids->empty());
-                size_t id = ids->target_node->ids->represent();
-                result[id].insert(result[id].end(), ids->id_vector.cbegin(), ids->id_vector.cend());
-            }
-
-            // DFS
-            for (const auto &child : children) {
-                if (child) {
-                    child->checkout(result);
-                }
-            }
-        }
-
-        size_t leaves_count() const {
-            size_t result = 0;
-            bool is_leaf = true;
-
-            for (const auto &child : children) {
-                if (child) {
-                    is_leaf = false;
-                    result += child->leaves_count();
-                }
-            }
-
-            if (is_leaf) {
-                result += 1;
-            }
-
-            return result;
         }
 
         ~TrieNode() {
@@ -257,14 +179,12 @@ template<typename Tletter=seqan::Dna5>
 std::vector<size_t> compressed_reads_indices(const std::vector<seqan::String<Tletter>> &reads) {
     Trie<seqan::Dna5> trie(reads);
 
-    return trie.checkout_vector();
+    return trie.checkout();
 }
 
 template<typename Tletter=seqan::Dna5>
 std::vector<seqan::String<Tletter>> compressed_reads(const std::vector<seqan::String<Tletter>> &reads) {
-    Trie<seqan::Dna5> trie(reads);
-
-    auto indices = trie.checkout_vector();
+    auto indices = compressed_reads_indices(reads);
 
     std::vector<seqan::String<Tletter>> result;
     for (size_t i = 0; i < indices.size(); ++i) {
