@@ -66,9 +66,9 @@ def dist(umi1, umi2, max = float("inf")):
     result = 0
     for i in range(min(len(umi1), len(umi2))):
         result += 1 if umi1[i] != umi2[i] else 0
-        if result >= max:
+        if result > max:
             return result
-    return result + abs(len(umi1) - len(umi2))
+    return result# + abs(len(umi1) - len(umi2))
 
 
 def min_pair(umi1, umi2):

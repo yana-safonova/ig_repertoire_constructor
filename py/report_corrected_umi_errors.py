@@ -2,10 +2,11 @@ import logging
 from umi_tools.count_equal_reads_with_close_umis import smart_open
 
 
-MAX_READ_DIST = 10
+MAX_READ_DIST = 5
 SUM_SIZE_THRESHOLD = 5
 MAX_SIZE_THRESHOLD = 3
-
+LARGE_CLUSTER_SIZE = 5
+SIGNIFICANT_CLUSTER_SIZE = 3
 
 def CreateLogger():
     log = logging.getLogger('igrec')
@@ -88,6 +89,8 @@ def ReportCorrectedUmiErrors(log, read_id_to_read, rcm, umis, output_path):
     output_file = smart_open(output_path, "w")
     adjacent_pairs = 0
     large_pairs = 0
+    become_large = 0
+    both_significant = 0
     for cluster, ids in cluster_to_read_id.iteritems():
         # umis = set([str(read_id_to_umi[read_id]) for read_id in ids])
         cluster_umis = set()
@@ -100,27 +103,52 @@ def ReportCorrectedUmiErrors(log, read_id_to_read, rcm, umis, output_path):
                 from umi_tools.count_equal_reads_with_close_umis import dist
                 if dist(umi1, umi2) == 1:
                     adjacent_pairs += 1
-                    reads1 = set()
-                    reads2 = set()
-                    for read1 in umi_to_read_ids[umi1]:
-                        for read2 in umi_to_read_ids[umi2]:
-                            if dist(read1, read2, MAX_READ_DIST + 1) <= MAX_READ_DIST:
-                                reads1.add(read1)
-                                reads2.add(read2)
-                    if len(reads1) + len(reads2) < SUM_SIZE_THRESHOLD or max(len(reads1), len(reads2)) < MAX_SIZE_THRESHOLD:
+                    read_ids1 = set()
+                    read_ids2 = set()
+                    for read_id1 in umi_to_read_ids[umi1]:
+                        for read_id2 in umi_to_read_ids[umi2]:
+                            if dist(read_id_to_read[read_id1], read_id_to_read[read_id2], MAX_READ_DIST) <= MAX_READ_DIST:
+                                read_ids1.add(read_id1)
+                                read_ids2.add(read_id2)
+                    # for _ in range(len(umi_to_read_ids[umi1])):
+                    #     for read_id11 in umi_to_read_ids[umi1]:
+                    #         if read_id11 not in read_ids1:
+                    #             continue
+                    #         for read_id12 in umi_to_read_ids[umi1]:
+                    #             if read_id12 in read_ids1:
+                    #                 continue
+                    #             if dist(read_id_to_read[read_id11], read_id_to_read[read_id12], MAX_READ_DIST) <= MAX_READ_DIST:
+                    #                 read_ids1.add(read_id12)
+                    # for _ in range(len(umi_to_read_ids[umi2])):
+                    #     for read_id21 in umi_to_read_ids[umi2]:
+                    #         if read_id21 not in read_ids2:
+                    #             continue
+                    #         for read_id22 in umi_to_read_ids[umi2]:
+                    #             if read_id22 in read_ids2:
+                    #                 continue
+                    #             if dist(read_id_to_read[read_id21], read_id_to_read[read_id22], MAX_READ_DIST) <= MAX_READ_DIST:
+                    #                 read_ids2.add(read_id22)
+
+                    if max(len(read_ids1), len(read_ids2)) < LARGE_CLUSTER_SIZE and len(read_ids1) + len(read_ids2) >= LARGE_CLUSTER_SIZE:
+                        become_large += 1
+                    if len(read_ids1) >= SIGNIFICANT_CLUSTER_SIZE and len(read_ids2) >= SIGNIFICANT_CLUSTER_SIZE:
+                        both_significant += 1
+                    if len(read_ids1) + len(read_ids2) < SUM_SIZE_THRESHOLD or max(len(read_ids1), len(read_ids2)) < MAX_SIZE_THRESHOLD:
                         continue
                     large_pairs += 1
                     output_file.write("New pair: %s %s\n" % (umi1, umi2))
-                    output_file.write("%d reads from first + %d reads from second\n" % (len(reads1), len(reads2)))
-                    for read1 in reads1:
-                        output_file.write("%s\n" % read_id_to_read[read1])
+                    output_file.write("%d reads from first + %d reads from second\n" % (len(read_ids1), len(read_ids2)))
+                    for read_id1 in read_ids1:
+                        output_file.write("%s\n" % read_id_to_read[read_id1])
                     output_file.write("\n")
-                    for read2 in reads2:
-                        output_file.write("%s\n" % read_id_to_read[read2])
+                    for read_id2 in read_ids2:
+                        output_file.write("%s\n" % read_id_to_read[read_id2])
                     output_file.write("-----------------")
 
     log.info("Total %d of adjacent pairs found" % adjacent_pairs)
     log.info("Total %d of them have at least %d in total and at least %d in the largest" % (large_pairs, SUM_SIZE_THRESHOLD, MAX_SIZE_THRESHOLD))
+    log.info("%d become large >= %d" % (become_large, LARGE_CLUSTER_SIZE))
+    log.info("%d have both at least %d" % (both_significant, SIGNIFICANT_CLUSTER_SIZE))
 
 
 def main():
