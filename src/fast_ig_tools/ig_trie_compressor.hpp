@@ -31,10 +31,13 @@ public:
         return size__;
     }
 
-    template <typename Tcont>
-    Trie(const Tcont &cont) : Trie() {
-        for (const auto &s : cont) {
-            add(s);
+    template <typename TCont>
+    Trie(const TCont &cont) : Trie(cont.cbegin(), cont.cend()) { }
+
+    template <typename TIter>
+    Trie(TIter b, TIter e) : Trie() {
+        for (; b !=e; ++b) {
+            add(*b);
         }
     }
 
@@ -175,28 +178,42 @@ private:
     size_t size__ = 0;
 };
 
-template <typename TString>
-using ValueType = typename std::decay<decltype((TString())[0])>::type;
+template <typename T>
+using Decay = typename std::decay<T>::type;
 
-template <typename TVector>
-std::vector<size_t> compressed_reads_indices(const TVector &reads) {
-    using TValue = ValueType<ValueType<TVector>>;
-    Trie<TValue> trie(reads);
+template <typename TArray>
+using ValueType = Decay<decltype((Decay<TArray>())[0])>;
+
+template <typename TIter>
+std::vector<size_t> compressed_reads_indices(TIter b, TIter e) {
+    using TValue = ValueType<decltype(*(TIter()))>;
+    Trie<TValue> trie(b, e);
 
     return trie.checkout();
 }
 
 template <typename TVector>
-auto compressed_reads(const TVector &reads) -> std::vector<seqan::String<ValueType<ValueType<TVector>>>>  {
-    auto indices = compressed_reads_indices(reads);
+std::vector<size_t> compressed_reads_indices(const TVector &reads) {
+    return compressed_reads_indices(reads.cbegin(), reads.cend());
+}
 
-    using TValue = ValueType<ValueType<TVector>>;
-    std::vector<seqan::String<TValue>> result;
-    for (size_t i = 0; i < indices.size(); ++i) {
+template <typename TIter>
+auto compressed_reads(TIter b, TIter e) -> std::vector<Decay<decltype(*(TIter()))>>  {
+    auto indices = compressed_reads_indices(b, e);
+
+    std::vector<Decay<decltype(*(TIter()))>> result;
+    for (size_t i = 0; i < indices.size(); ++i, ++b) {
         if (indices[i] == i) {
-            result.push_back(reads[i]);
+            result.push_back(*b);
         }
     }
+
+    return result;
+}
+
+template <typename TVector>
+auto compressed_reads(const TVector &reads) -> std::vector<ValueType<TVector>>  {
+    return compressed_reads(reads.cbegin(), reads.cend());
 }
 }
 // vim: ts=4:sw=4
