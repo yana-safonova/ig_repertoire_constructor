@@ -136,8 +136,8 @@ def main():
 	if args.strategy == 'topk':
 		trees = listdir(os.path.join(args.input, "clonal_trees/"))
 		trees.sort(key=lambda x: int(x.split('.')[-2].split('_')[-1]))
-		for tree_file in trees[-int(args.k):]:
-			print tree_file.split('_')[-1].split('.')[-2]
+		#for tree_file in trees[-int(args.k):]:
+		#	print tree_file.split('_')[-1].split('.')[-2]
 		
 		try:
 			listdir(args.output)
