@@ -25,6 +25,8 @@ namespace annotation_utils {
         GeneSegmentSHMs v_shms_;
         GeneSegmentSHMs j_shms_;
 
+        size_t size_;
+
         void CheckRangeConsistencyFatal(CDRRange range);
 
         void UpdateStructuralRegion(StructuralRegion region, CDRRange range);
@@ -44,7 +46,8 @@ namespace annotation_utils {
                 j_alignment_(j_alignment),
                 aa_annotation_(aa_annotation),
                 v_shms_(v_shms),
-                j_shms_(j_shms) {
+                j_shms_(j_shms),
+                size_(1) {
             Initialize(cdr_labeling);
         }
 
@@ -104,10 +107,16 @@ namespace annotation_utils {
 
         size_t ORF() const { return aa_annotation_.ORF(); }
 
+        size_t  Size() const { return size_; }
+
+        void SetSize(size_t n) { size_ = n; }
+
         const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentBySegment(
                 germline_utils::SegmentType segment_type) const;
 
         char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
+
+
     };
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj);

@@ -14,6 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_trie_compressor.hpp"
+using fast_ig_tools::compressed_reads_indices;
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -131,65 +132,42 @@ int main(int argc, char **argv) {
     INFO(length(input_reads) << " reads were extracted from " << input_file);
 
     INFO("Construction of trie starts");
-    Trie<seqan::Dna5> trie(input_reads);
+    auto indices = compressed_reads_indices(input_reads);
+    INFO("Construction of trie finished")
 
-    auto result__ = trie.checkout(length(input_reads));
-    std::vector<std::pair<size_t, size_t>> result(result__.cbegin(), result__.cend());
-    std::sort(result.begin(), result.end());
-    INFO("Unique prefixes were collected");
+    std::vector<size_t> abundances(indices.size());
+    std::vector<size_t> index2newindex(indices.size());
 
     size_t count = 0;
-    for (const auto &_ : result) {
-        size_t index = _.first;
-        size_t abundance = _.second;
+    for (size_t i = 0; i < indices.size(); ++i) {
+        if (indices[i] == i) {
+            index2newindex[i] = count;
+            ++count;
+        }
 
-        count += abundance;
-
-        std::string id = seqan::toCString(input_ids[index]);
-        id += "___size___" + std::to_string(abundance);
-
-        seqan::writeRecord(seqFileOut_output, id, input_reads[index]);
+        abundances[indices[i]] += 1;  // TODO parse input read abundances and add their values here
     }
 
-    assert(count == length(input_reads));
+    for (size_t i = 0; i < indices.size(); ++i) {
+        if (indices[i] == i) {
+            std::string id = seqan::toCString(input_ids[i]);
+            id += "___size___" + std::to_string(abundances[i]);
 
-    INFO(result.size() << " compressed reads were written to " << output_file);
+            seqan::writeRecord(seqFileOut_output, id, input_reads[i]);
+        }
+    }
+
+    INFO(count << " compressed reads were written to " << output_file);
 
     if (idmap_file_name != "") {
         std::ofstream idmap_file(idmap_file_name.c_str());
-        std::vector<size_t> idmap(length(input_reads));
-        auto result = trie.checkout_ids(length(input_reads));
-        for (const auto &_ : result) {
-            size_t index = _.first;
-            const auto &ids = _.second;
 
-            for (size_t id : ids) {
-                idmap[id] = index;
-            }
-        }
-
-        // TODO Refactor it ASAP
-        std::vector<size_t> ord(length(input_reads), 0);
-        for (size_t id : idmap) {
-            ord[id] = 1;
-        }
-
-        size_t ii = 0;
-        for (size_t &o : ord) {
-            if (o) {
-                o = ii;
-                ++ii;
-            }
-        }
-
-
-        for (size_t id : idmap) {
-            idmap_file << ord[id] << "\n";
+        for (size_t i : indices) {
+            idmap_file << index2newindex[i] << "\n";
         }
 
         INFO("Map from input reads to compressed reads was written to " << idmap_file_name);
     }
-    INFO("Construction of trie finished")
     INFO("Running time: " << running_time_format(pc));
     return 0;
 }

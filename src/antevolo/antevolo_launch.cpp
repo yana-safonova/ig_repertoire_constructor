@@ -11,6 +11,7 @@
 #include "antevolo_processor.hpp"
 #include "evolutionary_stats_calculator.hpp"
 #include "antevolo_output_writer.hpp"
+#include "../fast_ig_tools/ig_trie_compressor.hpp"
 
 namespace antevolo {
     void AntEvoloLaunch::Launch() {
@@ -46,9 +47,36 @@ namespace antevolo {
              " reads were filtered out");
 
         cdr_labeler::ReadCDRLabeler read_labeler(config_.cdr_labeler_config.shm_params, v_labeling, j_labeling);
-        auto annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
+        auto uncompressed_annotated_clone_set = read_labeler.CreateAnnotatedCloneSet(alignment_info);
         cdr_labeler::CDRLabelingWriter writer(config_.cdr_labeler_config.output_params,
-                                              annotated_clone_set);
+                                              uncompressed_annotated_clone_set);
+
+        //trie_compressor
+
+        std::vector<seqan::Dna5String> clone_seqs;
+        for (auto it = uncompressed_annotated_clone_set.cbegin(); it != uncompressed_annotated_clone_set.cend(); it++) {
+            seqan::Dna5String clone_seq = it->Read().seq;
+            clone_seqs.push_back(clone_seq);
+        }
+        INFO("Trie_compressor starts, " << uncompressed_annotated_clone_set.size() << " annotated sequences were created");
+        auto indices = fast_ig_tools::compressed_reads_indices(clone_seqs);
+        std::vector<size_t> abundances(uncompressed_annotated_clone_set.size());
+        for (auto i : indices) {
+            ++abundances[i];
+        }
+        annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone> annotated_clone_set;
+        size_t compressed_clone_index = 0;
+        for (size_t i = 0; i < uncompressed_annotated_clone_set.size(); ++i) {
+            if (abundances[i] != 0) {
+                annotated_clone_set.AddClone(uncompressed_annotated_clone_set[i]);
+                annotated_clone_set[compressed_clone_index].SetSize(abundances[i]);
+                ++compressed_clone_index;
+            }
+        }
+        INFO(annotated_clone_set.size() << " unique prefixes were created");
+
+        //end trie_compressor
+
         writer.OutputCDRDetails();
         writer.OutputSHMs();
         INFO("Tree construction starts");

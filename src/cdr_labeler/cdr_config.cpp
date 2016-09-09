@@ -168,6 +168,6 @@ namespace cdr_labeler {
         load(shm_params, pt, "shm_params", true);
         vj_finder::load(vj_finder_config, input_params.vj_finder_config);
         vj_finder_config.algorithm_params.germline_params.pseudogenes = false;
-        vj_finder_config.algorithm_params.germline_params.loci = "IG";
+        //vj_finder_config.algorithm_params.germline_params.loci = "IG";
     }
 }

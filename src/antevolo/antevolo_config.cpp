@@ -64,7 +64,8 @@ namespace antevolo {
         load(run_params, pt, "run_params");
         load(algorithm_params, pt, "algorithm_params");
         cdr_labeler_config.load(input_params.cdr_labeler_config_fname);
-        cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IG";
+        //INFO("loci:" << cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci);
+        //cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IGH";
         cdr_labeler_config.shm_params.shm_finding_algorithm =
                 cdr_labeler::CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm;
     }

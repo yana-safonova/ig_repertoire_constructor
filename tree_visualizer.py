@@ -45,13 +45,14 @@ def draw_tree(antevolo_res_dir, tree_name, output_dir):
 			clone_left_anchor_AA = arr[5]
 			clone_right_anchor_AA = arr[6]
 			clones[clone_num] = [clone_productive, clone_AA_seq, clone_left_anchor_AA, clone_right_anchor_AA]
+			clone_abundance = int(arr[7])
 
 			if clone_productive:
 				clone_shape = 'ellipse'
 			else:
 				clone_shape = 'box'
 
-			clone_abundance = int(clone_name.split('_')[-1].split('|')[0])
+			#clone_abundance = int(clone_name.split('_')[-1].split('|')[0])
 			clone_width, clone_height = abundance_to_size(clone_abundance)
 			clone_color = 'cyan'
 			vertices[clone_num] = ''.join(['[label=',"\"" + str(clone_num)+'_'+clone_left_anchor_AA+clone_right_anchor_AA + "\"", 

@@ -69,7 +69,7 @@ namespace antevolo {
                                                const annotation_utils::CDRAnnotatedCloneSet& clone_set) const {
         std::string output_fname = tree.GetTreeOutputFname(output_dir);
         std::ofstream out(output_fname);
-        out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\n";
+        out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\tSize\n";
         for (auto it = tree.c_vertex_begin(); it != tree.c_vertex_end(); it++) {
             auto const& clone = clone_set[*it];
             size_t ORF = clone.ORF();
@@ -89,9 +89,9 @@ namespace antevolo {
             char left_CDR3_anchor_AA = clone_AA_string[(start_pos - ORF) / 3 - 1];
             char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - ORF) / 3];
 
-            out << clone.Read().id << "\t" << clone.Read().name << "\t" << clone.Productive() << "\t"
-                << clone_AA_string << "\t" << ORF << "\t"
-                << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\n";
+            out << clone.Read().id << "\t" << clone.Read().name << "\t" << clone.Productive()
+                << "\t" << clone_AA_string << "\t" << ORF << "\t"
+                << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\t" << clone.Size() << "\n";
 
         }
         out.close();

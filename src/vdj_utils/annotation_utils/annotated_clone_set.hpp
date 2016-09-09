@@ -27,6 +27,11 @@ namespace annotation_utils {
             VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set");
             return annotated_clones_[index];
         }
+
+        AnnotatedClone& operator[](size_t index) {
+            VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set");
+            return annotated_clones_[index];
+        }
     };
 
     typedef AnnotatedCloneSet<AnnotatedClone> CDRAnnotatedCloneSet;

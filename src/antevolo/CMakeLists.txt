@@ -43,6 +43,7 @@ add_executable(antevolo
         ../cdr_labeler/cdr_output.cpp
 #        diversity_analyser.cpp
 #        cdr_launch.cpp
+#        ../fast_ig_tools/ig_trie_compressor.cpp
         clone_set_decomposers/vj_clone_set_decomposer.cpp
         clonally_related_candidates_calculators/clonally_related_candidates.cpp
         clonally_related_candidates_calculators/undirectred_first_tree_calculator.cpp
