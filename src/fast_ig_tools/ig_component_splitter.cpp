@@ -104,6 +104,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
+    VERIFY(maximal_mismatch.majory_votes <= maximal_mismatch.secondary_votes);
 
     DEBUG("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     if (maximal_mismatch.secondary_votes <= max_votes) {
@@ -130,6 +131,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     }
 
+    VERIFY(indices_secondary.size() == maximal_mismatch.secondary_votes);
+
     auto majory_consensus = consensus(reads, indices_majory);
     auto secondary_consensus = consensus(reads, indices_secondary);
 
@@ -145,6 +148,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     VERIFY(indices_majory.size() + indices_secondary.size() == indices.size());
+    VERIFY(indices_majory.size() < indices.size());
 
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
     split_component(reads, indices_majory, out);
@@ -154,6 +158,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
             out.push_back({ reads[index], { index } });
         }
     } else {
+        VERIFY(indices_secondary.size() < indices.size());
         split_component(reads, indices_secondary, out);
     }
 }
@@ -184,7 +189,7 @@ int main(int argc, char **argv) {
     std::string rcm_file = "cropped.rcm";
     std::string output_rcm_file = "cropped.rcm";
     std::string config_file = "";
-    size_t max_votes = 1;
+    size_t max_votes = std::numeric_limits<size_t>::max() / 2;
     bool discard = false;
 
     // Parse cmd-line arguments
