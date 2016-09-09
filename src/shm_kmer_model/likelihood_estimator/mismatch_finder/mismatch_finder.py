@@ -7,6 +7,9 @@ from abc import ABCMeta, abstractmethod
 
 
 class AbstractMismatchFinder:
+    """ An abstract class for mismatch finding strategy.
+    Two subclasses are currently available, basing on stragegies:
+    trivial and nokneighbors. """
     __metaclass__ = ABCMeta
 
     def __init__(self, kmer_len=5):
@@ -27,6 +30,7 @@ class AbstractMismatchFinder:
 
 
 class TrivialMismatchFinder(AbstractMismatchFinder):
+    """ Trivial strategy considers __all__ mismatches. """
     def __init__(self, kmer_len=5):
         super(TrivialMismatchFinder, self).__init__(kmer_len)
 
@@ -43,6 +47,8 @@ class TrivialMismatchFinder(AbstractMismatchFinder):
 
 
 class NoKNeighboursMismatchFinder(AbstractMismatchFinder):
+    """ NoKNeighbours strategy considers only mutations that are
+    far enough from each other. """
     def __init__(self, kmer_len=5):
         super(NoKNeighboursMismatchFinder, self).__init__(kmer_len)
 

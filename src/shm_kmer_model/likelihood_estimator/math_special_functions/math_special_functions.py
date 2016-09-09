@@ -1,5 +1,7 @@
+""" This module provides special routines for beta and dir lkhd calculation """
 import numpy as np
 from scipy.special import gammaln, psi
+
 
 def multibetaln(x, axis=None):
     return np.sum(gammaln(x), axis=axis) - gammaln(np.sum(x, axis=axis))

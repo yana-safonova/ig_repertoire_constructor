@@ -1,10 +1,15 @@
-from scipy.special import gammaln, betaln, psi
+from scipy.special import betaln
 from scipy.optimize import check_grad
-from math_special_functions.math_special_functions import multibetaln, dibetaln, dimultibetaln
+from math_special_functions.math_special_functions \
+        import multibetaln, dibetaln, dimultibetaln
 import numpy as np
 
+
 class ShmKmerLikelihood:
-    def __init__(self, sample, nonmutated_ind, check_gradient=False, number_of_tests=None):
+    """ This class calculates likelihood for given sample.
+    No optimization is provided here. """
+    def __init__(self, sample, nonmutated_ind,
+                 check_gradient=False, number_of_tests=None):
         self.full_sample = sample
         self.mutated_sample = np.delete(sample, nonmutated_ind, 1)
         self.nonmutated_ind = nonmutated_ind
@@ -31,11 +36,10 @@ class ShmKmerLikelihood:
 
         return np.sum(result_p21 - result_p22)
 
-
     def gradient_beta(self, beta_shape1, beta_shape2):
         N = self.full_sample.shape[0]
         result_p11 = np.sum(dibetaln(beta_shape1 + self.n_mutated,
-                           beta_shape2 + self.n_all - self.n_mutated), 0)
+                            beta_shape2 + self.n_all - self.n_mutated), 0)
         result_p12 = dibetaln(beta_shape1, beta_shape2).flatten() * N
 
         return result_p11 - result_p12

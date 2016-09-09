@@ -9,6 +9,7 @@ import likelihood_calculator.likelihood_calculator as likelihood_calculator
 import mismatch_finder.mismatch_finder as mismatch_finder
 import shm_kmer_model.shm_kmer_model as shm_kmer_model
 
+
 class TreeTester(object):
     def __init__(self, minimal_size_filtered_tree=20):
         self.minimal_size_filtered_tree = minimal_size_filtered_tree
@@ -30,14 +31,16 @@ class TreeTester(object):
             raise ValueError('Not supported mismatch_strategy')
 
         mutated_indexes = []
-        for source, destination in tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
-            mutated_indexes.append(len(mf.find_mismatch_positions(source, destination)) != 0)
+        for source, destination in \
+                tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
+            numb_mis_pos = len(mf.find_mismatch_positions(source, destination))
+            mutated_indexes.append(numb_mis_pos != 0)
         tree = tree.loc[mutated_indexes]
         return tree
 
     def get_likelihood_statistics(self, model, tree_path=None, tree=None,
-                                   mismatch_strategy='NoKNeighbours',
-                                   model_mode=shm_kmer_model.ModelMode.Both):
+                                  mismatch_strategy='NoKNeighbours',
+                                  model_mode=shm_kmer_model.ModelMode.Both):
         if tree_path is None and tree is None:
             raise ValueError('tree itself or tree_path must be supplied')
         if tree is None:
@@ -47,12 +50,14 @@ class TreeTester(object):
         if tree.shape[0] < self.minimal_size_filtered_tree:
             return np.array([], dtype=np.dtype('float, float'))
 
-        lkhd_calc = likelihood_calculator.LikehoodCalculator(model,
-                    model_mode=model_mode)
+        lkhd_calc = \
+            likelihood_calculator.LikelihoodCalculator(model,
+                                                     model_mode=model_mode)
 
         results = []
-        for source, destination in tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
-            results.append( (lkhd_calc.calculate_likelihood(source, destination),
-                             lkhd_calc.calculate_likelihood(destination, source)) )
+        for source, dest in \
+                tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
+            results.append((lkhd_calc.calculate_likelihood(source, dest),
+                            lkhd_calc.calculate_likelihood(dest, source)))
 
         return np.array(results, dtype=np.dtype('float, float'))

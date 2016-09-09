@@ -8,8 +8,10 @@ import pandas as pd
 from abc import abstractmethod
 import kmer_utilities.kmer_utilities as kmer_utilities
 
+
 class ModelMode(object):
     Mutation, Substitution, Both = range(3)
+
 
 class AbstractSHM_Model(object):
     def __init__(self, dataset=None, kmer_len=5):
@@ -98,7 +100,7 @@ class CAB_SHM_Model(AbstractSHM_Model):
         assert kmer in self.kmer_names
         kmer_info = self.dataset.loc[kmer]
         result = kmer_info['beta_shape1'] / \
-                (kmer_info['beta_shape1'] + kmer_info['beta_shape2'])
+            (kmer_info['beta_shape1'] + kmer_info['beta_shape2'])
         if not np.isnan(result):
             return result
         return kmer_info['start_point_beta_shape1']
@@ -123,9 +125,9 @@ class CAB_SHM_Model(AbstractSHM_Model):
 
         kmer_info = self.dataset.loc[kmer]
         result = kmer_info['dir_shape' + str(mutation_index)] / \
-                (kmer_info['dir_shape1'] + \
-                 kmer_info['dir_shape2'] + \
-                 kmer_info['dir_shape3'])
+            (kmer_info['dir_shape1'] +
+             kmer_info['dir_shape2'] +
+             kmer_info['dir_shape3'])
         if not np.isnan(result):
             return result
         return kmer_info['start_point_dir_shape' + str(mutation_index)]
@@ -139,20 +141,26 @@ class YaleSHM_Model(AbstractSHM_Model):
     def __init__(self):
         super(YaleSHM_Model, self).__init__(None, kmer_len=5)
         self.mutability_dataset = pd.read_csv(self.mutability_path, sep=' ')
-        self.mutability_dataset.set_index(self.mutability_dataset.Fivemer, inplace=True)
+        self.mutability_dataset.set_index(self.mutability_dataset.Fivemer,
+                                          inplace=True)
         self.mutability_dataset = self.mutability_dataset.drop('Fivemer', 1)
         self.mutability_dataset['Mutability'] /= \
-                self.mutability_dataset['Mutability'].max()
+            self.mutability_dataset['Mutability'].max()
 
-        self.substitution_dataset = pd.read_csv(self.substitution_path, sep=' ')
-        self.substitution_dataset.set_index(self.substitution_dataset.Fivemer, inplace=True)
-        self.substitution_dataset = self.substitution_dataset.drop('Fivemer', 1)
+        self.substitution_dataset = \
+            pd.read_csv(self.substitution_path, sep=' ')
+        self.substitution_dataset.set_index(self.substitution_dataset.Fivemer,
+                                            inplace=True)
+        self.substitution_dataset = \
+            self.substitution_dataset.drop('Fivemer', 1)
 
     def __str__(self):
-        return self.mutability_dataset.__str__() + self.substitution_dataset.__str__()
+        return self.mutability_dataset.__str__() + \
+               self.substitution_dataset.__str__()
 
     def __repr__(self):
-        return self.mutability_dataset.__repr__() + self.substitution_dataset.__repr__()
+        return self.mutability_dataset.__repr__() + \
+               self.substitution_dataset.__repr__()
 
     def expect_mut_prob(self, kmer):
         assert kmer in self.kmer_names
