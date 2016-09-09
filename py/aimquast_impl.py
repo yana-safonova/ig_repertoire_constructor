@@ -845,6 +845,7 @@ class RepertoireMatch:
                                      tau=0,
                                      out="fdr_sensitivity",
                                      title="",
+                                     legend=False,
                                      format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -895,10 +896,11 @@ class RepertoireMatch:
         if title:
             plt.title(title)
 
-        handles, labels = ax.get_legend_handles_labels()
-        handles = [handles[0], handles[-1]]
-        labels = [labels[0], labels[-1]]
-        ax.legend(handles, labels, loc=3)
+        if legend:
+            handles, labels = ax.get_legend_handles_labels()
+            handles = [handles[0], handles[-1]]
+            labels = [labels[0], labels[-1]]
+            ax.legend(handles, labels, loc=3)
 
         save_plot(out, format=format)
 
@@ -1065,8 +1067,8 @@ class RcmVsRcm:
                 hexbinblue(ax, majority_votes, secondary_votes)
                 # cb = plt.colorbar()
                 # cb.set_label('log10(N)')
-            ax.set_xlabel("Majority votes")  # Primary
-            ax.set_ylabel("Secondary votes")
+            ax.set_xlabel("First votes")  # Primary
+            ax.set_ylabel("Second votes")
         except BaseException as ex:
             print ex
 
@@ -1099,7 +1101,7 @@ class RcmVsRcm:
                 f, ax = initialize_plot(figsize=(7.5, 6))
                 hexbinblue(ax, sizes, sizes - majority_votes)
             ax.set_xlabel("Cluster size")  # Primary
-            ax.set_ylabel("Cluster size - majority votes")
+            ax.set_ylabel("Cluster size - first votes")
 
             save_plot(out, format=format)
         except BaseException as ex:

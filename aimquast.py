@@ -252,6 +252,10 @@ def main(args):
             res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
                                                    format=args.figure_format, marginals=False)
 
+            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size_hexes",
+                                                   points=False,
+                                                   format=args.figure_format, marginals=False)
+
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
