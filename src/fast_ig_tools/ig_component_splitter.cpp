@@ -17,6 +17,9 @@ namespace po = boost::program_options;
 #include "ig_matcher.hpp"
 
 #include <seqan/seq_io.h>
+#undef NDEBUG
+#include <cassert>
+
 using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::SeqFileOut;
@@ -104,7 +107,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
-    VERIFY(maximal_mismatch.majory_votes <= maximal_mismatch.secondary_votes);
+    VERIFY(maximal_mismatch.majory_votes >= maximal_mismatch.secondary_votes);
 
     DEBUG("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     if (maximal_mismatch.secondary_votes <= max_votes) {
