@@ -25,7 +25,8 @@
 
 4. <a href = "#treevisualizer_usage">TreeVisualizer usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href = "#visualizer_basic">Basic options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;4.4. <a href = "#visualizer_output">Output files</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href = "#visualizer_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.3. <a href = "#visualizer_output">Output files</a><br>
 
 5. <a href = "#examples">Examples</a><br>
 
@@ -71,8 +72,8 @@ IgReC pipeline in shown below:<br>
 <ul>
     <li>Clonal lineage clusters:</li>
     <ul>
-    	<li><i>clonal_trees</i> dir contains tsv dataframes with informaton about in-cluster edges,</li>
-    	<li><i>clonal_trees_vertices</i> dir contains tsv dataframes with informaton about cluster's vertices;</li>
+        <li><i>clonal_trees</i> dir contains tsv dataframes with informaton about in-cluster edges,</li>
+        <li><i>clonal_trees_vertices</i> dir contains tsv dataframes with informaton about cluster's vertices;</li>
     </ul>
     Please note that tsv files are named in the following format: <b>clonal_tree_VJCLASSINDEX_CONNECTEDCOMPONENTINDEX_TREEINDEX.tree</b>
     <li>CDRs information: a tsv dataframe cdr_details.txt</li>
@@ -124,7 +125,7 @@ AntEvolo has the following dependencies:
 </ul>
 TreeVisualizer also has a dependence on 
 <ul>
-	<li><a href = "http://www.graphviz.org/Download..php">Graphviz</a>'s dot (the command-line tool, not Python package) </li>
+    <li><a href = "http://www.graphviz.org/Download..php">Graphviz</a>'s dot (the command-line tool, not Python package) </li>
 </ul>
 
 To install AntEvolo, type:
@@ -305,7 +306,7 @@ to draw <code>&lt;K></code> top-sized trees
 </br></br>
 <pre class="code">
 <code>
-    ./tree_visualizer.py -i &lt;input_dir>  -o &lt;output_dir> -s single -k &lt;tree_name>
+    ./tree_visualizer.py -i &lt;input_dir>  -o &lt;output_dir> -s single -n &lt;tree_name>
 </code>
 </pre>
 to draw single tree where <code>&lt;tree_name></code> is the name of the needed file within the <code>&lt;input_dir>/clonal_trees/</code> 
@@ -334,10 +335,20 @@ file name of the tree to draw (required if <code>strategy</code> is <code>single
 <code>--help, -h</code></br>
 Printing help.</br>
 
+<!--- --------------------- -->
+
+<a id="visualizer_examples"></a>
+<h3>4.2. Examples</h3>
+To draw the clonal tree from file <code>AntEvolo_results_dir/clonal_trees/clonal_tree_14-193-4_Vsize_40_Esize_39.tree</code>, type:
+<pre class="code">
+    <code>
+    ./tree_visualizer.py -i AntEvolo_results_dir -o output_dir -s single -n clonal_tree_14-193-4_Vsize_40_Esize_39.tree
+    </code>
+</pre>
 
 <!-- --------------------- -->
 <a id = "visualizer_output"></a>
-<h3>4.4. Output files:</h3>
+<h3>4.3. Output files:</h3>
 <ul>
     <li>&lt;tree_name>.dot &mdash; file with graph information in <b>dot</b> format</li>
     <li>&lt;tree_name>.dot.pdf &mdash; a pdf image of the tree</li>
@@ -443,16 +454,16 @@ Ids of V and J gene segments are taken from IMGT database.
 <a id="feedback"></a>
 <h2>7. Feedback and bug reports</h2>
 Your comments, bug reports, and suggestions are very welcome.
-They will help us to further improve IgRepertoireConstructor.
+They will help us to further improve AntEvolo.
 <br><br>
-If you have any trouble running IgRepertoireConstructor, please send us the log file from the output directory.
+If you have any trouble running AntEvolo, please send us the log file from the output directory.
 <br><br>
 Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
 
 <a id = "citation"></a>
 <h3>7.1. Citation</h3>
-If you use IgRepertoireConstructor in your research, please refer to
-<a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
+If you use AntEvolo in your research, please refer to
+<a href="..."></a>.
 
 
 </body></html>
