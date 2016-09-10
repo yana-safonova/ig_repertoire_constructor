@@ -94,6 +94,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     };
 
+	// INFO("Splitting component size=" << indices.size() << " len=" << len);
+
     std::vector<PositionVote> secondary_votes;
     for (size_t j = 0; j < len; ++j) {
         std::vector<std::pair<size_t, size_t>> v;
@@ -136,8 +138,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     VERIFY(indices_secondary.size() == maximal_mismatch.secondary_votes);
 
-    auto majory_consensus = consensus(reads, indices_majory);
-    auto secondary_consensus = consensus(reads, indices_secondary);
+    auto majory_consensus = consensus_hamming(reads, indices_majory);
+    auto secondary_consensus = consensus_hamming(reads, indices_secondary);
 
     for (size_t i : indices_other) {
         auto dist_majory = hamming_rtrim(reads[i], majory_consensus);
