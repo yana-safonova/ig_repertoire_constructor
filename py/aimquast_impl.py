@@ -1115,7 +1115,8 @@ class RcmVsRcm:
         purity = self.purity(constructed)
         try:
             sns.distplot(purity, kde=False, bins=25, ax=ax)
-            ax.set_ylabel("Purity")
+            ax.set_xlabel("Purity")
+            ax.set_ylabel("# of clusters")
             ax.set_xlim((0, 1))
             ax.set_ylim((0, len(purity)))
 
@@ -1456,6 +1457,10 @@ class Cluster:
         return self
 
     @memoize
+    def nbases(self):
+        return sum([len(read) for read in self.__reads])
+
+    @memoize
     def consensus(self):
         reads = [str(read.seq) for read in self.__reads]
         return consensus(reads)
@@ -1515,6 +1520,17 @@ class Cluster:
         for i, nerrors in enumerate(errors_by_position):
             if nerrors:
                 result += [float(i) / float(l)] * nerrors
+
+        return result
+
+    @memoize
+    def errors_absolute(self):
+        result = []
+        errors_by_position = self.nerrors_by_position()
+
+        for i, nerrors in enumerate(errors_by_position):
+            if nerrors:
+                result += [i] * nerrors
 
         return result
 
@@ -1600,6 +1616,23 @@ class Repertoire:
 
         self.__clusters = clusters
 
+    @memoize_invalidate
+    def __invalidate(self):
+        pass
+
+    def largest(self):
+        from collections import defaultdict
+        from copy import copy
+
+        result = copy(self)
+        largest_cluster = max(self.__clusters.itervalues(), key=lambda cluster: len(cluster))
+        result.__clusters = defaultdict(Cluster)
+        result.__clusters["0"] = largest_cluster
+
+        result.__invalidate()
+
+        return result
+
     @memoize
     def error_rates(self, min_size=None):
         if min_size is None:
@@ -1667,6 +1700,13 @@ class Repertoire:
             min_size = self.__min_size
 
         return join_list_of_lists(cluster.errors01() for cluster in self.__clusters.itervalues() if len(cluster) >= min_size)
+
+    @memoize
+    def __errors_absolute(self, min_size=None):
+        if min_size is None:
+            min_size = self.__min_size
+
+        return join_list_of_lists(cluster.errors_absolute() for cluster in self.__clusters.itervalues() if len(cluster) >= min_size)
 
     def export_bad_clusters(self,
                             error_rate=None,
@@ -1792,16 +1832,21 @@ class Repertoire:
         errors01 = self.__errors01()
         values, bins = np.histogram(errors01, bins=bins, range=(0., 1.))
 
-        # HARD fix:
-        values[-1:] = np.median(values)
-        values[-2:-1] = np.median(values[:-2])
+        # # HARD fix:
+        # values[-1:] = np.median(values)
+        # values[-2:-1] = np.median(values[:-2])
 
         widths = bins[1:] - bins[:-1]
         width = widths[0]
 
-        width_in_bases = width * 450  # TODO Use len from self.
+        nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
 
-        values / width_in_bases
+        width_in_bases = width * nbases
+        print len(errors01), nbases
+
+        print values
+        values = values / float(width_in_bases)
+        print values
 
         xs = bins[:-1] + widths / 2.
 
@@ -1829,7 +1874,95 @@ class Repertoire:
 
         plt.xlim(0, 1)
         ax.set_xlabel("Relative position in read")
-        ax.set_ylabel("Number of errors")
+        ax.set_ylabel("Second vote rate")
+
+        if legend:
+            handles, labels = ax.get_legend_handles_labels()
+            plt.legend(handles, labels)
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+
+        max_value = ax.get_ylim()[1]
+        plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, max_value, facecolor=cdr_color, lw=0))
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+
+        if title:
+            plt.title(title)
+
+        save_plot(out, format=format)
+
+    def plot_cluster_error_profile_new(self,
+                                       out="error_profile",
+                                       bins=25,
+                                       title="",
+                                       min_size=None,
+                                       legend=False,
+                                       format=None):
+        import matplotlib.pyplot as plt
+        # import seaborn as sns
+        import numpy as np
+        from matplotlib import patches
+
+        if min_size is None:
+            min_size = self.__min_size
+
+        f, ax = initialize_plot()
+        errors_absolute = self.__errors_absolute()
+        l = min([cluster.length() for cluster in self.__clusters.itervalues()])
+        values, bins = np.histogram(errors_absolute, bins=l, range=(1, l))
+
+        widths = bins[1:] - bins[:-1]
+        width = widths[0]
+
+        nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
+        sumlen = sum([len(cluster) for cluster in self.__clusters.itervalues()])
+
+        print len(errors_absolute), nbases
+
+        print values
+        values = values / float(sumlen)
+        print values
+
+        xs = bins[:-1] + widths / 2.
+
+        cdr1_start = 0.25 * l
+        cdr1_end = 0.3 * l
+        cdr2_start = 0.41 * l
+        cdr2_end = 0.54 * l
+        cdr3_start = 0.8 * l
+        cdr3_end = 0.86 * l
+
+        cdr_mask = ((cdr1_start < xs) & (xs < cdr1_end)) | ((cdr2_start < xs) & (xs < cdr2_end)) | ((cdr3_start < xs) & (xs < cdr3_end))
+        cdr_values = values[cdr_mask]
+        cdr_bins = bins[:-1][cdr_mask]
+
+        eps = 1. / len(values) / 10
+        cdr_color = "#EFBEBE"
+
+        ax.bar(left=cdr_bins + eps,
+               height=cdr_values,
+               width=width - 2 * eps,
+               align="edge",
+               # edgecolor='red',
+               color=cdr_color,
+               label="CDRs")
+
+        plt.xlim(1, l)
+        ax.set_xlabel("Position in constructed cluster")
+        ax.set_ylabel("Second vote")
 
         if legend:
             handles, labels = ax.get_legend_handles_labels()
