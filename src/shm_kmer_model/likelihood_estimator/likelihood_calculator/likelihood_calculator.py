@@ -9,7 +9,7 @@ import shm_kmer_model.shm_kmer_model as shm_kmer_model
 
 
 class LikelihoodCalculator(object):
-    """ This class calculates lkhd between two strings basing on the model 
+    """ This class calculates lkhd between two strings basing on the model
     Depending on the Mode given the model is chosen. """
     def __init__(self, model, kmer_len=5,
                  model_mode=shm_kmer_model.ModelMode.Both,

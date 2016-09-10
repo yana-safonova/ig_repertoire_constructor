@@ -1,24 +1,24 @@
 """ This module contains standard samples from AbVitro and age datasets.
 Func concatenate_samples creates a Panel that is as full as possible. """
 
-from sample_reader import SampleReader
+from kmer_freq_matrix_reader import KmerFreqMatrixReader
 
 import pandas as pd
 
-samples_fv = SampleReader().read('AbVitro/flu_time_course/FV/', ['25'])
-samples_gmc = SampleReader().read('AbVitro/flu_time_course/GMC/', ['8'])
-samples_ido = SampleReader().read('AbVitro/flu_time_course/IDO/')
-samples_age = SampleReader().read('age/')
-samples_paired = SampleReader().read('AbVitro/paired/')
+kmer_freq_matrices_fv     = KmerFreqMatrixReader().read('AbVitro/flu_time_course/FV/', ['25'])
+kmer_freq_matrices_gmc    = KmerFreqMatrixReader().read('AbVitro/flu_time_course/GMC/', ['8'])
+kmer_freq_matrices_ido    = KmerFreqMatrixReader().read('AbVitro/flu_time_course/IDO/')
+kmer_freq_matrices_age    = KmerFreqMatrixReader().read('age/')
+kmer_freq_matrices_paired = KmerFreqMatrixReader().read('AbVitro/paired/')
 
 
-def concatenate_samples(chain_type='IGH', strategy='NoKNeighbours'):
+def concatenate_kmer_freq_matrices(chain_type='IGH', strategy='NoKNeighbours'):
     assert chain_type in ['IGH', 'IGL', 'IGK']
-    result = pd.concat((samples_fv[strategy][chain_type],
-                        samples_ido[strategy][chain_type],
-                        samples_gmc[strategy][chain_type],
-                        samples_paired[strategy][chain_type]))
+    result = pd.concat((kmer_freq_matrices_fv[strategy][chain_type],
+                        kmer_freq_matrices_ido[strategy][chain_type],
+                        kmer_freq_matrices_gmc[strategy][chain_type],
+                        kmer_freq_matrices_paired[strategy][chain_type]))
     if chain_type != 'IGH':
         return result
     else:
-        return pd.concat((result, samples_age[strategy][chain_type]))
+        return pd.concat((result, kmer_freq_matrices_age[strategy][chain_type]))

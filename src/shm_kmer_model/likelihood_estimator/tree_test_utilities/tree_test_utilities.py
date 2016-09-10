@@ -52,12 +52,11 @@ class TreeTester(object):
 
         lkhd_calc = \
             likelihood_calculator.LikelihoodCalculator(model,
-                                                     model_mode=model_mode)
+                                                       model_mode=model_mode)
 
         results = []
         for source, dest in \
                 tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
             results.append((lkhd_calc.calculate_likelihood(source, dest),
                             lkhd_calc.calculate_likelihood(dest, source)))
-
         return np.array(results, dtype=np.dtype('float, float'))
