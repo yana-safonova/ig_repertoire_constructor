@@ -94,12 +94,7 @@ def visualize_vj_heatmap(labeling_df, output_pdf, log):
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60, fontsize=14)
     plt.yticks(y, j, rotation='horizontal', fontsize=14)
-    pp = PdfPages(output_pdf + ".pdf")
-    pp.savefig()
-    pp.close()
-    plt.savefig(output_pdf + ".png")
-    plt.clf()
-    log.info("VJ heatmap for the most abundant VJ combinations was written to " + output_pdf + ".pdf and .png")
+    utils.output_figure(output_pdf, "VJ heatmap for the most abundant VJ combinations", log)
 
 ############################################################################
 

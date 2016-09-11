@@ -25,12 +25,7 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname, log
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
     plt.xlim(0, 100)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " length distribution was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " length distribution", log)
 
 ############################################################################
 def visualize_length_abundance_dist(labeling_df, region, region_name, output_fname, log):
@@ -58,12 +53,7 @@ def visualize_length_abundance_dist(labeling_df, region, region_name, output_fna
     #plt.yticks(fontsize = 14)
     #plt.xlim(-1, abun.max() + 1)
     #plt.ylim(-1, lens.max() + 1)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " joint distribution of abundances & lengths was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " joint distribution of abundances & lengths", log)
 
 ############################################################################
 
@@ -127,12 +117,7 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.ylabel('Nucleotide %', fontsize = 16)
     plt.xticks(x, x_l, fontsize = 14)
     plt.yticks(fontsize = 14)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " nucleotide distribution was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " nucleotide distribution", log)
 
 ############################################################################
 
@@ -186,12 +171,7 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
     plt.yticks(fontsize = 14)
     plt.xlabel('The most abundant amino acid', fontsize = 16)
     plt.ylabel('% ' + region_name + 's', fontsize = 16)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " aa variability was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " aa variability", log)
 
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir, log):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
