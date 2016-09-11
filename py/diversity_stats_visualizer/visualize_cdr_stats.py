@@ -124,6 +124,15 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
 amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
 
 def get_aa_colors():
+    hydro_aa = utils.hydrophobic
+    hydro_aa.extend(utils.neutral)
+    hydro_aa.extend(utils.hydrophilic)
+    aa_colors = []
+    for aa in amino_acids:
+        index = hydro_aa.index(aa)
+        aa_colors.append(plt.get_cmap('bwr')(float(len(amino_acids) - index - 1) / float(len(amino_acids))))
+    return aa_colors
+
     #very_hydrophobic = ['L', 'I', 'F', 'W', 'V', 'M']
     #hydrophobic = ['C', 'Y', 'A']
     #very_hydrophobic_col = [plt.get_cmap('Reds')(float(i + 1) / len(very_hydrophobic)) for i in range(0, len(very_hydrophobic))]
