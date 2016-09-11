@@ -65,9 +65,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     String<ProfileChar<T>> profile;
 
     size_t len = length(reads[indices[0]]);
-    for (size_t i : indices) {
-        VERIFY(length(reads[i]) == len);
-    }
+    // for (size_t i : indices) {
+        // Use hashmap instead of TrieCompressor, then uncomment this
+        // VERIFY(length(reads[i]) == len);
+    // }
 
     resize(profile, len);
 
