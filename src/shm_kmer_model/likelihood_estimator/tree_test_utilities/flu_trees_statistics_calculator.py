@@ -24,16 +24,24 @@ class FluTreesStatisticsCalculator(object):
         self.strategies = ['Trivial', 'NoKNeighbours']
         self.model_names = ['Yale', 'CAB_NoKNeighbours', 'CAB_Trivial']
 
-    def get_flu_trees_paths(self):
+    def get_flu_trees_paths(self, chain_type='IGH'):
         from special_utils.largest_files_in_dir import n_largest_files
         import os
         import re
         paths = []
+        if chain_type == 'IGH':
+            chain_path = 'heavy'
+        elif chain_type == 'IGL':
+            chain_path = 'lambda'
+        elif chain_type == 'IGK':
+            chain_path = 'kappa'
+
         for flu_ind in self.flu_ind_names:
             ind_prefix = os.path.join(self.data_path_prefix, flu_ind)
             with cd(ind_prefix):
                 dir_list = filter(os.path.isdir, os.listdir(ind_prefix))
-                dir_list = filter(lambda x: re.match(r'.*_heavy', x), dir_list)
+                dir_list = filter(lambda x: re.match(r'.*_' + chain_path, x),
+                                            dir_list)
                 for dir_id in dir_list:
                     dataset_prefix = os.path.join(os.getcwd(), dir_id,
                                                   'clonal_trees')
@@ -41,7 +49,7 @@ class FluTreesStatisticsCalculator(object):
                                              self.n_largest_trees)
         return paths
 
-    def get_flu_likelihood_statistics(self, tester, model_mode):
+    def get_flu_likelihood_statistics(self, tester, model_mode, chain_type='IGH'):
         results = dict.fromkeys(self.model_names)
         for key in results:
             results[key] = {self.strategies[0]: [], self.strategies[1]: []}
@@ -53,7 +61,7 @@ class FluTreesStatisticsCalculator(object):
                            model_mode=model_mode))
             return dataset
 
-        flu_trees_paths = self.get_flu_trees_paths()
+        flu_trees_paths = self.get_flu_trees_paths(chain_type)
         for flu_tree_path in flu_trees_paths:
             for strategy in self.strategies:
                 results['Yale'][strategy] = \
@@ -61,10 +69,10 @@ class FluTreesStatisticsCalculator(object):
                                      self.yale_model)
                 results['CAB_NoKNeighbours'][strategy] = \
                     append_lkhd_stat(results['CAB_NoKNeighbours'][strategy],
-                                     self.cab_model['NoKNeighbours']['IGH'])
+                                     self.cab_model['NoKNeighbours'][chain_type])
                 results['CAB_Trivial'][strategy] = \
                     append_lkhd_stat(results['CAB_Trivial'][strategy],
-                                     self.cab_model['Trivial']['IGH'])
+                                     self.cab_model['Trivial'][chain_type])
 
         for k1 in results:
             for k2 in results[k1]:
