@@ -346,6 +346,7 @@ def visualize_indel_shm_lengths(shm_df, output_fname, log):
         deletions_lengths.append(del_len)
     dt = []
     labels = []
+    max_x_value = 0
     if len(deletions_lengths) > 10:
         dt.append(deletions_lengths)
         labels.append("Deletions")
@@ -360,7 +361,7 @@ def visualize_indel_shm_lengths(shm_df, output_fname, log):
     plt.xlabel("Insertion / deletion SHM length", fontsize = 16)
     plt.ylabel("# insertion / deletion SHMs", fontsize = 16)
     plt.xlim(.5, max(max(deletions_lengths), max(insertion_length)) + .5)
-    plt.xticks(fontsize = 14)
+    plt.xticks(range(0, max(max(deletions_lengths), max(insertion_length)) + 1), fontsize = 14)
     plt.yticks(fontsize = 14)
     utils.output_figure(output_fname, "Distribution of insertion/deletion SHM lengths", log)
 
