@@ -257,11 +257,11 @@ def create_html(output_html_fname, vj_df, shm_df, images_dict, log):
     log.info("Annotation report was written to " + output_html_fname)
 
 #######################################################################################################################
-def add_cdr_plots(image_dict, plots_dir):
-    inner_plots_dir = "plots/cdr_plots"
-    if not os.path.exists(os.path.join(plots_dir, "cdr_plots")):
-        return
+def add_cdr_plots(image_dict, plots_dir, rel_plot_dir):
+    inner_plots_dir = os.path.join(rel_plot_dir, "cdr_plots")
     cdr_dict = os.path.join(plots_dir, "cdr_plots")
+    if not os.path.exists(cdr_dict):
+        return
     loci = ['IGH', 'IGK', 'IGL']
     cdrs = ['CDR1', 'CDR2', 'CDR3']
     for l in loci:
@@ -273,31 +273,32 @@ def add_cdr_plots(image_dict, plots_dir):
                 if os.path.exists(os.path.join(cdr_dict, file_dict[f])):
                     image_dict[f] = os.path.join(inner_plots_dir, file_dict[f])
 
-def add_shm_plots(image_dict, plots_dir):
+def add_shm_plots(image_dict, plots_dir, rel_plot_dir):
     if os.path.exists(os.path.join(plots_dir, "aa_substitutions.svg")):
-        image_dict["aa_substitutions"] = os.path.join(plots_dir, "aa_substitutions.svg")
+        image_dict["aa_substitutions"] = os.path.join(rel_plot_dir, "aa_substitutions.svg")
     if os.path.exists(os.path.join(plots_dir, "nucl_substitutions.svg")):
-        image_dict["nucl_substitutions"] = os.path.join(plots_dir, "nucl_substitutions.svg")
+        image_dict["nucl_substitutions"] = os.path.join(rel_plot_dir, "nucl_substitutions.svg")
     if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHV.svg")):
-        image_dict["ighv_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHV.svg")
+        image_dict["ighv_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHV.svg")
     if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHK.svg")):
-        image_dict["ighk_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHK.svg")
+        image_dict["ighk_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHK.svg")
     if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHL.svg")):
-        image_dict["ighl_shms"] = os.path.join(plots_dir, "mutations_distribution_IGHL.svg")
+        image_dict["ighl_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHL.svg")
     if os.path.exists(os.path.join(plots_dir, "synonymous_shms_positions.svg")):
-        image_dict["synonymous_shms"] = os.path.join(plots_dir, "synonymous_shms_positions.svg")
+        image_dict["synonymous_shms"] = os.path.join(rel_plot_dir, "synonymous_shms_positions.svg")
     if os.path.exists(os.path.join(plots_dir, "special_shms_positions.svg")):
-        image_dict["special_shms"] = os.path.join(plots_dir, "special_shms_positions.svg")
+        image_dict["special_shms"] = os.path.join(rel_plot_dir, "special_shms_positions.svg")
     if os.path.exists(os.path.join(plots_dir, "indel_shms_length.svg")):
-        image_dict["indel_lens"] = os.path.join(plots_dir, "indel_shms_length.svg")
+        image_dict["indel_lens"] = os.path.join(rel_plot_dir, "indel_shms_length.svg")
 
 
 def create_image_dict(plots_dir):
+    rel_plots_dir = os.path.basename(os.path.normpath(plots_dir))
     image_dict = dict()
     if os.path.exists(os.path.join(plots_dir, "vj_heatmap.svg")):
-        image_dict["vj_heatmap"] = os.path.join("plots", "vj_heatmap.svg")
-    add_cdr_plots(image_dict, plots_dir)
-    add_shm_plots(image_dict, plots_dir)
+        image_dict["vj_heatmap"] = os.path.join(rel_plots_dir, "vj_heatmap.svg")
+    add_cdr_plots(image_dict, plots_dir, rel_plots_dir)
+    add_shm_plots(image_dict, plots_dir, rel_plots_dir)
     return image_dict
 
 #######################################################################################################################
