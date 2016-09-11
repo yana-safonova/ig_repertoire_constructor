@@ -25,3 +25,7 @@ def output_figure(output_fname, log_info, log):
     plt.savefig(output_fname + ".svg")
     plt.clf()
     log.info(log_info + " was written to " + output_fname + ".pdf, .png and .svg")
+
+hydrophobic = ['L', 'I', 'F', 'W', 'V', 'M', 'C', 'Y', 'A']
+neutral = ['T', 'E', 'G', 'S', 'E', 'D', '*']
+hydrophilic = ['R', 'K', 'N', 'H', 'P']

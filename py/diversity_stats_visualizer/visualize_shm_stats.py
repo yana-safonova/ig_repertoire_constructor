@@ -177,6 +177,17 @@ def get_aa_list():
 def aa_is_valid(aa):
     return aa != '*' and aa != '-' and aa != 'X'
 
+def get_aa_ticks_colors(aa_list):
+    colors = []
+    for aa in aa_list:
+        if aa in utils.hydrophobic:
+            colors.append('red')
+        elif aa in utils.neutral:
+            colors.append('green')
+        elif aa in utils.hydrophilic:
+            colors.append('blue')
+    return colors
+
 def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     dict_aa = dict()
     num_shms = 0
@@ -203,6 +214,10 @@ def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     ax.tick_params(labelsize = 14)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12, rotation='horizontal')
+    #for tick, color in zip(ax.get_xticklabels(), get_aa_ticks_colors(aa_list)):
+    #    tick.set_color(color)
+    #for tick, color in zip(ax.get_yticklabels(), get_aa_ticks_colors(aa_list)):
+    #    tick.set_color(color)
     plt.xlabel("From", fontsize = 14)
     plt.ylabel("To", fontsize = 14, rotation='horizontal')
     utils.output_figure(output_fname, "Amino acid substitution heatmap", log)
