@@ -124,32 +124,11 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
 amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
 
 def get_aa_colors():
-    hydro_aa = utils.hydrophobic
-    hydro_aa.extend(utils.neutral)
-    hydro_aa.extend(utils.hydrophilic)
     aa_colors = []
     for aa in amino_acids:
-        index = hydro_aa.index(aa)
-        aa_colors.append(plt.get_cmap('bwr')(float(len(amino_acids) - index - 1) / float(len(amino_acids))))
-    return aa_colors
-
-    #very_hydrophobic = ['L', 'I', 'F', 'W', 'V', 'M']
-    #hydrophobic = ['C', 'Y', 'A']
-    #very_hydrophobic_col = [plt.get_cmap('Reds')(float(i + 1) / len(very_hydrophobic)) for i in range(0, len(very_hydrophobic))]
-    hydrophobic_col = [plt.get_cmap('Reds')(float(len(utils.hydrophobic) - i - 1) / len(utils.hydrophobic)) for i in range(0, len(utils.hydrophobic))]
-    neutral_col = [plt.get_cmap('Greens')(float(i + 1) / len(utils.neutral)) for i in range(0, len(utils.neutral))]
-    hydrophilic_col = [plt.get_cmap('Blues')(float(i + 1) / len(utils.hydrophilic)) for i in range(0, len(utils.hydrophilic))]
-    #aa_colors = [plt.get_cmap('gnuplot2')(float(i + 1) / 21) for i in range(0, 21)]
-    aa_colors = []
-    for aa in amino_acids:
-        #if aa in very_hydrophobic:
-        #    aa_colors.append(very_hydrophobic_col[very_hydrophobic.index(aa)])
-        if aa in utils.hydrophobic:
-            aa_colors.append(hydrophobic_col[utils.hydrophobic.index(aa)])
-        elif aa in utils.neutral:
-            aa_colors.append(neutral_col[utils.neutral.index(aa)])
-        elif aa in utils.hydrophilic:
-            aa_colors.append(hydrophilic_col[utils.hydrophilic.index(aa)])
+        hydrophoby = utils.hydrophoby_dict[aa]
+        rel_value = float(hydrophoby - utils.hydro_min) / float(utils.hydro_max - utils.hydro_min)
+        aa_colors.append(plt.get_cmap('bwr')(rel_value))
     return aa_colors
 
 def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname, log):
