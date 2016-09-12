@@ -54,6 +54,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
                      std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> &out,
                      size_t max_votes = 1,
                      bool discard = false) {
+    if (!max_votes) {
+        max_votes = std::numeric_limits<size_t>::max() / 2;
+    }
+
     if (indices.size() == 0) {
         return;
     }
@@ -156,7 +160,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     VERIFY(indices_majory.size() < indices.size());
 
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
-    split_component(reads, indices_majory, out);
+    split_component(reads, indices_majory, out, max_votes, discard);
 
     if (discard) {
         for (size_t index : indices_secondary) {
@@ -164,22 +168,26 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     } else {
         VERIFY(indices_secondary.size() < indices.size());
-        split_component(reads, indices_secondary, out);
+        split_component(reads, indices_secondary, out, max_votes, discard);
     }
 }
-
 
 
 template<typename T = seqan::Dna5>
 std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(const std::vector<seqan::String<T>> &reads,
                                                                               const std::vector<size_t> &indices,
-                                                                              size_t max_votes = 1,
+                                                                              size_t max_votes = 0,
                                                                               bool discard = false) {
+    if (!max_votes) {
+        max_votes = std::numeric_limits<size_t>::max() / 2;
+    }
+
     std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> result;
     split_component(reads, indices, result, max_votes, discard);
 
     return result;
 }
+
 
 int main(int argc, char **argv) {
     segfault_handler sh;
