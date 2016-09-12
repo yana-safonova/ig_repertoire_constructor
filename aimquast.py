@@ -31,24 +31,24 @@ def parse_command_line(description="aimQUAST"):
             setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
             setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
 
-    def ActionTestAgeFactory(n):
-        class ActionTestAge(argparse.Action):
+    def ActionTestFactory(name):
+        class ActionTest(argparse.Action):
 
             def __init__(self, option_strings, dest, nargs=None, **kwargs):
-                super(ActionTestAge, self).__init__(option_strings, dest, nargs=0, **kwargs)
+                super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
             def __call__(self, parser, namespace, values, option_string=None):
-                setattr(namespace, "initial_reads", "aimquast_test_dataset/age%d/input_reads.fa.gz" % n)
-                setattr(namespace, "output_dir", "aimquast_test_age%d" % n)
-                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/age%d/igrec/final_repertoire.fa.gz" % n)
-                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/age%d/igrec/final_repertoire.rcm" % n)
-                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/age%d/repertoire.fa.gz" % n)
-                setattr(namespace, "reference_rcm", "aimquast_test_dataset/age%d/repertoire.rcm" % n)
-                setattr(namespace, "json", "aimquast_test_age%d/aimquast.json" % n)
-                setattr(namespace, "text", "aimquast_test_age%d/aimquast.txt" % n)
+                setattr(namespace, "initial_reads", "aimquast_test_dataset/%s/input_reads.fa.gz" % name)
+                setattr(namespace, "output_dir", "aimquast_test_%s" % name)
+                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", "aimquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
+                setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
                 setattr(namespace, "figure_format", "pdf,png")
 
-        return ActionTestAge
+        return ActionTest
 
     parser = argparse.ArgumentParser(description=description)
 
@@ -57,13 +57,17 @@ def parse_command_line(description="aimQUAST"):
                         default="",
                         help="Running on test dataset")
     parser.add_argument("--test-age1",
-                        action=ActionTestAgeFactory(1),
+                        action=ActionTestFactory("age1"),
                         default="",
                         help="Running on age1 dataset")
     parser.add_argument("--test-age3",
-                        action=ActionTestAgeFactory(3),
+                        action=ActionTestFactory("age3"),
                         default="",
                         help="Running on age3 dataset")
+    parser.add_argument("--test-flu",
+                        action=ActionTestFactory("flu"),
+                        default="",
+                        help="Running on FLU dataset")
     parser.add_argument("--initial-reads", "-s",
                         type=str,
                         default="",
