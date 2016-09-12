@@ -12,6 +12,8 @@ using std::cout;
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
+#include <boost/algorithm/string.hpp>
+
 #include "fast_ig_tools.hpp"
 #include "ig_final_alignment.hpp"
 #include "ig_matcher.hpp"
@@ -25,26 +27,23 @@ using seqan::SeqFileIn;
 using seqan::SeqFileOut;
 using seqan::CharString;
 
-std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> read_rcm_file_string(const std::string &file_name) {
+
+std::unordered_map<std::string, std::string> read_rcm_file(const std::string &file_name) {
     std::ifstream rcm(file_name.c_str());
 
-    std::unordered_map<std::string, size_t> result;
-    std::unordered_map<std::string, size_t> barcode2num;
+    std::unordered_map<std::string, std::string> result;
 
     std::string id, target;
-    std::vector<std::string> targets;
-    size_t num = 0;
-    while (rcm >> id >> target) {
-        if (barcode2num.count(target) == 0) { // TODO Use iterator here??
-            barcode2num[target] = num++;
-            targets.push_back(target);
-            VERIFY(targets.size() == num);
-        }
-
-        result[id] = barcode2num[target];
+    std::string line;
+    while (std::getline(rcm, line)) {
+        std::vector<std::string> strs;
+        boost::split(strs, line, boost::is_any_of("\t"));
+        boost::trim(strs[0]);
+        boost::trim(strs[1]);
+        result[strs[0]] = strs[1];
     }
 
-    return { result, targets };
+    return result;
 }
 
 
@@ -53,7 +52,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
                      const std::vector<size_t> &indices,
                      std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> &out,
                      size_t max_votes = 1,
-                     bool discard = false) {
+                     bool discard = false,
+                     bool recursive = true) {
     if (!max_votes) {
         max_votes = std::numeric_limits<size_t>::max() / 2;
     }
@@ -98,7 +98,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     };
 
-	// INFO("Splitting component size=" << indices.size() << " len=" << len);
+    // INFO("Splitting component size=" << indices.size() << " len=" << len);
 
     std::vector<PositionVote> secondary_votes;
     for (size_t j = 0; j < len; ++j) {
@@ -160,6 +160,11 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     VERIFY(indices_majory.size() < indices.size());
 
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
+
+    if (!recursive) {
+        max_votes = 0; 
+    }
+
     split_component(reads, indices_majory, out, max_votes, discard);
 
     if (discard) {
@@ -177,13 +182,14 @@ template<typename T = seqan::Dna5>
 std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(const std::vector<seqan::String<T>> &reads,
                                                                               const std::vector<size_t> &indices,
                                                                               size_t max_votes = 0,
-                                                                              bool discard = false) {
+                                                                              bool discard = false,
+                                                                              bool recursive = true) {
     if (!max_votes) {
         max_votes = std::numeric_limits<size_t>::max() / 2;
     }
 
     std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> result;
-    split_component(reads, indices, result, max_votes, discard);
+    split_component(reads, indices, result, max_votes, discard, recursive);
 
     return result;
 }
@@ -197,13 +203,14 @@ int main(int argc, char **argv) {
     INFO("Command line: " << join_cmd_line(argc, argv));
 
     int nthreads = 4;
-    std::string reads_file = "input.fa";
-    std::string output_file = "repertoire.fa";
-    std::string rcm_file = "cropped.rcm";
-    std::string output_rcm_file = "cropped.rcm";
-    std::string config_file = "";
+    std::string reads_file;
+    std::string output_file;
+    std::string rcm_file;
+    std::string output_rcm_file;
+    std::string config_file;
     size_t max_votes = std::numeric_limits<size_t>::max() / 2;
     bool discard = false;
+    bool recursive = true;
 
     // Parse cmd-line arguments
     try {
@@ -233,8 +240,10 @@ int main(int argc, char **argv) {
              "the number of parallel threads")
             ("max-votes,V", po::value<size_t>(&max_votes)->default_value(max_votes),
              "max secondary votes threshold")
-            ("disacrd,D", po::value<bool>(&discard)->default_value(discard),
+            ("discard,D", po::value<bool>(&discard)->default_value(discard),
              "whether to discard secondary votes")
+            ("recursive,C", po::value<bool>(&recursive)->default_value(recursive),
+             "whether to perform recursive splitting")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -316,48 +325,39 @@ int main(int argc, char **argv) {
     component_indices.resize(input_reads.size());
 
     INFO("Reading read-cluster map starts");
-    auto rcm = read_rcm_file_string(rcm_file);
+    auto rcm = read_rcm_file(rcm_file);
+
+    std::unordered_map<std::string, std::vector<size_t>> comp2readnum;
+
     for (size_t i = 0; i < input_reads.size(); ++i) {
         const char *id = toCString(input_ids[i]);
-        VERIFY(rcm.first.count(id));
-        component_indices[i] = rcm.first[id];
+        comp2readnum[rcm[id]].push_back(i);
     }
 
-    INFO(rcm.second.size() << " clusters were extracted from " << rcm_file);
-
-    std::vector<std::vector<size_t>> component2id(rcm.second.size());
-    for (size_t i = 0; i < component_indices.size(); ++i) {
-        component2id[component_indices[i]].push_back(i);
-    }
+    INFO(comp2readnum.size() << " clusters were extracted from " << rcm_file);
 
     size_t max_component_size = 0;
-    for (const auto &_ : component2id) {
-        max_component_size = std::max(max_component_size, _.size());
+    for (const auto &kv : comp2readnum) {
+        max_component_size = std::max(max_component_size, kv.second.size());
     }
     INFO(bformat("Size of maximal cluster: %d") % max_component_size);
 
     omp_set_num_threads(nthreads);
     INFO(bformat("Computation of consensus using %d threads starts") % nthreads);
-
-    using T = seqan::Dna5;
-
-    std::vector<std::vector<std::pair<seqan::String<T>, std::vector<size_t>>>> results(component2id.size());
-    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-    for (size_t comp = 0; comp < component2id.size(); ++comp) {
-        results[comp] = split_component(input_reads, component2id[comp], max_votes, discard);
-    }
-
     INFO("Saving results");
 
     SeqFileOut seqFileOut_output(output_file.c_str());
 
     std::ofstream out_rcm(output_rcm_file.c_str());
 
-    for (size_t comp = 0; comp < results.size(); ++comp) {
-        const auto &result = results[comp];
+    // TODO Use multithreading
+    for (const auto &kv : comp2readnum) {
+        const auto &comp = kv.first;
+        const auto &indices = kv.second;
+        auto result = split_component(input_reads, indices, max_votes, discard, recursive);
         for (size_t i = 0; i < result.size(); ++i) {
             // TODO Add optionally continuous numbering
-            bformat fmt("cluster___%dX%d___size___%d");
+            bformat fmt("cluster___%sX%d___size___%d");
             fmt % comp % i % result[i].second.size();
             std::string id = fmt.str();
 
