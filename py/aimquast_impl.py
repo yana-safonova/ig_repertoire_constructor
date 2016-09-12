@@ -961,6 +961,8 @@ class RcmVsRcm:
             self.clustering1.append(rcm1[id] if id in rcm1 else None)
             self.clustering2.append(rcm2[id] if id in rcm2 else None)
 
+        self.ids = ids
+
     @memoize
     def indices(self):
         from copy import copy
@@ -1019,7 +1021,12 @@ class RcmVsRcm:
 
     @memoize
     def votes(self, constructed=True):
-        return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
+        # return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
+        return self.votes_dict(constructed).values()
+
+    @memoize
+    def votes_dict(self, constructed=True):
+        return votes_dict(self.clustering1, self.clustering2) if constructed else votes_dict(self.clustering2, self.clustering1)
 
     @memoize
     def purity(self, constructed=True):
@@ -1318,6 +1325,33 @@ def votes(X, Y):
     return votes
 
 
+def votes_dict(X, Y):
+    from collections import defaultdict
+
+    assert len(X) == len(Y)
+
+    class defaultdict_factory:
+
+        def __init__(self, type):
+            self.__type = type
+
+        def __call__(self):
+            return defaultdict(self.__type)
+
+    cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
+    for x, y in zip(X, Y):
+        if x is not None and y is not None:
+            cluster[x][y] += 1
+
+    votes = {cluster: sorted(cluster_content.itervalues(), reverse=True) for cluster, cluster_content in cluster.iteritems()}
+
+    for vote in votes.itervalues():
+        if len(vote) < 2:
+            vote += [0] * (2 - len(vote))
+
+    return votes
+
+
 def dict2list(d, default=int):
     if not d:
         return []
@@ -1491,11 +1525,20 @@ class Cluster:
         return ms[0][:l], ms[1][:l]
 
     @memoize
+    def max_second_vote(self):
+        majority, secondary = self.majority_secondary()
+
+        return max(secondary)
+
+    @memoize
     def nerrors_by_position(self):
         return self.majority_secondary()[1]
 
     @memoize
     def nerrors_by_read(self):
+        """
+        Be careful! We consider only second vote errors here!!!
+        """
         reads = [str(read.seq) for read in self.__reads]
         center = self.centroid()
         errors_by_read = []
@@ -1614,7 +1657,7 @@ class Repertoire:
                 clusters[cluster].center = read
                 clusters[cluster].name = cluster
 
-        self.__clusters = clusters
+        self.__clusters = self.clusters = clusters
 
     @memoize_invalidate
     def __invalidate(self):
