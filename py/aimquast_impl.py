@@ -1462,16 +1462,22 @@ def majority_secondary(reads):
     # l = max(len(read) for read in reads)
     l = min(len(read) for read in reads)
 
-    nuc2idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+    # nuc2idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
-    reads = [str(read) for read in reads]
+    # reads = [str(read.seq) for read in reads]
+
+    # In [5]: np.fromstring("ACGT", count=4, dtype=np.uint8)
+    # Out[5]: array([65, 67, 71, 84], dtype=uint8)
 
     mx = np.zeros(shape=(l, 4))
     for read in reads:
-        for i in xrange(min(l, len(read))):
-            letter = read[i]
-            idx = nuc2idx[letter]
-            mx[i, idx] += 1
+        read = np.fromstring(str(read.seq), dtype=np.uint8, count=l)  # TODO use fromstring here
+        # assert len(read) == l
+        mx[read == 65, 0] += 1
+        mx[read == 67, 1] += 1
+        mx[read == 71, 2] += 1
+        mx[read == 84, 3] += 1
+        # assert sum(read == 65) + sum(read == 67) + sum(read == 71) + sum(read == 84) == len(read)
 
     mx.sort(axis=1)
     return mx[:, 3], mx[:, 2]
@@ -1519,8 +1525,7 @@ class Cluster:
 
     @memoize
     def majority_secondary(self):
-        reads = [str(read.seq) for read in self.__reads]
-        ms = majority_secondary(reads)
+        ms = majority_secondary(self.__reads)
         l = self.length()
         return ms[0][:l], ms[1][:l]
 
