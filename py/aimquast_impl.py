@@ -1973,11 +1973,9 @@ class Repertoire:
         nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
         sumlen = sum([len(cluster) for cluster in self.__clusters.itervalues()])
 
-        print len(errors_absolute), nbases
-
-        print values
+        print "Peak", max(values)
+        print "Reads", sumlen, "Bases", nbases, "SV errors", len(errors_absolute)
         values = values / float(sumlen)
-        print values
 
         xs = bins[:-1] + widths / 2.
 
@@ -2029,6 +2027,7 @@ class Repertoire:
                align="edge",
                # edgecolor='cornflowerblue',
                color='cornflowerblue')
+        plt.ylim(0, max_value)
 
         if title:
             plt.title(title)
