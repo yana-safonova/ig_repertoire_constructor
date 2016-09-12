@@ -2352,8 +2352,6 @@ def splittering(rcm2rcm, rep, args):
     repertoire = read_fa_cluster_ids(args.reference_repertoire)
     repertoire = set(str(rec.seq) for rec in repertoire.itervalues() if parse_cluster_mult(rec.description)[1] >= 5)
 
-    print repertoire
-
     score_diffs = []
     cluster_sizes = []
     max_second_votes = []
@@ -2383,12 +2381,11 @@ def splittering(rcm2rcm, rep, args):
             splitted_score += 1 if seq in repertoire else -1
 
         max_second_vote = rep.clusters[id].max_second_vote()
-        print initial_score, splitted_score, max_second_vote, cluster_size, max_second_vote / cluster_size
+        # print initial_score, splitted_score, max_second_vote, cluster_size, max_second_vote / cluster_size
         score_diffs.append(splitted_score - initial_score)
         cluster_sizes.append(cluster_size)
         max_second_votes.append(max_second_vote)
 
-    print "PLOTTINGTIME!"
     score_diffs = np.array(score_diffs)
     cluster_sizes = np.array(cluster_sizes)
     max_second_votes = np.array(max_second_votes)
@@ -2402,7 +2399,6 @@ def splittering(rcm2rcm, rep, args):
             return "green"
     colors = map(def_color, score_diffs)
     markers = map(lambda s: str(int(s)), score_diffs)
-    print max_second_votes, cluster_sizes
     ax = plt.scatter(x=cluster_sizes, y=max_second_votes,
                      c=colors, alpha=0.7)
 
