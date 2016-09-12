@@ -233,7 +233,7 @@ def main(argv):
             log.info("\n==== Visualization of diversity statistics ====")
             visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
                                  os.path.join(params.output_dir, "shm_details.txt"),
-                                 os.path.join(params.output_dir, "plots"), log])
+                                 params.output_dir, log])
             log.info("\n==== Annotation report creation ====")
             html_report_writer.main(os.path.join(params.output_dir, "cdr_details.txt"),
                                 os.path.join(params.output_dir, "shm_details.txt"),

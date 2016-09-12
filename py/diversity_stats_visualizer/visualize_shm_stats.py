@@ -221,6 +221,7 @@ def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     plt.xlabel("From", fontsize = 14)
     plt.ylabel("To", fontsize = 14, rotation='horizontal')
     utils.output_figure(output_fname, "Amino acid substitution heatmap", log)
+    return aa_freq
 
 def nucl_is_valid(nucl):
     return nucl != 'N'
@@ -287,20 +288,20 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     colors = []
     plt.figure(figsize=(12, 9))
         #sns.distplot(synonymous_pos, hist = False, label = "Synonymous SHMs", color = 'r')
-    if len(stop_codon_pos) > 100:
-        pos.append(stop_codon_pos)
-        labels.append('Stop codon')
-        colors.append('g')
-        #sns.distplot(stop_codon_pos, hist = False, label = "Stop codon SHMs", color = 'g')
-    if len(deletion_pos) > 100:
+    #if len(stop_codon_pos) > 100:
+    #    pos.append(stop_codon_pos)
+    #    labels.append('Stop codon')
+    #    colors.append('g')
+    #    #sns.distplot(stop_codon_pos, hist = False, label = "Stop codon SHMs", color = 'g')
+    if len(deletion_pos) > 10:
         pos.append(deletion_pos)
         labels.append('Deletions')
         colors.append('b')
         #sns.distplot(deletion_pos, hist = False, label = "Deletion SHMs", color = 'b')
-    if len(insertion_pos) > 100:
+    if len(insertion_pos) > 10:
         pos.append(insertion_pos)
         labels.append('Insertions')
-        colors.append('orange')
+        colors.append('g')
     if len(pos) == 0:
         log.info("Output contains very low number of special SHMs. Plot drawing will be skipped")
         return
@@ -312,7 +313,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.ylabel("# SHMs", fontsize = 14)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12)
-    utils.output_figure(special_output_fname, "Distribution of special SHM positions in V segment", log)
+    utils.output_figure(special_output_fname, "Distribution of indel V SHM positions in read", log)
 
 def visualize_indel_shm_lengths(shm_df, output_fname, log):
     prev_read_pos = -1
@@ -365,24 +366,34 @@ def visualize_indel_shm_lengths(shm_df, output_fname, log):
     plt.yticks(fontsize = 14)
     utils.output_figure(output_fname, "Distribution of insertion/deletion SHM lengths", log)
 
-def main(shm_df_fname, output_dir, log):
+def output_aa_freq(aa_freq, output_fname, log):
+    aa_list = get_aa_list()
+    fhandler = open(output_fname, "w")
+    fhandler.write("from/to\t" + "\t".join(aa_list) + "\n")
+    for i in range(0, len(aa_list)):
+        fhandler.write(aa_list[i] + "\t" + "\t".join([str(ff) for ff in aa_freq[i]]) + "\n")
+    log.info("Amino acid substitution matrix was written to " + output_fname)
+
+def main(shm_df_fname, plot_dir, output_dir, log):
     log.info("== Output SHMs statistics")
     shm_df = SHMs(shm_df_fname)
     log.info(str(len(shm_df)) + " records were extracted from " + shm_df_fname)
     if len(shm_df) == 0:
         log.info("SHM data-frame contains 0 records. SHM visualization will be skipped")
         return
-    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "mutations_distribution"), log)
-    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"), log)
-    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"), log)
-    visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
-                                    os.path.join(output_dir, "special_shms_positions"), log)
-    visualize_indel_shm_lengths(shm_df, os.path.join(output_dir, "indel_shms_length"), log)
+    visualize_v_mutations_stats(shm_df, os.path.join(plot_dir, "mutations_distribution"), log)
+    aa_freq = visualize_aa_substitution_matrix(shm_df, os.path.join(plot_dir, "aa_substitutions"), log)
+    output_aa_freq(aa_freq, os.path.join(output_dir, "aa_substitution_matrix.txt"), log)
+    # todo: output aa freq
+    visualize_nucl_substitution_matrix(shm_df, os.path.join(plot_dir, "nucl_substitutions"), log)
+    visualize_special_shm_positions(shm_df, os.path.join(plot_dir, "synonymous_shms_positions"),
+                                    os.path.join(plot_dir, "special_shms_positions"), log)
+    visualize_indel_shm_lengths(shm_df, os.path.join(plot_dir, "indel_shms_length"), log)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print "Invalid input parameters"
-        print "python visualize_shm_stats.py shm_df.txt output_dir logger"
+        print "python visualize_shm_stats.py shm_df.txt plot_dir output_dir logger"
         sys.exit(1)
-    log = utils.get_logger_by_arg(sys.argv[3])
-    main(sys.argv[1], sys.argv[2], log)
+    log = utils.get_logger_by_arg(sys.argv[4])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], log)

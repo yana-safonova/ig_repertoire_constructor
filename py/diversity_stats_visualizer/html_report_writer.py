@@ -144,20 +144,20 @@ def WriteSHMCharacteristics(html_writer, shm_df, images_dict):
     if "ighv_shms" in images_dict:
         html_writer.WriteH2("Distribution of SHM in IGHV:")
         html_writer.WriteImage(images_dict["ighv_shms"], width = 60)
-    if "ighk_shms" in images_dict:
-        html_writer.WriteH2("Distribution of SHM in IGHK:")
-        html_writer.WriteImage(images_dict["ighk_shms"], width = 60)
-    if "ighl_shms" in images_dict:
-        html_writer.WriteH2("Distribution of SHM in IGHL:")
-        html_writer.WriteImage(images_dict["ighl_shms"], width = 60)
-    if "synonymous_shms" in images_dict:
-        html_writer.WriteH2("Distribution of synonymous SHM positions in V gene segment:")
-        html_writer.WriteImage(images_dict["synonymous_shms"], width = 60)
+    if "igkv_shms" in images_dict:
+        html_writer.WriteH2("Distribution of SHM in IGKV:")
+        html_writer.WriteImage(images_dict["igkv_shms"], width = 60)
+    if "iglv_shms" in images_dict:
+        html_writer.WriteH2("Distribution of SHM in IGLV:")
+        html_writer.WriteImage(images_dict["iglv_shms"], width = 60)
+    #if "synonymous_shms" in images_dict:
+    #    html_writer.WriteH2("Distribution of synonymous SHM positions in V gene segment:")
+    #    html_writer.WriteImage(images_dict["synonymous_shms"], width = 60)
     if "special_shms" in images_dict:
-        html_writer.WriteH2("Distribution of special SHM (stop codon, deletions, insertions) positions in V gene segment:")
+        html_writer.WriteH2("Distribution of insertion/deletion V SHM positions in read:")
         html_writer.WriteImage(images_dict["special_shms"], width = 70)
     if "indel_lens" in images_dict:
-        html_writer.WriteH2("Distribution of lengths of insertion/deletion SHMs:")
+        html_writer.WriteH2("Distribution of lengths of insertion/deletion V SHMs:")
         html_writer.WriteImage(images_dict["indel_lens"], width = 70)
 
 #######################################################################################################################
@@ -280,10 +280,10 @@ def add_shm_plots(image_dict, plots_dir, rel_plot_dir):
         image_dict["nucl_substitutions"] = os.path.join(rel_plot_dir, "nucl_substitutions.svg")
     if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHV.svg")):
         image_dict["ighv_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHV.svg")
-    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHK.svg")):
-        image_dict["ighk_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHK.svg")
-    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGHL.svg")):
-        image_dict["ighl_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGHL.svg")
+    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGKV.svg")):
+        image_dict["igkv_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGKV.svg")
+    if os.path.exists(os.path.join(plots_dir, "mutations_distribution_IGLV.svg")):
+        image_dict["iglv_shms"] = os.path.join(rel_plot_dir, "mutations_distribution_IGLV.svg")
     if os.path.exists(os.path.join(plots_dir, "synonymous_shms_positions.svg")):
         image_dict["synonymous_shms"] = os.path.join(rel_plot_dir, "synonymous_shms_positions.svg")
     if os.path.exists(os.path.join(plots_dir, "special_shms_positions.svg")):
