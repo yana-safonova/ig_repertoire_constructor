@@ -229,7 +229,7 @@ int main(int argc, char **argv) {
             ("rcm-file,R", po::value<std::string>(&rcm_file)->default_value(rcm_file),
              "input RCM-file")
             ("output-rcm-file,M", po::value<std::string>(&output_rcm_file)->default_value(output_rcm_file),
-             "input RCM-file");
+             "output RCM-file");
 
         // Declare a group of options that will be
         // allowed both on command line and in
@@ -350,8 +350,12 @@ int main(int argc, char **argv) {
 
     std::ofstream out_rcm(output_rcm_file.c_str());
 
+
+    std::vector<std::pair<std::string, std::vector<size_t>>> comp2readnum_sorted(comp2readnum.cbegin(), comp2readnum.cend());
+    std::sort(comp2readnum_sorted.begin(), comp2readnum_sorted.end());
+
     // TODO Use multithreading
-    for (const auto &kv : comp2readnum) {
+    for (const auto &kv : comp2readnum_sorted) {
         const auto &comp = kv.first;
         const auto &indices = kv.second;
         auto result = split_component(input_reads, indices, max_votes, discard, recursive);
