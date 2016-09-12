@@ -2292,3 +2292,124 @@ def json_from_file(filename):
         data = json.load(f)
 
     return data
+
+
+def splittering(rcm2rcm, rep, args):
+    mp = rcm2rcm.votes_dict(constructed=True)
+    for cluster in rep.clusters.itervalues():
+        assert cluster.name in mp
+        votes = mp[cluster.name]
+        purity = float(votes[0]) / sum(votes)
+        cluster.purity = purity
+
+    purities = [cluster.purity for cluster in rep.clusters.itervalues()]
+    second_votes = [cluster.max_second_vote() for cluster in rep.clusters.itervalues()]
+    sizes = [len(cluster) for cluster in rep.clusters.itervalues()]
+
+    print second_votes
+
+    import seaborn as sns
+    import numpy as np
+    import matplotlib.pyplot as plt
+    # ax = sns.regplot(x=np.array(second_votes),
+    #                  y=np.array(purities),
+    #                  line_kws={"alpha": 0.7})
+    # ax.set_xlabel("Second votes * size")
+    # ax.set_ylabel("Purity")
+    # plt.ylim(0, 1)
+    # plt.xlim(0, max(second_votes))
+    # plt.savefig(args.reference_based_dir + "/purity_vs_secondvotesize.png")
+    # plt.close()
+
+    x = np.array(second_votes, dtype=np.float) / np.array(sizes)
+    y = np.array(purities)
+
+    sizes = np.array(sizes)
+
+    def F(size):
+        ax = sns.regplot(x=x[sizes >= size],
+                         y=y[sizes >= size],
+                         line_kws={"alpha": 0.7})
+        ax.set_xlabel("Second votes")
+        ax.set_ylabel("Purity")
+        eps = 0.05
+        plt.ylim(0 - eps, 1 + eps)
+        plt.xlim(0 - eps, 0.5 + eps)
+        plt.savefig(args.reference_based_dir + "/purity_vs_secondvote_%d.png" % size)
+        plt.close()
+    map(F, [1, 5, 10, 15, 50])
+
+    os.system("./build/release/bin/ig_component_splitter -i %s -o test.fa -R %s -M test.rcm -V 1 --recursive=false" % (args.initial_reads, args.constructed_rcm))
+
+    def read_fa_cluster_ids(filename):
+        with smart_open(filename) as f:
+            result = {parse_cluster_mult(rec.id)[0]: rec for rec in SeqIO.parse(f, idFormatByFileName(filename))}
+
+        return result
+
+    splitted_clusters = read_fa_cluster_ids("test.fa")
+    constructed_clusters = read_fa_cluster_ids(args.constructed_repertoire)
+    repertoire = read_fa_cluster_ids(args.reference_repertoire)
+    repertoire = set(str(rec.seq) for rec in repertoire.itervalues() if parse_cluster_mult(rec.description)[1] >= 5)
+
+    print repertoire
+
+    score_diffs = []
+    cluster_sizes = []
+    max_second_votes = []
+
+    for id in constructed_clusters:
+        constructed_seq = constructed_clusters[id]
+
+        splitted_seqs = []
+        for splitted_id in [id + "X0", id + "X1"]:
+            if splitted_id in splitted_clusters:
+                splitted_seqs.append(splitted_clusters[splitted_id])
+
+        cluster_size = len(rep.clusters[id])
+        initial_score = 0
+        assert cluster_size == parse_cluster_mult(constructed_seq.description)[1]
+        if cluster_size < 5:
+            continue
+
+        constructed_seq = str(constructed_seq.seq)
+        initial_score += 1 if constructed_seq in repertoire else -1
+
+        splitted_score = 0
+        for seq in splitted_seqs:
+            if parse_cluster_mult(seq.description)[1] < 5:
+                continue
+            seq = str(seq.seq)
+            splitted_score += 1 if seq in repertoire else -1
+
+        max_second_vote = rep.clusters[id].max_second_vote()
+        print initial_score, splitted_score, max_second_vote, cluster_size, max_second_vote / cluster_size
+        score_diffs.append(splitted_score - initial_score)
+        cluster_sizes.append(cluster_size)
+        max_second_votes.append(max_second_vote)
+
+    print "PLOTTINGTIME!"
+    score_diffs = np.array(score_diffs)
+    cluster_sizes = np.array(cluster_sizes)
+    max_second_votes = np.array(max_second_votes)
+
+    def def_color(score):
+        if score < 0:
+            return "red"
+        elif score == 0:
+            return "black"
+        else:
+            return "green"
+    colors = map(def_color, score_diffs)
+    markers = map(lambda s: str(int(s)), score_diffs)
+    print max_second_votes, cluster_sizes
+    ax = plt.scatter(x=cluster_sizes, y=max_second_votes,
+                     c=colors, alpha=0.7)
+
+    plt.xlabel("Cluster size")
+    plt.ylabel("Second votes")
+    plt.xlim(0, max(cluster_sizes) + 10)
+    plt.ylim(0, max(max_second_votes) + 10)
+
+    plt.savefig(args.reference_based_dir + "/splitting_efficiency.png")
+    plt.close()

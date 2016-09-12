@@ -13,6 +13,7 @@ from ash_python_utils import CreateLogger, AttachFileLogger, mkdir_p
 sys.path.append(igrec_dir + "/py")
 
 from aimquast_impl import Report, reconstruct_rcm, write_rcm, run_consensus_constructor, Repertoire, RepertoireMatch, RcmVsRcm
+from aimquast_impl import splittering
 
 
 def parse_command_line(description="aimQUAST"):
@@ -303,47 +304,14 @@ def main(args):
             rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False)
 
     if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire:
-        mp = rcm2rcm.votes_dict(constructed=True)
-        for cluster in rep.clusters.itervalues():
-            assert cluster.name in mp
-            votes = mp[cluster.name]
-            purity = float(votes[0]) / sum(votes)
-            cluster.purity = purity
+        splittering(rcm2rcm, rep, args)
 
-        purities = [cluster.purity for cluster in rep.clusters.itervalues()]
-        second_votes = [cluster.max_second_vote() for cluster in rep.clusters.itervalues()]
-        sizes = [len(cluster) for cluster in rep.clusters.itervalues()]
 
-        print second_votes
 
-        import seaborn as sns
-        import numpy as np
-        import matplotlib.pyplot as plt
-        # ax = sns.regplot(x=np.array(second_votes),
-        #                  y=np.array(purities),
-        #                  line_kws={"alpha": 0.7})
-        # ax.set_xlabel("Second votes * size")
-        # ax.set_ylabel("Purity")
-        # plt.ylim(0, 1)
-        # plt.xlim(0, max(second_votes))
-        # plt.savefig(args.reference_based_dir + "/purity_vs_secondvotesize.png")
-        # plt.close()
 
-        x = np.array(second_votes, dtype=np.float) / np.array(sizes)
-        y = np.array(purities)
-        sizes = np.array(sizes)
-        def F(size):
-            ax = sns.regplot(x=x[sizes >= size],
-                            y=y[sizes >= size],
-                            line_kws={"alpha": 0.7})
-            ax.set_xlabel("Second votes")
-            ax.set_ylabel("Purity")
-            eps = 0.05
-            plt.ylim(0 - eps, 1 + eps)
-            plt.xlim(0 - eps, 0.5 + eps)
-            plt.savefig(args.reference_based_dir + "/purity_vs_secondvote_%d.png" % size)
-            plt.close()
-        map(F, [1, 5, 10, 15, 50])
+
+
+
 
     log.info(report)
 
