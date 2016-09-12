@@ -14,19 +14,62 @@
 
 namespace clusterer {
 
-    typedef std::function<size_t(const seqan::Dna5String &, const seqan::Dna5String &)> DistFunction;
+    template <typename ElementType>
+    struct Cluster {
+    public:
+        Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_ = 1)
+                : members{first_}, center(center_), id(id_), weight(weight_) {}
+        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_)
+                : members(members_), center(center_), id(id_), weight(weight_) {}
+
+        // Assumes merged clusters are never compared.
+        bool operator==(const Cluster<ElementType>& other) const { return id == other.id; }
+
+        // TODO: needs recursion once multilevel clustering is needed
+        std::unordered_set<Read> GetAllReads() const { return members; }
+        size_t size() const { return members.size(); }
+
+        // methods for using Cluster as an ElementType for another Cluster (should be same as Read)
+        // TODO: extract this to a trait
+        const seqan::Dna5String& GetSequence() const { return center; }
+
+        const std::unordered_set<ElementType> members;
+        const seqan::Dna5String center;
+        const size_t id;
+        const size_t weight;
+    };
+
+    template <typename ElementType>
+    using ClusterPtr = std::shared_ptr<const Cluster<ElementType>>;
+
+    template <typename ElementType>
+    struct ClusterPtrEquals {
+        bool operator()(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second) const {
+            return *first == *second;
+        }
+    };
+
+    template <typename ElementType>
+    struct ClusterPtrHash {
+        size_t operator()(const ClusterPtr<ElementType>& clusterPtr) const {
+            size_t h = clusterPtr->id;
+            return h;
+        }
+    };
+
+
+    typedef std::function<bool(const seqan::Dna5String&, const seqan::Dna5String&)> ReadDistChecker;
+    typedef std::function<bool(const ClusterPtr<Read>&, const ClusterPtr<Read>&)> ClusterDistChecker;
 
     struct ClusteringMode {
-        const DistFunction dist;
-        const size_t threshold;
+        ClusteringMode() = delete;
 
-        ClusteringMode(DistFunction dist_, size_t threshold_) : dist(dist_), threshold(threshold_) { }
-
-        static const DistFunction hamming_dist;
-        static const ClusteringMode hamming;
-        static const DistFunction edit_dist(size_t max_indels);
-        static const ClusteringMode edit;
+        static ReadDistChecker reads_close_in_hamming(size_t limit);
+        static ReadDistChecker reads_close_in_sw(size_t limit, size_t max_indels);
+        static ClusterDistChecker clusters_close_by_center(const ReadDistChecker& check_read_dist);
+        static ClusterDistChecker clusters_close_by_min(const ReadDistChecker& check_read_dist);
     };
+
 
     class ReflexiveUmiPairsIterator {
     public:
@@ -121,57 +164,13 @@ namespace clusterer {
 
 
     template <typename ElementType>
-    struct Cluster {
-    public:
-        Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_ = 1)
-                : members{first_}, center(center_), id(id_), weight(weight_) {}
-        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_)
-                : members(members_), center(center_), id(id_), weight(weight_) {}
-
-        // Assumes merged clusters are never compared.
-        bool operator==(const Cluster<ElementType>& other) const { return id == other.id; }
-
-        // TODO: needs recursion once multilevel clustering is needed
-        std::unordered_set<Read> GetAllReads() const { return members; }
-        size_t size() const { return members.size(); }
-
-        // methods for using Cluster as an ElementType for another Cluster (should be same as Read)
-        // TODO: extract this to a trait
-        const seqan::Dna5String& GetSequence() const { return center; }
-
-        const std::unordered_set<ElementType> members;
-        const seqan::Dna5String center;
-        const size_t id;
-        const size_t weight;
-    };
-
-    template <typename ElementType>
-    using ClusterPtr = std::shared_ptr<const Cluster<ElementType>>;
-
-    template <typename ElementType>
-    struct ClusterPtrEquals {
-        bool operator()(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second) const {
-            return *first == *second;
-        }
-    };
-
-    template <typename ElementType>
-    struct ClusterPtrHash {
-        size_t operator()(const ClusterPtr<ElementType>& clusterPtr) const {
-            size_t h = clusterPtr->id;
-            return h;
-        }
-    };
-
-
-    template <typename ElementType>
     using ManyToManyCorrespondenceUmiToCluster = ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>, UmiPtrHash, UmiPtrEquals, ClusterPtrHash<ElementType>, ClusterPtrEquals<ElementType>>;
 
     template <typename ElementType, typename UmiPairsIterable>
     class Clusterer {
     public:
         static ManyToManyCorrespondenceUmiToCluster<ElementType> cluster(
-                const ClusteringMode& mode,
+                const ClusterDistChecker& dist_checker,
                 const std::vector<UmiPtr>& umis,
                 const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
                 const UmiPairsIterable& umi_pairs_iterable);
@@ -188,7 +187,7 @@ namespace clusterer {
 
     template <typename ElementType, typename UmiPairsIterable>
     ManyToManyCorrespondenceUmiToCluster<ElementType> Clusterer<ElementType, UmiPairsIterable>::cluster(
-            const ClusteringMode& mode,
+            const ClusterDistChecker& dist_checker,
             const std::vector<UmiPtr>& umis,
             const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
             const UmiPairsIterable& umi_pairs_iterable) {
@@ -208,9 +207,10 @@ namespace clusterer {
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
-                    size_t dist = mode.dist(first_cluster->center, second_cluster->center);
+                    bool same_cluster = dist_checker(first_cluster, second_cluster);
 //                    dist_distribution[dist] ++;
-                    if (dist <= mode.threshold || (dist <= 1.5 * static_cast<double>(mode.threshold) && first_cluster->members.size() == 1 && second_cluster->members.size() == 1)) {
+                    if (same_cluster) {
+//                    if (dist <= mode.threshold || (dist <= 1.5 * static_cast<double>(mode.threshold) && first_cluster->members.size() == 1 && second_cluster->members.size() == 1)) {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
@@ -563,10 +563,10 @@ namespace clusterer {
             all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
         }
 
-        size_t tau = 10;
-        size_t max_indels = 3;
-        size_t strategy = 2;
-        size_t k = IG_LEN / (tau + strategy) / 2;
+        const size_t tau = 10;
+        const size_t max_indels = 3;
+        const size_t strategy = 2;
+        const size_t k = IG_LEN / (tau + strategy) / 2;
         Graph left_graph;
         Graph right_graph;
         omp_set_num_threads(static_cast<int>(num_threads));
@@ -576,7 +576,10 @@ namespace clusterer {
             auto kmer2reads = kmerIndexConstruction(all_halves, k);
             size_t num_of_dist_computations = 0;
             Graph& graph = (i == 0) ? left_graph : right_graph;
-            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::edit_dist(max_indels),
+            graph = tauDistGraph(all_halves, kmer2reads,
+                                 [](seqan::Dna5String first, seqan::Dna5String second) {
+                                     return -half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, (int) max_indels);
+                                 },
                                  static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
                                  num_of_dist_computations);
             INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
@@ -655,6 +658,9 @@ namespace clusterer {
                 if (left_in_all > 0 && right_in_all > 0) {
                     found_somewhere ++;
                 }
+                const auto sw_dist = [](seqan::Dna5String first, seqan::Dna5String second) {
+                    return -half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 15);
+                };
                 if (left_in_umi > 0 && right_in_umi > 0) {
                     found_within_umi ++;
                     umi_chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
@@ -664,8 +670,8 @@ namespace clusterer {
                     umi_chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         umi_chimeras_file << "cluster size: " << c->weight << ", ";
-                        umi_chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        umi_chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        umi_chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        umi_chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
                         umi_chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
@@ -677,8 +683,8 @@ namespace clusterer {
                     chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         chimeras_file << "cluster size: " << c->weight << ", ";
-                        chimeras_file << "left dist: " << ClusteringMode::edit_dist(15)(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        chimeras_file << "right dist: " << ClusteringMode::edit_dist(15)(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
                         chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_all > 0) != (right_in_all > 0)) {

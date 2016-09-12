@@ -2,19 +2,84 @@
 
 namespace clusterer {
 
-    const DistFunction ClusteringMode::hamming_dist = [](const seqan::Dna5String &first, const seqan::Dna5String &second) {
-            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 0));
-    };
-
-    const ClusteringMode ClusteringMode::hamming = ClusteringMode(hamming_dist, 15);
-
-    const DistFunction ClusteringMode::edit_dist(size_t max_indels) {
-        return [max_indels](const seqan::Dna5String &first, const seqan::Dna5String &second) {
-            return static_cast<size_t>(-half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, (int) max_indels));
+    ReadDistChecker ClusteringMode::reads_close_in_hamming(size_t limit) {
+        return [limit](const seqan::Dna5String& first, const seqan::Dna5String& second) {
+            size_t diff = 0;
+            size_t len = std::min(length(first), length(second));
+            for (size_t i = 0; i < len; i ++) {
+                if (first[i] != second[i]) {
+                    diff ++;
+                    if (diff > limit) {
+                        return false;
+                    }
+                }
+            }
+            return true;
         };
     }
 
-    const ClusteringMode ClusteringMode::edit = ClusteringMode(edit_dist(15), 15);
+    ReadDistChecker ClusteringMode::reads_close_in_sw(size_t limit, size_t max_indels) {
+        return [limit, max_indels](const seqan::Dna5String& first, const seqan::Dna5String& second) {
+            const size_t INF = std::numeric_limits<size_t>::max() / 2;
+
+            const size_t indel_cost = 1;
+            const size_t mismatch_cost = 1;
+
+            const size_t first_len = length(first);
+            const size_t second_len = length(second);
+
+            std::vector<size_t> dp_cur(2 * max_indels + 1, INF);
+            std::vector<size_t> dp_prev(2 * max_indels + 1);
+            for (size_t j = 0; j <= max_indels && j <= second_len; j ++) {
+                dp_cur[max_indels + j] = j;
+            }
+            // lizard tail for first sequence: minimum of values edit_dist(prefix of first, second)
+            size_t min_at_top = second_len <= max_indels ? dp_cur[max_indels + second_len] : INF;
+
+            for (size_t i = 0; i < first_len; i ++) {
+                std::swap(dp_cur, dp_prev);
+                std::fill(dp_cur.begin(), dp_cur.end(), INF);
+
+                for (size_t index = 0; index <= 2 * max_indels; index ++) {
+                    if (index > 0) {
+                        dp_cur[index - 1] = std::min(dp_cur[index - 1], dp_prev[index] + indel_cost);
+                        dp_cur[index] = std::min(dp_cur[index], dp_cur[index - 1] + indel_cost);
+                    }
+                    if (index + i >= max_indels && index - max_indels + i < second_len) {
+                        dp_cur[index] = std::min(dp_cur[index], dp_prev[index] + (first[i] == second[index - max_indels + i] ? 0 : mismatch_cost));
+                    }
+                }
+
+                if (second_len + max_indels >= i + 1 && second_len - i - 1 + max_indels < 2 * max_indels + 1) {
+                    min_at_top = std::min(min_at_top, dp_cur[second_len - i - 1 + max_indels]);
+                    if (min_at_top <= limit) return true;
+                }
+                if (*std::max_element(dp_cur.begin(), dp_cur.end()) > limit) return false;
+            }
+            size_t result = std::min(min_at_top, *std::min_element(dp_cur.begin(), dp_cur.end()));
+
+            return result <= limit;
+        };
+    }
+
+    ClusterDistChecker ClusteringMode::clusters_close_by_center(const ReadDistChecker& check_read_dist) {
+        return [check_read_dist](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
+            return check_read_dist(first->center, second->center);
+        };
+    }
+
+    ClusterDistChecker ClusteringMode::clusters_close_by_min(const ReadDistChecker& check_read_dist) {
+        return [check_read_dist](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
+            for (const auto& first_read : first->members) {
+                for (const auto& second_read : second->members) {
+                    if (check_read_dist(first_read.GetSequence(), second_read.GetSequence())) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+    }
 
 
     ReflexiveUmiPairsIterator ReflexiveUmiPairsIterator::operator++() {
