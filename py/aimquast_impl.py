@@ -2339,7 +2339,10 @@ def splittering(rcm2rcm, rep, args):
         plt.close()
     map(F, [1, 5, 10, 15, 50])
 
-    os.system("./build/release/bin/ig_component_splitter -i %s -o test.fa -R %s -M test.rcm -V 1 --recursive=false" % (args.initial_reads, args.constructed_rcm))
+    os.system("./build/release/bin/ig_component_splitter -i %s -o %s -R %s -M %s -V 1 --recursive=false" % (args.initial_reads,
+                                                                                                            args.output_dir + "/splitted.fa.gz",
+                                                                                                            args.constructed_rcm,
+                                                                                                            args.output_dir + "/splitted.rcm"))
 
     def read_fa_cluster_ids(filename):
         with smart_open(filename) as f:
@@ -2347,7 +2350,7 @@ def splittering(rcm2rcm, rep, args):
 
         return result
 
-    splitted_clusters = read_fa_cluster_ids("test.fa")
+    splitted_clusters = read_fa_cluster_ids(args.output_dir + "/splitted.fa.gz")
     constructed_clusters = read_fa_cluster_ids(args.constructed_repertoire)
     repertoire = read_fa_cluster_ids(args.reference_repertoire)
     repertoire = set(str(rec.seq) for rec in repertoire.itervalues() if parse_cluster_mult(rec.description)[1] >= 5)
@@ -2396,16 +2399,29 @@ def splittering(rcm2rcm, rep, args):
         elif score == 0:
             return "black"
         else:
-            return "green"
+            return "blue"
+
+    def def_size(score):
+        if score <= 1:
+            return 15
+        elif score == 2:
+            return 20
+        else:
+            return 30
+
     colors = map(def_color, score_diffs)
-    markers = map(lambda s: str(int(s)), score_diffs)
-    ax = plt.scatter(x=cluster_sizes, y=max_second_votes,
-                     c=colors, alpha=0.7)
+    bullet_sizes = map(def_size, score_diffs)
+    plt.scatter(x=cluster_sizes, y=max_second_votes,
+                s=bullet_sizes,
+                c=colors, alpha=0.7)
 
     plt.xlabel("Cluster size")
     plt.ylabel("Second votes")
-    plt.xlim(0, max(cluster_sizes) + 10)
-    plt.ylim(0, max(max_second_votes) + 10)
+    xlim = plt.xlim()
+    ylim = plt.ylim()
+    plt.xlim(0, xlim[1])
+    plt.ylim(0, ylim[1])
 
     plt.savefig(args.reference_based_dir + "/splitting_efficiency.png")
+    plt.savefig(args.reference_based_dir + "/splitting_efficiency.pdf")
     plt.close()
