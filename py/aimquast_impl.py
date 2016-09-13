@@ -2457,3 +2457,18 @@ def splittering(rcm2rcm, rep, args, report):
         s = sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
         print s
         rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s
+
+    import pandas as pd
+    import statsmodels.api as sm
+    import pylab as pl
+    import numpy as np
+
+    good = score_diffs > 0
+    m = sm.Logit(good, np.vstack((np.ones(len(max_second_votes)),
+                                  cluster_sizes,
+                                  max_second_votes)).T)
+    res = m.fit()
+    # print res.aic, res.bic
+    print res.params
+    coef = res.params
+    print zip(res.predict(), score_diffs)
