@@ -2294,6 +2294,60 @@ def json_from_file(filename):
     return data
 
 
+def plot_logit(y, X, colormap=False):
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    sns.set_style("darkgrid")
+
+    print X.shape
+    print X
+    assert X.shape[0] == len(y)
+    print X[:, 1]
+    print X.min()
+    print X[:, 1].min()
+    print X[:, 1].max()
+    # clf = LogisticRegression().fit(np.hstack((X, np.ones((X.shape[0], 1)))), y)
+    clf = LogisticRegression().fit(X, y)
+    score = clf.score(X, y)
+    params = clf.get_params()
+    coef = clf.coef_
+    intercept = clf.intercept_
+
+    # xx, yy = np.mgrid[X[:, 0].min():X[:, 0].max():.01,
+    #                   X[:, 1].min():X[:, 1].max():.01]
+    xx, yy = np.meshgrid(np.arange(X[:, 0].min(), X[:, 0].max(), 0.5),
+                         np.arange(X[:, 1].min(), X[:, 1].max(), 0.5),
+                         sparse=False, indexing='xy')
+
+    grid = np.c_[xx.ravel(), yy.ravel()]
+    # grid = np.hstack((grid, np.ones((grid.shape[0], 1))))
+
+    probs = clf.predict_proba(grid)[:, 1].reshape(xx.shape)
+
+    if colormap:
+        f, ax = initialize_plot()
+        contour = ax.contourf(xx, yy, probs, 25, cmap="RdBu",
+                              vmin=0, vmax=1)
+        ax_c = f.colorbar(contour)
+        ax_c.set_label("$P(y = 1)$")
+        ax_c.set_ticks([0, .25, .5, .75, 1])
+
+        ax.scatter(X[:, 0], X[:, 1], c=y, s=50,
+                   cmap="RdBu", vmin=-.2, vmax=1.2,
+                   edgecolor="white", linewidth=1)
+    else:
+        f, ax = initialize_plot()
+        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
+
+        ax.scatter(X[:, 0], X[:, 1], c=y[:], s=50,
+                   cmap="RdBu", vmin=-.2, vmax=1.2,
+                   edgecolor="white", linewidth=1)
+
+    return coef, intercept, score
+
+
 def splittering(rcm2rcm, rep, args, report):
     mp = rcm2rcm.votes_dict(constructed=True)
     for cluster in rep.clusters.itervalues():
@@ -2431,9 +2485,7 @@ def splittering(rcm2rcm, rep, args, report):
     plt.xlim(0, xlim[1])
     plt.ylim(0, ylim[1])
 
-    plt.savefig(args.reference_based_dir + "/splitting_efficiency.png")
-    plt.savefig(args.reference_based_dir + "/splitting_efficiency.pdf")
-    plt.close()
+    save_plot(args.reference_based_dir + "/splitting_efficiency", format=args.figure_format)
 
     plt.scatter(x=cluster_sizes, y=max_second_votes/cluster_sizes,
                 s=bullet_sizes,
@@ -2446,9 +2498,7 @@ def splittering(rcm2rcm, rep, args, report):
     plt.xlim(0, xlim[1])
     plt.ylim(0 - eps/10, 1 + eps/10)
 
-    plt.savefig(args.reference_based_dir + "/splitting_efficiency01.png")
-    plt.savefig(args.reference_based_dir + "/splitting_efficiency01.pdf")
-    plt.close()
+    save_plot(args.reference_based_dir + "/splitting_efficiency01", format=args.figure_format)
 
     import itertools
     # Test strategies
@@ -2458,17 +2508,32 @@ def splittering(rcm2rcm, rep, args, report):
         print s
         rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s
 
-    import pandas as pd
-    import statsmodels.api as sm
-    import pylab as pl
-    import numpy as np
-
     good = score_diffs > 0
-    m = sm.Logit(good, np.vstack((np.ones(len(max_second_votes)),
-                                  cluster_sizes,
-                                  max_second_votes)).T)
-    res = m.fit()
-    # print res.aic, res.bic
-    print res.params
-    coef = res.params
-    print zip(res.predict(), score_diffs)
+    if False:
+        import statsmodels.api as sm
+
+        m = sm.Logit(good, np.vstack((np.ones(len(max_second_votes)),
+                                      cluster_sizes,
+                                      max_second_votes)).T)
+        # m = sm.Logit(good, np.vstack((cluster_sizes,
+        #                               max_second_votes)).T)
+        res = m.fit()
+        # print res.aic, res.bic
+        print res.params
+        coef = res.params
+        print zip(res.predict(), score_diffs)
+
+    coef, intercept, score = plot_logit(good, np.vstack((cluster_sizes,
+                                                         max_second_votes)).T)
+
+    print "Coef", coef, intercept
+    print "Score", score
+    rs["LogitScore"] = score
+    rs["LogitCoef"] = [coef[0][0], coef[0][1]]
+    rs["LigitIntercept"] = intercept[0]
+    save_plot(args.reference_based_dir + "/splitting_efficiency01_logit", format=args.figure_format)
+    plot_logit(good, np.vstack((cluster_sizes,
+                                max_second_votes)).T,
+               colormap=True)
+
+    save_plot(args.reference_based_dir + "/splitting_efficiency01_logit_colormap", format=args.figure_format)
