@@ -2416,7 +2416,7 @@ def splittering(rcm2rcm, rep, args):
                 c=colors, alpha=0.7)
 
     plt.xlabel("Cluster size")
-    plt.ylabel("Second votes")
+    plt.ylabel("Max. # second votes")
     xlim = plt.xlim()
     ylim = plt.ylim()
     plt.xlim(0, xlim[1])
@@ -2424,6 +2424,21 @@ def splittering(rcm2rcm, rep, args):
 
     plt.savefig(args.reference_based_dir + "/splitting_efficiency.png")
     plt.savefig(args.reference_based_dir + "/splitting_efficiency.pdf")
+    plt.close()
+
+    plt.scatter(x=cluster_sizes, y=max_second_votes/cluster_sizes,
+                s=bullet_sizes,
+                c=colors, alpha=0.7)
+    plt.xlabel("Cluster size")
+    plt.ylabel("Max. second vote")
+    xlim = plt.xlim()
+    ylim = plt.ylim()
+    eps = 0.05
+    plt.xlim(0, xlim[1])
+    plt.ylim(0 - eps/10, 1 + eps/10)
+
+    plt.savefig(args.reference_based_dir + "/splitting_efficiency01.png")
+    plt.savefig(args.reference_based_dir + "/splitting_efficiency01.pdf")
     plt.close()
 
     import itertools
