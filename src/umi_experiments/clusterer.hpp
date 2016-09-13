@@ -4,7 +4,6 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include "utils.hpp"
-#include "../fast_ig_tools/banded_half_smith_waterman.hpp"
 #include "../graph_utils/sparse_graph.hpp"
 #include "umi_utils.hpp"
 #include "disjoint_sets.hpp"
@@ -564,9 +563,9 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    void report_non_major_umi_groups_sw(const ManyToManyCorrespondenceUmiToCluster<ElementType> umi_to_clusters, std::string file_name,
-                                        std::string left_graph_file_name, std::string right_graph_file_name,
-                                        std::string chimeras_info_file_name, std::string umi_chimeras_info_file_name, size_t num_threads) {
+    ManyToManyCorrespondenceUmiToCluster<ElementType> report_non_major_umi_groups_sw(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
+                                                                                     std::string file_name, std::string left_graph_file_name, std::string right_graph_file_name,
+                                                                                     std::string chimeras_info_file_name, std::string umi_chimeras_info_file_name, size_t num_threads) {
         // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
         // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
         // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
@@ -594,10 +593,7 @@ namespace clusterer {
             auto kmer2reads = kmerIndexConstruction(all_halves, k);
             size_t num_of_dist_computations = 0;
             Graph& graph = (i == 0) ? left_graph : right_graph;
-            graph = tauDistGraph(all_halves, kmer2reads,
-                                 [](seqan::Dna5String first, seqan::Dna5String second) {
-                                     return -half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, (int) max_indels);
-                                 },
+            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::bounded_edit_dist(tau, max_indels),
                                  static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
                                  num_of_dist_computations);
             INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
@@ -619,6 +615,7 @@ namespace clusterer {
         std::ofstream out_file(file_name);
         std::ofstream chimeras_file(chimeras_info_file_name);
         std::ofstream umi_chimeras_file(umi_chimeras_info_file_name);
+        auto result = umi_to_clusters;
         const auto& umis = umi_to_clusters.fromSet();
         for (const auto& umi: umis) {
             const auto& clusters = umi_to_clusters.forth(umi);
@@ -676,9 +673,7 @@ namespace clusterer {
                 if (left_in_all > 0 && right_in_all > 0) {
                     found_somewhere ++;
                 }
-                const auto sw_dist = [](seqan::Dna5String first, seqan::Dna5String second) {
-                    return -half_sw_banded(first, second, 0, -1, -1, [](int) -> int { return 0; }, 15);
-                };
+                const auto sw_dist = ClusteringMode::bounded_edit_dist(40, 15, false);
                 if (left_in_umi > 0 && right_in_umi > 0) {
                     found_within_umi ++;
                     umi_chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
@@ -693,6 +688,14 @@ namespace clusterer {
                         umi_chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
+                    for (const auto& c : clusters) {
+                        // This is not a chimera, but a highly amplified sequence
+                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 30) {
+                            continue;
+                        }
+                    }
+
+                    result.removeTo(cluster);
                     chimeras ++;
                     chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
                     chimeras_file << "chimera: " << cluster->GetSequence() << std::endl;
@@ -716,6 +719,8 @@ namespace clusterer {
         INFO("Ones that could be found within the same UMI by halves: " << found_within_umi);
         INFO("Ones with a half within UMI and a half somewhere else outside: " << chimeras);
         INFO("Ones with only one half found at all: " << found_half_only);
+
+        return result;
     }
 }
 

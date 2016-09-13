@@ -182,24 +182,26 @@ int main(int argc, const char* const* argv) {
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
 
+    auto umi_to_clusters_no_chimeras = umi_to_clusters_edit_adj_umi;
+
     if (params.detect_chimeras) {
-        clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi, params.output_dir + "/non_major.csv",
-                                                  params.output_dir + "/left_graph.graph",
-                                                  params.output_dir + "/right_graph.graph",
-                                                  params.output_dir + "/chimeras.txt",
-                                                  params.output_dir + "/umi_chimeras.txt",
-                                                  params.num_threads);
+        umi_to_clusters_no_chimeras = clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi,
+                                                                     params.output_dir + "/non_major.csv",
+                                                                     params.output_dir + "/left_graph.graph",
+                                                                     params.output_dir + "/right_graph.graph",
+                                                                     params.output_dir + "/chimeras.txt",
+                                                                     params.output_dir + "/umi_chimeras.txt",
+                                                                     params.num_threads);
     }
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
 //    INFO(edit_corrected_reads << " reads have UMI corrected for edit dist.");
 //    INFO(hamm_corrected_reads + edit_corrected_reads << " reads total have UMI corrected.");
-    size_t reads_with_corrected_umis = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_adj_umi);
+    size_t reads_with_corrected_umis = clusterer::count_reads_with_corrected_umi(umi_to_clusters_no_chimeras);
     INFO(reads_with_corrected_umis << " reads total have UMI corrected.");
 
     INFO("Uniting clusters with identical centers");
-    const auto umi_to_clusters_same_centers = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::uniteByCenters(
-            umi_to_clusters_edit_adj_umi);
+    const auto umi_to_clusters_same_centers = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::uniteByCenters(umi_to_clusters_no_chimeras);
     INFO(umi_to_clusters_same_centers.toSize() << " clusters found");
 
 //    INFO("Uniting ignoring UMIs");
