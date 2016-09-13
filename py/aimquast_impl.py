@@ -2294,7 +2294,7 @@ def json_from_file(filename):
     return data
 
 
-def splittering(rcm2rcm, rep, args):
+def splittering(rcm2rcm, rep, args, report):
     mp = rcm2rcm.votes_dict(constructed=True)
     for cluster in rep.clusters.itervalues():
         assert cluster.name in mp
@@ -2389,6 +2389,15 @@ def splittering(rcm2rcm, rep, args):
         cluster_sizes.append(cluster_size)
         max_second_votes.append(max_second_vote)
 
+    if "splitting" not in report.__dict__:
+        report.splitting = {}
+
+    rs = report.splitting
+
+    rs["score_diffs"] = score_diffs
+    rs["cluster_sizes"] = cluster_sizes
+    rs["max_second_votes"] = max_second_votes
+
     score_diffs = np.array(score_diffs)
     cluster_sizes = np.array(cluster_sizes)
     max_second_votes = np.array(max_second_votes)
@@ -2445,4 +2454,6 @@ def splittering(rcm2rcm, rep, args):
     # Test strategies
     for cluster_size_threshold, secondvote_threshold in itertools.product([5, 20, 50, 100, 200], [0.5, 0.2, 0.1, 0.05, 0.01]):
         print "score_diffs[cluster_sizes >= %d & max_second_votes/cluster_size >= %f]" % (cluster_size_threshold, secondvote_threshold)
-        print sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
+        s = sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
+        print s
+        rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s

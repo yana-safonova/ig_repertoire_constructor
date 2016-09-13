@@ -304,7 +304,7 @@ def main(args):
             rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False)
 
     if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire:
-        splittering(rcm2rcm, rep, args)
+        splittering(rcm2rcm, rep, args, report)
 
 
 
