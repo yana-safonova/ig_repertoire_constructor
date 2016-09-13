@@ -2509,7 +2509,7 @@ def splittering(rcm2rcm, rep, args, report):
         print s
         rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s
 
-    s = sum(score_diffs[0.8*max_second_votes - 0.0065*cluster_sizes > 4.3])
+    s = sum(score_diffs[0.634*max_second_votes - 0.0076*cluster_sizes > 6.025])
     rs["SavedClustersLogit"] = s
     print "Saved clusters logit", s
 
