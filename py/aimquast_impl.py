@@ -2443,6 +2443,6 @@ def splittering(rcm2rcm, rep, args):
 
     import itertools
     # Test strategies
-    for cluster_size_threshold, secondvote_threshold in itertools.product([5, 20, 50, 100, 20], [0.5, 0.2, 0.1, 0.05, 0.01]):
+    for cluster_size_threshold, secondvote_threshold in itertools.product([5, 20, 50, 100, 200], [0.5, 0.2, 0.1, 0.05, 0.01]):
         print "score_diffs[cluster_sizes >= %d & max_second_votes/cluster_size >= %f]" % (cluster_size_threshold, secondvote_threshold)
         print sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
