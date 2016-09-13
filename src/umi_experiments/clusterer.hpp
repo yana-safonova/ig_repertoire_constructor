@@ -335,6 +335,7 @@ namespace clusterer {
     size_t count_reads_with_corrected_umi(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters) {
         const auto& clusters = umi_to_clusters.toSet();
         size_t result = 0;
+//        size_t printed = 0;
         for (const auto& cluster : clusters) {
             const auto& members = cluster->members;
             std::vector<seqan::CharString> read_ids(members.size());
@@ -346,8 +347,12 @@ namespace clusterer {
                 umi_to_cnt[umi] ++;
             }
             size_t max_cnt = 0;
+            seqan::Dna5String max_umi;
             for (const auto& entry : umi_to_cnt) {
-                max_cnt = std::max(max_cnt, entry.second);
+                if (entry.second > max_cnt) {
+                    max_cnt = entry.second;
+                    max_umi = entry.first;
+                }
             }
             bool was_max = false;
             for (const auto& entry : umi_to_cnt) {
@@ -361,7 +366,17 @@ namespace clusterer {
                     result += entry.second;
                 }
             }
+
+//            for (const auto& read: members) {
+//                if (seqan_string_to_string(read.GetReadId()).find(seqan_string_to_string(max_umi)) == std::string::npos) {
+//                    std::cout << ">" << read.GetReadId() << std::endl << read.GetSequence() << std::endl;
+//                    printed ++;
+//                }
+//            }
         }
+//        if (result != printed) {
+//            ERROR("Returning " << result << ", but printed " << printed);
+//        }
         return result;
     }
 

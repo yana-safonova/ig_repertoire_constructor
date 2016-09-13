@@ -112,14 +112,13 @@ int main(int argc, const char* const* argv) {
     // TODO: also share reads (but not individually),
     // TODO: use indices instead of map keys and values where possible
     std::unordered_map<Umi, UmiPtr> umi_ptr_by_umi;
+    std::vector<UmiPtr> compressed_umi_ptrs;
     for (auto& umi_read : input.compressed_umis) {
-        umi_ptr_by_umi[Umi(umi_read)] = std::make_shared<Umi>(umi_read);
+        const auto& umi_ptr = std::make_shared<Umi>(umi_read);
+        compressed_umi_ptrs.push_back(umi_ptr);
+        umi_ptr_by_umi[Umi(umi_read)] = umi_ptr;
     }
 
-    std::vector<UmiPtr> compressed_umi_ptrs;
-    for (auto& entry : umi_ptr_by_umi) {
-        compressed_umi_ptrs.push_back(entry.second);
-    }
     std::vector<Read> reads;
     for (size_t i = 0; i < input.input_reads.size(); i ++) {
         reads.emplace_back(input.input_reads[i], input.input_ids[i], i);

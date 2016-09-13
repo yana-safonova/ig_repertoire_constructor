@@ -24,3 +24,6 @@ vjf:
 
 cdr:
 	$(MAKE) -C build/release/cdr_labeler
+
+umi:
+	$(MAKE) -C build/release/umi_experiments

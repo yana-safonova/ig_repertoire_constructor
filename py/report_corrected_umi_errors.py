@@ -91,6 +91,7 @@ def ReportCorrectedUmiErrors(log, read_id_to_read, rcm, umis, output_path):
     large_pairs = 0
     become_large = 0
     both_significant = 0
+    corrected_reads = set()
     for cluster, ids in cluster_to_read_id.iteritems():
         # umis = set([str(read_id_to_umi[read_id]) for read_id in ids])
         cluster_umis = set()
@@ -139,16 +140,36 @@ def ReportCorrectedUmiErrors(log, read_id_to_read, rcm, umis, output_path):
                     output_file.write("New pair: %s %s\n" % (umi1, umi2))
                     output_file.write("%d reads from first + %d reads from second\n" % (len(read_ids1), len(read_ids2)))
                     for read_id1 in read_ids1:
-                        output_file.write("%s\n" % read_id_to_read[read_id1])
+                        output_file.write(">%s\n%s\n" % (read_id1, read_id_to_read[read_id1]))
                     output_file.write("\n")
                     for read_id2 in read_ids2:
-                        output_file.write("%s\n" % read_id_to_read[read_id2])
+                        output_file.write(">%s\n%s\n" % (read_id2, read_id_to_read[read_id2]))
                     output_file.write("-----------------")
+
+                    not_in_cluster = 0
+                    for read_id in read_ids1:
+                        if read_id not in ids:
+                            not_in_cluster += 1
+                    for read_id in read_ids2:
+                        if read_id not in ids:
+                            not_in_cluster += 1
+                    print not_in_cluster, " out of ", len(read_ids1) + len(read_ids2), " are not in the cluster actually!!! Sizes: ", len(read_ids1), len(read_ids2)
+
+                    read_ids = read_ids1 if len(read_ids1) < len(read_ids2) else read_ids2
+                    for read_id in read_ids:
+                        log.info(">%s\n%s" % (read_id, read_id_to_read[read_id]))
+                        # if read_id in corrected_reads:
+                        #     print "too bad"
+                    corrected_reads.update(read_ids)
+
+    # for read_id in corrected_reads:
+    #     log.info(">%s\n%s" % (read_id, read_id_to_read[read_id]))
 
     log.info("Total %d of adjacent pairs found" % adjacent_pairs)
     log.info("Total %d of them have at least %d in total and at least %d in the largest" % (large_pairs, SUM_SIZE_THRESHOLD, MAX_SIZE_THRESHOLD))
     log.info("%d become large >= %d" % (become_large, LARGE_CLUSTER_SIZE))
     log.info("%d have both at least %d" % (both_significant, SIGNIFICANT_CLUSTER_SIZE))
+    log.info("%d total reads corrected" % len(corrected_reads))
 
 
 def main():
