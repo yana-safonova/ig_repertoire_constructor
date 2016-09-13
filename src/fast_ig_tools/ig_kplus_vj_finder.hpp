@@ -491,10 +491,20 @@ private:
         return result;
     }
 
+    static std::string lymph_type(const std::string &locus) {
+        if (locus.substr(0, 2) == "IG") {
+            return "IG";
+        } else if (locus.substr(0, 2) == "TR") {
+            return "TCR";
+        } else {
+            throw std::invalid_argument("Invalid locus name: " + locus + ". Cannot identify lymphocyte type");
+        }
+    }
+
     std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
                                bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
+        return db_directory + "/" + organism + "/" + lymph_type(locus) + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
 

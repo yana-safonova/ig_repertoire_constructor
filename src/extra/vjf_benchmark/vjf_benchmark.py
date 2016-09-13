@@ -72,37 +72,6 @@ class Empty:
     pass
 
 
-<<<<<<< HEAD
-=======
-def smart_open(filename, mode="r"):
-    import gzip
-    import re
-
-    if "w" in mode:
-        MODE = "w"
-    elif "a" in mode:
-        MODE = "a"
-    else:
-        MODE = "r"
-
-    if re.match(r"^.*\.gz$", filename):
-        assert(MODE != "a")
-        fh = gzip.open(filename, mode=MODE)
-    else:
-        fh = open(filename, mode=mode)
-    return fh
-
-
-def md5_file(fname):
-    import hashlib
-
-    hash_md5 = hashlib.md5()
-    with smart_open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
-
-
 def hash_file(fname, len=7):
     import os.path
 

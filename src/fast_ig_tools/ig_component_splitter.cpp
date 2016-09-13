@@ -66,9 +66,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     String<ProfileChar<T>> profile;
 
     size_t len = length(reads[indices[0]]);
-    for (size_t i : indices) {
-        VERIFY(length(reads[i]) == len);
-    }
+    // for (size_t i : indices) {
+        // Use hashmap instead of TrieCompressor, then uncomment this
+        // VERIFY(length(reads[i]) == len);
+    // }
 
     resize(profile, len);
 
@@ -107,7 +108,6 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     if (maximal_mismatch.secondary_votes <= max_votes) {
-        // call consensus from this string
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
             size_t idx = getMaxIndex(profile[i]);
@@ -122,9 +122,9 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     std::vector<size_t> indices_majory, indices_secondary, indices_other;
     for (size_t i : indices) {
-        if (reads[i][maximal_mismatch.position] == maximal_mismatch.majory_letter) {
+        if (seqan::ordValue(reads[i][maximal_mismatch.position]) == maximal_mismatch.majory_letter) {
             indices_majory.push_back(i);
-        } else if (reads[i][maximal_mismatch.position] == maximal_mismatch.secondary_letter) {
+        } else if (seqan::ordValue(reads[i][maximal_mismatch.position]) == maximal_mismatch.secondary_letter) {
             indices_secondary.push_back(i);
         } else {
             indices_other.push_back(i);
