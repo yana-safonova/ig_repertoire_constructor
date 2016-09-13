@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
     output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
 
-    if False:
+    if True:
         run_ig_simulator(ig_simulator_output_dir,
                          chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
 
