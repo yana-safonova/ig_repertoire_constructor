@@ -2,7 +2,7 @@
 
 namespace clusterer {
 
-    ReadDistChecker ClusteringMode::reads_close_in_hamming(size_t limit) {
+    ReadDist ClusteringMode::bounded_hamming_dist(size_t limit) {
         return [limit](const seqan::Dna5String& first, const seqan::Dna5String& second) {
             size_t diff = 0;
             size_t len = std::min(length(first), length(second));
@@ -10,16 +10,16 @@ namespace clusterer {
                 if (first[i] != second[i]) {
                     diff ++;
                     if (diff > limit) {
-                        return false;
+                        return limit + 1;
                     }
                 }
             }
-            return true;
+            return diff;
         };
     }
 
-    ReadDistChecker ClusteringMode::reads_close_in_sw(size_t limit, size_t max_indels) {
-        return [limit, max_indels](const seqan::Dna5String& first, const seqan::Dna5String& second) {
+    ReadDist ClusteringMode::bounded_edit_dist(size_t limit, size_t max_indels, bool binary) {
+        return [limit, max_indels, binary](const seqan::Dna5String& first, const seqan::Dna5String& second) {
             const size_t INF = std::numeric_limits<size_t>::max() / 2;
 
             const size_t indel_cost = 1;
@@ -52,27 +52,27 @@ namespace clusterer {
 
                 if (second_len + max_indels >= i + 1 && second_len - i - 1 + max_indels < 2 * max_indels + 1) {
                     min_at_top = std::min(min_at_top, dp_cur[second_len - i - 1 + max_indels]);
-                    if (min_at_top <= limit) return true;
+                    if (binary && min_at_top <= limit) return min_at_top;
                 }
-                if (*std::max_element(dp_cur.begin(), dp_cur.end()) > limit) return false;
+                if (*std::max_element(dp_cur.begin(), dp_cur.end()) > limit) return limit + 1;
             }
             size_t result = std::min(min_at_top, *std::min_element(dp_cur.begin(), dp_cur.end()));
 
-            return result <= limit;
+            return std::min(result, limit + 1);
         };
     }
 
-    ClusterDistChecker ClusteringMode::clusters_close_by_center(const ReadDistChecker& check_read_dist) {
-        return [check_read_dist](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
-            return check_read_dist(first->center, second->center);
+    ClusterDistChecker ClusteringMode::clusters_close_by_center(const ReadDist& check_read_dist, size_t limit) {
+        return [check_read_dist, limit](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
+            return check_read_dist(first->center, second->center) <= limit;
         };
     }
 
-    ClusterDistChecker ClusteringMode::clusters_close_by_min(const ReadDistChecker& check_read_dist) {
-        return [check_read_dist](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
+    ClusterDistChecker ClusteringMode::clusters_close_by_min(const ReadDist& read_dist, size_t limit) {
+        return [read_dist, limit](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
             for (const auto& first_read : first->members) {
                 for (const auto& second_read : second->members) {
-                    if (check_read_dist(first_read.GetSequence(), second_read.GetSequence())) {
+                    if (read_dist(first_read.GetSequence(), second_read.GetSequence()) <= limit) {
                         return true;
                     }
                 }

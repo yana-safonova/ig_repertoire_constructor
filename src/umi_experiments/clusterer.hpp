@@ -58,16 +58,19 @@ namespace clusterer {
     };
 
 
-    typedef std::function<bool(const seqan::Dna5String&, const seqan::Dna5String&)> ReadDistChecker;
+    typedef std::function<size_t(const seqan::Dna5String&, const seqan::Dna5String&)> ReadDist;
     typedef std::function<bool(const ClusterPtr<Read>&, const ClusterPtr<Read>&)> ClusterDistChecker;
 
     struct ClusteringMode {
         ClusteringMode() = delete;
 
-        static ReadDistChecker reads_close_in_hamming(size_t limit);
-        static ReadDistChecker reads_close_in_sw(size_t limit, size_t max_indels);
-        static ClusterDistChecker clusters_close_by_center(const ReadDistChecker& check_read_dist);
-        static ClusterDistChecker clusters_close_by_min(const ReadDistChecker& check_read_dist);
+        // return function returning hamming distance if it's <= limit or limit + 1 otherwise
+        static ReadDist bounded_hamming_dist(size_t limit);
+        // if binary is true, return function returning edit distance if it's <= limit and limit + 1 otherwise
+        // else return function returning some number <= limit if edit distance <= limit and + 1 limit otherwise
+        static ReadDist bounded_edit_dist(size_t limit, size_t max_indels, bool binary = true);
+        static ClusterDistChecker clusters_close_by_center(const ReadDist& read_dist, size_t limit);
+        static ClusterDistChecker clusters_close_by_min(const ReadDist& read_dist, size_t limit);
     };
 
 

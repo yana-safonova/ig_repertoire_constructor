@@ -108,9 +108,9 @@ int main(int argc, const char* const* argv) {
         const auto& idx_list = entry.second;
         const auto& consensus = calculate_consensus(input.input_reads, idx_list);
         std::vector<size_t> filtered_idx_list;
-        const auto& close_in_hamming = clusterer::ClusteringMode::reads_close_in_hamming(10);
-        std::remove_copy_if(idx_list.begin(), idx_list.end(), back_inserter(filtered_idx_list), [&consensus, &close_in_hamming](seqan::Dna5String read) {
-            return !close_in_hamming(consensus, read);
+        const auto& dist = clusterer::ClusteringMode::bounded_hamming_dist(10);
+        std::remove_copy_if(idx_list.begin(), idx_list.end(), back_inserter(filtered_idx_list), [&consensus, &dist](seqan::Dna5String read) {
+            return dist(consensus, read) > 10;
         });
         entry.second = filtered_idx_list;
         const auto& precise_consensus = calculate_consensus(input.input_reads, filtered_idx_list);
