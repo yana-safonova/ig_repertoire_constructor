@@ -2301,14 +2301,15 @@ def plot_logit(y, X, colormap=False):
     import seaborn as sns
     sns.set_style("darkgrid")
 
-    print X.shape
-    print X
+    # print X.shape
+    # print X
     assert X.shape[0] == len(y)
-    print X[:, 1]
-    print X.min()
-    print X[:, 1].min()
-    print X[:, 1].max()
+    # print X[:, 1]
+    # print X.min()
+    # print X[:, 1].min()
+    # print X[:, 1].max()
     # clf = LogisticRegression().fit(np.hstack((X, np.ones((X.shape[0], 1)))), y)
+
     clf = LogisticRegression().fit(X, y)
     score = clf.score(X, y)
     params = clf.get_params()
@@ -2507,6 +2508,10 @@ def splittering(rcm2rcm, rep, args, report):
         s = sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
         print s
         rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s
+
+    s = sum(score_diffs[0.8*max_second_votes - 0.0065*cluster_sizes > 4.3])
+    rs["SavedClustersLogit"] = s
+    print "Saved clusters logit", s
 
     good = score_diffs > 0
     if False:
