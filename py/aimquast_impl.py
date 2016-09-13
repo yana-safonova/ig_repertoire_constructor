@@ -1890,11 +1890,11 @@ class Repertoire:
         nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
 
         width_in_bases = width * nbases
-        print len(errors01), nbases
+        # print len(errors01), nbases
 
-        print values
+        # print values
         values = values / float(width_in_bases)
-        print values
+        # print values
 
         xs = bins[:-1] + widths / 2.
 
@@ -2306,7 +2306,7 @@ def splittering(rcm2rcm, rep, args):
     second_votes = [cluster.max_second_vote() for cluster in rep.clusters.itervalues()]
     sizes = [len(cluster) for cluster in rep.clusters.itervalues()]
 
-    print second_votes
+    # print second_votes
 
     import seaborn as sns
     import numpy as np
