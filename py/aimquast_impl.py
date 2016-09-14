@@ -2294,7 +2294,7 @@ def json_from_file(filename):
     return data
 
 
-def plot_logit(y, X, colormap=False):
+def plot_logit(y, X, colors, colormap=False):
     import numpy as np
     from sklearn.linear_model import LogisticRegression
     import matplotlib.pyplot as plt
@@ -2335,16 +2335,21 @@ def plot_logit(y, X, colormap=False):
         ax_c.set_label("$P(y = 1)$")
         ax_c.set_ticks([0, .25, .5, .75, 1])
 
-        ax.scatter(X[:, 0], X[:, 1], c=y, s=50,
+        ax.scatter(X[:, 0], X[:, 1], c=colors,
+                   s=30,
                    cmap="RdBu", vmin=-.2, vmax=1.2,
                    edgecolor="white", linewidth=1)
+        plt.xlabel("Cluster size")
+        plt.ylabel("Second vote * size")
     else:
         f, ax = initialize_plot()
         ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
 
-        ax.scatter(X[:, 0], X[:, 1], c=y[:], s=50,
-                   cmap="RdBu", vmin=-.2, vmax=1.2,
-                   edgecolor="white", linewidth=1)
+        ax.scatter(X[:, 0], X[:, 1], s=30,
+                   c=colors,
+                   cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
+        plt.xlabel("Cluster size")
+        plt.ylabel("Second vote * size")
 
     return coef, intercept, score
 
@@ -2480,7 +2485,7 @@ def splittering(rcm2rcm, rep, args, report):
                 c=colors, alpha=0.7)
 
     plt.xlabel("Cluster size")
-    plt.ylabel("Max. # second votes")
+    plt.ylabel("Second votes * size")
     xlim = plt.xlim()
     ylim = plt.ylim()
     plt.xlim(0, xlim[1])
@@ -2492,7 +2497,7 @@ def splittering(rcm2rcm, rep, args, report):
                 s=bullet_sizes,
                 c=colors, alpha=0.7)
     plt.xlabel("Cluster size")
-    plt.ylabel("Max. second vote")
+    plt.ylabel("Second vote * size")
     xlim = plt.xlim()
     ylim = plt.ylim()
     eps = 0.05
@@ -2529,7 +2534,8 @@ def splittering(rcm2rcm, rep, args, report):
         print zip(res.predict(), score_diffs)
 
     coef, intercept, score = plot_logit(good, np.vstack((cluster_sizes,
-                                                         max_second_votes)).T)
+                                                         max_second_votes)).T,
+                                        colors=colors)
 
     print "Coef", coef, intercept
     print "Score", score
@@ -2539,6 +2545,7 @@ def splittering(rcm2rcm, rep, args, report):
     save_plot(args.reference_based_dir + "/splitting_efficiency01_logit", format=args.figure_format)
     plot_logit(good, np.vstack((cluster_sizes,
                                 max_second_votes)).T,
+               colors=colors,
                colormap=True)
 
     save_plot(args.reference_based_dir + "/splitting_efficiency01_logit_colormap", format=args.figure_format)
