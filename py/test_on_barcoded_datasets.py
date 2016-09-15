@@ -5,7 +5,8 @@ from test_on_naive_simulation import *
 
 def run_and_quast_all_three(input_dir, threads=16, do_not_run=False):
     # for i in [1, 2, 3]:
-    for i in [1, 3]:
+    # for i in [1, 3]:
+    for i in [3]:
         run_and_quast_all(input_dir + "/input%d.fa.gz" % i,
                           input_dir + "/repertoire%d.fa.gz" % i,
                           input_dir + "/repertoire%d.rcm" % i,
