@@ -1,5 +1,3 @@
-#include <fstream>
-#include <vector>
 #include <cassert>
 #include <algorithm>
 
@@ -53,7 +51,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
                      std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> &out,
                      size_t max_votes = 1,
                      bool discard = false,
-                     bool recursive = true) {
+                     bool recursive = true,
+                     bool flu = true) {
     if (!max_votes) {
         max_votes = std::numeric_limits<size_t>::max() / 2;
     }
@@ -116,7 +115,23 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     VERIFY(maximal_mismatch.majory_votes >= maximal_mismatch.secondary_votes);
 
     INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
-    if (maximal_mismatch.secondary_votes <= max_votes) {
+    bool do_split = false;
+    auto mmsv = maximal_mismatch.secondary_votes;
+
+    if (flu) {
+        do_split = -0.0064174097073423269 * indices.size() + 0.79633984048973583 * mmsv - 4.3364230321953841 > 0;
+    } else {
+        do_split = mmsv <= max_votes;
+    }
+    if (indices.size() <= 5) {
+        do_split = false;
+    }
+
+    if (max_votes > 100500) {
+        do_split = false;
+    }
+
+    if (do_split) {
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
             size_t idx = getMaxIndex(profile[i]);
@@ -165,7 +180,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         max_votes = 0; 
     }
 
-    split_component(reads, indices_majory, out, max_votes, discard);
+    split_component(reads, indices_majory, out, max_votes, discard, flu);
 
     if (discard) {
         for (size_t index : indices_secondary) {
@@ -173,7 +188,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     } else {
         VERIFY(indices_secondary.size() < indices.size());
-        split_component(reads, indices_secondary, out, max_votes, discard);
+        split_component(reads, indices_secondary, out, max_votes, discard, flu);
     }
 }
 
@@ -183,7 +198,8 @@ std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(co
                                                                               const std::vector<size_t> &indices,
                                                                               size_t max_votes = 0,
                                                                               bool discard = false,
-                                                                              bool recursive = true) {
+                                                                              bool recursive = true,
+                                                                              bool flu = true) {
     if (!max_votes) {
         max_votes = std::numeric_limits<size_t>::max() / 2;
     }
@@ -211,6 +227,7 @@ int main(int argc, char **argv) {
     size_t max_votes = std::numeric_limits<size_t>::max() / 2;
     bool discard = false;
     bool recursive = true;
+    bool flu = true;
 
     // Parse cmd-line arguments
     try {
@@ -244,6 +261,8 @@ int main(int argc, char **argv) {
              "whether to discard secondary votes")
             ("recursive,C", po::value<bool>(&recursive)->default_value(recursive),
              "whether to perform recursive splitting")
+            ("flu,F", po::value<bool>(&flu)->default_value(flu),
+             "Use FLU preset")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -358,7 +377,7 @@ int main(int argc, char **argv) {
     for (const auto &kv : comp2readnum_sorted) {
         const auto &comp = kv.first;
         const auto &indices = kv.second;
-        auto result = split_component(input_reads, indices, max_votes, discard, recursive);
+        auto result = split_component(input_reads, indices, max_votes, discard, recursive, flu);
         for (size_t i = 0; i < result.size(); ++i) {
             // TODO Add optionally continuous numbering
             bformat fmt("cluster___%sX%d___size___%d");
