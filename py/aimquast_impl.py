@@ -2343,13 +2343,19 @@ def plot_logit(y, X, colors, colormap=False):
         plt.ylabel("Second vote * size")
     else:
         f, ax = initialize_plot()
-        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
+        # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
+        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys")
 
         ax.scatter(X[:, 0], X[:, 1], s=30,
                    c=colors,
-                   cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
+                   # cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
+                   cmap="RdBu", alpha=0.7)
         plt.xlabel("Cluster size")
         plt.ylabel("Second vote * size")
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        plt.xlim(0, xlim[1])
+        plt.ylim(0, ylim[1])
 
     return coef, intercept, score
 
