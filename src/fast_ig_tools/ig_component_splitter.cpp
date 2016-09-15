@@ -172,7 +172,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     VERIFY(indices_majory.size() + indices_secondary.size() == indices.size());
-    VERIFY(indices_majory.size() < indices.size());
+    VERIFY(indices_majory.size() <= indices.size());
 
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
 
