@@ -227,7 +227,7 @@ int main(int argc, char **argv) {
     size_t max_votes = std::numeric_limits<size_t>::max() / 2;
     bool discard = false;
     bool recursive = true;
-    bool flu = true;
+    bool flu = false;
 
     // Parse cmd-line arguments
     try {
