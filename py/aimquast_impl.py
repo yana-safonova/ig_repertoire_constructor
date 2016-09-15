@@ -2344,9 +2344,9 @@ def plot_logit(y, X, colors, colormap=False):
     else:
         f, ax = initialize_plot()
         # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
-        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys")
+        # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys")
 
-        ax.scatter(X[:, 0], X[:, 1], s=30,
+        ax.scatter(X[:, 0], X[:, 1], s=20,
                    c=colors,
                    # cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
                    cmap="RdBu", alpha=0.7)
@@ -2354,6 +2354,7 @@ def plot_logit(y, X, colors, colormap=False):
         plt.ylabel("Second vote * size")
         xlim = plt.xlim()
         ylim = plt.ylim()
+        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
         plt.xlim(0, xlim[1])
         plt.ylim(0, ylim[1])
 
@@ -2491,7 +2492,7 @@ def splittering(rcm2rcm, rep, args, report):
                 c=colors, alpha=0.7)
 
     plt.xlabel("Cluster size")
-    plt.ylabel("Second votes * size")
+    plt.ylabel("Second vote * size")
     xlim = plt.xlim()
     ylim = plt.ylim()
     plt.xlim(0, xlim[1])
@@ -2500,7 +2501,7 @@ def splittering(rcm2rcm, rep, args, report):
     save_plot(args.reference_based_dir + "/splitting_efficiency", format=args.figure_format)
 
     plt.scatter(x=cluster_sizes, y=max_second_votes/cluster_sizes,
-                s=bullet_sizes,
+                s=20,
                 c=colors, alpha=0.7)
     plt.xlabel("Cluster size")
     plt.ylabel("Second vote * size")
@@ -2548,10 +2549,10 @@ def splittering(rcm2rcm, rep, args, report):
     rs["LogitScore"] = score
     rs["LogitCoef"] = [coef[0][0], coef[0][1]]
     rs["LigitIntercept"] = intercept[0]
-    save_plot(args.reference_based_dir + "/splitting_efficiency01_logit", format=args.figure_format)
+    save_plot(args.reference_based_dir + "/splitting_efficiency_logit", format=args.figure_format)
     plot_logit(good, np.vstack((cluster_sizes,
                                 max_second_votes)).T,
                colors=colors,
                colormap=True)
 
-    save_plot(args.reference_based_dir + "/splitting_efficiency01_logit_colormap", format=args.figure_format)
+    save_plot(args.reference_based_dir + "/splitting_efficiency_logit_colormap", format=args.figure_format)
