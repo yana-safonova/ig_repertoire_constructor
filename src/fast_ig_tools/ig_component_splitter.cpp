@@ -205,7 +205,7 @@ std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(co
     }
 
     std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> result;
-    split_component(reads, indices, result, max_votes, discard, recursive);
+    split_component(reads, indices, result, max_votes, discard, recursive, flu);
 
     return result;
 }
