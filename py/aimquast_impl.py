@@ -2406,10 +2406,10 @@ def splittering(rcm2rcm, rep, args, report):
         plt.close()
     map(F, [1, 5, 10, 15, 50])
 
-    os.system("./build/release/bin/ig_component_splitter -i %s -o %s -R %s -M %s -V 1 --recursive=false" % (args.initial_reads,
-                                                                                                            args.output_dir + "/splitted.fa.gz",
-                                                                                                            args.constructed_rcm,
-                                                                                                            args.output_dir + "/splitted.rcm"))
+    os.system("./build/release/bin/ig_component_splitter -i %s -o %s -R %s -M %s -V 1 --recursive=false --flu=false" % (args.initial_reads,
+                                                                                                                        args.output_dir + "/splitted.fa.gz",
+                                                                                                                        args.constructed_rcm,
+                                                                                                                        args.output_dir + "/splitted.rcm"))
 
     def read_fa_cluster_ids(filename):
         with smart_open(filename) as f:
