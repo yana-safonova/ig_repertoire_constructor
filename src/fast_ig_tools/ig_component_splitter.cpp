@@ -121,7 +121,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     if (flu) {
         do_split = -0.0064174097073423269 * indices.size() + 0.79633984048973583 * mmsv - 4.3364230321953841 > 0;
     } else {
-        do_split = mmsv <= max_votes;
+        do_split = mmsv >= max_votes;
     }
     if (indices.size() <= 5) {
         do_split = false;
@@ -131,7 +131,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         do_split = false;
     }
 
-    if (do_split) {
+    if (! do_split) {
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
             size_t idx = getMaxIndex(profile[i]);
