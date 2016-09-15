@@ -128,7 +128,7 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
-        cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --no-rcm-based" % args
+        cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
 
         rcm = "%(out_dir)s/%(kind)s/final_repertoire.rcm" % args
         if os.path.isfile(rcm):
