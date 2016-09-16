@@ -34,7 +34,7 @@ namespace {
                 ("detect-chimeras,k", po::value<bool>(&params.detect_chimeras)->default_value(false), "detect chimeras after clustering, may take significant amount of time")
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
-                ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(15), "threshold distance to unite clusters")
+                ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(20), "threshold distance to unite clusters")
                 ;
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(cmdl_options).run(), vm);
@@ -133,7 +133,7 @@ int main(int argc, const char* const* argv) {
     }
     // This works 10-15 times slower than simple way (2 min vs 10 sec). Maybe because we don't try to glue to larger clusters first. Anyway, not a great problem at the moment.
     const clusterer::ReadDist& hamming_dist = clusterer::ClusteringMode::bounded_hamming_dist(params.clustering_threshold);
-    const auto hamming_dist_checker = clusterer::ClusteringMode::clusters_close_by_center(hamming_dist, params.clustering_threshold);
+    const auto hamming_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(hamming_dist, params.clustering_threshold);
     INFO("Clustering reads by hamming within single UMIs with threshold " << params.clustering_threshold);
     const auto umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             hamming_dist_checker, compressed_umi_ptrs, initial_umis_to_clusters,
@@ -169,7 +169,7 @@ int main(int argc, const char* const* argv) {
 //    INFO(hamm_corrected_reads << " reads have UMI corrected for hamming dist.");
 
     const clusterer::ReadDist& edit_dist = clusterer::ClusteringMode::bounded_edit_dist(params.clustering_threshold, params.clustering_threshold);
-    const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_center(edit_dist, params.clustering_threshold);
+    const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(edit_dist, params.clustering_threshold);
     INFO("Clustering reads by edit distance within single UMIs with threshold " << params.clustering_threshold);
     const auto umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
             edit_dist_checker, compressed_umi_ptrs, umi_to_clusters_hamm_adj_umi,

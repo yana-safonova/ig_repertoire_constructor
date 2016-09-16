@@ -25,6 +25,7 @@ struct Options {
     size_t barcode_length;
     PcrOptions pcr_options;
     size_t output_estimation_limit;
+    std::string compress_repertoire;
 };
 
 Options parse_options(int argc, const char* const* argv) {
@@ -54,6 +55,8 @@ Options parse_options(int argc, const char* const* argv) {
             ("barcode-position,b", po::value<size_t>(&pcrOptions.barcode_position)->default_value(3),
              "indicator of barcode position in the read, used for chimeras simulation. "
              "1 for barcode going with the left half, 2 for the right half, 3 for random choice (defaults to 3)")
+            ("compressed-path,w", po::value<std::string>(&options.compress_repertoire)->default_value(""),
+             "for Ig Simulator output: report compressed repertoire either")
             ;
     po::variables_map vm;
     store(po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
@@ -68,15 +71,23 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
-std::vector<seqan::Dna5String> read_repertoire(Options options) {
-    std::vector<seqan::CharString> read_ids;
-    std::vector<seqan::Dna5String> reads;
+void read_repertoire(Options options, std::vector<seqan::CharString>& read_ids, std::vector<seqan::Dna5String>& reads, std::vector<size_t>& read_to_compressed) {
     seqan::SeqFileIn reads_file(options.repertoire_file_path.c_str());
     readRecords(read_ids, reads, reads_file);
     double exp_reads_count = static_cast<double>(reads.size()) *
                              pow(1.0 + options.pcr_options.amplification_rate + options.pcr_options.chimeras_rate, static_cast<double>(options.pcr_options.cycles_count));
     VERIFY(exp_reads_count <= options.output_estimation_limit);
-    return reads;
+
+    if (!options.compress_repertoire.empty()) {
+        size_t current = 0;
+        for (size_t i = 0; i < read_ids.size(); i ++) {
+            auto id = seqan_string_to_string(read_ids[i]);
+            if (boost::algorithm::ends_with(id, "_copy_1")) {
+                current ++;
+            }
+            read_to_compressed.push_back(current - 1);
+        }
+    }
 }
 
 seqan::Dna5String generate_barcode(size_t length) {
@@ -96,7 +107,7 @@ std::vector<seqan::Dna5String> generate_barcodes(size_t count, size_t barcode_le
 }
 
 void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, double pcr_error_prob,
-             Options::PcrOptions options, std::minstd_rand0& random_engine) {
+             Options::PcrOptions options, std::minstd_rand0& random_engine, std::vector<size_t>& read_to_compressed) {
     size_t size = reads.size();
     for (size_t read_idx = 0; read_idx < size; read_idx ++) {
         if (std::rand() <= static_cast<double>(RAND_MAX) * options.amplification_rate) {
@@ -113,6 +124,7 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
             barcodes.push_back(barcode);
             reads.push_back(read);
             ids.emplace_back(std::to_string(reads.size()) + "_mutated_from_" + std::to_string(reads.size()));
+            read_to_compressed.push_back(read_to_compressed[read_idx]);
         }
     }
     std::uniform_int_distribution<size_t> read_distribution(0, size - 1);
@@ -127,15 +139,17 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
         std::string right = seqan_string_to_string(reads[right_idx]);
         right = right.substr(right.length() / 2);
         reads.push_back(seqan::Dna5String(left + right));
+        read_to_compressed.push_back(std::numeric_limits<size_t>::max());
         ids.emplace_back(std::to_string(reads.size()) + "_chimera_from_" + std::to_string(left_idx) + "_" + std::to_string(right_idx));
     }
-    VERIFY(reads.size() == barcodes.size() && reads.size() == ids.size());
+    VERIFY(reads.size() == barcodes.size() && reads.size() == ids.size() && reads.size() == read_to_compressed.size());
 }
 
-void simulate_pcr(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, Options::PcrOptions options, std::minstd_rand0& random_engine) {
+void simulate_pcr(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, Options::PcrOptions options,
+                  std::minstd_rand0& random_engine, std::vector<size_t>& read_to_compressed) {
     for (size_t i = 0; i < options.cycles_count; i ++) {
         double pcr_error_prob = options.error_prob_first + (options.error_prob_last - options.error_prob_first) * static_cast<double>(i) / static_cast<double>(options.cycles_count - 1);
-        amplify(reads, barcodes, ids, pcr_error_prob, options, random_engine);
+        amplify(reads, barcodes, ids, pcr_error_prob, options, random_engine, read_to_compressed);
     }
 }
 
@@ -148,6 +162,28 @@ void write_repertoire(const std::vector<seqan::Dna5String>& reads, const std::ve
     }
 }
 
+void write_compressed(std::string file_name, std::vector<seqan::CharString>& read_ids, std::vector<seqan::Dna5String>& reads, std::vector<size_t>& read_to_compressed) {
+    std::map<size_t, size_t> id_to_count;
+    for (size_t id : read_to_compressed) {
+        id_to_count[id] ++;
+    }
+
+    std::vector<seqan::CharString> compressed_ids;
+    std::vector<seqan::Dna5String> compressed_reads;
+    size_t current = 0;
+    for (size_t i = 0; i < read_ids.size(); i ++) {
+        read_to_compressed.push_back(current);
+        auto id = seqan_string_to_string(read_ids[i]);
+        if (boost::algorithm::ends_with(id, "_copy_1")) {
+            current ++;
+            compressed_ids.emplace_back((boost::format("cluster___%d___size___%d") % (current - 1) % id_to_count[current - 1]).str());
+            compressed_reads.push_back(reads[i]);
+        }
+    }
+    seqan::SeqFileOut compressed_file(file_name.c_str());
+    seqan::writeRecords(compressed_file, compressed_ids, compressed_reads);
+}
+
 int main(int argc, const char* const* argv) {
     perf_counter pc;
     segfault_handler sh;
@@ -157,18 +193,26 @@ int main(int argc, const char* const* argv) {
 
     const Options& options = parse_options(argc, argv);
 
-    auto reads = read_repertoire(options);
+    std::vector<seqan::CharString> original_ids;
+    std::vector<seqan::Dna5String> original_reads;
+    std::vector<size_t> read_to_compressed;
+    read_repertoire(options, original_ids, original_reads, read_to_compressed);
+    auto reads(original_reads);
     std::vector<seqan::CharString> ids(reads.size());
     for (size_t i = 0; i < reads.size(); i ++) {
         ids[i] = "original_" + std::to_string(i);
     }
     auto barcodes = generate_barcodes(reads.size(), options.barcode_length);
 
-    simulate_pcr(reads, barcodes, ids, options.pcr_options, random_engine);
+    simulate_pcr(reads, barcodes, ids, options.pcr_options, random_engine, read_to_compressed);
 
     std::vector<size_t> perm(reads.size());
     std::iota(perm.begin(), perm.end(), 0);
     std::shuffle(perm.begin(), perm.end(), random_engine);
 
     write_repertoire(reads, barcodes, ids, perm, options.output_file_path);
+
+    if (!options.compress_repertoire.empty()) {
+        write_compressed(options.compress_repertoire, original_ids, original_reads, read_to_compressed);
+    }
 }

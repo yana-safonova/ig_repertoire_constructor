@@ -54,7 +54,7 @@ namespace clusterer {
                     min_at_top = std::min(min_at_top, dp_cur[second_len - i - 1 + max_indels]);
                     if (binary && min_at_top <= limit) return min_at_top;
                 }
-                if (*std::max_element(dp_cur.begin(), dp_cur.end()) > limit) return limit + 1;
+                if (*std::min_element(dp_cur.begin(), dp_cur.end()) > limit) return limit + 1;
             }
             size_t result = std::min(min_at_top, *std::min_element(dp_cur.begin(), dp_cur.end()));
 

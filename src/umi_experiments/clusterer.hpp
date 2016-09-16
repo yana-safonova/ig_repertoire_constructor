@@ -688,12 +688,15 @@ namespace clusterer {
                         umi_chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
-                    for (const auto& c : clusters) {
-                        // This is not a chimera, but a highly amplified sequence
-                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 30) {
-                            continue;
-                        }
-                    }
+                    bool is_chimera = true;
+//                    for (const auto& c : clusters) {
+//                        // This is not a chimera, but a highly amplified sequence
+//                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 25) {
+//                            is_chimera = false;
+//                            break;
+//                        }
+//                    }
+                    if (!is_chimera) continue;
 
                     result.removeTo(cluster);
                     chimeras ++;
