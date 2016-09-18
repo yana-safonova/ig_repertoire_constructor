@@ -361,7 +361,7 @@ namespace clusterer {
                 if (entry.second == max_cnt) {
                     if (was_max) {
                         result += entry.second;
-                        INFO("Tie for count " << max_cnt);
+                        TRACE("Tie for count " << max_cnt);
                     }
                     was_max = true;
                 } else {
@@ -609,7 +609,8 @@ namespace clusterer {
         size_t total_minor_clusters = 0;
         size_t found_somewhere = 0;
         size_t found_within_umi = 0;
-        size_t chimeras = 0;
+        size_t chimeric_clusters = 0;
+        size_t chimeric_reads = 0;
         size_t found_half_only = 0;
 
         std::ofstream out_file(file_name);
@@ -698,8 +699,9 @@ namespace clusterer {
 //                    }
                     if (!is_chimera) continue;
 
+                    chimeric_reads += cluster->members.size();
                     result.removeTo(cluster);
-                    chimeras ++;
+                    chimeric_clusters ++;
                     chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
                     chimeras_file << "chimera: " << cluster->GetSequence() << std::endl;
                     chimeras_file << "max consensus: " << max_consensus << std::endl;
@@ -720,8 +722,9 @@ namespace clusterer {
         INFO("Total clusters, which are minorities in the umi: " << total_minor_clusters);
         INFO("From them could be found elsewhere by halves (maybe in the same source): " << found_somewhere);
         INFO("Ones that could be found within the same UMI by halves: " << found_within_umi);
-        INFO("Ones with a half within UMI and a half somewhere else outside: " << chimeras);
+        INFO("Clusters with chimeras - ones with a half within UMI and a half somewhere else outside: " << chimeric_clusters);
         INFO("Ones with only one half found at all: " << found_half_only);
+        INFO("Total chimeric reads: " << chimeric_reads);
 
         return result;
     }
