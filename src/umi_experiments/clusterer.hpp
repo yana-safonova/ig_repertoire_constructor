@@ -612,6 +612,7 @@ namespace clusterer {
         size_t chimeric_clusters = 0;
         size_t chimeric_reads = 0;
         size_t found_half_only = 0;
+        std::map<size_t, size_t> chimera_size_to_count;
 
         std::ofstream out_file(file_name);
         std::ofstream chimeras_file(chimeras_info_file_name);
@@ -700,6 +701,7 @@ namespace clusterer {
                     if (!is_chimera) continue;
 
                     chimeric_reads += cluster->members.size();
+                    chimera_size_to_count[cluster->members.size()] ++;
                     result.removeTo(cluster);
                     chimeric_clusters ++;
                     chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
@@ -725,6 +727,10 @@ namespace clusterer {
         INFO("Clusters with chimeras - ones with a half within UMI and a half somewhere else outside: " << chimeric_clusters);
         INFO("Ones with only one half found at all: " << found_half_only);
         INFO("Total chimeric reads: " << chimeric_reads);
+        INFO("Chimera size distribution (size -> count):");
+        for (const auto& entry : chimera_size_to_count) {
+            INFO(entry.first << " -> " << entry.second);
+        }
 
         return result;
     }
