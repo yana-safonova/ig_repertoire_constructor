@@ -419,7 +419,7 @@ namespace clusterer {
                 cluster_id++;
             }
         }
-        VERIFY(read_id_to_cluster_id.size() == reads.size());
+        VERIFY(read_id_to_cluster_id.size() <= reads.size());
 
         namespace fs = boost::filesystem;
 
