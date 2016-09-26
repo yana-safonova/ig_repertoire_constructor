@@ -123,7 +123,7 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
             }
             barcodes.push_back(barcode);
             reads.push_back(read);
-            ids.emplace_back(std::to_string(reads.size()) + "_mutated_from_" + std::to_string(reads.size()));
+            ids.emplace_back(std::to_string(reads.size()) + "_mutated_from_" + std::to_string(read_idx));
             read_to_compressed.push_back(read_to_compressed[read_idx]);
         }
     }
