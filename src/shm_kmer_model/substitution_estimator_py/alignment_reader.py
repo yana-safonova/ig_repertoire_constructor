@@ -12,8 +12,8 @@ class GermlineAlignmentReader:
         alignments = []
         while True:
             try:
-                read = next(self.alignment_iterator)
-                germline_seq = next(self.alignment_iterator)
+                read = str(next(self.alignment_iterator).seq)
+                germline_seq = str(next(self.alignment_iterator).seq)
                 alignment = GermlineAlignment(bio_python_read=read,
                                               bio_python_germline=germline_seq)
                 if self.alignment_checker.check(alignment):

@@ -15,8 +15,8 @@ class AbstractAlignmentChecker:
 
 class NoGapsAlignmentChecker(AbstractAlignmentChecker):
     def check(self, alignment):
-        return alignment.read.seq.count(self.gap_symbol) == 0 and \
-               alignment.germline_seq.seq.count(self.gap_symbol) == 0
+        return alignment.read.count(self.gap_symbol) == 0 and \
+               alignment.germline_seq.count(self.gap_symbol) == 0
 
     def __str__(self):
         return "Alignment Checker: only sequences with no gaps are considered\n"
