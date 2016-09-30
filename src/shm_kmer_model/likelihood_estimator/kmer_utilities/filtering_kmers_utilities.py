@@ -11,7 +11,7 @@ import pandas as pd
 def filter_by_coverage(samples,
                        coverage_threshold=100,
                        mean_function=pd.DataFrame.median,
-                       threshold_function=pd.Panel.min):
+                       threshold_function=pd.Panel.max):
     """ Function filters a dataframe samples basing on the strategy
     samples -- normally a 3D array. 3rd dim -- for different samples.
     Reasonable choice for mean_function could be: np.median, np.mean
