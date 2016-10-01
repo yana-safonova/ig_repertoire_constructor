@@ -21,6 +21,7 @@ add_executable(umi_to_fastq tools/umi_to_fastq.cpp utils.cpp umi_utils.cpp)
 add_executable(simulate_tiny_dataset tools/simulate_tiny_dataset.cpp)
 add_executable(umi_graph tools/umi_graph.cpp utils.cpp umi_utils.cpp)
 add_executable(analyze_intermed_clusters tools/analyze_intermed_clusters.cpp utils.cpp)
+add_executable(find_bad_cluster tools/find_bad_cluster.cpp utils.cpp clusterer.cpp)
 
 add_executable(reads_by_umi_stats stats/reads_by_umi_stats.cpp utils.cpp umi_utils.cpp stats/dist_distribution_stats.cpp)
 add_executable(print_graph_decomposition_stats stats/print_graph_decomposition_stats.cpp utils.cpp)
