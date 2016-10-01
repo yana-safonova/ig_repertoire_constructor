@@ -401,6 +401,47 @@ namespace clusterer {
     }
 
     template <typename ElementType>
+    void report_length_differences(const clusterer::ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters, const std::string& output_dir) {
+        namespace fs = boost::filesystem;
+        if (output_dir != ".") {
+            fs::create_directory(output_dir);
+            INFO("Created new");
+        }
+
+        std::ofstream file_with_seqs(fs::path(output_dir).append("clusters_with_huge_len_span.txt").string());
+
+        map<size_t, size_t> len_span_to_count;
+        map<size_t, map<size_t, size_t>> len_span_to_sizes;
+        for (const auto& cluster : umi_to_clusters.toSet()) {
+            size_t min_len = numeric_limits<size_t>::max();
+            size_t max_len = 0;
+            for (const auto& read : cluster->members) {
+                size_t len = length(read.GetSequence());
+                min_len = min(min_len, len);
+                max_len = max(max_len, len);
+            }
+            len_span_to_count[max_len - min_len] ++;
+            len_span_to_sizes[max_len - min_len][cluster->members.size()] ++;
+
+            if (max_len - min_len > 50) {
+                file_with_seqs << (max_len - min_len) << "\n";
+                for (const auto& read : cluster->members) {
+                    file_with_seqs << ">" << read.GetReadId() << "\n" << read.GetSequence() << "\n";
+                }
+            }
+        }
+        INFO("Number of clusters by difference between shortest and longest member.")
+        for (const auto& entry : len_span_to_count) {
+            stringstream ss;
+            ss << entry.first << " -> " << entry.second << ". ";
+            for (const auto& size_entry : len_span_to_sizes[entry.first]) {
+                ss << " " << size_entry.first << ": " << size_entry.second;
+            }
+            INFO(ss.str());
+        }
+    }
+
+    template <typename ElementType>
     void write_clusters_and_correspondence(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
                                            const std::vector<Read>& reads, const std::string& output_dir,
                                            bool save_clusters) {
@@ -432,7 +473,11 @@ namespace clusterer {
 
         std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
         for (const auto& read : reads) {
-            read_to_cluster_ofs << read.GetReadId() << "\t" << read_id_to_cluster_id[read.GetId()] << std::endl;
+            read_to_cluster_ofs << read.GetReadId();
+            if (read_id_to_cluster_id.count(read.GetId())) {
+                read_to_cluster_ofs << "\t" << read_id_to_cluster_id[read.GetId()];
+            }
+            read_to_cluster_ofs << "\n";
         }
         read_to_cluster_ofs.close();
 

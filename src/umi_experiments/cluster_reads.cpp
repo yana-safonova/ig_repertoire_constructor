@@ -145,18 +145,18 @@ int main(int argc, const char* const* argv) {
 
 //    clusterer::report_non_major_umi_groups(umi_to_clusters_hamm_inside_umi, params.output_dir + "/non_major.csv");
 
-    std::map<size_t, size_t> umis_of_size;
-    std::map<size_t, size_t> clusters_in_umis_of_size;
-    for (const auto& umi_ptr : compressed_umi_ptrs) {
-        size_t size = umi_to_reads[*umi_ptr].size();
-        umis_of_size[size] ++;
-        clusters_in_umis_of_size[size] += umi_to_clusters_hamm_inside_umi.forth(umi_ptr).size();
-    }
-    for (const auto& entry : umis_of_size) {
-        size_t size = entry.first;
-        INFO("Size: " << size << ", UMIs: " << entry.second << ", clusters: " << clusters_in_umis_of_size[size] << ", compression: "
-                     << 100.0 * static_cast<double>(clusters_in_umis_of_size[size]) / static_cast<double>(size * entry.second) << "%");
-    }
+//    std::map<size_t, size_t> umis_of_size;
+//    std::map<size_t, size_t> clusters_in_umis_of_size;
+//    for (const auto& umi_ptr : compressed_umi_ptrs) {
+//        size_t size = umi_to_reads[*umi_ptr].size();
+//        umis_of_size[size] ++;
+//        clusters_in_umis_of_size[size] += umi_to_clusters_hamm_inside_umi.forth(umi_ptr).size();
+//    }
+//    for (const auto& entry : umis_of_size) {
+//        size_t size = entry.first;
+//        INFO("Size: " << size << ", UMIs: " << entry.second << ", clusters: " << clusters_in_umis_of_size[size] << ", compression: "
+//                     << 100.0 * static_cast<double>(clusters_in_umis_of_size[size]) / static_cast<double>(size * entry.second) << "%");
+//    }
 
     clusterer::print_umi_split_stats<Read>(umi_to_clusters_hamm_inside_umi);
 
@@ -181,6 +181,8 @@ int main(int argc, const char* const* argv) {
             edit_dist_checker, compressed_umi_ptrs, umi_to_clusters_edit_inside_umi,
             clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
+
+    clusterer::report_length_differences(umi_to_clusters_edit_adj_umi, params.output_dir);
 
     auto umi_to_clusters_no_chimeras = umi_to_clusters_edit_adj_umi;
 
