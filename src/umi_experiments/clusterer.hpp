@@ -790,3 +790,8 @@ namespace std {
         }
     };
 }
+
+template <typename T>
+T abs_diff(T first, T second) {
+    return first > second ? first - second : second - first;
+}

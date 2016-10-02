@@ -5,8 +5,10 @@ namespace clusterer {
     ReadDist ClusteringMode::bounded_hamming_dist(size_t limit) {
         return [limit](const seqan::Dna5String& first, const seqan::Dna5String& second) {
             size_t diff = 0;
-            size_t len = std::min(length(first), length(second));
-            for (size_t i = 0; i < len; i ++) {
+            size_t first_len = length(first);
+            size_t second_len = length(second);
+            size_t min_len = std::min(first_len, second_len);
+            for (size_t i = 0; i < min_len; i ++) {
                 if (first[i] != second[i]) {
                     diff ++;
                     if (diff > limit) {
@@ -14,7 +16,7 @@ namespace clusterer {
                     }
                 }
             }
-            return diff;
+            return diff + abs_diff(first_len, second_len);
         };
     }
 
@@ -28,37 +30,69 @@ namespace clusterer {
             const size_t first_len = length(first);
             const size_t second_len = length(second);
 
-            std::vector<size_t> dp_cur(2 * max_indels + 1, INF);
-            std::vector<size_t> dp_prev(2 * max_indels + 1);
-            for (size_t j = 0; j <= max_indels && j <= second_len; j ++) {
-                dp_cur[max_indels + j] = j;
+            if (abs_diff(first_len, second_len) > std::min(limit, max_indels)) {
+                return limit + 1;
             }
-            // lizard tail for first sequence: minimum of values edit_dist(prefix of first, second)
-            size_t min_at_top = second_len <= max_indels ? dp_cur[max_indels + second_len] : INF;
+
+            std::vector<size_t> dp1(2 * max_indels + 1, INF);
+            std::vector<size_t> dp2(2 * max_indels + 1);
+            for (size_t j = 0; j <= max_indels && j <= second_len; j ++) {
+                dp1[max_indels + j] = j;
+            }
 
             for (size_t i = 0; i < first_len; i ++) {
-                std::swap(dp_cur, dp_prev);
+                std::vector<size_t>& dp_cur = (i & 1) ? dp1 : dp2;
+                std::vector<size_t>& dp_prev = (i & 1) ? dp2 : dp1;
                 std::fill(dp_cur.begin(), dp_cur.end(), INF);
 
                 for (size_t index = 0; index <= 2 * max_indels; index ++) {
-                    if (index > 0) {
-                        dp_cur[index - 1] = std::min(dp_cur[index - 1], dp_prev[index] + indel_cost);
-                        dp_cur[index] = std::min(dp_cur[index], dp_cur[index - 1] + indel_cost);
-                    }
-                    if (index + i >= max_indels && index - max_indels + i < second_len) {
-                        dp_cur[index] = std::min(dp_cur[index], dp_prev[index] + (first[i] == second[index - max_indels + i] ? 0 : mismatch_cost));
-                    }
-                }
+                    if ( i + index < max_indels) continue;
+                    if (i + index <= second_len + max_indels) {
+                        if (index > 0) {
+                            // i + 1 + index - 1 - max_indels
+                            dp_cur[index - 1] = std::min(dp_cur[index - 1], dp_prev[index] + indel_cost);
 
-                if (second_len + max_indels >= i + 1 && second_len - i - 1 + max_indels < 2 * max_indels + 1) {
-                    min_at_top = std::min(min_at_top, dp_cur[second_len - i - 1 + max_indels]);
-                    if (binary && min_at_top <= limit) return min_at_top;
+                            // i + 1 + index (- 1) - max_indels
+                            if (i + 1 + index <= second_len + max_indels) {
+                                dp_cur[index] = std::min(dp_cur[index], dp_cur[index - 1] + indel_cost);
+                            }
+                        }
+
+                        // i (+ 1) + index - max_indels
+                        if (i + 1 + index <= second_len + max_indels) {
+                            dp_cur[index] = std::min(dp_cur[index], dp_prev[index] + (first[i] == second[index - max_indels + i] ? 0 : mismatch_cost));
+                        }
+                    }
                 }
-                if (*std::min_element(dp_cur.begin(), dp_cur.end()) > limit) return limit + 1;
+//                INFO( i );
+//                for (size_t index = 0; index <= 2 * max_indels; index ++) {
+//                    std::cout << dp_cur[index] << " ";
+//                }
+//                std::cout << std::endl;
+
+                bool all_too_large = true;
+                for (size_t index = 0; index <= 2 * max_indels; index ++) {
+                    size_t first_left = first_len - i - 1;
+                    if (i + 1 + index > second_len + max_indels) break;
+                    size_t second_left = second_len - i - 1 - index + max_indels;
+                    size_t diff = abs_diff(first_left, second_left);
+                    size_t lower = dp_cur[index] + diff;
+                    if (lower <= limit) {
+                        all_too_large = false;
+                    }
+                    size_t upper = dp_cur[index] + first_left + second_left;
+                    if (binary && upper <= limit) {
+//                        INFO("Pessimistic is " << upper << " for index " << index);
+                        return upper;
+                    }
+                }
+                if (all_too_large) {
+//                    INFO("Optimistic is too high");
+                    return limit + 1;
+                }
             }
-            size_t result = std::min(min_at_top, *std::min_element(dp_cur.begin(), dp_cur.end()));
-
-            return std::min(result, limit + 1);
+            std::vector<size_t>& dp = (first_len & 1) ? dp2 : dp1;
+            return std::min(dp[max_indels + second_len - first_len], limit + 1);
         };
     }
 
