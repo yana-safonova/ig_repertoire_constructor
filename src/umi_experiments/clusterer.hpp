@@ -423,7 +423,7 @@ namespace clusterer {
             len_span_to_count[max_len - min_len] ++;
             len_span_to_sizes[max_len - min_len][cluster->members.size()] ++;
 
-            if (max_len - min_len > 50) {
+            if (max_len - min_len > 10) {
                 file_with_seqs << (max_len - min_len) << "\n";
                 for (const auto& read : cluster->members) {
                     file_with_seqs << ">" << read.GetReadId() << "\n" << read.GetSequence() << "\n";
