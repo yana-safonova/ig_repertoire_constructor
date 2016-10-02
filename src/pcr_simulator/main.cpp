@@ -49,7 +49,7 @@ Options parse_options(int argc, const char* const* argv) {
             ("pcr-rate,r", po::value<double>(&pcrOptions.amplification_rate)->default_value(0.1),
              "probability for each molecule to be amplified on each PCR cycle (defaults to 0.1)")
             ("chimeras-rate,k", po::value<double>(&pcrOptions.chimeras_rate)->default_value(0.001),
-             "percentage of chimeric reads appering on each cycle (defaults to 0.001)")
+             "share of chimeric reads appering on each cycle (defaults to 0.001)")
             ("output-limit,m", po::value<size_t>(&options.output_estimation_limit)->default_value(static_cast<size_t>(1e8)),
              "the program will exit if expected number of reads exceeds this parameter (defaults to 100,000,000)")
             ("barcode-position,b", po::value<size_t>(&pcrOptions.barcode_position)->default_value(3),
@@ -123,7 +123,10 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
             }
             barcodes.push_back(barcode);
             reads.push_back(read);
-            ids.emplace_back(std::to_string(reads.size()) + "_mutated_from_" + std::to_string(read_idx));
+            ids.emplace_back(std::to_string(reads.size()) +
+                                     (seqan_string_to_string(ids[read_idx]).find("chimera") == std::string::npos ? "" : "_chimera") +
+                                     "_mutated_from_" +
+                                     std::to_string(read_idx));
             read_to_compressed.push_back(read_to_compressed[read_idx]);
         }
     }
