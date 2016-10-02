@@ -54,13 +54,17 @@ def SetOutputParams(params, output_dir):
     params.config_file = os.path.join(params.config_dir, params.config_file)
 
 def PrepareOutputDir(params, log):
+    log.info("Preparing output dir")
+    Cleanup(params, log)
     if params.clean_output_dir and os.path.exists(params.output):
+        log.info("Removing %s" % params.output)
         shutil.rmtree(params.output)
     if not os.path.isdir(params.output):
         os.makedirs(params.output)
 
 def CopyConfigs(params, log):
     if os.path.exists(params.config_dir):
+        log.info("Removing %s" % params.config_dir)
         shutil.rmtree(params.config_dir)
     shutil.copytree(config_dir, params.config_dir)
 
@@ -85,15 +89,19 @@ def PrepareConfigs(params, log):
     process_cfg.substitute_params(params.config_file, param_dict, log)
 
 def Cleanup(params, log):
+    log.info("Cleaning up")
     params.sgraph_dir = os.path.join(params.output, "connected_components")
     params.decomposition_dir = os.path.join(params.output, "dense_subgraphs")
     params.metis_output = os.path.join(params.output, "metis.output")
     if os.path.exists(params.metis_output):
+        log.info("Removing %s" % params.metis_output)
         os.remove(params.metis_output)
     if not "save_aux_files" in params or not params.save_aux_files:
         if os.path.exists(params.sgraph_dir):
+            log.info("Removing %s" % params.sgraph_dir)
             shutil.rmtree(params.sgraph_dir)
         if os.path.exists(params.decomposition_dir):
+            log.info("Removing %s" % params.decomposition_dir)
             shutil.rmtree(params.decomposition_dir)
 
 def main(argv, external_logger = ""):
@@ -158,10 +166,15 @@ def main(argv, external_logger = ""):
                                help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
                                     "[default: False]")
     optional_args.add_argument("--clean-output-dir",
-                               type=bool,
                                default=True,
                                dest="clean_output_dir",
-                               help="Clean output directory on start [default: True]")
+                               action="store_true",
+                               help="Clean output directory on start [default]")
+    optional_args.add_argument("--no-clean-output-dir",
+                               default=True,
+                               dest="clean_output_dir",
+                               action="store_false",
+                               help="Do not clean output directory on start")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
@@ -191,6 +204,7 @@ def main(argv, external_logger = ""):
     # log file
     params.log_filename = os.path.join(params.output, "dense_subgraph_finder.log")
     if os.path.exists(params.log_filename):
+        log.info("Removing %s" % params.log_filename)
         os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
     log.addHandler(log_handler)
