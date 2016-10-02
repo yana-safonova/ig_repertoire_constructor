@@ -45,8 +45,11 @@ def merge():
     print "merging maps and writing to %s" % output_rcm_file
     with open(output_rcm_file, "w") as output:
         for key, value in rcm:
-            handle = to_file_pos_to_cluster[id_map[from_file_cluster_to_pos[value]]]
-            output.write("%s\t%d\n" % (key, handle))
+            handle = to_file_pos_to_cluster[id_map[from_file_cluster_to_pos[value]]] if value is not None else None
+            if handle is None:
+                output.write("%s\n" % key)
+            else:
+                output.write("%s\t%d\n" % (key, handle))
             result_handle[key] = handle
 
     print "checking result"
