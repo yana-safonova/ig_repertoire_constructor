@@ -2340,7 +2340,7 @@ def plot_logit(y, X, colors, colormap=False):
                    cmap="RdBu", vmin=-.2, vmax=1.2,
                    edgecolor="white", linewidth=1)
         plt.xlabel("Cluster size")
-        plt.ylabel("Second vote * size")
+        plt.ylabel("Second vote")
     else:
         f, ax = initialize_plot()
         # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
@@ -2351,7 +2351,7 @@ def plot_logit(y, X, colors, colormap=False):
                    # cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
                    cmap="RdBu", alpha=0.7)
         plt.xlabel("Cluster size")
-        plt.ylabel("Second vote * size")
+        plt.ylabel("Second vote")
         xlim = plt.xlim()
         ylim = plt.ylim()
         ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
@@ -2492,7 +2492,8 @@ def splittering(rcm2rcm, rep, args, report):
                 c=colors, alpha=0.7)
 
     plt.xlabel("Cluster size")
-    plt.ylabel("Second vote * size")
+    # plt.ylabel("Second vote * size")
+    plt.ylabel("Second vote")
     xlim = plt.xlim()
     ylim = plt.ylim()
     plt.xlim(0, xlim[1])
@@ -2504,7 +2505,7 @@ def splittering(rcm2rcm, rep, args, report):
                 s=20,
                 c=colors, alpha=0.7)
     plt.xlabel("Cluster size")
-    plt.ylabel("Second vote * size")
+    plt.ylabel("Second vote")
     xlim = plt.xlim()
     ylim = plt.ylim()
     eps = 0.05
@@ -2543,6 +2544,18 @@ def splittering(rcm2rcm, rep, args, report):
     coef, intercept, score = plot_logit(good, np.vstack((cluster_sizes,
                                                          max_second_votes)).T,
                                         colors=colors)
+
+    red_points = len([1 for color in colors if color == "red"])
+    black_points = len([1 for color in colors if color == "black"])
+    blue_points = len([1 for color in colors if color == "blue"])
+
+    print "Red: ", red_points
+    print "Black: ", black_points
+    print "Blue: ", blue_points
+
+    rs["BluePoints"] = blue_points
+    rs["BlackPoints"] = black_points
+    rs["RedPoints"] = red_points
 
     print "Coef", coef, intercept
     print "Score", score

@@ -155,7 +155,7 @@ def plot_two_sums(dir,
         cur_for_plot = get_what(dataset, "sum", cur_sizes)
         forplot.append(cur_for_plot)
 
-    labels = [label + ", with answer", label + ", without answer"]
+    labels = [label + ", simple", label + ", complex"]
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
