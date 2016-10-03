@@ -342,7 +342,8 @@ def run_mixcr(input_file, output_dir,
               log=None,
               loci="all", enforce_fastq=False,
               threads=16,
-              remove_tmp=True):
+              remove_tmp=True,
+              species="hsa"):
     if log is None:
         log = FakeLog()
 
@@ -365,9 +366,10 @@ def run_mixcr(input_file, output_dir,
             "threads": threads,
             "input_file": input_file,
             "output_dir": output_dir,
+            "species": species,
             "loci": loci}
 
-    support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --loci %(loci)s --noMerge -OvParameters.geneFeatureToAlign=VTranscript %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+    support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --loci %(loci)s --noMerge -OvParameters.geneFeatureToAlign=VTranscript --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
                      log=log)
     support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
