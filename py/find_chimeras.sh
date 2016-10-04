@@ -13,10 +13,8 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-mkdir -o $OUTDIR
+mkdir -p $OUTDIR
 
 ${DIR}/convert_repertoire_for_uchime.py ${INPUT_FILE} ${OUTDIR}/converted.fa
 
-cd ${OUTDIR}
-
-usearch -uchime2_denovo converted.fa -uchimeout out.txt -chimeras ch.fa -nonchimeras nonch.fa
+usearch -uchime2_denovo ${OUTDIR}/converted.fa -uchimeout ${OUTDIR}/out.txt -chimeras ${OUTDIR}/ch.fa -nonchimeras ${OUTDIR}/nonch.fa
