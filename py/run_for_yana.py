@@ -1,3 +1,5 @@
+#!/usr/bin/env python2
+
 from simulate import *
 
 if __name__ == "__main__":
@@ -9,5 +11,5 @@ if __name__ == "__main__":
     names = ["naive", "asc", "plasma"]
 
     for data, name in zip(datas, names):
-        run_mixcr(data, "mice_out_mixcr_" + name, species="mmu")
+        run_mixcr(data, "mice_out_mixcr_" + name, species="mmu", remove_tmp=False)
         run_presto(data, "mice_out_presto_" + name)
