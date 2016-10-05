@@ -322,7 +322,7 @@ def convert_mixcr2_output_to_igrec(input_file, output_file, initial_reads, outpu
         fh.next()
 
         for i, line in enumerate(fh):
-            seq, size, ids = line.strip().split()
+            seq, size, ids = line.strip().split("\t")
             ids = ids.strip().split(",")
             ids = map(int, ids)
             for id in ids:
