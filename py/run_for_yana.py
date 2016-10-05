@@ -5,7 +5,7 @@ from simulate import *
 import sys
 
 if __name__ == "__main__":
-    run_mixcr2("test_dataset/test7.fastq", "test7_mixcr2")
+    run_mixcr2("test_dataset/test7.fastq", "test7_mixcr2", remove_tmp=False)
     # run_mixcr("test_dataset/test7.fastq", "test7")
 
     sys.exit()
