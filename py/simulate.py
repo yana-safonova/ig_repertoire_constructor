@@ -328,16 +328,16 @@ def convert_mixcr2_output_to_igrec(input_file, output_file, initial_reads, outpu
             for id in ids:
                 targets[id] = i
             size = int(size)
-            assert size <= len(ids)
-            if size != len(ids):
-                print size
-                print ids
+            assert size <= len(ids)  # WHY?????????????
+            # if size != len(ids):
+            #     print size
+            #     print ids
             size = len(ids)
             fout.write(">cluster___%d___size___%d\n" % (i, size))
             fout.write(seq + "\n")
 
         empty_num = max(target for target in targets if target is not None) + 1
-        print empty_num
+        # print empty_num
         with smart_open(initial_reads) as fh:
             for j, record in enumerate(SeqIO.parse(fh, idFormatByFileName(initial_reads))):
                 if targets[j] is None:
@@ -472,6 +472,7 @@ def run_mixcr2(input_file, output_dir,
     support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
                      log=log)
     support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
     args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
     support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
@@ -491,10 +492,15 @@ def run_mixcr2(input_file, output_dir,
         if input_file_tmp is not None:
             os.remove(input_file_tmp)
 
+        os.remove(output_dir + "/align_report.txt")
+        os.remove(output_dir + "/assemble_report.txt")
         os.remove(output_dir + "/mixcr.clns")
         os.remove(output_dir + "/mixcr.txt")
+        os.remove(output_dir + "/features.txt")
         os.remove(output_dir + "/mixcr.vdjca")
         os.remove(output_dir + "/mixcr_uncompressed.fa")
+        os.remove(output_dir + "/mixcr_uncompressed.rcm")
+        os.remove(output_dir + "/index_file")
 
 def parse_presto_id(id):
     import re
