@@ -2,7 +2,14 @@
 
 from simulate import *
 
+import sys
+
 if __name__ == "__main__":
+    run_mixcr2("test_dataset/test7.fastq", "test7_mixcr2")
+    # run_mixcr("test_dataset/test7.fastq", "test7")
+
+    sys.exit()
+
     data1 = "/Sid/ysafonova/ig_repertoire_constructor/BSSE_naive/vj_finder/cleaned_reads.fa"
     data2 = "/Sid/ysafonova/ig_repertoire_constructor/BSSE_asc/vj_finder/cleaned_reads.fa"
     data3 = "/Sid/ysafonova/ig_repertoire_constructor/BSSE_plasma/vj_finder/cleaned_reads.fa"
