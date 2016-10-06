@@ -23,12 +23,13 @@ public:
     enum class Type {HashCompressor, TrieCompressor};
     virtual std::vector<size_t> checkout() = 0;
 
-    template <typename... Args>
+    template <typename TValue, typename... Args>
     static std::unique_ptr<Compressor> factor(Compressor::Type type, Args&&... args);
 
     template <typename TIter>
     static std::vector<size_t> compressed_reads_indices(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) {
-        auto compressor = Compressor::factor(type, b, e);
+		using TValue = ValueType<decltype(*(TIter()))>;
+        auto compressor = Compressor::factor<TValue>(type, b, e);
 
         return compressor->checkout();
     }
@@ -278,13 +279,13 @@ private:
 };
 
 
-template <typename... Args>
+template <typename TValue, typename... Args>
 std::unique_ptr<Compressor> Compressor::factor(Compressor::Type type, Args&&... args) {
     switch (type) {
         case Compressor::Type::HashCompressor:
             return std::unique_ptr<Compressor>(new HashCompressor(std::forward<Args>(args)...));
         case Compressor::Type::TrieCompressor:
-            return std::unique_ptr<Compressor>(new TrieCompressor<>(std::forward<Args>(args)...));
+            return std::unique_ptr<Compressor>(new TrieCompressor<TValue>(std::forward<Args>(args)...));
         default:
             return std::unique_ptr<Compressor>(nullptr);
     }
