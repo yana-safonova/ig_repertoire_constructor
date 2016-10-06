@@ -31,6 +31,7 @@ int main(int argc, char **argv) {
     std::string input_file = "input.fa";
     std::string output_file = "output.fa";
     std::string idmap_file_name = "";
+    bool ignore_tails = true;
     try {
         // Declare a group of options that will be
         // allowed only on command line
@@ -52,6 +53,8 @@ int main(int argc, char **argv) {
         // config file
         po::options_description config("Configuration");
         config.add_options()
+            ("ignore-tails,T", po::value<bool>(&ignore_tails)->default_value(ignore_tails),
+             "wheather to ignore extra tail of the longest read during read comparison")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -131,9 +134,10 @@ int main(int argc, char **argv) {
     readRecords(input_ids, input_reads, seqFileIn_input);
     INFO(length(input_reads) << " reads were extracted from " << input_file);
 
-    INFO("Construction of trie starts");
-    auto indices = Compressor::compressed_reads_indices(input_reads, Compressor::Type::TrieCompressor);
-    INFO("Construction of trie finished")
+    INFO("Compression of reads starts");
+    auto indices = Compressor::compressed_reads_indices(input_reads,
+                                                        ignore_tails ? Compressor::Type::TrieCompressor : Compressor::Type::HashCompressor);
+    INFO("Compression of reads finished")
 
     std::vector<size_t> abundances(indices.size());
     std::vector<size_t> index2newindex(indices.size());
