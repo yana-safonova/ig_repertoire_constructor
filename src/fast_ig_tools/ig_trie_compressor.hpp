@@ -48,12 +48,12 @@ public:
         TrieNode *p = root;
 
         for (size_t i = 0; i < seqan::length(s); ++i) {
-			if (p->ids) {
-				// Ok, nice, we have found a sequence that is a prefix of the current read
-				// Join current sequence to the found prefix
-				// Do not construct trie further
-				break;
-			}
+            if (p->ids) {
+                // Ok, nice, we have found a sequence that is a prefix of the current read
+                // Join current sequence to the found prefix
+                // Do not construct trie further
+                break;
+            }
             size_t el = seqan::ordValue(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
