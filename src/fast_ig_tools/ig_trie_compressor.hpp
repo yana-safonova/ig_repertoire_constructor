@@ -18,7 +18,7 @@ class Trie {
 public:
     Trie() {
         // Do not use :member initialization syntax here. pool should be initialized BEFORE root
-        root = pool.construct();
+        root_ = pool_.construct();
     }
     Trie(const Trie &) = delete;
     Trie &operator=(const Trie &) = delete;
@@ -28,7 +28,7 @@ public:
 
 
     size_t size() const {
-        return size__;
+        return size_;
     }
 
     template <typename TCont>
@@ -45,7 +45,7 @@ public:
     void add(const T &s) {
         assert(!isCompressed());
 
-        TrieNode *p = root;
+        TrieNode *p = root_;
 
         for (size_t i = 0; i < seqan::length(s); ++i) {
             if (p->ids) {
@@ -58,7 +58,7 @@ public:
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
-                p->children[el] = pool.construct();
+                p->children[el] = pool_.construct();
             }
 
             p = p->children[el];
@@ -68,17 +68,17 @@ public:
             p->ids = new IdCounter;
         }
 
-        p->ids->add(size__);
-        size__++;
+        p->ids->add(size_);
+        size_++;
     }
 
     bool isCompressed() const {
-        return compressed;
+        return compressed_;
     }
 
     void compress() {
         if (!isCompressed()) {
-            root->compress_to_prefix();
+            root_->compress_to_prefix();
         }
     }
 
@@ -88,7 +88,7 @@ public:
         }
 
         std::vector<size_t> result(this->size());
-        root->checkout_vector(result);
+        root_->checkout_vector(result);
 
         return result;
 
@@ -178,10 +178,10 @@ private:
         }
     };
 
-    boost::object_pool<TrieNode> pool;
-    TrieNode *root;
-    bool compressed = false;
-    size_t size__ = 0;
+    boost::object_pool<TrieNode> pool_;
+    TrieNode *root_;
+    bool compressed_ = false;
+    size_t size_ = 0;
 };
 
 template <typename T>
