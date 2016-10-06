@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert>
 
 namespace core {
     template<typename Titer, typename Tf>
