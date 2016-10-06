@@ -107,17 +107,17 @@ private:
 
 
 template <typename TValue = seqan::Dna5>
-class Trie : public Compressor {
+class TrieCompressor : public Compressor {
 public:
-    Trie() {
+    TrieCompressor() {
         // Do not use :member initialization syntax here. pool should be initialized BEFORE root
         root_ = pool_.construct();
     }
-    Trie(const Trie &) = delete;
-    Trie &operator=(const Trie &) = delete;
-    Trie(Trie &&) = default;
-    Trie &operator=(Trie &&) = default;
-    ~Trie() = default;
+    TrieCompressor(const TrieCompressor &) = delete;
+    TrieCompressor &operator=(const TrieCompressor &) = delete;
+    TrieCompressor(TrieCompressor &&) = default;
+    TrieCompressor &operator=(TrieCompressor &&) = default;
+    ~TrieCompressor() = default;
 
 
     size_t size() const {
@@ -125,10 +125,10 @@ public:
     }
 
     template <typename TCont>
-    Trie(const TCont &cont) : Trie(cont.cbegin(), cont.cend()) { }
+    TrieCompressor(const TCont &cont) : TrieCompressor(cont.cbegin(), cont.cend()) { }
 
     template <typename TIter>
-    Trie(TIter b, TIter e) : Trie() {
+    TrieCompressor(TIter b, TIter e) : TrieCompressor() {
         for (; b !=e; ++b) {
             add(*b);
         }
@@ -284,7 +284,7 @@ std::unique_ptr<Compressor> Compressor::factor(Compressor::Type type, Args&&... 
         case Compressor::Type::HashCompressor:
             return std::unique_ptr<Compressor>(new HashCompressor(std::forward<Args>(args)...));
         case Compressor::Type::TrieCompressor:
-            return std::unique_ptr<Compressor>(new Trie<>(std::forward<Args>(args)...));
+            return std::unique_ptr<Compressor>(new TrieCompressor<>(std::forward<Args>(args)...));
         default:
             return std::unique_ptr<Compressor>(nullptr);
     }
