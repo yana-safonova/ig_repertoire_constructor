@@ -54,7 +54,7 @@ public:
 
     template <typename TVector>
     static auto compressed_reads(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<ValueType<TVector>>  {
-        return compressed_reads(reads.cbegin(), reads.cend());
+        return compressed_reads(reads.cbegin(), reads.cend(), type);
     }
 };
 

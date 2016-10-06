@@ -2,14 +2,14 @@
 
 #include "ig_trie_compressor.hpp"
 
-using namespace fast_ig_tools;
+using fast_ig_tools::Compressor;
 using namespace ::testing;
 
 TEST(basic_tests, the_first_test) {
     std::vector<std::string> reads = {"AAA", "AAAA", "AAAC"};
 
-    auto indices = compressed_reads_indices(reads);
-    auto comp_reads = compressed_reads(reads.begin(), reads.end());
+    auto indices = Compressor::compressed_reads_indices(reads);
+    auto comp_reads = Compressor::compressed_reads(reads.begin(), reads.end());
 
     EXPECT_THAT(indices.size(), reads.size());
     EXPECT_THAT(indices, ElementsAre(0, 0, 0));
@@ -20,8 +20,8 @@ TEST(basic_tests, the_first_test) {
 TEST(basic_tests, empty_string_test) {
     std::vector<std::string> reads = {"AAA", "AAAA", "AAAC", "", "XXX", "sdadasdasd"};
 
-    auto indices = compressed_reads_indices(reads);
-    auto comp_reads = compressed_reads(reads);
+    auto indices = Compressor::compressed_reads_indices(reads);
+    auto comp_reads = Compressor::compressed_reads(reads);
 
     EXPECT_THAT(indices.size(), reads.size());
     EXPECT_THAT(indices, ElementsAre(3, 3, 3, 3, 3, 3));
@@ -32,8 +32,8 @@ TEST(basic_tests, empty_string_test) {
 TEST(basic_tests, two_clusters) {
     std::vector<std::string> reads = {"AAA", "AAAA", "AAAC", "XX", "XXAA"};
 
-    auto indices = compressed_reads_indices(reads);
-    auto comp_reads = compressed_reads(reads);
+    auto indices = Compressor::compressed_reads_indices(reads);
+    auto comp_reads = Compressor::compressed_reads(reads);
 
     EXPECT_THAT(indices.size(), reads.size());
     EXPECT_THAT(indices, ElementsAre(0, 0, 0, 3, 3));
