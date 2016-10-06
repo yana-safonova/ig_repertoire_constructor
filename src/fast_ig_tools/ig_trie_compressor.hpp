@@ -6,7 +6,7 @@
 #include <cassert>
 #include <limits>
 #include <memory>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 #include <seqan/seq_io.h>
@@ -102,7 +102,7 @@ public:
     }
 
 private:
-    std::unordered_map<std::string, std::vector<size_t>> map_;
+    boost::unordered_map<std::string, std::vector<size_t>> map_;
     size_t size_ = 0;
 };
 
