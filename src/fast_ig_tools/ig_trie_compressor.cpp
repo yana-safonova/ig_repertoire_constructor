@@ -14,7 +14,7 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_trie_compressor.hpp"
-using fast_ig_tools::compressed_reads_indices;
+using fast_ig_tools::Compressor;
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -132,7 +132,7 @@ int main(int argc, char **argv) {
     INFO(length(input_reads) << " reads were extracted from " << input_file);
 
     INFO("Construction of trie starts");
-    auto indices = compressed_reads_indices(input_reads);
+    auto indices = Compressor::compressed_reads_indices(input_reads, Compressor::Type::TrieCompressor);
     INFO("Construction of trie finished")
 
     std::vector<size_t> abundances(indices.size());

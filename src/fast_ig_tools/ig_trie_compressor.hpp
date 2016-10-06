@@ -12,6 +12,11 @@
 #include <seqan/seq_io.h>
 
 namespace fast_ig_tools {
+template <typename T>
+using Decay = typename std::decay<T>::type;
+
+template <typename TArray>
+using ValueType = Decay<decltype((Decay<TArray>())[0])>;
 
 class Compressor {
 public:
@@ -20,8 +25,38 @@ public:
 
     template <typename... Args>
     static std::unique_ptr<Compressor> factor(Compressor::Type type, Args&&... args);
-};
 
+    template <typename TIter>
+    static std::vector<size_t> compressed_reads_indices(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) {
+        auto compressor = Compressor::factor(type, b, e);
+
+        return compressor->checkout();
+    }
+
+    template <typename TVector>
+    static std::vector<size_t> compressed_reads_indices(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) {
+        return compressed_reads_indices(reads.cbegin(), reads.cend(), type);
+    }
+
+    template <typename TIter>
+    static auto compressed_reads(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<Decay<decltype(*(TIter()))>>  {
+        auto indices = compressed_reads_indices(b, e, type);
+
+        std::vector<Decay<decltype(*(TIter()))>> result;
+        for (size_t i = 0; i < indices.size(); ++i, ++b) {
+            if (indices[i] == i) {
+                result.push_back(*b);
+            }
+        }
+
+        return result;
+    }
+
+    template <typename TVector>
+    static auto compressed_reads(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<ValueType<TVector>>  {
+        return compressed_reads(reads.cbegin(), reads.cend());
+    }
+};
 
 
 class HashCompressor : public Compressor {
@@ -253,44 +288,6 @@ std::unique_ptr<Compressor> Compressor::factor(Compressor::Type type, Args&&... 
         default:
             return std::unique_ptr<Compressor>(nullptr);
     }
-}
-
-
-template <typename T>
-using Decay = typename std::decay<T>::type;
-
-template <typename TArray>
-using ValueType = Decay<decltype((Decay<TArray>())[0])>;
-
-template <typename TIter>
-std::vector<size_t> compressed_reads_indices(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) {
-    auto compressor = Compressor::factor(type, b, e);
-
-    return compressor->checkout();
-}
-
-template <typename TVector>
-std::vector<size_t> compressed_reads_indices(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) {
-    return compressed_reads_indices(reads.cbegin(), reads.cend(), type);
-}
-
-template <typename TIter>
-auto compressed_reads(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<Decay<decltype(*(TIter()))>>  {
-    auto indices = compressed_reads_indices(b, e, type);
-
-    std::vector<Decay<decltype(*(TIter()))>> result;
-    for (size_t i = 0; i < indices.size(); ++i, ++b) {
-        if (indices[i] == i) {
-            result.push_back(*b);
-        }
-    }
-
-    return result;
-}
-
-template <typename TVector>
-auto compressed_reads(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<ValueType<TVector>>  {
-    return compressed_reads(reads.cbegin(), reads.cend());
 }
 }
 // vim: ts=4:sw=4
