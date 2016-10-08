@@ -39,10 +39,10 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "--clustering-thr 20"
          ],
         ["python %s/py/drop_ns.py" % igrec,
-         "%s/igrec_umi/final_repertoire/final_repertoire.fa",
-         "%s/igrec_umi/final_repertoire.fa",
-         "%s/igrec_umi/final_repertoire/final_repertoire.rcm",
-         "%s/igrec_umi/final_repertoire.rcm",
+         "%s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
+         "%s/igrec_umi/final_repertoire.fa" % data_path,
+         "%s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
+         "%s/igrec_umi/final_repertoire.rcm" % data_path,
          ],
         ["python %s/aimquast.py" % igrec,
          "-s %s/amplified.fasta" % data_path,
@@ -71,10 +71,10 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "--debug"
          ],
         ["python %s/py/drop_ns.py" % igrec,
-         "%s/igrec/final_repertoire.fa",
-         "%s/igrec/final_repertoire_non.fa",
-         "%s/igrec/final_repertoire.rcm",
-         "%s/igrec/final_repertoire_non.rcm",
+         "%s/igrec/final_repertoire.fa" % data_path,
+         "%s/igrec/final_repertoire_non.fa" % data_path,
+         "%s/igrec/final_repertoire.rcm" % data_path,
+         "%s/igrec/final_repertoire_non.rcm" % data_path,
          ],
         ["python %s/aimquast.py" %igrec,
          "-s %s/amplified.fasta" % data_path,
@@ -109,8 +109,8 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "-o %s/presto/presto.fasta" % data_path
          ],
         ["python %s/py/drop_ns.py" % igrec,
-         "%s/presto/presto.fasta",
-         "%s/presto/presto_non.fasta"
+         "%s/presto/presto.fasta" % data_path,
+         "%s/presto/presto_non.fasta" % data_path
          ],
         ["python %s/aimquast.py" %igrec,
          "-s %s/amplified.fasta" % data_path,
