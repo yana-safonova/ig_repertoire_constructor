@@ -33,10 +33,12 @@ if __name__ == "__main__":
                         help="output FASTA/FASTQ file")
     parser.add_argument("input_rcm",
                         type=str,
-                        help="rcm file for the input FASTA/FASTQ file")
+                        help="rcm file for the input FASTA/FASTQ file",
+                        default=None)
     parser.add_argument("output_rcm",
                         type=str,
-                        help="rcm file for the output FASTA/FASTQ file")
+                        help="rcm file for the output FASTA/FASTQ file",
+                        default=None)
 
     args = parser.parse_args()
     print "Command line: %s" % " ".join(sys.argv)
