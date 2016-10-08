@@ -15,9 +15,11 @@ cdr_labeler_bin = os.path.join(home_directory, "build/release/bin/cdr_labeler")
 hgc_bin = os.path.join(home_directory, "build/release/bin/ig_swgraph_construct")
 run_cdr_labeler = os.path.join(home_directory, "build/release/bin/./cdr_labeler")
 visualizer_dir = os.path.join(home_directory, "py/diversity_stats_visualizer")
+data_annotation_dir = os.path.join(home_directory, "data/annotation")
 
 sys.path.append(py_src)
 sys.path.append(visualizer_dir)
+
 import process_cfg
 import support
 
@@ -40,6 +42,12 @@ def DomainParamCorrect(domain_str):
 def LociParamCorrect(loci_str):
     return loci_str == "IG" or loci_str == "IGH" or loci_str == "IGK" or loci_str == "IGL"
 
+organism_dict = {'human' : 'human', 'mouse' : 'mouse', 'rat' : 'rat',
+                 'rabbit' : 'rabbit', 'rhesus-monkey' : 'rhesus_monkey'}
+
+def OrganismParamCorrect(org_str):
+    return org_str in organism_dict
+
 def CheckParamsCorrectness(params, log):
     if not os.path.exists(params.input_reads):
         log.info("Input reads " + params.input_reads + " were not found")
@@ -50,6 +58,11 @@ def CheckParamsCorrectness(params, log):
     if not LociParamCorrect(params.loci):
         log.info("Loci " + params.loci + " is not recognized")
         sys.exit(1)
+    if not OrganismParamCorrect(params.organism):
+        log.info("Organism " + params.organism + " is not recognized")
+        sys.exit(1)
+    else:
+        params.organism = organism_dict[params.organism]
 
 def SetOutputParams(params, log):
     if params.input_reads == test_reads:
@@ -71,8 +84,9 @@ def PrintParams(params, log):
     log.info(tool_name + " parameters:")
     log.info("  Input reads:\t\t" + params.input_reads)
     log.info("  Output directory:\t" + params.output_dir + "\n")
+    log.info("  Domain system:\t" + params.domain_system)
     log.info("  Loci:\t\t\t" + params.loci)
-    log.info("  Domain system:\t" + params.domain_system + "\n")
+    log.info("  Organism:\t\t" + params.organism + "\n")
 
 ########################################################################################################################
 
@@ -102,6 +116,13 @@ def UpdateGermlineConfigFile(params, log):
         fhandler.write(splits[0] + "\t" + splits[1] + "\t" + os.path.join(home_directory, splits[2]) + "\n")
     fhandler.close()
 
+def ModifyParamsWrtOrganism(params, cdr_param_dict, vj_param_dict):
+    cdr_param_dict['imgt_v_annotation'] = os.path.join(data_annotation_dir, params.organism + "_v_imgt.txt")
+    cdr_param_dict['kabat_v_annotation'] = os.path.join(data_annotation_dir, params.organism + "_v_kabat.txt")
+    cdr_param_dict['imgt_j_annotation'] = os.path.join(data_annotation_dir, params.organism + "_j_imgt.txt")
+    cdr_param_dict['kabat_j_annotation'] = os.path.join(data_annotation_dir, params.organism + "_j_kabat.txt")
+    vj_param_dict['organism'] = params.organism
+
 def ModifyConfigFiles(params, log):
     cdr_param_dict = dict()
     cdr_param_dict['input_reads'] = params.input_reads
@@ -109,19 +130,16 @@ def ModifyConfigFiles(params, log):
     cdr_param_dict['vj_finder_config'] = params.vj_finder_config_file
     cdr_param_dict['num_threads'] = params.num_threads
     cdr_param_dict['domain_system'] = params.domain_system
-    # todo: refactor it!
-    cdr_param_dict['imgt_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_imgt.txt')
-    cdr_param_dict['kabat_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_kabat.txt')
-    cdr_param_dict['imgt_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_imgt.txt')
-    cdr_param_dict['kabat_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_kabat.txt')
     cdr_param_dict['run_hg_constructor'] = os.path.join(home_directory, './build/release/bin/ig_swgraph_construct')
-    process_cfg.substitute_params(params.cdr_labeler_config_file, cdr_param_dict, log)
-    ######################
+
     vj_param_dict = dict()
     vj_param_dict['loci'] = params.loci
     vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/germline")
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
     vj_param_dict['germline_filenames_config'] = params.germline_config_file
+
+    ModifyParamsWrtOrganism(params, cdr_param_dict, vj_param_dict)
+    process_cfg.substitute_params(params.cdr_labeler_config_file, cdr_param_dict, log)
     process_cfg.substitute_params(params.vj_finder_config_file, vj_param_dict, log)
 
 def PrepareConfigs(params, log):
@@ -184,6 +202,11 @@ def main(argv):
                                dest="loci",
                                help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
+    optional_args.add_argument("--org",
+                               type=str,
+                               default="human",
+                               dest="organism",
+                               help="Organism: human, mouse, rat, rabbit, rhesus-monkey [default: %(default)s]")
 
     optional_args.add_argument('--skip-plots',
                                action='store_const',
