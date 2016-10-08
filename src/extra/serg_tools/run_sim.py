@@ -38,15 +38,30 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "--detect-chimeras",
          "--clustering-thr 20"
          ],
+        ["python %s/py/drop_ns.py" % igrec,
+         "%s/igrec_umi/final_repertoire/final_repertoire.fa",
+         "%s/igrec_umi/final_repertoire.fa",
+         "%s/igrec_umi/final_repertoire/final_repertoire.rcm",
+         "%s/igrec_umi/final_repertoire.rcm",
+         ],
         ["python %s/aimquast.py" % igrec,
          "-s %s/amplified.fasta" % data_path,
-         "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
-         "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
+         "-c %s/igrec_umi/final_repertoire.fa" % data_path,
+         "-C %s/igrec_umi/final_repertoire.rcm" % data_path,
          "-r %s/vjf/cleaned_reads.fa" % data_path,
          "-o %s/quast" % data_path,
          "--reference-free",
          "--rcm-based"
          ],
+        # ["python %s/aimquast.py" % igrec,
+        #  "-s %s/amplified.fasta" % data_path,
+        #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
+        #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
+        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-o %s/quast" % data_path,
+        #  "--reference-free",
+        #  "--rcm-based"
+        #  ],
 
         ["python %s/igrec.py" % igrec,
          "-s %s/amplified.fasta" % data_path,
@@ -55,15 +70,30 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "--loci IGH",
          "--debug"
          ],
+        ["python %s/py/drop_ns.py" % igrec,
+         "%s/igrec/final_repertoire.fa",
+         "%s/igrec/final_repertoire_non.fa",
+         "%s/igrec/final_repertoire.rcm",
+         "%s/igrec/final_repertoire_non.rcm",
+         ],
         ["python %s/aimquast.py" %igrec,
          "-s %s/amplified.fasta" % data_path,
-         "-c %s/igrec/final_repertoire.fa" % data_path,
-         "-C %s/igrec/final_repertoire.rcm" % data_path,
+         "-c %s/igrec/final_repertoire_non.fa" % data_path,
+         "-C %s/igrec/final_repertoire_non.rcm" % data_path,
          "-r %s/vjf/cleaned_reads.fa" % data_path,
          "-o %s/quast_igrec" % data_path,
          "--reference-free",
          "--rcm-based"
          ],
+        # ["python %s/aimquast.py" %igrec,
+        #  "-s %s/amplified.fasta" % data_path,
+        #  "-c %s/igrec/final_repertoire.fa" % data_path,
+        #  "-C %s/igrec/final_repertoire.rcm" % data_path,
+        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-o %s/quast_igrec" % data_path,
+        #  "--reference-free",
+        #  "--rcm-based"
+        #  ],
 
         ["mkdir -p %s/presto &&" % data_path,
          "python /Marx/ashlemov/Git/ig_repertoire_constructor/py/convertAGE2PRESTO.py",
@@ -78,14 +108,26 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
          "-r %s/presto/MS12_collapse-unique.fasta" % data_path,
          "-o %s/presto/presto.fasta" % data_path
          ],
+        ["python %s/py/drop_ns.py" % igrec,
+         "%s/presto/presto.fasta",
+         "%s/presto/presto_non.fasta"
+         ],
         ["python %s/aimquast.py" %igrec,
          "-s %s/amplified.fasta" % data_path,
-         "-c %s/presto/presto.fasta" % data_path,
+         "-c %s/presto/presto_non.fasta" % data_path,
          "-r %s/vjf/cleaned_reads.fa" % data_path,
          "-o %s/quast_presto" % data_path,
          "--reference-free",
          "--rcm-based"
-         ]
+         ],
+        # ["python %s/aimquast.py" %igrec,
+        #  "-s %s/amplified.fasta" % data_path,
+        #  "-c %s/presto/presto.fasta" % data_path,
+        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-o %s/quast_presto" % data_path,
+        #  "--reference-free",
+        #  "--rcm-based"
+        #  ]
     ]
 
     commands = [join(args, ' ') for args in args_seq]
