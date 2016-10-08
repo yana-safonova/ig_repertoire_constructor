@@ -170,7 +170,8 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
                 abun_.append(aa_large_abun[i])
             else:
                 abun_.append(0)
-        sns.barplot(x_, abun_, color = aa_colors[amino_acids.index(aa)])
+        df = pd.DataFrame({'x': x_, 'y' : abun_})
+        sns.barplot(x = 'x', y = 'y', data = df, color = aa_colors[amino_acids.index(aa)])
     plt.xticks(range(0, len(aa_large_abun)), aa_large_acid, fontsize = 14)
     plt.yticks(fontsize = 14)
     plt.xlabel('The most abundant amino acid', fontsize = 16)
