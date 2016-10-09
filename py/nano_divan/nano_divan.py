@@ -82,7 +82,7 @@ igrec_dir = current_dir + "/../../"
 
 def call_swg(inputfile, outputfile):
     run_graph_constructor = igrec_dir + "/build/release/bin/ig_swgraph_construct"
-    cmd = run_graph_constructor + " -i " + inputfile + " -o " + outputfile + " --tau 3 -T 0 -S1 -k4"
+    cmd = run_graph_constructor + " -i " + inputfile + " -o " + outputfile + " --tau 3 -T 0 -S1 -k8"
     os.system(cmd)
 
 
