@@ -218,8 +218,8 @@ def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     #    tick.set_color(color)
     #for tick, color in zip(ax.get_yticklabels(), get_aa_ticks_colors(aa_list)):
     #    tick.set_color(color)
-    plt.xlabel("From", fontsize = 14)
-    plt.ylabel("To", fontsize = 14, rotation='horizontal')
+    plt.xlabel("To", fontsize = 14)
+    plt.ylabel("From", fontsize = 14, rotation='horizontal')
     utils.output_figure(output_fname, "Amino acid substitution heatmap", log)
     return aa_freq
 
@@ -248,8 +248,8 @@ def visualize_nucl_substitution_matrix(shms_df, output_fname, log):
     ax.tick_params(labelsize = 14)
     plt.xticks(fontsize = 12)
     plt.yticks(fontsize = 12, rotation='horizontal')
-    plt.xlabel("From", fontsize = 14)
-    plt.ylabel("To", fontsize = 14, rotation='horizontal')
+    plt.xlabel("To", fontsize = 14)
+    plt.ylabel("From", fontsize = 14, rotation='horizontal')
     utils.output_figure(output_fname, "Nucleotide substitution heatmap", log)
 
 def output_synonymous_shms(synonymous_pos, output_fname, log):
