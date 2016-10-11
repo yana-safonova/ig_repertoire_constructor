@@ -8,7 +8,8 @@ def get_plot_various_error_rate_data(dir,
                                      kind="igrec",
                                      what="sensitivity",
                                      woans=False,
-                                     size=5):
+                                     size=5,
+                                     add_aimquast_to_path=True):
     from glob import glob
 
     suff = "_woans" if woans else ""
@@ -27,7 +28,8 @@ def get_plot_various_error_rate_data(dir,
         assert extract_lambda("fdsfsdfsd/errate_3.14") == 3.14
 
     def extract_data(dirname):
-        json = json_from_file(dirname + "/" + kind + "/aimquast/aimquast.json")
+        jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
+        json = json_from_file(dirname + "/" + kind + jfile)
         return json
 
     lambdas = map(extract_lambda, dirnames)
@@ -307,13 +309,14 @@ def plot_rocs(jsons, labels,
 #               out=out)
 
 
-def rocs(dir, tools, out, labels=None, title="", **kwargs):
+def rocs(dir, tools, out, labels=None, title="", add_aimquast_to_path=True, **kwargs):
     if labels is None:
         labels = tools
 
     assert len(labels) == len(tools)
 
-    plot_rocs([dir + "/" + tool + "/aimquast/aimquast.json" for tool in tools],
+    jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
+    plot_rocs([dir + "/" + tool + jfile for tool in tools],
               labels=labels,
               title=title,
               format=("png", "pdf"),
