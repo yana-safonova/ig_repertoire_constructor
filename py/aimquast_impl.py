@@ -1126,10 +1126,11 @@ class RcmVsRcm:
             ax.set_xlabel("Purity")
             ax.set_ylabel("# of clusters")
             ax.set_xlim((0, 1))
-            ax.set_ylim((0, len(purity)))
             if ylog:
                 plt.yscale("log", nonposy="clip")
-                ax.set_ylim((0, math.log(len(purity))))
+                # ax.set_ylim((0, math.log(len(purity))))
+            else:
+                ax.set_ylim((0, len(purity)))
 
             save_plot(out, format=format)
         except BaseException as ex:
