@@ -184,8 +184,10 @@ def main(args):
                                   initial_reads=args.initial_reads,
                                   output_file=args.reference_repertoire)
 
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
+        # rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
             mkdir_p(args.reference_free_dir)
