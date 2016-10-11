@@ -2008,7 +2008,7 @@ class Repertoire:
 
         plt.xlim(1, l)
         ax.set_xlabel("Position in constructed cluster")
-        ax.set_ylabel("Second vote")
+        ax.set_ylabel("Discordance")
 
         if legend:
             handles, labels = ax.get_legend_handles_labels()
