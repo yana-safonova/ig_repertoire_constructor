@@ -57,7 +57,9 @@ def plot_various_error_rate(dir,
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
+
+    colors = [colors[tool2id(label)] for label in labels]
 
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
@@ -131,7 +133,7 @@ def plot_two_sums(dir,
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = ["cornflowerblue", "red", "orange", "black"]
 
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
@@ -179,6 +181,15 @@ def plot_two_sums(dir,
     save_plot(out, format=format)
 
 
+def tool2id(tool):
+    tool = tool.lower()
+
+    tools = ["igrec", "mixcr", "presto", "barigrec", "migec"]
+    from Levenshtein import distance
+    dists = [distance(tool, t) for t in tools]
+    return min(range(len(dists)), key=lambda i: dists[i])
+
+
 def plot_rocs(jsons, labels,
               max_size_threshold=75,
               out="two_rocs",
@@ -214,7 +225,10 @@ def plot_rocs(jsons, labels,
     # skip = 2
     skip = 0
 
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
+
+    colors = [colors[tool2id(label)] for label in labels]
+
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
 
