@@ -59,9 +59,7 @@ def plot_various_error_rate(dir,
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
-
-    colors = [colors[tool2id(label)] for label in labels]
+    colors = [tool2color(label) for label in labels]
 
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
@@ -186,10 +184,15 @@ def plot_two_sums(dir,
 def tool2id(tool):
     tool = tool.lower()
 
-    tools = ["igrec", "mixcr", "presto", "barigrec", "migec"]
+    tools = ["igrec", "mixcr", "presto", "migec", "barigrec"]
     from Levenshtein import distance
     dists = [distance(tool, t) for t in tools]
     return min(range(len(dists)), key=lambda i: dists[i])
+
+
+def tool2color(tool):
+    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
+    return colors[tool2id(tool)]
 
 
 def plot_rocs(jsons, labels,
@@ -227,9 +230,7 @@ def plot_rocs(jsons, labels,
     # skip = 2
     skip = 0
 
-    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
-
-    colors = [colors[tool2id(label)] for label in labels]
+    colors = [tool2color(label) for label in labels]
 
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
@@ -373,8 +374,8 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="")
     sys.exit()
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="")
 
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGH/filtering3/", "FLU_FV_27_IGH_3", title="FLU_FV_27_IGH_3")
