@@ -1114,8 +1114,9 @@ class RcmVsRcm:
         except BaseException as ex:
             print ex
 
-    def plot_purity_distribution(self, out, format=None, constructed=True):
+    def plot_purity_distribution(self, out, format=None, constructed=True, ylog=False):
         import seaborn as sns
+        import math
 
         f, ax = initialize_plot()
 
@@ -1126,6 +1127,9 @@ class RcmVsRcm:
             ax.set_ylabel("# of clusters")
             ax.set_xlim((0, 1))
             ax.set_ylim((0, len(purity)))
+            if ylog:
+                plt.yscale("log", nonposy="clip")
+                ax.set_ylim((0, math.log(len(purity))))
 
             save_plot(out, format=format)
         except BaseException as ex:
