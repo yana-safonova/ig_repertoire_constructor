@@ -1146,7 +1146,8 @@ class RcmVsRcm:
             print ex
 
 
-    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False):
+    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False,
+                                      xmax=0.5):
         import seaborn as sns
 
         f, ax = initialize_plot()
@@ -1156,7 +1157,7 @@ class RcmVsRcm:
             sns.distplot(discordance, kde=False, bins=25, ax=ax)
             ax.set_xlabel("Discordance")
             ax.set_ylabel("# of clusters")
-            ax.set_xlim((0, 1))
+            ax.set_xlim((0, xmax))
             if ylog:
                 plt.yscale("log", nonposy="clip")
             else:
