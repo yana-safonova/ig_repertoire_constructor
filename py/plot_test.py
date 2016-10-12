@@ -190,8 +190,11 @@ def tool2id(tool):
     return min(range(len(dists)), key=lambda i: dists[i])
 
 
-def tool2color(tool):
-    colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
+def tool2color(tool, secondary=False):
+    primary_colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
+    secondary_colors = ["blue", "green", "red", "black", "pink"]
+    colors = secondary_colors if secondary else primary_colors
+
     return colors[tool2id(tool)]
 
 
@@ -231,6 +234,7 @@ def plot_rocs(jsons, labels,
     skip = 0
 
     colors = [tool2color(label) for label in labels]
+    point_colors = [tool2color(label, secondary=True) for label in labels]
 
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
@@ -263,13 +267,13 @@ def plot_rocs(jsons, labels,
         if i <= skip:
             continue
     # for i in []:
-        annotation(i, precisions[0], sensitivities[0], color="blue")
+        annotation(i, precisions[0], sensitivities[0], color=point_colors[0])
         if len(jsons) > 1:
-            annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
+            annotation(i, precisions[1], sensitivities[1], color=point_colors[1], xshift=-0.04)
         if len(jsons) > 2:
-            annotation(i, precisions[2], sensitivities[2], color="gold", yshift=0.04)
+            annotation(i, precisions[2], sensitivities[2], color=point_colors[2], yshift=0.04)
         if len(jsons) > 3:
-            annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
+            annotation(i, precisions[3], sensitivities[3], color=point_colors[3], xshift=-0.04, yshift=0.04)
 
     def red_point(x, y, size, label="NOLABEL", do_plot=True):
         if do_plot:
