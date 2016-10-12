@@ -1040,6 +1040,17 @@ class RcmVsRcm:
         return np.array(majority_votes, dtype=float) / np.array(sizes, dtype=float)
 
     @memoize
+    def discordance(self, constructed=True):
+        import numpy as np
+
+        votes = self.votes(constructed)
+        # majority_votes = [vote[0] for vote in votes]
+        secondary_votes = [vote[1] for vote in votes]
+        sizes = [sum(vote) for vote in votes]
+
+        return np.array(secondary_votes, dtype=float) / np.array(sizes, dtype=float)
+
+    @memoize
     def majority_votes(self, constructed=True):
         votes = self.votes(constructed)
         majority_votes = [vote[0] for vote in votes]
@@ -1140,7 +1151,7 @@ class RcmVsRcm:
 
         f, ax = initialize_plot()
 
-        discordance = self.secondary_votes(constructed)
+        discordance = self.discordance(constructed)
         try:
             sns.distplot(discordance, kde=False, bins=25, ax=ax)
             ax.set_xlabel("Discordance")
