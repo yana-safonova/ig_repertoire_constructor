@@ -1116,7 +1116,6 @@ class RcmVsRcm:
 
     def plot_purity_distribution(self, out, format=None, constructed=True, ylog=False):
         import seaborn as sns
-        import math
 
         f, ax = initialize_plot()
 
@@ -1128,9 +1127,29 @@ class RcmVsRcm:
             ax.set_xlim((0, 1))
             if ylog:
                 plt.yscale("log", nonposy="clip")
-                # ax.set_ylim((0, math.log(len(purity))))
             else:
                 ax.set_ylim((0, len(purity)))
+
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
+
+
+    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False):
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        discordance = self.secondary_votes(constructed)
+        try:
+            sns.distplot(discordance, kde=False, bins=25, ax=ax)
+            ax.set_xlabel("Discordance")
+            ax.set_ylabel("# of clusters")
+            ax.set_xlim((0, 1))
+            if ylog:
+                plt.yscale("log", nonposy="clip")
+            else:
+                ax.set_ylim((0, len(discordance)))
 
             save_plot(out, format=format)
         except BaseException as ex:
