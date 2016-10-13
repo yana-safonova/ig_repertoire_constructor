@@ -416,7 +416,7 @@ class TrieCompressionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
-                    " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+                    " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + " -Toff"
         support.sys_call(command_line, self._log)
 
         command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
