@@ -6,36 +6,130 @@
 #include <cassert>
 #include <limits>
 #include <memory>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include <vector>
 
 #include <seqan/seq_io.h>
 
 namespace fast_ig_tools {
+template <typename T>
+using Decay = typename std::decay<T>::type;
 
-template <typename TValue = seqan::Dna5>
-class Trie {
+template <typename TArray>
+using ValueType = Decay<decltype((Decay<TArray>())[0])>;
+
+class Compressor {
 public:
-    Trie() {
-        // Do not use :member initialization syntax here. pool should be initialized BEFORE root
-        root = pool.construct();
-    }
-    Trie(const Trie &) = delete;
-    Trie &operator=(const Trie &) = delete;
-    Trie(Trie &&) = default;
-    Trie &operator=(Trie &&) = default;
-    ~Trie() = default;
+    enum class Type {HashCompressor, TrieCompressor};
+    virtual std::vector<size_t> checkout() = 0;
 
+    template <typename TValue, typename... Args>
+    static std::unique_ptr<Compressor> factor(Compressor::Type type, Args&&... args);
+
+    template <typename TIter>
+    static std::vector<size_t> compressed_reads_indices(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) {
+		using TValue = ValueType<decltype(*(TIter()))>;
+        auto compressor = Compressor::factor<TValue>(type, b, e);
+
+        return compressor->checkout();
+    }
+
+    template <typename TVector>
+    static std::vector<size_t> compressed_reads_indices(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) {
+        return compressed_reads_indices(reads.cbegin(), reads.cend(), type);
+    }
+
+    template <typename TIter>
+    static auto compressed_reads(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<Decay<decltype(*(TIter()))>>  {
+        auto indices = compressed_reads_indices(b, e, type);
+
+        std::vector<Decay<decltype(*(TIter()))>> result;
+        for (size_t i = 0; i < indices.size(); ++i, ++b) {
+            if (indices[i] == i) {
+                result.push_back(*b);
+            }
+        }
+
+        return result;
+    }
+
+    template <typename TVector>
+    static auto compressed_reads(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<ValueType<TVector>>  {
+        return compressed_reads(reads.cbegin(), reads.cend(), type);
+    }
+};
+
+
+class HashCompressor : public Compressor {
+public:
+    HashCompressor() {}
+    HashCompressor(const HashCompressor &) = delete;
+    HashCompressor &operator=(const HashCompressor &) = delete;
+    HashCompressor(HashCompressor &&) = default;
+    HashCompressor &operator=(HashCompressor &&) = default;
+    ~HashCompressor() = default;
 
     size_t size() const {
-        return size__;
+        return size_;
     }
 
     template <typename TCont>
-    Trie(const TCont &cont) : Trie(cont.cbegin(), cont.cend()) { }
+    HashCompressor(const TCont &cont) : HashCompressor(cont.cbegin(), cont.cend()) { }
 
     template <typename TIter>
-    Trie(TIter b, TIter e) : Trie() {
+    HashCompressor(TIter b, TIter e) : HashCompressor() {
+        for (; b !=e; ++b) {
+            add(*b);
+        }
+    }
+    template <typename T>
+    void add(const T &s) {
+        seqan::String<char> str = s;
+        map_[seqan::toCString(str)].push_back(size_++);
+    }
+
+    virtual std::vector<size_t> checkout() {
+        std::vector<size_t> result(this->size());
+        for (const auto &kv : map_) {
+            const auto &ids = kv.second;
+            size_t target = ids[0];
+            for (size_t id : ids) {
+                result[id] = target;
+            }
+        }
+
+        return result;
+    }
+
+private:
+    boost::unordered_map<std::string, std::vector<size_t>> map_;
+    size_t size_ = 0;
+};
+
+
+template <typename TValue = seqan::Dna5>
+class TrieCompressor : public Compressor {
+public:
+    TrieCompressor() {
+        // Do not use :member initialization syntax here. pool should be initialized BEFORE root
+        root_ = pool_.construct();
+    }
+    TrieCompressor(const TrieCompressor &) = delete;
+    TrieCompressor &operator=(const TrieCompressor &) = delete;
+    TrieCompressor(TrieCompressor &&) = default;
+    TrieCompressor &operator=(TrieCompressor &&) = default;
+    ~TrieCompressor() = default;
+
+
+    size_t size() const {
+        return size_;
+    }
+
+    template <typename TCont>
+    TrieCompressor(const TCont &cont) : TrieCompressor(cont.cbegin(), cont.cend()) { }
+
+    template <typename TIter>
+    TrieCompressor(TIter b, TIter e) : TrieCompressor() {
         for (; b !=e; ++b) {
             add(*b);
         }
@@ -45,20 +139,20 @@ public:
     void add(const T &s) {
         assert(!isCompressed());
 
-        TrieNode *p = root;
+        TrieNode *p = root_;
 
         for (size_t i = 0; i < seqan::length(s); ++i) {
-			if (p->ids) {
-				// Ok, nice, we have found a sequence that is a prefix of the current read
-				// Join current sequence to the found prefix
-				// Do not construct trie further
-				break;
-			}
+            if (p->ids) {
+                // Ok, nice, we have found a sequence that is a prefix of the current read
+                // Join current sequence to the found prefix
+                // Do not construct trie further
+                break;
+            }
             size_t el = seqan::ordValue(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
-                p->children[el] = pool.construct();
+                p->children[el] = pool_.construct();
             }
 
             p = p->children[el];
@@ -68,27 +162,27 @@ public:
             p->ids = new IdCounter;
         }
 
-        p->ids->add(size__);
-        size__++;
+        p->ids->add(size_);
+        size_++;
     }
 
     bool isCompressed() const {
-        return compressed;
+        return compressed_;
     }
 
     void compress() {
         if (!isCompressed()) {
-            root->compress_to_prefix();
+            root_->compress_to_prefix();
         }
     }
 
-    std::vector<size_t> checkout() {
+    virtual std::vector<size_t> checkout() {
         if (!isCompressed()) {
             compress();
         }
 
         std::vector<size_t> result(this->size());
-        root->checkout_vector(result);
+        root_->checkout_vector(result);
 
         return result;
 
@@ -178,48 +272,23 @@ private:
         }
     };
 
-    boost::object_pool<TrieNode> pool;
-    TrieNode *root;
-    bool compressed = false;
-    size_t size__ = 0;
+    boost::object_pool<TrieNode> pool_;
+    TrieNode *root_;
+    bool compressed_ = false;
+    size_t size_ = 0;
 };
 
-template <typename T>
-using Decay = typename std::decay<T>::type;
 
-template <typename TArray>
-using ValueType = Decay<decltype((Decay<TArray>())[0])>;
-
-template <typename TIter>
-std::vector<size_t> compressed_reads_indices(TIter b, TIter e) {
-    using TValue = ValueType<decltype(*(TIter()))>;
-    Trie<TValue> trie(b, e);
-
-    return trie.checkout();
-}
-
-template <typename TVector>
-std::vector<size_t> compressed_reads_indices(const TVector &reads) {
-    return compressed_reads_indices(reads.cbegin(), reads.cend());
-}
-
-template <typename TIter>
-auto compressed_reads(TIter b, TIter e) -> std::vector<Decay<decltype(*(TIter()))>>  {
-    auto indices = compressed_reads_indices(b, e);
-
-    std::vector<Decay<decltype(*(TIter()))>> result;
-    for (size_t i = 0; i < indices.size(); ++i, ++b) {
-        if (indices[i] == i) {
-            result.push_back(*b);
-        }
+template <typename TValue, typename... Args>
+std::unique_ptr<Compressor> Compressor::factor(Compressor::Type type, Args&&... args) {
+    switch (type) {
+        case Compressor::Type::HashCompressor:
+            return std::unique_ptr<Compressor>(new HashCompressor(std::forward<Args>(args)...));
+        case Compressor::Type::TrieCompressor:
+            return std::unique_ptr<Compressor>(new TrieCompressor<TValue>(std::forward<Args>(args)...));
+        default:
+            return std::unique_ptr<Compressor>(nullptr);
     }
-
-    return result;
-}
-
-template <typename TVector>
-auto compressed_reads(const TVector &reads) -> std::vector<ValueType<TVector>>  {
-    return compressed_reads(reads.cbegin(), reads.cend());
 }
 }
 // vim: ts=4:sw=4

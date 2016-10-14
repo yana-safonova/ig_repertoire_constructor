@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -485,11 +485,11 @@ int _splitAlignmentImpl(Gaps<TContigSeqL> & gapsContigL,
  * The following example demonstrates the usage of <tt>splitAlignment</tt> in the first case.  The second case
  * works accordingly.
  *
- * @include demos/align_split/split_alignment.cpp
+ * @include demos/dox/align_split/split_alignment.cpp
  *
  * The output is as follows.
  *
- * @include demos/align_split/split_alignment.cpp.stdout
+ * @include demos/dox/align_split/split_alignment.cpp.stdout
  */
 
 // Variant: unbanded, with Align objects.

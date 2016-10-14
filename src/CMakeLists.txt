@@ -8,6 +8,9 @@
 # Hard prerequisites
 cmake_minimum_required(VERSION 2.8.8)
 
+# export compiler arguments (need for autocompletion)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
 # allow more human readable "if then else" constructs
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 

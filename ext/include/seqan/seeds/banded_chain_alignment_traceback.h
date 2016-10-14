@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -125,6 +125,12 @@ inline void _glueTracebacks(TTraceSet & globalTraces, TTraceSet & localTraces)
 
     bool isGlued = false;
 
+    if (empty(globalTraces))
+    {
+        globalTraces = localTraces;
+        return;
+    }
+
     TSize lengthGlobalTraces = length(globalTraces);
     TSize oldNumOfGlobalTraces = lengthGlobalTraces;
     String<unsigned> elementsToErase;
@@ -193,6 +199,7 @@ inline void _glueTracebacks(TTraceSet & globalTraces, TTraceSet & localTraces)
         erase(globalTraces, elementsToErase[i-1]); // erase from behind to avoid accessing an element beyond the scope
     }
     SEQAN_ASSERT_EQ_MSG(isGlued, true, "Fatal error while trying to connect trace backs: No glue point available!");
+    ignoreUnusedVariableWarning(isGlued);
 }
 
 // ----------------------------------------------------------------------------

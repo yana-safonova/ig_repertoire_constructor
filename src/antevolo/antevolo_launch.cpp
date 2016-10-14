@@ -59,7 +59,8 @@ namespace antevolo {
             clone_seqs.push_back(clone_seq);
         }
         INFO("Trie_compressor starts, " << uncompressed_annotated_clone_set.size() << " annotated sequences were created");
-        auto indices = fast_ig_tools::compressed_reads_indices(clone_seqs);
+        auto indices = fast_ig_tools::Compressor::compressed_reads_indices(clone_seqs,
+        fast_ig_tools::Compressor::Type::TrieCompressor);
         std::vector<size_t> abundances(uncompressed_annotated_clone_set.size());
         for (auto i : indices) {
             ++abundances[i];

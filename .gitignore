@@ -3,3 +3,18 @@ igrec_test
 dsf_test
 .idea
 build/
+
+# cmake files
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+
+# object files and libs
+*.o
+*.la
+*.a
+*.so
+divan_test

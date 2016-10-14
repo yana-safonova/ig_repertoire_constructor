@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -354,9 +354,8 @@ struct FormattedFile
 
         _getCompressionExtensions(extensions,
                                   TFileFormats(),
-                                  typename FileFormat<TStream>::Type(),
-//                                  true);
-                                  IsSameType<TDirection, Output>::VALUE);
+                                  CompressedFileTypes(),
+                                  false);
         return extensions;
     }
 };
@@ -398,6 +397,12 @@ template <typename TFormattedFile, typename TStorageSpec>
 struct FormattedFileContext
 {
     typedef Nothing Type;
+};
+
+template <typename TFormattedFile, typename TStorageSpec>
+struct FormattedFileContext<TFormattedFile const, TStorageSpec>
+{
+    typedef typename FormattedFileContext<TFormattedFile, TStorageSpec>::Type const Type;
 };
 
 // ----------------------------------------------------------------------------
@@ -636,8 +641,9 @@ inline bool _open(FormattedFile<TFileFormat, TDirection, TSpec> & file,
 }
 
 template <typename TFileFormat, typename TDirection, typename TSpec, typename TStream>
-inline bool open(FormattedFile<TFileFormat, TDirection, TSpec> & file,
-                 TStream &stream)
+inline SEQAN_FUNC_ENABLE_IF(Is<StreamConcept<TStream> >, bool)
+open(FormattedFile<TFileFormat, TDirection, TSpec> & file,
+     TStream &stream)
 {
     return _open(file, stream, _mapFileFormatToCompressionFormat(file.format), False());
 }
@@ -742,6 +748,8 @@ inline bool close(FormattedFile<TFileFormat, TDirection, TSpec> & file)
  *
  * @param[in,out] file The FormattedFile to check.
  * @return bool <tt>true</tt> in the case of success, <tt>false</tt> otherwise.
+ *
+ * @datarace Not thread safe.
  */
 
 template <typename TFileFormat, typename TDirection, typename TSpec>
@@ -832,7 +840,7 @@ _getCompressionExtensions(
     typedef Tag<TFormat_> TFormat;
 
     std::vector<std::string> compressionExtensions;
-    _getFileExtensions(compressionExtensions, compress, primaryExtensionOnly);
+    _getFileExtensions(compressionExtensions, compress, true);
 
     unsigned len = (primaryExtensionOnly)? 1 : sizeof(FileExtensions<TFormat>::VALUE) / sizeof(char*);
     for (unsigned i = 0; i < len; ++i)

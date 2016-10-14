@@ -1,10 +1,11 @@
 import os
 import sys
 import operator
-import warnings
 
 import matplotlib as mplt
 mplt.use('Agg')
+
+import utils
 
 import numpy as np
 import pandas as pd
@@ -12,13 +13,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from Bio import SeqIO
 from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
 
-def visualize_region_lengths(labeling_df, region, region_name, output_fname):
+def visualize_region_lengths(labeling_df, region, region_name, output_fname, log):
     region_seq = list(labeling_df[region])
     region_len = [len(s) for s in region_seq if len(s) > 1]
+    f, ax = plt.subplots(figsize=(8, 8))
     sns.distplot(region_len, kde = False, rug=False)
     plt.xlabel(region_name + ' length', fontsize = 16)
     plt.ylabel('# ' + region_name + 's', fontsize = 16)
@@ -30,7 +30,40 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " length distribution was written to " + output_fname + ".pdf and .png"
+    log.info(region_name + " length distribution was written to " + output_fname + ".pdf and .png")
+
+############################################################################
+def visualize_length_abundance_dist(labeling_df, region, region_name, output_fname, log):
+    region_seq = list(labeling_df[region])
+    region_dict = dict()
+    for seq in region_seq:
+        if seq not in region_dict:
+            region_dict[seq] = 0
+        region_dict[seq] += 1
+    abun = [] #np.array()
+    lens = [] #np.array()
+    for seq in region_dict:
+        if region_dict[seq]  == 1:
+            continue
+        abun.append(region_dict[seq])
+        lens.append(len(seq))
+    abun = np.asarray(abun)
+    lens = np.asarray(lens)
+    f, ax = plt.subplots()
+    sns.jointplot(abun, lens, size = 6)
+    #plt.xlabel(region_name + ' abundance', fontsize = 14)
+    #ax.xaxis.set_label_position('top')
+    #plt.ylabel(region_name + ' length', fontsize = 14)
+    #plt.xticks(fontsize = 14)
+    #plt.yticks(fontsize = 14)
+    #plt.xlim(-1, abun.max() + 1)
+    #plt.ylim(-1, lens.max() + 1)
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname + ".png")
+    pp.close()
+    plt.clf()
+    log.info(region_name + " joint distribution of abundances & lengths was written to " + output_fname + ".pdf and .png")
 
 ############################################################################
 
@@ -71,7 +104,7 @@ def get_nucls_lists(max_group):
     nucl_dict['T'] = np.array(nucl_dict['T'])
     return nucl_dict
 
-def visualize_largest_region_nucls(labeling_df, region, region_name, output_fname):
+def visualize_largest_region_nucls(labeling_df, region, region_name, output_fname, log):
     region_seq = list(labeling_df[region])
     max_group = get_region_largest_group(region_seq)
     if len(max_group) == 0:
@@ -99,7 +132,7 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " nucleotide distribution was written to " + output_fname + ".pdf and .png"
+    log.info(region_name + " nucleotide distribution was written to " + output_fname + ".pdf and .png")
 
 ############################################################################
 
@@ -110,7 +143,7 @@ for i in range(21):
     aa_colors.append(cm(float(i + 1) / 21)) #(np.random.random_sample()))
 amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
 
-def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname):
+def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname, log):
     region_seq = list(labeling_df[region])
     max_group = get_region_largest_group(region_seq)
     if len(max_group) == 0:
@@ -158,44 +191,50 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print region_name + " aa variability was written to " + output_fname + ".pdf and .png"
+    log.info(region_name + " aa variability was written to " + output_fname + ".pdf and .png")
 
-def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir):
+def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir, log):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_length"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_length"), log)
+    #visualize_length_abundance_dist(locus_df, column_name, locus_name + " " + region_name,
+    #                        os.path.join(output_dir, locus_name + "_" + region_name + "_abundance_length"), log)
     visualize_largest_region_nucls(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_nucls"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_nucls"), log)
     visualize_largest_group_aa_variability(locus_df, column_name, locus_name + " " + region_name,
-                             os.path.join(output_dir, locus_name + "_" + region_name + "_aa"))
+                             os.path.join(output_dir, locus_name + "_" + region_name + "_aa"), log)
 
-def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir):
+def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir, log):
     locus_df = vj_df.loc[vj_df['Chain_type'] == locus_name]
     num_records = len(vj_df['Read_name'])
     num_locus_records = len(locus_df['Read_name'])
-    if float(num_locus_records) / float(num_records) < .05:
-        print "Output contains very low number of " + locus_name + " records. Drawing plots was skipped"
+    if float(num_locus_records) / float(num_records) < .05 or num_locus_records < 10:
+        log.info("Output contains very low number (" + str(num_locus_records) + ") of " + locus_name + " records. Drawing plots was skipped")
         return
-    print "CDR statistics for " + locus_name
-    output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir)
-    output_cdr_stats_for_locus(locus_df, locus_name, "CDR2_nucls", "CDR2", output_dir)
-    output_cdr_stats_for_locus(locus_df, locus_name, "CDR3_nucls", "CDR3", output_dir)
+    log.info("Visualization of CDR statistics for " + locus_name + " locus")
+    output_cdr_stats_for_locus(locus_df, locus_name, "CDR1_nucls", "CDR1", output_dir, log)
+    output_cdr_stats_for_locus(locus_df, locus_name, "CDR2_nucls", "CDR2", output_dir, log)
+    output_cdr_stats_for_locus(locus_df, locus_name, "CDR3_nucls", "CDR3", output_dir, log)
 
-def main(df_fname, output_dir):
+def main(df_fname, output_dir, log):
     if not os.path.exists(df_fname):
-        print "File containing CDR details " + df_fname + " was not found"
+        log.info("File containing CDR details " + df_fname + " was not found")
         sys.exit(1)
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-    print "== Output CDR statistics"
+    log.info("== Output CDR statistics")
     vj_df = pd.read_table(df_fname, delim_whitespace = True)
-    output_cdrs_stats_for_locus(vj_df, "IGH", output_dir)
-    output_cdrs_stats_for_locus(vj_df, "IGK", output_dir)
-    output_cdrs_stats_for_locus(vj_df, "IGL", output_dir)
-    print ""
+    if len(vj_df['Read_name']) == 0:
+        log.info("CDR data-frame contains 0 records. CDR visualization will be skipped")
+        return
+    output_cdrs_stats_for_locus(vj_df, "IGH", output_dir, log)
+    output_cdrs_stats_for_locus(vj_df, "IGK", output_dir, log)
+    output_cdrs_stats_for_locus(vj_df, "IGL", output_dir, log)
+    log.info("")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print "Invalid input parameters"
-        print "python visualize_cdr_stats.py cdr_details.txt output_dir"
+        print "python visualize_cdr_stats.py cdr_details.txt output_dir logger"
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    log = utils.get_logger_by_arg(sys.argv[3], "cdr_visualization")
+    main(sys.argv[1], sys.argv[2], log)

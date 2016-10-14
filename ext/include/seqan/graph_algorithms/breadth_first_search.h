@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -77,9 +77,9 @@ namespace seqan {
  *
  * @section Example
  *
- * @include demos/graph_algorithms/breadth_first_search.cpp
+ * @include demos/dox/graph_algorithms/breadth_first_search.cpp
  *
- * @include demos/graph_algorithms/breadth_first_search.cpp.stdout
+ * @include demos/dox/graph_algorithms/breadth_first_search.cpp.stdout
  *
  * @see depthFirstSearch
  */

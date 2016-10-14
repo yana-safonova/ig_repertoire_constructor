@@ -17,13 +17,13 @@ io_params {
 
      output_params {
         output_files {
-            output_dir              vjf_test
-            log_filename            log.properties
-            cleaned_reads_fname     cleaned_reads.fasta        
-            filtered_reads_fname    filtered_reads.fasta
-            alignment_info_fname    alignment_info.csv
-            discard_info_filename   oppa4
-            valignments_filename    v_alignments.fa
+            output_dir              	vjf_test
+            log_filename           	log.properties
+            cleaned_reads_fname     	cleaned_reads.fa        
+            filtered_reads_fname    	filtered_reads.fa
+            alignment_info_fname    	alignment_info.csv
+            filtering_info_filename 	filtering_info.csv
+            valignments_filename    	v_alignments.fa
         }
 
         output_details {
@@ -69,9 +69,10 @@ algorithm_params {
         fill_left       true
         fill_right      true
         fix_left        3
-        fix_right       3
+        fix_right       17
         crop_left       true
         crop_right      true
+        fcf_algorithm   aggressive_fcf; accurate_fcf - is not implemented yet
     }
 
     scoring_params {

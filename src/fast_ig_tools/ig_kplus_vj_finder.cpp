@@ -119,6 +119,8 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
              "separator for alignment info file: 'comma', 'semicolon', 'tab' (or 'tabular') or custom string")
             ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
              "minimal length of reported sequence")
+            ("consistent-loci", po::value<bool>(&consistent_loci)->default_value(consistent_loci),
+             "force V and J genes to be from the same locus")
             ;
 
         // Hidden options, will be allowed both on command line and

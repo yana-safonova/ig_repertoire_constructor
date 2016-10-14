@@ -30,7 +30,7 @@ namespace vj_finder {
                     std::string cleaned_reads_fname;
                     std::string filtered_reads_fname;
                     std::string alignment_info_fname;
-                    std::string discard_info_filename;
+                    std::string filtering_info_filename;
                     std::string valignments_filename;
                 };
 
@@ -77,6 +77,8 @@ namespace vj_finder {
             };
 
             struct FixCropFillParams {
+                enum FixCropFillAlgorithm { UnknowmFCFAlgorithm, AggressiveFCFAlgorithm };
+
                 bool enable_fixing;
                 size_t fix_left;
                 size_t fix_right;
@@ -86,6 +88,7 @@ namespace vj_finder {
                 bool enable_cropping;
                 bool crop_left;
                 bool crop_right;
+                FixCropFillAlgorithm fcf_algorithm;
             };
 
             struct ScoringParams {
@@ -130,4 +133,6 @@ namespace vj_finder {
     void load(VJFinderConfig &cfg, std::string const &filename);
 
     typedef config_common::config<VJFinderConfig> vjf_cfg;
+    
+    void update_output_files_config(VJFinderConfig::IOParams::OutputParams::OutputFiles & of);
 }

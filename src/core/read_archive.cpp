@@ -17,6 +17,10 @@ namespace core {
 //-----------------------------------------------------------------
 
     ReadArchive::ReadArchive(std::string fastq_file_fname) {
+        ExtractFromFile(fastq_file_fname);
+    }
+
+    void ReadArchive::ExtractFromFile(std::string fastq_file_fname) {
         path::CheckFileExistenceFATAL(fastq_file_fname);
         std::vector <seqan::CharString> read_headers;
         std::vector <seqan::Dna5String> read_seqs;
@@ -54,5 +58,10 @@ namespace core {
     void ReadArchive::FixSpacesInHeaders() {
         for(auto it = reads_.begin(); it != reads_.end(); it++)
             std::replace(it->name.begin(), it->name.end(), ' ', '_');
+    }
+
+    void ReadArchive::UpdateReadByIndex(size_t index, seqan::Dna5String new_seq) {
+        VERIFY_MSG(index < reads_.size(), "Index " << index << " exceeds archive size");
+        reads_[index].seq = new_seq;
     }
 }

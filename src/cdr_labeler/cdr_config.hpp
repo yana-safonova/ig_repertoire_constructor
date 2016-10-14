@@ -7,6 +7,7 @@ namespace cdr_labeler {
         struct InputParams {
             std::string input_reads;
             std::string vj_finder_config;
+            std::string run_hg_constructor;
         };
 
         struct OutputParams {

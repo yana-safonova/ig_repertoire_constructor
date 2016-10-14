@@ -1,20 +1,16 @@
 import os
 import sys
-import operator
-import warnings
 
+import utils
+
+import pylab
 import matplotlib as mplt
 mplt.use('Agg')
 
-import numpy as np
-import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-
-from Bio import SeqIO
-from Bio.Seq import Seq
-from Bio.SeqRecord import SeqRecord
+import matplotlib.patches as patches
 
 class AlignedRead:
     def _parse_line(self, line):
@@ -93,46 +89,90 @@ class SHMs:
         for it in self.shm_dict:
             yield it
 
-def output_shms_pos(all_shms_pos, colors):
+
+isotype_colors = {'IGH': 'b', 'IGK': 'g', 'IGL': 'r'}
+
+def output_shms_pos(all_shms_pos, colors, output_prefix, log):
+    for isotype in all_shms_pos:
+        if len(all_shms_pos[isotype]) < 10:
+            continue
+        plt.hist(all_shms_pos[isotype], bins = 100, color = colors[isotype], alpha = .75)
+        plt.xlabel("#SHM in " + isotype + "V gene segment", fontsize = 16)
+        plt.ylabel("# sequences", fontsize = 16)
+        plt.xticks(fontsize = 14)
+        plt.yticks(fontsize = 14)
+        plt.xlim(0, .75)
+        output_fname = output_prefix + "_" + isotype + "V_pos"
+        pp = PdfPages(output_fname + ".pdf")
+        pp.savefig()
+        plt.savefig(output_fname + ".png")
+        pp.close()
+        plt.clf()
+        log.info("Distribution of SHM relative positions in " + isotype + "V segments was written to " + output_prefix + ".pdf and .png")
+
+def output_num_shms(num_all_shms, colors, output_prefix, log):
     pos = []
     labels = []
     cols = []
-    for isotype in all_shms_pos:
-        if len(all_shms_pos[isotype]) > 0:
-            pos.append(all_shms_pos[isotype])
+    for isotype in num_all_shms:
+        if len(num_all_shms[isotype]) > 0:
+            pos.append(num_all_shms[isotype])
             labels.append(str(isotype))
             cols.append(colors[isotype])
-    plt.hist(pos, bins= 100 / len(cols), color = cols, alpha = .75, label = labels)
+    plt.hist(pos, bins = 50, color = cols, alpha = .75, label = labels)
     plt.legend(loc = 'upper center', ncol = len(pos), fontsize = 16)
-    plt.xlabel("Relative position of SHM in V gene segment", fontsize = 16)
+    plt.xlabel("# of SHM in V gene segment", fontsize = 16)
     plt.ylabel("# SHMs", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
-    plt.xlim(0, .75)
+    plt.xlim(0, 150)
+    output_fname = output_prefix + "_shms_number"
+    pp = PdfPages(output_prefix + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname + ".png")
+    pp.close()
+    plt.clf()
+    log.info("Distribution of # SHMs in V segments was written to " + output_fname + ".pdf and .png")
 
-def output_num_shms(num_all_shms, colors):
-    nums = []
-    cols = []
-    labels = []
-    for isotype in num_all_shms:
-        if len(num_all_shms[isotype]) > 0:
-            #sns.distplot(num_all_shms[isotype], hist = False, label = str(isotype), color = colors[str(isotype)])
-            nums.append(num_all_shms[isotype])
-            labels.append(str(isotype))
-            cols.append(colors[isotype])
-    plt.hist(nums, bins= 100 / len(cols), color = cols, alpha = .75, label = labels)
-    plt.legend(loc = 'upper center', ncol = len(nums))
-    plt.xlabel("#SHM in V gene segment", fontsize = 16)
+def output_shm_stats_for_isotype(num_shms, shm_pos, isotype, output_prefix, log):
+    plt.figure(1)
+    plt.subplot(211)
+    # plot for SHM positions
+    plt.hist(shm_pos, color = isotype_colors[isotype], alpha = .75, bins = 50)
+    #cdr_color = "#EFBEBE"
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR1'][0], 0),
+    #                                      cdr_positions[isotype]['CDR1'][1] - cdr_positions[isotype]['CDR1'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR2'][0], 0),
+    #                                      cdr_positions[isotype]['CDR2'][1] - cdr_positions[isotype]['CDR2'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #plt.gca().add_patch(patches.Rectangle((cdr_positions[isotype]['CDR3'][0], 0),
+    #                                      cdr_positions[isotype]['CDR3'][1] - cdr_positions[isotype]['CDR3'][0],
+    #                                      max(n) + 2, facecolor= cdr_color, lw = 0))
+    #n, bins, p = pylab.hist(shm_pos, color = isotype_colors[isotype], bins = 50)
+    plt.xlabel("Relative position of SHM in " + isotype + "V", fontsize = 16)
+    plt.ylabel("# SHMs", fontsize = 16)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    plt.title("SHMs in " + isotype + "V", fontsize = 18)
+    # plot for SHM number
+    plt.subplot(212)
+    plt.hist(num_shms, color = isotype_colors[isotype], bins = 50, alpha = .75)
+    plt.xlabel("# SHMs in " + isotype + "V", fontsize = 16)
     plt.ylabel("# sequences", fontsize = 16)
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
-    plt.xlim(0, 150)
-    plt.legend(loc = 'upper center', ncol = len(num_all_shms), fontsize = 16)
+    output_fname = output_prefix + "_" + isotype + "V"
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname + ".png")
+    pp.close()
+    plt.clf()
+    log.info("Distribution of # SHMs in " + isotype + "V segments was written to " + output_fname + ".pdf and .png")
 
-def visualize_v_mutations_stats(shms_df, output_fname):
+def visualize_v_mutations_stats(shms_df, output_fname, log):
     all_shms_pos = {'IGH': [], 'IGK': [], 'IGL': []}
     num_all_shms = {'IGH': [], 'IGK': [], 'IGL': []}
-    colors = {'IGH': 'b', 'IGK': 'g', 'IGL': 'r'}
     for it in shms_df:
         if not it.is_variable():
             continue
@@ -140,17 +180,11 @@ def visualize_v_mutations_stats(shms_df, output_fname):
         for shm in read_shms:
             all_shms_pos[it.chain_type].append(float(shm.read_pos) / float(it.read_len))
         num_all_shms[it.chain_type].append(len(shms_df[it]))
-    plt.figure(1, figsize=(9, 6))
-    plt.subplot(211)
-    output_shms_pos(all_shms_pos, colors)
-    plt.subplot(212)
-    output_num_shms(num_all_shms, colors)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    print "Distribution of SHM positions in V was written to " + output_fname + ".pdf and .png"
+    for iso in num_all_shms:
+        if len(num_all_shms[iso]) < 10:
+            log.info("# SHMs for " + iso + " is too small(" + str(len(num_all_shms[iso])) + "). Plot drawing was skipped")
+            continue
+        output_shm_stats_for_isotype(num_all_shms[iso], all_shms_pos[iso], iso, output_fname, log)
 
 def get_aa_list():
     return ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
@@ -158,7 +192,7 @@ def get_aa_list():
 def aa_is_valid(aa):
     return aa != '*' and aa != '-' and aa != 'X'
 
-def visualize_aa_substitution_matrix(shms_df, output_fname):
+def visualize_aa_substitution_matrix(shms_df, output_fname, log):
     dict_aa = dict()
     for it in shms_df:
         read_shms = shms_df[it]
@@ -189,12 +223,12 @@ def visualize_aa_substitution_matrix(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png"
+    log.info("Amino acid substitution heatmap was written to " + output_fname + ".pdf and .png")
 
 def nucl_is_valid(nucl):
     return nucl != 'N'
 
-def visualize_nucl_substitution_matrix(shms_df, output_fname):
+def visualize_nucl_substitution_matrix(shms_df, output_fname, log):
     nucl_list = ['A', 'C', 'G', 'T']
     nucl_matrix = []
     for n in nucl_list:
@@ -218,9 +252,9 @@ def visualize_nucl_substitution_matrix(shms_df, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Nucleotide substitution heatmap was written to " + output_fname + ".pdf and .png"
+    log.info("Nucleotide substitution heatmap was written to " + output_fname + ".pdf and .png")
 
-def output_synonymous_shms(synonymous_pos, output_fname):
+def output_synonymous_shms(synonymous_pos, output_fname, log):
     if len(synonymous_pos) < 100:
         return
     plt.hist(synonymous_pos, color = 'r', bins = 100)
@@ -234,9 +268,9 @@ def output_synonymous_shms(synonymous_pos, output_fname):
     plt.savefig(output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of synonymous SHMs positions in V segment was wirtten to " + output_fname + ".pdf and .png"
+    log.info("Distribution of synonymous SHM positions in V segment was written to " + output_fname + ".pdf and .png")
 
-def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname):
+def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fname, log):
     synonymous_pos = []
     stop_codon_pos = []
     deletion_pos = []
@@ -255,7 +289,7 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
                 deletion_pos.append(relative_pos)
             elif shm.is_insertion():
                 insertion_pos.append(relative_pos)
-    output_synonymous_shms(synonymous_pos, syn_output_fname)
+    output_synonymous_shms(synonymous_pos, syn_output_fname, log)
     pos = []
     labels = []
     colors = []
@@ -290,21 +324,78 @@ def visualize_special_shm_positions(shm_df, syn_output_fname, special_output_fna
     plt.savefig(special_output_fname + ".png")
     pp.close()
     plt.clf()
-    print "Distribution of special SHMs in V segment was written to " + special_output_fname + ".pdf and .png"
+    log.info("Distribution of special SHM positions in V segment was written to " + special_output_fname + ".pdf and .png")
 
-def main(shm_df_fname, output_dir):
-    print "== Output SHMs statistics"
+def visualize_indel_shm_lengths(shm_df, output_fname, log):
+    prev_read_pos = -1
+    prev_gene_pos = -1
+    insertion_length = []
+    deletions_lengths = []
+    in_len = 0
+    del_len = 0
+    for it in shm_df:
+        read_shms = shm_df[it]
+        for shm in read_shms:
+            if shm.is_deletion():
+                if shm.gene_pos - prev_gene_pos == 1:
+                    del_len += 1
+                else:
+                    if del_len > 0:
+                        deletions_lengths.append(del_len)
+                    del_len = 1
+                prev_gene_pos = shm.gene_pos
+            if shm.is_insertion():
+                if shm.read_pos - prev_read_pos == 1:
+                    in_len += 1
+                else:
+                    if in_len > 0:
+                        insertion_length.append(in_len)
+                    in_len = 1
+                prev_read_pos = shm.read_pos
+    if in_len != 0:
+        insertion_length.append(in_len)
+    if del_len != 0:
+        deletions_lengths.append(del_len)
+    dt = []
+    labels = []
+    if len(deletions_lengths) > 10:
+        dt.append(deletions_lengths)
+        labels.append("Deletions")
+    if len(insertion_length) > 10:
+        dt.append(insertion_length)
+        labels.append("Insertions")
+    plt.hist(dt, label = labels, bins = 50)
+    plt.legend(loc = 'upper center', ncol = len(dt), fontsize = 14)
+    plt.xlabel("Insertion / deletion SHM length", fontsize = 16)
+    plt.ylabel("# insertion / deletion SHMs", fontsize = 16)
+    plt.xlim(.5, max(max(deletions_lengths), max(insertion_length)) + .5)
+    plt.xticks(fontsize = 14)
+    plt.yticks(fontsize = 14)
+    pp = PdfPages(output_fname + ".pdf")
+    pp.savefig()
+    plt.savefig(output_fname+ ".png")
+    pp.close()
+    plt.clf()
+    log.info("Distribution of insertion/deletion SHM lengths was written to " + output_fname + ".pdf and .png")
+
+def main(shm_df_fname, output_dir, log):
+    log.info("== Output SHMs statistics")
     shm_df = SHMs(shm_df_fname)
-    print str(len(shm_df)) + " records were extracted from " + shm_df_fname
-    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "v_mutations_distribution"))
-    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"))
-    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"))
+    log.info(str(len(shm_df)) + " records were extracted from " + shm_df_fname)
+    if len(shm_df) == 0:
+        log.info("SHM data-frame contains 0 records. SHM visualization will be skipped")
+        return
+    visualize_v_mutations_stats(shm_df, os.path.join(output_dir, "mutations_distribution"), log)
+    visualize_aa_substitution_matrix(shm_df, os.path.join(output_dir, "aa_substitutions"), log)
+    visualize_nucl_substitution_matrix(shm_df, os.path.join(output_dir, "nucl_substitutions"), log)
     visualize_special_shm_positions(shm_df, os.path.join(output_dir, "synonymous_shms_positions"),
-                                    os.path.join(output_dir, "special_shms_positions"))
+                                    os.path.join(output_dir, "special_shms_positions"), log)
+    visualize_indel_shm_lengths(shm_df, os.path.join(output_dir, "indel_shms_length"), log)
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print "Invalid input parameters"
-        print "python visualize_shm_stats.py shm_df.txt output_dir"
+        print "python visualize_shm_stats.py shm_df.txt output_dir logger"
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    log = utils.get_logger_by_arg(sys.argv[3])
+    main(sys.argv[1], sys.argv[2], log)

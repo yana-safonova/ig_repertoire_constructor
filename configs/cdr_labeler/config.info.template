@@ -1,10 +1,12 @@
 input_params {
-    input_reads test_dataset/merged_reads.fastq
-    vj_finder_config configs/vj_finder/config.info
+    input_reads 	test_dataset/merged_reads.fastq
+    vj_finder_config 	configs/vj_finder/config.info
+    run_hg_constructor	./build/release/bin/ig_swgraph_construct
 }
 
 output_params {
     output_dir             cdr_test
+    cleaned_reads          cleaned_sequences.fasta
     cdr_details            cdr_details.txt  
     shm_details            shm_details.txt
     cdr1_fasta             cdr1s.fasta

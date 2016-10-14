@@ -10,35 +10,32 @@
 namespace vj_finder {
     class ImmuneGeneHit {
     protected:
-        core::Read read_;
+        const core::Read *read_ptr_;
         const germline_utils::ImmuneGene* immune_gene_ptr_;
         algorithms::PairwiseBlockAlignment block_alignment_;
         bool strand_;
-        int shift_;
 
     public:
         ImmuneGeneHit() :
-            read_(),
+            read_ptr_(NULL),
             immune_gene_ptr_(NULL),
             block_alignment_(),
-            strand_(false),
-            shift_(0) { }
+            strand_(false) { }
 
         ImmuneGeneHit(const core::Read& read,
                       const germline_utils::ImmuneGene &immune_gene,
                       algorithms::PairwiseBlockAlignment &block_alignment,
                       bool strand) :
-                read_(read),
+                read_ptr_(&read),
                 immune_gene_ptr_(&immune_gene),
                 block_alignment_(std::move(block_alignment)),
-                strand_(strand),
-                shift_(0) { }
+                strand_(strand) { }
 
         bool Strand() const { return strand_; }
 
         const core::Read& Read() const {
             VERIFY(!Empty());
-            return read_;
+            return *read_ptr_;
         }
 
         const algorithms::PairwiseBlockAlignment& BlockAlignment() const {
@@ -70,32 +67,34 @@ namespace vj_finder {
 
         virtual int End() const = 0;
 
-        bool Empty() const { return /*read_ == NULL or*/ immune_gene_ptr_ == NULL; }
+        bool Empty() const { return read_ptr_ == NULL or immune_gene_ptr_ == NULL; }
 
-        int LeftShift() const { return block_alignment_.path.left_shift(); }
 
-        int RightShift() const { return block_alignment_.path.right_shift(); }
+        // first match positions are inclusive
+        size_t FirstMatchReadPos() const { return block_alignment_.first_match_read_pos(); }
 
-        size_t StartMatchReadPos() const { return block_alignment_.first_match_read_pos(); }
+        size_t FirstMatchGenePos() const { return block_alignment_.first_match_subject_pos(); }
 
+        // last match positions are exclusive
         size_t LastMatchReadPos() const { return block_alignment_.last_match_read_pos(); }
-
-        size_t StartMatchGenePos() const { return block_alignment_.first_match_subject_pos(); }
 
         size_t LastMatchGenePos() const { return block_alignment_.last_match_subject_pos(); }
 
+
         virtual void AddShift(int shift) {
-            shift_ += shift;
             block_alignment_.add_read_shift(shift);
         }
 
-        void UpdateRead(const core::Read& read) {
-            read_ = read;
+        virtual void ExtendFirstMatch(int left_shift) {
+            block_alignment_.extend_first_match(left_shift);
+        }
+
+        virtual void ExtendLastMatch(int right_shift) {
+            block_alignment_.extend_last_match(right_shift);
         }
     };
 
     class VGeneHit : public ImmuneGeneHit {
-
     public:
         VGeneHit(const core::Read& read,
                  const germline_utils::ImmuneGene &immune_gene,
@@ -114,19 +113,16 @@ namespace vj_finder {
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return block_alignment_.start(); // + shift_;
+            return block_alignment_.start();
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return int(block_alignment_.last_match_read_pos()); // + shift_;
+            return int(block_alignment_.last_match_read_pos());
         }
     };
 
     class JGeneHit : public ImmuneGeneHit {
-        int left_shift_;
-        int right_shift_;
-
     public:
         JGeneHit(const core::Read& read,
                  const germline_utils::ImmuneGene &immune_gene,
@@ -141,22 +137,22 @@ namespace vj_finder {
         virtual int RightUncovered() const {
             VERIFY(!Empty());
             //std::cout << block_alignment_.finish() << " - " << read_.length() << std::endl;
-            return std::max(0, block_alignment_.finish() - static_cast<int>(read_.length()));
+            return std::max(0, block_alignment_.finish() - static_cast<int>(read_ptr_->length()));
         }
 
         virtual int Start() const {
             VERIFY(!Empty());
-            return int(block_alignment_.first_match_read_pos()); // + shift_;
+            return int(block_alignment_.first_match_read_pos());
         }
 
         virtual int End() const {
             VERIFY(!Empty());
-            return block_alignment_.finish(); // + shift_;
+            return block_alignment_.finish();
         }
     };
 
     class VJHits {
-        core::Read read_;
+        const core::Read *read_ptr_;
         std::vector<VGeneHit> v_hits_;
         std::vector<JGeneHit> j_hits_;
 
@@ -165,7 +161,7 @@ namespace vj_finder {
         void CheckConsistencyFatal(const JGeneHit &j_hit);
 
     public:
-        VJHits(const core::Read &read) : read_(read) { }
+        VJHits(const core::Read &read) : read_ptr_(&read) { }
 
         void AddVHit(VGeneHit v_hit) {
             v_hits_.push_back(v_hit);
@@ -193,15 +189,7 @@ namespace vj_finder {
             return GetJHitByIndex(0).End() - GetVHitByIndex(0).Start();
         }
 
-        const core::Read& Read() const { return read_; }
-
-        void UpdateRead(core::Read new_read) {
-            read_ = new_read;
-            for(auto it = v_hits_.begin(); it != v_hits_.end(); it++)
-                it->UpdateRead(read_);
-            for(auto it = j_hits_.begin(); it != j_hits_.end(); it++)
-                it->UpdateRead(read_);
-        }
+        const core::Read& Read() const { return *read_ptr_; }
 
         void AddLeftShift(int shift) {
             for(auto it = v_hits_.begin(); it != v_hits_.end(); it++)
@@ -212,9 +200,19 @@ namespace vj_finder {
             for(auto it = j_hits_.begin(); it != j_hits_.end(); it++)
                 it->AddShift(shift);
         }
-    };
 
-    typedef boost::optional<VJHits> ProcessedVJHits;
+        void ExtendFirstMatch(int left_shift) {
+            for(auto it = v_hits_.begin(); it != v_hits_.end(); it++) {
+                it->ExtendFirstMatch(left_shift);
+            }
+        }
+
+        void ExtendLastMatch(int right_shift) {
+            for(auto it = j_hits_.begin(); it != j_hits_.end(); it++) {
+                it->ExtendLastMatch(right_shift);
+            }
+        }
+    };
 
     class CustomGermlineDbHelper : public algorithms::KmerIndexHelper<germline_utils::CustomGeneDatabase,
             seqan::Dna5String> {

@@ -3,14 +3,15 @@
 #include <unordered_set>
 #include "vj_finder_config.hpp"
 #include "vj_alignment_structs.hpp"
+#include "vj_hits_filter.hpp"
 
 namespace vj_finder {
     class VJAlignmentInfo {
         std::vector<VJHits> alignment_records_;
-        std::vector<const core::Read*> filtered_reads_;
+        std::vector<VJFilteringInfo> filtering_infos_;
 
-        std::unordered_set<size_t> filtered_read_ids_;
-        std::unordered_map<size_t, size_t> read_id_hit_index_map_;
+        std::map<size_t, size_t> read_id_hit_index_map_;
+        std::map<size_t, size_t> read_id_filtering_info_map_;
 
         std::unordered_map<germline_utils::ChainType, size_t, germline_utils::ChainTypeHasher> chain_type_abundance_;
 
@@ -21,28 +22,44 @@ namespace vj_finder {
 
         void UpdateHits(VJHits vj_hits);
 
-        void UpdateFilteredReads(const core::Read& read);
+        void UpdateFilteringInfo(VJFilteringInfo filtering_info);
 
         void Update(VJAlignmentInfo vj_alignment_info);
 
-        size_t NumFilteredReads() const { return filtered_reads_.size(); }
+        size_t NumFilteredReads() const { return filtering_infos_.size(); }
 
         size_t NumVJHits() const { return alignment_records_.size(); }
 
+
         const VJHits& GetVJHitsByIndex(size_t index) const;
 
-        const core::Read& GetFilteredReadByIndex(size_t index) const;
+        const VJFilteringInfo GetFilteringInfoByIndex(size_t index) const;
+
 
         const VJHits& GetVJHitsByRead(const core::Read &read) const;
 
+        VJFilteringInfo GetFilteringInfoByRead(const core::Read &read) const;
+
         bool ReadIsFiltered(const core::Read &read) const {
-            return filtered_read_ids_.find(read.id) != filtered_read_ids_.end();
+            return read_id_filtering_info_map_.find(read.id) != read_id_filtering_info_map_.end();
         }
 
         size_t GetVJHitIndexByRead(const core::Read &read) const {
             VERIFY_MSG(read_id_hit_index_map_.find(read.id) != read_id_hit_index_map_.end(),
-                       "Info does contain record for read " << read.name);
+                       "Info does contain record for aligned read " << read.name);
             return read_id_hit_index_map_.at(read.id);
+        }
+
+        size_t GetFilteringInfoIndexByRead(const core::Read &read) const {
+            VERIFY_MSG(read_id_filtering_info_map_.find(read.id) != read_id_filtering_info_map_.end(),
+                       "Info does contain record for filtered read " << read.name);
+            return read_id_filtering_info_map_.at(read.id);
+        }
+
+        const core::Read& GetFilteredReadByIndex(size_t filtering_info_index) const {
+            VERIFY_MSG(filtering_info_index < filtering_infos_.size(),
+                       "Index exceeds number of filtering records");
+            return *(filtering_infos_[filtering_info_index].read);
         }
 
         typedef std::unordered_map<germline_utils::ChainType, size_t,
@@ -69,5 +86,7 @@ namespace vj_finder {
         void OutputCleanedReads() const;
 
         void OutputVAlignments() const;
+
+        void OutputFilteringInfo() const;
     };
 }

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -141,6 +141,21 @@ public:
 // ============================================================================
 
 // --------------------------------------------------------------------------
+// Function append()
+// --------------------------------------------------------------------------
+
+// better solution if both stringsets are Owner<Default>
+template <typename TString, typename TString2, typename TExpand >
+inline void append(StringSet<TString, Owner<Default> > & me,
+                   StringSet<TString2, Owner<Default> > const & obj,
+                   Tag<TExpand>)
+{
+    // we rather invalidate limits here to allow to do modify appended strings:
+    me.limitsValid = false;
+    append(me.strings, obj.strings, Tag<TExpand>());
+}
+
+// --------------------------------------------------------------------------
 // Function appendValue()
 // --------------------------------------------------------------------------
 
@@ -181,9 +196,79 @@ inline void assignValue(
     {
         TSignedLimitValue delta = (TSignedLimitValue)length(seq) - oldSize;
         TSize size = length(me);
-        while (pos < size)
+        while (static_cast<TSize>(pos) < size)
             me.limits[++pos] += delta;
     }
+}
+
+// --------------------------------------------------------------------------
+// Function insertValue()
+// --------------------------------------------------------------------------
+
+template <typename TString, typename TSpec, typename TPos, typename TSequence, typename TExpand >
+inline void insertValue(
+    StringSet<TString, Owner<TSpec> > & me,
+    TPos pos,
+    TSequence const & seq,
+    Tag<TExpand> tag)
+{
+    insertValue(me.strings, pos, seq, tag);
+    me.limitsValid = false;
+}
+
+// --------------------------------------------------------------------------
+// Function replace()
+// --------------------------------------------------------------------------
+
+// special case
+template <typename TString, typename TPositionBegin, typename TPositionEnd, typename TExpand >
+inline void replace(
+    StringSet<TString, Owner<> > & target,
+    TPositionBegin pos_begin,
+    TPositionEnd pos_end,
+    StringSet<TString, Owner<> > const & source,
+    Tag<TExpand> tag)
+{
+    replace(target.strings, pos_begin, pos_end, source.strings, tag);
+    target.limitsValid = false;
+}
+
+// general case
+template <typename TString, typename TSpec, typename TPositionBegin, typename TPositionEnd, typename TSource, typename TExpand >
+inline SEQAN_FUNC_ENABLE_IF(And<Is<ContainerConcept<TSource> >, Is<ContainerConcept<typename Value<TSource>::Type> > >, void)
+replace(StringSet<TString, Owner<TSpec> > & target,
+        TPositionBegin pos_begin,
+        TPositionEnd pos_end,
+        TSource const & source,
+        Tag<TExpand> tag)
+{
+    typedef typename Position<StringSet<TString, Owner<TSpec> > >::Type TPos;
+    typedef typename MakeSigned<TPos>::Type TPosDiff;
+
+    TPos min = std::min((TPos)(pos_end - pos_begin), (TPos)length(source));
+    TPosDiff diff = (pos_end - pos_begin) - length(source);
+
+    for (TPos i = 0; i < min; ++i)
+        assignValue(target.strings, i, source[i]);
+
+    if (diff < 0) // insert remaining elements from source
+    {
+        TPos old_len = length(target);
+        TPos source_len = length(source) - min;
+        TPos new_len = old_len + source_len;
+
+        resize(target.strings, new_len, tag);
+        for (TPos i = new_len - 1; i >= pos_begin + length(source); --i)
+            swap(target.strings[i - source_len], target.strings[i]);
+        for (TPos i = 0 + min; i < source_len; ++i)
+            assignValue(target.strings, i, source[i]);
+    }
+    else if (diff > 0)
+    {
+        erase(target.strings, min, pos_end);
+    }
+
+    target.limitsValid = false;
 }
 
 // --------------------------------------------------------------------------
@@ -193,7 +278,6 @@ inline void assignValue(
 template <typename TString >
 inline void clear(StringSet<TString, Owner<Default> > & me)
 {
-    SEQAN_CHECKPOINT;
     clear(me.strings);
     resize(me.limits, 1, Exact());
     me.limitsValid = true;
@@ -248,7 +332,6 @@ inline typename Reference<StringSet<TString, Owner<TSpec> > >::Type
 getValueById(StringSet<TString, Owner<TSpec> >& me,
             TId const id)
 {
-    SEQAN_CHECKPOINT;
     if (id < (TId) length(me)) return value(me, id);
     static TString tmp = TString();
     return tmp;
@@ -274,7 +357,6 @@ assignValueById(StringSet<TString, Owner<TSpec> > & me,
                 TString& obj,
                 TId id)
 {
-    SEQAN_CHECKPOINT;
     if (id >= (TId) length(me.strings))
     {
         resize(me.strings, id+1, TString());
@@ -293,7 +375,6 @@ template<typename TString, typename TSpec, typename TId>
 inline void
 removeValueById(StringSet<TString, Owner<TSpec> > & me, TId const id)
 {
-    SEQAN_CHECKPOINT;
     erase(me.strings, id);
     resize(me.limits, length(me.limits) - 1, Generous());
     me.limitsValid = empty(me);
@@ -308,7 +389,6 @@ inline typename Id<StringSet<TString, Owner<TSpec> > >::Type
 positionToId(StringSet<TString, Owner<TSpec> > &,
             TPos const pos)
 {
-    SEQAN_CHECKPOINT;
     return pos;
 }
 
@@ -321,7 +401,6 @@ inline typename Id<StringSet<TString, Owner<TSpec> > >::Type
 positionToId(StringSet<TString, Owner<TSpec> > const &,
             TPos const pos)
 {
-    SEQAN_CHECKPOINT;
     return pos;
 }
 
@@ -334,7 +413,6 @@ inline typename Id<StringSet<TString, Owner<TSpec> > >::Type
 idToPosition(StringSet<TString, Owner<TSpec> > const&,
             TId const id)
 {
-    SEQAN_CHECKPOINT;
     return id;
 }
 

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -65,11 +65,11 @@ typedef Tag<Equidistant_> Equidistant;
  *
  * Simple example for equidistant (default) splitting.
  *
- * @include demos/parallel/splitter_example.cpp
+ * @include demos/dox/parallel/splitter_example.cpp
  *
  * The output is:
  *
- * @include demos/parallel/splitter_example.cpp.stdout
+ * @include demos/dox/parallel/splitter_example.cpp.stdout
  */
 
 /*!
@@ -109,7 +109,7 @@ typedef Tag<Equidistant_> Equidistant;
  *
  * Simple example for equidistant splitting.
  *
- * @include demos/parallel/splitter_example.cpp
+ * @include demos/dox/parallel/splitter_example.cpp
  *
  * Output:
  *

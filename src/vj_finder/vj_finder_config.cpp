@@ -44,7 +44,7 @@ namespace vj_finder {
         of.log_filename = path::append_path(of.output_dir, of.log_filename);
         of.alignment_info_fname = path::append_path(of.output_dir, of.alignment_info_fname);
         of.filtered_reads_fname = path::append_path(of.output_dir, of.filtered_reads_fname);
-        of.discard_info_filename = path::append_path(of.output_dir, of.discard_info_filename);
+        of.filtering_info_filename = path::append_path(of.output_dir, of.filtering_info_filename);
         of.cleaned_reads_fname = path::append_path(of.output_dir, of.cleaned_reads_fname);
         of.valignments_filename = path::append_path(of.output_dir, of.valignments_filename);
     }
@@ -55,11 +55,11 @@ namespace vj_finder {
         load(of.log_filename, pt, "log_filename");
         load(of.alignment_info_fname, pt, "alignment_info_fname");
         load(of.filtered_reads_fname, pt, "filtered_reads_fname");
-        load(of.discard_info_filename, pt, "discard_info_filename");
+        load(of.filtering_info_filename, pt, "filtering_info_filename");
         load(of.output_dir, pt, "output_dir");
         load(of.cleaned_reads_fname, pt, "cleaned_reads_fname");
         load(of.valignments_filename, pt, "valignments_filename");
-        update_output_files_config(of);
+        //update_output_files_config(of);
     }
 
     void load(VJFinderConfig::IOParams::OutputParams & op, boost::property_tree::ptree const &pt, bool) {
@@ -103,6 +103,13 @@ namespace vj_finder {
         load(fp.min_aligned_length, pt, "min_aligned_length");
     }
 
+    VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm get_fcf_algorithm(std::string str) {
+        if(str == "aggressive_fcf")
+            return VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm::AggressiveFCFAlgorithm;
+        VERIFY_MSG(false, "FCF algorithm was not recognized");
+        return VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm::UnknowmFCFAlgorithm;
+    }
+
     void load(VJFinderConfig::AlgorithmParams::FixCropFillParams &fxp, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(fxp.enable_fixing, pt, "enable_fixing");
@@ -114,6 +121,9 @@ namespace vj_finder {
         load(fxp.crop_right, pt, "crop_right");
         load(fxp.fill_left, pt, "fill_left");
         load(fxp.fill_right, pt, "fill_right");
+        std::string tmp;
+        load(tmp, pt, "fcf_algorithm");
+        fxp.fcf_algorithm = get_fcf_algorithm(tmp);
     }
 
     void load(VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams &vs,

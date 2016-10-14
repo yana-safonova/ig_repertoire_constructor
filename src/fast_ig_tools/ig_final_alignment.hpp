@@ -145,7 +145,7 @@ std::vector<size_t> find_abundances(const std::vector<T> &ids) {
     SEQAN_OMP_PRAGMA(parallel for)
     for (size_t i = 0; i < ids.size(); ++i) {
         std::string s = seqan::toCString(ids[i]);
-        size_t pos = s.find(pat);
+        size_t pos = s.rfind(pat);
 
         if (pos == std::string::npos) {
             result[i] = 1;

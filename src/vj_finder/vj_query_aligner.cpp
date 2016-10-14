@@ -98,13 +98,13 @@ namespace vj_finder {
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
-
-        VJHits vj_hits(stranded_read);
+        read_archive_.UpdateReadByIndex(read.id, stranded_read.seq);
+        VJHits vj_hits(read);
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
-            vj_hits.AddVHit(VGeneHit(stranded_read, v_custom_db_[it->second], it->first, strand));
+            vj_hits.AddVHit(VGeneHit(read, v_custom_db_[it->second], it->first, strand));
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
-            JGeneHit j_hit(stranded_read, j_gene_db[it->second], it->first, strand);
-            j_hit.AddShift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
+            JGeneHit j_hit(read, j_gene_db[it->second], it->first, strand);
+            j_hit.AddShift(int(read.length() - seqan::length(dj_read_suffix)));
             vj_hits.AddJHit(j_hit);
         }
         return vj_hits;

@@ -43,7 +43,7 @@ namespace algorithms {
                                int score);
 
         size_t first_match_read_pos() const {
-            return size_t(path.first().read_pos + read_shift);
+            return size_t(path.first().read_pos);
         }
 
         size_t first_match_subject_pos() const {
@@ -55,7 +55,7 @@ namespace algorithms {
         }
 
         size_t last_match_read_pos() const {
-            return path.last().read_pos + path.last().length + read_shift;
+            return path.last().read_pos + path.last().length;
         }
 
         size_t left_half_segment_length() const {
@@ -78,7 +78,18 @@ namespace algorithms {
             return this->path.visualize_matches(static_cast<int>(subject_length), static_cast<int>(query_length));
         }
 
-        void add_read_shift(int read_shift) { this->read_shift += read_shift; }
+        void add_read_shift(int read_shift) {
+            path.add_read_shift(read_shift);
+            this->read_shift += read_shift;
+        }
+
+        void extend_first_match(int left_shift) {
+            path.extend_first_match(left_shift);
+        }
+
+        void extend_last_match(int right_shift) {
+            path.extend_last_match(right_shift);
+        }
     };
 
     template<typename SubjectDatabase>

@@ -1,48 +1,25 @@
 {
   "$type": "Form",
   "fields": [
+    
     {
       "$type": "SectionBreak",
-      "title": "Output"
-    },
-    {
-      "$type": "TextBox",
-      "size": 300,
-      "value": "default value!",
-      "label": "App Session Name",
-      "required": true,
-      "requiredMessage": "Please enter name for your app session.",
-      "id": "app-session-name"
-    },
-    {
-      "$type": "ProjectChooser",
-      "size": 250,
-      "valueType": "Output",
-      "allowedPermissions": "owner",
-      "label": "Output Project",
-      "required": true,
-      "requiredMessage": "Please choose a project",
-      "id": "project-id",
-      "rules": "is-project-owner, is-project-writeable"
-    },
-    {
-      "$type": "SectionBreak",
-      "title": "Input"
+      "title": "Input Rep-seq data"
     },
 
     {
       "$type": "RadioButton",
       "id": "input-type",
-      "label": "Input data type",
+      "label": "Input type",
       "value": 1,
       "choices": [
         {
           "value": 0,
-          "label": "sample"
+          "label": "BaseSpace sample"
         },
         {
           "value": 1,
-          "label": "file"
+          "label": "Library file"
         }
       ],
       "togglers": [
@@ -62,7 +39,7 @@
       "size": 300,
       "allowedPermissions": "read",
       "multiselect": false,
-      "label": "Input IG reads sample (pair-end, two files)",
+      "label": "Rep-seq paired-end sample",
       "required": true,
       "requiredMessage": "Please choose a sample with input reads",
       "id": "reads-sample",
@@ -73,7 +50,7 @@
       "size": 300,
       "allowedPermissions": "read",
       "multiselect": false,
-      "label": "Input IG reads file (merged, one file)",
+      "label": "Merged Rep-seq library file",
       "required": true,
       "extensionFilters": ".fa,.fq,.fasta,.fastq,.gz",
       "requiredMessage": "Please choose a file with input reads",
@@ -81,135 +58,149 @@
       "rules": "read-file-format"
     },
 
+    {
+      "$type": "SectionBreak",
+      "title": "Output"
+    },
+
+    {
+      "$type": "TextBox",
+      "size": 300,
+      "value": "default value!",
+      "label": "Analysis Name",
+      "required": true,
+      "requiredMessage": "Please enter name for your app session.",
+      "id": "app-session-name"
+    },
+
+    {
+      "$type": "ProjectChooser",
+      "size": 300,
+      "label": "Output project",
+      "valueType": "Output",
+      "allowedPermissions": "owner",
+      "required": true,
+      "requiredMessage": "Please choose an output project",
+      "id": "project-id",
+      "rules": "is-project-owner, is-project-writeable"
+    },
 
     {
       "$type": "SectionBreak",
-      "title": "Options"
+      "title": "Germline options"
     },
 
     {
       "$type": "Select",
-      "id": "tau",
-      "label": "Maximum allowed mismatches",
+      "id": "loci",
+      "label": "Loci",
       "multiselect": false,
-      "helpText" : "Maximum allowed mismatches between identical error-prone reads",
+      "helpText" : "Ig/TCR loci used for alignment and filtering at the VJFinder stage",
+      "value": "all",
       "choices": [
         {
-          "value": 0,
-          "text": "0",
-          "selected": false
-        },
-        {
-          "value": 1,
-          "text": "1",
-          "selected": false
-        },
-        {
-          "value": 2,
-          "text": "2",
-          "selected": false
-        },
-        {
-          "value": 3,
-          "text": "3",
-          "selected": false
-        },
-        {
-          "value": 4,
-          "text": "4",
+          "value": "IG",
+          "text": "IG",
+          "label": "IG",
           "selected": true
         },
         {
-          "value": 5,
-          "text": "5",
+          "value": "IGH",
+          "text": "IGH",
+          "label": "IGH",
           "selected": false
         },
         {
-          "value": 6,
-          "text": "6",
+          "value": "IGK",
+          "text": "IGK",
+          "label": "IGK",
           "selected": false
-        }
-      ]
-    },
-    {
-      "$type": "Numeric",
-      "size": 60,
-      "value": 5,
-      "label": "Minimal cluster size",
-      "required": true,
-      "requiredMessage": "Please specify minimal cluster size",
-      "id": "min-size",
-      "numericType": "Integer",
-      "min": 1,
-      // "max": 999999,
-      "helpText": "Minimal size of antibody cluster using for output of large antibody clusters"
-    },
-    {
-      "$type": "RadioButton",
-      "id": "chain",
-      "label": "Ig locus (chain type)",
-      "multiselect": false,
-      "helpText" : "Ig locus used for alignment and filtering",
-      "value": "all",
-      "choices": [
+        },
+        {
+          "value": "IGL",
+          "text": "IGL",
+          "label": "IGL",
+          "selected": false
+        },
+        {
+          "value": "TR",
+          "text": "TR",
+          "label": "TR",
+          "selected": false
+        },
+        {
+          "value": "TRA",
+          "text": "TRA",
+          "label": "TRA",
+          "selected": false
+        },
+        {
+          "value": "TRB",
+          "text": "TRB",
+          "label": "TRB",
+          "selected": false
+        },
+        {
+          "value": "TRG",
+          "text": "TRG",
+          "label": "TRG",
+          "selected": false
+        },
+        {
+          "value": "TRD",
+          "text": "TRD",
+          "label": "TRD",
+          "selected": false
+        },
         {
           "value": "all",
           "text": "all",
           "label": "all",
+          "selected": false
+        }
+      ]
+    },
+    
+    {
+      "$type": "Select",
+      "id": "organism",
+      "label": "Organism",
+      "multiselect": false,
+      "choices": [
+        {
+          "value": "human",
+          "text": "human (Homo sapiens)",
           "selected": true
         },
         {
-          "value": "heavy",
-          "text": "heavy",
-          "label": "heavy",
+          "value": "mouse",
+          "text": "house mouse (Mus musculus)",
           "selected": false
         },
         {
-          "value": "light",
-          "text": "light",
-          "label": "light",
+          "value": "pig",
+          "text": "pig (Sus scrofa)",
           "selected": false
         },
         {
-          "value": "lambda",
-          "text": "lambda",
-          "label": "lambda",
+          "value": "rabbit",
+          "text": "rabbit (Oryctolagus cuniculus)",
           "selected": false
         },
         {
-          "value": "kappa",
-          "text": "kappa",
-          "label": "kappa",
+          "value": "rat",
+          "text": "Norway rat (Rattus norvegicus)",
           "selected": false
-        }
-      ]
-    },
-    {
-      "$type": "CheckBox",
-      "id": "pseudogenes",
-      "label": "Pseudogenes",
-      "helpText": "Use pseudogenes along with normal gene segments for VJ alignment",
-      "choices": [
+        },
         {
-          "value": "pseudogenes",
-          "label": "Use pseudogenes for VJ alignment",
-          "checked": true
-        }
-      ]
-    },
-    {
-      "$type": "CheckBox",
-      "id": "additionalfiles",
-      "label": "Additional files",
-      "helpText": "Save additional pipeline files (useful for debug and extra analisys)",
-      "choices": [
-        {
-          "value": "save",
-          "label": "Save additional files",
-          "checked": true
+          "value": "rhesus_monkey",
+          "text": "Rhesus monkey (Macaca mulatta)",
+          "selected": false
         }
       ]
     }
+    
+    
   ],
   "rulesets":[
     {

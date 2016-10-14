@@ -53,11 +53,11 @@ std::string load_config(int argc, char **argv) {
     std::string cfg_filename = get_config_fname(argc, argv);
     path::CheckFileExistenceFATAL(cfg_filename);
     vj_finder::vjf_cfg::create_instance(cfg_filename);
+    parse_command_line_args(vj_finder::vjf_cfg::get_writable(), argc, argv);
     prepare_output_dir(vj_finder::vjf_cfg::get().io_params.output_params.output_files);
     std::string path_to_copy = path::append_path(vj_finder::vjf_cfg::get().io_params.output_params.output_files.output_dir, "configs");
     path::make_dir(path_to_copy);
     copy_configs(cfg_filename, path_to_copy);
-    parse_command_line_args(vj_finder::vjf_cfg::get_writable(), argc, argv);
     return cfg_filename;
 }
 

@@ -41,5 +41,7 @@ namespace cdr_labeler {
         void OutputVGeneAlignment() const;
 
         void OutputSHMs() const;
+
+        void OutputCleanedReads() const;
     };
 }
