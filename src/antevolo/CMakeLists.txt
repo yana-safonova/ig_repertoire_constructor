@@ -68,7 +68,7 @@ add_executable(antevolo
         main.cpp
         cluster_to_forest_calculators/base_cluster_to_forest_calculator.cpp
         cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.cpp
-        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp)
+        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp evolutionary_graph_utils/poly_evolutionary_edge_constructor.cpp evolutionary_graph_utils/poly_evolutionary_edge_constructor.hpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 
