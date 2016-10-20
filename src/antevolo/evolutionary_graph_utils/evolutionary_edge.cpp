@@ -3,6 +3,7 @@
 
 namespace antevolo {
     //todo: refactor it
+    /*
     template<typename T>
     size_t HammingDistance(T seq1, T seq2) {
         size_t dist = 0;
@@ -13,6 +14,7 @@ namespace antevolo {
         }
         return dist;
     }
+    */
 
     std::ostream& operator<<(std::ostream &out, const EvolutionaryEdgeType& edge_type) {
         if(edge_type == EvolutionaryEdgeType::DirectedEdgeType)

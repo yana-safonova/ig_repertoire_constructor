@@ -2,6 +2,7 @@
 
 #include "base_evolutionary_edge.hpp"
 
+
 namespace  antevolo {
 
     class DirectedEvolutionaryEdge : public BaseEvolutionaryEdge {
@@ -37,7 +38,7 @@ namespace  antevolo {
             return num_added_shms+cdr3_distance;
         }
 
-        string TypeString() const { return "directed"; }
+        std::string TypeString() const { return "directed"; }
 
         size_t NumAddedShms() const { return num_added_shms; }
 

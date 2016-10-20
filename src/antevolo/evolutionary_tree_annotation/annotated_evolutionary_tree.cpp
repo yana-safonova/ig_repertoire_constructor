@@ -100,7 +100,7 @@ namespace antevolo {
         size_t current_clone = clone_id;
         while(!tree_ptr_->IsRoot(current_clone)) {
             cdr3_depth += GetNumCDR3SHMsForClone(current_clone);
-            current_clone = tree_ptr_->GetParentEdge(current_clone).src_clone_num;
+            current_clone = tree_ptr_->GetParentEdge(current_clone)->SrcNum();
         }
         return cdr3_depth;
     }

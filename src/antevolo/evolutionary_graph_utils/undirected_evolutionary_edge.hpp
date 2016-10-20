@@ -30,7 +30,7 @@ namespace  antevolo {
             return cdr3_distance;
         }
 
-        string TypeString() const { return "undirected"; }
+        std::string TypeString() const { return "undirected"; }
 
         size_t NumAddedShms() const { return num_added_shms; }
 

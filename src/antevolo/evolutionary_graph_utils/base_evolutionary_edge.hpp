@@ -80,7 +80,7 @@ namespace  antevolo {
 
         virtual bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; }
 
-        virtual string TypeString() const { return "unknown"; }
+        virtual std::string TypeString() const { return "unknown"; }
 
         virtual size_t Length() const { return size_t(-1); }
 

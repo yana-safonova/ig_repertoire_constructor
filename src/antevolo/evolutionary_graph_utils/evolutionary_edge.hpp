@@ -1,9 +1,10 @@
 #pragma once
 
 #include <annotation_utils/annotated_clone.hpp>
+#include "base_evolutionary_edge.hpp"
 
 namespace antevolo {
-    enum EvolutionaryEdgeType { UnknownEdgeType, DirectedEdgeType, UndirectedEdgeType, IntersectedEdgeType };
+    //enum EvolutionaryEdgeType { UnknownEdgeType, DirectedEdgeType, UndirectedEdgeType, IntersectedEdgeType };
 
     std::ostream& operator<<(std::ostream &out, const EvolutionaryEdgeType& edge_type);
 
