@@ -1,6 +1,8 @@
 #pragma once
 
-
+#include <queue>
+#include <stack>
+#include <map>
 #include <boost/property_map/property_map.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 
