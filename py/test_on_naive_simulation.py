@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     if True:
         run_ig_simulator(ig_simulator_output_dir,
-                         chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000)
+                         chain="HC", num_bases=1000, num_mutated=10000, reprtoire_size=50000)
 
         try:
             convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
