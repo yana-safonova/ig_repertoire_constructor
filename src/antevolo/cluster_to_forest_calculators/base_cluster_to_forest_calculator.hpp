@@ -48,7 +48,7 @@ namespace antevolo {
         EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
-            EvolutionaryEdgeConstructor* ptr = new PolyVJEvolutionaryEdgeConstructor(config_.edge_construction_params);
+            EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);
             return std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
         }
 

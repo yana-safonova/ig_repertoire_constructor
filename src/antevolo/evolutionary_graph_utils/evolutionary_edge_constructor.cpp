@@ -3,7 +3,7 @@
 #include <annotation_utils/shm_comparator.hpp>
 
 namespace antevolo {
-    std::shared_ptr<BaseEvolutionaryEdge> PolySimpleEvolutionaryEdgeConstructor::ConstructEdge(
+    std::shared_ptr<BaseEvolutionaryEdge> SimpleEvolutionaryEdgeConstructor::ConstructEdge(
             const annotation_utils::AnnotatedClone &src_clone,
             const annotation_utils::AnnotatedClone &dst_clone,
             size_t src_num, size_t dst_num) const {
@@ -18,7 +18,7 @@ namespace antevolo {
         return std::shared_ptr<BaseEvolutionaryEdge>( new BaseEvolutionaryEdge(src_clone, dst_clone, src_num, dst_num) );
     }
 
-    std::shared_ptr<BaseEvolutionaryEdge> PolyVJEvolutionaryEdgeConstructor::ConstructEdge(
+    std::shared_ptr<BaseEvolutionaryEdge> VJEvolutionaryEdgeConstructor::ConstructEdge(
             const annotation_utils::AnnotatedClone &src_clone,
             const annotation_utils::AnnotatedClone &dst_clone,
             size_t src_num, size_t dst_num) const {
