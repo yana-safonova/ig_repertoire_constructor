@@ -473,8 +473,10 @@ def run_mixcr2(input_file, output_dir,
     #                  log=log)
     support.sys_call("%(mixcr_cmd)s align -p kaligner2 --species %(species)s -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s -OreadsLayout=Collinear -OvParameters.geneFeatureToAlign=VTranscript -OallowPartialAlignments=true %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
                      log=log)
-    support.sys_call("%(mixcr_cmd)s assemble -p default_affine -r assembleReport.txt -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
-    # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    # support.sys_call("%(mixcr_cmd)s assemble -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -t %(threads)d -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    # support.sys_call("%(mixcr_cmd)s assemble -f -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    #                  log=log)
+    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
     args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
     support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
