@@ -24,7 +24,7 @@ namespace antevolo {
 
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
         boost::unordered_map<size_t, bool> parent_edge_handled_;
-        boost::unordered_map<size_t, EvolutionaryEdge> undirected_components_edges_;
+        boost::unordered_map<size_t, EvolutionaryEdgePtr> undirected_components_edges_;
 
 
         void AddUndirectedPair(size_t src_num, size_t dst_num);
@@ -47,19 +47,19 @@ namespace antevolo {
 
         EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
 
-        std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
-            EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);
-            return std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
+        std::shared_ptr<PolyEvolutionaryEdgeConstructor> GetEdgeConstructor() {
+            PolyEvolutionaryEdgeConstructor* ptr = new PolyVJEvolutionaryEdgeConstructor(config_.edge_construction_params);
+            return std::shared_ptr<PolyEvolutionaryEdgeConstructor>(ptr);
         }
 
         size_t GetUndirectedCompopentRoot(size_t root_num) {
             if (undirected_components_edges_.find(root_num) != undirected_components_edges_.end()) {
-                return undirected_components_edges_[root_num].dst_clone_num;
+                return undirected_components_edges_[root_num]->DstNum();
             }
             return size_t(-1);
         }
 
-        const EvolutionaryEdge& GetUndirectedComponentParentEdge(size_t root_num) {
+        const EvolutionaryEdgePtr& GetUndirectedComponentParentEdge(size_t root_num) {
             return undirected_components_edges_[root_num];
         }
 

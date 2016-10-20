@@ -30,7 +30,7 @@ namespace antevolo {
 
     private:
 
-        void WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) const;
+        void WriteEdge(const EvolutionaryEdgePtr& edge, std::ofstream& out) const;
 
     };
 }

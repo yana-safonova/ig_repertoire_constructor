@@ -5,43 +5,45 @@
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
-    void EvolutionaryTree::AddEdge(size_t dst_id, EvolutionaryEdge edge) {
-        VERIFY(dst_id == edge.dst_clone_num);
+    void EvolutionaryTree::AddEdge(size_t dst_id, EvolutionaryEdgePtr edge) {
+        VERIFY(dst_id == edge->DstNum());
         edges_[dst_id] = edge;
         all_edge_vector_.push_back(edge);
-        vertices_.insert(edge.dst_clone_num);
-        vertices_.insert(edge.src_clone_num);
-        if(outgoing_edges_.find(edge.src_clone_num) == outgoing_edges_.end()) {
-            outgoing_edges_[edge.src_clone_num] = std::vector<EvolutionaryEdge>();
+        vertices_.insert(edge->DstNum());
+        vertices_.insert(edge->SrcNum());
+        if(outgoing_edges_.find(edge->SrcNum()) == outgoing_edges_.end()) {
+            outgoing_edges_[edge->SrcNum()] = std::vector<EvolutionaryEdgePtr>();
         }
-        outgoing_edges_[edge.src_clone_num].push_back(edge);
+        outgoing_edges_[edge->SrcNum()].push_back(edge);
     }
 
-    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdge edge) {
-        VERIFY(edge.IsDirected());
+    void EvolutionaryTree::AddDirected(size_t clone_num, EvolutionaryEdgePtr edge) {
+        VERIFY(edge->IsDirected());
         //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
-        if(edge.IsDirected()) {
+        if(edge->IsDirected()) {
             if (!Contains(clone_num)) {
                 AddEdge(clone_num, edge);
                 return;
             }
-            const EvolutionaryEdge& parent_edge =  edges_[clone_num];
-            if (parent_edge.num_added_shms > edge.num_added_shms) {
+            const EvolutionaryEdgePtr& parent_edge =  edges_[clone_num];
+            if (parent_edge->Length() > edge->Length()) { //todo: compare only num added shms ?
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 AddEdge(clone_num, edge);
                 return;
             }
+            /*
             if (parent_edge.num_added_shms == edge.num_added_shms && parent_edge.cdr3_distance > edge.cdr3_distance) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 AddEdge(clone_num, edge);
                 return;
             }
+            */
         }
     }
 
-    void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdge edge) {
-        VERIFY(edge.IsUndirected());
-        if (edge.IsUndirected()) {
+    void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdgePtr edge) {
+        VERIFY(edge->IsUndirected());
+        if (edge->IsUndirected()) {
             AddEdge(clone_num, edge);
         }
     }
@@ -150,10 +152,11 @@ namespace antevolo {
         return 0;
     }
 
-    const std::vector<EvolutionaryEdge>& EvolutionaryTree::OutgoingEdges(size_t clone_id) const {
+    const std::vector<EvolutionaryEdgePtr>& EvolutionaryTree::OutgoingEdges(size_t clone_id) const {
         VERIFY_MSG(ContainsClone(clone_id), "Tree does not contain vertex " << clone_id);
         VERIFY_MSG(!IsLeaf(clone_id), "Vertex " << clone_id << " is leaf");
-        return outgoing_edges_.at(clone_id);
+        const std::vector<EvolutionaryEdgePtr>& v = outgoing_edges_.at(clone_id);
+        return v; // hmm?
     }
 
     std::vector<size_t> EvolutionaryTree::GetRoots() const {

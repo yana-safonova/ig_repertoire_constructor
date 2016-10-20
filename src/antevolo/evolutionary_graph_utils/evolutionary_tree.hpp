@@ -6,15 +6,19 @@
 #include "model_utils/shm_model.hpp"
 #include "evolutionary_edge.hpp"
 #include "evolutionary_edge_constructor.hpp"
+#include "base_evolutionary_edge.hpp"
+#include "poly_evolutionary_edge_constructor.hpp"
 #include <annotation_utils/annotated_clone_set.hpp>
 
 namespace antevolo {
+    typedef std::shared_ptr<BaseEvolutionaryEdge> EvolutionaryEdgePtr;
+
     class EvolutionaryTree {
-        boost::unordered_map<size_t, EvolutionaryEdge> edges_; // key is a src clone
+        boost::unordered_map<size_t, EvolutionaryEdgePtr> edges_; // key is a src clone
         std::set<size_t> vertices_;
 
-        std::vector<EvolutionaryEdge> all_edge_vector_;
-        std::map<size_t, std::vector<EvolutionaryEdge>> outgoing_edges_;
+        std::vector<EvolutionaryEdgePtr> all_edge_vector_;
+        std::map<size_t, std::vector<EvolutionaryEdgePtr>> outgoing_edges_;
 
         size_t VJ_class_index_;
         size_t connected_component_index_;
@@ -22,12 +26,12 @@ namespace antevolo {
         //std::string tree_output_fname_;
         //std::string vertices_output_fname_;
 
-        void AddEdge(size_t dst_id, EvolutionaryEdge edge);
+        void AddEdge(size_t dst_id, EvolutionaryEdgePtr edge);
 
     public:
-        void AddDirected(size_t clone_num, EvolutionaryEdge edge);
+        void AddDirected(size_t clone_num, EvolutionaryEdgePtr edge);
 
-        void AddUndirected(size_t clone_num, EvolutionaryEdge edge);
+        void AddUndirected(size_t clone_num, EvolutionaryEdgePtr edge);
 
         bool Contains(size_t clone_num) const {
             return (edges_.find(clone_num) != edges_.end());
@@ -36,9 +40,9 @@ namespace antevolo {
         size_t NumEdges() const { return edges_.size(); }
         size_t NumVertices() const { return vertices_.size(); }
 
-        typedef std::vector<EvolutionaryEdge>::iterator EdgeIterator;
+        typedef std::vector<EvolutionaryEdgePtr>::iterator EdgeIterator;
 
-        typedef std::vector<EvolutionaryEdge>::const_iterator ConstEdgeIterator;
+        typedef std::vector<EvolutionaryEdgePtr>::const_iterator ConstEdgeIterator;
 
         EdgeIterator begin() { return all_edge_vector_.begin(); }
 
@@ -56,12 +60,11 @@ namespace antevolo {
         ConstVertexIterator c_vertex_end() const { return vertices_.cend(); }
 
 
-        const EvolutionaryEdge& GetParentEdge(size_t clone_num) const {
+        const EvolutionaryEdgePtr& GetParentEdge(size_t clone_num) const {
             return edges_.at(clone_num);
         }
 
-        const std::vector<EvolutionaryEdge>& OutgoingEdges(size_t clone_id) const;
-
+        const std::vector<EvolutionaryEdgePtr>& OutgoingEdges(size_t clone_id) const;
 
         bool IsRoot(size_t clone_id) const;
 

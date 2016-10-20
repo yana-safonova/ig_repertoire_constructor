@@ -1,9 +1,9 @@
-#include"base_cluster_to_forest_calculator.hpp"
+#include "base_cluster_to_forest_calculator.hpp"
 
 namespace antevolo {
     class KruskalClusterToForestCalculator : public BaseClusterToForestCalculator {
 
-        void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdge edge);
+        void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdgePtr edge);
 
         void PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                               size_t root_num);
@@ -15,7 +15,7 @@ namespace antevolo {
                 std::vector<std::pair<size_t, size_t>>& edge_vector,
                 size_t root_vertex,
                 const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor);
+                std::shared_ptr<PolyEvolutionaryEdgeConstructor> edge_constructor);
     public:
         KruskalClusterToForestCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                          const AntEvoloConfig::AlgorithmParams &config,

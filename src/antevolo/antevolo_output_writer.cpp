@@ -30,14 +30,14 @@ namespace antevolo {
         out.close();
     }
 
-    void AntEvoloOutputWriter::WriteEdge(const EvolutionaryEdge& edge, std::ofstream& out) const { //no endl
-        out << edge.src_clone->Read().id << "\t" << edge.dst_clone->Read().id << "\t"
-            << edge.src_clone->Read().name << "\t" << edge.dst_clone->Read().name << "\t"
-            << edge.src_clone->VSHMs().size() + edge.src_clone->JSHMs().size() << "\t"
-            << edge.dst_clone->VSHMs().size() + edge.dst_clone->JSHMs().size()<< "\t"
-            << edge.edge_type << "\t" <<  edge.num_intersected_shms << "\t" << edge.num_added_shms
-            << "\t" << edge.cdr3_distance << "\t" << edge.weight << "\t"
-            << edge.src_clone->Productive() << "\t" << edge.dst_clone->Productive() << "\t" << edge.IsSynonymous();
+    void AntEvoloOutputWriter::WriteEdge(const EvolutionaryEdgePtr& edge, std::ofstream& out) const { //no endl
+        out << edge->SrcClone()->Read().id << "\t" << edge->DstClone()->Read().id << "\t"
+            << edge->SrcClone()->Read().name << "\t" << edge->DstClone()->Read().name << "\t"
+            << edge->SrcClone()->VSHMs().size() + edge->SrcClone()->JSHMs().size() << "\t"
+            << edge->DstClone()->VSHMs().size() + edge->DstClone()->JSHMs().size()<< "\t"
+            << edge->TypeString() << "\t" <<  edge->NumSharedShms() << "\t" << edge->NumAddedShms()
+            << "\t" << edge->CDR3Distance() << "\t" << edge->Length() << "\t"
+            << edge->SrcClone()->Productive() << "\t" << edge->DstClone()->Productive() << "\t" << edge->IsSynonymous();
     }
     void AntEvoloOutputWriter::WriteTreeInFile(std::string output_dir, const EvolutionaryTree& tree) const {
         std::string output_fname = tree.GetTreeOutputFname(output_dir);
@@ -50,8 +50,8 @@ namespace antevolo {
             WriteEdge(*it, out);
             std::string src_CDR3_string;
             std::string dst_CDR3_string;
-            auto const& src_CDR3 = it->src_clone->CDR3();
-            auto const& dst_CDR3 = it->dst_clone->CDR3();
+            auto const& src_CDR3 = (*it)->SrcClone()->CDR3();
+            auto const& dst_CDR3 = (*it)->DstClone()->CDR3();
             size_t src_CDR3_length = seqan::length(src_CDR3);
             size_t dst_CDR3_length = seqan::length(dst_CDR3);
             for (size_t pos = 0; pos < src_CDR3_length; ++pos) {

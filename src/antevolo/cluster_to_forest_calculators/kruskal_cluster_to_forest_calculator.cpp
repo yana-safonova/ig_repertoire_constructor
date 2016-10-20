@@ -74,7 +74,7 @@ namespace antevolo {
             if (undirected_graph_vertices.find(clone_num) == undirected_graph_vertices.end()) {
                 // if it is an undirected-isolated vertex
                 if (GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(clone_num)) != size_t(-1)) {
-                    const EvolutionaryEdge& edge = GetUndirectedComponentParentEdge(clone_num);
+                    const EvolutionaryEdgePtr& edge = GetUndirectedComponentParentEdge(clone_num);
                     tree.AddDirected(clone_num, edge/*, model_*/);
                 };
 
@@ -88,8 +88,8 @@ namespace antevolo {
             std::vector<std::pair<size_t, size_t>> edge_vector;
             size_t root = GetUndirectedCompopentRoot(ds_on_undirected_edges.find_set(vertex.first));
             if (root != size_t(-1)) {
-                const EvolutionaryEdge& edge = GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
-                tree.AddDirected(edge.dst_clone_num, edge/*, model_*/);
+                const EvolutionaryEdgePtr& edge = GetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(vertex.first));
+                tree.AddDirected(edge->DstNum(), edge/*, model_*/);
                 PrepareSubtreeKruskal(edge_vector, root, clone_set_, edge_constructor);
             }
             else {
@@ -136,7 +136,7 @@ namespace antevolo {
     void KruskalClusterToForestCalculator::PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                  size_t root_vertex,
                                                  const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                                                 std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor) {
+                                                 std::shared_ptr<PolyEvolutionaryEdgeConstructor> edge_constructor) {
         boost::unordered_set<size_t> vertices_set;
         PrepareSubtreeVertices(vertices_set, root_vertex);
         for (size_t v : vertices_set) {
@@ -162,7 +162,7 @@ namespace antevolo {
                 size_t CDR3_dist = edge_constructor->ConstructEdge(clone_set[index_to_vertex[v]],
                                                                    clone_set[index_to_vertex[u]],
                                                                    index_to_vertex[v],
-                                                                   index_to_vertex[u]).cdr3_distance;
+                                                                   index_to_vertex[u])->CDR3Distance();
                 if (CDR3_dist <= config_.similar_cdr3s_params.num_mismatches) {
                     edges.push_back(WeightedEdge(v, u, static_cast<double>(CDR3_dist)));
                 }
@@ -207,23 +207,25 @@ namespace antevolo {
     }
 
     void KruskalClusterToForestCalculator::SetUndirectedComponentParentEdge(size_t root_num,
-                                                                            EvolutionaryEdge edge) {
-        if(edge.IsDirected()) {
+                                                                            EvolutionaryEdgePtr edge) {
+        if(edge->IsDirected()) {
             if (undirected_components_edges_.find(root_num) == undirected_components_edges_.end()) {
                 undirected_components_edges_[root_num] = edge;
                 return;
             }
-            const EvolutionaryEdge& parent_edge =  undirected_components_edges_[root_num];
-            if (parent_edge.num_added_shms > edge.num_added_shms) {
+            const EvolutionaryEdgePtr& parent_edge =  undirected_components_edges_[root_num];
+            if (parent_edge->Length() > edge->Length()) { // todo: compare only by added shms and then by cdr3?
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 undirected_components_edges_[root_num] = edge;
                 return;
             }
+            /*
             if (parent_edge.num_added_shms == edge.num_added_shms && parent_edge.cdr3_distance > edge.cdr3_distance) {
                 //if clone_set_[*it2] is root or if the new edge is shorter
                 undirected_components_edges_[root_num] = edge;
                 return;
             }
+            */
         }
     }
 

@@ -25,6 +25,7 @@ namespace  antevolo {
         size_t src_clone_num;
         size_t dst_clone_num;
         bool synonymous;
+        size_t cdr3_distance;
 
     public:
         BaseEvolutionaryEdge(const annotation_utils::AnnotatedClone &src_clone,
@@ -34,7 +35,8 @@ namespace  antevolo {
                   src_clone(std::make_shared<annotation_utils::AnnotatedClone>(src_clone)),
                   dst_clone(std::make_shared<annotation_utils::AnnotatedClone>(dst_clone)),
                   src_clone_num(src_num),
-                  dst_clone_num(dst_num) {
+                  dst_clone_num(dst_num),
+                  cdr3_distance(0) {
 
             synonymous = true;
             auto src_AA_seq = this->src_clone->AA();
@@ -51,15 +53,36 @@ namespace  antevolo {
 
         }
 
+        virtual const std::shared_ptr<annotation_utils::AnnotatedClone>& SrcClone() const {
+            return src_clone;
+        };
+        virtual const std::shared_ptr<annotation_utils::AnnotatedClone>& DstClone() const {
+            return dst_clone;
+        };
+        virtual size_t SrcNum() const {
+            return src_clone_num;
+        }
+        virtual size_t DstNum() const {
+            return dst_clone_num;
+        }
+
+        virtual bool IsSynonymous() const { return synonymous; }
+
+        virtual size_t CDR3Distance() const { return cdr3_distance; }
+
+        virtual size_t NumAddedShms() const { return size_t(-1); }
+
+        virtual size_t NumSharedShms() const { return size_t(-1); }
+
         virtual bool Empty() const { return edge_type == EvolutionaryEdgeType::UnknownEdgeType; }
 
-        virtual bool IsDirected() const { return edge_type == EvolutionaryEdgeType::DirectedEdgeType; };
+        virtual bool IsDirected() const { return edge_type == EvolutionaryEdgeType::DirectedEdgeType; }
 
-        virtual bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; };
+        virtual bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; }
 
-        virtual bool IsSynonymous() const { return synonymous; };
+        virtual string TypeString() const { return "unknown"; }
 
-        virtual size_t Length() const { return size_t(-1); };
+        virtual size_t Length() const { return size_t(-1); }
 
         virtual ~BaseEvolutionaryEdge() {}
 

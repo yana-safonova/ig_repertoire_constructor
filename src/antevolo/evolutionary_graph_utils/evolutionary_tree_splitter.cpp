@@ -10,24 +10,24 @@ namespace antevolo {
             size_t cur_vertex = vertex_queue.front();
             vertex_queue.pop();
             if(!tree.IsRoot(cur_vertex)) {
-                EvolutionaryEdge edge = tree.GetParentEdge(cur_vertex);
+                EvolutionaryEdgePtr edge = tree.GetParentEdge(cur_vertex);
                 // todo: refactor it!
-                if(edge.IsDirected()) {
-                    connected_tree.AddDirected(edge.dst_clone_num, edge);
+                if(edge->IsDirected()) {
+                    connected_tree.AddDirected(edge->DstNum(), edge);
                 }
-                else if(edge.IsUndirected()) {
-                    connected_tree.AddUndirected(edge.dst_clone_num, edge);
+                else if(edge->IsUndirected()) {
+                    connected_tree.AddUndirected(edge->DstNum(), edge);
                 }
                 else {
-                    VERIFY_MSG(false, "Edge from " << edge.dst_clone_num << " -> " << edge.src_clone_num <<
+                    VERIFY_MSG(false, "Edge from " << edge->DstNum() << " -> " << edge->SrcNum() <<
                             " is not directed or undirected");
                 }
             }
             if(!tree.IsLeaf(cur_vertex)) {
                 auto outgoing_edges = tree.OutgoingEdges(cur_vertex);
                 for(auto it = outgoing_edges.begin(); it != outgoing_edges.end(); it++) {
-                    EvolutionaryEdge edge = *it;
-                    vertex_queue.push(edge.dst_clone_num);
+                    EvolutionaryEdgePtr edge = *it;
+                    vertex_queue.push(edge->DstNum());
                 }
             }
         }

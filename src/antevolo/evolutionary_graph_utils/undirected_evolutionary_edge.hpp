@@ -11,7 +11,6 @@ namespace  antevolo {
         size_t num_intersected_j_shms;
         size_t num_added_shms;
         size_t num_intersected_shms;
-        size_t cdr3_distance;
 
     public:
         UndirectedEvolutionaryEdge(const annotation_utils::AnnotatedClone &src_clone,
@@ -30,6 +29,12 @@ namespace  antevolo {
         size_t Length() const {
             return cdr3_distance;
         }
+
+        string TypeString() const { return "undirected"; }
+
+        size_t NumAddedShms() const { return num_added_shms; }
+
+        size_t NumSharedShms() const { return num_intersected_shms; }
 
     };
 
