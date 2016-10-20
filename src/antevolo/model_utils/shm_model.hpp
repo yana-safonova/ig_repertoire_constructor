@@ -5,7 +5,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
 #include <antevolo_config.hpp>
-#include "evolutionary_graph_utils/evolutionary_edge.hpp"
+#include "evolutionary_graph_utils/evolutionary_edge/base_evolutionary_edge.hpp"
 
 namespace antevolo {
     class shm_exception : public std::exception {
@@ -61,6 +61,6 @@ namespace antevolo {
             }
         }
         
-        double CDR3TransitionProb(const EvolutionaryEdge& edge) ;
+        double CDR3TransitionProb(const EvolutionaryEdgePtr& edge) ;
     };
 }

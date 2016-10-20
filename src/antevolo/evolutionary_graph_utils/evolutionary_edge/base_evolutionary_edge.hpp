@@ -91,5 +91,6 @@ namespace  antevolo {
 //        }
     };
 
+    typedef std::shared_ptr<BaseEvolutionaryEdge> EvolutionaryEdgePtr;
 }
 

@@ -136,7 +136,7 @@ namespace antevolo {
     void KruskalClusterToForestCalculator::PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                  size_t root_vertex,
                                                  const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                                                 std::shared_ptr<PolyEvolutionaryEdgeConstructor> edge_constructor) {
+                                                 std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor) {
         boost::unordered_set<size_t> vertices_set;
         PrepareSubtreeVertices(vertices_set, root_vertex);
         for (size_t v : vertices_set) {

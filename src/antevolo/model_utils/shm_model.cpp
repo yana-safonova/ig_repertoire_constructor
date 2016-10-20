@@ -159,38 +159,38 @@ namespace antevolo {
         }
     }
 
-    double ShmModel::CDR3TransitionProb(const EvolutionaryEdge& edge)  {
-        if (edge.src_clone.get() == nullptr || edge.dst_clone.get() == nullptr)
+    double ShmModel::CDR3TransitionProb(const EvolutionaryEdgePtr& edge)  {
+        if (edge->SrcClone().get() == nullptr || edge->DstClone().get() == nullptr)
         {
             INFO("Invalid edge endpoints pointers");
             return 0.00001;
         }
-        if (edge.src_clone->RegionIsEmpty(annotation_utils::StructuralRegion::CDR3) ||
-                edge.dst_clone->RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+        if (edge->SrcClone()->RegionIsEmpty(annotation_utils::StructuralRegion::CDR3) ||
+                edge->DstClone()->RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
             INFO("CDR3 region is empty");
             return 0.00001;
         }
-        size_t src_start_pos = edge.src_clone->GetRangeByRegion(
+        size_t src_start_pos = edge->SrcClone()->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).start_pos;
-        size_t dst_start_pos = edge.dst_clone->GetRangeByRegion(
+        size_t dst_start_pos = edge->DstClone()->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).start_pos;
-        size_t length = edge.src_clone->GetRangeByRegion(
+        size_t length = edge->SrcClone()->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).length();
-        if (length != edge.dst_clone->GetRangeByRegion(
+        if (length != edge->DstClone()->GetRangeByRegion(
                 annotation_utils::StructuralRegion::CDR3).length()) {
             std::stringstream ss;
-            ss << "nonequal CDR3 lengths: " << edge.src_clone_num << " " << edge.dst_clone_num;
+            ss << "nonequal CDR3 lengths: " << edge->SrcNum() << " " << edge->DstNum();
             throw shm_exception(ss.str());
         }
         if (src_start_pos < 2 ||
                 dst_start_pos < 2 ||
-                src_start_pos + length >= edge.src_clone->Read().length() ||
-                dst_start_pos + length >= edge.dst_clone->Read().length()) {
+                src_start_pos + length >= edge->SrcClone()->Read().length() ||
+                dst_start_pos + length >= edge->DstClone()->Read().length()) {
             throw shm_exception("bad CDR3 ranges: no 2bp spaces around");
         }
 
-        auto const& src_seq = edge.src_clone->Read().seq;
-        auto const& dst_seq = edge.dst_clone->Read().seq;
+        auto const& src_seq = edge->SrcClone()->Read().seq;
+        auto const& dst_seq = edge->DstClone()->Read().seq;
         std::vector<size_t> diff_positions;
 
         if (src_seq[src_start_pos - 2] == 'N' || dst_seq[dst_start_pos - 2] == 'N' ||

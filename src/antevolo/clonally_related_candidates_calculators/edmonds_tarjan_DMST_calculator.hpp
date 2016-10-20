@@ -1,6 +1,6 @@
 #pragma once
 
-#include "evolutionary_graph_utils/evolutionary_edge.hpp"
+
 #include <boost/property_map/property_map.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 

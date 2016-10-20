@@ -4,14 +4,11 @@
 #include <boost/unordered_set.hpp>
 
 #include "model_utils/shm_model.hpp"
-#include "evolutionary_edge.hpp"
+#include "evolutionary_graph_utils/evolutionary_edge/base_evolutionary_edge.hpp"
 #include "evolutionary_edge_constructor.hpp"
-#include "base_evolutionary_edge.hpp"
-#include "poly_evolutionary_edge_constructor.hpp"
 #include <annotation_utils/annotated_clone_set.hpp>
 
 namespace antevolo {
-    typedef std::shared_ptr<BaseEvolutionaryEdge> EvolutionaryEdgePtr;
 
     class EvolutionaryTree {
         boost::unordered_map<size_t, EvolutionaryEdgePtr> edges_; // key is a src clone

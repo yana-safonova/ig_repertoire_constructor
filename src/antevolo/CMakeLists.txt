@@ -49,8 +49,6 @@ add_executable(antevolo
         clonally_related_candidates_calculators/undirectred_first_tree_calculator.cpp
         clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.cpp
         model_utils/shm_model.cpp
-        evolutionary_graph_utils/evolutionary_edge.cpp
-        evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
         #evolutionary_graph_utils/evolutionary_graph.cpp
         #evolutionary_graph_utils/evolutionary_graph_constructor.cpp
@@ -68,7 +66,7 @@ add_executable(antevolo
         main.cpp
         cluster_to_forest_calculators/base_cluster_to_forest_calculator.cpp
         cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.cpp
-        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp evolutionary_graph_utils/poly_evolutionary_edge_constructor.cpp evolutionary_graph_utils/poly_evolutionary_edge_constructor.hpp)
+        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

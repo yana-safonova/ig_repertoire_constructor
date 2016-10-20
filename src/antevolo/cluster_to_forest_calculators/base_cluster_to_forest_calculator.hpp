@@ -1,8 +1,8 @@
 #pragma once
 
 #include "../../graph_utils/sparse_graph.hpp"
-#include <evolutionary_graph_utils/evolutionary_tree.hpp>
 #include <evolutionary_graph_utils/evolutionary_edge_constructor.hpp>
+#include <evolutionary_graph_utils/evolutionary_tree.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -47,9 +47,9 @@ namespace antevolo {
 
         EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
 
-        std::shared_ptr<PolyEvolutionaryEdgeConstructor> GetEdgeConstructor() {
-            PolyEvolutionaryEdgeConstructor* ptr = new PolyVJEvolutionaryEdgeConstructor(config_.edge_construction_params);
-            return std::shared_ptr<PolyEvolutionaryEdgeConstructor>(ptr);
+        std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
+            EvolutionaryEdgeConstructor* ptr = new PolyVJEvolutionaryEdgeConstructor(config_.edge_construction_params);
+            return std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
         }
 
         size_t GetUndirectedCompopentRoot(size_t root_num) {

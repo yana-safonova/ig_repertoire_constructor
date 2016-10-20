@@ -15,7 +15,7 @@ namespace antevolo {
                 std::vector<std::pair<size_t, size_t>>& edge_vector,
                 size_t root_vertex,
                 const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                std::shared_ptr<PolyEvolutionaryEdgeConstructor> edge_constructor);
+                std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor);
     public:
         KruskalClusterToForestCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                          const AntEvoloConfig::AlgorithmParams &config,
