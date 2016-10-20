@@ -478,7 +478,7 @@ def run_mixcr2(input_file, output_dir,
     #                  log=log)
     # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
     #                  log=log)
-    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
     args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
     support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
