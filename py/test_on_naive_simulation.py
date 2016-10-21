@@ -123,7 +123,7 @@ def run_and_quast_all(input_reads,
         shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr", "mixcr2"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
@@ -131,7 +131,8 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
-        cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
+        # cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
+        cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --no-rcm-based" % args
 
         rcm = "%(out_dir)s/%(kind)s/final_repertoire.rcm" % args
         if os.path.isfile(rcm):
