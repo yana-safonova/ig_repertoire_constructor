@@ -341,10 +341,16 @@ def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
 def plotplot(dir, out_dir, title, **kwargs):
     mkdir_p(out_dir)
     rocs(dir,
+         tools=["igrec", "mixcr2", "supernode"],
+         labels=["IgReC", "MiXCR2", "pRESTO"],
+         title=title,
+         out=out_dir + "/sensitivity_precision_plot_all",
+         **kwargs)
+    rocs(dir,
          tools=["igrec", "mixcr", "supernode"],
          labels=["IgReC", "MiXCR", "pRESTO"],
          title=title,
-         out=out_dir + "/sensitivity_precision_plot_all",
+         out=out_dir + "/sensitivity_precision_plot_all_old",
          **kwargs)
     rocs(dir,
          tools=["igrec_tau3", "mixcr", "supernode"],
@@ -371,14 +377,16 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="HEALTHY 1", show_coords=True)
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="REAL", show_coords=True)
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
 
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="")
     sys.exit()
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
+
+
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="")
 
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
