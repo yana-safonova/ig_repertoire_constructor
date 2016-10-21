@@ -371,7 +371,10 @@ class Reperoire2RepertoireMatching:
         # plt.xticks(range(max_val + 1), labels)
         xlim = ax.get_xlim()
         xlim = (-width, xlim[1])
+        ylim = ax.get_ylim()
+        ylim = (0, ylim[1])
         ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
 
         handles, labels = ax.get_legend_handles_labels()
         plt.legend(handles, labels)
