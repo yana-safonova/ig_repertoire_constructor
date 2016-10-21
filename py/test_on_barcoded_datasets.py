@@ -44,6 +44,7 @@ if __name__ == "__main__":
                ["HD09M_IGH", "HD09M_IGL", "HD09M_IGK"]
 
     datasets = ["FLU_FV_21_IGH", "FLU_FV_21_IGL", "FLU_FL_21_IGK"]
+    datasets = ["AGE3", "FLU_FV_21_IGH"]
 
     def JOB(dataset):
         ddir = igrec_dir + "/src/extra/ig_quast_tool/" + dataset
