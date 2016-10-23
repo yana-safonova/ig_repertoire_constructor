@@ -13,6 +13,7 @@ from ash_python_utils import CreateLogger, AttachFileLogger, mkdir_p
 sys.path.append(igrec_dir + "/py")
 
 from aimquast_impl import Report, reconstruct_rcm, write_rcm, run_consensus_constructor, Repertoire, RepertoireMatch, RcmVsRcm
+from aimquast_impl import splittering
 
 
 def parse_command_line(description="aimQUAST"):
@@ -31,24 +32,24 @@ def parse_command_line(description="aimQUAST"):
             setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
             setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
 
-    def ActionTestAgeFactory(n):
-        class ActionTestAge(argparse.Action):
+    def ActionTestFactory(name):
+        class ActionTest(argparse.Action):
 
             def __init__(self, option_strings, dest, nargs=None, **kwargs):
-                super(ActionTestAge, self).__init__(option_strings, dest, nargs=0, **kwargs)
+                super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
             def __call__(self, parser, namespace, values, option_string=None):
-                setattr(namespace, "initial_reads", "aimquast_test_dataset/age%d/input_reads.fa.gz" % n)
-                setattr(namespace, "output_dir", "aimquast_test_age%d" % n)
-                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/age%d/igrec/final_repertoire.fa.gz" % n)
-                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/age%d/igrec/final_repertoire.rcm" % n)
-                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/age%d/repertoire.fa.gz" % n)
-                setattr(namespace, "reference_rcm", "aimquast_test_dataset/age%d/repertoire.rcm" % n)
-                setattr(namespace, "json", "aimquast_test_age%d/aimquast.json" % n)
-                setattr(namespace, "text", "aimquast_test_age%d/aimquast.txt" % n)
+                setattr(namespace, "initial_reads", "aimquast_test_dataset/%s/input_reads.fa.gz" % name)
+                setattr(namespace, "output_dir", "aimquast_test_%s" % name)
+                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", "aimquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
+                setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
                 setattr(namespace, "figure_format", "pdf,png")
 
-        return ActionTestAge
+        return ActionTest
 
     parser = argparse.ArgumentParser(description=description)
 
@@ -57,13 +58,17 @@ def parse_command_line(description="aimQUAST"):
                         default="",
                         help="Running on test dataset")
     parser.add_argument("--test-age1",
-                        action=ActionTestAgeFactory(1),
+                        action=ActionTestFactory("age1"),
                         default="",
                         help="Running on age1 dataset")
     parser.add_argument("--test-age3",
-                        action=ActionTestAgeFactory(3),
+                        action=ActionTestFactory("age3"),
                         default="",
                         help="Running on age3 dataset")
+    parser.add_argument("--test-flu",
+                        action=ActionTestFactory("flu"),
+                        default="",
+                        help="Running on FLU dataset")
     parser.add_argument("--initial-reads", "-s",
                         type=str,
                         default="",
@@ -122,7 +127,7 @@ def parse_command_line(description="aimQUAST"):
                         dest="no_reference_free",
                         action="store_false",
                         help="enable reference-free measures (default)")
-    parser.set_defaults(no_reference_free=False)
+    parser.set_defaults(no_reference_free=True)
 
     args = parser.parse_args()
 
@@ -179,41 +184,51 @@ def main(args):
                                   initial_reads=args.initial_reads,
                                   output_file=args.reference_repertoire)
 
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
+        rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
+        # rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
+
+        if args.figure_format:
+            mkdir_p(args.reference_free_dir)
+
+            # rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
+            #                                format=args.figure_format)
+            # rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
+            #                                          format=args.figure_format)
+            # rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
+            #                                               format=args.figure_format)
+            rep.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest",
+                                                     format=args.figure_format)
+            rep.largest().plot_cluster_error_profile_new(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest_new",
+                                                         format=args.figure_format)
+
+        if args.export_bad_clusters:
+            mkdir_p(args.reference_free_dir)
+            rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
+        rep.report(report, "constructed_stats")
+
     if args.initial_reads and args.reference_repertoire and args.reference_rcm and not args.no_reference_free and args.rcm_based:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
             mkdir_p(args.reference_free_dir)
 
-            rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
-                                                 format=args.figure_format)
-            rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
+            rep_ideal.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile_largest",
                                                            format=args.figure_format)
-            rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
-                                                                format=args.figure_format)
+            rep_ideal.largest().plot_cluster_error_profile_new(out=args.reference_free_dir + "/reference_cluster_error_profile_largest_new",
+                                                               format=args.figure_format)
+            # rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
+            #                                      format=args.figure_format)
+            # rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
+            #                                                format=args.figure_format)
+            # rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
+            #                                                     format=args.figure_format)
 
         if args.export_bad_clusters:
             mkdir_p(args.reference_free_dir)
             rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
         rep_ideal.report(report, "reference_stats")
-
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
-        rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
-
-        if args.figure_format:
-            mkdir_p(args.reference_free_dir)
-
-            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
-                                           format=args.figure_format)
-            rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
-                                                     format=args.figure_format)
-            rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
-                                                          format=args.figure_format)
-
-        if args.export_bad_clusters:
-            mkdir_p(args.reference_free_dir)
-            rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
-        rep.report(report, "constructed_stats")
 
     if args.constructed_repertoire and args.reference_repertoire:
         res = RepertoireMatch(args.constructed_repertoire,
@@ -252,6 +267,10 @@ def main(args):
             res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
                                                    format=args.figure_format, marginals=False)
 
+            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size_hexes",
+                                                   points=False,
+                                                   format=args.figure_format, marginals=False)
+
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
@@ -273,18 +292,40 @@ def main(args):
             rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
             rcm2rcm.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority", format=args.figure_format)
             rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_ylog", format=args.figure_format, ylog=True)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution", format=args.figure_format)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_ylog", format=args.figure_format, ylog=True)
 
             rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary", format=args.figure_format, constructed=False)
             rcm2rcm.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority", format=args.figure_format, constructed=False)
             rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_ylog", format=args.figure_format, constructed=False, ylog=True)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution", format=args.figure_format, constructed=False)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_ylog", format=args.figure_format, constructed=False, ylog=True)
 
             rcm2rcm_large.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary_large", format=args.figure_format)
             rcm2rcm_large.plot_size_nomajority(out=args.reference_based_dir + "/constructed_size_nomajority_large", format=args.figure_format)
             rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large", format=args.figure_format)
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large_ylog", format=args.figure_format, ylog=True)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large", format=args.figure_format)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large_ylog", format=args.figure_format, ylog=True)
 
             rcm2rcm_large.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary_large", format=args.figure_format, constructed=False)
             rcm2rcm_large.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority_large", format=args.figure_format, constructed=False)
             rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False)
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large", format=args.figure_format, constructed=False)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
+
+    if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire:
+        splittering(rcm2rcm, rep, args, report)
+
+
+
+
+
+
+
 
     log.info(report)
 
