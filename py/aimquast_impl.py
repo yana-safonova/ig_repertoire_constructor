@@ -169,8 +169,11 @@ class MultToMultData:
             return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-        assert i < len(self.reference_cluster_sizes_unique)
-        return self.median_rates_unique[i]
+        if i < len(self.reference_cluster_sizes_unique):
+            return self.median_rates_unique[i]
+        else:
+            print "Ad-hoc fix warning"
+            return 0.
 
     def mean_rate(self, size=1):
         from bisect import bisect_left
@@ -178,8 +181,11 @@ class MultToMultData:
             return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-        assert i < len(self.reference_cluster_sizes_unique)
-        return self.mean_rates_unique[i]
+        if i < len(self.reference_cluster_sizes_unique):
+            return self.mean_rates_unique[i]
+        else:
+            print "Ad-hoc fix warning"
+            return 0.
 
     def plot_reference_vs_constructed_size(self, out, title="", format=None,
                                            points=True,
