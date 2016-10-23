@@ -25,17 +25,21 @@ assert get_id("cluster___27833___size___137") == "27833"
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Convert pRESTO output repertoire to quast format")
-    parser.add_argument("input",
+    parser.add_argument("-i",
+                        dest="input",
                         type=str,
                         help="input FASTA/FASTQ file")
-    parser.add_argument("output",
+    parser.add_argument("-o",
+                        dest="output",
                         type=str,
                         help="output FASTA/FASTQ file")
-    parser.add_argument("input_rcm",
+    parser.add_argument("-r",
+                        dest="input_rcm",
                         type=str,
                         help="rcm file for the input FASTA/FASTQ file",
                         default=None)
-    parser.add_argument("output_rcm",
+    parser.add_argument("-R",
+                        dest="output_rcm",
                         type=str,
                         help="rcm file for the output FASTA/FASTQ file",
                         default=None)
@@ -50,8 +54,9 @@ if __name__ == "__main__":
     with smart_open(args.input) as fh, smart_open(args.output, "w") as fout:
         for record in SeqIO.parse(fh, input_format):
             if 'N' in record.seq:
-                id = get_id(record.description)
-                to_drop_ids.add(id)
+                if args.input_rcm is not None:
+                    id = get_id(record.description)
+                    to_drop_ids.add(id)
             else:
                 SeqIO.write(record, fout, output_format)
 
