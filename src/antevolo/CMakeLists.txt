@@ -46,7 +46,7 @@ add_executable(antevolo
 #        ../fast_ig_tools/ig_trie_compressor.cpp
         clone_set_decomposers/vj_clone_set_decomposer.cpp
         clonally_related_candidates_calculators/clonally_related_candidates.cpp
-        clonally_related_candidates_calculators/undirectred_first_tree_calculator.cpp
+        clonally_related_candidates_calculators/vj_class_processor.cpp
         clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.cpp
         model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp

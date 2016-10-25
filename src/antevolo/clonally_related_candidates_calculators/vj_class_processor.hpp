@@ -2,11 +2,11 @@
 
 #include <decomposition.hpp>
 #include <antevolo_config.hpp>
-#include "candidate_calculator.hpp"
+#include "base_vj_class_processor.hpp"
 #include "../cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.hpp"
 
 namespace antevolo {
-    class UndirectedFirstTreeCalculator : public BaseCandidateCalculator {
+    class VJClassProcessor : public BaseCandidateCalculator {
         const AntEvoloConfig::AlgorithmParams &config_;
         const AntEvoloConfig::OutputParams &output_params_;
         size_t num_mismatches_;
@@ -27,7 +27,7 @@ namespace antevolo {
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
 
     public:
-        UndirectedFirstTreeCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        VJClassProcessor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                       const AntEvoloConfig::OutputParams &output_params,
                                       const AntEvoloConfig::AlgorithmParams &config,
                                       ShmModel& model) :

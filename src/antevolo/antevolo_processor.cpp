@@ -2,7 +2,7 @@
 
 #include "antevolo_processor.hpp"
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
-#include "clonally_related_candidates_calculators/undirectred_first_tree_calculator.hpp"
+#include "clonally_related_candidates_calculators/vj_class_processor.hpp"
 
 
 namespace antevolo {
@@ -27,7 +27,7 @@ namespace antevolo {
             size_t thread_id = omp_get_thread_num();
         //for(size_t i = 59; i < vj_decomposition.Size() && i < 60; i++) {
             auto vj_class = vj_decomposition.GetClass(i);
-            auto candidate_calculator = UndirectedFirstTreeCalculator(clone_set_,
+            auto candidate_calculator = VJClassProcessor(clone_set_,
                                                                       config_.output_params,
                                                                       config_.algorithm_params,
                                                                       model);

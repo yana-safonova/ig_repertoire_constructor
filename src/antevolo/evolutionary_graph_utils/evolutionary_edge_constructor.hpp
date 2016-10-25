@@ -17,18 +17,18 @@ namespace antevolo {
         virtual ~EvolutionaryEdgeConstructor() { }
     };
 
-    class SimpleEvolutionaryEdgeConstructor : public EvolutionaryEdgeConstructor {
-        const AntEvoloConfig::AlgorithmParams::EdgeConstructionParams &params_;
-
-    public:
-        SimpleEvolutionaryEdgeConstructor(const AntEvoloConfig::AlgorithmParams::EdgeConstructionParams &params) :
-                params_(params) { }
-
-        std::shared_ptr<BaseEvolutionaryEdge> ConstructEdge(const annotation_utils::AnnotatedClone &src_clone,
-                                       const annotation_utils::AnnotatedClone &dst_clone,
-                                       size_t src_num,
-                                       size_t dst_num) const;
-    };
+//    class SimpleEvolutionaryEdgeConstructor : public EvolutionaryEdgeConstructor {
+//        const AntEvoloConfig::AlgorithmParams::EdgeConstructionParams &params_;
+//
+//    public:
+//        SimpleEvolutionaryEdgeConstructor(const AntEvoloConfig::AlgorithmParams::EdgeConstructionParams &params) :
+//                params_(params) { }
+//
+//        std::shared_ptr<BaseEvolutionaryEdge> ConstructEdge(const annotation_utils::AnnotatedClone &src_clone,
+//                                       const annotation_utils::AnnotatedClone &dst_clone,
+//                                       size_t src_num,
+//                                       size_t dst_num) const;
+//    };
 
     class VJEvolutionaryEdgeConstructor : public EvolutionaryEdgeConstructor {
         const AntEvoloConfig::AlgorithmParams::EdgeConstructionParams &params_;
