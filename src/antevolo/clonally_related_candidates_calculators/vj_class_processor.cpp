@@ -72,8 +72,8 @@ namespace antevolo {
     EvolutionaryTree VJClassProcessor::AddComponent(SparseGraphPtr hg_component,
                                                      size_t component_id) {
 
-        auto forest_calculator = std::shared_ptr<BaseClusterToForestCalculator>(
-                new KruskalClusterToForestCalculator(clone_set_,
+        auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
+                new Kruskal_CDR3_HG_CC_Processor(clone_set_,
                                                      config_,
                                                      graph_component_,
                                                      unique_cdr3s_map_,

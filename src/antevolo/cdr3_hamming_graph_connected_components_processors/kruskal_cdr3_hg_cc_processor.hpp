@@ -1,7 +1,7 @@
 #include "base_cluster_to_forest_calculator.hpp"
 
 namespace antevolo {
-    class KruskalClusterToForestCalculator : public BaseClusterToForestCalculator {
+    class Kruskal_CDR3_HG_CC_Processor : public Base_CDR3_HG_CC_Processor {
 
         void SetUndirectedComponentParentEdge(size_t root_num, EvolutionaryEdgePtr edge);
 
@@ -17,12 +17,12 @@ namespace antevolo {
                 const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                 std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor);
     public:
-        KruskalClusterToForestCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        Kruskal_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                          const AntEvoloConfig::AlgorithmParams &config,
                                          GraphComponentMap& graph_component,
                                          const UniqueCDR3IndexMap& unique_cdr3s_map,
                                          const std::vector<std::string>& unique_cdr3s) :
-                BaseClusterToForestCalculator(clone_set,
+                Base_CDR3_HG_CC_Processor(clone_set,
                                               config,
                                               graph_component,
                                               unique_cdr3s_map,

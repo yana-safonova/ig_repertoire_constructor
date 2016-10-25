@@ -64,9 +64,9 @@ add_executable(antevolo
         antevolo_processor.cpp
         antevolo_launch.cpp
         main.cpp
-        cluster_to_forest_calculators/base_cluster_to_forest_calculator.cpp
-        cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.cpp
-        cluster_to_forest_calculators/edmonds_cluster_to_forest_calculator.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp)
+        cdr3_hamming_graph_connected_components_processors/base_cluster_to_forest_calculator.cpp
+        cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
+        cdr3_hamming_graph_connected_components_processors/edmonds_cluster_to_forest_calculator.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

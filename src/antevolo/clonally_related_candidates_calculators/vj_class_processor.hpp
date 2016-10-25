@@ -3,7 +3,7 @@
 #include <decomposition.hpp>
 #include <antevolo_config.hpp>
 #include "base_vj_class_processor.hpp"
-#include "../cluster_to_forest_calculators/kruskal_cluster_to_forest_calculator.hpp"
+#include "cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.hpp"
 
 namespace antevolo {
     class VJClassProcessor : public BaseCandidateCalculator {

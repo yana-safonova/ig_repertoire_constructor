@@ -3,7 +3,7 @@
 
 namespace antevolo {
 
-    BaseClusterToForestCalculator::BaseClusterToForestCalculator(
+    Base_CDR3_HG_CC_Processor::Base_CDR3_HG_CC_Processor(
                                       const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                       const AntEvoloConfig::AlgorithmParams &config,
                                       GraphComponentMap& graph_component,
@@ -15,7 +15,7 @@ namespace antevolo {
                 unique_cdr3s_map_(unique_cdr3s_map),
                 unique_cdr3s_(unique_cdr3s) { }
 
-    EvolutionaryTree BaseClusterToForestCalculator::ConstructForest(SparseGraphPtr hg_component,
+    EvolutionaryTree Base_CDR3_HG_CC_Processor::ConstructForest(SparseGraphPtr hg_component,
                                                                  size_t component_id) {
         EvolutionaryTree tree;
         boost::unordered_set<size_t> vertices_nums;
@@ -41,7 +41,7 @@ namespace antevolo {
         return tree;
     }
 
-    void BaseClusterToForestCalculator::AddUndirectedForest(SparseGraphPtr hg_component,
+    void Base_CDR3_HG_CC_Processor::AddUndirectedForest(SparseGraphPtr hg_component,
                                                             size_t component_id,
                                                             boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
 
@@ -94,7 +94,7 @@ namespace antevolo {
             }
     }
 
-    void BaseClusterToForestCalculator::AddUndirectedPair(size_t src_num, size_t dst_num) {
+    void Base_CDR3_HG_CC_Processor::AddUndirectedPair(size_t src_num, size_t dst_num) {
         if (undirected_graph_.find(src_num) == undirected_graph_.end()) {
             undirected_graph_[src_num] = std::set<size_t>();
         }

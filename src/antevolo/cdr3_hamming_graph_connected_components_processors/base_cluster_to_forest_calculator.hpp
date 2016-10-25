@@ -8,7 +8,7 @@
 
 namespace antevolo {
 
-    class BaseClusterToForestCalculator {
+    class Base_CDR3_HG_CC_Processor {
 
     public:
 
@@ -39,7 +39,7 @@ namespace antevolo {
                            boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
     public:
 
-        BaseClusterToForestCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                                       const AntEvoloConfig::AlgorithmParams &config,
                                       GraphComponentMap& graph_component,
                                       const UniqueCDR3IndexMap& unique_cdr3s_map,
@@ -63,7 +63,7 @@ namespace antevolo {
             return undirected_components_edges_[root_num];
         }
 
-        virtual ~BaseClusterToForestCalculator() {};
+        virtual ~Base_CDR3_HG_CC_Processor() {};
     };
 
 

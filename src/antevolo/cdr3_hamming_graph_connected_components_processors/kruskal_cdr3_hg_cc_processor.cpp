@@ -1,8 +1,8 @@
 #include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
-#include"kruskal_cluster_to_forest_calculator.hpp"
+#include "kruskal_cdr3_hg_cc_processor.hpp"
 
 namespace antevolo {
-    void KruskalClusterToForestCalculator::SetUndirectedComponentsParentEdges(
+    void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentsParentEdges(
             SparseGraphPtr hg_component,
             size_t component_id,
             boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
@@ -61,7 +61,7 @@ namespace antevolo {
             }
     }
 
-    void KruskalClusterToForestCalculator::SetDirections(boost::unordered_set<size_t> vertices_nums,
+    void Kruskal_CDR3_HG_CC_Processor::SetDirections(boost::unordered_set<size_t> vertices_nums,
                                                       EvolutionaryTree& tree,
                                                       boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
         auto edge_constructor = GetEdgeConstructor();
@@ -106,7 +106,7 @@ namespace antevolo {
         }
     }
 
-    void KruskalClusterToForestCalculator::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector,
+    void Kruskal_CDR3_HG_CC_Processor::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                           size_t root_num) {
         if (undirected_graph_.find(root_num) != undirected_graph_.end() &&
                 !parent_edge_handled_[root_num]) {
@@ -120,7 +120,7 @@ namespace antevolo {
         }
     }
 
-    void KruskalClusterToForestCalculator::PrepareSubtreeVertices(
+    void Kruskal_CDR3_HG_CC_Processor::PrepareSubtreeVertices(
             boost::unordered_set<size_t>& vertices_set,
             size_t root_num) {
         //we assume that component size is > 1
@@ -133,7 +133,7 @@ namespace antevolo {
         }
     }
 
-    void KruskalClusterToForestCalculator::PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
+    void Kruskal_CDR3_HG_CC_Processor::PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                  size_t root_vertex,
                                                  const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                                                  std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor) {
@@ -206,7 +206,7 @@ namespace antevolo {
         PrepareSubtree(edge_vector, root_vertex);
     }
 
-    void KruskalClusterToForestCalculator::SetUndirectedComponentParentEdge(size_t root_num,
+    void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentParentEdge(size_t root_num,
                                                                             EvolutionaryEdgePtr edge) {
         if(edge->IsDirected()) {
             if (undirected_components_edges_.find(root_num) == undirected_components_edges_.end()) {
