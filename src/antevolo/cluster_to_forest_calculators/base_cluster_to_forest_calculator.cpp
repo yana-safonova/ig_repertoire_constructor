@@ -36,7 +36,6 @@ namespace antevolo {
             ds_on_undirected_edges.make_set(i);
         }
         AddUndirectedForest(hg_component, component_id, ds_on_undirected_edges);
-        //AddComponentToTheTree(hg_component, component_id, tree);
         SetUndirectedComponentsParentEdges(hg_component, component_id, ds_on_undirected_edges);
         SetDirections(vertices_nums, tree, ds_on_undirected_edges);
         return tree;
