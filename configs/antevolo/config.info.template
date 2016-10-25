@@ -26,6 +26,6 @@ algorithm_params {
 
     edge_construction_params {
         min_num_intersected_v_shms   3
-        intersected_edge_coeff       20
+        intersected_edge_coeff       1.0
     }
 }

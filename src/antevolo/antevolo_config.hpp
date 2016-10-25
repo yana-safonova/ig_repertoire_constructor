@@ -32,7 +32,7 @@ namespace antevolo {
             };
 
             struct EdgeConstructionParams {
-                size_t intersected_edge_coeff;
+                double intersected_edge_coeff;
                 size_t min_num_intersected_v_shms;
             };
 
