@@ -15,7 +15,9 @@ namespace antevolo {
     }
 
     EvolutionaryTreeStorage AntEvoloProcessor::ConstructClonalTrees() {
-        VJCloneSetDecomposer clone_set_decomposer(clone_set_);
+
+        annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone> fake_clone_set;
+        VJCloneSetDecomposer clone_set_decomposer(clone_set_); // storage for reconstructed fake vertices
         auto vj_decomposition = clone_set_decomposer.CreateDecomposition();
         INFO("VJ decomposition containing " << vj_decomposition.Size() << " classes was created.");
         INFO("Largest class contains " << vj_decomposition.MaxClassSize() << " clone(s)");
@@ -28,9 +30,10 @@ namespace antevolo {
         //for(size_t i = 59; i < vj_decomposition.Size() && i < 60; i++) {
             auto vj_class = vj_decomposition.GetClass(i);
             auto candidate_calculator = VJClassProcessor(clone_set_,
-                                                                      config_.output_params,
-                                                                      config_.algorithm_params,
-                                                                      model);
+                                                         fake_clone_set,
+                                                         config_.output_params,
+                                                         config_.algorithm_params,
+                                                         model);
             candidate_calculator.CreateUniqueCDR3Map(vj_class);
             std::string cdrs_fasta = candidate_calculator.WriteUniqueCDR3InFasta(vj_class);
             std::string graph_fname = candidate_calculator.GetGraphFname(vj_class);

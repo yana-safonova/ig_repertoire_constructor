@@ -109,6 +109,13 @@ namespace antevolo {
         }
     }
 
+    void Kruskal_CDR3_HG_CC_Processor::ReconstructMissingVertices(EvolutionaryTree& tree) {
+        auto edge_constructor = GetEdgeConstructor();
+        // adding directed edges between identical CDR3s
+        std::vector<size_t> roots = tree.GetRoots();
+        //todo: implement
+    }
+
     void Kruskal_CDR3_HG_CC_Processor::PrepareSubtree(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                           size_t root_num) {
         if (undirected_graph_.find(root_num) != undirected_graph_.end() &&
@@ -210,7 +217,7 @@ namespace antevolo {
     }
 
     void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentParentEdge(size_t root_num,
-                                                                            EvolutionaryEdgePtr edge) {
+                                                                        EvolutionaryEdgePtr edge) {
         if(edge->IsDirected()) {
             if (undirected_components_edges_.find(root_num) == undirected_components_edges_.end()) {
                 undirected_components_edges_[root_num] = edge;

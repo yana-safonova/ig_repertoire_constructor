@@ -74,10 +74,10 @@ namespace antevolo {
 
         auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
                 new Kruskal_CDR3_HG_CC_Processor(clone_set_,
-                                                     config_,
-                                                     graph_component_,
-                                                     unique_cdr3s_map_,
-                                                     unique_cdr3s_));
+                                                 config_,
+                                                 graph_component_,
+                                                 unique_cdr3s_map_,
+                                                 unique_cdr3s_));
         auto tree = forest_calculator->ConstructForest(hg_component, component_id);
         return tree;
     }

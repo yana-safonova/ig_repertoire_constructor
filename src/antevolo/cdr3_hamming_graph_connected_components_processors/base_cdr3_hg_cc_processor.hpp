@@ -17,6 +17,7 @@ namespace antevolo {
 
     protected:
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        annotation_utils::CDRAnnotatedCloneSet &fake_clone_set_;
         const AntEvoloConfig::AlgorithmParams &config_;
         GraphComponentMap& graph_component_;
         const UniqueCDR3IndexMap& unique_cdr3s_map_;
@@ -35,15 +36,17 @@ namespace antevolo {
                                                 size_t component_id,
                                                 boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
         virtual void SetDirections(boost::unordered_set<size_t> vertices_nums,
-                           EvolutionaryTree& tree,
-                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
+                                   EvolutionaryTree& tree,
+                                   boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
+        virtual void ReconstructMissingVertices(EvolutionaryTree& tree) = 0;
     public:
 
         Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                                      const AntEvoloConfig::AlgorithmParams &config,
-                                      GraphComponentMap& graph_component,
-                                      const UniqueCDR3IndexMap& unique_cdr3s_map,
-                                      const std::vector<std::string>& unique_cdr3s);
+                                  annotation_utils::CDRAnnotatedCloneSet &fake_clone_set,
+                                  const AntEvoloConfig::AlgorithmParams &config,
+                                  GraphComponentMap& graph_component,
+                                  const UniqueCDR3IndexMap& unique_cdr3s_map,
+                                  const std::vector<std::string>& unique_cdr3s);
 
         EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
 
