@@ -16,7 +16,7 @@ template <typename T>
 using Decay = typename std::decay<T>::type;
 
 template <typename TArray>
-using ValueType = Decay<decltype((Decay<TArray>())[0])>;
+using ValueType = Decay<decltype(Decay<TArray>()[0])>;
 
 class Compressor {
 public:
