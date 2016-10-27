@@ -1,3 +1,5 @@
+#!/usr/bin/python -u
+
 import os
 import shutil
 import sys
@@ -7,8 +9,11 @@ from string import join
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 
 from ash_python_utils import fastx2fastx
+from simulate import run_mixcr2
+from utils import fix_migec_mixcr_cluster_sizes
 
 
 class ShStep:
@@ -29,12 +34,15 @@ class PyStep:
 
     def Run(self):
         print "Running python step: %s" % self.description
-        return_value = self.function()
-        print "Returned", return_value
+        try:
+            return_value = self.function()
+            print "Returned", return_value
+        except:
+            return -1
         return return_value if return_value is not None else 0
 
 
-def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, threads):
+def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, threads, exit_on_error):
     home = "~/work" if os.path.exists("~/work") else "~"
     igrec = home + "/igrec"
     igrec_bin = igrec + "/build/release/bin"
@@ -48,6 +56,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--umi-length %d" % barcode_length,
                 "--pcr-error1 %f" % pcr_error_rate,
                 "--pcr-error2 %f" % pcr_error_rate,
+                # "--pcr-rate 0.001",
                 "--compressed-path %s/final_repertoire_comp.fasta" % data_path
                 ]),
         ShStep(["cd %s &&" % igrec,
@@ -179,8 +188,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--threads %d" % threads
                 ]),
         PyStep("converting fasta file (%s) to fastq format (%s)" % ("%s/vjf_input/cleaned_reads.fa" % data_path, "%s/vjf_input/cleaned_reads.fastq" % data_path),
-               lambda:
-               fastx2fastx(
+               lambda: fastx2fastx(
                    "%s/vjf_input/cleaned_reads.fa" % data_path,
                    "%s/vjf_input/cleaned_reads.fastq" % data_path,
                    50,
@@ -195,27 +203,41 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 ".",
                 "%s/migec" % data_path
                 ]),
-        ShStep(["java -jar %s/mixcr.jar" % mixcr_path,
-                "align -p kaligner2",
-                "--chains IGH",
-                "%s/migec/migec.t5.fastq.gz" % data_path,
-                "%s/migec/alignments.vdcja" % data_path
-                ]),
-        ShStep(["java -jar %s/mixcr.jar assemble" % mixcr_path,
-                "-t %d" % threads,
-                "-OassemblingFeatures=VDJRegion",
-                "%s/migec/alignments.vdcja" % data_path,
-                "%s/migec/clones.clns" % data_path
-                ]),
-        ShStep(["java -jar %s/mixcr.jar exportClones" % mixcr_path,
-                "-t %d" % threads,
-                "%s/migec/clones.clns" % data_path,
-                "%s/migec/clones.txt" % data_path
-                ]),
-        ShStep(["python %s/py/convert_mixcr_to_quast.py" % igrec,
-                "-r %s/migec/clones.txt" % data_path,
-                "-o %s/migec/clones.fasta" % data_path
-                ]),
+        PyStep("running MIXCR",
+               lambda: run_mixcr2(
+                   input_file = "%s/migec/migec.t5.fastq.gz" % data_path,
+                   output_dir = "%s/migec/mixcr" % data_path,
+                   threads = threads,
+                   remove_tmp = False
+               )),
+        PyStep("fixing cluster sizes",
+               lambda: fix_migec_mixcr_cluster_sizes(
+                   input_file = "%s/migec/mixcr/final_repertoire.fa" % data_path,
+                   rcm_file = "%s/migec/mixcr/final_repertoire.rcm" % data_path,
+                   output_file = "%s/migec/final_repertoire.fa" % data_path,
+               )),
+
+        # ShStep(["java -jar %s/mixcr.jar" % mixcr_path,
+        #         "align -p kaligner2",
+        #         "--chains IGH",
+        #         "%s/migec/migec.t5.fastq.gz" % data_path,
+        #         "%s/migec/alignments.vdcja" % data_path
+        #         ]),
+        # ShStep(["java -jar %s/mixcr.jar assemble" % mixcr_path,
+        #         "-t %d" % threads,
+        #         "-OassemblingFeatures=VDJRegion",
+        #         "%s/migec/alignments.vdcja" % data_path,
+        #         "%s/migec/clones.clns" % data_path
+        #         ]),
+        # ShStep(["java -jar %s/mixcr.jar exportClones" % mixcr_path,
+        #         "-t %d" % threads,
+        #         "%s/migec/clones.clns" % data_path,
+        #         "%s/migec/clones.txt" % data_path
+        #         ]),
+        # ShStep(["python %s/py/convert_mixcr_to_quast.py" % igrec,
+        #         "-r %s/migec/clones.txt" % data_path,
+        #         "-o %s/migec/clones.fasta" % data_path
+        #         ]),
 
         # ShStep(["gunzip",
         #  "--keep",
@@ -237,9 +259,19 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "%s/migec/migec_compressed.fasta" % data_path,
         #  "--barcode"
         #  ]),
+
+        # ShStep(["python %s/aimquast.py" % igrec,
+        #         "-s %s/amplified.fasta" % data_path,
+        #         "-c %s/migec/clones.fasta" % data_path,
+        #         "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #         "-o %s/quast_migec" % data_path,
+        #         "--reference-free",
+        #         "--rcm-based"
+        #         ]),
         ShStep(["python %s/aimquast.py" % igrec,
                 "-s %s/amplified.fasta" % data_path,
-                "-c %s/migec/clones.fasta" % data_path,
+                "-c %s/migec/final_repertoire.fa" % data_path,
+                # "-C %s/migec/final_repertoire.rcm" % data_path,
                 "-r %s/vjf/cleaned_reads.fa" % data_path,
                 "-o %s/quast_migec" % data_path,
                 "--reference-free",
@@ -256,15 +288,17 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
 
     for step in steps:
         exit_status = step.Run()
-        if exit_status != 0:
+        if exit_status != 0 and exit_on_error:
             exit(exit_status)
 
 
 def main():
     skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
+    exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
     for supernode_threshold in [100000, 10, 5]:
         for barcode_length in [15, 9, 12]:
-            for pcr_error_rate in [0.002, 0.0006, 0.0002]:
+            # for pcr_error_rate in [0.002, 0.0006, 0.0002]:
+            for pcr_error_rate in [0.002, 0.0002]:
                 if skip > 0:
                     skip -= 1
                     continue
@@ -272,7 +306,7 @@ def main():
                 if not os.path.exists(data_path):
                     os.makedirs(data_path)
                 shutil.copyfile("final_repertoire.fasta", "%s/final_repertoire.fasta" % data_path)
-                run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, int(sys.argv[1]))
+                run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, int(sys.argv[1]), exit_on_error)
 
 
 if __name__ == '__main__':
