@@ -123,25 +123,16 @@ int main(int argc, const char* const* argv) {
     for (size_t i = 0; i < input.input_reads.size(); i ++) {
         reads.emplace_back(input.input_reads[i], input.input_ids[i], i);
     }
-    clusterer::ManyToManyCorrespondenceUmiToCluster<Read> initial_umis_to_clusters;
-    for (auto& entry : umi_to_reads) {
-        const auto& umi = umi_ptr_by_umi[entry.first];
-        for (auto& read_idx : entry.second) {
-            const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(reads[read_idx], input.input_reads[read_idx], read_idx);
-            initial_umis_to_clusters.add(umi, cluster);
-        }
-    }
+    clusterer::Clusterer<Read> clusterer(umi_to_reads, umi_ptr_by_umi, reads);
     // This works 10-15 times slower than simple way (2 min vs 10 sec). Maybe because we don't try to glue to larger clusters first. Anyway, not a great problem at the moment.
     const clusterer::ReadDist& hamming_dist = clusterer::ClusteringMode::bounded_hamming_dist(params.clustering_threshold);
     const auto hamming_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(hamming_dist, params.clustering_threshold);
     INFO("Clustering reads by hamming within single UMIs with threshold " << params.clustering_threshold);
-    const auto umi_to_clusters_hamm_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
-            hamming_dist_checker, compressed_umi_ptrs, initial_umis_to_clusters,
-            clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
-    for (const auto& cluster : umi_to_clusters_hamm_inside_umi.toSet()) {
-        VERIFY_MSG(umi_to_clusters_hamm_inside_umi.back(cluster).size() == 1, "We haven't united any reads across different UMIs yet.");
+    clusterer.cluster(hamming_dist_checker, compressed_umi_ptrs, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    for (const auto& cluster : clusterer.getCurrentUmiToCluster().toSet()) {
+        VERIFY_MSG(clusterer.getCurrentUmiToCluster().back(cluster).size() == 1, "We haven't united any reads across different UMIs yet.");
     }
-    INFO(umi_to_clusters_hamm_inside_umi.toSize() << " clusters found");
+    INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
 //    clusterer::report_non_major_umi_groups(umi_to_clusters_hamm_inside_umi, params.output_dir + "/non_major.csv");
 
@@ -158,53 +149,44 @@ int main(int argc, const char* const* argv) {
 //                     << 100.0 * static_cast<double>(clusters_in_umis_of_size[size]) / static_cast<double>(size * entry.second) << "%");
 //    }
 
-    clusterer::print_umi_split_stats<Read>(umi_to_clusters_hamm_inside_umi);
+    clusterer.print_umi_split_stats();
 
     INFO("Uniting read clusters for adjacent UMIs");
-    const auto umi_to_clusters_hamm_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
-            hamming_dist_checker, compressed_umi_ptrs, /*initial_umis_to_clusters*/umi_to_clusters_hamm_inside_umi,
-            clusterer::GraphUmiPairsIterable(input.umi_graph));
-    INFO(umi_to_clusters_hamm_adj_umi.toSize() << " clusters found");
+    clusterer.cluster(hamming_dist_checker, compressed_umi_ptrs, clusterer::GraphUmiPairsIterable(input.umi_graph));
+    INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 //    size_t hamm_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_hamm_inside_umi, umi_to_clusters_hamm_adj_umi);
 //    INFO(hamm_corrected_reads << " reads have UMI corrected for hamming dist.");
 
     const clusterer::ReadDist& edit_dist = clusterer::ClusteringMode::bounded_edit_dist(params.clustering_threshold, params.clustering_threshold);
     const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(edit_dist, params.clustering_threshold);
     INFO("Clustering reads by edit distance within single UMIs with threshold " << params.clustering_threshold);
-    const auto umi_to_clusters_edit_inside_umi = clusterer::Clusterer<Read, clusterer::ReflexiveUmiPairsIterable>::cluster(
-            edit_dist_checker, compressed_umi_ptrs, umi_to_clusters_hamm_adj_umi,
-            clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
-    INFO(umi_to_clusters_edit_inside_umi.toSize() << " clusters found");
+    clusterer.cluster(edit_dist_checker, compressed_umi_ptrs, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
+    INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
     INFO("Uniting read clusters for adjacent UMIs");
-    const auto umi_to_clusters_edit_adj_umi = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::cluster(
-            edit_dist_checker, compressed_umi_ptrs, umi_to_clusters_edit_inside_umi,
-            clusterer::GraphUmiPairsIterable(input.umi_graph));
-    INFO(umi_to_clusters_edit_adj_umi.toSize() << " clusters found");
+    clusterer.cluster(edit_dist_checker, compressed_umi_ptrs, clusterer::GraphUmiPairsIterable(input.umi_graph));
+    INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
-    clusterer::report_length_differences(umi_to_clusters_edit_adj_umi, params.output_dir);
-
-    auto umi_to_clusters_no_chimeras = umi_to_clusters_edit_adj_umi;
+    clusterer.report_length_differences(params.output_dir);
 
     if (params.detect_chimeras) {
-        umi_to_clusters_no_chimeras = clusterer::report_non_major_umi_groups_sw(umi_to_clusters_edit_adj_umi,
-                                                                     params.output_dir + "/non_major.csv",
-                                                                     params.output_dir + "/left_graph.graph",
-                                                                     params.output_dir + "/right_graph.graph",
-                                                                     params.output_dir + "/chimeras.txt",
-                                                                     params.output_dir + "/umi_chimeras.txt",
-                                                                     params.num_threads);
+        clusterer.report_non_major_umi_groups_sw(params.output_dir + "/non_major.csv",
+                                                 params.output_dir + "/left_graph.graph",
+                                                 params.output_dir + "/right_graph.graph",
+                                                 params.output_dir + "/chimeras.txt",
+                                                 params.output_dir + "/umi_chimeras.txt",
+                                                 params.num_threads);
     }
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
 //    INFO(edit_corrected_reads << " reads have UMI corrected for edit dist.");
 //    INFO(hamm_corrected_reads + edit_corrected_reads << " reads total have UMI corrected.");
-    size_t reads_with_corrected_umis = clusterer::count_reads_with_corrected_umi(umi_to_clusters_no_chimeras);
+    size_t reads_with_corrected_umis = clusterer::count_reads_with_corrected_umi(clusterer.getCurrentUmiToCluster());
     INFO(reads_with_corrected_umis << " reads total have UMI corrected.");
 
     INFO("Uniting clusters with identical centers");
-    const auto umi_to_clusters_same_centers = clusterer::Clusterer<Read, clusterer::GraphUmiPairsIterable>::uniteByCenters(umi_to_clusters_no_chimeras);
-    INFO(umi_to_clusters_same_centers.toSize() << " clusters found");
+    clusterer.uniteByCenters();
+    INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
 //    INFO("Uniting ignoring UMIs");
 //    const auto& umi_to_clusters_global = clusterer::Clusterer<Read, clusterer::FullGraphUmiPairsIterable>::cluster(
@@ -213,7 +195,7 @@ int main(int argc, const char* const* argv) {
 //    INFO(umi_to_clusters_global.toSize() << " clusters found");
 
     INFO("Saving intermediate repertoire to output directory " << params.output_dir);
-    clusterer::write_clusters_and_correspondence<Read>(umi_to_clusters_same_centers, reads, params.output_dir, params.save_clusters);
+    clusterer::write_clusters_and_correspondence<Read>(clusterer.getCurrentUmiToCluster(), reads, params.output_dir, params.save_clusters);
     INFO("Saving finished");
 
     return 0;

@@ -168,16 +168,29 @@ namespace clusterer {
     template <typename ElementType>
     using ManyToManyCorrespondenceUmiToCluster = ManyToManyCorrespondence<UmiPtr, ClusterPtr<ElementType>, UmiPtrHash, UmiPtrEquals, ClusterPtrHash<ElementType>, ClusterPtrEquals<ElementType>>;
 
-    template <typename ElementType, typename UmiPairsIterable>
+    // ElementType is always Read now. Gradually refactoring to use this information.
+    template <typename ElementType>
     class Clusterer {
     public:
-        static ManyToManyCorrespondenceUmiToCluster<ElementType> cluster(
-                const ClusterDistChecker& dist_checker,
-                const std::vector<UmiPtr>& umis,
-                const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
-                const UmiPairsIterable& umi_pairs_iterable);
+        Clusterer(const std::unordered_map<Umi, std::vector<size_t>>& umi_to_reads, const std::unordered_map<Umi, UmiPtr>& umi_ptr_by_umi, const std::vector<Read>& reads);
 
-        static ManyToManyCorrespondenceUmiToCluster<ElementType> uniteByCenters(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
+        template <typename UmiPairsIterable>
+        void cluster(const ClusterDistChecker& dist_checker,
+                     const std::vector<UmiPtr>& umis,
+                     const UmiPairsIterable& umi_pairs_iterable);
+
+        void uniteByCenters();
+
+        void print_umi_split_stats();
+
+        void report_length_differences(const std::string& output_dir);
+
+        void report_non_major_umi_groups_sw(string file_name, string left_graph_file_name, string right_graph_file_name, string chimeras_info_file_name,
+                                            string umi_chimeras_info_file_name, size_t num_threads);
+
+        const ManyToManyCorrespondenceUmiToCluster<Read>& getCurrentUmiToCluster() const {
+            return current_umi_to_cluster_;
+        }
 
     private:
         // It's supposed that the merged cluster is not considered in the partition together with either of parents.
@@ -185,18 +198,31 @@ namespace clusterer {
         static ClusterPtr<ElementType> merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
         static seqan::Dna5String findNewCenter(std::unordered_set<ElementType>& members);
         static void print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
+
+        ManyToManyCorrespondenceUmiToCluster<Read> current_umi_to_cluster_;
     };
 
-    template <typename ElementType, typename UmiPairsIterable>
-    ManyToManyCorrespondenceUmiToCluster<ElementType> Clusterer<ElementType, UmiPairsIterable>::cluster(
+    template <typename ElementType>
+    Clusterer<ElementType>::Clusterer(const std::unordered_map<Umi, std::vector<size_t>>& umi_to_reads, const std::unordered_map<Umi, UmiPtr>& umi_ptr_by_umi, const std::vector<Read>& reads) {
+        for (auto& entry : umi_to_reads) {
+            const auto& umi = umi_ptr_by_umi.at(entry.first);
+            for (auto& read_idx : entry.second) {
+                const auto& cluster = make_shared<clusterer::Cluster<Read>>(reads[read_idx], reads[read_idx].GetSequence(), read_idx);
+                current_umi_to_cluster_.add(umi, cluster);
+            }
+        }
+    }
+
+    template <typename ElementType>
+    template <typename UmiPairsIterable>
+    void Clusterer<ElementType>::cluster(
             const ClusterDistChecker& dist_checker,
             const std::vector<UmiPtr>& umis,
-            const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters,
             const UmiPairsIterable& umi_pairs_iterable) {
-        ManyToManyCorrespondenceUmiToCluster<ElementType> result(umis_to_clusters);
+        ManyToManyCorrespondenceUmiToCluster<Read> result(current_umi_to_cluster_);
         // operated on clusters from original umis_to_clusters
-        DisjointSets<ClusterPtr<ElementType>> ds;
-        for (const auto& cluster : umis_to_clusters.toSet()) {
+        DisjointSets<ClusterPtr<Read>> ds;
+        for (const auto& cluster : current_umi_to_cluster_.toSet()) {
             ds.addNewSet(cluster);
         }
 //        std::map<size_t, size_t> dist_distribution;
@@ -204,8 +230,8 @@ namespace clusterer {
             VERIFY_MSG(umi_pair.first < umis.size() && umi_pair.second < umis.size(), "Invalid umi pair.");
             const UmiPtr& first_umi = umis[umi_pair.first];
             const UmiPtr& second_umi = umis[umi_pair.second];
-            for (const auto& first_cluster_original : umis_to_clusters.forth(first_umi)) {
-                for (const auto& second_cluster_original : umis_to_clusters.forth(second_umi)) {
+            for (const auto& first_cluster_original : current_umi_to_cluster_.forth(first_umi)) {
+                for (const auto& second_cluster_original : current_umi_to_cluster_.forth(second_umi)) {
                     const auto& first_cluster = result.getTo(ds.findRoot(first_cluster_original));
                     const auto& second_cluster = result.getTo(ds.findRoot(second_cluster_original));
                     if (first_cluster == second_cluster) continue;
@@ -239,14 +265,13 @@ namespace clusterer {
 //            INFO("dist " << entry.first << " : " << entry.second << " times");
 //        }
 
-        return result;
+        current_umi_to_cluster_ = result;
     }
 
-    template <typename ElementType, typename UmiPairsIterable>
-    ManyToManyCorrespondenceUmiToCluster<ElementType> Clusterer<ElementType, UmiPairsIterable>::uniteByCenters(
-            const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+    template <typename ElementType>
+    void Clusterer<ElementType>::uniteByCenters() {
         std::unordered_map<seqan::Dna5String, std::vector<ClusterPtr<ElementType>>> center_to_clusters;
-        for (const auto& cluster : umis_to_clusters.toSet()) {
+        for (const auto& cluster : current_umi_to_cluster_.toSet()) {
             center_to_clusters[cluster->center].push_back(cluster);
         }
 
@@ -254,10 +279,10 @@ namespace clusterer {
 
         for (const auto& entry : center_to_clusters) {
             const auto& clusters = entry.second;
-            std::unordered_set<UmiPtr, UmiPtrHash, UmiPtrEquals> merged_umis(umis_to_clusters.back(clusters[0]));
+            std::unordered_set<UmiPtr, UmiPtrHash, UmiPtrEquals> merged_umis(current_umi_to_cluster_.back(clusters[0]));
             ClusterPtr<ElementType> merged_cluster = clusters[0];
             for (size_t i = 1; i < clusters.size(); i ++) {
-                const auto& umis = umis_to_clusters.back(clusters[i]);
+                const auto& umis = current_umi_to_cluster_.back(clusters[i]);
                 merged_umis.insert(umis.begin(), umis.end());
                 merged_cluster = merge_clusters(merged_cluster, clusters[i], merged_cluster->id);
             }
@@ -267,11 +292,246 @@ namespace clusterer {
 
         print_umi_to_cluster_stats(result);
 
-        return result;
+        current_umi_to_cluster_ = result;
     }
 
-    template <typename ElementType, typename UmiPairsIterable>
-    void Clusterer<ElementType, UmiPairsIterable>::print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
+    template <typename ElementType>
+    void Clusterer<ElementType>::print_umi_split_stats() {
+        size_t total_reads = 0;
+        size_t secondary_reads = 0;
+        for (const auto& umi : current_umi_to_cluster_.fromSet()) {
+            const auto& clusters = current_umi_to_cluster_.forth(umi);
+            size_t max_cluster = 0;
+            size_t umi_size = 0;
+            for (const auto& cluster : clusters) {
+                umi_size += cluster->weight;
+                max_cluster = std::max(max_cluster, cluster->weight);
+            }
+            total_reads += umi_size;
+            secondary_reads += umi_size - max_cluster;
+        }
+        INFO("Total " << total_reads << " reads in the dataset. " << secondary_reads << " of them don't belong to the main group of their barcode.");
+    }
+
+    template <typename ElementType>
+    void Clusterer<ElementType>::report_length_differences(const std::string& output_dir) {
+        namespace fs = boost::filesystem;
+        if (output_dir != ".") {
+            fs::create_directory(output_dir);
+            INFO("Created new");
+        }
+
+        std::ofstream file_with_seqs(fs::path(output_dir).append("clusters_with_huge_len_span.txt").string());
+
+        map<size_t, size_t> len_span_to_count;
+        map<size_t, map<size_t, size_t>> len_span_to_sizes;
+        for (const auto& cluster : current_umi_to_cluster_.toSet()) {
+            size_t min_len = numeric_limits<size_t>::max();
+            size_t max_len = 0;
+            for (const auto& read : cluster->members) {
+                size_t len = length(read.GetSequence());
+                min_len = min(min_len, len);
+                max_len = max(max_len, len);
+            }
+            len_span_to_count[max_len - min_len] ++;
+            len_span_to_sizes[max_len - min_len][cluster->members.size()] ++;
+
+            if (max_len - min_len > 10) {
+                file_with_seqs << (max_len - min_len) << "\n";
+                for (const auto& read : cluster->members) {
+                    file_with_seqs << ">" << read.GetReadId() << "\n" << read.GetSequence() << "\n";
+                }
+            }
+        }
+        INFO("Number of clusters by difference between shortest and longest member.")
+        for (const auto& entry : len_span_to_count) {
+            stringstream ss;
+            ss << entry.first << " -> " << entry.second << ". ";
+            for (const auto& size_entry : len_span_to_sizes[entry.first]) {
+                ss << " " << size_entry.first << ": " << size_entry.second;
+            }
+            INFO(ss.str());
+        }
+    }
+
+    template <typename ElementType>
+    void Clusterer<ElementType>::report_non_major_umi_groups_sw(std::string file_name,
+                                                   std::string left_graph_file_name,
+                                                   std::string right_graph_file_name,
+                                                   std::string chimeras_info_file_name,
+                                                   std::string umi_chimeras_info_file_name,
+                                                   size_t num_threads) {
+        // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
+        // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
+        // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
+        std::vector<seqan::Dna5String> all_left_halves;
+        std::vector<seqan::Dna5String> all_right_halves;
+        const size_t IG_LEN = 350;
+        std::unordered_map<seqan::Dna5String, size_t> cluster_to_idx;
+        for (const auto& cluster : current_umi_to_cluster_.toSet()) {
+            const auto& sequence = cluster->GetSequence();
+            cluster_to_idx[cluster->GetSequence()] = all_left_halves.size();
+            all_left_halves.push_back(seqan::prefix(sequence, IG_LEN / 2));
+            all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
+        }
+
+        const size_t tau = 10;
+        const size_t max_indels = 3;
+        const size_t strategy = 2;
+        const size_t k = IG_LEN / (tau + strategy) / 2;
+        Graph left_graph;
+        Graph right_graph;
+        omp_set_num_threads(static_cast<int>(num_threads));
+        for (size_t i = 0; i < 2; i ++) {
+            INFO("constructing graph " << i);
+            const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
+            auto kmer2reads = kmerIndexConstruction(all_halves, k);
+            size_t num_of_dist_computations = 0;
+            Graph& graph = (i == 0) ? left_graph : right_graph;
+            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::bounded_edit_dist(tau, max_indels),
+                                 static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
+                                 num_of_dist_computations);
+            INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
+            write_metis_graph(graph, i == 0 ? left_graph_file_name : right_graph_file_name);
+            INFO("graph written: " << i);
+        }
+
+        for (size_t i = 0; i < left_graph.size(); i ++) {
+            std::sort(left_graph[i].begin(), left_graph[i].end());
+            std::sort(right_graph[i].begin(), right_graph[i].end());
+        }
+
+        size_t total_minor_clusters = 0;
+        size_t found_somewhere = 0;
+        size_t found_within_umi = 0;
+        size_t chimeric_clusters = 0;
+        size_t chimeric_reads = 0;
+        size_t found_half_only = 0;
+        std::map<size_t, size_t> chimera_size_to_count;
+
+        std::ofstream out_file(file_name);
+        std::ofstream chimeras_file(chimeras_info_file_name);
+        std::ofstream umi_chimeras_file(umi_chimeras_info_file_name);
+        auto result = current_umi_to_cluster_;
+        const auto& umis = current_umi_to_cluster_.fromSet();
+        for (const auto& umi: umis) {
+            const auto& clusters = current_umi_to_cluster_.forth(umi);
+            size_t max_size = 0;
+            seqan::Dna5String max_consensus;
+            for (const auto& cluster : clusters) {
+                if (cluster->weight > max_size) {
+                    max_size = cluster->weight;
+                    max_consensus = cluster->GetSequence();
+                }
+            }
+            // counting major UMI clusters only
+            std::unordered_set<size_t> major_umi_clusters_idcs;
+            for (const auto& cluster : clusters) {
+                if (cluster->weight == max_size) {
+                    major_umi_clusters_idcs.insert(cluster_to_idx[cluster->GetSequence()]);
+                }
+            }
+
+            bool was_max = false;
+            for (const auto& cluster : clusters) {
+                if (cluster->weight == max_size) {
+                    if (was_max) {
+                        out_file << cluster->weight << "\t" << max_size << "\tp" << std::endl;
+                        if (max_size > 1) {
+                            INFO("Max component parity: " << cluster->weight);
+                        }
+                    }
+                    was_max = true;
+                } else {
+                    out_file << cluster->weight << "\t" << max_size << std::endl;
+                }
+
+                if (max_size < 3) continue;
+                if (cluster->weight == max_size) continue;
+
+                size_t left_in_umi = 0;
+                const auto& left_adjacent = left_graph[cluster_to_idx[cluster->GetSequence()]];
+                size_t left_in_all = left_adjacent.size();
+                for (size_t i = 0; i < left_adjacent.size(); i ++) {
+                    if (major_umi_clusters_idcs.count(left_adjacent[i].first)) {
+                        left_in_umi ++;
+                    }
+                }
+                size_t right_in_umi = 0;
+                const auto& right_adjacent = right_graph[cluster_to_idx[cluster->GetSequence()]];
+                size_t right_in_all = right_adjacent.size();
+                for (size_t i = 0; i < right_adjacent.size(); i ++) {
+                    if (major_umi_clusters_idcs.count(right_adjacent[i].first)) {
+                        right_in_umi ++;
+                    }
+                }
+
+                total_minor_clusters ++;
+                if (left_in_all > 0 && right_in_all > 0) {
+                    found_somewhere ++;
+                }
+                const auto sw_dist = ClusteringMode::bounded_edit_dist(40, 15, false);
+                if (left_in_umi > 0 && right_in_umi > 0) {
+                    found_within_umi ++;
+                    umi_chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
+                    umi_chimeras_file << "chimera?: " << cluster->GetSequence() << std::endl;
+                    umi_chimeras_file << "max consensus: " << max_consensus << std::endl;
+                    umi_chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
+                    umi_chimeras_file << "umi clusters with dists:" << std::endl;
+                    for (const auto& c : clusters) {
+                        umi_chimeras_file << "cluster size: " << c->weight << ", ";
+                        umi_chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        umi_chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        umi_chimeras_file << c->GetSequence() << std::endl;
+                    }
+                } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
+                    bool is_chimera = true;
+//                    for (const auto& c : clusters) {
+//                        // This is not a chimera, but a highly amplified sequence
+//                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 25) {
+//                            is_chimera = false;
+//                            break;
+//                        }
+//                    }
+                    if (!is_chimera) continue;
+
+                    chimeric_reads += cluster->members.size();
+                    chimera_size_to_count[cluster->members.size()] ++;
+                    result.removeTo(cluster);
+                    chimeric_clusters ++;
+                    chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
+                    chimeras_file << "chimera: " << cluster->GetSequence() << std::endl;
+                    chimeras_file << "max consensus: " << max_consensus << std::endl;
+                    chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
+                    chimeras_file << "umi clusters with dists:" << std::endl;
+                    for (const auto& c : clusters) {
+                        chimeras_file << "cluster size: " << c->weight << ", ";
+                        chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
+                        chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        chimeras_file << c->GetSequence() << std::endl;
+                    }
+                } else if ((left_in_all > 0) != (right_in_all > 0)) {
+                    found_half_only ++;
+                }
+            }
+        }
+
+        INFO("Total clusters, which are minorities in the umi: " << total_minor_clusters);
+        INFO("From them could be found elsewhere by halves (maybe in the same source): " << found_somewhere);
+        INFO("Ones that could be found within the same UMI by halves: " << found_within_umi);
+        INFO("Clusters with chimeras - ones with a half within UMI and a half somewhere else outside: " << chimeric_clusters);
+        INFO("Ones with only one half found at all: " << found_half_only);
+        INFO("Total chimeric reads: " << chimeric_reads);
+        INFO("Chimera size distribution (size -> count):");
+        for (const auto& entry : chimera_size_to_count) {
+            INFO(entry.first << " -> " << entry.second);
+        }
+
+        current_umi_to_cluster_ = result;
+    }
+
+    template <typename ElementType>
+    void Clusterer<ElementType>::print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
         map<size_t, size_t> clusters_per_umi;
         for (const auto& umi : umis_to_clusters.fromSet()) {
             clusters_per_umi[umis_to_clusters.forth(umi).size()] ++;
@@ -291,8 +551,8 @@ namespace clusterer {
         }
     };
 
-    template <typename ElementType, typename UmiPairsIterable>
-    ClusterPtr<ElementType> Clusterer<ElementType, UmiPairsIterable>::merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id) {
+    template <typename ElementType>
+    ClusterPtr<ElementType> Clusterer<ElementType>::merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id) {
         std::unordered_set<ElementType> members(first->members);
         members.insert(second->members.begin(), second->members.end());
         VERIFY_MSG(members.size() == first->members.size() + second->members.size(), "Clusters already intersect.");
@@ -303,8 +563,8 @@ namespace clusterer {
         return std::make_shared<Cluster<ElementType>>(members, center, id, first->weight + second->weight);
     }
 
-    template <typename ElementType, typename UmiPairsIterable>
-    seqan::Dna5String Clusterer<ElementType, UmiPairsIterable>::findNewCenter(std::unordered_set<ElementType>& members) {
+    template <typename ElementType>
+    seqan::Dna5String Clusterer<ElementType>::findNewCenter(std::unordered_set<ElementType>& members) {
         VERIFY_MSG(members.size() >= 2, "Too few elements to find new center.");
         std::vector<seqan::Dna5String> reads(members.size());
         std::vector<size_t> indices(members.size());
@@ -380,65 +640,6 @@ namespace clusterer {
 //            ERROR("Returning " << result << ", but printed " << printed);
 //        }
         return result;
-    }
-
-    template <typename ElementType>
-    void print_umi_split_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
-        size_t total_reads = 0;
-        size_t secondary_reads = 0;
-        for (const auto& umi : umis_to_clusters.fromSet()) {
-            const auto& clusters = umis_to_clusters.forth(umi);
-            size_t max_cluster = 0;
-            size_t umi_size = 0;
-            for (const auto& cluster : clusters) {
-                umi_size += cluster->weight;
-                max_cluster = std::max(max_cluster, cluster->weight);
-            }
-            total_reads += umi_size;
-            secondary_reads += umi_size - max_cluster;
-        }
-        INFO("Total " << total_reads << " reads in the dataset. " << secondary_reads << " of them don't belong to the main group of their barcode.");
-    }
-
-    template <typename ElementType>
-    void report_length_differences(const clusterer::ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters, const std::string& output_dir) {
-        namespace fs = boost::filesystem;
-        if (output_dir != ".") {
-            fs::create_directory(output_dir);
-            INFO("Created new");
-        }
-
-        std::ofstream file_with_seqs(fs::path(output_dir).append("clusters_with_huge_len_span.txt").string());
-
-        map<size_t, size_t> len_span_to_count;
-        map<size_t, map<size_t, size_t>> len_span_to_sizes;
-        for (const auto& cluster : umi_to_clusters.toSet()) {
-            size_t min_len = numeric_limits<size_t>::max();
-            size_t max_len = 0;
-            for (const auto& read : cluster->members) {
-                size_t len = length(read.GetSequence());
-                min_len = min(min_len, len);
-                max_len = max(max_len, len);
-            }
-            len_span_to_count[max_len - min_len] ++;
-            len_span_to_sizes[max_len - min_len][cluster->members.size()] ++;
-
-            if (max_len - min_len > 10) {
-                file_with_seqs << (max_len - min_len) << "\n";
-                for (const auto& read : cluster->members) {
-                    file_with_seqs << ">" << read.GetReadId() << "\n" << read.GetSequence() << "\n";
-                }
-            }
-        }
-        INFO("Number of clusters by difference between shortest and longest member.")
-        for (const auto& entry : len_span_to_count) {
-            stringstream ss;
-            ss << entry.first << " -> " << entry.second << ". ";
-            for (const auto& size_entry : len_span_to_sizes[entry.first]) {
-                ss << " " << size_entry.first << ": " << size_entry.second;
-            }
-            INFO(ss.str());
-        }
     }
 
     template <typename ElementType>
@@ -605,179 +806,6 @@ namespace clusterer {
         INFO("From them could be found elsewhere by halves (maybe in the same source): " << found_somewhere);
         INFO("Ones that could be found within the same UMI by halves: " << found_within_umi);
         INFO("Ones with a half within UMI and a half somewhere else outside: " << found_partially);
-    }
-
-    template <typename ElementType>
-    ManyToManyCorrespondenceUmiToCluster<ElementType> report_non_major_umi_groups_sw(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters,
-                                                                                     std::string file_name, std::string left_graph_file_name, std::string right_graph_file_name,
-                                                                                     std::string chimeras_info_file_name, std::string umi_chimeras_info_file_name, size_t num_threads) {
-        // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
-        // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
-        // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
-        std::vector<seqan::Dna5String> all_left_halves;
-        std::vector<seqan::Dna5String> all_right_halves;
-        const size_t IG_LEN = 350;
-        std::unordered_map<seqan::Dna5String, size_t> cluster_to_idx;
-        for (const auto& cluster : umi_to_clusters.toSet()) {
-            const auto& sequence = cluster->GetSequence();
-            cluster_to_idx[cluster->GetSequence()] = all_left_halves.size();
-            all_left_halves.push_back(seqan::prefix(sequence, IG_LEN / 2));
-            all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
-        }
-
-        const size_t tau = 10;
-        const size_t max_indels = 3;
-        const size_t strategy = 2;
-        const size_t k = IG_LEN / (tau + strategy) / 2;
-        Graph left_graph;
-        Graph right_graph;
-        omp_set_num_threads(static_cast<int>(num_threads));
-        for (size_t i = 0; i < 2; i ++) {
-            INFO("constructing graph " << i);
-            const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
-            auto kmer2reads = kmerIndexConstruction(all_halves, k);
-            size_t num_of_dist_computations = 0;
-            Graph& graph = (i == 0) ? left_graph : right_graph;
-            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::bounded_edit_dist(tau, max_indels),
-                                 static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
-                                 num_of_dist_computations);
-            INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
-            write_metis_graph(graph, i == 0 ? left_graph_file_name : right_graph_file_name);
-            INFO("graph written: " << i);
-        }
-
-        for (size_t i = 0; i < left_graph.size(); i ++) {
-            std::sort(left_graph[i].begin(), left_graph[i].end());
-            std::sort(right_graph[i].begin(), right_graph[i].end());
-        }
-
-        size_t total_minor_clusters = 0;
-        size_t found_somewhere = 0;
-        size_t found_within_umi = 0;
-        size_t chimeric_clusters = 0;
-        size_t chimeric_reads = 0;
-        size_t found_half_only = 0;
-        std::map<size_t, size_t> chimera_size_to_count;
-
-        std::ofstream out_file(file_name);
-        std::ofstream chimeras_file(chimeras_info_file_name);
-        std::ofstream umi_chimeras_file(umi_chimeras_info_file_name);
-        auto result = umi_to_clusters;
-        const auto& umis = umi_to_clusters.fromSet();
-        for (const auto& umi: umis) {
-            const auto& clusters = umi_to_clusters.forth(umi);
-            size_t max_size = 0;
-            seqan::Dna5String max_consensus;
-            for (const auto& cluster : clusters) {
-                if (cluster->weight > max_size) {
-                    max_size = cluster->weight;
-                    max_consensus = cluster->GetSequence();
-                }
-            }
-            // counting major UMI clusters only
-            std::unordered_set<size_t> major_umi_clusters_idcs;
-            for (const auto& cluster : clusters) {
-                if (cluster->weight == max_size) {
-                    major_umi_clusters_idcs.insert(cluster_to_idx[cluster->GetSequence()]);
-                }
-            }
-
-            bool was_max = false;
-            for (const auto& cluster : clusters) {
-                if (cluster->weight == max_size) {
-                    if (was_max) {
-                        out_file << cluster->weight << "\t" << max_size << "\tp" << std::endl;
-                        if (max_size > 1) {
-                            INFO("Max component parity: " << cluster->weight);
-                        }
-                    }
-                    was_max = true;
-                } else {
-                    out_file << cluster->weight << "\t" << max_size << std::endl;
-                }
-
-                if (max_size < 3) continue;
-                if (cluster->weight == max_size) continue;
-
-                size_t left_in_umi = 0;
-                const auto& left_adjacent = left_graph[cluster_to_idx[cluster->GetSequence()]];
-                size_t left_in_all = left_adjacent.size();
-                for (size_t i = 0; i < left_adjacent.size(); i ++) {
-                    if (major_umi_clusters_idcs.count(left_adjacent[i].first)) {
-                        left_in_umi ++;
-                    }
-                }
-                size_t right_in_umi = 0;
-                const auto& right_adjacent = right_graph[cluster_to_idx[cluster->GetSequence()]];
-                size_t right_in_all = right_adjacent.size();
-                for (size_t i = 0; i < right_adjacent.size(); i ++) {
-                    if (major_umi_clusters_idcs.count(right_adjacent[i].first)) {
-                        right_in_umi ++;
-                    }
-                }
-
-                total_minor_clusters ++;
-                if (left_in_all > 0 && right_in_all > 0) {
-                    found_somewhere ++;
-                }
-                const auto sw_dist = ClusteringMode::bounded_edit_dist(40, 15, false);
-                if (left_in_umi > 0 && right_in_umi > 0) {
-                    found_within_umi ++;
-                    umi_chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
-                    umi_chimeras_file << "chimera?: " << cluster->GetSequence() << std::endl;
-                    umi_chimeras_file << "max consensus: " << max_consensus << std::endl;
-                    umi_chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
-                    umi_chimeras_file << "umi clusters with dists:" << std::endl;
-                    for (const auto& c : clusters) {
-                        umi_chimeras_file << "cluster size: " << c->weight << ", ";
-                        umi_chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        umi_chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
-                        umi_chimeras_file << c->GetSequence() << std::endl;
-                    }
-                } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
-                    bool is_chimera = true;
-//                    for (const auto& c : clusters) {
-//                        // This is not a chimera, but a highly amplified sequence
-//                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 25) {
-//                            is_chimera = false;
-//                            break;
-//                        }
-//                    }
-                    if (!is_chimera) continue;
-
-                    chimeric_reads += cluster->members.size();
-                    chimera_size_to_count[cluster->members.size()] ++;
-                    result.removeTo(cluster);
-                    chimeric_clusters ++;
-                    chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
-                    chimeras_file << "chimera: " << cluster->GetSequence() << std::endl;
-                    chimeras_file << "max consensus: " << max_consensus << std::endl;
-                    chimeras_file << left_in_all << " " << right_in_all << " " << left_in_umi << " " << right_in_umi << std::endl;
-                    chimeras_file << "umi clusters with dists:" << std::endl;
-                    for (const auto& c : clusters) {
-                        chimeras_file << "cluster size: " << c->weight << ", ";
-                        chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
-                        chimeras_file << c->GetSequence() << std::endl;
-                    }
-                } else if ((left_in_all > 0) != (right_in_all > 0)) {
-                    found_half_only ++;
-                }
-            }
-        }
-
-        INFO("Total clusters, which are minorities in the umi: " << total_minor_clusters);
-        INFO("From them could be found elsewhere by halves (maybe in the same source): " << found_somewhere);
-        INFO("Ones that could be found within the same UMI by halves: " << found_within_umi);
-        INFO("Clusters with chimeras - ones with a half within UMI and a half somewhere else outside: " << chimeric_clusters);
-        INFO("Ones with only one half found at all: " << found_half_only);
-        INFO("Total chimeric reads: " << chimeric_reads);
-        INFO("Chimera size distribution (size -> count):");
-        for (const auto& entry : chimera_size_to_count) {
-            INFO(entry.first << " -> " << entry.second);
-        }
-
-        return result;
     }
 }
 
