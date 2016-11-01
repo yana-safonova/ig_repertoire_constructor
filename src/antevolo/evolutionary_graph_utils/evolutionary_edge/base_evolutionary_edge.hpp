@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <annotation_utils/annotated_clone.hpp>
 namespace  antevolo {
 
@@ -79,6 +78,8 @@ namespace  antevolo {
         virtual bool IsDirected() const { return edge_type == EvolutionaryEdgeType::DirectedEdgeType; }
 
         virtual bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; }
+
+        virtual bool IsIntersected() const { return edge_type == EvolutionaryEdgeType::IntersectedEdgeType; }
 
         virtual std::string TypeString() const { return "unknown"; }
 

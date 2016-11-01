@@ -1,7 +1,7 @@
 #include <verify.hpp>
 
 #include "model_utils/shm_model.hpp"
-#include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
+#include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
@@ -22,7 +22,7 @@ namespace antevolo {
         //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
         if(edge->IsDirected()) {
             if (!Contains(clone_num)) {
-                AddEdge(clone_num, edge);
+                ReplaceEdge(clone_num, edge);
                 return;
             }
             const EvolutionaryEdgePtr& parent_edge =  edges_[clone_num];
@@ -44,8 +44,13 @@ namespace antevolo {
     void EvolutionaryTree::AddUndirected(size_t clone_num, EvolutionaryEdgePtr edge) {
         VERIFY(edge->IsUndirected());
         if (edge->IsUndirected()) {
-            AddEdge(clone_num, edge);
+            ReplaceEdge(clone_num, edge);
         }
+    }
+
+    void EvolutionaryTree::ReplaceEdge(size_t clone_num, EvolutionaryEdgePtr edge) {
+        VERIFY(edge->DstNum() == clone_num);
+        edges_[clone_num] = edge;
     }
 
     /*

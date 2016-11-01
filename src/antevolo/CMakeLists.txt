@@ -45,9 +45,9 @@ add_executable(antevolo
 #        cdr_launch.cpp
 #        ../fast_ig_tools/ig_trie_compressor.cpp
         clone_set_decomposers/vj_clone_set_decomposer.cpp
-        clonally_related_candidates_calculators/clonally_related_candidates.cpp
-        clonally_related_candidates_calculators/vj_class_processor.cpp
-        clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.cpp
+        vj_class_processors/clonally_related_candidates.cpp
+        vj_class_processors/vj_class_processor.cpp
+        vj_class_processors/edmonds_tarjan_DMST_calculator.cpp
         model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
         #evolutionary_graph_utils/evolutionary_graph.cpp
@@ -66,7 +66,7 @@ add_executable(antevolo
         main.cpp
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
-        cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp)
+        cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp evolutionary_graph_utils/intersection_parent_constructor.cpp evolutionary_graph_utils/intersection_parent_constructor.hpp clone_set_with_fakes.hpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

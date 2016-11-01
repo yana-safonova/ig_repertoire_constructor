@@ -6,10 +6,9 @@
 #include "model_utils/shm_model.hpp"
 #include "evolutionary_graph_utils/evolutionary_edge/base_evolutionary_edge.hpp"
 #include "evolutionary_edge_constructor.hpp"
-#include <annotation_utils/annotated_clone_set.hpp>
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
-
     class EvolutionaryTree {
         boost::unordered_map<size_t, EvolutionaryEdgePtr> edges_; // key is a src clone
         std::set<size_t> vertices_;
@@ -23,12 +22,17 @@ namespace antevolo {
         //std::string tree_output_fname_;
         //std::string vertices_output_fname_;
 
+    public:
+
+        void ReplaceEdge(size_t clone_num, EvolutionaryEdgePtr edge);
+
         void AddEdge(size_t dst_id, EvolutionaryEdgePtr edge);
 
-    public:
         void AddDirected(size_t clone_num, EvolutionaryEdgePtr edge);
 
         void AddUndirected(size_t clone_num, EvolutionaryEdgePtr edge);
+
+
 
         bool Contains(size_t clone_num) const {
             return (edges_.find(clone_num) != edges_.end());

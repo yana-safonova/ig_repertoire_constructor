@@ -4,14 +4,12 @@
 namespace antevolo {
 
     Base_CDR3_HG_CC_Processor::Base_CDR3_HG_CC_Processor(
-                                      const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                                      annotation_utils::CDRAnnotatedCloneSet &fake_clone_set,
+                                      CloneSetWithFakes &clone_set,
                                       const AntEvoloConfig::AlgorithmParams &config,
                                       GraphComponentMap& graph_component,
                                       const UniqueCDR3IndexMap& unique_cdr3s_map,
                                       const std::vector<std::string>& unique_cdr3s)
             : clone_set_(clone_set),
-              fake_clone_set_(fake_clone_set),
               config_(config),
               graph_component_(graph_component),
               unique_cdr3s_map_(unique_cdr3s_map),

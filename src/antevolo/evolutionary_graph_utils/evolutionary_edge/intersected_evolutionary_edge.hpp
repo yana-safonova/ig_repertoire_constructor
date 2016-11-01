@@ -36,11 +36,11 @@ namespace  antevolo {
             return cdr3_distance+num_individual_shms_;
         }
 
-        std::string TypeString() const { return "intersected"; }
+        std::string TypeString() const override { return "intersected"; }
 
-        size_t NumAddedShms() const { return num_individual_shms_; }
+        size_t NumAddedShms() const override { return num_individual_shms_; }
 
-        size_t NumSharedShms() const { return num_intersected_shms_; }
+        size_t NumSharedShms() const override { return num_intersected_shms_; }
 
     };
 

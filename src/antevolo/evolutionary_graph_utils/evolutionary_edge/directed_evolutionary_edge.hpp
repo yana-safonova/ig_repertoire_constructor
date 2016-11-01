@@ -34,15 +34,15 @@ namespace  antevolo {
             num_added_shms = num_added_v_shms + num_added_j_shms;
             num_intersected_shms = num_intersected_v_shms + num_intersected_j_shms;
         }
-        size_t Length() const {
+        size_t Length() const override {
             return num_added_shms+cdr3_distance;
         }
 
-        std::string TypeString() const { return "directed"; }
+        std::string TypeString() const override { return "directed"; }
 
-        size_t NumAddedShms() const { return num_added_shms; }
+        size_t NumAddedShms() const override { return num_added_shms; }
 
-        size_t NumSharedShms() const { return num_intersected_shms; }
+        size_t NumSharedShms() const override { return num_intersected_shms; }
 
     };
 

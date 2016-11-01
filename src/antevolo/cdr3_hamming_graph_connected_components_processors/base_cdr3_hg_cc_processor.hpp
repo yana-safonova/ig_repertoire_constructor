@@ -5,6 +5,7 @@
 #include <evolutionary_graph_utils/evolutionary_tree.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 #include <boost/unordered_set.hpp>
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
 
@@ -16,8 +17,7 @@ namespace antevolo {
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
     protected:
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
-        annotation_utils::CDRAnnotatedCloneSet &fake_clone_set_;
+        CloneSetWithFakes& clone_set_;
         const AntEvoloConfig::AlgorithmParams &config_;
         GraphComponentMap& graph_component_;
         const UniqueCDR3IndexMap& unique_cdr3s_map_;
@@ -35,14 +35,15 @@ namespace antevolo {
         virtual void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
                                                 size_t component_id,
                                                 boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
-        virtual void SetDirections(boost::unordered_set<size_t> vertices_nums,
+        virtual void SetDirections(const boost::unordered_set<size_t>& vertices_nums,
                                    EvolutionaryTree& tree,
                                    boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
-        virtual void ReconstructMissingVertices(EvolutionaryTree& tree) = 0;
+        virtual void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
+                                                        EvolutionaryTree &tree, SparseGraphPtr hg_component,
+                                                        size_t component_id) = 0;
     public:
 
-        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                                  annotation_utils::CDRAnnotatedCloneSet &fake_clone_set,
+        Base_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   GraphComponentMap& graph_component,
                                   const UniqueCDR3IndexMap& unique_cdr3s_map,

@@ -1,5 +1,6 @@
-#include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
+#include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 #include "kruskal_cdr3_hg_cc_processor.hpp"
+#include "../evolutionary_graph_utils/intersection_parent_constructor.hpp"
 
 namespace antevolo {
     void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentsParentEdges(
@@ -8,11 +9,11 @@ namespace antevolo {
             boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
         auto edge_constructor = GetEdgeConstructor();
         // adding directed edges between identical CDR3s
-        for(size_t i = 0; i < hg_component->N(); i++) {
+        for (size_t i = 0; i < hg_component->N(); i++) {
             size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
             //auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
             auto clones_sharing_cdr3 = unique_cdr3s_map_.find(unique_cdr3s_[old_index])->second;
-            for(size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
+            for (size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++)
                 for(size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
                     size_t src_num = clones_sharing_cdr3[it1];
                     size_t dst_num = clones_sharing_cdr3[it2];
@@ -64,7 +65,7 @@ namespace antevolo {
         }
     }
 
-    void Kruskal_CDR3_HG_CC_Processor::SetDirections(boost::unordered_set<size_t> vertices_nums,
+    void Kruskal_CDR3_HG_CC_Processor::SetDirections(const boost::unordered_set<size_t>& vertices_nums,
                                                       EvolutionaryTree& tree,
                                                       boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) {
         auto edge_constructor = GetEdgeConstructor();
@@ -109,10 +110,113 @@ namespace antevolo {
         }
     }
 
-    void Kruskal_CDR3_HG_CC_Processor::ReconstructMissingVertices(EvolutionaryTree& tree) {
+    void Kruskal_CDR3_HG_CC_Processor::ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
+                                                                  EvolutionaryTree &tree,
+                                                                  SparseGraphPtr hg_component,
+                                                                  size_t component_id) {
         auto edge_constructor = GetEdgeConstructor();
-        // adding directed edges between identical CDR3s
-        std::vector<size_t> roots = tree.GetRoots();
+        boost::unordered_map<size_t, EvolutionaryEdgePtr> roots_nearest_neighbours;
+        // edges between identical CDR3s
+        for (size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            //auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            auto clones_sharing_cdr3 = unique_cdr3s_map_.find(unique_cdr3s_[old_index])->second;
+            for (size_t it1 = 0; it1 < clones_sharing_cdr3.size(); it1++) {
+                size_t root_num = clones_sharing_cdr3[it1];
+                if (tree.Contains(root_num)) {
+                    // if root_num has an incoming edge in tree
+                    continue;
+                }
+                for (size_t it2 = it1 + 1; it2 < clones_sharing_cdr3.size(); it2++) {
+                    size_t neighbour_num = clones_sharing_cdr3[it2];
+                    auto edge = edge_constructor->ConstructEdge(
+                            clone_set_[neighbour_num],
+                            clone_set_[root_num],
+                            neighbour_num,
+                            root_num);
+                    if (!edge->IsIntersected()) {
+                        continue;
+                    }
+                    if (roots_nearest_neighbours.find(root_num) == roots_nearest_neighbours.end() ||
+                        roots_nearest_neighbours[root_num]->Length() > edge->Length()) {
+                        roots_nearest_neighbours[root_num] = edge;
+                    }
+                }
+            }
+        }
+        // edges between similar CDR3s
+        for(size_t i = 0; i < hg_component->N(); i++)
+            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                //auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
+                auto indices_1 = unique_cdr3s_map_.find(unique_cdr3s_[old_index1])->second;
+                //auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
+                auto indices_2 = unique_cdr3s_map_.find(unique_cdr3s_[old_index2])->second;
+                for (auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++) {
+                    size_t root_num = *it1;
+                    if (tree.Contains(root_num)) {
+                        // if root_num has an incoming edge in tree
+                        continue;
+                    }
+                    for (auto it2 = indices_2.begin(); it2 != indices_2.end(); it2++) {
+                        size_t neighbour_num = *it2;
+                        auto edge = edge_constructor->ConstructEdge(
+                                clone_set_[neighbour_num],
+                                clone_set_[root_num],
+                                neighbour_num,
+                                root_num);
+                        if (!edge->IsIntersected()) {
+                            continue;
+                        }
+                        if (roots_nearest_neighbours.find(root_num) == roots_nearest_neighbours.end() ||
+                            roots_nearest_neighbours[root_num]->Length() > edge->Length()) {
+                            roots_nearest_neighbours[root_num] = edge;
+                        }
+                    }
+                }
+            }
+
+        // now in roots_nearest_neighbours for each root vertex the shortest intersected edge is stored
+        for (auto p : roots_nearest_neighbours) {
+            size_t root_num = p.first;
+            auto edge = p.second;
+            while (tree.Contains(edge->SrcNum())) {
+                VERIFY_MSG(edge->IsIntersected(), "ancesrtal lineage reconstructor got a non-intersected edge");
+                const auto& left = edge->SrcClone();
+                const auto& right = edge->DstClone();
+                auto parent_clone = IntersectionParentConstructor::ReconstructParent(left, right);
+                auto old_left_parent_edge = tree.GetParentEdge(edge->SrcNum());
+                auto new_left_parent_edge = edge_constructor->ConstructEdge(parent_clone,
+                                                                            *left,
+                                                                            clone_set_.size(),
+                                                                            edge->SrcNum());
+                if (new_left_parent_edge->Length() > old_left_parent_edge->Length()) {
+                    break;
+                }
+                auto new_right_parent_edge = edge_constructor->ConstructEdge(parent_clone,
+                                                                            *right,
+                                                                            clone_set_.size(),
+                                                                            edge->SrcNum());
+                VERIFY_MSG(new_left_parent_edge->IsDirected() && new_right_parent_edge->IsDirected(),
+                           "error: edge from reconstructed parent is not directed");
+                clone_set_.AddClone(parent_clone);
+                edge = edge_constructor->ConstructEdge(*old_left_parent_edge->SrcClone(),
+                                                       clone_set_[clone_set_.size()],
+                                                       old_left_parent_edge->SrcNum(),
+                                                       clone_set_.size());
+                tree.ReplaceEdge(old_left_parent_edge->DstNum(), new_left_parent_edge);
+                tree.ReplaceEdge(clone_set_.size(), new_right_parent_edge);
+            }
+            size_t current_v = edge->SrcNum();
+            while (tree.Contains(current_v)) {
+                current_v = tree.GetParentEdge(current_v)->SrcNum();
+            }
+            edge = edge_constructor->ConstructEdge(clone_set_[current_v], clo)
+
+
+
+        }
         //todo: implement
     }
 
@@ -145,7 +249,7 @@ namespace antevolo {
 
     void Kruskal_CDR3_HG_CC_Processor::PrepareSubtreeKruskal(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                  size_t root_vertex,
-                                                 const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                 CloneSetWithFakes& clone_set,
                                                  std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor) {
         boost::unordered_set<size_t> vertices_set;
         PrepareSubtreeVertices(vertices_set, root_vertex);
@@ -238,5 +342,12 @@ namespace antevolo {
             */
         }
     }
+
+    void Kruskal_CDR3_HG_CC_Processor::ReconstructAncestralLineage(
+            const std::shared_ptr<EvolutionaryEdgeConstructor>&  edge_constructor,
+            size_t root_num,
+            size_t neighbour_num) {
+        //todo: implement
+    };
 
 }

@@ -9,6 +9,7 @@
 #include <evolutionary_graph_utils/evolutionary_tree_splitter.hpp>
 
 #include "antevolo_processor.hpp"
+
 #include "evolutionary_stats_calculator.hpp"
 #include "antevolo_output_writer.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
@@ -77,15 +78,16 @@ namespace antevolo {
         INFO(annotated_clone_set.size() << " unique prefixes were created");
 
         //end trie_compressor
+        CloneSetWithFakes clone_set_with_fakes(annotated_clone_set);
 
         writer.OutputCDRDetails();
         writer.OutputSHMs();
         INFO("Tree construction starts");
-        auto tree_storage = AntEvoloProcessor(config_, annotated_clone_set).ConstructClonalTrees();
+        auto tree_storage = AntEvoloProcessor(config_, clone_set_with_fakes).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
-        EvolutionaryTreeStorage connected_tree_storage(annotated_clone_set);
+        EvolutionaryTreeStorage connected_tree_storage(clone_set_with_fakes); //todo: change clone_set
         for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             ConnectedTreeSplitter tree_splitter;
             auto connected_trees = tree_splitter.Split(*it);
@@ -94,15 +96,15 @@ namespace antevolo {
         }
         INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
                      " connected trees");
-        EvolutionaryStatsCalculator stats_calculator(annotated_clone_set);
+        EvolutionaryStatsCalculator stats_calculator(clone_set_with_fakes);
         auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
         INFO(annotated_storage.size() << " annotations were computed");
-        AntEvoloOutputWriter output_writer(config_.output_params, annotated_clone_set, annotated_storage);
+        AntEvoloOutputWriter output_writer(config_.output_params, clone_set_with_fakes, annotated_storage);
         output_writer.OutputTreeStats();
 
         for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
-            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it, annotated_clone_set);
+            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it, clone_set_with_fakes);
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
         }
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);

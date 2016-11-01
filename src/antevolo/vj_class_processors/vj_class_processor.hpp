@@ -8,7 +8,6 @@
 namespace antevolo {
     class VJClassProcessor : public BaseCandidateCalculator {
 
-        annotation_utils::CDRAnnotatedCloneSet& fake_clone_set_;
         const AntEvoloConfig::AlgorithmParams &config_;
         const AntEvoloConfig::OutputParams &output_params_;
         size_t num_mismatches_;
@@ -29,13 +28,11 @@ namespace antevolo {
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
 
     public:
-        VJClassProcessor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                         annotation_utils::CDRAnnotatedCloneSet& fake_clone_set,
+        VJClassProcessor(CloneSetWithFakes& clone_set,
                          const AntEvoloConfig::OutputParams &output_params,
                          const AntEvoloConfig::AlgorithmParams &config,
                          ShmModel& model) :
                 BaseCandidateCalculator(clone_set),
-                fake_clone_set_(fake_clone_set),
                 config_(config),
                 output_params_(output_params),
                 num_mismatches_(config.similar_cdr3s_params.num_mismatches),

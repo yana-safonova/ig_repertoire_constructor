@@ -14,24 +14,29 @@ namespace antevolo {
         void PrepareSubtreeKruskal(
                 std::vector<std::pair<size_t, size_t>>& edge_vector,
                 size_t root_vertex,
-                const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                CloneSetWithFakes& clone_set,
                 std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor);
+        void ReconstructAncestralLineage(const std::shared_ptr<EvolutionaryEdgeConstructor>&  edge_constructor,
+                                         size_t root_num,
+                                         size_t neighbour_num);
+
         void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
                                                 size_t component_id,
-                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        void SetDirections(boost::unordered_set<size_t> vertices_nums,
+                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) override;
+        void SetDirections(const boost::unordered_set<size_t>& vertices_nums,
                            EvolutionaryTree& tree,
-                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
+                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) override;
 
-        void ReconstructMissingVertices(EvolutionaryTree& tree);
+        void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
+                                                EvolutionaryTree &tree, SparseGraphPtr hg_component,
+                                                size_t component_id) override;
     public:
-        Kruskal_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakes &clone_set,
                                      const AntEvoloConfig::AlgorithmParams &config,
                                      GraphComponentMap& graph_component,
                                      const UniqueCDR3IndexMap& unique_cdr3s_map,
                                      const std::vector<std::string>& unique_cdr3s)
                 : Base_CDR3_HG_CC_Processor(clone_set,
-                                            fake_clone_set_,
                                             config,
                                             graph_component,
                                             unique_cdr3s_map,

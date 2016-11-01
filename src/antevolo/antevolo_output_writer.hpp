@@ -7,12 +7,12 @@
 namespace antevolo {
     class AntEvoloOutputWriter {
         const AntEvoloConfig::OutputParams &output_params_;
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const AnnotatedTreeStorage &annotated_storage_;
 
     public:
         AntEvoloOutputWriter(const AntEvoloConfig::OutputParams &output_params,
-                             const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+                             const CloneSetWithFakes &clone_set,
                              const AnnotatedTreeStorage &annotated_storage) :
                 output_params_(output_params),
                 clone_set_(clone_set),
@@ -25,7 +25,7 @@ namespace antevolo {
         void WriteTreeInFile(std::string output_dir, const EvolutionaryTree& tree) const;
 
         void WriteTreeVerticesInFile(std::string output_dir, const EvolutionaryTree& tree,
-                                                   const annotation_utils::CDRAnnotatedCloneSet& clone_set) const;
+                                     const CloneSetWithFakes& clone_set) const;
 
 
     private:
