@@ -19,6 +19,7 @@ namespace {
         bool save_clusters;
         size_t num_threads;
         size_t clustering_threshold;
+        bool output_intermediate;
     };
 
     bool read_args(int argc, const char* const* argv, Params& params) {
@@ -35,6 +36,7 @@ namespace {
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(20), "threshold distance to unite clusters")
+                ("debug-stages,b", po::value<bool >(&params.output_intermediate)->default_value(false), "output repertoire after each step")
                 ;
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(cmdl_options).run(), vm);
@@ -134,6 +136,9 @@ int main(int argc, const char* const* argv) {
     }
     INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
+    clusterer.write_clusters_and_correspondence(params.output_dir, "_1_hamming", params.save_clusters, params.output_intermediate);
+
+
 //    clusterer::report_non_major_umi_groups(umi_to_clusters_hamm_inside_umi, params.output_dir + "/non_major.csv");
 
 //    std::map<size_t, size_t> umis_of_size;
@@ -157,15 +162,24 @@ int main(int argc, const char* const* argv) {
 //    size_t hamm_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_hamm_inside_umi, umi_to_clusters_hamm_adj_umi);
 //    INFO(hamm_corrected_reads << " reads have UMI corrected for hamming dist.");
 
+    clusterer.write_clusters_and_correspondence(params.output_dir, "_2_hamming_ngh", params.save_clusters, params.output_intermediate);
+
+
     const clusterer::ReadDist& edit_dist = clusterer::ClusteringMode::bounded_edit_dist(params.clustering_threshold, params.clustering_threshold);
     const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(edit_dist, params.clustering_threshold);
     INFO("Clustering reads by edit distance within single UMIs with threshold " << params.clustering_threshold);
     clusterer.cluster(edit_dist_checker, compressed_umi_ptrs, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
 
+    clusterer.write_clusters_and_correspondence(params.output_dir, "_3_edit", params.save_clusters, params.output_intermediate);
+
+
     INFO("Uniting read clusters for adjacent UMIs");
     clusterer.cluster(edit_dist_checker, compressed_umi_ptrs, clusterer::GraphUmiPairsIterable(input.umi_graph));
     INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
+
+    clusterer.write_clusters_and_correspondence(params.output_dir, "_4_edit_ngh", params.save_clusters, params.output_intermediate);
+
 
     clusterer.report_length_differences(params.output_dir);
 
@@ -176,6 +190,8 @@ int main(int argc, const char* const* argv) {
                                                  params.output_dir + "/chimeras.txt",
                                                  params.output_dir + "/umi_chimeras.txt",
                                                  params.num_threads);
+
+        clusterer.write_clusters_and_correspondence(params.output_dir, "_5_chimeras", params.save_clusters, params.output_intermediate);
     }
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
@@ -195,7 +211,11 @@ int main(int argc, const char* const* argv) {
 //    INFO(umi_to_clusters_global.toSize() << " clusters found");
 
     INFO("Saving intermediate repertoire to output directory " << params.output_dir);
-    clusterer::write_clusters_and_correspondence<Read>(clusterer.getCurrentUmiToCluster(), reads, params.output_dir, params.save_clusters);
+    if (params.output_intermediate) {
+        clusterer.write_clusters_and_correspondence(params.output_dir, "_6_unite_equal", params.save_clusters, params.output_intermediate);
+    } else {
+        clusterer.write_clusters_and_correspondence(params.output_dir, "", params.save_clusters, true);
+    }
     INFO("Saving finished");
 
     return 0;
