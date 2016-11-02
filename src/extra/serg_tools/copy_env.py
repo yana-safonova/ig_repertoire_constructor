@@ -14,8 +14,10 @@ def make_dir_if_not_there(dest):
 
 def main():
     dest = sys.argv[1]
-    shutil.rmtree(dest, ignore_errors = True)
-    os.makedirs(dest)
+    clean = int(sys.argv[2]) > 0 if len(sys.argv) > 2 else True
+    if clean:
+        shutil.rmtree(dest, ignore_errors = True)
+    make_dir_if_not_there(dest)
     current_dir = os.path.dirname(os.path.realpath(__file__))
     igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
     for root, dirs, files in os.walk(igrec_dir):
