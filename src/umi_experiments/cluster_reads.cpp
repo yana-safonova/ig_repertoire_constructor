@@ -36,7 +36,7 @@ namespace {
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(20), "threshold distance to unite clusters")
-                ("debug-stages,b", po::value<bool >(&params.output_intermediate)->default_value(false), "output repertoire after each step")
+                ("debug-stages,b", po::value<bool>(&params.output_intermediate)->default_value(false), "output repertoire after each step")
                 ;
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(cmdl_options).run(), vm);

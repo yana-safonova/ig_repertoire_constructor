@@ -540,8 +540,11 @@ namespace clusterer {
 
         namespace fs = boost::filesystem;
 
-        auto abs_base_output_dir = fs::absolute(fs::path(base_output_dir));
-        auto output_dir = abs_base_output_dir.parent_path() / (abs_base_output_dir.filename().string() + postfix);
+        auto abs_base_output_dir = fs::absolute(fs::path(base_output_dir)).normalize();
+        while (abs_base_output_dir.filename() == ".") {
+            abs_base_output_dir = abs_base_output_dir.parent_path();
+        }
+        const auto output_dir = abs_base_output_dir.parent_path() / (abs_base_output_dir.filename().string() + postfix);
 
         std::vector<seqan::CharString> repertoire_ids;
         std::vector<seqan::Dna5String> repertoire_reads;

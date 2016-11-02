@@ -96,6 +96,10 @@ def ParseCommandLineParams(log):
                                dest="clustering_threshold",
                                help="Threshold distance to unite clusters")
     # TODO: hide parameter
+    optional_args.add_argument("--debug-stages",
+                               dest="output_intermediate",
+                               action="store_true",
+                               help="Output repertoire after each step")
     optional_args.add_argument("--umi-cleavage-length",
                                type=int,
                                default=0,
@@ -193,6 +197,7 @@ class _StagePrepare:
                 line = line.replace("%MIN_FILLIN", str(params.min_fillin))
                 line = line.replace("%UMI_CLEAVAGE_LENGTH", str(params.umi_cleavage_length))
                 line = line.replace("%CLUSTERING_THRESHOLD", str(params.clustering_threshold))
+                line = line.replace("%DEBUG_STAGES", str(params.output_intermediate))
                 if '%' in line:
                     log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
                     exit(1)

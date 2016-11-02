@@ -29,5 +29,7 @@ def main():
     for dir in ["build", "pipeline_makefiles", "configs", "data"]:
         shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir))
 
+    os.system("git -C %s log | head > %s/GIT_REVISION" % (igrec_dir, dest))
+
 if __name__ == '__main__':
     main()

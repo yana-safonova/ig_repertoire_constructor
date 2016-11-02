@@ -18,6 +18,7 @@ $(INTER_REP) $(INTER_REP_RCM): $(VJF)/cleaned_reads.fa $(UMIS)/cleaned_reads_umi
 	--save-clusters false \
 	--detect-chimeras %DETECT_CHIMERAS \
 	--clustering-thr %CLUSTERING_THRESHOLD \
+	--debug-stages %DEBUG_STAGES \
 	--threads %THREADS
 
 clean:
