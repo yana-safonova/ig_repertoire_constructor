@@ -106,19 +106,33 @@ std::vector<seqan::Dna5String> generate_barcodes(size_t count, size_t barcode_le
     return barcodes;
 }
 
-void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, double pcr_error_prob,
-             Options::PcrOptions options, std::minstd_rand0& random_engine, std::vector<size_t>& read_to_compressed) {
+void report_average_error_rate(std::vector<size_t> error_count) {
+    size_t total_errors = 0;
+    size_t interesting_reads = 0;
+    for (size_t errors : error_count) {
+        if (errors < std::numeric_limits<size_t>::max()) {
+            total_errors += errors;
+            interesting_reads ++;
+        }
+    }
+    INFO("Average amount of errors per read is " << ((double) total_errors / (double) interesting_reads) << " (total " << total_errors << " in " << interesting_reads << " of " << error_count.size() << " reads)");
+}
+
+void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, std::vector<size_t>& error_count,
+             double pcr_error_prob, Options::PcrOptions options, std::minstd_rand0& random_engine, std::vector<size_t>& read_to_compressed) {
     size_t size = reads.size();
     for (size_t read_idx = 0; read_idx < size; read_idx ++) {
         if (std::rand() <= static_cast<double>(RAND_MAX) * options.amplification_rate) {
             seqan::Dna5String read = reads[read_idx];
             seqan::Dna5String barcode = barcodes[read_idx];
+            size_t errors = error_count[read_idx];
             for (size_t pos = 0; pos < length(barcode) + length(read); pos ++) {
                 if (std::rand() <= static_cast<double>(RAND_MAX) * pcr_error_prob) {
                     auto current_value = pos < length(barcode) ? barcode[pos] : read[pos - length(barcode)];
                     int new_value_candidate = std::rand() % 3;
                     int new_value = new_value_candidate + (new_value_candidate >= current_value ? 1 : 0);
                     pos < length(barcode) ? barcode[pos] : read[pos - length(barcode)] = new_value;
+                    if (pos >= length(barcode)) errors ++;
                 }
             }
             barcodes.push_back(barcode);
@@ -127,6 +141,7 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
                                      (seqan_string_to_string(ids[read_idx]).find("chimera") == std::string::npos ? "" : "_chimera") +
                                      "_mutated_from_" +
                                      std::to_string(read_idx));
+            error_count.push_back(errors);
             read_to_compressed.push_back(read_to_compressed[read_idx]);
         }
     }
@@ -142,18 +157,24 @@ void amplify(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5Strin
         std::string right = seqan_string_to_string(reads[right_idx]);
         right = right.substr(right.length() / 2);
         reads.push_back(seqan::Dna5String(left + right));
+        error_count.push_back(std::numeric_limits<size_t>::max());
         read_to_compressed.push_back(std::numeric_limits<size_t>::max());
         ids.emplace_back(std::to_string(reads.size()) + "_chimera_from_" + std::to_string(left_idx) + "_" + std::to_string(right_idx));
     }
-    VERIFY(reads.size() == barcodes.size() && reads.size() == ids.size() && reads.size() == read_to_compressed.size());
+    VERIFY(reads.size() == barcodes.size() && reads.size() == ids.size() && reads.size() == read_to_compressed.size() && reads.size() == error_count.size());
+
+//    report_average_error_rate(error_count);
 }
 
 void simulate_pcr(std::vector<seqan::Dna5String>& reads, std::vector<seqan::Dna5String>& barcodes, std::vector<seqan::CharString>& ids, Options::PcrOptions options,
                   std::minstd_rand0& random_engine, std::vector<size_t>& read_to_compressed) {
+    std::vector<size_t> error_count(reads.size(), 0);
     for (size_t i = 0; i < options.cycles_count; i ++) {
         double pcr_error_prob = options.error_prob_first + (options.error_prob_last - options.error_prob_first) * static_cast<double>(i) / static_cast<double>(options.cycles_count - 1);
-        amplify(reads, barcodes, ids, pcr_error_prob, options, random_engine, read_to_compressed);
+        amplify(reads, barcodes, ids, error_count, pcr_error_prob, options, random_engine, read_to_compressed);
     }
+
+    report_average_error_rate(error_count);
 }
 
 void write_repertoire(const std::vector<seqan::Dna5String>& reads, const std::vector<seqan::Dna5String>& barcodes, const std::vector<seqan::CharString>& ids, std::vector<size_t> perm, std::string file_name) {
