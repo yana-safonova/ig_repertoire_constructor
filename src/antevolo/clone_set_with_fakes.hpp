@@ -15,12 +15,8 @@ namespace antevolo {
                 ++first_fake_;
             }
         }
-        bool IsFake(size_t num) {
+        bool IsFake(size_t num) const {
             return num >= first_fake_;
-        }
-
-        void PopBack() {
-            annotated_clones_[]
         }
     };
 }

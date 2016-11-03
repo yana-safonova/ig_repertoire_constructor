@@ -177,10 +177,19 @@ namespace antevolo {
                 }
             }
 
-        // now in roots_nearest_neighbours for each root vertex the shortest intersected edge is stored
+        std::vector<size_t> roots;
         for (auto p : roots_nearest_neighbours) {
-            size_t root_num = p.first;
-            auto edge = p.second;
+            roots.push_back(p.first);
+        }
+        std::sort(roots.begin(), roots.end());
+
+        // now in roots_nearest_neighbours for each root vertex the shortest intersected edge is stored
+        for (size_t i = 0; i < roots.size(); ++i) {
+            size_t root_num = roots[i];
+            if (roots_nearest_neighbours.find(root_num) == roots_nearest_neighbours.end()) {
+                ...
+            }
+            auto edge = roots_nearest_neighbours[root_num];
             while (tree.Contains(edge->SrcNum())) {
                 VERIFY_MSG(edge->IsIntersected(), "ancesrtal lineage reconstructor got a non-intersected edge");
                 const auto& left = edge->SrcClone();
