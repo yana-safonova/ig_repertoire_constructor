@@ -33,32 +33,35 @@ namespace antevolo {
                 }
         }
         // adding directed edges between similar CDR3s
-        for(size_t i = 0; i < hg_component->N(); i++)
-            for(size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
-                size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
-                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+        for(size_t i = 0; i < hg_component->N(); i++) {
+            size_t old_index1 = graph_component_.GetOldVertexByNewVertex(component_id, i);
+            //for (size_t j = hg_component->RowIndex()[i]; j < hg_component->RowIndex()[i + 1]; j++) {
+            for (auto it = hg_component->VertexEdges(i).begin(); it != hg_component->VertexEdges(i).end(); it++) {
+                //size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, hg_component->Col()[j]);
+                size_t old_index2 = graph_component_.GetOldVertexByNewVertex(component_id, *it);
                 //auto indices_1 = unique_cdr3s_map_[unique_cdr3s_[old_index1]];
                 auto indices_1 = unique_cdr3s_map_.find(unique_cdr3s_[old_index1])->second;
                 //auto indices_2 = unique_cdr3s_map_[unique_cdr3s_[old_index2]];
                 auto indices_2 = unique_cdr3s_map_.find(unique_cdr3s_[old_index2])->second;
-                for(auto it1 = indices_1.begin(); it1!= indices_1.end(); it1++)
-                    for(auto it2 = indices_2.begin(); it2!= indices_2.end(); it2++) {
+                for (auto it1 = indices_1.begin(); it1 != indices_1.end(); it1++)
+                    for (auto it2 = indices_2.begin(); it2 != indices_2.end(); it2++) {
                         auto edge = edge_constructor->ConstructEdge(
                                 clone_set_[*it1],
                                 clone_set_[*it2],
                                 *it1,
                                 *it2);
                         SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it2),
-                                                              edge);
-                        auto edge_r = edge_constructor->ConstructEdge(
-                                clone_set_[*it2],
-                                clone_set_[*it1],
-                                *it2,
-                                *it1);
-                        SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it1),
-                                                              edge_r);
+                                                         edge);
+//                        auto edge_r = edge_constructor->ConstructEdge(
+//                                clone_set_[*it2],
+//                                clone_set_[*it1],
+//                                *it2,
+//                                *it1);
+//                        SetUndirectedComponentParentEdge(ds_on_undirected_edges.find_set(*it1),
+//                                                              edge_r);
                     }
             }
+        }
     }
 
     void Kruskal_CDR3_HG_CC_Processor::SetDirections(boost::unordered_set<size_t> vertices_nums,
