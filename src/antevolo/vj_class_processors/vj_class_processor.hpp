@@ -13,9 +13,11 @@ namespace antevolo {
         size_t num_mismatches_;
 
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
+        typedef std::map<std::string, size_t> CDR3ToIndexMap;
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
         UniqueCDR3IndexMap unique_cdr3s_map_;
+        CDR3ToIndexMap cdr3_to_index_map_;
         std::vector<std::string> unique_cdr3s_;
 
         SparseGraphPtr sparse_cdr_graph_;

@@ -25,6 +25,8 @@ namespace antevolo {
         }
         for(auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
             unique_cdr3s_.push_back(it->first);
+        for(size_t i = 0; i < unique_cdr3s_.size(); ++i)
+            cdr3_to_index_map_[unique_cdr3s_[i]] = i;
     }
 
     std::string VJClassProcessor::GetFastaFname(core::DecompositionClass decomposition_class) {
@@ -77,6 +79,7 @@ namespace antevolo {
                                                  config_,
                                                  graph_component_,
                                                  unique_cdr3s_map_,
+                                                 cdr3_to_index_map_,
                                                  unique_cdr3s_));
         auto tree = forest_calculator->ConstructForest(hg_component, component_id);
         return tree;

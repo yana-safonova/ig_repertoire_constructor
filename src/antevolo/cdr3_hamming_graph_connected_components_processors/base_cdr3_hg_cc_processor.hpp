@@ -14,6 +14,7 @@ namespace antevolo {
     public:
 
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
+        typedef std::map<std::string, size_t> CDR3ToIndexMap;
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
     protected:
@@ -21,6 +22,7 @@ namespace antevolo {
         const AntEvoloConfig::AlgorithmParams &config_;
         GraphComponentMap& graph_component_;
         const UniqueCDR3IndexMap& unique_cdr3s_map_;
+        const CDR3ToIndexMap& cdr3_to_index_map_;
         const std::vector<std::string>& unique_cdr3s_;
 
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
@@ -47,6 +49,7 @@ namespace antevolo {
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   GraphComponentMap& graph_component,
                                   const UniqueCDR3IndexMap& unique_cdr3s_map,
+                                  const CDR3ToIndexMap& cdr3_to_index_map,
                                   const std::vector<std::string>& unique_cdr3s);
 
         EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
