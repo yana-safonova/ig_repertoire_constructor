@@ -931,6 +931,8 @@ def parse_rcm(filename):
             line = [_.strip() for _ in line.strip().split("\t")]
             if len(line) == 2:
                 id, cluster = line
+                if cluster.strip() == "":
+                    cluster = None
             else:
                 id, cluster = line[0], None
 
@@ -969,23 +971,30 @@ class RcmVsRcm:
 
         self.ids = ids
 
-    @memoize
-    def indices(self):
-        from copy import copy
-
+    @memoize_invalidate
+    def fix_nones(self):
         def fix_nones(v, prefix):
             for i in xrange(len(v)):
                 if v[i] is None:
                     v[i] = prefix + str(i)
 
-        clustering1 = copy(self.clustering1)
-        clustering2 = copy(self.clustering2)
-        fix_nones(clustering1, "__none__clustering1__")
-        fix_nones(clustering2, "__none__clustering2__")
+        fix_nones(self.clustering1, "__none__clustering1__")
+        fix_nones(self.clustering2, "__none__clustering2__")
 
-        indices = clustering_similarity_indices(clustering1, clustering2)
-        indices.constructed_purity = purity(clustering1, clustering2)
-        indices.reference_purity = purity(clustering2, clustering1)
+    @memoize
+    def fixed_nones(self):
+        from copy import deepcopy
+        result = deepcopy(self)
+        result.fix_nones()
+        return result
+
+    @memoize
+    def indices(self):
+        fixed = self.fixed_nones()
+
+        indices = clustering_similarity_indices(fixed.clustering1, fixed.clustering2)
+        indices.constructed_purity = purity(fixed.clustering1, fixed.clustering2)
+        indices.reference_purity = purity(fixed.clustering2, fixed.clustering1)
 
         return indices
 
@@ -1693,7 +1702,7 @@ class Repertoire:
         clusters = defaultdict(Cluster)
 
         for id, cluster in rcm.iteritems():
-            if id in id2read:
+            if id in id2read and cluster is not None:  # TODO fix it considering to issue #99
                 clusters[cluster].append(id2read[id])
                 clusters[cluster].name = cluster
 
@@ -2404,7 +2413,7 @@ def plot_logit(y, X, colors, colormap=False):
 
 
 def splittering(rcm2rcm, rep, args, report):
-    mp = rcm2rcm.votes_dict(constructed=True)
+    mp = rcm2rcm.fixed_nones().votes_dict(constructed=True)
     for cluster in rep.clusters.itervalues():
         assert cluster.name in mp
         votes = mp[cluster.name]
