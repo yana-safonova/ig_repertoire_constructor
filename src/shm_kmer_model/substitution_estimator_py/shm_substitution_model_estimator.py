@@ -41,30 +41,22 @@ class SHMSubstitutionModelEstimator:
             alignment_len = len(alignment.read)
             for position in xrange(self.config.k_mer_len // 2,
                                    alignment_len - self.config.k_mer_len // 2):
-                k_mer = alignment.germline_seq[position - self.config.k_mer_len // 2:
-                                                   position + self.config.k_mer_len // 2 + 1]
-                if 'N' in k_mer or 'N' == alignment.read[position]:
+                k_mer_germline = alignment.germline_seq[position - self.config.k_mer_len // 2:
+                                                        position + self.config.k_mer_len // 2 + 1]
+                k_mer_read = alignment.read[position - self.config.k_mer_len // 2:
+                                            position + self.config.k_mer_len // 2 + 1]
+                if 'N' in k_mer_germline or 'N' == alignment.read[position]:
                     continue
-                if alignment.read[position] == alignment.germline_seq[position] or \
-                        position in mismatch_positions:
-                    #self.substitution_dataframe.ix[k_mer, alignment.read[position]] += 1
-                    substitution_map[k_mer][alignment.read[position]] += 1
+                if k_mer_germline == k_mer_read or position in mismatch_positions:
+                    substitution_map[k_mer_germline][alignment.read[position]] += 1
 
-
-            # for mismatch_position in mismatch_positions:
-            #     k_mer = alignment.germline_seq[mismatch_position - self.config.k_mer_len // 2:
-            #     mismatch_position + self.config.k_mer_len // 2 + 1]
-            #     k_mer = str(k_mer)
-            #     if 'N' not in k_mer and 'N' != alignment.read[mismatch_position]:
-            #         self.substitution_dataframe.ix[k_mer, alignment.read[mismatch_position]] += 1
-        
         for key in substitution_map:
             for key2 in substitution_map[key]:
                 self.substitution_dataframe.ix[key, key2] = substitution_map[key][key2]
         return self.substitution_dataframe
 
     def export_substitutions(self):
-        self.substitution_dataframe.to_csv(self.config.IO.output_filename, sep=',')
+        self.substitution_dataframe.to_csv(self.config.IO.output_filename, sep=';')
 
     def __init__(self, config, log):
         self.config = config
