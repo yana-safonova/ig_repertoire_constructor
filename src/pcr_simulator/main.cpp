@@ -78,15 +78,13 @@ void read_repertoire(Options options, std::vector<seqan::CharString>& read_ids, 
                              pow(1.0 + options.pcr_options.amplification_rate + options.pcr_options.chimeras_rate, static_cast<double>(options.pcr_options.cycles_count));
     VERIFY(exp_reads_count <= options.output_estimation_limit);
 
-    if (!options.compress_repertoire.empty()) {
-        size_t current = 0;
-        for (size_t i = 0; i < read_ids.size(); i ++) {
-            auto id = seqan_string_to_string(read_ids[i]);
-            if (boost::algorithm::ends_with(id, "_copy_1")) {
-                current ++;
-            }
-            read_to_compressed.push_back(current - 1);
+    size_t current = 0;
+    for (size_t i = 0; i < read_ids.size(); i ++) {
+        auto id = seqan_string_to_string(read_ids[i]);
+        if (boost::algorithm::ends_with(id, "_copy_1")) {
+            current ++;
         }
+        read_to_compressed.push_back(current - 1);
     }
 }
 
