@@ -32,6 +32,7 @@ namespace antevolo {
 
         void AddUndirected(size_t clone_num, EvolutionaryEdgePtr edge);
 
+        void AddAllEdges();
 
 
         bool Contains(size_t clone_num) const {

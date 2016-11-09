@@ -40,6 +40,7 @@ namespace antevolo {
         AddUndirectedForest(hg_component, component_id, ds_on_undirected_edges);
         SetUndirectedComponentsParentEdges(hg_component, component_id, ds_on_undirected_edges);
         SetDirections(vertices_nums, tree, ds_on_undirected_edges);
+        tree.AddAllEdges();
         return tree;
     }
 

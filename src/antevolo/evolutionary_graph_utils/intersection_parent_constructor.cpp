@@ -4,7 +4,16 @@ namespace antevolo {
     static annotation_utils::AnnotatedClone IntersectionParentConstructor::ReconstructParent(
             const std::shared_ptr<annotation_utils::AnnotatedClone>& clone1,
             const std::shared_ptr<annotation_utils::AnnotatedClone>& clone2) {
-        //todo: implement. now it just returns clone1!!
-        return annotation_utils::AnnotatedClone(clone1);
+
+        std::string res_string;
+        seqan::DnaString res_dna5string;
+        core::Read result_read;
+        std::vector<annotation_utils::SHM> res_v_shms_vector_;
+        
+
+
+
+        //todo: implement
+
     }
 }

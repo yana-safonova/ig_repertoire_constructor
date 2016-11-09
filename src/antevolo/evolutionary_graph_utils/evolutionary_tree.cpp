@@ -28,7 +28,7 @@ namespace antevolo {
             const EvolutionaryEdgePtr& parent_edge =  edges_[clone_num];
             if (parent_edge->Length() > edge->Length()) { //todo: compare only num added shms ?
                 //if clone_set_[*it2] is root or if the new edge is shorter
-                AddEdge(clone_num, edge);
+                ReplaceEdge(clone_num, edge);
                 return;
             }
             /*
@@ -51,6 +51,12 @@ namespace antevolo {
     void EvolutionaryTree::ReplaceEdge(size_t clone_num, EvolutionaryEdgePtr edge) {
         VERIFY(edge->DstNum() == clone_num);
         edges_[clone_num] = edge;
+    }
+
+    void EvolutionaryTree::AddAllEdges() {
+        for (auto p : edges_) {
+            AddEdge(p.first, p.second);
+        }
     }
 
     /*
