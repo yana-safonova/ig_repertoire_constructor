@@ -37,6 +37,12 @@
 // TODO(holtgrew): This could use some cleanup.
 
 #include <ctime>
+#ifndef PLATFORM_WINDOWS
+    #ifndef SEQAN_USE_CLOCKGETTIME
+    /* some systems e.g. darwin have no clock_gettime */
+        #include <sys/time.h>
+    #endif
+#endif
 
 //SEQAN_NO_GENERATED_FORWARDS: no forwards are generated for this file
 
@@ -256,7 +262,6 @@ namespace seqan
         #ifndef SEQAN_USE_CLOCKGETTIME
         /* some systems e.g. darwin have no clock_gettime */
 
-            #include <sys/time.h>
 
             inline _proFloat sysTime() {
                 struct timeval tp;
