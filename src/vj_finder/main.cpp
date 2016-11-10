@@ -69,6 +69,8 @@ int main(int argc, char **argv) {
     perf_counter pc;
     std::string cfg_filename = load_config(argc, argv);
     create_console_logger(cfg_filename);
-    vj_finder::VJFinderLaunch(vj_finder::vjf_cfg::get()).Run();
+    // variable extracted to avoid a possible bug in gcc 4.8.4
+    const auto& cfg = vj_finder::vjf_cfg::get();
+    vj_finder::VJFinderLaunch(cfg).Run();
     return 0;
 }
