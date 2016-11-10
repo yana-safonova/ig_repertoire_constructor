@@ -9,6 +9,7 @@
 
 #include <boost/format.hpp>
 #include <string>
+#include "logger/logger.hpp"
 
 struct perf_counter
 {
