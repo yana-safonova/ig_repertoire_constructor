@@ -163,9 +163,9 @@ void PcrSimulator::write_compressed(const std::string& path) {
     std::vector<seqan::CharString> compressed_ids;
     std::vector<seqan::Dna5String> compressed_reads;
     size_t current = 0;
-    for (size_t i = 0; i < amplified_ids_.size(); i ++) {
+    for (size_t i = 0; i < original_ids_.size(); i ++) {
         read_to_compressed_.push_back(current);
-        auto id = seqan_string_to_string(amplified_ids_[i]);
+        auto id = seqan_string_to_string(original_ids_[i]);
         if (boost::algorithm::ends_with(id, "_copy_1")) {
             current ++;
             compressed_ids.emplace_back((boost::format("cluster___%d___size___%d") % (current - 1) % id_to_count[current - 1]).str());
