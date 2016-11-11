@@ -14,9 +14,9 @@ Options parse_options(int argc, const char* const* argv) {
     cmdline_options.add_options()
             ("input-file,i", po::value<std::string>(&options.repertoire_file_path)->required(),
              "name of the input repertoire file (FASTA|FASTQ)")
-            ("output-file,o", po::value<std::string>(&options.output_dir_path)->required(),
+            ("output-dir,o", po::value<std::string>(&options.output_dir_path)->required(),
              "path to the output directory")
-            ("umi-length,l", po::value<size_t>(&simulationOptions.barcode_length)->default_value(14),
+            ("umi-length,l", po::value<size_t>(&simulationOptions.barcode_length)->default_value(15),
              "length of generated barcodes (defaults to 14)")
             ("pcr-cycles,c", po::value<size_t>(&simulationOptions.cycles_count)->default_value(25),
              "number of PCR cycles to simulate (defaults to 25)")
