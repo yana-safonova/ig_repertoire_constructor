@@ -89,7 +89,7 @@ inline void string_to_khashes(string &s, size_t k, vector<size_t> &ans) {
 
 template<typename T>
 string seqan_string_to_string(const T &s) {
-    char buffer[length(s)];
+    char buffer[length(s) + 1];
     strcpy(buffer, seqan::String<char, seqan::CStyle>(s));
     return string((char *) buffer);
 }
