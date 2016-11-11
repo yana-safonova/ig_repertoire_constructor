@@ -57,11 +57,10 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--pcr-error1 %f" % pcr_error_rate,
                 "--pcr-error2 %f" % pcr_error_rate,
                 # "--pcr-rate 0.001",
-                "--compressed-path %s/final_repertoire_comp.fasta" % data_path
                 ]),
         ShStep(["cd %s &&" % igrec,
                 "%s/vj_finder" % igrec_bin,
-                "--input-file %s/final_repertoire_comp.fasta" % data_path,
+                "--input-file %s/amplified/repertoire_comp.fasta" % data_path,
                 "--output-dir %s/vjf" % data_path,
                 "--loci IG",
                 "--threads %d" % threads
@@ -295,10 +294,11 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
 def main():
     skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
     exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
-    for supernode_threshold in [100000, 10, 5]:
-        for barcode_length in [15, 9, 12]:
-            # for pcr_error_rate in [0.002, 0.0006, 0.0002]:
-            for pcr_error_rate in [0.002, 0.0002]:
+    # for supernode_threshold in [100000, 10, 5]:
+    for supernode_threshold in [100000]:
+        # for barcode_length in [15, 9, 12]:
+        for barcode_length in [15]:
+            for pcr_error_rate in [0.006, 0.0006, 0.0025]:
                 if skip > 0:
                     skip -= 1
                     continue
