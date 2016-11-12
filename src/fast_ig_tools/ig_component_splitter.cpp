@@ -37,9 +37,11 @@ std::unordered_map<std::string, std::string> read_rcm_file(const std::string &fi
     while (std::getline(rcm, line)) {
         std::vector<std::string> strs;
         boost::split(strs, line, boost::is_any_of("\t"));
-        boost::trim(strs[0]);
-        boost::trim(strs[1]);
-        result[strs[0]] = strs[1];
+        if (strs.size() == 2) {
+            boost::trim(strs[0]);
+            boost::trim(strs[1]);
+            result[strs[0]] = strs[1];
+        }
     }
 
     return result;
