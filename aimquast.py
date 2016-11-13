@@ -129,6 +129,16 @@ def parse_command_line(description="aimQUAST"):
                         help="enable reference-free measures (default)")
     parser.set_defaults(no_reference_free=True)
 
+    parser.add_argument("--no-experimental",
+                        dest="experimental",
+                        action="store_false",
+                        help="disable experimental features (default)")
+    parser.add_argument("--experimental",
+                        dest="experimental",
+                        action="store_true",
+                        help="enable experimental features")
+    parser.set_defaults(experimental=False)
+
     args = parser.parse_args()
 
     args.reference_trash_cutoff = args.reference_trust_cutoff = args.reference_size_cutoff
@@ -317,7 +327,7 @@ def main(args):
             rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large", format=args.figure_format, constructed=False)
             rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
 
-    if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire:
+    if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire and args.experimental:
         splittering(rcm2rcm, rep, args, report)
 
 
