@@ -66,7 +66,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
     ]
 
     barigrec_steps = [
-        ShStep(["python %s/igrec_umi.py" % igrec_dir,
+        ShStep(["python -u %s/igrec_umi.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "--output %s/igrec_umi" % data_path,
                 "--loci IG",
@@ -77,13 +77,13 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--detect-chimeras",
                 "--clustering-thr 20"
                 ]),
-        ShStep(["python %s/py/drop_ns.py" % igrec_dir,
+        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
                 "-i %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
                 "-o %s/igrec_umi/final_repertoire.fa" % data_path,
                 "-r %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
                 "-R %s/igrec_umi/final_repertoire.rcm" % data_path,
                 ]),
-        ShStep(["python %s/aimquast.py" % igrec_dir,
+        ShStep(["python -u %s/aimquast.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/igrec_umi/final_repertoire.fa" % data_path,
                 "-C %s/igrec_umi/final_repertoire.rcm" % data_path,
@@ -93,7 +93,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--rcm-based"
                 ])
 
-        # ShStep(["python %s/aimquast.py" % igrec_dir,
+        # ShStep(["python -u %s/aimquast.py" % igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
         #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
@@ -105,20 +105,20 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
     ]
 
     igrec_steps = [
-        ShStep(["python %s/igrec.py" % igrec_dir,
+        ShStep(["python -u %s/igrec.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-o %s/igrec" % data_path,
                 "--threads %d" % threads,
                 "--loci IGH",
                 "--debug"
                 ]),
-        ShStep(["python %s/py/drop_ns.py" % igrec_dir,
+        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
                 "-i %s/igrec/final_repertoire.fa" % data_path,
                 "-o %s/igrec/final_repertoire_non.fa" % data_path,
                 "-r %s/igrec/final_repertoire.rcm" % data_path,
                 "-R %s/igrec/final_repertoire_non.rcm" % data_path,
                 ]),
-        ShStep(["python %s/aimquast.py" % igrec_dir,
+        ShStep(["python -u %s/aimquast.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/igrec/final_repertoire_non.fa" % data_path,
                 "-C %s/igrec/final_repertoire_non.rcm" % data_path,
@@ -128,7 +128,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--rcm-based"
                 ]),
 
-        # ShStep(["python %s/aimquast.py" %igrec_dir,
+        # ShStep(["python -u %s/aimquast.py" %igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/igrec/final_repertoire.fa" % data_path,
         #  "-C %s/igrec/final_repertoire.rcm" % data_path,
@@ -141,7 +141,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
 
     presto_steps = [
         ShStep(["mkdir -p %s/presto &&" % data_path,
-                "python /Marx/ashlemov/Git/ig_repertoire_constructor/py/convertAGE2PRESTO.py",
+                "python -u /Marx/ashlemov/Git/ig_repertoire_constructor/py/convertAGE2PRESTO.py",
                 "%s/amplified/amplified.fasta" % data_path,
                 "%s/presto/amplified_for_presto.fasta" % data_path
                 ]),
@@ -149,15 +149,15 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "../../run_simple.sh",
                 "amplified_for_presto.fasta"
                 ]),
-        ShStep(["python %s/py/convert_presto_to_quast.py" % igrec_dir,
+        ShStep(["python -u %s/py/convert_presto_to_quast.py" % igrec_dir,
                 "-r %s/presto/MS12_collapse-unique.fasta" % data_path,
                 "-o %s/presto/presto.fasta" % data_path
                 ]),
-        ShStep(["python %s/py/drop_ns.py" % igrec_dir,
+        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
                 "-i %s/presto/presto.fasta" % data_path,
                 "-o %s/presto/presto_non.fasta" % data_path
                 ]),
-        ShStep(["python %s/aimquast.py" % igrec_dir,
+        ShStep(["python -u %s/aimquast.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/presto/presto_non.fasta" % data_path,
                 "-r %s/vjf/cleaned_reads.fa" % data_path,
@@ -166,7 +166,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "--rcm-based"
                 ]),
 
-        # ShStep(["python %s/aimquast.py" %igrec_dir,
+        # ShStep(["python -u %s/aimquast.py" %igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/presto/presto.fasta" % data_path,
         #  "-r %s/vjf/cleaned_reads.fa" % data_path,
@@ -191,7 +191,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                    50,
                    True)
                ),
-        ShStep(["python %s/py/convert_sim_to_migec.py" % igrec_dir,
+        ShStep(["python -u %s/py/convert_sim_to_migec.py" % igrec_dir,
                 "-r %s/vjf_input/cleaned_reads.fastq" % data_path,
                 "-o %s/vjf_input/migec.fastq" % data_path
                 ]),
@@ -231,7 +231,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #         "%s/migec/clones.clns" % data_path,
         #         "%s/migec/clones.txt" % data_path
         #         ]),
-        # ShStep(["python %s/py/convert_mixcr_to_quast.py" % igrec_dir,
+        # ShStep(["python -u %s/py/convert_mixcr_to_quast.py" % igrec_dir,
         #         "-r %s/migec/clones.txt" % data_path,
         #         "-o %s/migec/clones.fasta" % data_path
         #         ]),
@@ -247,7 +247,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "%s/migec/migec.t5.fastq" % data_path,
         #  "> %s/migec/migec.fastq" % data_path
         #  ]),
-        # ShStep(["python %s/py/convert_migec_to_trie.py" % igrec_dir,
+        # ShStep(["python -u %s/py/convert_migec_to_trie.py" % igrec_dir,
         #  "-r %s/migec/migec.fastq" % data_path,
         #  "-o %s/migec/migec.fasta" % data_path
         #  ]),
@@ -257,7 +257,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "--barcode"
         #  ]),
 
-        # ShStep(["python %s/aimquast.py" % igrec_dir,
+        # ShStep(["python -u %s/aimquast.py" % igrec_dir,
         #         "-s %s/amplified/amplified.fasta" % data_path,
         #         "-c %s/migec/clones.fasta" % data_path,
         #         "-r %s/vjf/cleaned_reads.fa" % data_path,
@@ -265,7 +265,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #         "--reference-free",
         #         "--rcm-based"
         #         ]),
-        ShStep(["python %s/aimquast.py" % igrec_dir,
+        ShStep(["python -u %s/aimquast.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/migec/final_repertoire.fa" % data_path,
                 # "-C %s/migec/final_repertoire.rcm" % data_path,
@@ -290,6 +290,8 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
 
 
 def main():
+    print "Starting run_sum ", sys.argv
+
     skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
     exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
     # for supernode_threshold in [100000, 10, 5]:
