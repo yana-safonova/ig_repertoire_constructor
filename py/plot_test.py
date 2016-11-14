@@ -181,19 +181,18 @@ def plot_two_sums(dir,
     save_plot(out, format=format)
 
 
-def tool2id(tool):
-    tool = tool.lower()
-
-    tools = ["igrec", "mixcr", "presto", "migec", "barigrec"]
-    from Levenshtein import distance
-    dists = [distance(tool, t) for t in tools]
-    return min(range(len(dists)), key=lambda i: dists[i])
-
-
 def tool2color(tool, secondary=False):
-    primary_colors = ["cornflowerblue", "seagreen", "orange", "black", "violet"]
-    secondary_colors = ["blue", "green", "red", "black", "pink"]
+    primary_colors = ["cornflowerblue", "seagreen", "orange", "black", "violet", "seagreen"]
+    secondary_colors = ["blue", "green", "gold", "grey", "pink", "green"]
     colors = secondary_colors if secondary else primary_colors
+
+    def tool2id(tool):
+        tool = tool.lower()
+
+        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr"]
+        from Levenshtein import distance
+        dists = [distance(tool, t) for t in tools]
+        return min(range(len(dists)), key=lambda i: dists[i])
 
     return colors[tool2id(tool)]
 
