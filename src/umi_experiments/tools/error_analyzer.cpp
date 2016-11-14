@@ -63,24 +63,24 @@ void ErrorAnalyzer::performAnalysis(std::string& error_pos_dir_path) {
         const fs::path dir_path = boost::filesystem::path(error_pos_dir_path);
         const std::string relative_errors_path = fs::path(dir_path).append("relative.csv").string();
         INFO("Writing relative error positions to " << relative_errors_path);
-        std::ofstream ofs(relative_errors_path);
+        std::ofstream ofs_relative(relative_errors_path);
         for (double p : relative_error_positions) {
-            ofs << p << "\n";
+            ofs_relative << p << "\n";
         }
 
         std::sort(error_positions.begin(), error_positions.end());
         const std::string errors_path = fs::path(dir_path).append("error_positions.csv").string();
         INFO("Writing error positions to " << errors_path);
-        ofs = std::ofstream(errors_path);
+        std::ofstream ofs_absolute(errors_path);
         for (size_t p : error_positions) {
-            ofs << p << "\n";
+            ofs_absolute << p << "\n";
         }
         std::sort(error_positions_reversed.begin(), error_positions_reversed.end());
         const std::string errors_reversed_path = fs::path(dir_path).append("error_positions_reversed.csv").string();
         INFO("Writing reversed error positions to " << errors_reversed_path);
-        ofs = std::ofstream(errors_reversed_path);
+        std::ofstream ofs_absolute_reversed(errors_reversed_path);
         for (size_t p : error_positions_reversed) {
-            ofs << p << "\n";
+            ofs_absolute_reversed << p << "\n";
         }
     }
 
