@@ -182,8 +182,8 @@ def plot_two_sums(dir,
 
 
 def tool2color(tool, secondary=False):
-    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "seagreen"]
-    secondary_colors = ["blue", "green", "gold", "darkgray", "pink", "green"]
+    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black"]
+    secondary_colors = ["blue", "green", "darkorange", "dimgray", "purple", "dimgray"]
     colors = secondary_colors if secondary else primary_colors
 
     def tool2id(tool):
