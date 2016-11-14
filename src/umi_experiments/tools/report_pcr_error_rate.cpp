@@ -11,14 +11,14 @@ void create_console_logger() {
     attach_logger(lg);
 }
 
-void parse_options(int argc, const char* const* argv, std::string& input_file_path, std::string& error_pos_file_path) {
+void parse_options(int argc, const char* const* argv, std::string& input_file_path, std::string& error_pos_dir_path) {
     namespace po = boost::program_options;
     po::options_description cmdline_options("Command line options");
     cmdline_options.add_options()
             ("input-file,i", po::value<std::string>(&input_file_path)->required(),
              "name of the input file with reads (should be cleaned by vj-finder)")
-            ("pos-file,p", po::value<std::string>(&error_pos_file_path), 
-             "if present, all relative error positions will be output to this file");
+            ("pos-file,o", po::value<std::string>(&error_pos_dir_path),
+             "if present, error position info will be output to this directory");
     po::variables_map vm;
     store(po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
     po::notify(vm);
@@ -30,10 +30,10 @@ int main(int argc, const char* const* argv) {
     create_console_logger();
 
     std::string input_file_path;
-    std::string error_pos_file_path;
-    parse_options(argc, argv, input_file_path, error_pos_file_path);
+    std::string error_pos_dir_path;
+    parse_options(argc, argv, input_file_path, error_pos_dir_path);
 
     ErrorAnalyzer error_analyzer;
     error_analyzer.readData(input_file_path);
-    error_analyzer.performAnalysis(error_pos_file_path);
+    error_analyzer.performAnalysis(error_pos_dir_path);
 }

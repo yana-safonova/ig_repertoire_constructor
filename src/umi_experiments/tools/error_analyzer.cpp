@@ -9,7 +9,7 @@ void ErrorAnalyzer::readData(std::string input_file_path) {
     read_seqan_records(input_file_path, ids_, reads_);
 }
 
-void ErrorAnalyzer::performAnalysis(std::string& error_pos_file_path) {
+void ErrorAnalyzer::performAnalysis(std::string& error_pos_dir_path) {
     std::vector<seqan::Dna5String> barcodes;
     extract_barcodes_from_read_ids(ids_, barcodes);
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
@@ -18,7 +18,9 @@ void ErrorAnalyzer::performAnalysis(std::string& error_pos_file_path) {
     size_t total_barcodes = 0;
     size_t total_reads = 0;
     size_t total_errors = 0;
-    std::vector<double> error_positions;
+    std::vector<double> relative_error_positions;
+    std::vector<size_t> error_positions;
+    std::vector<size_t> error_positions_reversed;
 
     for (const auto& entry : umi_to_reads) {
         const auto& read_idx_list = entry.second;
@@ -48,16 +50,36 @@ void ErrorAnalyzer::performAnalysis(std::string& error_pos_file_path) {
             for (size_t i = 0; i < read.length(); i ++) {
                 if (read[i] != super_read[i]) {
                     total_errors ++;
-                    error_positions.push_back((double) i / (double) super_read.length());
+                    relative_error_positions.push_back((double) i / (double) super_read.length());
+                    error_positions.push_back(i);
+                    error_positions_reversed.push_back(super_read.length() - i - 1);
                 }
             }
         }
     }
 
-    if (!error_pos_file_path.empty()) {
-        INFO("Writing error positions to " << error_pos_file_path);
-        std::ofstream ofs(error_pos_file_path);
-        for (double p : error_positions) {
+    if (!error_pos_dir_path.empty()) {
+        namespace fs = boost::filesystem;
+        const fs::path dir_path = boost::filesystem::path(error_pos_dir_path);
+        const std::string relative_errors_path = fs::path(dir_path).append("relative.csv").string();
+        INFO("Writing relative error positions to " << relative_errors_path);
+        std::ofstream ofs(relative_errors_path);
+        for (double p : relative_error_positions) {
+            ofs << p << "\n";
+        }
+
+        std::sort(error_positions.begin(), error_positions.end());
+        const std::string errors_path = fs::path(dir_path).append("error_positions.csv").string();
+        INFO("Writing error positions to " << errors_path);
+        ofs = std::ofstream(errors_path);
+        for (size_t p : error_positions) {
+            ofs << p << "\n";
+        }
+        std::sort(error_positions_reversed.begin(), error_positions_reversed.end());
+        const std::string errors_reversed_path = fs::path(dir_path).append("error_positions_reversed.csv").string();
+        INFO("Writing reversed error positions to " << errors_reversed_path);
+        ofs = std::ofstream(errors_reversed_path);
+        for (size_t p : error_positions_reversed) {
             ofs << p << "\n";
         }
     }
