@@ -6,6 +6,8 @@ import sys
 
 from string import join
 
+from py.plot_umi import plot_sens_prec_umi
+
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
@@ -294,6 +296,7 @@ def main():
 
     skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
     exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
+    base_data_path = os.getcwd()
     # for supernode_threshold in [100000, 10, 5]:
     for supernode_threshold in [100000]:
         # for barcode_length in [15, 9, 12]:
@@ -302,11 +305,14 @@ def main():
                 if skip > 0:
                     skip -= 1
                     continue
-                data_path = "%s/pcr_%f_super_%d_umi_%d" % (os.getcwd(), pcr_error_rate, supernode_threshold, barcode_length)
+                data_path = "%s/pcr_%f_super_%d_umi_%d" % (base_data_path, pcr_error_rate, supernode_threshold, barcode_length)
                 if not os.path.exists(data_path):
                     os.makedirs(data_path)
                 shutil.copyfile("final_repertoire.fasta", "%s/final_repertoire.fasta" % data_path)
                 run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, int(sys.argv[1]), exit_on_error)
+
+    PyStep("Drawing plots",
+           lambda: plot_sens_prec_umi(base_data_path))
 
 
 if __name__ == '__main__':
