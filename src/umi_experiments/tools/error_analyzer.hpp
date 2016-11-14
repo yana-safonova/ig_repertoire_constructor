@@ -6,7 +6,7 @@
 class ErrorAnalyzer {
 public:
     void readData(std::string input_file_path);
-    void performAnalysis();
+    void performAnalysis(std::string& error_pos_file_path);
 
 private:
     std::vector<seqan::CharString> ids_;

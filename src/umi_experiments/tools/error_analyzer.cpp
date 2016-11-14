@@ -9,7 +9,7 @@ void ErrorAnalyzer::readData(std::string input_file_path) {
     read_seqan_records(input_file_path, ids_, reads_);
 }
 
-void ErrorAnalyzer::performAnalysis() {
+void ErrorAnalyzer::performAnalysis(std::string& error_pos_file_path) {
     std::vector<seqan::Dna5String> barcodes;
     extract_barcodes_from_read_ids(ids_, barcodes);
     std::unordered_map<Umi, std::vector<size_t> > umi_to_reads;
@@ -18,6 +18,7 @@ void ErrorAnalyzer::performAnalysis() {
     size_t total_barcodes = 0;
     size_t total_reads = 0;
     size_t total_errors = 0;
+    std::vector<double> error_positions;
 
     for (const auto& entry : umi_to_reads) {
         const auto& read_idx_list = entry.second;
@@ -47,8 +48,17 @@ void ErrorAnalyzer::performAnalysis() {
             for (size_t i = 0; i < read.length(); i ++) {
                 if (read[i] != super_read[i]) {
                     total_errors ++;
+                    error_positions.push_back((double) i / (double) super_read.length());
                 }
             }
+        }
+    }
+
+    if (!error_pos_file_path.empty()) {
+        INFO("Writing error positions to " << error_pos_file_path);
+        std::ofstream ofs(error_pos_file_path);
+        for (double p : error_positions) {
+            ofs << p << "\n";
         }
     }
 
