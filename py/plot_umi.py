@@ -12,7 +12,7 @@ def plot_sens_prec_umi(base_results_dir):
              tools=["quast", "quast_igrec", "quast_presto", "quast_migec"],
              labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"],
              # title="test_plot_fot serg",
-             title="PCR error rate = %f, read error rate = %f" % (lam, error_rate),
+             title="PCR error rate = %0.4f, read error rate = %0.1f" % (lam, error_rate),
              out="%s/plots/barigrec_%f" % (sys.argv[1], lam),
              add_aimquast_to_path=False)
 
