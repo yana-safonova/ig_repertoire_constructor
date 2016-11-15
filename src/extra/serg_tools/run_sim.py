@@ -6,17 +6,15 @@ import sys
 
 from string import join
 
-from py.plot_umi import plot_sens_prec_umi
-
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
-sys.path.append(igrec_dir + "/py/")
+sys.path.append(os.path.join(igrec_dir, "src/extra/ash_python_utils"))
+sys.path.append(os.path.join(igrec_dir, "py"))
 
 from ash_python_utils import fastx2fastx
 from simulate import run_mixcr2
 from utils import fix_migec_mixcr_cluster_sizes
-
+from plot_umi import plot_sens_prec_umi
 
 class ShStep:
     def __init__(self, args):
@@ -301,7 +299,8 @@ def main():
     for supernode_threshold in [100000]:
         # for barcode_length in [15, 9, 12]:
         for barcode_length in [15]:
-            for pcr_error_rate in [0.006, 0.0006, 0.0025]:
+            # for pcr_error_rate in [0.006, 0.0006, 0.0025]:
+            for pcr_error_rate in [0.0012, 0.0018, 0.0030, 0.0036]:
                 if skip > 0:
                     skip -= 1
                     continue
