@@ -61,7 +61,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         ShStep(["cd %s &&" % igrec_dir,
                 "%s/vj_finder" % igrec_bin,
                 "--input-file %s/amplified/repertoire_comp.fasta" % data_path,
-                "--output-dir %s/vjf" % data_path,
+                "--output-dir %s/vjf_reference" % data_path,
                 "--loci IG",
                 "--threads %d" % threads
                 ])
@@ -89,7 +89,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/igrec_umi/final_repertoire.fa" % data_path,
                 "-C %s/igrec_umi/final_repertoire.rcm" % data_path,
-                "-r %s/vjf/cleaned_reads.fa" % data_path,
+                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
                 "-o %s/quast" % data_path,
                 "--reference-free",
                 "--rcm-based"
@@ -99,7 +99,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
         #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
-        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
         #  "-o %s/quast" % data_path,
         #  "--reference-free",
         #  "--rcm-based"
@@ -124,7 +124,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/igrec/final_repertoire_non.fa" % data_path,
                 "-C %s/igrec/final_repertoire_non.rcm" % data_path,
-                "-r %s/vjf/cleaned_reads.fa" % data_path,
+                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
                 "-o %s/quast_igrec" % data_path,
                 "--reference-free",
                 "--rcm-based"
@@ -134,7 +134,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/igrec/final_repertoire.fa" % data_path,
         #  "-C %s/igrec/final_repertoire.rcm" % data_path,
-        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
         #  "-o %s/quast_igrec" % data_path,
         #  "--reference-free",
         #  "--rcm-based"
@@ -162,7 +162,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         ShStep(["python -u %s/aimquast.py" % igrec_dir,
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/presto/presto_non.fasta" % data_path,
-                "-r %s/vjf/cleaned_reads.fa" % data_path,
+                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
                 "-o %s/quast_presto" % data_path,
                 "--reference-free",
                 "--rcm-based"
@@ -171,7 +171,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         # ShStep(["python -u %s/aimquast.py" %igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % data_path,
         #  "-c %s/presto/presto.fasta" % data_path,
-        #  "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
         #  "-o %s/quast_presto" % data_path,
         #  "--reference-free",
         #  "--rcm-based"
@@ -182,23 +182,23 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         ShStep(["cd %s &&" % igrec_dir,
                 "%s/vj_finder" % igrec_bin,
                 "--input-file %s/amplified/amplified.fasta" % data_path,
-                "--output-dir %s/vjf_input" % data_path,
+                "--output-dir %s/vjf_amplified" % data_path,
                 "--loci IG",
                 "--threads %d" % threads
                 ]),
-        PyStep("converting fasta file (%s) to fastq format (%s)" % ("%s/vjf_input/cleaned_reads.fa" % data_path, "%s/vjf_input/cleaned_reads.fastq" % data_path),
+        PyStep("converting fasta file (%s) to fastq format (%s)" % ("%s/vjf_amplified/cleaned_reads.fa" % data_path, "%s/vjf_amplified/cleaned_reads.fastq" % data_path),
                lambda: fastx2fastx(
-                   "%s/vjf_input/cleaned_reads.fa" % data_path,
-                   "%s/vjf_input/cleaned_reads.fastq" % data_path,
+                   "%s/vjf_amplified/cleaned_reads.fa" % data_path,
+                   "%s/vjf_amplified/cleaned_reads.fastq" % data_path,
                    50,
                    True)
                ),
         ShStep(["python -u %s/py/convert_sim_to_migec.py" % igrec_dir,
-                "-r %s/vjf_input/cleaned_reads.fastq" % data_path,
-                "-o %s/vjf_input/migec.fastq" % data_path
+                "-r %s/vjf_amplified/cleaned_reads.fastq" % data_path,
+                "-o %s/vjf_amplified/migec.fastq" % data_path
                 ]),
         ShStep(["java -jar %s/migec.jar Assemble" % migec_path,
-                "-c %s/vjf_input/migec.fastq" % data_path,
+                "-c %s/vjf_amplified/migec.fastq" % data_path,
                 ".",
                 "%s/migec" % data_path
                 ]),
@@ -262,7 +262,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         # ShStep(["python -u %s/aimquast.py" % igrec_dir,
         #         "-s %s/amplified/amplified.fasta" % data_path,
         #         "-c %s/migec/clones.fasta" % data_path,
-        #         "-r %s/vjf/cleaned_reads.fa" % data_path,
+        #         "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
         #         "-o %s/quast_migec" % data_path,
         #         "--reference-free",
         #         "--rcm-based"
@@ -271,7 +271,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "-s %s/amplified/amplified.fasta" % data_path,
                 "-c %s/migec/final_repertoire.fa" % data_path,
                 # "-C %s/migec/final_repertoire.rcm" % data_path,
-                "-r %s/vjf/cleaned_reads.fa" % data_path,
+                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
                 "-o %s/quast_migec" % data_path,
                 "--reference-free",
                 "--rcm-based"
