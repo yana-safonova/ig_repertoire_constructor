@@ -18,4 +18,8 @@ def plot_sens_prec_umi(base_results_dir):
 
 
 if __name__ == "__main__":
-    plot_sens_prec_umi(sys.argv[1])
+    # plot_sens_prec_umi(sys.argv[1])
+    plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
+                                 what="sensitivity", out="test_fig",
+                                 title="SIMULATED, sensitivity, complex",
+                                 kinds=["igrec", "migec"], labels=["IgReC", "MiGEC + MiXCR"])
