@@ -49,7 +49,7 @@ def get_plot_various_error_rate_data_serg(dir,
                                           add_aimquast_to_path=False):
     from glob import glob
 
-    dirnames = glob(dir)
+    dirnames = glob(dir + "/pcr*")
 
     def extract_lambda(dirname):
         import re
@@ -295,7 +295,7 @@ def plot_two_sums(dir,
 
 def tool2color(tool, secondary=False):
     primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black"]
-    secondary_colors = ["blue", "green", "darkorange", "dimgray", "purple", "dimgray"]
+    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black"]
     colors = secondary_colors if secondary else primary_colors
 
     def tool2id(tool):
@@ -314,7 +314,7 @@ def plot_rocs(jsons, labels,
               out="two_rocs",
               title="",
               format=None,
-              show_coords=False):
+              show_coords=True):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
