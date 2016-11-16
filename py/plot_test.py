@@ -41,6 +41,118 @@ def get_plot_various_error_rate_data(dir,
     return lambdas, data
 
 
+def get_plot_various_error_rate_data_serg(dir,
+                                          kind="igrec",
+                                          what="sensitivity",
+                                          size=5,
+                                          woans=False,
+                                          add_aimquast_to_path=False):
+    from glob import glob
+
+    dirnames = glob(dir)
+
+    def extract_lambda(dirname):
+        import re
+        m = re.match(r".*pcr_([\d.]+)_super_100000_umi_15.*", dirname)
+        if m:
+            g = m.groups()
+            return float(g[0].strip())
+        else:
+            return None
+
+    if not woans:
+        assert extract_lambda("pcr_0.003000_super_100000_umi_15") == 0.003
+
+    def extract_data(dirname):
+        jfile = "/quast_%s/aimquast.json" % kind
+        json = json_from_file(dirname + "/" + jfile)
+        return json
+
+    lambdas = map(extract_lambda, dirnames)
+    data = map(extract_data, dirnames)
+
+    print lambdas
+    lambdas, data = zip(*sorted([(l, d) for l, d in zip(lambdas, data) if l < 2000000000000.00001]))
+
+    return lambdas, data
+
+
+def plot_various_error_rate_serg(dir,
+                                 kinds,
+                                 labels,
+                                 sizes=None,
+                                 out="var_error_rate",
+                                 what="sensitivity", woans=False,
+                                 title="",
+                                 format=("png", "pdf", "svg"),
+                                 legend=True,
+                                 which=None):
+    lambdas, _ = get_plot_various_error_rate_data_serg(dir, kind=kinds[0], woans=woans)
+    datas = [get_plot_various_error_rate_data_serg(dir, kind=kind, woans=woans)[1] for kind in kinds]
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    f, ax = initialize_plot()
+
+    sns.set_style("darkgrid")
+    colors = [tool2color(label) for label in labels]
+
+    def opt_size(sensitivity, precision):
+        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+
+    def get_what(dataset, what, cur_sizes):
+        if what in ["sensitivity", "precision"]:
+            return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "sum":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "minsize":
+            return [size for data, size in zip(dataset, cur_sizes)]
+        else:
+            return None
+
+    forplot = []
+    for dataset in datas:
+        if sizes is None:
+            cur_sizes = [opt_size(data["reference_based"]["__data_sensitivity"], data["reference_based"]["__data_precision"]) for data in dataset]
+        else:
+            cur_sizes = [sizes] * len(dataset)
+        cur_for_plot = get_what(dataset, what, cur_sizes)
+        forplot.append(cur_for_plot)
+
+    zipped = zip(forplot, colors, labels)
+    if which is not None:
+        zipped = [zipped[i] for i in which]
+    for y, color, label in zipped:
+        plt.plot(lambdas, y,
+                 "b-", color=color, label=label)
+
+    eps = 0.025
+    if what in ["sensitivity", "precision"]:
+        plt.ylim((0. - eps, 1. + eps))
+    elif what == "sum":
+        plt.ylim((1. - eps, 2. + eps))
+
+    if what in ["sensitivity", "precision"]:
+        plt.ylabel(what)
+    elif what == "sum":
+        plt.ylabel("sensitivity + precision")
+    elif what == "minsize":
+        plt.ylabel("optimal constructed min size")
+
+    plt.xlabel("Error rate")
+
+    if title:
+        plt.title(title)
+
+    if legend:
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels, loc=3)
+
+    save_plot(out, format=format)
+
+
+
+
 def plot_various_error_rate(dir,
                             kinds,
                             labels,
