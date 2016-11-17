@@ -3,16 +3,17 @@
 from plot_test import *
 
 
-def plot_sens_prec_umi(base_results_dir):
-    lambdas = [0.0006, 0.0025, 0.006]
+def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.006]):
+    lambdas = pcr_error_rates
     lambdas_str = ["low", "medium", "high"]
+    lambdas_str.extend('?' * (len(pcr_error_rates) - 3))
     for lam, lam_str in zip(lambdas, lambdas_str):
         rocs("%s/pcr_%1.6f_super_100000_umi_15/" % (base_results_dir, lam),
              tools=["quast", "quast_igrec", "quast_presto", "quast_migec"],
              labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC"],
              # title="test_plot_fot serg",
              title="%s PCR error rate" % lam_str,
-             out="%s/plots/barigrec_%f" % (sys.argv[1], lam),
+             out="%s/plots/barigrec_%f" % (base_results_dir, lam),
              add_aimquast_to_path=False)
 
 

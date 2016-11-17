@@ -295,12 +295,13 @@ def main():
     skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
     exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
     base_data_path = os.getcwd()
+    pcr_error_rates = [0.006, 0.0006, 0.0025, 0.0012, 0.0018, 0.0030, 0.0036]
     # for supernode_threshold in [100000, 10, 5]:
     for supernode_threshold in [100000]:
         # for barcode_length in [15, 9, 12]:
         for barcode_length in [15]:
             # for pcr_error_rate in [0.006, 0.0006, 0.0025]:
-            for pcr_error_rate in [0.0012, 0.0018, 0.0030, 0.0036]:
+            for pcr_error_rate in pcr_error_rates:
                 if skip > 0:
                     skip -= 1
                     continue
@@ -311,7 +312,7 @@ def main():
                 run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, int(sys.argv[1]), exit_on_error)
 
     PyStep("Drawing plots",
-           lambda: plot_sens_prec_umi(base_data_path))
+           lambda: plot_sens_prec_umi(base_data_path, pcr_error_rates)).Run()
 
 
 if __name__ == '__main__':
