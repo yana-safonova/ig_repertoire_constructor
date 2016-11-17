@@ -3,19 +3,23 @@
 from plot_test import *
 
 
-def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.006]):
+def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.006], error_rates = [0.5, 2, 5]):
     lambdas = pcr_error_rates
     lambdas_str = ["low", "medium", "high"]
     lambdas_str.extend('?' * (len(pcr_error_rates) - 3))
-    for lam, lam_str in zip(lambdas, lambdas_str):
+    for lam, lam_str, error_rate in zip(lambdas, lambdas_str, error_rates):
         rocs("%s/pcr_%1.6f_super_100000_umi_15/" % (base_results_dir, lam),
-             tools=["quast_barigrec", "quast_igrec", "quast_presto", "quast_migec"],
-             labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC"],
-             # title="test_plot_fot serg",
-             title="%s PCR error rate" % lam_str,
+            tools=["quast_barigrec", "quast_igrec", "quast_presto", "quast_migec"],
+            labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"],
+            # title="test_plot_fot serg",
+            title="PCR error rate = %0.4f, read error rate = %0.1f" % (lam, error_rate),
              out="%s/plots/barigrec_%f" % (base_results_dir, lam),
              add_aimquast_to_path=False)
 
 
 if __name__ == "__main__":
-    plot_sens_prec_umi(sys.argv[1])
+    # plot_sens_prec_umi(sys.argv[1])
+    plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
+                                 what="sensitivity", out="test_fig",
+                                 title="SIMULATED, sensitivity, complex",
+                                 kinds=["igrec", "migec"], labels=["IgReC", "MiGEC + MiXCR"])
