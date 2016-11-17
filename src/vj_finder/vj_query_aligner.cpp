@@ -34,7 +34,7 @@ namespace vj_finder {
         return seqan::suffix(read, end_of_v + 1);
     }
 
-    VJHits VJQueryAligner::Align(const core::Read &read) {
+    VJHits VJQueryAligner::Align(core::Read &read) {
         using namespace algorithms;
         TRACE("VJ Aligner algorithm starts");
         // we can construct it once and use as a parameter of constructor
@@ -98,7 +98,8 @@ namespace vj_finder {
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
-        read_archive_.UpdateReadByIndex(read.id, stranded_read.seq);
+//        read_archive_.UpdateReadByIndex(read.id, stranded_read.seq);
+        read.seq = stranded_read.seq;
         VJHits vj_hits(read);
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
             vj_hits.AddVHit(VGeneHit(read, v_custom_db_[it->second], it->first, strand));

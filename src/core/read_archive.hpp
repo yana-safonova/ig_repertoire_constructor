@@ -60,7 +60,7 @@ namespace core {
 
         read_iterator cend() const { return reads_.cend(); }
 
-        const Read& operator[](size_t index) const;
+        Read& operator[](size_t index);
 
         const Read& GetReadByName(std::string read_name) const;
 
