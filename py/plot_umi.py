@@ -20,6 +20,10 @@ def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.00
 if __name__ == "__main__":
     # plot_sens_prec_umi(sys.argv[1])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
-                                 what="sensitivity", out="test_fig",
+                                 what="sensitivity", out="sensitivity_fig",
                                  title="SIMULATED, sensitivity, complex",
-                                 kinds=["igrec", "migec"], labels=["IgReC", "MiGEC + MiXCR"])
+                                 kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
+    plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
+                                 what="precision", out="precision_fig",
+                                 title="SIMULATED, sensitivity, complex",
+                                 kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
