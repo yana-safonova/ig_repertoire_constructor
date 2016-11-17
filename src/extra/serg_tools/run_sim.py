@@ -88,7 +88,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
                 "-c %s/igrec_umi/final_repertoire.fa" % data_path,
                 "-C %s/igrec_umi/final_repertoire.rcm" % data_path,
                 "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-                "-o %s/quast" % data_path,
+                "-o %s/quast_barigrec" % data_path,
                 "--reference-free",
                 "--rcm-based"
                 ])
@@ -98,7 +98,7 @@ def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_len
         #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
         #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
         #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-        #  "-o %s/quast" % data_path,
+        #  "-o %s/quast_barigrec" % data_path,
         #  "--reference-free",
         #  "--rcm-based"
         #  ]),
