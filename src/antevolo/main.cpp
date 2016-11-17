@@ -8,7 +8,7 @@
 
 #include "antevolo_config.hpp"
 #include "antevolo_launch.hpp"
-#include <clonally_related_candidates_calculators/edmonds_tarjan_DMST_calculator.hpp>
+#include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 
 void create_console_logger(/*std::string cfg_filename*/) {
     using namespace logging;

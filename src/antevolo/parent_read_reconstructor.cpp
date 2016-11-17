@@ -2,10 +2,10 @@
 
 namespace antevolo {
 
-    static core::Read ParentReadReconstructor::ReconstructParentRead(
+    core::Read ParentReadReconstructor::ReconstructParentRead(
             const std::shared_ptr<annotation_utils::AnnotatedClone> &clone1,
             const std::shared_ptr<annotation_utils::AnnotatedClone> &clone2,
-            size_t id) const {
+            size_t id) {
         // read
         std::stringstream s;
         s << std::string("fake_read_") << id << ("___size___1");
@@ -53,17 +53,17 @@ namespace antevolo {
         return res_read;
     }
 
-    static void ParentReadReconstructor::TraverseReads(const seqan::String& read1,
-                                                        const seqan::String& read2,
-                                                        size_t read1_start_pos,
-                                                        size_t read2_start_pos,
-                                                        size_t read1_end_pos,
-                                                        size_t read2_end_pos,
-                                                        annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it1,
-                                                        annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it2,
-                                                        annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end1,
-                                                        annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end2,
-                                                        std::string& res_string) const {
+    void ParentReadReconstructor::TraverseReads(const seqan::Dna5String& read1,
+                                                       const seqan::Dna5String& read2,
+                                                       size_t read1_start_pos,
+                                                       size_t read2_start_pos,
+                                                       size_t read1_end_pos,
+                                                       size_t read2_end_pos,
+                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it1,
+                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it2,
+                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end1,
+                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end2,
+                                                       std::string& res_string) {
 
         size_t read1_nucl_index = read1_start_pos;
         size_t read2_nucl_index = read2_start_pos;
@@ -124,9 +124,6 @@ namespace antevolo {
                 shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
                 shm_it1++;
                 shm_it2++;
-                auto new_shm = *shm_it1;
-                new_shm.read_nucl_pos = res_string.size();
-
                 continue;
             }
             if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM &&

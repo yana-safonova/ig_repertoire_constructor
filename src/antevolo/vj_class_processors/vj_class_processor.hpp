@@ -11,6 +11,7 @@ namespace antevolo {
         const AntEvoloConfig::AlgorithmParams &config_;
         const AntEvoloConfig::OutputParams &output_params_;
         size_t num_mismatches_;
+        ShmModel& model_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
 
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
@@ -24,7 +25,7 @@ namespace antevolo {
         SparseGraphPtr sparse_cdr_graph_;
         GraphComponentMap graph_component_;
 
-        ShmModel& model_;
+
 
         void Clear();
 

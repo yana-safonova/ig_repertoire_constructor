@@ -113,6 +113,7 @@ namespace antevolo {
                                                                   EvolutionaryTree &tree,
                                                                   SparseGraphPtr hg_component,
                                                                   size_t component_id) {
+        INFO("Reconstruction of missing vertices started");
         auto edge_constructor = GetEdgeConstructor();
         boost::unordered_map<size_t, EvolutionaryEdgePtr> roots_nearest_neighbours;
         std::vector<size_t> roots;
@@ -124,6 +125,7 @@ namespace antevolo {
 
 
         for (size_t r_i = 0; r_i < roots.size(); ++r_i) {
+            INFO("Reconstructing parents for root " << r_i );
             size_t root_num = roots[r_i];
             std::string root_cdr3;
             const auto& root_cdr3_dna5 = clone_set_[root_num].CDR3();
@@ -152,8 +154,14 @@ namespace antevolo {
                            roots_nearest_neighbours,
                            edge_constructor);
             }
-
+//            INFO("Reconstructing missing vertices before edge");
+            if (roots_nearest_neighbours.find(root_num) == roots_nearest_neighbours.end()) {
+                continue;
+            }
             auto edge = roots_nearest_neighbours[root_num];
+//            INFO("Reconstructing Ancestral Lineage from" <<
+//                                                         edge->DstClone()->Read().name << "  " <<
+//                                                         edge->SrcClone()->Read().name);
             ReconstructAncestralLineage(edge, tree, edge_constructor, roots);
         }
     }
@@ -284,12 +292,13 @@ namespace antevolo {
     void Kruskal_CDR3_HG_CC_Processor::ReconstructAncestralLineage(
             EvolutionaryEdgePtr edge,
             EvolutionaryTree& tree,
-            const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor,
+            const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor,
             std::vector<size_t>& roots) {
         while (tree.Contains(edge->SrcNum())) {
             VERIFY_MSG(edge->IsIntersected(), "ancesrtal lineage reconstructor got a non-intersected edge");
             const auto& left = edge->SrcClone();
             const auto& right = edge->DstClone();
+            INFO("creating cparent from" << left->Read().name << "  " << right->Read().name);
             auto parent_read = ParentReadReconstructor::ReconstructParentRead(left, right, clone_set_.size());
             auto parent_clone = clone_by_read_constructor_.GetCloneByRead(parent_read);
             auto old_left_parent_edge = tree.GetParentEdge(edge->SrcNum());
@@ -352,6 +361,7 @@ namespace antevolo {
             const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor){
 
         for (size_t i = 0; i < clones_sharing_cdr3.size(); ++i) {
+//            INFO("handling root " << root_num << " it " << i);
             size_t neighbour_num = clones_sharing_cdr3[i];
             if (root_num == neighbour_num) {
                 continue;
@@ -375,8 +385,10 @@ namespace antevolo {
             if (roots_nearest_neighbours.find(root_num) == roots_nearest_neighbours.end() ||
                 roots_nearest_neighbours[root_num]->Length() > edge->Length()) {
                 roots_nearest_neighbours[root_num] = edge;
+//                INFO("found a better edge for root " << root_num);
             }
         }
+//        INFO("end handling root " << root_num);
     }
 
 }

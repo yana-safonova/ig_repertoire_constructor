@@ -66,7 +66,7 @@ namespace antevolo {
     }
 
     void AntEvoloOutputWriter::WriteTreeVerticesInFile(std::string output_dir, const EvolutionaryTree& tree,
-                                               const annotation_utils::CDRAnnotatedCloneSet& clone_set) const {
+                                               const CloneSetWithFakes& clone_set) const {
         std::string output_fname = tree.GetTreeOutputFname(output_dir);
         std::ofstream out(output_fname);
         out << "Clone_id\tClone_name\tProductive\tAA_seq\tOFR\tLeft_CDR3_anchor_AA\tRight_CDR3_anchor_AA\tSize\n";
