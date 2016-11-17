@@ -40,12 +40,14 @@ namespace antevolo {
     public:
         Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakes &clone_set,
                                      const AntEvoloConfig::AlgorithmParams &config,
+                                     const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                      GraphComponentMap& graph_component,
                                      const UniqueCDR3IndexMap& unique_cdr3s_map,
                                      const CDR3ToIndexMap& cdr3_to_index_map,
                                      const std::vector<std::string>& unique_cdr3s)
                 : Base_CDR3_HG_CC_Processor(clone_set,
                                             config,
+                                            clone_by_read_constructor,
                                             graph_component,
                                             unique_cdr3s_map,
                                             cdr3_to_index_map,

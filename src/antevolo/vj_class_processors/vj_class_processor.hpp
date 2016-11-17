@@ -11,6 +11,7 @@ namespace antevolo {
         const AntEvoloConfig::AlgorithmParams &config_;
         const AntEvoloConfig::OutputParams &output_params_;
         size_t num_mismatches_;
+        const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
 
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
@@ -33,12 +34,14 @@ namespace antevolo {
         VJClassProcessor(CloneSetWithFakes& clone_set,
                          const AntEvoloConfig::OutputParams &output_params,
                          const AntEvoloConfig::AlgorithmParams &config,
-                         ShmModel& model) :
+                         ShmModel& model,
+                         const AnnotatedCloneByReadConstructor& clone_by_read_constructor) :
                 BaseCandidateCalculator(clone_set),
                 config_(config),
                 output_params_(output_params),
                 num_mismatches_(config.similar_cdr3s_params.num_mismatches),
-                model_(model) { }
+                model_(model),
+                clone_by_read_constructor_(clone_by_read_constructor) { }
 
         //EvolutionaryEdgeConstructor* GetEdgeConstructor();
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);

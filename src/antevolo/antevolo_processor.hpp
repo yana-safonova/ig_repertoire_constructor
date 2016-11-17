@@ -3,10 +3,13 @@
 #include "evolutionary_tree_storage.hpp"
 #include "antevolo_config.hpp"
 #include "clone_set_with_fakes.hpp"
+#include "annotated_clone_by_read_constructor.hpp"
+
 namespace antevolo {
     class AntEvoloProcessor {
         const AntEvoloConfig& config_;
         CloneSetWithFakes& &clone_set_;
+        const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
 
         std::vector<EvolutionaryTreeStorage> thread_tree_storages_;
 
@@ -14,9 +17,12 @@ namespace antevolo {
 
     public:
         AntEvoloProcessor(const AntEvoloConfig& config,
-                          CloneSetWithFakes& clone_set) :
+                          CloneSetWithFakes& clone_set,
+                          const AnnotatedCloneByReadConstructor& clone_by_read_constructor) :
                 config_(config),
-                clone_set_(clone_set) {
+                clone_set_(clone_set),
+                clone_by_read_constructor_(clone_by_read_constructor) {
+
             for(int i = 0; i < config.run_params.num_threads; i++)
                 thread_tree_storages_.push_back(EvolutionaryTreeStorage(clone_set));
         }

@@ -5,6 +5,7 @@
 #include <evolutionary_graph_utils/evolutionary_tree.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 #include <boost/unordered_set.hpp>
+#include <annotated_clone_by_read_constructor.hpp>
 #include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
@@ -19,7 +20,8 @@ namespace antevolo {
 
     protected:
         CloneSetWithFakes& clone_set_;
-        const AntEvoloConfig::AlgorithmParams &config_;
+        const AntEvoloConfig::AlgorithmParams& config_;
+        const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
         GraphComponentMap& graph_component_;
         const UniqueCDR3IndexMap& unique_cdr3s_map_;
         const CDR3ToIndexMap& cdr3_to_index_map_;
@@ -47,6 +49,7 @@ namespace antevolo {
 
         Base_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,
                                   const AntEvoloConfig::AlgorithmParams &config,
+                                  const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                   GraphComponentMap& graph_component,
                                   const UniqueCDR3IndexMap& unique_cdr3s_map,
                                   const CDR3ToIndexMap& cdr3_to_index_map,

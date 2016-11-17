@@ -12,6 +12,7 @@
 
 #include "evolutionary_stats_calculator.hpp"
 #include "antevolo_output_writer.hpp"
+#include "annotated_clone_by_read_constructor.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
 
 namespace antevolo {
@@ -82,8 +83,16 @@ namespace antevolo {
 
         writer.OutputCDRDetails();
         writer.OutputSHMs();
+
+        AnnotatedCloneByReadConstructor clone_by_read_constructor(
+                labeled_v_db,
+                labeled_j_db,
+                config_.cdr_labeler_config.vj_finder_config.algorithm_params,
+                read_labeler);
         INFO("Tree construction starts");
-        auto tree_storage = AntEvoloProcessor(config_, clone_set_with_fakes).ConstructClonalTrees();
+        auto tree_storage = AntEvoloProcessor(config_,
+                                              clone_set_with_fakes,
+                                              clone_by_read_constructor).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!

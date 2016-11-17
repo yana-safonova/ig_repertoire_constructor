@@ -1,6 +1,7 @@
 #include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 #include "kruskal_cdr3_hg_cc_processor.hpp"
-#include "../evolutionary_graph_utils/intersection_parent_constructor.hpp"
+#include "parent_read_reconstructor.hpp"
+
 
 namespace antevolo {
     void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentsParentEdges(
@@ -289,7 +290,8 @@ namespace antevolo {
             VERIFY_MSG(edge->IsIntersected(), "ancesrtal lineage reconstructor got a non-intersected edge");
             const auto& left = edge->SrcClone();
             const auto& right = edge->DstClone();
-            auto parent_clone = IntersectionParentConstructor::ReconstructParent(left, right);
+            auto parent_read = ParentReadReconstructor::ReconstructParentRead(left, right, clone_set_.size());
+            auto parent_clone = clone_by_read_constructor_.GetCloneByRead(parent_read);
             auto old_left_parent_edge = tree.GetParentEdge(edge->SrcNum());
             auto new_left_parent_edge = edge_constructor->ConstructEdge(parent_clone,
                                                                         *left,
@@ -324,7 +326,8 @@ namespace antevolo {
                                                right_num);
         const auto& left = edge->SrcClone();
         const auto& right = edge->DstClone();
-        auto parent_clone = IntersectionParentConstructor::ReconstructParent(left, right);
+        auto parent_read = ParentReadReconstructor::ReconstructParentRead(left, right, clone_set_.size());
+        auto parent_clone = clone_by_read_constructor_.GetCloneByRead(parent_read);
         auto new_left_parent_edge = edge_constructor->ConstructEdge(parent_clone,
                                                                     *left,
                                                                     clone_set_.size(),

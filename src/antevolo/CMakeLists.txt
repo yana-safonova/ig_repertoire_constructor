@@ -66,7 +66,7 @@ add_executable(antevolo
         main.cpp
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
-        cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp evolutionary_graph_utils/intersection_parent_constructor.cpp evolutionary_graph_utils/intersection_parent_constructor.hpp clone_set_with_fakes.hpp)
+        cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.cpp evolutionary_graph_utils/evolutionary_edge_constructor.hpp annotated_clone_by_read_constructor.cpp annotated_clone_by_read_constructor.hpp clone_set_with_fakes.hpp parent_read_reconstructor.cpp parent_read_reconstructor.hpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

@@ -28,19 +28,20 @@ namespace antevolo {
             size_t thread_id = omp_get_thread_num();
         //for(size_t i = 59; i < vj_decomposition.Size() && i < 60; i++) {
             auto vj_class = vj_decomposition.GetClass(i);
-            auto candidate_calculator = VJClassProcessor(clone_set_,
-                                                         config_.output_params,
-                                                         config_.algorithm_params,
-                                                         model);
-            candidate_calculator.CreateUniqueCDR3Map(vj_class);
-            std::string cdrs_fasta = candidate_calculator.WriteUniqueCDR3InFasta(vj_class);
-            std::string graph_fname = candidate_calculator.GetGraphFname(vj_class);
+            auto vj_class_processor = VJClassProcessor(clone_set_,
+                                                       config_.output_params,
+                                                       config_.algorithm_params,
+                                                       model,
+                                                       clone_by_read_constructor_);
+            vj_class_processor.CreateUniqueCDR3Map(vj_class);
+            std::string cdrs_fasta = vj_class_processor.WriteUniqueCDR3InFasta(vj_class);
+            std::string graph_fname = vj_class_processor.GetGraphFname(vj_class);
             TRACE("--------------------------");
             TRACE("CDR3 fasta: "<< cdrs_fasta << ", CDR3 Hamming graph: " << graph_fname);
-            auto connected_components = candidate_calculator.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
+            auto connected_components = vj_class_processor.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
-                EvolutionaryTree tree = candidate_calculator.AddComponent(
+                EvolutionaryTree tree = vj_class_processor.AddComponent(
                         connected_components[component_index], component_index);
                 tree.SetTreeIndices(i+1, component_index, 0);
                 if (tree.NumEdges() != 0) {
