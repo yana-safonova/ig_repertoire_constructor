@@ -3,7 +3,7 @@
 from plot_test import *
 
 
-def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.006], error_rates = [0.5, 2, 5]):
+def plot_sens_prec_umi(base_results_dir, pcr_error_rates = (0.0006, 0.0025, 0.006), error_rates = (0.5, 2, 5)):
     lambdas = pcr_error_rates
     lambdas_str = ["low", "medium", "high"]
     lambdas_str.extend('?' * (len(pcr_error_rates) - 3))
@@ -14,6 +14,17 @@ def plot_sens_prec_umi(base_results_dir, pcr_error_rates = [0.0006, 0.0025, 0.00
             # title="test_plot_fot serg",
             title="PCR error rate = %0.4f, read error rate = %0.1f" % (lam, error_rate),
              out="%s/plots/barigrec_%f" % (base_results_dir, lam),
+             add_aimquast_to_path=False)
+
+def plot_sens_prec_umi_tau(base_results_dir, min_tau = 0, max_tau = 3, pcr_error_rates = (0.006, 0.0006, 0.0025, 0.0012, 0.0018, 0.0030, 0.0036)):
+    taus = range(min_tau, max_tau + 1)
+    for lam in pcr_error_rates:
+        rocs("%s/pcr_%1.6f_super_100000_umi_15/" % (base_results_dir, lam),
+            tools=["tau_%d" % tau for tau in taus],
+            labels=["tau_%d" % tau for tau in taus],
+            # title="test_plot_fot serg",
+            # title="PCR error rate = %0.4f, read error rate = %0.1f" % (lam, error_rate),
+             out="%s/plots/barigrec_%f_tau" % (base_results_dir, lam),
              add_aimquast_to_path=False)
 
 
