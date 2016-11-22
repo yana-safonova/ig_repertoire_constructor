@@ -21,7 +21,7 @@ def main():
     current_dir = os.path.dirname(os.path.realpath(__file__))
     igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
     for root, dirs, files in os.walk(igrec_dir):
-        for file in [file for file in files if file.endswith((".py", ".jar"))]:
+        for file in [file for file in files if file.endswith((".py", ".jar", ".sh"))]:
         # for file in fnmatch.filter(files, "*.py"):
             dir = os.path.relpath(root, igrec_dir)
             dest_dir = os.path.join(dest, dir)

@@ -1,318 +1,119 @@
 #!/usr/bin/python -u
+import logging
 
-import os
-import shutil
-import sys
-
-from string import join
-
-current_dir = os.path.dirname(os.path.realpath(__file__))
-igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
-sys.path.append(os.path.join(igrec_dir, "src/extra/ash_python_utils"))
-sys.path.append(os.path.join(igrec_dir, "py"))
-
-from ash_python_utils import fastx2fastx
-from simulate import run_mixcr2
-from utils import fix_migec_mixcr_cluster_sizes
+from simulation_aux import *
 from plot_umi import plot_sens_prec_umi
 
-class ShStep:
-    def __init__(self, args):
-        self.cmdl = join(args, ' ')
-
-    def Run(self):
-        print "Running %s" % self.cmdl
-        exit_status = os.system(self.cmdl)
-        print "Returned", exit_status
-        return exit_status
+stages = ("amplify", "barigrec", "igrec", "presto", "migec")
+stage_methods = (GetSimulateSteps, GetBarigrecSteps, GetIgrecSteps, GetPrestoSteps, GetMigecSteps)
+assert len(stages) == len(stage_methods)
+stage_to_method = dict(zip(stages, stage_methods))
 
 
-class PyStep:
-    def __init__(self, desc, func):
-        self.description = desc
-        self.function = func
+def CreateLogger(output_dir):
+    log = logging.getLogger('run_sim')
+    log.setLevel(logging.DEBUG)
+    console = logging.StreamHandler(sys.stdout)
+    console.setFormatter(logging.Formatter('%(message)s'))
+    console.setLevel(logging.DEBUG)
+    log.addHandler(console)
 
-    def Run(self):
-        print "Running python step: %s" % self.description
-        try:
-            return_value = self.function()
-            print "Returned", return_value
-        except:
-            return -1
-        return return_value if return_value is not None else 0
+    log_filename = os.path.join(output_dir, "sim.log")
+    log_handler = logging.FileHandler(log_filename, mode='a')
+    log.addHandler(log_handler)
+    log.info("Log will be written to " + log_filename + "\n")
+    return log
 
 
-def run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, threads, exit_on_error):
-    igrec_bin = igrec_dir + "/build/release/bin"
-    migec_path = "/Marx/serg/soft/migec-1.2.4a"
-    mixcr_path = "/Marx/serg/soft/mixcr-2.0"
+def ParseCommandLineParams():
+    from argparse import ArgumentParser
+    parser = ArgumentParser()
 
-    simulate_steps = [
-        ShStep(["%s/simulate_barcoded" % igrec_bin,
-                "--input-file %s/final_repertoire.fasta" % data_path,
-                "--output-dir %s/amplified" % data_path,
-                "--umi-length %d" % barcode_length,
-                "--pcr-error1 %f" % pcr_error_rate,
-                "--pcr-error2 %f" % pcr_error_rate,
-                # "--pcr-rate 0.001",
-                ]),
-        ShStep(["cd %s &&" % igrec_dir,
-                "%s/vj_finder" % igrec_bin,
-                "--input-file %s/amplified/repertoire_comp.fasta" % data_path,
-                "--output-dir %s/vjf_reference" % data_path,
-                "--loci IG",
-                "--threads %d" % threads
-                ])
-    ]
+    parser.add_argument("-r", "--repertoire",
+                        dest = "input_repertoire",
+                        type = str,
+                        default = "final_repertoire.fasta",
+                        help = "Path to input simulated repertoire")
+    parser.add_argument("-o", "--output",
+                        dest = "output_dir",
+                        type = str,
+                        default = os.getcwd(),
+                        help = "Path to output directory")
+    parser.add_argument("-t", "--threads",
+                        dest = "threads",
+                        type = int,
+                        default = 16,
+                        help = "Number of threads to use")
+    parser.add_argument("-p", "--error_rates",
+                        dest = "error_rates_str",
+                        type = str,
+                        required = True,
+                        help = "Comma separated nucleotide error rates")
+    parser.add_argument("-e", "--exit_on_error",
+                        dest = "exit_on_error",
+                        action = "store_true",
+                        help = "If set, stop running on first error. By default ignores all errors.")
+    stages_args = parser.add_argument_group("Stages arguments. If some of these arguments are specified, only those stages will be run.")
+    for stage in stages:
+        stages_args.add_argument("--%s" % stage,
+                                 dest = stage,
+                                 action = "store_true",
+                                 help = "Run %s stage" % stage)
 
-    barigrec_steps = [
-        ShStep(["python -u %s/igrec_umi.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "--output %s/igrec_umi" % data_path,
-                "--loci IG",
-                "--threads %d" % threads,
-                "--igrec_tau 2",
-                "--min-super-read-size %d" % supernode_threshold,
-                "--no-compilation",
-                "--detect-chimeras",
-                "--clustering-thr 20"
-                ]),
-        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
-                "-i %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
-                "-o %s/igrec_umi/final_repertoire.fa" % data_path,
-                "-r %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
-                "-R %s/igrec_umi/final_repertoire.rcm" % data_path,
-                ]),
-        ShStep(["python -u %s/aimquast.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "-c %s/igrec_umi/final_repertoire.fa" % data_path,
-                "-C %s/igrec_umi/final_repertoire.rcm" % data_path,
-                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-                "-o %s/quast_barigrec" % data_path,
-                "--reference-free",
-                "--rcm-based"
-                ])
+    params = parser.parse_args()
 
-        # ShStep(["python -u %s/aimquast.py" % igrec_dir,
-        #  "-s %s/amplified/amplified.fasta" % data_path,
-        #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % data_path,
-        #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % data_path,
-        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-        #  "-o %s/quast_barigrec" % data_path,
-        #  "--reference-free",
-        #  "--rcm-based"
-        #  ]),
-    ]
+    if len(sys.argv) == 1:
+        parser.print_usage()
+        exit(1)
 
-    igrec_steps = [
-        ShStep(["python -u %s/igrec.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "-o %s/igrec" % data_path,
-                "--threads %d" % threads,
-                "--loci IGH",
-                "--debug"
-                ]),
-        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
-                "-i %s/igrec/final_repertoire.fa" % data_path,
-                "-o %s/igrec/final_repertoire_non.fa" % data_path,
-                "-r %s/igrec/final_repertoire.rcm" % data_path,
-                "-R %s/igrec/final_repertoire_non.rcm" % data_path,
-                ]),
-        ShStep(["python -u %s/aimquast.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "-c %s/igrec/final_repertoire_non.fa" % data_path,
-                "-C %s/igrec/final_repertoire_non.rcm" % data_path,
-                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-                "-o %s/quast_igrec" % data_path,
-                "--reference-free",
-                "--rcm-based"
-                ]),
+    params.pcr_error_rates = [float(er) for er in params.error_rates_str.split(",")]
+    specified_stages = [stage for stage in stages if getattr(params, stage)]
+    params.stages_to_run = specified_stages if len(specified_stages) > 0 else stages
 
-        # ShStep(["python -u %s/aimquast.py" %igrec_dir,
-        #  "-s %s/amplified/amplified.fasta" % data_path,
-        #  "-c %s/igrec/final_repertoire.fa" % data_path,
-        #  "-C %s/igrec/final_repertoire.rcm" % data_path,
-        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-        #  "-o %s/quast_igrec" % data_path,
-        #  "--reference-free",
-        #  "--rcm-based"
-        #  ]),
-    ]
+    print "Running with params:"
+    for param_name in ("input_repertoire", "output_dir", "threads", "pcr_error_rates", "stages_to_run", "exit_on_error"):
+        print "%s:%s" % (param_name, getattr(params, param_name))
+    print "Working directory: %s" % current_dir
 
-    presto_steps = [
-        ShStep(["mkdir -p %s/presto &&" % data_path,
-                "python -u /Marx/ashlemov/Git/ig_repertoire_constructor/py/convertAGE2PRESTO.py",
-                "%s/amplified/amplified.fasta" % data_path,
-                "%s/presto/amplified_for_presto.fasta" % data_path
-                ]),
-        ShStep(["cd %s/presto &&" % data_path,
-                "../../run_simple.sh",
-                "amplified_for_presto.fasta"
-                ]),
-        ShStep(["python -u %s/py/convert_presto_to_quast.py" % igrec_dir,
-                "-r %s/presto/MS12_collapse-unique.fasta" % data_path,
-                "-o %s/presto/presto.fasta" % data_path
-                ]),
-        ShStep(["python -u %s/py/drop_ns.py" % igrec_dir,
-                "-i %s/presto/presto.fasta" % data_path,
-                "-o %s/presto/presto_non.fasta" % data_path
-                ]),
-        ShStep(["python -u %s/aimquast.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "-c %s/presto/presto_non.fasta" % data_path,
-                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-                "-o %s/quast_presto" % data_path,
-                "--reference-free",
-                "--rcm-based"
-                ]),
+    return params
 
-        # ShStep(["python -u %s/aimquast.py" %igrec_dir,
-        #  "-s %s/amplified/amplified.fasta" % data_path,
-        #  "-c %s/presto/presto.fasta" % data_path,
-        #  "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-        #  "-o %s/quast_presto" % data_path,
-        #  "--reference-free",
-        #  "--rcm-based"
-        #  ]),
-    ]
 
-    migec_steps = [
-        ShStep(["cd %s &&" % igrec_dir,
-                "%s/vj_finder" % igrec_bin,
-                "--input-file %s/amplified/amplified.fasta" % data_path,
-                "--output-dir %s/vjf_amplified" % data_path,
-                "--loci IG",
-                "--threads %d" % threads
-                ]),
-        PyStep("converting fasta file (%s) to fastq format (%s)" % ("%s/vjf_amplified/cleaned_reads.fa" % data_path, "%s/vjf_amplified/cleaned_reads.fastq" % data_path),
-               lambda: fastx2fastx(
-                   "%s/vjf_amplified/cleaned_reads.fa" % data_path,
-                   "%s/vjf_amplified/cleaned_reads.fastq" % data_path,
-                   50,
-                   True)
-               ),
-        ShStep(["python -u %s/py/convert_sim_to_migec.py" % igrec_dir,
-                "-r %s/vjf_amplified/cleaned_reads.fastq" % data_path,
-                "-o %s/vjf_amplified/migec.fastq" % data_path
-                ]),
-        ShStep(["java -jar %s/migec.jar Assemble" % migec_path,
-                "-c %s/vjf_amplified/migec.fastq" % data_path,
-                ".",
-                "%s/migec" % data_path
-                ]),
-        PyStep("running MIXCR",
-               lambda: run_mixcr2(
-                   input_file = "%s/migec/migec.t5.fastq.gz" % data_path,
-                   output_dir = "%s/migec/mixcr" % data_path,
-                   threads = threads,
-                   remove_tmp = False
-               )),
-        PyStep("fixing cluster sizes",
-               lambda: fix_migec_mixcr_cluster_sizes(
-                   input_file = "%s/migec/mixcr/final_repertoire.fa" % data_path,
-                   rcm_file = "%s/migec/mixcr/final_repertoire.rcm" % data_path,
-                   output_file = "%s/migec/final_repertoire.fa" % data_path,
-               )),
-
-        # ShStep(["java -jar %s/mixcr.jar" % mixcr_path,
-        #         "align -p kaligner2",
-        #         "--chains IGH",
-        #         "%s/migec/migec.t5.fastq.gz" % data_path,
-        #         "%s/migec/alignments.vdcja" % data_path
-        #         ]),
-        # ShStep(["java -jar %s/mixcr.jar assemble" % mixcr_path,
-        #         "-t %d" % threads,
-        #         "-OassemblingFeatures=VDJRegion",
-        #         "%s/migec/alignments.vdcja" % data_path,
-        #         "%s/migec/clones.clns" % data_path
-        #         ]),
-        # ShStep(["java -jar %s/mixcr.jar exportClones" % mixcr_path,
-        #         "-t %d" % threads,
-        #         "%s/migec/clones.clns" % data_path,
-        #         "%s/migec/clones.txt" % data_path
-        #         ]),
-        # ShStep(["python -u %s/py/convert_mixcr_to_quast.py" % igrec_dir,
-        #         "-r %s/migec/clones.txt" % data_path,
-        #         "-o %s/migec/clones.fasta" % data_path
-        #         ]),
-
-        # ShStep(["gunzip",
-        #  "--keep",
-        #  "--force",
-        #  "%s/migec/migec.t5.fastq.gz" % data_path,
-        #  "> %s/migec/migec.t5.fastq" % data_path
-        #  ]),
-        # ShStep(["sed",
-        #  "'s/ /_/g'",
-        #  "%s/migec/migec.t5.fastq" % data_path,
-        #  "> %s/migec/migec.fastq" % data_path
-        #  ]),
-        # ShStep(["python -u %s/py/convert_migec_to_trie.py" % igrec_dir,
-        #  "-r %s/migec/migec.fastq" % data_path,
-        #  "-o %s/migec/migec.fasta" % data_path
-        #  ]),
-        # ShStep(["%s/py/ig_compress_equal_clusters.py" % igrec_dir,
-        #  "%s/migec/migec.fasta" % data_path,
-        #  "%s/migec/migec_compressed.fasta" % data_path,
-        #  "--barcode"
-        #  ]),
-
-        # ShStep(["python -u %s/aimquast.py" % igrec_dir,
-        #         "-s %s/amplified/amplified.fasta" % data_path,
-        #         "-c %s/migec/clones.fasta" % data_path,
-        #         "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-        #         "-o %s/quast_migec" % data_path,
-        #         "--reference-free",
-        #         "--rcm-based"
-        #         ]),
-        ShStep(["python -u %s/aimquast.py" % igrec_dir,
-                "-s %s/amplified/amplified.fasta" % data_path,
-                "-c %s/migec/final_repertoire.fa" % data_path,
-                # "-C %s/migec/final_repertoire.rcm" % data_path,
-                "-r %s/vjf_reference/cleaned_reads.fa" % data_path,
-                "-o %s/quast_migec" % data_path,
-                "--reference-free",
-                "--rcm-based"
-                ])
-    ]
-
+def RunSimPipeline(run_params, params, log):
     steps = []
-    steps.extend(simulate_steps)
-    steps.extend(barigrec_steps)
-    steps.extend(igrec_steps)
-    steps.extend(presto_steps)
-    steps.extend(migec_steps)
+    for stage in params.stages_to_run:
+        steps.extend(stage_to_method[stage](params, run_params))
 
     for step in steps:
-        exit_status = step.Run()
-        if exit_status != 0 and exit_on_error:
+        exit_status = step.Run(log)
+        if exit_status != 0 and params.exit_on_error:
             exit(exit_status)
 
 
 def main():
     print "Starting run_sum ", sys.argv
+    params = ParseCommandLineParams()
+    log = CreateLogger(params.output_dir)
+    log.info("Running following stages: %s" % ", ".join(params.stages_to_run))
+    log.info("Using error rates: %s" % ", ".join(map(str, params.pcr_error_rates)))
 
-    skip = 0 if len(sys.argv) < 3 else int(sys.argv[2])
-    exit_on_error = 1 if len(sys.argv) < 4 else int(sys.argv[3])
-    base_data_path = os.getcwd()
-    pcr_error_rates = [0.006, 0.0006, 0.0025, 0.0012, 0.0018, 0.0030, 0.0036]
+    # pcr_error_rates = [0.006, 0.0006, 0.0025, 0.0012, 0.0018, 0.0030, 0.0036]
     # for supernode_threshold in [100000, 10, 5]:
     for supernode_threshold in [100000]:
         # for barcode_length in [15, 9, 12]:
         for barcode_length in [15]:
             # for pcr_error_rate in [0.006, 0.0006, 0.0025]:
-            for pcr_error_rate in pcr_error_rates:
-                if skip > 0:
-                    skip -= 1
-                    continue
-                data_path = "%s/pcr_%f_super_%d_umi_%d" % (base_data_path, pcr_error_rate, supernode_threshold, barcode_length)
+            for pcr_error_rate in params.pcr_error_rates:
+                data_path = "%s/pcr_%g_super_%d_umi_%d" % (params.output_dir, pcr_error_rate, supernode_threshold, barcode_length)
                 if not os.path.exists(data_path):
                     os.makedirs(data_path)
-                shutil.copyfile("final_repertoire.fasta", "%s/final_repertoire.fasta" % data_path)
-                run_sim_pipeline(data_path, pcr_error_rate, supernode_threshold, barcode_length, int(sys.argv[1]), exit_on_error)
+                simulated_repertoire = os.path.join(data_path, "final_repertoire.fasta")
+                if os.path.exists(simulated_repertoire):
+                    os.remove(simulated_repertoire)
+                os.link(params.input_repertoire, simulated_repertoire)
+                RunSimPipeline(RunParams(data_path, pcr_error_rate, supernode_threshold, barcode_length), params, log)
 
     PyStep("Drawing plots",
-           lambda: plot_sens_prec_umi(base_data_path, pcr_error_rates)).Run()
+           lambda: plot_sens_prec_umi(params.output_dir, params.pcr_error_rates)).Run(log)
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ def plot_sens_prec_umi(base_results_dir, pcr_error_rates = (0.0006, 0.0025, 0.00
     lambdas_str = ["low", "medium", "high"]
     lambdas_str.extend('?' * (len(pcr_error_rates) - 3))
     for lam, lam_str, error_rate in zip(lambdas, lambdas_str, error_rates):
-        rocs("%s/pcr_%1.6f_super_100000_umi_15/" % (base_results_dir, lam),
+        rocs("%s/pcr_%g_super_100000_umi_15/" % (base_results_dir, lam),
             tools=["quast_barigrec", "quast_igrec", "quast_presto", "quast_migec"],
             labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"],
             # title="test_plot_fot serg",
