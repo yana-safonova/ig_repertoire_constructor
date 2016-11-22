@@ -10,13 +10,14 @@
 #include "boost/current_function.hpp"
 #include <sstream>
 #include <iostream>
-#include <cassert>
+#include <cstdio>
 
 #define VERIFY(expr)                                             \
     do {                                                         \
-        if(!(expr))\
-            print_stacktrace();\
-        assert(expr);                                            \
+        if(!(expr)) {                                            \
+            print_stacktrace();                                  \
+            abort();                                             \
+        }                                                        \
     } while(0);
 
 #define VERIFY_MSG(expr, msg)                                           \
@@ -29,5 +30,5 @@
         std::cerr << ss.str() << std::endl;                             \
         fflush(stdout);                                                 \
         fflush(stderr);                                                 \
-        assert(expr);                                                   \
+        abort();                                                        \
     }
