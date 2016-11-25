@@ -1,3 +1,4 @@
+#include <logger/logger.hpp>
 #include "parent_read_reconstructor.hpp"
 
 namespace antevolo {
@@ -20,6 +21,7 @@ namespace antevolo {
         auto v_shm_it1 = clone1->VSHMs().cbegin();
         auto v_shm_it2 = clone2->VSHMs().cbegin();
 
+
         size_t read1_length = seqan::length(read1);
         size_t read2_length = seqan::length(read2);
 
@@ -40,12 +42,22 @@ namespace antevolo {
         while (j_shm_it2 != clone2->JSHMs().cend() && j_shm_it2->read_nucl_pos <= clone2->CDR3Range().end_pos) {
             j_shm_it2++;
         }
+
+
+//        auto temp_shm1_it = j_shm_it1;
+//        while (temp_shm1_it != clone1->JSHMs().cend()) {
+//            INFO("read pos: " << temp_shm1_it->read_nucl_pos << ", type: " << temp_shm1_it->shm_type);
+//            temp_shm1_it++;
+//        }
+
         TraverseReads(read1, read2,
                       clone1->CDR3Range().end_pos + 1, clone2->CDR3Range().end_pos + 1,
                       read1_length, read2_length,
                       j_shm_it1, j_shm_it2,
                       clone1->JSHMs().cend(), clone2->JSHMs().cend(),
                       res_string);
+//        std::cout << res_string << std::endl;
+
         for (auto c : res_string) {
             seqan::append(res_dna5string, c);
         }
@@ -68,12 +80,10 @@ namespace antevolo {
         size_t read1_nucl_index = read1_start_pos;
         size_t read2_nucl_index = read2_start_pos;
 
-        while (shm_it1 != shm_end1 &&
-               shm_it2 != shm_end2 &&
-               read1_nucl_index < read1_end_pos &&
+        while (read1_nucl_index < read1_end_pos &&
                read2_nucl_index < read2_end_pos) {
-            //todo: add cdr ranges assigning
-            if (read1_nucl_index != shm_it1->read_nucl_pos && read2_nucl_index != shm_it2->read_nucl_pos) {
+            if ((shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos) &&
+                (shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos)) {
                 VERIFY_MSG(read1[read1_nucl_index] == read2[read2_nucl_index],
                            "intersection_parent_constructor: unequal nucleotides on unmutated pos");
                 res_string.push_back(read1[read1_nucl_index]);
@@ -81,14 +91,17 @@ namespace antevolo {
                 ++read2_nucl_index;
                 continue;
             }
-            if (read1_nucl_index != shm_it1->read_nucl_pos) {
+            if (shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos) {
                 if (shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
                     shm_it2++;
                     ++read2_nucl_index;
                     continue;
                 }
                 if (shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
+//                    INFO("deletion in read 2 on pos " << read2_nucl_index);
+                    res_string.push_back(shm_it2->gene_nucl);
                     shm_it2++;
+                    ++read1_nucl_index;
                     continue;
                 }
                 if (shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
@@ -100,14 +113,17 @@ namespace antevolo {
                 }
                 VERIFY_MSG(false, "intersection_parent_constructor: got unknown SHM type");
             }
-            if (read2_nucl_index != shm_it2->read_nucl_pos) {
+            if (shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos) {
                 if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM) {
                     shm_it1++;
                     ++read1_nucl_index;
                     continue;
                 }
                 if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM) {
+//                    INFO("deletion in read 1 on pos " << read1_nucl_index);
+                    res_string.push_back(shm_it1->gene_nucl);
                     shm_it1++;
+                    ++read2_nucl_index;
                     continue;
                 }
                 if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
@@ -141,9 +157,11 @@ namespace antevolo {
                 shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
                 if (read1[read1_nucl_index] == read2[read2_nucl_index]) { // identical substitution
                     res_string.push_back(read1[read1_nucl_index]);
+//                    INFO("identical substitutions on pos " << read1_nucl_index);
                 }
                 else {
                     res_string.push_back(shm_it1->gene_nucl);
+//                    INFO("different substitutions on pos " << read1_nucl_index);
                 }
                 shm_it1++;
                 shm_it2++;
@@ -178,5 +196,57 @@ namespace antevolo {
                 continue;
             }
         }
+//        if (res_string.size() > 370)
+//            INFO("nucls:" << read1[370] << read1[371] << read1[372] << " " <<
+//                          read2[369] << read1[370] << read1[371] << " " <<
+//                          res_string[370] << res_string[371] << res_string[372] << std::endl);
+//        while (read1_nucl_index < read1_end_pos) {
+//            if ((shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos)) {;
+//                res_string.push_back(read1[read1_nucl_index]);
+//                ++read1_nucl_index;
+//                continue;
+//            }
+//            if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM) {
+//                shm_it1++;
+//                ++read1_nucl_index;
+//                continue;
+//            }
+//            if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM) {
+//                res_string.push_back(shm_it1->gene_nucl);
+//                shm_it1++;
+//                continue;
+//            }
+//            if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
+//                shm_it1++;
+//                res_string.push_back(shm_it1->gene_nucl);
+//                ++read1_nucl_index;
+//                continue;
+//            }
+//        }
+//        while (read2_nucl_index < read2_end_pos) {
+//            if ((shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos)) {;
+//                res_string.push_back(read2[read2_nucl_index]);
+//                ++read2_nucl_index;
+//                continue;
+//            }
+//            if (shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
+//                shm_it2++;
+//                ++read2_nucl_index;
+//                continue;
+//            }
+//            if (shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
+//                res_string.push_back(shm_it2->gene_nucl);
+//                shm_it2++;
+//                continue;
+//            }
+//            if (shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
+//                shm_it2++;
+//                res_string.push_back(shm_it2->gene_nucl);
+//                ++read2_nucl_index;
+//                continue;
+//            }
+//        }
+        VERIFY_MSG(read1_nucl_index == read1_end_pos && read2_nucl_index == read2_end_pos,
+                   "ParentReadReconstructor: non-equal length of unmutated sequences");
     }
 }

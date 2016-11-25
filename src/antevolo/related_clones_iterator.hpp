@@ -28,23 +28,30 @@ namespace antevolo {
                 state_(State::sameCDR3) {}
 
         bool HasNext();
-        const std::vector<size_t>& operator*() const;
-        ClonesSharingCDR3sIterator& operator++();
-        ClonesSharingCDR3sIterator operator++(int);
+        const std::vector<size_t>& Next();
+
+        SparseGraph::EdgesIterator current() {
+            return similar_cdr3s_it_;
+        }
+        SparseGraph::EdgesIterator end() {
+            return similar_cdr3s_it_end_;
+        }
 
     };
 
 
     class RelatedClonesIterator {
         ClonesSharingCDR3sIterator vectors_iterator_;
-        const std::vector<size_t>& clones_sharing_current_cdr3_;
-        std::vector<size_t>::const_iterator current_vector_it_;
+        std::vector<size_t>::const_iterator current_clone_it_;
+        std::vector<size_t>::const_iterator current_clone_it_end_;
 
     public:
         RelatedClonesIterator(const ClonesSharingCDR3sIterator& vectors_iterator) :
-            vectors_iterator_(vectors_iterator),
-            clones_sharing_current_cdr3_(*vectors_iterator_),
-            current_vector_it_(clones_sharing_current_cdr3_.cbegin()) {}
+            vectors_iterator_(vectors_iterator) {
+            const std::vector<size_t>& clones_sharing_current_cdr3 = vectors_iterator_.Next();
+            current_clone_it_ = clones_sharing_current_cdr3.cbegin();
+            current_clone_it_end_ = clones_sharing_current_cdr3.cend();
+        }
 
         bool HasNext();
         size_t Next();

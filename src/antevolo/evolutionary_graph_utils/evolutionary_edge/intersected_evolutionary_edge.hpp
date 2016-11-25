@@ -27,14 +27,16 @@ namespace  antevolo {
                   num_intersected_v_shms_(num_intersected_v_shms),
                   num_individual_j_shms_(num_individual_j_shms),
                   num_intersected_j_shms_(num_intersected_j_shms) {
-
+            edge_type = EvolutionaryEdgeType ::IntersectedEdgeType;
             //sum
             num_individual_shms_ = num_individual_v_shms_ + num_individual_v_shms_;
             num_intersected_shms_ = num_intersected_v_shms_ + num_intersected_j_shms_;
         }
-        size_t Length() const {
+        size_t Length() const override {
             return cdr3_distance+num_individual_shms_;
         }
+
+        bool IsIntersected() const override { return true; }
 
         std::string TypeString() const override { return "intersected"; }
 

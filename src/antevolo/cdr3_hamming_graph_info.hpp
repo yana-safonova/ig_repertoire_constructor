@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../graph_utils/sparse_graph.hpp"
+#include <boost/unordered_set.hpp>
 
 namespace antevolo {
 
@@ -9,17 +10,17 @@ namespace antevolo {
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
 
         GraphComponentMap& graph_component_map_;
-        UniqueCDR3IndexMap& cdr3_to_indices_vector_map_;
-        CDR3ToIndexMap& cdr3_to_old_index_map_;
-        std::vector<std::string>& unique_cdr3s_;
+        const UniqueCDR3IndexMap& cdr3_to_indices_vector_map_;
+        const CDR3ToIndexMap& cdr3_to_old_index_map_;
+        const std::vector<std::string>& unique_cdr3s_;
         SparseGraphPtr& hg_component_;
         size_t component_id_;
 
     public:
         CDR3HammingGraphInfo(GraphComponentMap& graph_component_map,
-                             UniqueCDR3IndexMap& cdr3_to_indices_vector_map,
-                             CDR3ToIndexMap& cdr3_to_old_index_map,
-                             std::vector<std::string>& unique_cdr3s,
+                             const UniqueCDR3IndexMap& cdr3_to_indices_vector_map,
+                             const CDR3ToIndexMap& cdr3_to_old_index_map,
+                             const std::vector<std::string>& unique_cdr3s,
                              SparseGraphPtr hg_component,
                              size_t component_id) :
             graph_component_map_(graph_component_map),
@@ -37,7 +38,7 @@ namespace antevolo {
         const std::vector<size_t>& GetClonesByOldIndex(size_t old_index);
         SparseGraph::EdgesIterator GetSimilarCDR3sBeginByOldIndex(size_t old_index);
         SparseGraph::EdgesIterator GetSimilarCDR3sEndByOldIndex(size_t old_index);
-
+        boost::unordered_set<size_t> GetAllClones();
     };
 
 }

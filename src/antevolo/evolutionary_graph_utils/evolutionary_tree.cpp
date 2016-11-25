@@ -21,7 +21,7 @@ namespace antevolo {
         VERIFY(edge->IsDirected());
         //std::cout << "oppa: " << clone_num << " - " << edge.src_clone_num << " - " << edge.dst_clone_num << std::endl;
         if(edge->IsDirected()) {
-            if (!Contains(clone_num)) {
+            if (!HasParentEdge(clone_num)) {
                 ReplaceEdge(clone_num, edge);
                 return;
             }
@@ -59,6 +59,9 @@ namespace antevolo {
         }
     }
 
+    bool EvolutionaryTree::HasParentEdge(size_t clone_num) const {
+        return edges_.find(clone_num) != edges_.end();
+    }
     /*
     void EvolutionaryTree::PrepareSubtreeEdmonds(std::vector<std::pair<size_t, size_t>>& edge_vector,
                                                  size_t root_vertex,
@@ -117,6 +120,12 @@ namespace antevolo {
         }
     }
     */
+
+    const EvolutionaryEdgePtr& EvolutionaryTree::GetParentEdge(size_t clone_num) const {
+        auto p = edges_.find(clone_num);
+        VERIFY_MSG(p != edges_.end(), "evolutionary tree: got a request for unexisting edge");
+        return p->second;
+    }
 
     bool EvolutionaryTree::IsRoot(size_t clone_id) const {
         VERIFY_MSG(vertices_.find(clone_id) != vertices_.end(), "Tree does not contain vertex " << clone_id);

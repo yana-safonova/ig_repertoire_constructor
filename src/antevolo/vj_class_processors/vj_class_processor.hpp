@@ -19,11 +19,11 @@ namespace antevolo {
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
         UniqueCDR3IndexMap unique_cdr3s_map_;
-        CDR3ToIndexMap cdr3_to_index_map_;
+        CDR3ToIndexMap cdr3_to_old_index_map_;
         std::vector<std::string> unique_cdr3s_;
 
         SparseGraphPtr sparse_cdr_graph_;
-        GraphComponentMap graph_component_;
+        GraphComponentMap graph_component_map_;
 
 
 

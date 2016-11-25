@@ -8,39 +8,33 @@ namespace antevolo {
         }
         return state_ != State::isDone;
     }
-    const std::vector<size_t>& ClonesSharingCDR3sIterator::operator*() const {
+
+    const std::vector<size_t>& ClonesSharingCDR3sIterator::Next() {
         if (state_ == State::sameCDR3) {
-            return hamming_graph_info_.GetClonesByOldIndex(old_index_);
-        }
-        return hamming_graph_info_.GetClonesByOldIndex(*similar_cdr3s_it_);
-    }
-    ClonesSharingCDR3sIterator& ClonesSharingCDR3sIterator::operator++() {
-        if (state_ == State::sameCDR3) {
+            const auto& res = hamming_graph_info_.GetClonesByOldIndex(old_index_);
             state_ = State::similarCDR3;
-            return *this;
+            return res;
         }
+        size_t neighbour_old_index = hamming_graph_info_.GetOldIndexByNewIndex(*similar_cdr3s_it_);
+        const auto& res = hamming_graph_info_.GetClonesByOldIndex(neighbour_old_index);
         similar_cdr3s_it_++;
-        return *this;
-    }
-    ClonesSharingCDR3sIterator ClonesSharingCDR3sIterator::operator++(int) {
-        ClonesSharingCDR3sIterator res(*this);
-        ++*this;
         return res;
     }
 
     bool RelatedClonesIterator::HasNext() {
-        return current_vector_it_ != clones_sharing_current_cdr3_.cend() || vectors_iterator_.HasNext();
+        return current_clone_it_ != current_clone_it_end_ || vectors_iterator_.HasNext();
     }
     size_t RelatedClonesIterator::Next() {
-        if (current_vector_it_ != clones_sharing_current_cdr3_.cend()) {
-            size_t next = *current_vector_it_;
-            current_vector_it_++;
+        if (current_clone_it_ != current_clone_it_end_) {
+            size_t next = *current_clone_it_;
+            current_clone_it_++;
             return next;
         }
-        ++vectors_iterator_;
-        current_vector_it_ = (*vectors_iterator_).cbegin();
-        size_t next = *current_vector_it_;
-        current_vector_it_++;
+        const std::vector<size_t>& clones_sharing_current_cdr3 = vectors_iterator_.Next();
+        current_clone_it_ = clones_sharing_current_cdr3.cbegin();
+        current_clone_it_end_ = clones_sharing_current_cdr3.cend();
+        size_t next = *current_clone_it_;
+        current_clone_it_++;
         return next;
     }
 
@@ -55,7 +49,7 @@ namespace antevolo {
                                                    const annotation_utils::AnnotatedClone& clone) {
         std::string cdr3;
         const auto& cdr3_dna5 = clone.CDR3();
-        size_t  cdr3_length = seqan::length(cdr3);
+        size_t cdr3_length = seqan::length(cdr3_dna5);
         for (size_t i = 0; i < cdr3_length; ++i) {
             cdr3.push_back(cdr3_dna5[i]);
         }

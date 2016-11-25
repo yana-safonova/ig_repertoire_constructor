@@ -54,7 +54,10 @@ def draw_tree(antevolo_res_dir, tree_name, output_dir):
 
 			#clone_abundance = int(clone_name.split('_')[-1].split('|')[0])
 			clone_width, clone_height = abundance_to_size(clone_abundance)
-			clone_color = 'cyan'
+			if clone_name.split('_')[0] == 'fake':
+				clone_color = 'magenta'
+			else:
+				clone_color = 'cyan'
 			vertices[clone_num] = ''.join(['[label=',"\"" + str(clone_num)+'_'+clone_left_anchor_AA+clone_right_anchor_AA + "\"", 
 									 	   ', fixedsize=true, style=filled, fillcolor=', clone_color, 
 										   ', shape=', clone_shape, 

@@ -7,6 +7,7 @@
 #include <boost/unordered_set.hpp>
 #include <annotated_clone_by_read_constructor.hpp>
 #include "../clone_set_with_fakes.hpp"
+#include <related_clones_iterator.hpp>
 
 namespace antevolo {
 
@@ -22,10 +23,7 @@ namespace antevolo {
         CloneSetWithFakes& clone_set_;
         const AntEvoloConfig::AlgorithmParams& config_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
-        GraphComponentMap& graph_component_;
-        const UniqueCDR3IndexMap& unique_cdr3s_map_;
-        const CDR3ToIndexMap& cdr3_to_index_map_;
-        const std::vector<std::string>& unique_cdr3s_;
+        CDR3HammingGraphInfo& hamming_graph_info_;
 
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
         boost::unordered_map<size_t, bool> parent_edge_handled_;
@@ -34,14 +32,13 @@ namespace antevolo {
 
         void AddUndirectedPair(size_t src_num, size_t dst_num);
 
-        void AddUndirectedForest(SparseGraphPtr hg_component, size_t component_id,
-                                 boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        virtual void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
-                                                size_t component_id,
-                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
-        virtual void SetDirections(const boost::unordered_set<size_t>& vertices_nums,
-                                   EvolutionaryTree& tree,
-                                   boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) = 0;
+        void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+                                 boost::unordered_set<size_t> vertices_nums);
+        virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+                                                        const boost::unordered_set<size_t>& vertices_nums) = 0;
+        virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+                                   const boost::unordered_set<size_t> &vertices_nums,
+                                   EvolutionaryTree &tree) = 0;
         virtual void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
                                                         EvolutionaryTree &tree, SparseGraphPtr hg_component,
                                                         size_t component_id) = 0;
@@ -50,12 +47,9 @@ namespace antevolo {
         Base_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                  GraphComponentMap& graph_component,
-                                  const UniqueCDR3IndexMap& unique_cdr3s_map,
-                                  const CDR3ToIndexMap& cdr3_to_index_map,
-                                  const std::vector<std::string>& unique_cdr3s);
+                                  CDR3HammingGraphInfo& hamming_graph_info);
 
-        EvolutionaryTree ConstructForest(SparseGraphPtr hg_component, size_t component_id);
+        EvolutionaryTree ConstructForest();
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);

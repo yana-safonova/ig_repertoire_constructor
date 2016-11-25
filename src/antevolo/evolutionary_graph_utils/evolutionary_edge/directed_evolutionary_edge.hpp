@@ -38,6 +38,8 @@ namespace  antevolo {
             return num_added_shms+cdr3_distance;
         }
 
+        bool IsDirected() const override { return true; }
+
         std::string TypeString() const override { return "directed"; }
 
         size_t NumAddedShms() const override { return num_added_shms; }

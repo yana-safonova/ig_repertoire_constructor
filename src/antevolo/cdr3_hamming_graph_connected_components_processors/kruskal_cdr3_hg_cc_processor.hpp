@@ -21,12 +21,10 @@ namespace antevolo {
                                          const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor,
                                          std::vector<size_t>& roots);
 
-        void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
-                                                size_t component_id,
-                                                boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) override;
-        void SetDirections(const boost::unordered_set<size_t>& vertices_nums,
-                           EvolutionaryTree& tree,
-                           boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges) override;
+        void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+                                                const boost::unordered_set<size_t>& vertices_nums) override;
+        void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+                                   const boost::unordered_set<size_t> &vertices_nums, EvolutionaryTree &tree) override;
 
         void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
                                                 EvolutionaryTree &tree, SparseGraphPtr hg_component,
@@ -41,17 +39,11 @@ namespace antevolo {
         Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakes &clone_set,
                                      const AntEvoloConfig::AlgorithmParams &config,
                                      const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                     GraphComponentMap& graph_component,
-                                     const UniqueCDR3IndexMap& unique_cdr3s_map,
-                                     const CDR3ToIndexMap& cdr3_to_index_map,
-                                     const std::vector<std::string>& unique_cdr3s)
+                                     CDR3HammingGraphInfo& hamming_graph_info)
                 : Base_CDR3_HG_CC_Processor(clone_set,
                                             config,
                                             clone_by_read_constructor,
-                                            graph_component,
-                                            unique_cdr3s_map,
-                                            cdr3_to_index_map,
-                                            unique_cdr3s) {}
+                                            hamming_graph_info) {}
 
 
     };

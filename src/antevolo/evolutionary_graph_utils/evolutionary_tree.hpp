@@ -35,9 +35,7 @@ namespace antevolo {
         void AddAllEdges();
 
 
-        bool Contains(size_t clone_num) const {
-            return (edges_.find(clone_num) != edges_.end());
-        }
+        bool HasParentEdge(size_t clone_num) const;
 
         size_t NumEdges() const { return edges_.size(); }
         size_t NumVertices() const { return vertices_.size(); }
@@ -62,9 +60,7 @@ namespace antevolo {
         ConstVertexIterator c_vertex_end() const { return vertices_.cend(); }
 
 
-        const EvolutionaryEdgePtr& GetParentEdge(size_t clone_num) const {
-            return edges_.at(clone_num);
-        }
+        const EvolutionaryEdgePtr& GetParentEdge(size_t clone_num) const;
 
         const std::vector<EvolutionaryEdgePtr>& OutgoingEdges(size_t clone_id) const;
 

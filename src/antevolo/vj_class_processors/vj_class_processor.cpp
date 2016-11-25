@@ -26,7 +26,7 @@ namespace antevolo {
         for(auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
             unique_cdr3s_.push_back(it->first);
         for(size_t i = 0; i < unique_cdr3s_.size(); ++i)
-            cdr3_to_index_map_[unique_cdr3s_[i]] = i;
+            cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
     std::string VJClassProcessor::GetFastaFname(core::DecompositionClass decomposition_class) {
@@ -63,10 +63,9 @@ namespace antevolo {
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
         auto sparse_cdr_graph_ = GraphReader(graph_fname).CreateGraph();
         TRACE("Hamming graph contains " << sparse_cdr_graph_->N() << " edges and " << sparse_cdr_graph_->NZ() << " edges");
-        //if(sparse_cdr_graph_->NZ() != 0)
-        //    std::cout << *sparse_cdr_graph_ << std::endl;
+
         auto connected_components = ConnectedComponentGraphSplitter(sparse_cdr_graph_).Split();
-        graph_component_ = sparse_cdr_graph_->GetGraphComponentMap();
+        graph_component_map_ = sparse_cdr_graph_->GetGraphComponentMap();
         return connected_components;
     }
 
@@ -74,15 +73,19 @@ namespace antevolo {
     EvolutionaryTree VJClassProcessor::AddComponent(SparseGraphPtr hg_component,
                                                      size_t component_id) {
 
+        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+                                                unique_cdr3s_map_,
+                                                cdr3_to_old_index_map_,
+                                                unique_cdr3s_,
+                                                hg_component,
+                                                component_id);
+
         auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
                 new Kruskal_CDR3_HG_CC_Processor(clone_set_,
                                                  config_,
                                                  clone_by_read_constructor_,
-                                                 graph_component_,
-                                                 unique_cdr3s_map_,
-                                                 cdr3_to_index_map_,
-                                                 unique_cdr3s_));
-        auto tree = forest_calculator->ConstructForest(hg_component, component_id);
+                                                 hamming_graph_info));
+        auto tree = forest_calculator->ConstructForest();
         return tree;
     }
 

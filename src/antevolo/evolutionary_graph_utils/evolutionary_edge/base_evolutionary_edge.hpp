@@ -75,11 +75,11 @@ namespace  antevolo {
 
         virtual bool Empty() const { return edge_type == EvolutionaryEdgeType::UnknownEdgeType; }
 
-        virtual bool IsDirected() const { return edge_type == EvolutionaryEdgeType::DirectedEdgeType; }
+        virtual bool IsDirected() const { return false; }
 
-        virtual bool IsUndirected() const { return edge_type == EvolutionaryEdgeType::UndirectedEdgeType; }
+        virtual bool IsUndirected() const { return false; }
 
-        virtual bool IsIntersected() const { return edge_type == EvolutionaryEdgeType::IntersectedEdgeType; }
+        virtual bool IsIntersected() const { return false; }
 
         virtual std::string TypeString() const { return "unknown"; }
 
