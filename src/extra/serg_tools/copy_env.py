@@ -26,7 +26,7 @@ def main():
             dest_dir = os.path.join(dest, dir)
             make_dir_if_not_there(dest_dir)
             shutil.copy2(os.path.join(root, file), dest_dir)
-    for dir in ["build", "pipeline_makefiles", "configs", "data"]:
+    for dir in ["build", "configs", "data"]:
         shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir))
 
     os.system("git -C %s log | head > %s/GIT_REVISION" % (igrec_dir, dest))
