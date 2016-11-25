@@ -453,28 +453,28 @@ def plotplot(dir, out_dir, title, **kwargs):
     mkdir_p(out_dir)
     rocs(dir,
          tools=["igrec", "mixcr2", "supernode"],
-         labels=["IgReC", "MiXCR2", "pRESTO"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all",
-         **kwargs)
-    rocs(dir,
-         tools=["igrec", "mixcr", "supernode"],
          labels=["IgReC", "MiXCR", "pRESTO"],
          title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_old",
+         out=out_dir + "/sensitivity_precision_plot_all_new",
          **kwargs)
-    rocs(dir,
-         tools=["igrec_tau3", "mixcr", "supernode"],
-         labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_tau3",
-         **kwargs)
-    rocs(dir,
-         tools=["igrec", "mixcr", "supernode", "igrec_vote"],
-         labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_split",
-         **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode"],
+    #      labels=["IgReC", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_old",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec_tau3", "mixcr", "supernode"],
+    #      labels=["IgReC tau = 3", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_tau3",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode", "igrec_vote"],
+    #      labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_split",
+    #      **kwargs)
     # rocs(dir,
     #      tools=["igrec_tau2", "supernode"],
     #      labels=["IgReC tau = 2", "pRESTO"],
@@ -488,6 +488,10 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
+    plotplot(igrec_dir + "py/age3_all/", "AGE3_3", title="REAL", show_coords=True)
+    plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
+    sys.exit()
+
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="REAL", show_coords=True)
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
