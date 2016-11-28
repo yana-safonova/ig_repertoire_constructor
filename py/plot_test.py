@@ -198,9 +198,12 @@ def plot_various_error_rate(dir,
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
+
+    print title, what
     for y, color, label in zipped:
         plt.plot(lambdas, y,
                  "b-", color=color, label=label)
+        print label, y
 
     eps = 0.025
     if what in ["sensitivity", "precision"]:
