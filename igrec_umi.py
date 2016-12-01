@@ -69,7 +69,7 @@ def ParseCommandLineParams(log):
                                     "[default: %(default)d]")
     optional_args.add_argument("-n", "--min-super-read-size",
                                type=int,
-                               default=5,
+                               default=1000000,
                                dest="min_super_read_size",
                                help="Minimum super read size [default: %(default)d]")
     optional_args.add_argument("-f", '--min-fillin',
@@ -92,7 +92,7 @@ def ParseCommandLineParams(log):
                                help="Detect chimeras after clustering, may take significant amount of time")
     optional_args.add_argument("--clustering-thr",
                                type=int,
-                               default=15,
+                               default=20,
                                dest="clustering_threshold",
                                help="Threshold distance to unite clusters")
     # TODO: hide parameter
