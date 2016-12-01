@@ -56,7 +56,7 @@ int main(int argc, const char* const* argv) {
     const Options& options = parse_options(argc, argv);
 
     PcrSimulator simulator(options.simulation_options);
-    simulator.read_repertoire(options.repertoire_file_path);
-    simulator.amplify(options.output_estimation_limit);
-    simulator.write_results(options.output_dir_path);
+    simulator.ReadRepertoire(options.repertoire_file_path);
+    simulator.Amplify(options.output_estimation_limit);
+    simulator.WriteResults(options.output_dir_path);
 }

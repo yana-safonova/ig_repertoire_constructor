@@ -8,14 +8,15 @@
 #include "../ig_tools/utils/string_tools.hpp"
 
 std::default_random_engine PcrSimulator::random_engine_;
+const size_t PcrSimulator::READ_ERROR_COUNT_INF = std::numeric_limits<size_t>::max() / 2;
 
-void PcrSimulator::read_repertoire(const std::string& repertoire_file_path) {
+void PcrSimulator::ReadRepertoire(const std::string& repertoire_file_path) {
     seqan::SeqFileIn reads_file(repertoire_file_path.c_str());
     readRecords(original_ids_, original_reads_, reads_file);
 }
 
-void PcrSimulator::amplify(const size_t output_estimation_limit) {
-    check_limit(output_estimation_limit);
+void PcrSimulator::Amplify(size_t output_estimation_limit) {
+    CheckLimit(output_estimation_limit);
 
     size_t current = 0;
     for (size_t i = 0; i < original_ids_.size(); i ++) {
@@ -26,27 +27,25 @@ void PcrSimulator::amplify(const size_t output_estimation_limit) {
         read_to_compressed_.push_back(current - 1);
     }
 
-    amplified_reads_ = std::vector<seqan::Dna5String>(original_reads_);
-    amplified_ids_ = std::vector<seqan::CharString>(original_reads_.size());
-    for (size_t i = 0; i < amplified_ids_.size(); i ++) {
-        amplified_ids_[i] = "original_" + std::to_string(i);
+    amplified_reads_ = std::vector<Record>();
+    for (size_t i = 0; i < original_reads_.size(); i ++) {
+        amplified_reads_.emplace_back("original_" + std::to_string(i), original_reads_[i], GenerateBarcode(), 0);
     }
-    generate_barcodes();
 
-    simulate_pcr();
+    SimulatePcr();
 
     perm_ = std::vector<size_t>(amplified_reads_.size());
     std::iota(perm_.begin(), perm_.end(), 0);
     std::shuffle(perm_.begin(), perm_.end(), random_engine_);
 }
 
-void PcrSimulator::check_limit(const size_t output_estimation_limit) {
+void PcrSimulator::CheckLimit(size_t output_estimation_limit) {
     double exp_reads_count = static_cast<double>(original_reads_.size()) *
                              pow(1.0 + options_.amplification_rate + options_.chimeras_rate, static_cast<double>(options_.cycles_count));
     VERIFY(exp_reads_count <= output_estimation_limit);
 }
 
-seqan::Dna5String PcrSimulator::generate_barcode() {
+seqan::Dna5String PcrSimulator::GenerateBarcode() {
     seqan::Dna5String barcode;
     for (size_t i = 0; i < options_.barcode_length; i ++) {
         barcode += std::rand() % 4;
@@ -54,53 +53,42 @@ seqan::Dna5String PcrSimulator::generate_barcode() {
     return barcode;
 }
 
-void PcrSimulator::generate_barcodes() {
-    amplified_barcodes_ = std::vector<seqan::Dna5String>(amplified_reads_.size());
-    for (auto& barcode : amplified_barcodes_) {
-        barcode = generate_barcode();
-    }
-}
-
-void PcrSimulator::report_average_error_rate() {
+void PcrSimulator::ReportAverageErrorRate() {
     size_t total_errors = 0;
     size_t interesting_reads = 0;
-    for (size_t errors : read_error_count_) {
-        if (errors < std::numeric_limits<size_t>::max()) {
-            total_errors += errors;
+    for (const auto& record : amplified_reads_) {
+        if (record.error_count < READ_ERROR_COUNT_INF) {
+            total_errors += record.error_count;
             interesting_reads ++;
         }
     }
-    INFO("Average amount of errors per read is " << ((double) total_errors / (double) interesting_reads) << " (total " << total_errors << " in " << interesting_reads << " of " << read_error_count_.size() << " reads)");
-    INFO("Average amount of errors per barcode is " << ((double) barcode_error_count_ / (double) read_error_count_.size()) << " (total " << barcode_error_count_ << " in " << read_error_count_.size() << " reads)");
+    INFO("Average amount of errors per read is " << ((double) total_errors / (double) interesting_reads) << " (total " << total_errors << " in " << interesting_reads << " of " << amplified_reads_.size() << " reads)");
+    INFO("Average amount of errors per barcode is " << ((double) barcode_error_count_ / (double) amplified_reads_.size()) << " (total " << barcode_error_count_ << " in " << amplified_reads_.size() << " reads)");
 }
 
-void PcrSimulator::amplify_sequences(double pcr_error_prob) {
+void PcrSimulator::AmplifySequences(double pcr_error_prob) {
     size_t size = amplified_reads_.size();
     for (size_t read_idx = 0; read_idx < size; read_idx ++) {
         if (std::rand() <= static_cast<double>(RAND_MAX) * options_.amplification_rate) {
-            seqan::Dna5String read = amplified_reads_[read_idx];
-            seqan::Dna5String barcode = amplified_barcodes_[read_idx];
-            size_t errors = read_error_count_[read_idx];
-            for (size_t pos = 0; pos < length(barcode) + length(read); pos ++) {
+            seqan::Dna5String new_read = amplified_reads_[read_idx].read;
+            seqan::Dna5String new_barcode = amplified_reads_[read_idx].barcode;
+            size_t errors = amplified_reads_[read_idx].error_count;
+            for (size_t pos = 0; pos < length(new_barcode) + length(new_read); pos ++) {
                 if (std::rand() <= static_cast<double>(RAND_MAX) * pcr_error_prob) {
-                    auto current_value = pos < length(barcode) ? barcode[pos] : read[pos - length(barcode)];
+                    auto current_value = pos < length(new_barcode) ? new_barcode[pos] : new_read[pos - length(new_barcode)];
                     int new_value_candidate = std::rand() % 3;
                     int new_value = new_value_candidate + (new_value_candidate >= current_value ? 1 : 0);
-                    pos < length(barcode) ? barcode[pos] : read[pos - length(barcode)] = new_value;
-                    if (pos >= length(barcode)) {
+                    pos < length(new_barcode) ? new_barcode[pos] : new_read[pos - length(new_barcode)] = new_value;
+                    if (pos >= length(new_barcode)) {
                         errors ++;
                     } else {
                         barcode_error_count_ ++;
                     }
                 }
             }
-            amplified_barcodes_.push_back(barcode);
-            amplified_reads_.push_back(read);
-            amplified_ids_.emplace_back(std::to_string(amplified_reads_.size()) +
-                             (seqan_string_to_string(amplified_ids_[read_idx]).find("chimera") == std::string::npos ? "" : "_chimera") +
-                             "_mutated_from_" +
-                             std::to_string(read_idx));
-            read_error_count_.push_back(errors);
+            const std::string new_id = std::string(seqan_string_to_string(amplified_reads_[read_idx].id).find("chimera") == std::string::npos ? "" : "_chimera") +
+                                       "_mutated_from_" + std::to_string(read_idx);
+            AddRecord(new_id, new_read, new_barcode, errors);
             read_to_compressed_.push_back(read_to_compressed_[read_idx]);
         }
     }
@@ -109,52 +97,52 @@ void PcrSimulator::amplify_sequences(double pcr_error_prob) {
     for (size_t chimera = 0; chimera < static_cast<double>(size) * options_.chimeras_rate; chimera ++) {
         size_t left_idx = read_distribution(random_engine_);
         size_t right_idx = read_distribution(random_engine_);
-        size_t barcode_idx = (options_.barcode_position & 1) && barcode_position_distribution(random_engine_) == 1 ? left_idx : right_idx;
-        amplified_barcodes_.push_back(amplified_barcodes_[barcode_idx]);
-        std::string left = seqan_string_to_string(amplified_reads_[left_idx]);
+        std::string left = seqan_string_to_string(amplified_reads_[left_idx].read);
         left = left.substr(0, left.length() / 2);
-        std::string right = seqan_string_to_string(amplified_reads_[right_idx]);
+        std::string right = seqan_string_to_string(amplified_reads_[right_idx].read);
         right = right.substr(right.length() / 2);
-        amplified_reads_.push_back(seqan::Dna5String(left + right));
-        read_error_count_.push_back(std::numeric_limits<size_t>::max());
+        const std::string new_id = "_chimera_from_" + std::to_string(left_idx) + "_" + std::to_string(right_idx);
+        const seqan::Dna5String new_read(left + right);
+        size_t barcode_idx = (options_.barcode_position & 1) && barcode_position_distribution(random_engine_) == 1 ? left_idx : right_idx;
+        const seqan::Dna5String& new_barcode = amplified_reads_[barcode_idx].barcode;
+        AddRecord(new_id, new_read, new_barcode);
         read_to_compressed_.push_back(std::numeric_limits<size_t>::max());
-        amplified_ids_.emplace_back(std::to_string(amplified_reads_.size()) + "_chimera_from_" + std::to_string(left_idx) + "_" + std::to_string(right_idx));
     }
-    VERIFY(amplified_reads_.size() == amplified_barcodes_.size() &&
-                   amplified_reads_.size() == amplified_ids_.size() &&
-                   amplified_reads_.size() == read_to_compressed_.size() &&
-                   amplified_reads_.size() == read_error_count_.size());
+    VERIFY(amplified_reads_.size() == read_to_compressed_.size());
 
-//    report_average_error_rate(read_error_count);
+//    ReportAverageErrorRate(read_error_count);
 }
 
-void PcrSimulator::simulate_pcr() {
-    read_error_count_ = std::vector<size_t>(amplified_reads_.size(), 0);
+void PcrSimulator::AddRecord(const string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count) {
+    amplified_reads_.emplace_back(std::to_string(amplified_reads_.size()) + id, read, barcode, error_count);
+}
+
+void PcrSimulator::SimulatePcr() {
     barcode_error_count_ = 0;
     for (size_t i = 0; i < options_.cycles_count; i ++) {
         double pcr_error_prob = options_.error_prob_first + (options_.error_prob_last - options_.error_prob_first) * static_cast<double>(i) / static_cast<double>(options_.cycles_count - 1);
-        amplify_sequences(pcr_error_prob);
+        AmplifySequences(pcr_error_prob);
     }
 
-    report_average_error_rate();
+    ReportAverageErrorRate();
 }
 
-void PcrSimulator::write_results(const std::string& output_dir_path) {
+void PcrSimulator::WriteResults(const std::string& output_dir_path) {
     boost::filesystem::create_directory(output_dir_path);
-    write_repertoire(boost::filesystem::path(output_dir_path).append("amplified.fasta").string());
-    write_compressed(boost::filesystem::path(output_dir_path).append("repertoire_comp.fasta").string());
+    WriteRepertoire(boost::filesystem::path(output_dir_path).append("amplified.fasta").string());
+    WriteCompressed(boost::filesystem::path(output_dir_path).append("repertoire_comp.fasta").string());
 }
 
-void PcrSimulator::write_repertoire(const std::string& path) {
+void PcrSimulator::WriteRepertoire(const std::string& path) {
     seqan::SeqFileOut output_file(path.c_str());
     for (size_t i = 0; i < amplified_reads_.size(); i ++) {
         std::stringstream sstr;
-        sstr << amplified_ids_[perm_[i]] << "_UMI:" << amplified_barcodes_[perm_[i]];
-        seqan::writeRecord(output_file, sstr.str(), amplified_reads_[perm_[i]]);
+        sstr << amplified_reads_[perm_[i]].id << "_UMI:" << amplified_reads_[perm_[i]].barcode;
+        seqan::writeRecord(output_file, sstr.str(), amplified_reads_[perm_[i]].read);
     }
 }
 
-void PcrSimulator::write_compressed(const std::string& path) {
+void PcrSimulator::WriteCompressed(const std::string& path) {
     std::map<size_t, size_t> id_to_count;
     for (size_t id : read_to_compressed_) {
         id_to_count[id] ++;
@@ -169,7 +157,7 @@ void PcrSimulator::write_compressed(const std::string& path) {
         if (boost::algorithm::ends_with(id, "_copy_1")) {
             current ++;
             compressed_ids.emplace_back((boost::format("cluster___%d___size___%d") % (current - 1) % id_to_count[current - 1]).str());
-            compressed_reads.push_back(amplified_reads_[i]);
+            compressed_reads.push_back(amplified_reads_[i].read);
         }
     }
     seqan::SeqFileOut compressed_file(path.c_str());
