@@ -23,6 +23,7 @@ private:
     std::vector<Record> amplified_reads_;
     std::vector<size_t> perm_;
     std::vector<size_t> read_to_compressed_;
+    std::vector<size_t> read_to_original_;
     size_t barcode_error_count_;
 
 public:
@@ -36,6 +37,8 @@ public:
     void WriteResults(const std::string& output_dir_path);
 
 private:
+    static const size_t MAP_NOWHERE;
+
     void CheckLimit(size_t output_estimation_limit);
     seqan::Dna5String GenerateBarcode();
     void ReportAverageErrorRate();
@@ -44,4 +47,5 @@ private:
     void AmplifySequences(double pcr_error_prob);
     void WriteRepertoire(const std::string& path);
     void WriteCompressed(const std::string& path);
+    void WriteRcm(const std::string& path, const std::vector<Record>& reads, const std::vector<size_t>& map);
 };

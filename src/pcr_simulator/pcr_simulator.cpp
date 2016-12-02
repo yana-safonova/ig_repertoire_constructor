@@ -9,6 +9,7 @@
 
 std::default_random_engine PcrSimulator::random_engine_;
 const size_t PcrSimulator::READ_ERROR_COUNT_INF = std::numeric_limits<size_t>::max() / 2;
+const size_t PcrSimulator::MAP_NOWHERE = std::numeric_limits<size_t>::max();
 
 void PcrSimulator::ReadRepertoire(const std::string& repertoire_file_path) {
     seqan::SeqFileIn reads_file(repertoire_file_path.c_str());
@@ -25,6 +26,7 @@ void PcrSimulator::Amplify(size_t output_estimation_limit) {
             current ++;
         }
         read_to_compressed_.push_back(current - 1);
+        read_to_original_.push_back(i);
     }
 
     amplified_reads_ = std::vector<Record>();
@@ -90,6 +92,7 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
                                        "_mutated_from_" + std::to_string(read_idx);
             AddRecord(new_id, new_read, new_barcode, errors);
             read_to_compressed_.push_back(read_to_compressed_[read_idx]);
+            read_to_original_.push_back(read_to_original_[read_idx]);
         }
     }
     std::uniform_int_distribution<size_t> read_distribution(0, size - 1);
@@ -106,9 +109,10 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
         size_t barcode_idx = (options_.barcode_position & 1) && barcode_position_distribution(random_engine_) == 1 ? left_idx : right_idx;
         const seqan::Dna5String& new_barcode = amplified_reads_[barcode_idx].barcode;
         AddRecord(new_id, new_read, new_barcode);
-        read_to_compressed_.push_back(std::numeric_limits<size_t>::max());
+        read_to_compressed_.push_back(MAP_NOWHERE);
+        read_to_original_.push_back(MAP_NOWHERE);
     }
-    VERIFY(amplified_reads_.size() == read_to_compressed_.size());
+    VERIFY(amplified_reads_.size() == read_to_compressed_.size() && amplified_reads_.size() == read_to_original_.size());
 
 //    ReportAverageErrorRate(read_error_count);
 }
@@ -130,6 +134,8 @@ void PcrSimulator::SimulatePcr() {
 void PcrSimulator::WriteResults(const std::string& output_dir_path) {
     boost::filesystem::create_directory(output_dir_path);
     WriteRepertoire(boost::filesystem::path(output_dir_path).append("amplified.fasta").string());
+    WriteRcm(boost::filesystem::path(output_dir_path).append("amplified_to_comp.rcm").string(), amplified_reads_, read_to_compressed_);
+    WriteRcm(boost::filesystem::path(output_dir_path).append("amplified_to_orig.rcm").string(), amplified_reads_, read_to_original_);
     WriteCompressed(boost::filesystem::path(output_dir_path).append("repertoire_comp.fasta").string());
 }
 
@@ -162,4 +168,15 @@ void PcrSimulator::WriteCompressed(const std::string& path) {
     }
     seqan::SeqFileOut compressed_file(path.c_str());
     seqan::writeRecords(compressed_file, compressed_ids, compressed_reads);
+}
+
+void PcrSimulator::WriteRcm(const std::string& path, const std::vector<PcrSimulator::Record>& reads, const std::vector<size_t>& map) {
+    std::ofstream ofs(path);
+    for (size_t i = 0; i < reads.size(); i ++) {
+        ofs << reads[i].id;
+        if (map[i] != MAP_NOWHERE) {
+            ofs << "\t" << map[i];
+        }
+        ofs << "\n";
+    }
 }
