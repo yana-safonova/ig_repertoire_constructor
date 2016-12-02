@@ -161,7 +161,7 @@ def GetPrestoSteps(params, run_params):
                 "%s/presto/amplified_for_presto.fasta" % run_params.data_path
                 ]),
         ShStep(["cd %s/presto &&" % run_params.data_path,
-                os.path.join(current_dir, "run_simple.sh"),
+                os.path.join(igrec_dir, "src/extra/serg_tools/run_simple.sh"),
                 "amplified_for_presto.fasta"
                 ]),
         ShStep(["python -u %s/py/convert_presto_to_quast.py" % igrec_dir,

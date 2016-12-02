@@ -86,6 +86,7 @@ def plot_various_error_rate_serg(dir,
                                  title="",
                                  format=("png", "pdf", "svg"),
                                  legend=True,
+                                 legend_loc=3,
                                  which=None):
     lambdas, _ = get_plot_various_error_rate_data_serg(dir, kind=kinds[0], woans=woans)
     datas = [get_plot_various_error_rate_data_serg(dir, kind=kind, woans=woans)[1] for kind in kinds]
@@ -146,7 +147,7 @@ def plot_various_error_rate_serg(dir,
 
     if legend:
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles, labels, loc=3)
+        ax.legend(handles, labels, loc=legend_loc)
 
     save_plot(out, format=format)
 

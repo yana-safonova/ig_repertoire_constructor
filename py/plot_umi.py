@@ -32,9 +32,19 @@ if __name__ == "__main__":
     # plot_sens_prec_umi(sys.argv[1])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="sensitivity", out="sensitivity_fig",
-                                 title="SIMULATED, sensitivity, complex",
+                                 title="SIMULATED, sensitivity",
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="precision", out="precision_fig",
-                                 title="SIMULATED, sensitivity, complex",
+                                 title="SIMULATED, precision",
+                                 kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
+    plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
+                                 what="sum", out="sens_prec_fig",
+                                 title="SIMULATED, sens+prec",
+                                 legend_loc=2,
+                                 kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
+    plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
+                                 what="minsize", out="min_size_fig",
+                                 title="SIMULATED, size threshold",
+                                 legend_loc=2,
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["barcoded IgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
