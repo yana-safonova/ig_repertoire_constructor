@@ -44,7 +44,7 @@ void PcrSimulator::Amplify(size_t output_estimation_limit) {
 void PcrSimulator::CheckLimit(size_t output_estimation_limit) {
     double exp_reads_count = static_cast<double>(original_reads_.size()) *
                              pow(1.0 + options_.amplification_rate + options_.chimeras_rate, static_cast<double>(options_.cycles_count));
-    VERIFY(exp_reads_count <= output_estimation_limit);
+    VERIFY(exp_reads_count <= (double) output_estimation_limit);
 }
 
 seqan::Dna5String PcrSimulator::GenerateBarcode() {
@@ -97,7 +97,7 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
     }
     std::uniform_int_distribution<size_t> read_distribution(0, size - 1);
     std::uniform_int_distribution<size_t> barcode_position_distribution(1, std::bitset<2>(options_.barcode_position).count());
-    for (size_t chimera = 0; chimera < static_cast<double>(size) * options_.chimeras_rate; chimera ++) {
+    for (size_t chimera = 0; chimera < (size_t) ((double) size * options_.chimeras_rate); chimera ++) {
         size_t left_idx = read_distribution(random_engine_);
         size_t right_idx = read_distribution(random_engine_);
         std::string left = seqan_string_to_string(amplified_reads_[left_idx].read);

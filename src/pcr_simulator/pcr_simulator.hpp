@@ -1,5 +1,6 @@
 #pragma once
 
+#include <random>
 #include <seqan/file.h>
 #include "options.hpp"
 
