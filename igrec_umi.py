@@ -110,7 +110,7 @@ def ParseCommandLineParams(log):
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
                                dest="loci",
-                               default="",
+                               required=True,
                                help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
 
     vj_align_args.add_argument("--organism",
