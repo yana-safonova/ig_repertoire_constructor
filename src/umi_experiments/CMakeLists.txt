@@ -26,6 +26,7 @@ add_executable(report_pcr_error_rate tools/report_pcr_error_rate.cpp tools/error
 
 add_executable(reads_by_umi_stats stats/reads_by_umi_stats.cpp utils.cpp umi_utils.cpp stats/dist_distribution_stats.cpp)
 add_executable(print_graph_decomposition_stats stats/print_graph_decomposition_stats.cpp utils.cpp)
+add_executable(pairwise_dist_stats stats/pairwise_dist_stats.cpp utils/io.cpp clusterer.cpp)
 
 add_executable(umi_naive naive/umi_naive.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp utils/io.cpp)
 add_executable(cluster_reads cluster_reads.cpp ${HEADER_FILES} utils.cpp umi_utils.cpp clusterer.cpp utils/io.cpp ../fast_ig_tools/fast_ig_tools.cpp)
