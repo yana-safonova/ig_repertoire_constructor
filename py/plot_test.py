@@ -68,11 +68,15 @@ def get_plot_various_error_rate_data_serg(dir,
         json = json_from_file(dirname + "/" + jfile)
         return json
 
-    lambdas = map(extract_lambda, dirnames)
-    data = map(extract_data, dirnames)
+    nt_er_to_read_er = {0.0006: 0.534849, 0.0009 : 0.801606, 0.0012: 1.06461, 0.0015 : 1.33057, 0.0018: 1.60311, 0.0021 : 1.88114, 0.0024: 2.13592,
+                        0.0025: 2.22422, 0.0027 : 2.41297, 0.0030: 2.66568, 0.0033 : 2.95098, 0.0036: 3.2174, 0.0039 : 3.48101, 0.0042: 3.75255,
+                        0.0048: 4.29406, 0.0054: 4.81962, 0.006: 5.35227}
+    lambdas = [nt_er_to_read_er[extract_lambda(dirname)] for dirname in dirnames]
+    lambdas = [lam for lam in lambdas if lam <= 4]
+    data = [extract_data(dirname) for dirname in dirnames if nt_er_to_read_er[extract_lambda(dirname)] in lambdas]
 
-    print lambdas
     lambdas, data = zip(*sorted([(l, d) for l, d in zip(lambdas, data) if l < 2000000000000.00001]))
+    print lambdas
 
     return lambdas, data
 

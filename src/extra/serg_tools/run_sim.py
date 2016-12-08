@@ -19,7 +19,7 @@ def CreateLogger(output_dir):
     log.addHandler(console)
 
     log_filename = os.path.join(output_dir, "sim.log")
-    log_handler = logging.FileHandler(log_filename, mode='a')
+    log_handler = logging.FileHandler(log_filename, mode='a' if os.path.exists(log_filename) else 'w')
     log.addHandler(log_handler)
     log.info("Log will be written to " + log_filename + "\n")
     return log
@@ -92,6 +92,8 @@ def RunSimPipeline(run_params, params, log):
 def main():
     print "Starting run_sum ", sys.argv
     params = ParseCommandLineParams()
+    if not os.path.exists(params.output_dir):
+        os.makedirs(params.output_dir)
     log = CreateLogger(params.output_dir)
     log.info("Running following stages: %s" % ", ".join(params.stages_to_run))
     log.info("Using error rates: %s" % ", ".join(map(str, params.pcr_error_rates)))
