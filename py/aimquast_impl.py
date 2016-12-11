@@ -647,6 +647,8 @@ class RepertoireMatch:
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
         rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
+        rb["reference_vs_constructed_constructed_clusters_sizes"] = map(int, list(self.M2MDATA.constructed_cluster_sizes))
+        rb["reference_vs_constructed_reference_clusters_sizes"] = map(int, list(self.M2MDATA.reference_cluster_sizes))
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
