@@ -487,7 +487,8 @@ def run_mixcr2(input_file, output_dir,
                loci="all", enforce_fastq=False,
                threads=16,
                remove_tmp=True,
-               species="hsa"):
+               species="hsa",
+               region_from="FR1Begin", region_to="FR4Begin"):
     if log is None:
         log = FakeLog()
 
@@ -513,6 +514,8 @@ def run_mixcr2(input_file, output_dir,
             "output_dir": output_dir,
             "species": species,
             "loci": loci,
+            "from": region_from,
+            "to": region_to,
             "loci_arg": "chains"}
 
     # support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
@@ -524,7 +527,7 @@ def run_mixcr2(input_file, output_dir,
     #                  log=log)
     # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
     #                  log=log)
-    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{%(from)s:%(to)s}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
     args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
     support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
