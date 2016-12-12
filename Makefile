@@ -13,6 +13,9 @@ dsf:
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
 
+ig_simulator:
+	$(MAKE) -C build/release/ig_simulator ig_simulator
+
 check: all
 	$(MAKE) -C build/release check
 

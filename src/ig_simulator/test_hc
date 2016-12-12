@@ -1,0 +1,1 @@
+./ig_simulator HC test_hc 10 50 100 ../../data/human_ig_germline_genes/human_IGHV.fa ../../data/human_ig_germline_genes/human_IGHD.fa ../../data/human_ig_germline_genes/human_IGHJ.fa
