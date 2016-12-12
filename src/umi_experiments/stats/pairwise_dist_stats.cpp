@@ -29,7 +29,7 @@ int main(int argc, const char* const* argv) {
         }
         SEQAN_OMP_PRAGMA(critical)
         {
-            std::for_each(dist.begin(), dist.end(), [&ofs](size_t d) { ofs << d << "\n"; });
+            std::for_each(dist.begin(), dist.end(), [&ofs, &max_dist](size_t d) { if (d <= max_dist) ofs << d << "\n"; });
         }
         std::cout << i << "\n" << clock() << std::endl;
     }
