@@ -9,7 +9,7 @@ private:
     static std::default_random_engine random_engine_;
 
     struct Record {
-        const seqan::CharString id;
+        seqan::CharString id;
         const seqan::Dna5String read;
         const seqan::Dna5String barcode;
         const size_t error_count;
@@ -46,6 +46,7 @@ private:
     void SimulatePcr();
     void AddRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count = READ_ERROR_COUNT_INF);
     void AmplifySequences(double pcr_error_prob);
+    void UpdateReadIds();
     void WriteRepertoire(const std::string& path);
     void WriteCompressed(const std::string& path);
     void WriteRcm(const std::string& path, const std::vector<Record>& reads, const std::vector<size_t>& map);

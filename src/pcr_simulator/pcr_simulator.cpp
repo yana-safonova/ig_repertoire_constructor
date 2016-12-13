@@ -133,18 +133,26 @@ void PcrSimulator::SimulatePcr() {
 
 void PcrSimulator::WriteResults(const std::string& output_dir_path) {
     boost::filesystem::create_directory(output_dir_path);
+    UpdateReadIds();
     WriteRepertoire(boost::filesystem::path(output_dir_path).append("amplified.fasta").string());
     WriteRcm(boost::filesystem::path(output_dir_path).append("amplified_to_comp.rcm").string(), amplified_reads_, read_to_compressed_);
     WriteRcm(boost::filesystem::path(output_dir_path).append("amplified_to_orig.rcm").string(), amplified_reads_, read_to_original_);
     WriteCompressed(boost::filesystem::path(output_dir_path).append("repertoire_comp.fasta").string());
 }
 
+void PcrSimulator::UpdateReadIds() {
+    for (auto& read : amplified_reads_) {
+        std::stringstream ss;
+        ss << read.id << "_UMI:" << read.barcode;
+        read.id = seqan::CharString(ss.str());
+    }
+}
+
 void PcrSimulator::WriteRepertoire(const std::string& path) {
     seqan::SeqFileOut output_file(path.c_str());
     for (size_t i = 0; i < amplified_reads_.size(); i ++) {
         std::stringstream sstr;
-        sstr << amplified_reads_[perm_[i]].id << "_UMI:" << amplified_reads_[perm_[i]].barcode;
-        seqan::writeRecord(output_file, sstr.str(), amplified_reads_[perm_[i]].read);
+        seqan::writeRecord(output_file, amplified_reads_[perm_[i]].id, amplified_reads_[perm_[i]].read);
     }
 }
 
