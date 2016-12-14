@@ -1,5 +1,5 @@
-#include "annotated_clone_by_read_constructor.hpp"
 #include <vj_query_aligner.hpp>
+#include "annotated_clone_by_read_constructor.hpp"
 
 namespace antevolo {
     annotation_utils::AnnotatedClone AnnotatedCloneByReadConstructor::GetCloneByRead(core::Read& read) const {
