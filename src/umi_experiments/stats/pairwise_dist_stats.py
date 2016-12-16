@@ -1,3 +1,5 @@
+import random
+from collections import defaultdict
 import matplotlib
 matplotlib.use('Agg')
 import seaborn as sns
@@ -28,23 +30,53 @@ def smart_open(filename, mode="r"):
 
 def main():
     # rep_file = sys.argv[1]
-    # intermed_file = sys.argv[2]
+    # all_dists = sys.argv[2]
     # threads = int(sys.argv[3])
     # max_dist = int(sys.argv[4])
     # print "running dist calculation"
-    # os.system("%s %s %s %d %d" % (os.path.join(igrec_dir, "build/release/bin/pairwise_dist_stats"), rep_file, intermed_file, threads, max_dist))
-    intermed_file = sys.argv[1]
-    save_file = sys.argv[2]
+    # os.system("%s %s %s %d %d" % (os.path.join(igrec_dir, "build/release/bin/pairwise_dist_stats"), rep_file, all_dists, threads, max_dist))
+    all_dists = sys.argv[1]
+    cluster_dists = sys.argv[2]
+    save_file = sys.argv[3]
 
-    dist_file = smart_open(intermed_file)
-    d = [int(dist_file.readline()) for i in xrange(1000000)]
-    # d = [int(line) for line in dist_file]
-    print "read %d dists" % len(d)
-    m = max(d)
+    all_dist_file = smart_open(all_dists)
+    # alld = [int(all_dist_file.readline()) for i in xrange(10000)]
+    alld = defaultdict(int)
+    total_dists = 0
+    for line in all_dist_file:
+        alld[int(line)] += 1
+        total_dists += 1
+
+        # if total_dists > 10000:
+        #     break
+    # alld = [int(line) for line in all_dist_file]
+    print "read %d dists" % len(alld)
+    m = max(alld)
     print "max is", m
-    d = [x for x in d if x != m]
-    print "now only %d dists are left" % len(d)
-    dp = sns.distplot(d, m / 3)
+    # alld = [x for x in alld if x != m]
+    print "now only %d dists are left" % len(alld)
+
+    cluster_dist_file = smart_open(cluster_dists)
+    clusterd = defaultdict(int)
+    cluster_n = 0
+    while True:
+        line = cluster_dist_file.readline()
+        if not line:
+            break
+        size = int(line)
+        distn = size * (size - 1) / 2
+        dists = [int(cluster_dist_file.readline()) for i in xrange(distn)]
+        for d in dists:
+            clusterd[d] += 1.0 / distn
+        cluster_n += 1
+
+        # if random.randrange(1000) == 5:
+        #     break
+    print "cluster dists read"
+
+    dp = sns.distplot(range(m), m, hist_kws={'weights':[float(alld[d] * cluster_n) / total_dists for d in range(m)]}, color='blue', kde=False)
+    dp = sns.distplot(range(m), m, hist_kws={'weights':[clusterd[d] for d in range(m)]}, color='red', kde=False)
+
     # plt.show()
     fig = dp.get_figure()
     fig.savefig(save_file, format=os.path.splitext(save_file)[1][1:])
