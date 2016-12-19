@@ -74,12 +74,21 @@ def main():
         #     break
     print "cluster dists read"
 
-    dp = sns.distplot(range(m), m, hist_kws={'weights':[float(alld[d] * cluster_n) / total_dists for d in range(m)]}, color='blue', kde=False)
-    dp = sns.distplot(range(m), m, hist_kws={'weights':[clusterd[d] for d in range(m)]}, color='red', kde=False)
+    bin_width = 1
+    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights':[float(alld[d]) / total_dists for d in range(m)]}, color='blue', kde=False)
+    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights':[float(clusterd[d]) / cluster_n for d in range(m)]}, color='red', kde=False)
+    plt.xlabel("Distance")
+    plt.ylabel("% of read pairs")
+    plt.title("Distributions of distances between all reads and between reads sharing barcode")
 
-    # plt.show()
-    fig = dp.get_figure()
-    fig.savefig(save_file, format=os.path.splitext(save_file)[1][1:])
+    # fig = dp.get_figure()
+    # fig.savefig(save_file, format=os.path.splitext(save_file)[1][1:])
+
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    pp = PdfPages(save_file)
+    pp.savefig()
+    pp.close()
 
 if __name__ == "__main__":
     main()
