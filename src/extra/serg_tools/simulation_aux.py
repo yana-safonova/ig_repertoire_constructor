@@ -80,7 +80,7 @@ def GetBarigrecSteps(params, run_params):
                 "--output %s/igrec_umi" % run_params.data_path,
                 "--loci IG",
                 "--threads %d" % params.threads,
-                "--igrec_tau 2",
+                "--igrec-tau 2",
                 "--min-super-read-size %d" % run_params.supernode_threshold,
                 "--no-compilation",
                 "--detect-chimeras",

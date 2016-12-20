@@ -55,13 +55,13 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
-    optional_args.add_argument("--umi_graph_tau",
+    optional_args.add_argument("--umi-graph-tau",
                                type=int,
                                default=1,
                                dest="umi_graph_tau",
                                help="Maximum allowed mismatches between UMIs, used for UMI correction"
                                     "[default: %(default)d]")
-    optional_args.add_argument("--igrec_tau",
+    optional_args.add_argument("--igrec-tau",
                                type=int,
                                default=2,
                                dest="igrec_tau",
