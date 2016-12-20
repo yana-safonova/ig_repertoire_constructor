@@ -105,7 +105,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
 
-    INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
+    DEBUG("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     if (maximal_mismatch.secondary_votes <= max_votes) {
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
