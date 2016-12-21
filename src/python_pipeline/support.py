@@ -156,6 +156,7 @@ def process_spaces(str):
 
 
 def sys_call(cmd, log=None, cwd=None):
+    print "running %s" % cmd
     import shlex
     import subprocess
 
@@ -164,6 +165,7 @@ def sys_call(cmd, log=None, cwd=None):
     else:
         cmd_list = shlex.split(cmd)
 
+    print "cmd_list: %s, cwd = %s" % (cmd_list, cwd)
     proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
 
     output = ''
