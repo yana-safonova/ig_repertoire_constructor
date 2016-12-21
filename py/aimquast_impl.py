@@ -169,8 +169,11 @@ class MultToMultData:
             return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-        assert i < len(self.reference_cluster_sizes_unique)
-        return self.median_rates_unique[i]
+        if i < len(self.reference_cluster_sizes_unique):
+            return self.median_rates_unique[i]
+        else:
+            print "Ad-hoc fix warning"
+            return 0.
 
     def mean_rate(self, size=1):
         from bisect import bisect_left
@@ -178,8 +181,11 @@ class MultToMultData:
             return 0.
 
         i = bisect_left(self.reference_cluster_sizes_unique, size)  # the leftmost elt >= size
-        assert i < len(self.reference_cluster_sizes_unique)
-        return self.mean_rates_unique[i]
+        if i < len(self.reference_cluster_sizes_unique):
+            return self.mean_rates_unique[i]
+        else:
+            print "Ad-hoc fix warning"
+            return 0.
 
     def plot_reference_vs_constructed_size(self, out, title="", format=None,
                                            points=True,
@@ -641,6 +647,8 @@ class RepertoireMatch:
         rb["reference_vs_constructed_size_median_rate"] = float(self.M2MDATA.median_rate(size))
         rb["reference_vs_constructed_size_mean_rate"] = float(self.M2MDATA.mean_rate(size))  # TODO check type
         rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
+        rb["reference_vs_constructed_constructed_clusters_sizes"] = map(int, list(self.M2MDATA.constructed_cluster_sizes))
+        rb["reference_vs_constructed_reference_clusters_sizes"] = map(int, list(self.M2MDATA.reference_cluster_sizes))
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
@@ -845,6 +853,7 @@ class RepertoireMatch:
                                      tau=0,
                                      out="fdr_sensitivity",
                                      title="",
+                                     legend=False,
                                      format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -895,10 +904,11 @@ class RepertoireMatch:
         if title:
             plt.title(title)
 
-        handles, labels = ax.get_legend_handles_labels()
-        handles = [handles[0], handles[-1]]
-        labels = [labels[0], labels[-1]]
-        ax.legend(handles, labels, loc=3)
+        if legend:
+            handles, labels = ax.get_legend_handles_labels()
+            handles = [handles[0], handles[-1]]
+            labels = [labels[0], labels[-1]]
+            ax.legend(handles, labels, loc=3)
 
         save_plot(out, format=format)
 
@@ -923,6 +933,8 @@ def parse_rcm(filename):
             line = [_.strip() for _ in line.strip().split("\t")]
             if len(line) == 2:
                 id, cluster = line
+                if cluster.strip() == "":
+                    cluster = None
             else:
                 id, cluster = line[0], None
 
@@ -959,23 +971,32 @@ class RcmVsRcm:
             self.clustering1.append(rcm1[id] if id in rcm1 else None)
             self.clustering2.append(rcm2[id] if id in rcm2 else None)
 
-    @memoize
-    def indices(self):
-        from copy import copy
+        self.ids = ids
 
+    @memoize_invalidate
+    def fix_nones(self):
         def fix_nones(v, prefix):
             for i in xrange(len(v)):
                 if v[i] is None:
                     v[i] = prefix + str(i)
 
-        clustering1 = copy(self.clustering1)
-        clustering2 = copy(self.clustering2)
-        fix_nones(clustering1, "__none__clustering1__")
-        fix_nones(clustering2, "__none__clustering2__")
+        fix_nones(self.clustering1, "__none__clustering1__")
+        fix_nones(self.clustering2, "__none__clustering2__")
 
-        indices = clustering_similarity_indices(clustering1, clustering2)
-        indices.constructed_purity = purity(clustering1, clustering2)
-        indices.reference_purity = purity(clustering2, clustering1)
+    @memoize
+    def fixed_nones(self):
+        from copy import deepcopy
+        result = deepcopy(self)
+        result.fix_nones()
+        return result
+
+    @memoize
+    def indices(self):
+        fixed = self.fixed_nones()
+
+        indices = clustering_similarity_indices(fixed.clustering1, fixed.clustering2)
+        indices.constructed_purity = purity(fixed.clustering1, fixed.clustering2)
+        indices.reference_purity = purity(fixed.clustering2, fixed.clustering1)
 
         return indices
 
@@ -1017,7 +1038,12 @@ class RcmVsRcm:
 
     @memoize
     def votes(self, constructed=True):
-        return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
+        # return votes(self.clustering1, self.clustering2) if constructed else votes(self.clustering2, self.clustering1)
+        return self.votes_dict(constructed).values()
+
+    @memoize
+    def votes_dict(self, constructed=True):
+        return votes_dict(self.clustering1, self.clustering2) if constructed else votes_dict(self.clustering2, self.clustering1)
 
     @memoize
     def purity(self, constructed=True):
@@ -1029,6 +1055,17 @@ class RcmVsRcm:
         sizes = [sum(vote) for vote in votes]
 
         return np.array(majority_votes, dtype=float) / np.array(sizes, dtype=float)
+
+    @memoize
+    def discordance(self, constructed=True):
+        import numpy as np
+
+        votes = self.votes(constructed)
+        # majority_votes = [vote[0] for vote in votes]
+        secondary_votes = [vote[1] for vote in votes]
+        sizes = [sum(vote) for vote in votes]
+
+        return np.array(secondary_votes, dtype=float) / np.array(sizes, dtype=float)
 
     @memoize
     def majority_votes(self, constructed=True):
@@ -1065,8 +1102,8 @@ class RcmVsRcm:
                 hexbinblue(ax, majority_votes, secondary_votes)
                 # cb = plt.colorbar()
                 # cb.set_label('log10(N)')
-            ax.set_xlabel("Majority votes")  # Primary
-            ax.set_ylabel("Secondary votes")
+            ax.set_xlabel("First votes")  # Primary
+            ax.set_ylabel("Second votes")
         except BaseException as ex:
             print ex
 
@@ -1099,13 +1136,13 @@ class RcmVsRcm:
                 f, ax = initialize_plot(figsize=(7.5, 6))
                 hexbinblue(ax, sizes, sizes - majority_votes)
             ax.set_xlabel("Cluster size")  # Primary
-            ax.set_ylabel("Cluster size - majority votes")
+            ax.set_ylabel("Cluster size - first votes")
 
             save_plot(out, format=format)
         except BaseException as ex:
             print ex
 
-    def plot_purity_distribution(self, out, format=None, constructed=True):
+    def plot_purity_distribution(self, out, format=None, constructed=True, ylog=False):
         import seaborn as sns
 
         f, ax = initialize_plot()
@@ -1113,9 +1150,35 @@ class RcmVsRcm:
         purity = self.purity(constructed)
         try:
             sns.distplot(purity, kde=False, bins=25, ax=ax)
-            ax.set_ylabel("Purity")
+            ax.set_xlabel("Purity")
+            ax.set_ylabel("# of clusters")
             ax.set_xlim((0, 1))
-            ax.set_ylim((0, len(purity)))
+            if ylog:
+                plt.yscale("log", nonposy="clip")
+            else:
+                ax.set_ylim((0, len(purity)))
+
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
+
+
+    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False,
+                                      xmax=0.5):
+        import seaborn as sns
+
+        f, ax = initialize_plot()
+
+        discordance = self.discordance(constructed)
+        try:
+            sns.distplot(discordance, kde=False, bins=25, ax=ax)
+            ax.set_xlabel("Discordance")
+            ax.set_ylabel("# of clusters")
+            ax.set_xlim((0, xmax))
+            if ylog:
+                plt.yscale("log", nonposy="clip")
+            else:
+                ax.set_ylim((0, len(discordance)))
 
             save_plot(out, format=format)
         except BaseException as ex:
@@ -1315,6 +1378,33 @@ def votes(X, Y):
     return votes
 
 
+def votes_dict(X, Y):
+    from collections import defaultdict
+
+    assert len(X) == len(Y)
+
+    class defaultdict_factory:
+
+        def __init__(self, type):
+            self.__type = type
+
+        def __call__(self):
+            return defaultdict(self.__type)
+
+    cluster = defaultdict(defaultdict_factory(int))  # Unfortunately, it's impossible to make defaultdict(defaultdict)
+    for x, y in zip(X, Y):
+        if x is not None and y is not None:
+            cluster[x][y] += 1
+
+    votes = {cluster: sorted(cluster_content.itervalues(), reverse=True) for cluster, cluster_content in cluster.iteritems()}
+
+    for vote in votes.itervalues():
+        if len(vote) < 2:
+            vote += [0] * (2 - len(vote))
+
+    return votes
+
+
 def dict2list(d, default=int):
     if not d:
         return []
@@ -1425,16 +1515,22 @@ def majority_secondary(reads):
     # l = max(len(read) for read in reads)
     l = min(len(read) for read in reads)
 
-    nuc2idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+    # nuc2idx = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
 
-    reads = [str(read) for read in reads]
+    # reads = [str(read.seq) for read in reads]
+
+    # In [5]: np.fromstring("ACGT", count=4, dtype=np.uint8)
+    # Out[5]: array([65, 67, 71, 84], dtype=uint8)
 
     mx = np.zeros(shape=(l, 4))
     for read in reads:
-        for i in xrange(min(l, len(read))):
-            letter = read[i]
-            idx = nuc2idx[letter]
-            mx[i, idx] += 1
+        read = np.fromstring(str(read.seq), dtype=np.uint8, count=l)  # TODO use fromstring here
+        # assert len(read) == l
+        mx[read == 65, 0] += 1
+        mx[read == 67, 1] += 1
+        mx[read == 71, 2] += 1
+        mx[read == 84, 3] += 1
+        # assert sum(read == 65) + sum(read == 67) + sum(read == 71) + sum(read == 84) == len(read)
 
     mx.sort(axis=1)
     return mx[:, 3], mx[:, 2]
@@ -1452,6 +1548,10 @@ class Cluster:
     def append(self, read):
         self.__reads.append(read)
         return self
+
+    @memoize
+    def nbases(self):
+        return sum([len(read) for read in self.__reads])
 
     @memoize
     def consensus(self):
@@ -1478,10 +1578,15 @@ class Cluster:
 
     @memoize
     def majority_secondary(self):
-        reads = [str(read.seq) for read in self.__reads]
-        ms = majority_secondary(reads)
+        ms = majority_secondary(self.__reads)
         l = self.length()
         return ms[0][:l], ms[1][:l]
+
+    @memoize
+    def max_second_vote(self):
+        majority, secondary = self.majority_secondary()
+
+        return max(secondary)
 
     @memoize
     def nerrors_by_position(self):
@@ -1489,6 +1594,9 @@ class Cluster:
 
     @memoize
     def nerrors_by_read(self):
+        """
+        Be careful! We consider only second vote errors here!!!
+        """
         reads = [str(read.seq) for read in self.__reads]
         center = self.centroid()
         errors_by_read = []
@@ -1513,6 +1621,17 @@ class Cluster:
         for i, nerrors in enumerate(errors_by_position):
             if nerrors:
                 result += [float(i) / float(l)] * nerrors
+
+        return result
+
+    @memoize
+    def errors_absolute(self):
+        result = []
+        errors_by_position = self.nerrors_by_position()
+
+        for i, nerrors in enumerate(errors_by_position):
+            if nerrors:
+                result += [i] * nerrors
 
         return result
 
@@ -1585,7 +1704,7 @@ class Repertoire:
         clusters = defaultdict(Cluster)
 
         for id, cluster in rcm.iteritems():
-            if id in id2read:
+            if id in id2read and cluster is not None:  # TODO fix it considering to issue #99
                 clusters[cluster].append(id2read[id])
                 clusters[cluster].name = cluster
 
@@ -1596,7 +1715,24 @@ class Repertoire:
                 clusters[cluster].center = read
                 clusters[cluster].name = cluster
 
-        self.__clusters = clusters
+        self.__clusters = self.clusters = clusters
+
+    @memoize_invalidate
+    def __invalidate(self):
+        pass
+
+    def largest(self):
+        from collections import defaultdict
+        from copy import copy
+
+        result = copy(self)
+        largest_cluster = max(self.__clusters.itervalues(), key=lambda cluster: len(cluster))
+        result.__clusters = defaultdict(Cluster)
+        result.__clusters["0"] = largest_cluster
+
+        result.__invalidate()
+
+        return result
 
     @memoize
     def error_rates(self, min_size=None):
@@ -1665,6 +1801,13 @@ class Repertoire:
             min_size = self.__min_size
 
         return join_list_of_lists(cluster.errors01() for cluster in self.__clusters.itervalues() if len(cluster) >= min_size)
+
+    @memoize
+    def __errors_absolute(self, min_size=None):
+        if min_size is None:
+            min_size = self.__min_size
+
+        return join_list_of_lists(cluster.errors_absolute() for cluster in self.__clusters.itervalues() if len(cluster) >= min_size)
 
     def export_bad_clusters(self,
                             error_rate=None,
@@ -1790,16 +1933,21 @@ class Repertoire:
         errors01 = self.__errors01()
         values, bins = np.histogram(errors01, bins=bins, range=(0., 1.))
 
-        # HARD fix:
-        values[-1:] = np.median(values)
-        values[-2:-1] = np.median(values[:-2])
+        # # HARD fix:
+        # values[-1:] = np.median(values)
+        # values[-2:-1] = np.median(values[:-2])
 
         widths = bins[1:] - bins[:-1]
         width = widths[0]
 
-        width_in_bases = width * 450  # TODO Use len from self.
+        nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
 
-        values / width_in_bases
+        width_in_bases = width * nbases
+        # print len(errors01), nbases
+
+        # print values
+        values = values / float(width_in_bases)
+        # print values
 
         xs = bins[:-1] + widths / 2.
 
@@ -1827,7 +1975,7 @@ class Repertoire:
 
         plt.xlim(0, 1)
         ax.set_xlabel("Relative position in read")
-        ax.set_ylabel("Number of errors")
+        ax.set_ylabel("Second vote rate")
 
         if legend:
             handles, labels = ax.get_legend_handles_labels()
@@ -1851,6 +1999,93 @@ class Repertoire:
                align="edge",
                # edgecolor='cornflowerblue',
                color='cornflowerblue')
+
+        if title:
+            plt.title(title)
+
+        save_plot(out, format=format)
+
+    def plot_cluster_error_profile_new(self,
+                                       out="error_profile",
+                                       bins=25,
+                                       title="",
+                                       min_size=None,
+                                       legend=False,
+                                       format=None):
+        import matplotlib.pyplot as plt
+        # import seaborn as sns
+        import numpy as np
+        from matplotlib import patches
+
+        if min_size is None:
+            min_size = self.__min_size
+
+        f, ax = initialize_plot()
+        errors_absolute = self.__errors_absolute()
+        l = min([cluster.length() for cluster in self.__clusters.itervalues()])
+        values, bins = np.histogram(errors_absolute, bins=l, range=(1, l))
+
+        widths = bins[1:] - bins[:-1]
+        width = widths[0]
+
+        nbases = sum([cluster.nbases() for cluster in self.__clusters.itervalues()])
+        sumlen = sum([len(cluster) for cluster in self.__clusters.itervalues()])
+
+        print "Peak", max(values)
+        print "Reads", sumlen, "Bases", nbases, "SV errors", len(errors_absolute)
+        values = values / float(sumlen)
+
+        xs = bins[:-1] + widths / 2.
+
+        cdr1_start = 0.25 * l
+        cdr1_end = 0.3 * l
+        cdr2_start = 0.41 * l
+        cdr2_end = 0.54 * l
+        cdr3_start = 0.8 * l
+        cdr3_end = 0.86 * l
+
+        cdr_mask = ((cdr1_start < xs) & (xs < cdr1_end)) | ((cdr2_start < xs) & (xs < cdr2_end)) | ((cdr3_start < xs) & (xs < cdr3_end))
+        cdr_values = values[cdr_mask]
+        cdr_bins = bins[:-1][cdr_mask]
+
+        eps = 1. / len(values) / 10
+        cdr_color = "#EFBEBE"
+
+        ax.bar(left=cdr_bins + eps,
+               height=cdr_values,
+               width=width - 2 * eps,
+               align="edge",
+               # edgecolor='red',
+               color=cdr_color,
+               label="CDRs")
+
+        plt.xlim(1, l)
+        ax.set_xlabel("Position in constructed cluster")
+        ax.set_ylabel("Discordance")
+
+        if legend:
+            handles, labels = ax.get_legend_handles_labels()
+            plt.legend(handles, labels)
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+
+        max_value = ax.get_ylim()[1]
+        plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, max_value, facecolor=cdr_color, lw=0))
+        plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, max_value, facecolor=cdr_color, lw=0))
+
+        ax.bar(left=bins[:-1] + eps,
+               height=values,
+               width=widths - 2 * eps,
+               align="edge",
+               # edgecolor='cornflowerblue',
+               color='cornflowerblue')
+        plt.ylim(0, max_value)
 
         if title:
             plt.title(title)
@@ -2110,3 +2345,280 @@ def json_from_file(filename):
         data = json.load(f)
 
     return data
+
+
+def plot_logit(y, X, colors, colormap=False):
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    sns.set_style("darkgrid")
+
+    # print X.shape
+    # print X
+    assert X.shape[0] == len(y)
+    # print X[:, 1]
+    # print X.min()
+    # print X[:, 1].min()
+    # print X[:, 1].max()
+    # clf = LogisticRegression().fit(np.hstack((X, np.ones((X.shape[0], 1)))), y)
+
+    clf = LogisticRegression().fit(X, y)
+    score = clf.score(X, y)
+    params = clf.get_params()
+    coef = clf.coef_
+    intercept = clf.intercept_
+
+    # xx, yy = np.mgrid[X[:, 0].min():X[:, 0].max():.01,
+    #                   X[:, 1].min():X[:, 1].max():.01]
+    xx, yy = np.meshgrid(np.arange(X[:, 0].min(), X[:, 0].max(), 0.5),
+                         np.arange(X[:, 1].min(), X[:, 1].max(), 0.5),
+                         sparse=False, indexing='xy')
+
+    grid = np.c_[xx.ravel(), yy.ravel()]
+    # grid = np.hstack((grid, np.ones((grid.shape[0], 1))))
+
+    probs = clf.predict_proba(grid)[:, 1].reshape(xx.shape)
+
+    if colormap:
+        f, ax = initialize_plot()
+        contour = ax.contourf(xx, yy, probs, 25, cmap="RdBu",
+                              vmin=0, vmax=1)
+        ax_c = f.colorbar(contour)
+        ax_c.set_label("$P(y = 1)$")
+        ax_c.set_ticks([0, .25, .5, .75, 1])
+
+        ax.scatter(X[:, 0], X[:, 1], c=colors,
+                   s=30,
+                   cmap="RdBu", vmin=-.2, vmax=1.2,
+                   edgecolor="white", linewidth=1)
+        plt.xlabel("Cluster size")
+        plt.ylabel("Second vote")
+    else:
+        f, ax = initialize_plot()
+        # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
+        # ax.contour(xx, yy, probs, levels=[.5], cmap="Greys")
+
+        ax.scatter(X[:, 0], X[:, 1], s=20,
+                   c=colors,
+                   # cmap="RdBu", vmin=-.2, vmax=1.2, alpha=0.7)
+                   cmap="RdBu", alpha=0.7)
+        plt.xlabel("Cluster size")
+        plt.ylabel("Second vote")
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        ax.contour(xx, yy, probs, levels=[.5], cmap="Greys", vmin=0, vmax=.6)
+        plt.xlim(0, xlim[1])
+        plt.ylim(0, ylim[1])
+
+    return coef, intercept, score
+
+
+def splittering(rcm2rcm, rep, args, report):
+    mp = rcm2rcm.fixed_nones().votes_dict(constructed=True)
+    for cluster in rep.clusters.itervalues():
+        assert cluster.name in mp
+        votes = mp[cluster.name]
+        purity = float(votes[0]) / sum(votes)
+        cluster.purity = purity
+
+    purities = [cluster.purity for cluster in rep.clusters.itervalues()]
+    second_votes = [cluster.max_second_vote() for cluster in rep.clusters.itervalues()]
+    sizes = [len(cluster) for cluster in rep.clusters.itervalues()]
+
+    # print second_votes
+
+    import seaborn as sns
+    import numpy as np
+    import matplotlib.pyplot as plt
+    # ax = sns.regplot(x=np.array(second_votes),
+    #                  y=np.array(purities),
+    #                  line_kws={"alpha": 0.7})
+    # ax.set_xlabel("Second votes * size")
+    # ax.set_ylabel("Purity")
+    # plt.ylim(0, 1)
+    # plt.xlim(0, max(second_votes))
+    # plt.savefig(args.reference_based_dir + "/purity_vs_secondvotesize.png")
+    # plt.close()
+
+    x = np.array(second_votes, dtype=np.float) / np.array(sizes)
+    y = np.array(purities)
+
+    sizes = np.array(sizes)
+
+    def F(size):
+        ax = sns.regplot(x=x[sizes >= size],
+                         y=y[sizes >= size],
+                         line_kws={"alpha": 0.7})
+        ax.set_xlabel("Second votes")
+        ax.set_ylabel("Purity")
+        eps = 0.05
+        plt.ylim(0 - eps, 1 + eps)
+        plt.xlim(0 - eps, 0.5 + eps)
+        plt.savefig(args.reference_based_dir + "/purity_vs_secondvote_%d.png" % size)
+        plt.close()
+    map(F, [1, 5, 10, 15, 50])
+
+    os.system(igrec_dir + "/build/release/bin/ig_component_splitter -i %s -o %s -R %s -M %s -V 1 --recursive=false --flu=false" % (args.initial_reads,
+                                                                                                                                   args.output_dir + "/splitted.fa.gz",
+                                                                                                                                   args.constructed_rcm,
+                                                                                                                                   args.output_dir + "/splitted.rcm"))
+
+    def read_fa_cluster_ids(filename):
+        with smart_open(filename) as f:
+            result = {parse_cluster_mult(rec.id)[0]: rec for rec in SeqIO.parse(f, idFormatByFileName(filename))}
+
+        return result
+
+    splitted_clusters = read_fa_cluster_ids(args.output_dir + "/splitted.fa.gz")
+    constructed_clusters = read_fa_cluster_ids(args.constructed_repertoire)
+    repertoire = read_fa_cluster_ids(args.reference_repertoire)
+    repertoire = set(str(rec.seq) for rec in repertoire.itervalues() if parse_cluster_mult(rec.description)[1] >= 5)
+
+    score_diffs = []
+    cluster_sizes = []
+    max_second_votes = []
+
+    for id in constructed_clusters:
+        constructed_seq = constructed_clusters[id]
+
+        splitted_seqs = []
+        for splitted_id in [id + "X0", id + "X1"]:
+            if splitted_id in splitted_clusters:
+                splitted_seqs.append(splitted_clusters[splitted_id])
+
+        cluster_size = len(rep.clusters[id])
+        initial_score = 0
+        assert cluster_size == parse_cluster_mult(constructed_seq.description)[1]
+        if cluster_size < 5:
+            continue
+
+        constructed_seq = str(constructed_seq.seq)
+        initial_score += 1 if constructed_seq in repertoire else -1
+
+        splitted_score = 0
+        for seq in splitted_seqs:
+            if parse_cluster_mult(seq.description)[1] < 5:
+                continue
+            seq = str(seq.seq)
+            splitted_score += 1 if seq in repertoire else -1
+
+        max_second_vote = rep.clusters[id].max_second_vote()
+        # print initial_score, splitted_score, max_second_vote, cluster_size, max_second_vote / cluster_size
+        score_diffs.append(splitted_score - initial_score)
+        cluster_sizes.append(cluster_size)
+        max_second_votes.append(max_second_vote)
+
+    if "splitting" not in report.__dict__:
+        report.splitting = {}
+
+    rs = report.splitting
+
+    rs["score_diffs"] = score_diffs
+    rs["cluster_sizes"] = cluster_sizes
+    rs["max_second_votes"] = max_second_votes
+
+    score_diffs = np.array(score_diffs)
+    cluster_sizes = np.array(cluster_sizes)
+    max_second_votes = np.array(max_second_votes)
+
+    def def_color(score):
+        if score < 0:
+            return "red"
+        elif score == 0:
+            return "black"
+        else:
+            return "blue"
+
+    def def_size(score):
+        if score <= 1:
+            return 15
+        elif score == 2:
+            return 20
+        else:
+            return 30
+
+    colors = map(def_color, score_diffs)
+    bullet_sizes = map(def_size, score_diffs)
+    plt.scatter(x=cluster_sizes, y=max_second_votes,
+                s=bullet_sizes,
+                c=colors, alpha=0.7)
+
+    plt.xlabel("Cluster size")
+    # plt.ylabel("Second vote * size")
+    plt.ylabel("Second vote")
+    xlim = plt.xlim()
+    ylim = plt.ylim()
+    plt.xlim(0, xlim[1])
+    plt.ylim(0, ylim[1])
+
+    save_plot(args.reference_based_dir + "/splitting_efficiency", format=args.figure_format)
+
+    plt.scatter(x=cluster_sizes, y=max_second_votes/cluster_sizes,
+                s=20,
+                c=colors, alpha=0.7)
+    plt.xlabel("Cluster size")
+    plt.ylabel("Second vote")
+    xlim = plt.xlim()
+    ylim = plt.ylim()
+    eps = 0.05
+    plt.xlim(0, xlim[1])
+    plt.ylim(0 - eps/10, 1 + eps/10)
+
+    save_plot(args.reference_based_dir + "/splitting_efficiency01", format=args.figure_format)
+
+    import itertools
+    # Test strategies
+    for cluster_size_threshold, secondvote_threshold in itertools.product([5, 20, 50, 100, 200], [0.5, 0.2, 0.1, 0.05, 0.01]):
+        print "score_diffs[cluster_sizes >= %d & max_second_votes/cluster_size >= %f]" % (cluster_size_threshold, secondvote_threshold)
+        s = sum(score_diffs[(cluster_sizes >= cluster_size_threshold) & (max_second_votes/cluster_sizes >= secondvote_threshold)])
+        print s
+        rs["SavedClusters_%d_%0.3f" % (cluster_size_threshold, secondvote_threshold)] = s
+
+    s = sum(score_diffs[0.634*max_second_votes - 0.0076*cluster_sizes > 6.025])
+    rs["SavedClustersLogit"] = s
+    print "Saved clusters logit", s
+
+    good = score_diffs > 0
+    if False:
+        import statsmodels.api as sm
+
+        m = sm.Logit(good, np.vstack((np.ones(len(max_second_votes)),
+                                      cluster_sizes,
+                                      max_second_votes)).T)
+        # m = sm.Logit(good, np.vstack((cluster_sizes,
+        #                               max_second_votes)).T)
+        res = m.fit()
+        # print res.aic, res.bic
+        print res.params
+        coef = res.params
+        print zip(res.predict(), score_diffs)
+
+    coef, intercept, score = plot_logit(good, np.vstack((cluster_sizes,
+                                                         max_second_votes)).T,
+                                        colors=colors)
+
+    red_points = len([1 for color in colors if color == "red"])
+    black_points = len([1 for color in colors if color == "black"])
+    blue_points = len([1 for color in colors if color == "blue"])
+
+    print "Red: ", red_points
+    print "Black: ", black_points
+    print "Blue: ", blue_points
+
+    rs["BluePoints"] = blue_points
+    rs["BlackPoints"] = black_points
+    rs["RedPoints"] = red_points
+
+    print "Coef", coef, intercept
+    print "Score", score
+    rs["LogitScore"] = score
+    rs["LogitCoef"] = [coef[0][0], coef[0][1]]
+    rs["LigitIntercept"] = intercept[0]
+    save_plot(args.reference_based_dir + "/splitting_efficiency_logit", format=args.figure_format)
+    plot_logit(good, np.vstack((cluster_sizes,
+                                max_second_votes)).T,
+               colors=colors,
+               colormap=True)
+
+    save_plot(args.reference_based_dir + "/splitting_efficiency_logit_colormap", format=args.figure_format)

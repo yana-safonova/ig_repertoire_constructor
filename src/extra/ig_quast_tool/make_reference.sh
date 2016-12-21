@@ -3,6 +3,7 @@
 
 INPUT=$1
 OUTPUT=$2
+set -e
 
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -31,13 +32,19 @@ ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input2.fa.gz -r ${OUTPUT}/re
 ${BCLEANER} ${OUTPUT}/cleaned_reads.fa.gz ${OUTPUT}/input3.fa.gz -r ${OUTPUT}/repertoire3.rcm --tau=2 -d10
 
 
-${CIC} -r ${OUTPUT}/repertoire3.rcm ${OUTPUT}/repertoire4.fa.gz ${OUTPUT}/repertoire4.fa.gz -b 2
 
 for i in 1 2 3
 do
     ${CFINDER} -R ${OUTPUT}/repertoire${i}.rcm -i ${OUTPUT}/input${i}.fa.gz -o ${OUTPUT}/repertoire${i}.fa.gz
     ${CIC} -r ${OUTPUT}/repertoire${i}.rcm ${OUTPUT}/repertoire${i}.fa.gz ${OUTPUT}/repertoire${i}.fa.gz -S ${OUTPUT}/barcode_stats${i}.tsv
 done
+
+
+# TODO reconstruct input4
+# cp ${OUTPUT}/input3.fa.gz ${OUTPUT}/input4.fa.gz
+# cp ${OUTPUT}/repertoire3.rcm ${OUTPUT}/repertoire4.rcm
+# cp ${OUTPUT}/repertoire3.fa.gz ${OUTPUT}/repertoire4.fa.gz
+# ${CIC} -r ${OUTPUT}/repertoire4.rcm ${OUTPUT}/repertoire4.fa.gz ${OUTPUT}/repertoire4.fa.gz -b 2
 
 
 JITTER=${IGREC_DIR}/py/jit_file.py

@@ -8,7 +8,8 @@ def get_plot_various_error_rate_data(dir,
                                      kind="igrec",
                                      what="sensitivity",
                                      woans=False,
-                                     size=5):
+                                     size=5,
+                                     add_aimquast_to_path=True):
     from glob import glob
 
     suff = "_woans" if woans else ""
@@ -27,7 +28,8 @@ def get_plot_various_error_rate_data(dir,
         assert extract_lambda("fdsfsdfsd/errate_3.14") == 3.14
 
     def extract_data(dirname):
-        json = json_from_file(dirname + "/" + kind + "/aimquast/aimquast.json")
+        jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
+        json = json_from_file(dirname + "/" + kind + jfile)
         return json
 
     lambdas = map(extract_lambda, dirnames)
@@ -39,25 +41,61 @@ def get_plot_various_error_rate_data(dir,
     return lambdas, data
 
 
-def plot_various_error_rate(dir,
-                            kinds,
-                            labels,
-                            sizes=None,
-                            out="var_error_rate",
-                            what="sensitivity", woans=False,
-                            title="",
-                            format=("png", "pdf", "svg"),
-                            legend=True,
-                            which=None):
-    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans)
-    datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans)[1] for kind in kinds]
+def get_plot_various_error_rate_data_serg(dir,
+                                          kind="igrec",
+                                          what="sensitivity",
+                                          size=5,
+                                          woans=False,
+                                          add_aimquast_to_path=False):
+    from glob import glob
+
+    dirnames = glob(dir + "/pcr*")
+
+    def extract_lambda(dirname):
+        import re
+        m = re.match(r".*pcr_([\d.]+)_super_100000_umi_15.*", dirname)
+        if m:
+            g = m.groups()
+            return float(g[0].strip())
+        else:
+            return None
+
+    if not woans:
+        assert extract_lambda("pcr_0.003000_super_100000_umi_15") == 0.003
+
+    def extract_data(dirname):
+        jfile = "/quast_%s/aimquast.json" % kind
+        json = json_from_file(dirname + "/" + jfile)
+        return json
+
+    lambdas = map(extract_lambda, dirnames)
+    data = map(extract_data, dirnames)
+
+    print lambdas
+    lambdas, data = zip(*sorted([(l, d) for l, d in zip(lambdas, data) if l < 2000000000000.00001]))
+
+    return lambdas, data
+
+
+def plot_various_error_rate_serg(dir,
+                                 kinds,
+                                 labels,
+                                 sizes=None,
+                                 out="var_error_rate",
+                                 what="sensitivity", woans=False,
+                                 title="",
+                                 format=("png", "pdf", "svg"),
+                                 legend=True,
+                                 which=None):
+    lambdas, _ = get_plot_various_error_rate_data_serg(dir, kind=kinds[0], woans=woans)
+    datas = [get_plot_various_error_rate_data_serg(dir, kind=kind, woans=woans)[1] for kind in kinds]
     import matplotlib.pyplot as plt
     import seaborn as sns
 
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = [tool2color(label) for label in labels]
 
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
@@ -113,6 +151,85 @@ def plot_various_error_rate(dir,
     save_plot(out, format=format)
 
 
+
+
+def plot_various_error_rate(dir,
+                            kinds,
+                            labels,
+                            sizes=None,
+                            out="var_error_rate",
+                            what="sensitivity", woans=False,
+                            title="",
+                            format=("png", "pdf", "svg"),
+                            legend=True,
+                            which=None):
+    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans)
+    datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans)[1] for kind in kinds]
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    f, ax = initialize_plot()
+
+    sns.set_style("darkgrid")
+    colors = [tool2color(label) for label in labels]
+
+    def opt_size(sensitivity, precision):
+        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+
+    def get_what(dataset, what, cur_sizes):
+        if what in ["sensitivity", "precision"]:
+            return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "sum":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "minsize":
+            return [size for data, size in zip(dataset, cur_sizes)]
+        else:
+            return None
+
+    forplot = []
+    for dataset in datas:
+        if sizes is None:
+            cur_sizes = [opt_size(data["reference_based"]["__data_sensitivity"], data["reference_based"]["__data_precision"]) for data in dataset]
+        else:
+            cur_sizes = [sizes] * len(dataset)
+        cur_for_plot = get_what(dataset, what, cur_sizes)
+        forplot.append(cur_for_plot)
+
+    zipped = zip(forplot, colors, labels)
+    if which is not None:
+        zipped = [zipped[i] for i in which]
+
+    print title, what
+    for y, color, label in zipped:
+        plt.plot(lambdas, y,
+                 "b-", color=color, label=label)
+        print label, y
+
+    eps = 0.025
+    if what in ["sensitivity", "precision"]:
+        plt.ylim((0. - eps, 1. + eps))
+    elif what == "sum":
+        plt.ylim((1. - eps, 2. + eps))
+
+    if what in ["sensitivity", "precision"]:
+        plt.ylabel(what)
+    elif what == "sum":
+        plt.ylabel("sensitivity + precision")
+    elif what == "minsize":
+        plt.ylabel("optimal constructed min size")
+
+    plt.xlabel("Error rate")
+
+    if title:
+        plt.title(title)
+
+    if legend:
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles, labels, loc=3)
+
+    save_plot(out, format=format)
+
+
 def plot_two_sums(dir,
                   kind="igrec",
                   label="IgReC",
@@ -131,7 +248,7 @@ def plot_two_sums(dir,
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = ["cornflowerblue", "red", "orange", "black"]
 
     def opt_size(sensitivity, precision):
         return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
@@ -155,7 +272,7 @@ def plot_two_sums(dir,
         cur_for_plot = get_what(dataset, "sum", cur_sizes)
         forplot.append(cur_for_plot)
 
-    labels = [label + ", with answer", label + ", without answer"]
+    labels = [label + ", simple", label + ", complex"]
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
@@ -179,12 +296,28 @@ def plot_two_sums(dir,
     save_plot(out, format=format)
 
 
+def tool2color(tool, secondary=False):
+    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black"]
+    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black"]
+    colors = secondary_colors if secondary else primary_colors
+
+    def tool2id(tool):
+        tool = tool.lower()
+
+        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr"]
+        from Levenshtein import distance
+        dists = [distance(tool, t) for t in tools]
+        return min(range(len(dists)), key=lambda i: dists[i])
+
+    return colors[tool2id(tool)]
+
+
 def plot_rocs(jsons, labels,
               max_size_threshold=75,
               out="two_rocs",
               title="",
               format=None,
-              show_coords=False):
+              show_coords=True):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -214,7 +347,9 @@ def plot_rocs(jsons, labels,
     # skip = 2
     skip = 0
 
-    colors = ["cornflowerblue", "seagreen", "orange", "black"]
+    colors = [tool2color(label) for label in labels]
+    point_colors = [tool2color(label, secondary=True) for label in labels]
+
     for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
         plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
 
@@ -246,13 +381,13 @@ def plot_rocs(jsons, labels,
         if i <= skip:
             continue
     # for i in []:
-        annotation(i, precisions[0], sensitivities[0], color="blue")
+        annotation(i, precisions[0], sensitivities[0], color=point_colors[0])
         if len(jsons) > 1:
-            annotation(i, precisions[1], sensitivities[1], color="green", xshift=-0.04)
+            annotation(i, precisions[1], sensitivities[1], color=point_colors[1], xshift=-0.04)
         if len(jsons) > 2:
-            annotation(i, precisions[2], sensitivities[2], color="gold", yshift=0.04)
+            annotation(i, precisions[2], sensitivities[2], color=point_colors[2], yshift=0.04)
         if len(jsons) > 3:
-            annotation(i, precisions[3], sensitivities[3], color="black", xshift=-0.04, yshift=0.04)
+            annotation(i, precisions[3], sensitivities[3], color=point_colors[3], xshift=-0.04, yshift=0.04)
 
     def red_point(x, y, size, label="NOLABEL", do_plot=True):
         if do_plot:
@@ -293,13 +428,14 @@ def plot_rocs(jsons, labels,
 #               out=out)
 
 
-def rocs(dir, tools, out, labels=None, title="", **kwargs):
+def rocs(dir, tools, out, labels=None, title="", add_aimquast_to_path=True, **kwargs):
     if labels is None:
         labels = tools
 
     assert len(labels) == len(tools)
 
-    plot_rocs([dir + "/" + tool + "/aimquast/aimquast.json" for tool in tools],
+    jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
+    plot_rocs([dir + "/" + tool + jfile for tool in tools],
               labels=labels,
               title=title,
               format=("png", "pdf"),
@@ -319,17 +455,29 @@ def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
 def plotplot(dir, out_dir, title, **kwargs):
     mkdir_p(out_dir)
     rocs(dir,
-         tools=["igrec", "mixcr", "supernode"],
+         tools=["igrec", "mixcr2", "supernode"],
          labels=["IgReC", "MiXCR", "pRESTO"],
          title=title,
-         out=out_dir + "/sensitivity_precision_plot_all",
+         out=out_dir + "/sensitivity_precision_plot_all_new",
          **kwargs)
-    rocs(dir,
-         tools=["igrec_tau3", "mixcr", "supernode"],
-         labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_tau3",
-         **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode"],
+    #      labels=["IgReC", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_old",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec_tau3", "mixcr", "supernode"],
+    #      labels=["IgReC tau = 3", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_tau3",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode", "igrec_vote"],
+    #      labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_split",
+    #      **kwargs)
     # rocs(dir,
     #      tools=["igrec_tau2", "supernode"],
     #      labels=["IgReC tau = 2", "pRESTO"],
@@ -343,12 +491,21 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="HEALTHY 1", show_coords=True)
+    plotplot(igrec_dir + "py/age3_all/", "AGE3_3", title="REAL", show_coords=True)
+    plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
+    sys.exit()
+
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="REAL", show_coords=True)
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
 
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="")
     sys.exit()
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="")
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
+
+
+    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="")
 
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGH/filtering3/", "FLU_FV_27_IGH_3", title="FLU_FV_27_IGH_3")
@@ -359,7 +516,6 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="FLU_FV_21_IGK_3")
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGK/filtering3/", "FLU_FV_27_IGK_3", title="FLU_FV_27_IGK_3")
 
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering1/", "FLU_FV_21_IGH_1", title="FLU_FV_21_IGH_1")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering2/", "FLU_FV_21_IGH_2", title="FLU_FV_21_IGH_2")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
 
