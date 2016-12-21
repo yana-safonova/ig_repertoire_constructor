@@ -28,34 +28,21 @@ def smart_open(filename, mode="r"):
     return fh
 
 
-def main():
-    # rep_file = sys.argv[1]
-    # all_dists = sys.argv[2]
-    # threads = int(sys.argv[3])
-    # max_dist = int(sys.argv[4])
-    # print "running dist calculation"
-    # os.system("%s %s %s %d %d" % (os.path.join(igrec_dir, "build/release/bin/pairwise_dist_stats"), rep_file, all_dists, threads, max_dist))
-    all_dists = sys.argv[1]
-    cluster_dists = sys.argv[2]
-    save_file = sys.argv[3]
-
+def get_consensus_dists(all_dists):
+    print "reading consensus dists"
     all_dist_file = smart_open(all_dists)
-    # alld = [int(all_dist_file.readline()) for i in xrange(10000)]
     alld = defaultdict(int)
-    total_dists = 0
+    d = 0
+    # total_dists = 0
     for line in all_dist_file:
-        alld[int(line)] += 1
-        total_dists += 1
+        alld[d] = int(line)
+        d += 1
+        # total_dists += 1
+    return alld
 
-        # if total_dists > 10000:
-        #     break
-    # alld = [int(line) for line in all_dist_file]
-    print "read %d dists" % len(alld)
-    m = max(alld)
-    print "max is", m
-    # alld = [x for x in alld if x != m]
-    print "now only %d dists are left" % len(alld)
 
+def get_dists_inside_clusters(cluster_dists):
+    print "reading dists inside clusters"
     cluster_dist_file = smart_open(cluster_dists)
     clusterd = defaultdict(int)
     cluster_n = 0
@@ -72,14 +59,36 @@ def main():
 
         # if random.randrange(1000) == 5:
         #     break
-    print "cluster dists read"
+    return cluster_n, clusterd
 
+
+def main():
+    all_dists = sys.argv[1]
+    cluster_dists = sys.argv[2]
+    # total_reads = int(sys.argv[3])
+    save_file = sys.argv[3]
+
+    alld = get_consensus_dists(all_dists)
+    # total_dists = total_reads * (total_reads - 1) / 2
+    total_dists = sum(alld.values())
+    m = max(alld)
+    print "max is", m
+
+    cluster_n, clusterd = get_dists_inside_clusters(cluster_dists)
+
+    print "drawing histograms"
     bin_width = 1
-    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights':[float(alld[d]) / total_dists for d in range(m)]}, color='blue', kde=False)
-    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights':[float(clusterd[d]) / cluster_n for d in range(m)]}, color='red', kde=False)
+    all_distr = [float(sum([alld[i] for i in alld if i <= d])) / total_dists for d in range(m)]
+    print "all distribution", zip(range(len(all_distr)), all_distr)
+    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights': all_distr}, color='blue', kde=False)
+    cluster_distr = [float(sum([clusterd[i] for i in clusterd if i >= d])) / cluster_n for d in range(m)]
+    print "cluster distribution", zip(range(len(cluster_distr)), cluster_distr)
+    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights': cluster_distr}, color='red', kde=False)
     plt.xlabel("Distance")
     plt.ylabel("% of read pairs")
     plt.title("Distributions of distances between all reads and between reads sharing barcode")
+    plt.xlim(0, 100)
+    plt.ylim(0, 1)
 
     # fig = dp.get_figure()
     # fig.savefig(save_file, format=os.path.splitext(save_file)[1][1:])
@@ -89,6 +98,7 @@ def main():
     pp = PdfPages(save_file)
     pp.savefig()
     pp.close()
+
 
 if __name__ == "__main__":
     main()
