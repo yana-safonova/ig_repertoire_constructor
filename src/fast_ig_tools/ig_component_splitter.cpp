@@ -117,7 +117,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
     VERIFY(maximal_mismatch.majory_votes >= maximal_mismatch.secondary_votes);
 
-    INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
+    DEBUG("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     bool do_split = false;
     auto mmsv = maximal_mismatch.secondary_votes;
 
@@ -180,7 +180,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
 
     if (!recursive) {
-        max_votes = 0; 
+        max_votes = 0;
     }
 
     split_component(reads, indices_majory, out, max_votes, discard, flu);

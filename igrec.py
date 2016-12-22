@@ -386,7 +386,9 @@ class VJAlignmentPhase(Phase):
                        " --loci " + self.__params.loci + \
                        " --organism " + self.__params.organism
         if self.__params.no_pseudogenes:
-            command_line += " --no-pseudogenes"
+            command_line += " --pseudogenes=off"
+        else:
+            command_line += " --pseudogenes=on"
         cwd = os.getcwd()
         os.chdir(home_directory)
         support.sys_call(command_line, self._log)

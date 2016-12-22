@@ -203,9 +203,12 @@ def plot_various_error_rate(dir,
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
+
+    print title, what
     for y, color, label in zipped:
         plt.plot(lambdas, y,
                  "b-", color=color, label=label)
+        print label, y
 
     eps = 0.025
     if what in ["sensitivity", "precision"]:
@@ -481,6 +484,24 @@ def plotplot(dir, out_dir, title, **kwargs):
          out=out_dir + "/sensitivity_precision_plot_all_split",
          **kwargs)
     # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode"],
+    #      labels=["IgReC", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_old",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec_tau3", "mixcr", "supernode"],
+    #      labels=["IgReC tau = 3", "MiXCR1", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_tau3",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode", "igrec_vote"],
+    #      labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_split",
+    #      **kwargs)
+    # rocs(dir,
     #      tools=["igrec_tau2", "supernode"],
     #      labels=["IgReC tau = 2", "pRESTO"],
     #      title="Real data: " + title,
@@ -493,6 +514,10 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
+    plotplot(igrec_dir + "py/age3_all/", "AGE3_3", title="REAL", show_coords=True)
+    plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
+    sys.exit()
+
     plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="REAL", show_coords=True)
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
     # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")

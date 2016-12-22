@@ -352,6 +352,52 @@ def convert_mixcr2_output_to_igrec(input_file, output_file, initial_reads, outpu
             rcm.write("%s\t%d\n" % (id, target_cluster))
 
 
+def dict2class(d):
+    class Empty:
+        pass
+
+    res = Empty()
+    res.__dict__ = d
+    return res
+
+
+def run_vjfinder(input_file, output_dir, log=None,
+                 loci="all", threads=16, additional_args="",
+                 remove_tmp=False):
+    if log is None:
+        log = FakeLog()
+
+    import os.path
+    import os
+
+    args = {"path": path_to_igrec,
+            "loci": loci,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "organism": "human",
+            "path_to_germline": igrec_dir + "/data/germline",
+            "additional_args": additional_args}
+    args = dict2class(args)
+
+    command_line = args.path + "/build/release/bin/vj_finder" + \
+        " -i " + os.path.abspath(args.input_file) + \
+        " -o " + os.path.abspath(args.output_dir) + \
+        " --db-directory " + os.path.abspath(args.path_to_germline) + \
+        " -t " + str(args.threads) + \
+        " --loci " + args.loci + \
+        " --organism " + args.organism + " " + args.additional_args
+    cwd = os.getcwd()
+    os.chdir(igrec_dir)
+    support.sys_call(command_line, log=log)
+    os.chdir(cwd)
+    if remove_tmp:
+        import os.path
+        if os.path.isfile(output_dir):
+            import shutil
+            shutil.rmtree(output_dir)
+
+
 def run_igrec(input_file, output_dir, log=None,
               tau=4,
               min_fillin=0.6,
@@ -441,7 +487,83 @@ def run_mixcr2(input_file, output_dir,
                loci="all", enforce_fastq=False,
                threads=16,
                remove_tmp=True,
-               species="hsa"):
+               species="hsa",
+               region_from="FR1Begin", region_to="FR4Begin"):
+    if log is None:
+        log = FakeLog()
+
+    mkdir_p(output_dir)
+
+    if enforce_fastq and idFormatByFileName(input_file) == "fasta":
+        input_file_fq = "%s/input_reads.fq" % output_dir
+        fastx2fastx(input_file, input_file_fq)
+        input_file = input_file_tmp = input_file_fq
+    elif idFormatByFileName(input_file) == "fasta":
+        input_file_fasta = "%s/input_reads.fasta" % output_dir
+        fastx2fastx(input_file, input_file_fasta)
+        input_file = input_file_tmp = input_file_fasta
+    else:
+        input_file_tmp = None
+
+    path = path_to_mixcr2
+    args = {"path": path,
+            "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
+            "mixcr_cmd": "java -jar %s/mixcr.jar" % path,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "species": species,
+            "loci": loci,
+            "from": region_from,
+            "to": region_to,
+            "loci_arg": "chains"}
+
+    # support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+    #                  log=log)
+    support.sys_call("%(mixcr_cmd)s align -p kaligner2 --species %(species)s -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --noMerge --%(loci_arg)s %(loci)s -OreadsLayout=Collinear -OvParameters.geneFeatureToAlign=VTranscript -OallowPartialAlignments=true %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+                     log=log)
+    # support.sys_call("%(mixcr_cmd)s assemble -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -t %(threads)d -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    # support.sys_call("%(mixcr_cmd)s assemble -f -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    #                  log=log)
+    # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    #                  log=log)
+    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{%(from)s:%(to)s}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+                     log=log)
+    args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
+    support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
+                     log=log)
+
+    args["features"] = "-count -sequence -nFeature CDR3 -vHit -jHit -vAlignment -jAlignment -aaFeature CDR3 -readIds %(output_dir)s/index_file" % args
+    support.sys_call("%(mixcr_cmd)s exportClones %(features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/features.txt" % args,
+                     log=log)
+    # convert_mixcr_output_to_igrec("%(output_dir)s/mixcr.txt" % args, "%(output_dir)s/mixcr_uncompressed.fa" % args)
+    convert_mixcr2_output_to_igrec("%(output_dir)s/mixcr.txt" % args,
+                                   "%(output_dir)s/mixcr_uncompressed.fa" % args,
+                                   input_file,
+                                   "%(output_dir)s/mixcr_uncompressed.rcm" % args)
+    support.sys_call("%(compress_eq_clusters_cmd)s %(output_dir)s/mixcr_uncompressed.fa %(output_dir)s/final_repertoire.fa -r %(output_dir)s/mixcr_uncompressed.rcm -R %(output_dir)s/final_repertoire.rcm" % args)
+
+    if remove_tmp:
+        if input_file_tmp is not None:
+            os.remove(input_file_tmp)
+
+        os.remove(output_dir + "/align_report.txt")
+        os.remove(output_dir + "/assemble_report.txt")
+        os.remove(output_dir + "/mixcr.clns")
+        os.remove(output_dir + "/mixcr.txt")
+        os.remove(output_dir + "/features.txt")
+        os.remove(output_dir + "/mixcr.vdjca")
+        os.remove(output_dir + "/mixcr_uncompressed.fa")
+        os.remove(output_dir + "/mixcr_uncompressed.rcm")
+        os.remove(output_dir + "/index_file")
+
+
+def run_mixcr2_alignment_only(input_file, output_dir,
+                              log=None,
+                              loci="all", enforce_fastq=False,
+                              threads=16,
+                              remove_tmp=True,
+                              species="hsa"):
     if log is None:
         log = FakeLog()
 
@@ -473,40 +595,14 @@ def run_mixcr2(input_file, output_dir,
     #                  log=log)
     support.sys_call("%(mixcr_cmd)s align -p kaligner2 --species %(species)s -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --noMerge --%(loci_arg)s %(loci)s -OreadsLayout=Collinear -OvParameters.geneFeatureToAlign=VTranscript -OallowPartialAlignments=true %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
                      log=log)
-    # support.sys_call("%(mixcr_cmd)s assemble -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -t %(threads)d -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
-    # support.sys_call("%(mixcr_cmd)s assemble -f -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
-    #                  log=log)
-    # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
-    #                  log=log)
-    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
-                     log=log)
-    args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
-    support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
-                     log=log)
-
-    args["features"] = "-count -sequence -nFeature CDR3 -vHit -jHit -vAlignment -jAlignment -aaFeature CDR3 -readIds %(output_dir)s/index_file" % args
-    support.sys_call("%(mixcr_cmd)s exportClones %(features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/features.txt" % args,
-                     log=log)
-    # convert_mixcr_output_to_igrec("%(output_dir)s/mixcr.txt" % args, "%(output_dir)s/mixcr_uncompressed.fa" % args)
-    convert_mixcr2_output_to_igrec("%(output_dir)s/mixcr.txt" % args,
-                                   "%(output_dir)s/mixcr_uncompressed.fa" % args,
-                                   input_file,
-                                   "%(output_dir)s/mixcr_uncompressed.rcm" % args)
-    support.sys_call("%(compress_eq_clusters_cmd)s %(output_dir)s/mixcr_uncompressed.fa %(output_dir)s/final_repertoire.fa -r %(output_dir)s/mixcr_uncompressed.rcm -R %(output_dir)s/final_repertoire.rcm" % args)
 
     if remove_tmp:
         if input_file_tmp is not None:
             os.remove(input_file_tmp)
 
         os.remove(output_dir + "/align_report.txt")
-        os.remove(output_dir + "/assemble_report.txt")
-        os.remove(output_dir + "/mixcr.clns")
-        os.remove(output_dir + "/mixcr.txt")
-        os.remove(output_dir + "/features.txt")
         os.remove(output_dir + "/mixcr.vdjca")
-        os.remove(output_dir + "/mixcr_uncompressed.fa")
-        os.remove(output_dir + "/mixcr_uncompressed.rcm")
-        os.remove(output_dir + "/index_file")
+
 
 def parse_presto_id(id):
     import re

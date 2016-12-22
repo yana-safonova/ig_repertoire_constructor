@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 for LOCI in IG IGH IGL IGK
 do
     bash make_reference.sh /Nancy/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/single_reads_with_UMIs/FV_21.fastq  FLU_FV_21_${LOCI} $LOCI &
