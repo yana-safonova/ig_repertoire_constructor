@@ -69,13 +69,18 @@ seqan::Dna5String calculate_consensus(const std::vector<seqan::Dna5String>& read
             consensus = seqan::Dna5String(reads[idx]);
         }
     }
+
+    auto GetIndexNucl = [](const seqan::Dna5 &nucl) {
+        return static_cast<size_t>(seqan::ordValue(nucl));
+    };
+
     for (size_t pos = 0; pos < length(consensus); pos ++) {
         std::vector<size_t> nt_counts(4);
         for (size_t idx : idx_list) {
-            nt_counts[reads[idx][pos]] ++;
+            nt_counts[GetIndexNucl(reads[idx][pos])] ++;
         }
         for (size_t i = 0; i < 4; i ++) {
-            if (nt_counts[i] > nt_counts[consensus[pos]]) {
+            if (nt_counts[i] > nt_counts[GetIndexNucl(consensus[pos])]) {
                 consensus[pos] = i;
             }
         }
