@@ -180,3 +180,10 @@ struct LC_InputParams {
     }
 };
 
+struct VDJ_RecombinationParams {
+    double palindrome_probability_;
+
+    VDJ_RecombinationParams(double palindrome_probability = 0.5) :
+        palindrome_probability_(palindrome_probability)
+    { }
+};

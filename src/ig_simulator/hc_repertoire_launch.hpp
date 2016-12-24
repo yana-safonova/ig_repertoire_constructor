@@ -1,3 +1,5 @@
+#include <random>
+
 #include "gene_database.hpp"
 #include "repertoire.hpp"
 #include "multiplicity_creator.hpp"
@@ -8,6 +10,7 @@
 #include "base_repertoire_creation/n_nucleotides_creator.hpp"
 #include "base_repertoire_creation/cdr_labeler.hpp"
 #include "mutated_repertoire_creation/shm_creator.hpp"
+#include "productivity_checker.hpp"
 
 ShortGeneNameExtractorPtr CreateShortReadNameExtractor(HC_InputParams params) {
     if(params.database_type == imgt_db)
@@ -24,7 +27,9 @@ HC_GenesDatabase_Ptr CreateHCDatabase(HC_InputParams params) {
     return hc_database;
 }
 
-HC_Repertoire_Ptr CreateBaseHCRepertoire(HC_InputParams params, HC_GenesDatabase_Ptr hc_database) {
+HC_Repertoire_Ptr CreateBaseHCRepertoire(HC_InputParams params,
+                                         HC_GenesDatabase_Ptr hc_database,
+                                         VDJ_RecombinationParams vdj_params) {
     HC_SimpleRecombinator hc_vdj_recombinator(hc_database, HC_SimpleRecombinationCreator(hc_database));
 
     // endonuclease remover
@@ -52,11 +57,24 @@ HC_Repertoire_Ptr CreateBaseHCRepertoire(HC_InputParams params, HC_GenesDatabase
     HC_CDRLabelingStrategy cdr_labeling_strategy;
     HC_CDRLabeler cdr_labeler(cdr_labeling_strategy);
 
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::bernoulli_distribution bern_d(vdj_params.palindrome_probability_);
+
     for(size_t i = 0; i < params.basic_repertoire_params.base_repertoire_size; i++) {
-        auto vdj = hc_vdj_recombinator.CreateRecombination();
-        vdj = remover.CreateRemovingSettings(vdj);
-        vdj = p_creator.CreatePNucleotides(vdj);
-        vdj = n_creator.CreateNNucleotides(vdj);
+        ig_simulator::HC_ProductivityChecker prod_checker;
+        HC_VDJ_Recombination_Ptr vdj(nullptr);
+        do {
+            vdj = hc_vdj_recombinator.CreateRecombination();
+            if (bern_d(rng)) {
+                vdj = remover.CreateRemovingSettings(vdj);
+            } else {
+                vdj = p_creator.CreatePNucleotides(vdj);
+            }
+            vdj = n_creator.CreateNNucleotides(vdj);
+        } while (prod_checker.IsNonProductive(vdj));
+        std::cout << '>' << std::endl;
+        std::cout << vdj->Sequence() << std::endl;
 
         HC_VariableRegionPtr ig_variable_region = HC_VariableRegionPtr(new HC_VariableRegion(vdj));
         ig_variable_region = cdr_labeler.LabelCDRs(ig_variable_region);
@@ -120,9 +138,10 @@ void CreateHCRepertoire(HC_InputParams params) {
     cout << endl;
 
     auto hc_database = CreateHCDatabase(params);
+    auto vdj_params = VDJ_RecombinationParams();
 
     cout << "==== Generation of base repertoire" << endl;
-    HC_Repertoire_Ptr base_repertoire = CreateBaseHCRepertoire(params, hc_database);
+    HC_Repertoire_Ptr base_repertoire = CreateBaseHCRepertoire(params, hc_database, vdj_params);
     cout << "Base repertoire consists of " << base_repertoire->Size() << " sequences with total multiplicities " <<
             base_repertoire->NumberAntibodies() << endl;
     base_repertoire->OutputSequences(params.output_params.base_sequence_fname);

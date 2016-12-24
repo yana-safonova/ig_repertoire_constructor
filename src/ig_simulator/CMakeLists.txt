@@ -6,7 +6,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
 
 add_executable(ig_simulator
-        main.cpp)
+        main.cpp productivity_checker.hpp)
 
 if (SPADES_STATIC_BUILD)
     set_target_properties(shm_kmer_model PROPERTIES LINK_SEARCH_END_STATIC 1)

@@ -50,6 +50,8 @@ public:
 					name1 = tmp_str;
 				else
 					if(name1 != "" && name2 != "" && seq1 != "" && seq2 != "") {
+                        std::transform(seq1.begin(), seq1.end(), seq1.begin(), ::toupper);
+                        std::transform(seq2.begin(), seq2.end(), seq2.begin(), ::toupper);
 						reads.push_back(paired_fasta_read(fasta_read(name1, seq1), fasta_read(name2, seq2)));
 						name1 = tmp_str; name2 = ""; seq1 = ""; seq2 = "";
 					}
@@ -64,8 +66,11 @@ public:
 					seq2 = seq2 + tmp_str;
 			}
 		}
-		if(name1 != "" && name2 != "" && seq1 != "" && seq2 != "")
-			reads.push_back(paired_fasta_read(fasta_read(name1, seq1), fasta_read(name2, seq2)));
+		if(name1 != "" && name2 != "" && seq1 != "" && seq2 != "") {
+            std::transform(seq1.begin(), seq1.end(), seq1.begin(), ::toupper);
+            std::transform(seq2.begin(), seq2.end(), seq2.begin(), ::toupper);
+            reads.push_back(paired_fasta_read(fasta_read(name1, seq1), fasta_read(name2, seq2)));
+        }
 		return reads;
 	}
 };
@@ -84,8 +89,10 @@ public:
 			getline(file_handler_, tmp_str);
 			if(tmp_str != "") {
 				if(IsFastaName(tmp_str)){
-					if(name != "" && seq != "")
-						reads.push_back(fasta_read(name, seq));
+					if(name != "" && seq != "") {
+                        std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+                        reads.push_back(fasta_read(name, seq));
+                    }
 					name = tmp_str;
 					seq = "";
 				}
@@ -93,8 +100,10 @@ public:
 						seq = seq + tmp_str;
 			}
 		}
-		if(name != "" && seq != "")
-			reads.push_back(fasta_read(name, seq));
+		if(name != "" && seq != "") {
+            std::transform(seq.begin(), seq.end(), seq.begin(), ::toupper);
+            reads.push_back(fasta_read(name, seq));
+        }
 		return reads;
 	}
 };
