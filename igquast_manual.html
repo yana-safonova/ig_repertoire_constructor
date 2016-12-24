@@ -1,0 +1,608 @@
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>igQUAST Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <style>
+    </style>
+</head>
+
+<h1>igQUAST manual</h1>
+1. <a href="#intro">What is igQUAST?</a><br>
+
+2. <a href="#install">Installation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
+
+3. <a href="#igquast_usage">igQUAST usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igrec_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igrec_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igrec_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igrec_output">Output files</a><br>
+
+4. <a href = "#examples">Examples</a><br>
+
+5.  <a href="#repertoire_files">Antibody repertoire representation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.1. <a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.2. <a href="#read_cluster_map">RCM file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.3. <a href="#alignment_info">Alignment Info file format</a><br>
+
+6. <a href="#feedback">Feedback and bug reports</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;7.1. <a href="#citation">Citation</a><br>
+
+<!--- ----------------- -->
+
+<a id="intro"></a>
+<h2>1. What is igQUAST?</h2>
+igQUAST (ImmunoGlobulin QUality ASsessment Tool) is a tool for antibody repertoires quality assessment.
+igQUAST also could be used for T-cells repertoires.
+igQUAST can be used for benchmarking of antibody repertoire construction tools and for quality estimation of constructed repertoires.
+igQUAST provides reference-based and reference-free analysis:
+<ul>
+    <li>During reference-based analysis the tool computes sensitivity and
+        precision of reconstructed repertoire, detects undercorrected
+        (erroneously split) and overcorrected (erroneously joined) clusters
+        and estimates rate of correctly fixed initial reads.
+    </li>
+    <li>During reference-free analysis the tool estimates error rate and error profile of the initial RepSeq library. Also it detects overestimated clusters using special probabilistic model.
+    </li>
+</ul>
+
+
+
+<h2>2. Reference-based quality metrics</h2>
+For reference-based quality estimation igQUAST requires reference repertoire in CLUSTER_FA format (described below) or/and reference RCM file.
+
+<h3>3. Sequence-based metrics:</h3>
+Sequence-based metrics are computed in case of reference repertoire is provided. Basic operation is repertoire-to-repertoire matching,
+when for each sequence from the constructed repertoire we find the nearest sequence in the reference repertoire and vice versa.
+Distance between to sequences of different lengths is computed modulo to extra tail of the longest sequence. It is necessary since some Ig repertoire construction
+tools do not report whole repertoire sequences but cut several last sequence positions. For example, MiXCR has some problems with reporting FR4 region.
+
+ADD PLOT
+<h4>Precision and sensitivity</h4>
+Definitions:
+
+Precision is a metric of the constructed repertoire purity, while sensitivity is a metric of its fullness. Both of these characteristics are important but also they are antagonistic,
+i.e. fuller repertoire would be probably less pure and vice versa.
+Therefore, for quality assessment one should use some integral measure, e.g., sum or product of sensitivity and precision.
+We use the product, but for some special purposes some other statistic may be required.
+
+<!-- selection of the particular integral measure depends on how the constructed repertoire is supposed to be used. -->
+
+It is clear that reconstruction of a big cluster is much simpler that 
+
+The story about minsize_con
+Computation of sensitivity and precision by ALL reference repertoire clusters has no much sense.
+The reason is the following: the most part of reference clusters are presented by few reads each and its hardly possi
+
+
+
+    Error position distribution / inexact matches
+
+
+
+
+For RCMs, it is supposed that every input read is related to a particular cluster.
+For now all unmapped reads are implicitly mapped to separate singletons, but this behaviour may be changed in future.
+
+
+ 
+Partitioning-based metrics (RCM-based metrics)
+    Clusters purity, etc
+    Splitting statistics (undercorrection detection and investigation)
+
+
+<h2>2. Reference-free quality metrics</h2>
+Error-profile
+Error-rate and error number distribution
+
+Suspicious clusters
+
+
+
+
+
+
+<!--- ---------------------------------------------------------------- -->
+
+<h3 id = "about_igrec">About IgReC</h3>
+IgReC pipeline in shown below:<br>
+<p align = center>
+    <img src="docs/manual_figs/igrec.png" alt="igrec_pipeline" width = 70%>
+</p>
+
+<h4>Input:</h4>
+<p align="justify">
+    IgReC takes as an input paired-end or single Illumina reads.
+    <b>Please note that IgRepertoireConstructor constructs full-length repertoire and
+        expects that input reads cover variable region of antibody.</b>
+</p>
+
+<h4>Output:</h4>
+<p align = justify>
+    IgReC corrects sequencing and amplification errors and joins together reads corresponding to identical antibodies.
+    Thus, constructed repertoire is a set of <i>antibody clusters</i> characterizing by
+    <i>sequence</i> and <i>multiplicity</i>.
+    IgReC provides user with the following information about constructed repertoire:
+</p>
+
+<ul>
+    <li>antibody clusters: antibody sequences with multiplicities,</li>
+    <li>read-cluster map: information showing how reads form antibody clusters,</li>
+    <li>highly abundant antibody clusters,</li>
+    <li>super reads: groups of identical input reads with high coverage.</li>
+</ul>
+
+<h4>Stages:</h4>
+IgReC pipeline consists of the following steps:
+<ol>
+    <li><b>VJ Finder</b>: cleaning input reads using alignment against Ig germline genes</li>
+    <li><b>HG Constructor</b>: construction of Hamming graph on cleaned reads</li>
+    <li><b>Dense Subgraph Finder</b>: finding dense subgraphs (or corrupted cliques) in the constructed Hamming graph.
+        This allows us to decompose cleaned reads into highly similar groups.
+        DSF algorithm is also available as a separate tool.
+        Please find DSF manual <a href = "dsf_manual.html">here</a>.</li>
+    <li><b>Antibody Constructor</b>: construction of antibody clusters based on graph decomposition found at the previous stage.</li>
+</ol>
+
+<p align="justify">
+    You can find details of IgReC algorithm in <a href = "http://bioinformatics.oxfordjournals.org/content/31/12/i53.long">our paper</a>.
+</p>
+
+<!--- ---------------------------------------------------------------- -->
+
+<h3 id = "about_ms_analyzer">About MassSpectraAnalyzer</h3>
+Some immunological experiments include preparation both sequencing reads and mass spectra (see examples in Cheung et al, 2012, Nature; Safonova, Bonissone et al, Bioinformatics, 2015).
+In this case, mass spectra datasets can be used for validation of repertoire constructed from sequencing reads.
+Repertoire constructed by IgReC can be used as a database for
+identification of mass spectra using some standard tool, e.g., <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>.
+MassSpectraAnalyzer takes as an input <a href = "http://www.psidev.info/mzidentml">mzIdentML file</a> and
+computes similarity between constructed repertoire and mass spectra.
+
+<p align = center>
+    <img src="docs/manual_figs/mass_spectra_analyzer.png" alt="ms_analysis_pipeline" width = 55%>
+</p>
+
+<!--- ---------------------------------------------------------------- -->
+<!--- ---------------------------------------------------------------- -->
+
+<a id="install"></a>
+<h2>2. Installation</h2>
+
+IgRepertoireConstructor has the following dependencies:
+<ul>
+    <li>64-bit Linux system</li>
+    <li>g++ (version 4.7 or higher)</li>
+    <li>cmake (version 2.8.8 or higher)</li>
+    <li>Python 2 (version 2.7 or higher), including:</li>
+    <ul>
+        <li><a href = "http://biopython.org/wiki/Download">BioPython</a></li>
+        <li><a href = "http://matplotlib.org/users/installing.html">Matplotlib</a></li>
+        <li><a href = "http://www.numpy.org/">NumPy</a></li>
+        <li><a href = "http://www.scipy.org/install.html">SciPy</a></li>
+    </ul>
+</ul>
+
+To install IgRepertoireConstructor, type:
+<pre class="code">
+    <code>
+    ./prepare_cfg
+    </code>
+</pre>
+and:
+<pre class="code">
+    <code>
+    make
+    </code>
+</pre>
+
+<a id="test_datasets"></a>
+<h3>2.1. Verifying your installation</h3>
+For testing purposes, IgReC and MassSpectraAnalyzer come with toy data sets. <br><br>
+
+&#9658; To try IgReC on the test data set, run:
+<pre class="code"><code>
+    ./igrec.py --test
+</code>
+</pre>
+
+If the installation of IgReC is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+    <code>
+    Thank you for using IgReC!
+    Log was written to igrec_test/ig_repertoire_constructor.log
+    </code>
+</pre>
+
+&#9658; To try MassSpectraAnalyzer on test data set, run:
+<pre class="code">
+<code>
+    ./mass_spectra_analyzer.py --test
+</code>
+</pre>
+
+If the installation of MassSpectraAnalyzer is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+    <code>
+    Spectra processed: example_HC_chymo_CID.mzid.spectra, example_HC_trypsin_CID.mzid.spectra
+    Metrics written to &lt;your_installation_directory>/ms_analyzer_test/metrics.txt
+    Covered CRDs written to &lt;your_installation_directory>/ms_analyzer_test/covered_cdrs.txt
+    PSM on IG regions written to &lt;your_installation_directory>/ms_analyzer_test/psm_on_ig_regions.txt
+    Figures and statistics saved in &lt;your_installation_directory>/ms_analyzer_test
+    </code>
+</pre><br>
+
+<!--- ---------------------------------------------------------------- -->
+<!--- ---------------------------------------------------------------- -->
+
+<a id="igrec_usage"></a>
+<h2>3. IgReC usage</h2>
+<p>
+    IgReC takes as an input Illumina reads covering variable region of antibody and constructs repertoire
+    in <a href = "#repertoire_files">CLUSTERS.FA and RCM format</a>.
+</p>
+
+To run IgReC, type:
+<pre class="code">
+    <code>
+    ./igrec.py [options] -s &lt;single_reads.fastq&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+OR
+
+<pre class="code">
+    <code>
+    ./igrec.py [options] -1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+<!--- --------------------- -->
+
+<a id="igrec_basic"></a>
+<h3>3.1. Basic options:</h3>
+
+<code>-s &lt;single_reads.fastq&gt;</code><br>
+FASTQ file with single Illumina reads (required).
+
+<br><br>
+
+<code>-1 &lt;left_reads.fastq&gt; -2 &lt;right_reads.fastq&gt;</code><br>
+FASTQ files with paired-end Illumina reads (required).
+
+<br><br>
+
+<code>-o / --output &lt;output_dir&gt;</code><br>
+Output directory (required).
+
+<br><br>
+
+<code>-t / --threads &lt;int&gt;</code><br>
+The number of parallel threads. The default value is <code>16</code>.
+
+<br><br>
+
+<code>--test</code><br>
+Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./igrec.py -s test_dataset/merged_reads.fastq -l all -o igrec_test
+    </code>
+</pre>
+
+<code>--help</code><br>
+Printing help.
+
+<br><br>
+
+<!--- --------------------- -->
+
+<a id="igrec_advanced"></a>
+<h3>3.2. Advanced options:</h3>
+
+<code>--loci / -l &lt;str&gt;</code><br>
+Immunological loci to align input reads and discard reads with low score (required). <br>
+Available values are <code>IGH</code> / <code>IGL</code> / <code>IGK</code> / <code>IG</code> (for all BCRs) /
+<code>TRA</code> / <code>TRB</code> / <code>TRG</code> / <code>TRD</code> / <code>TR</code> (for all TCRs) or <code>all</code>.
+
+<br><br>
+
+<code>--no-pseudogenes</code><br>
+Do not use pseudogenes along with normal gene segments for VJ alignment.
+By default, IgReC uses pseudogenes for aligning reads.
+<br><br>
+
+<code>--organism &lt;str&gt;</code><br>
+Organism. Available values are <code>human</code>, <code>mouse</code>, <code>pig</code>,
+<code>rabbit</code>, <code>rat</code> and <code>rhesus_monkey</code>.
+Default value is <code>human</code>.
+<br><br>
+
+<code>--tau &lt;int&gt;</code><br>
+Maximum allowed number of mismatches between two reads corresponding to identical antibodies. The default (and recommended) value is 4.
+Higher values give higher sensitivity of error correction algorithm but increase running time.
+Reasonable value of <code>tau</code> lies between <code>1</code> and <code>6</code>.
+
+<br><br>
+
+<code>-n / --min-sread-size &lt;int&gt;</code><br>
+Minimum size of super read. Super read is a group of identical input reads with high coverage.
+IgReC considers that super reads present error free clusters and does not glue them together.
+If input data set was highly amplified, we recommend to increase value of this option.
+Default value is <code>5</code>.
+
+<br><br>
+
+<code>--min-cluster-size &lt;int&gt;</code><br>
+Minimal size of antibody cluster used for output of large clusters.
+Default value is <code>5</code>.
+
+<br><br>
+
+<!--- --------------------- -->
+
+<a id="igrec_examples"></a>
+<h3>3.3. Examples</h3>
+To construct antibody repertoire from single reads <code>reads.fastq</code>, type:
+<pre class="code">
+    <code>
+    ./igrec.py -s reads.fastq -o output_dir
+    </code>
+</pre>
+<!--- --------------------- -->
+
+<a id="igrec_output"></a>
+<h3>3.4. Output files</h3>
+IgReC creates working directory (which name was specified using option <code>-o</code>)
+and outputs the following files there:
+
+<ul>
+  <li>Final repertoire files:</li>
+  <ul>
+    <li><b>final_repertoire.fa</b> &mdash; CLUSTERS.FASTA file for all antibody clusters of the constructed repertoire
+        (details in <a href= "#repertoire_files">Antibody repertoire representation</a>).</li>
+
+    <li><b>final_repertoire_large.fa</b> &mdash; CLUSTERS.FASTA file for highly abundant antibody clusters of the constructed repertoire
+        (minimal cluster size is defined by option <code>--min-size</code>)</li>
+
+    <li><b>final_repertoire.rcm</b> &mdash; RCM file for the constructed repertoire
+        (details in <a href = "#repertoire_files">Antibody repertoire representation</a>).</li>
+
+    <li><b>super_reads.fa</b> &mdash; FASTA file containing super reads, i.e., large groups of identical input reads,
+        Minimal size of super read is defined by option <code>--min-sread-size</code>.</li>
+  </ul><br>
+
+  <li>VJ finder output:</li>
+    <ul>
+      <li>
+          <b>vj_finder/cleaned_reads.fa</b> &mdash; FASTA file with cleaned reads constructed at the VJ Finder stage.
+          Cleaned reads have forward direction (from V to J),
+          contain V and J gene segments and are cropped by the left bound of V gene segment.
+      </li>
+
+      <li>
+          <b>vj_finder/filtered_reads.fa</b> &mdash; FASTA file with filtered reads.
+          Filtered reads have bad alignment to Ig germline gene segments and are likely to <re></re>present contaminations.
+      </li>
+
+      <li>
+          <b>vj_finder/alignment_info.csv</b> &mdash; CSV file containing information about alignment of cleaned reads to
+          V and J gene segments.
+          Details of <b>alignment_info.csv</b> format are given in <a href="#alignment_info">Alignment Info file format</a>.
+      </li>
+    </ul><br>
+
+    <li><b>igrec.log</b> &mdash; full log of IgReC run.</li>
+</ul>
+<br>
+
+<!-- -------------------------------------------------------------------- -->
+<!-- -------------------------------------------------------------------- -->
+
+<a id="immunoproteogenomics_usage"></a>
+<h2>4. MassSpectraAnalyzer usage</h2>
+MassSpectraAnalyzer takes as an input result of matching of mass spectra against the constructed repertoire in
+<a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a> (e.g., generated by <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>) and computes multiple statistics showing coverage of the constructed repertoire by mass spectra. </br></br>
+
+&#9658; To run MassSpectraAnalyzer, type:
+<pre class="code">
+<code>
+    ./mass_spectra_analyzer.py [options] -o &lt;output_dir> input_file_1.mzid ... input_file_N.mzid
+</code>
+</pre>
+
+<!-- --------------------- -->
+<a id = "msanalyzer_basic"></a>
+<h3>4.1. Basic options:</h3>
+
+<code>input_file_1.mzid ... input_file_N.mzid</code></br>
+Input files with mass spectra alignment to protein database in <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a>.</br></br>
+
+<code>-o &lt;output_dir></code></br>
+output directory (required).</br></br>
+
+<code>--test</code></br>
+Running on the toy test data set. <!-- Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./mass_spectra_analysis.py --regions test_dataset/MS_analysis/example_regions.txt test_dataset/MS_analysis/example_HC_chymo_CID.mzid.spectra test_dataset/MS_analysis/example_HC_trypsin_CID.mzid.spectra
+    </code>
+</pre> --></br></br>
+
+<code>--help, -h</code></br>
+Printing help.</br>
+
+<!-- --------------------- -->
+<a id = "msanalyzer_advanced"></a>
+<h3>4.2. Advanced options:</h3>
+<code>--regions &lt;filename></code></br>
+File with information about framework and CDRs for protein sequences from used database in IgBLAST format.
+Example of file with labeled regions is given below:
+<pre class = "code">
+    <code>
+    Query= Antibody_sequence_1
+    CDR2-IMGT       51      58
+    FR2-IMGT        34      50
+    FR1-IMGT        1       25
+    FR3-IMGT        59      94
+    CDR1-IMGT       26      33
+    CDR3-IMGT       95      110
+    Query= Antibody_sequence_2
+    CDR2-IMGT       51      58
+    FR2-IMGT        34      50
+    FR1-IMGT        1       25
+    FR3-IMGT        59      94
+    CDR1-IMGT       26      33
+    CDR3-IMGT       95      111
+    </code>
+</pre>
+where Antibody_sequence_1 and Antibody_sequence_2 are sequences from database.
+
+<!-- --------------------- -->
+<a id = "msanalyzer_examples"></a>
+<h3>4.3. Examples:</h3>
+
+&#9658; To compute statistics for both chymo and trypsin mass spectra datasets and labeled regions, run the following command:
+<pre class = "code">
+    <code>
+    ./mass_spectra_analysis.py --output output_dir --regions regions.align example_HC_chymo_CID.mzid example_HC_trypsin_CID.mzid
+    </code>
+</pre>
+
+<!-- --------------------- -->
+<a id = "msanalyzer_output"></a>
+<h3>4.4. Output files:</h3>
+<ul>
+    <li>Statistics:</li>
+    <ul>
+        <li><b>metrics.txt</b> - file with basic statistics for each of given mass spectrum alignments.</li>
+        <li><b>covered_cdrs.txt</b> - file with information about number of sequences with at least one peptide spectrum match on corresponding region.</li>
+        <li><b>psm_on_ig_regions.txt</b> - file with information about number of peptide spectrum matches aligned to corresponding regions of sequences.</li>
+    </ul></br>
+
+    <li>Statistics visualization: </li>
+    <ul>
+        <li><b>PSM_cov.png</b> - PNG file with plot showing coverage by peptide spectrum matches along antibody sequence.</li>
+        <li><b>peptide_cov.png</b> - PNG file with plot showing coverage by peptide spectrum matches along antibody sequence, consider only scans with unique alignment to database.</li>
+        <li><b>PSM_per_scan.png</b> - PNG file with histogram of distribution of number of peptide spectrum matches per scan.</li>
+        <li><b>peptide_length.png</b> - PNG file with histogram of distribution of peptide length.</li>
+    </ul>
+</ul>
+
+<!-- -------------------------------------------------------------------- -->
+
+<a id="examples"></a>
+<h2>5. Examples</h2>
+Example shows IgRepertoireConstructor pipeline in action for merged paired-end Illumina MiSeq library including reads <b>reads.fastq</b> and mass spectra <b>AspN_CID.mzXML</b> corresponding to the same antibody repertoire.<br><br>
+&#9658; To run IgReC with standard settings, type the following command:
+<pre class = "code">
+    <code>
+    ./igrec.py -s reads.fastq -o repertoire_constructing
+    </code>
+</pre>
+Sequences of the constructed repertoire are located in <b>repertoire_constructing/constructed_repertoire.clusters.fa</b>. They can be converted into amino acid sequences and used as a database for matching mass spectra <b>AspN_CID.mzXML</b> (e.g., using MS-GF+ tool). Let result of MS-GF+ tool be a file <b>AspN_CID.mzId</b>.<br><br>
+
+&#9658; To run MassSpectraAnalyzer on <b>AspN_CID.mzId</b> file, type the following command:
+<pre class = "code">
+    <code>
+    ./mass_spectra_analyzer.py -o ms_analysis AspN_CID.mzId
+    </code>
+</pre>
+Statistics for mass spectra alignment can be found in <b>ms_analysis</b> directory.
+<br><br>
+
+<!-- -------------------------------------------------------------------- -->
+
+<a id="repertoire_files"></a>
+<h2>6. Antibody repertoire representation</h2>
+We used two files for representation of repertoire for the set of clustered reads: CLUSTERS.FASTA and RCM.
+
+<a id="clusters_fasta"></a>
+<h3>6.1. CLUSTERS.FASTA file format</h3>
+CLUSTERS.FASTA is a FASTA file, where sequences correspond to the assembled antibodies.
+Each header contains information about corresponding antibody cluster (id and size):
+<pre class="code">    <code>
+    &gt;cluster___1___size___3
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGGACG
+    &gt;cluster___2___size___2
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGG
+    &gt;cluster___3___size___1
+    CCCCTGCAATTAAAATTGTTGACCACCTACATACCAAAGACGAGCGCCTTTACGCTTGCCTTTAGTACCTCGCAACGGCTGCGGAC
+    </code>
+</pre>
+
+<a id="read_cluster_map"></a>
+<h3>6.2. RCM file format</h3>
+Every line of RCM (read-cluster map) file contains information about read name and corresponding cluster ID:
+<pre class="code">    <code>
+    MISEQ@:53:000000000-A2BMW:1:2114:14345:28882    1
+    MISEQ@:53:000000000-A2BMW:1:2114:14374:28884    1
+    MISEQ@:53:000000000-A2BMW:1:2114:14393:28886    1
+    MISEQ@:53:000000000-A2BMW:1:2114:16454:28882    2
+    MISEQ@:53:000000000-A2BMW:1:2114:16426:28886    2
+    MISEQ@:53:000000000-A2BMW:1:2114:15812:28886    3
+    </code>
+</pre>
+
+<br>
+Reperoire described in the example above consists of three antibodies. E.g., the antibody with ID 1 has abundancy 3, since it was constructed from three reads:<br>
+MISEQ@:53:000000000-A2BMW:1:2114:14345:28882<br>
+MISEQ@:53:000000000-A2BMW:1:2114:14374:28884<br>
+MISEQ@:53:000000000-A2BMW:1:2114:14393:28886<br><br>
+<b>NOTE:</b> IDs in CLUSTERS.FASTA and RCM files are consistent.
+<br><br>
+
+<a id = "alignment_info"></a>
+<h3 >6.3 Alignment Info file format</h3>
+File <b>alignment_info.csv</b> contains the following information about the closest V and J gene segments
+in tab-separated view.<br>
+Read ids are consistent with headers in file <b>cleaned_reads.fastq</b>.<br>
+Ids of V and J gene segments are taken from IMGT database.
+
+        <table width = 100%>
+            <tr align="center">
+                <td><b>Read id</b></td>
+                <td><b>V start</b></td>
+                <td><b>V end</b></td>
+                <td><b>V score </br>(% identity)</b></td>
+                <td><b>V id</b></td>
+                <td><b>J start</b></td>
+                <td><b>J end</b></td>
+                <td><b>J score </br>(% identity)</b></td>
+                <td><b>J id</b></td>
+            </tr>
+            <tr align="center">
+                <td>read1</td> <td>1</td> <td>296</td> <td>100.0</td> <td>IGHV3-20*01</td> <td>321</td>
+                <td>366</td> <td>89.0</td> <td>IGHJ5*02</td>
+            </tr>
+            <tr align="center">
+                <td>read2</td> <td>1</td> <td>294</td> <td>98.64</td> <td>IGHV3-9*01</td> <td>309</td>
+                <td>354</td> <td>100.0</td> <td>IGHJ2*01</td>
+            </tr>
+            <tr align="center">
+                <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td> <td>...</td>
+                <td>...</td> <td>...</td> <td>...</td>
+            </tr>
+        </table>
+
+<!--- -------------------------------------------------------------------- --->
+<a id="feedback"></a>
+<h2>7. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcome.
+They will help us to further improve IgRepertoireConstructor.
+<br><br>
+If you have any trouble running IgRepertoireConstructor, please send us the log file from the output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
+
+<a id = "citation"></a>
+<h3>7.1. Citation</h3>
+If you use IgRepertoireConstructor in your research, please refer to
+<a href="http://bioinformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>.
+
+
+</body></html>
