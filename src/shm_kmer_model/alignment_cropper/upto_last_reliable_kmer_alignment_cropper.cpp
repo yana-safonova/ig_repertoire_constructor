@@ -2,6 +2,7 @@
 // Created by Andrew Bzikadze on 5/22/16.
 //
 
+#include <cassert>
 #include "upto_last_reliable_kmer_alignment_cropper.hpp"
 
 UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
