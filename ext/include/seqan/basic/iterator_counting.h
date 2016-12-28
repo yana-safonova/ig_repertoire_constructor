@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -93,15 +93,33 @@ struct Position<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
 };
 
 template <typename TSpec, typename TIncrementable>
+struct Difference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
+{
+    typedef typename MakeSigned<TIncrementable>::Type Type;
+};
+
+template <typename TSpec, typename TIncrementable>
+struct Value<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
+{
+    typedef TIncrementable Type;
+};
+
+template <typename TSpec, typename TIncrementable>
+struct GetValue<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
+{
+    typedef TIncrementable Type;
+};
+
+template <typename TSpec, typename TIncrementable>
 struct Reference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
 {
     typedef TIncrementable Type;
 };
 
 template <typename TSpec, typename TIncrementable>
-struct Difference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
+struct Reference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const>
 {
-    typedef typename MakeSigned<TIncrementable>::Type Type;
+    typedef TIncrementable const Type;
 };
 
 // ============================================================================
@@ -113,14 +131,14 @@ struct Difference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >
 // ----------------------------------------------------------------------------
 
 template <typename TSpec, typename TIncrementable>
-inline typename Position<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >::Type &
+inline typename Position<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >::Type
 position(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > & me)
 {
     return me.data_position;
 }
 
 template <typename TSpec, typename TIncrementable>
-inline typename Position<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >::Type const &
+inline typename Position<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const>::Type
 position(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const & me)
 {
     return me.data_position;
@@ -149,7 +167,7 @@ value(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > & me)
 }
 
 template <typename TSpec, typename TIncrementable>
-inline typename Reference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > >::Type
+inline typename Reference<Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const>::Type
 value(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const & me)
 {
     return position(me);
@@ -170,10 +188,11 @@ assignValue(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > & me, TValue _va
 // Function operator==()
 // ----------------------------------------------------------------------------
 
-template <typename TSpec, typename TIncrementable>
-inline bool
+//NOTE(h-2): the other operators should get a similar const-container-tolerant interface
+template <typename TSpec, typename TIncrementable, typename TIncrementable2>
+inline SEQAN_FUNC_ENABLE_IF(IsSameType<TIncrementable const &, TIncrementable2 const &>, bool)
 operator==(Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const & left,
-           Iter<TIncrementable, CountingIteratorImpl_<TSpec> > const & right)
+           Iter<TIncrementable2, CountingIteratorImpl_<TSpec> > const & right)
 {
     return position(left) == position(right);
 }

@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -133,9 +133,35 @@ inline void appendValue(
     TString const & obj,
     Tag<TExpand> tag)
 {
-    SEQAN_CHECKPOINT;
     appendValue(me.limits, lengthSum(me) + length(obj), tag);
     appendValue(me.strings, const_cast<TString*>(&obj), tag);
+}
+
+// --------------------------------------------------------------------------
+// Function insertValue()
+// --------------------------------------------------------------------------
+
+template <typename TString, typename TPos, typename TExpand >
+inline void insertValue(
+    StringSet<TString, Dependent<Generous> > & me,
+    TPos pos,
+    TString const & obj,
+    Tag<TExpand> tag)
+{
+    typedef StringSet<TString, Dependent<Generous> > TStringSet;
+    typedef typename Size<TStringSet>::Type TSize;
+    typedef typename StringSetLimits<TStringSet>::Type TLimits;
+    typedef typename Value<TLimits>::Type TLimitValue;
+
+    insertValue(me.strings, pos, const_cast<TString*>(&obj), tag);
+
+    insertValue(me.limits, pos, me.limits[pos] + length(obj), tag);
+    TLimitValue delta = (TLimitValue)length(obj);
+    TSize size = length(me);
+    while (pos+1 <size)
+        me.limits[++pos] += delta;
+
+    me.limitsValid = false; // needed here ?
 }
 
 // --------------------------------------------------------------------------
@@ -145,7 +171,6 @@ inline void appendValue(
 template <typename TString >
 inline void clear(StringSet<TString, Dependent<Generous> > & me)
 {
-    SEQAN_CHECKPOINT;
     clear(me.strings);
     resize(me.limits, 1, Exact());
     me.limitsValid = true;
@@ -170,7 +195,6 @@ template <typename TString, typename TPos >
 inline typename Reference<StringSet<TString, Dependent<Generous> > >::Type
 value(StringSet<TString, Dependent<Generous> >& me, TPos pos)
 {
-    SEQAN_CHECKPOINT;
     unsigned i = _findIthNonZeroValue(me.strings, pos);
     if (i <length(me.strings))
         return *me.strings[i];
@@ -182,7 +206,6 @@ template <typename TString, typename TPos >
 inline typename Reference<StringSet<TString, Dependent<Generous> > const >::Type
 value(StringSet<TString, Dependent<Generous> > const & me, TPos pos)
 {
-    SEQAN_CHECKPOINT;
     unsigned i = _findIthNonZeroValue(me.strings, pos);
     if (i < length(me.strings))
         return *me.strings[i];
@@ -199,7 +222,6 @@ inline typename Reference<StringSet<TString, Dependent<Generous> > >::Type
 getValueById(StringSet<TString, Dependent<Generous> >& me,
             TId const id)
 {
-    SEQAN_CHECKPOINT;
     if (me.strings[id])
         return *me.strings[id];
     static TString tmp = "";
@@ -216,7 +238,6 @@ assignValueById(StringSet<TString, Dependent<Generous> >& me,
                 TString& obj,
                 TId id)
 {
-    SEQAN_CHECKPOINT;
     SEQAN_ASSERT_EQ(length(stringSetLimits(me)), length(me) + 1);
     if (id >= (TId) length(me.strings)) resize(me.strings, id+1, (TString*) 0);
     if ((TString*) me.strings[id] == (TString*) 0)
@@ -235,7 +256,6 @@ template<typename TString, typename TId>
 inline void
 removeValueById(StringSet<TString, Dependent<Generous> >& me, TId const id)
 {
-    SEQAN_CHECKPOINT;
     if (me.strings[id] != (TString*) 0)
     {
         resize(me.limits, length(me.limits) - 1, Generous());
@@ -255,7 +275,6 @@ inline typename Id<StringSet<TString, Dependent<Generous> > >::Type
 positionToId(StringSet<TString, Dependent<Generous> >& me,
         TPos const pos)
 {
-    SEQAN_CHECKPOINT;
     return _findIthNonZeroValue(me.strings,pos);
 }
 
@@ -264,7 +283,6 @@ inline typename Id<StringSet<TString, Dependent<Generous> > >::Type
 positionToId(StringSet<TString, Dependent<Generous> > const& me,
             TPos const pos)
 {
-    SEQAN_CHECKPOINT;
     return _findIthNonZeroValue(me.strings,pos);
 }
 
@@ -277,7 +295,6 @@ inline typename Id<StringSet<TString, Dependent<Generous> > >::Type
 idToPosition(StringSet<TString, Dependent<Generous> > const& me,
             TId const id)
 {
-    SEQAN_CHECKPOINT;
     return _countNonZeroValues(me.strings,id);
 }
 

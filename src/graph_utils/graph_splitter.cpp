@@ -49,7 +49,7 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
 
 vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
     InitializeInnerVertices();
-    INFO("Connected component splitter was initialized");
+    TRACE("Connected component splitter was initialized");
     vector<SparseGraphPtr> connected_components;
     size_t start_vertex = GetStartVertex();
     while(start_vertex != size_t(-1)) {
@@ -58,6 +58,6 @@ vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
         connected_components.push_back(cur_connected_component);
         start_vertex = GetStartVertex();
     }
-    INFO("Graph was splitted into " << connected_components.size() << " connected component(s)");
+    TRACE("Graph was splitted into " << connected_components.size() << " connected component(s)");
     return connected_components;
 }

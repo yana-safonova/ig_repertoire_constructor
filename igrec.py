@@ -4,7 +4,6 @@ import os
 import shutil
 import sys
 import logging
-import argparse
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 spades_src = os.path.join(home_directory, "src/python_pipeline/")
@@ -129,20 +128,21 @@ class IgRepConConfig:
     def __initBinaryPaths(self):
         self.path_to_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/paired_read_merger')
         self.run_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/./paired_read_merger')
-        self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/ig_kplus_vj_finder')
-        self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./ig_kplus_vj_finder')
+        self.path_to_vj_aligner = os.path.join(home_directory, 'build/release/bin/vj_finder') #ig_kplus_vj_finder')
+        self.run_vj_aligner = os.path.join(home_directory, 'build/release/bin/./vj_finder') #ig_kplus_vj_finder')
         self.path_to_trie_compressor = os.path.join(home_directory, 'build/release/bin/ig_trie_compressor')
         self.run_trie_compressor = os.path.join(home_directory, 'build/release/bin/./ig_trie_compressor')
+        self.run_fake_trie_compressor = os.path.join(home_directory, 'py/ig_fake_trie_compressor.py')
         self.path_to_graph_constructor = os.path.join(home_directory, 'build/release/bin/ig_swgraph_construct')
         self.run_graph_constructor = os.path.join(home_directory, 'build/release/bin/./ig_swgraph_construct')
-        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_consensus_finder')
-        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_consensus_finder')
-        self.run_rcm_recoverer = os.path.join(home_directory, 'src/ig_quast_tool/rcm_recoverer.py')
-        self.run_remove_low_abundance_reads = os.path.join(home_directory, 'src/ig_quast_tool/ig_remove_low_abundance_reads.py')
-        self.run_compress_equal_clusters = os.path.join(home_directory, 'src/ig_quast_tool/ig_compress_equal_clusters.py')
-        self.run_report_supernodes = os.path.join(home_directory, 'src/ig_quast_tool/ig_report_supernodes.py')
+        self.path_to_consensus_constructor = os.path.join(home_directory, 'build/release/bin/ig_component_splitter')
+        self.run_consensus_constructor = os.path.join(home_directory, 'build/release/bin/./ig_component_splitter')
+        self.run_rcm_recoverer = os.path.join(home_directory, 'py/rcm_recoverer.py')
+        self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
+        self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
+        self.run_triecmp_to_repertoire = os.path.join(home_directory, 'py/ig_triecmp_to_repertoire.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
-        self.path_to_germline = os.path.join(home_directory, "build/release/bin/germline")
+        self.path_to_germline = os.path.join(home_directory, "data/germline")
 
     def __init__(self):
         self.__initBinaryPaths()
@@ -158,7 +158,15 @@ class IgRepConConfig:
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_trie_compressor):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.path_to_trie_compressor +") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_report_supernodes):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_triecmp_to_repertoire):
+            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.run_triecmp_to_repertoire + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
@@ -169,16 +177,16 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if not os.path.exists(self.path_to_consensus_constructor) or not os.path.exists(self.run_rcm_recoverer):
-            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " was not found\n")
+        if not os.path.exists(self.path_to_consensus_constructor):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+        if not os.path.exists(self.run_rcm_recoverer):
+            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_compress_equal_clusters):
             log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
-            ErrorMessagePrepareCfg(log)
-            sys.exit(1)
-        if not os.path.exists(self.run_remove_low_abundance_reads):
-            log.info("ERROR: Binary file of " + phase_names.GetRemoveLowAbundanceReadsName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
 
@@ -193,6 +201,8 @@ class IgRepConIO:
         self.compressed_reads = os.path.join(output_dir, "compressed_reads.fa")
         self.map_file = os.path.join(output_dir, "cleaned_compressed_map.txt")
         self.supernodes_file = os.path.join(output_dir, "super_reads.fa")
+        self.supernode_repertoire = os.path.join(output_dir, "supernode_repertoire.fa")
+        self.supernode_rcm = os.path.join(output_dir, "supernode_repertoire.rcm")
 
     def __initDSFOutput(self, output_dir):
         self.dsf_output = os.path.join(output_dir, "dense_sgraph_finder")
@@ -368,15 +378,21 @@ class VJAlignmentPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = IgRepConConfig().run_vj_aligner + " -i " + self.__params.single_reads + \
-                       " -o " + self.__params.io.vj_finder_output + \
-                       " --db-directory " + IgRepConConfig().path_to_germline + \
+        command_line = os.path.abspath(IgRepConConfig().run_vj_aligner) + \
+                       " -i " + os.path.abspath(self.__params.single_reads) + \
+                       " -o " + os.path.abspath(self.__params.io.vj_finder_output) + \
+                       " --db-directory " + os.path.abspath(IgRepConConfig().path_to_germline) + \
                        " -t " + str(self.__params.num_threads) + \
                        " --loci " + self.__params.loci + \
                        " --organism " + self.__params.organism
         if self.__params.no_pseudogenes:
-            command_line += " --no-pseudogenes"
+            command_line += " --pseudogenes=off"
+        else:
+            command_line += " --pseudogenes=on"
+        cwd = os.getcwd()
+        os.chdir(home_directory)
         support.sys_call(command_line, self._log)
+        os.chdir(cwd)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -402,13 +418,24 @@ class TrieCompressionPhase(Phase):
     def Run(self):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
-                       " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+                    " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + " -Toff"
+        support.sys_call(command_line, self._log)
+
+        command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
+                       " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
+                       " -r " + self.__params.io.supernode_repertoire + " -R " + self.__params.io.supernode_rcm
         support.sys_call(command_line, self._log)
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
-                                                self.__params.io.compressed_reads,
+                                                self.__params.io.supernode_repertoire,
                                                 self.__params.io.supernodes_file,
                                                 self.__params.min_cluster_size)
         support.sys_call(command_line, self._log)
+
+        if not self.__params.equal_compression:
+            command_line = IgRepConConfig().run_fake_trie_compressor + " -i " + self.__params.io.cropped_reads + \
+                        " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file
+            support.sys_call(command_line, self._log)
+
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -432,7 +459,7 @@ class GraphConstructionPhase(Phase):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
-                       " --tau=" + str(self.__params.max_mismatches) + " -A"
+                       " --tau=" + str(self.__params.max_mismatches) + " -A" + " -Toff"
         support.sys_call(command_line, self._log)
 
     def PrintOutputFiles(self):
@@ -450,8 +477,11 @@ class DSFPhase(Phase):
         self.__params.io.CheckSWGraphExistance()
 
     def __GetDSFParams(self):
-        dsf_params = ['-g', self.__params.io.sw_graph, '-o', self.__params.io.dsf_output, '-t',
-                      str(self.__params.num_threads), '-n', str(self.__params.min_snode_size)]
+        dsf_params = ['-g', self.__params.io.sw_graph,
+                      '-o', self.__params.io.dsf_output,
+                      '-t', str(self.__params.num_threads),
+                      '-n', str(self.__params.min_snode_size),
+                      '-f', str(self.__params.min_fillin)]
         if self.__params.create_trivial_decomposition:
             dsf_params.append('--create-triv-dec')
         if self.__params.save_aux_files:
@@ -498,8 +528,11 @@ class ConsensusConstructionPhase(Phase):
         command_line = IgRepConConfig().run_consensus_constructor + \
                        " -i " + self.__params.io.cropped_reads + \
                        " -R " + self.__params.io.uncompressed_final_rcm + \
+                       " -M " + self.__params.io.uncompressed_final_rcm + \
                        " -o " + self.__params.io.uncompressed_final_clusters_fa + \
-                       " -H " + " -t " + str(self.__params.num_threads)
+                       " -t " + str(self.__params.num_threads) + \
+                       " -D " + str(self.__params.discard) + \
+                       " --max-votes " + str(self.__params.max_votes)
         support.sys_call(command_line, self._log)
 
 
@@ -555,7 +588,7 @@ class RemoveLowAbundanceReadsPhase(Phase):
 
     def Run(self):
         self.__CheckInputExistance()
-        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_remove_low_abundance_reads,
+        command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
                                                 self.__params.io.compressed_final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
                                                 self.__params.min_cluster_size)
@@ -645,11 +678,11 @@ def CreateLogger():
 
 def HelpString():
     return "Usage: igrec.py (-s FILENAME | -1 FILENAME -2 FILENAME | --test)\n" +\
-    "\t\t\t(-o OUTPUT_DIR) (-l LOCI)\n" +\
-    "\t\t\t[-t / --threads INT]\n" +\
-    "\t\t\t[--organism ORGANISM] [--no-pseudogenes]\n" +\
-    "\t\t\t[--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
-    "\t\t\t[-h]\n\n" +\
+    "                (-o OUTPUT_DIR) (-l LOCI)\n" +\
+    "                [-t / --threads INT]\n" +\
+    "                [--organism ORGANISM] [--no-pseudogenes]\n" +\
+    "                [--tau INT] [--min-sread-size INT] [--min-cluster-size INT]\n" +\
+    "                [-h]\n\n" +\
     "IgReC: an algorithm for construction of antibody repertoire from immunosequencing data\n\n" +\
     "Input arguments:\n" +\
     "  -s\t\t\t\tFILENAME\t\tSingle reads in FASTQ format\n" +\
@@ -662,6 +695,7 @@ def HelpString():
     "  -t / --threads\t\tINT\t\t\tThread number [default: 16]\n" +\
     "  -h / --help\t\t\t\t\t\tShowing help message and exit\n\n" +\
     "Alignment arguments:\n" +\
+    "  --no-alignment\t\t\t\t\tDo not provide any alignment and filtering\n" +\
     "  -l / --loci\t\t\tLOCI\t\t\tLoci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required\n" +\
     "  --organism\t\t\tORGANISM\t\tOrganism: human, mouse, pig, rabbit, rat, rhesus_monkey are available [default: human]\n" +\
     "  --no-pseudogenes\t\t\t\t\tDisabling using pseudogenes along with normal gene segments for VJ alignment [default: False]\n\n" +\
@@ -673,18 +707,19 @@ def HelpString():
     "Please provide us with igrec.log file from the output directory."
 
 def ParseCommandLineParams(log):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="IgReC: an algorithm for construction of "
-                                              "antibody repertoire from immunosequencing data",
-                                  epilog="""
+    import argparse
+    parser = argparse.ArgumentParser(description="IgReC: an algorithm for construction of "
+                                     "antibody repertoire from immunosequencing data",
+                                     epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
-                                  """,
-                                  add_help=False)
+                                     """,
+                                     add_help=False)
 
     class ActionTest(argparse.Action):
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
             super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
+
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, "single_reads", "test_dataset/merged_reads.fastq")
             setattr(namespace, "loci", "all")
@@ -695,7 +730,7 @@ def ParseCommandLineParams(log):
     input_args.add_argument("-s",
                             dest="single_reads",
                             type=str,
-                            default="", # FIXME This is only for ace's version of python. Locally it works great w/o it
+                            default="",  # FIXME This is only for ace's version of python. Locally it works great w/o it
                             help="Single reads in FASTQ format")
 
     input_args.add_argument("--test",
@@ -767,36 +802,62 @@ def ParseCommandLineParams(log):
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
-    dev_args = parser.add_argument_group("_Developer arguments")
+    vj_align_args.add_argument("--no-alignment",
+                               action="store_true",
+                               help="Do not provide any alignment and filtering")
+
+    dev_args = parser.add_argument_group("Developer arguments")
     dev_args.add_argument("-f", "--min-fillin",
                           type=float,
                           default=0.6,
-                          help="_Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
+                          help="Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
                           default=PhaseNames().GetPhaseNameBy(0),
-                          help="_Continue from the given stage [default: %(default)s]")
+                          help="Continue from the given stage [default: %(default)s]")
     dev_args.add_argument("--create-triv-dec",
                           action="store_const",
                           const=True,
                           dest="create_trivial_decomposition",
-                          help='_Creating decomposition according to connected components [default: False]')
+                          help='Creating decomposition according to connected components [default: False]')
     dev_args.add_argument("--save-aux-files",
                           action="store_const",
                           const=True,
                           dest="save_aux_files",
-                          help="_Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
-                                    "[default: False]")
+                          help="Saving auxiliary files: subgraphs in GRAPH format and their decompositions "
+                          "[default: False]")
     dev_args.add_argument("--debug",
                           action="store_const",
                           const=True,
                           dest="debug_mode",
-                          help="_Save auxiliary files [default: False]")
+                          help="Save auxiliary files [default: False]")
+    dev_args.add_argument("-V", "--max-votes",
+                          type=int,
+                          default=10005000,
+                          help="Maximun secondary votes threshold [default: %(default)d]")
+    dev_args.add_argument("-D", "--discard",
+                          action="store_true",
+                          dest="discard",
+                          help="Discard seconary vote clusters")
+    dev_args.add_argument("--no-discard",
+                          action="store_false",
+                          help="Do not discard seconary vote clusters (default)")
+    parser.set_defaults(discard=True)
+    # TODO Add it into the help
+    dev_args.add_argument("--no-equal-compression",
+                          action="store_false",
+                          dest="equal_compression",
+                          help="Disable equal read compression before graph construction")
+    dev_args.add_argument("--equal-compression",
+                          action="store_true",
+                          dest="equal_compression",
+                          help="Enable equal read compression before graph construction (default)")
+    parser.set_defaults(equal_compression=True)
 
     ods_args = dev_args.add_mutually_exclusive_group(required=False)
     ods_args.add_argument("--help-hidden", "-H",
-                          action="help_hidden",
-                          help="_Show hidden help")
+                          action="help",
+                          help="Show hidden help")
     parser.set_defaults(config_dir="configs",
                         config_file="config.info")
     params = parser.parse_args()
@@ -946,7 +1007,11 @@ def main():
         if params.left_reads:
             ig_repertoire_constructor.Run(start_phase=0)
         else:
-            ig_repertoire_constructor.Run(start_phase=1)
+            if params.no_alignment:
+                params.io.cropped_reads = params.single_reads
+                ig_repertoire_constructor.Run(start_phase=2)
+            else:
+                ig_repertoire_constructor.Run(start_phase=1)
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
         log.info("\nThank you for using IgReC!")

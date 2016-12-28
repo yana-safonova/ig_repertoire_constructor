@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -174,7 +174,7 @@ namespace seqan {
  *
  * The following demonstrates finding repeats of period 3.
  *
- * @include demos/index/find_repeats.cpp
+ * @include demos/dox/index/find_repeats.cpp
  *
  * @code{.console}
  * # of repeats: 15

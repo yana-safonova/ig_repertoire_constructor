@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -327,7 +327,7 @@ struct AssertFunctor
         else
         {
             char buffer[6]; // 5 + 1, e.g. "\0xff" + trailing zero
-            sprintf(buffer, "\\%#2x", (unsigned)val);
+            snprintf(buffer, 6, "\\%#2x", (unsigned)val);
             return std::string(buffer);
         }
     }
@@ -350,13 +350,8 @@ struct AssertFunctor
 // Function globalExceptionHandler()
 // ----------------------------------------------------------------------------
 
-#if defined(SEQAN_EXCEPTIONS) && !defined(SEQAN_NO_GLOBAL_EXCEPTION_HANDLER)
+#if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
 // Declare global exception handler.
-static void globalExceptionHandler();
-
-// Install global exception handler.
-static const std::terminate_handler _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
-
 inline static void globalExceptionHandler()
 {
     SEQAN_TRY
@@ -372,7 +367,11 @@ inline static void globalExceptionHandler()
         SEQAN_FAIL("Uncaught exception of unknown type.\n");
     }
 }
-#endif  // #if defined(SEQAN_EXCEPTIONS) && !defined(SEQAN_NO_GLOBAL_EXCEPTION_HANDLER)
+
+// Install global exception handler.
+static const std::terminate_handler SEQAN_UNUSED _globalExceptionHandler = std::set_terminate(globalExceptionHandler);
+
+#endif  // #if defined(SEQAN_EXCEPTIONS) && defined(SEQAN_GLOBAL_EXCEPTION_HANDLER)
 
 }  // namespace seqan
 

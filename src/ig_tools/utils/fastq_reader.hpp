@@ -4,17 +4,17 @@
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 
-struct fastq_read {
+struct FastqRead {
 	string name;
 	string seq;
 	string quality;
 
-	fastq_read() :
+	FastqRead() :
 		name(),
 		seq(),
 		quality() { }
 
-	fastq_read(string new_name, string new_seq, string new_quality) :
+	FastqRead(string new_name, string new_seq, string new_quality) :
 		name(new_name),
 		seq(new_seq),
 		quality(new_quality) { }
@@ -30,15 +30,15 @@ struct fastq_read {
 	}
 };
 
-struct paired_fastq_read {
-	fastq_read left_read;
-	fastq_read right_read;
+struct PairedFastqRead {
+	FastqRead left_read;
+	FastqRead right_read;
 
-	paired_fastq_read() :
+	PairedFastqRead() :
 		left_read(),
 		right_read() { }
 
-	paired_fastq_read(fastq_read new_left, fastq_read new_right) :
+	PairedFastqRead(FastqRead new_left, FastqRead new_right) :
 		left_read(new_left),
 		right_read(new_right) { }
 };
@@ -66,8 +66,8 @@ public:
 		assert(!src_.fail());
 	}
 
-	vector<fastq_read> ReadFile() {
-		vector<fastq_read> reads;
+	vector<FastqRead> ReadFile() {
+		vector<FastqRead> reads;
 		while(!src_.eof()) {
 			string name;
 			string seq;
@@ -81,7 +81,7 @@ public:
 			assert(seq.size() == qual.size());
 
 			if(name != "" && seq != "" && qual != "")
-				reads.push_back(fastq_read(name, seq, qual));
+				reads.push_back(FastqRead(name, seq, qual));
 		}
 		return reads;
 	}
@@ -105,13 +105,13 @@ public:
 		right_(string(right_fname)) {
 	}
 
-	vector<paired_fastq_read> Read() {
-		vector<fastq_read> left_reads = left_.ReadFile();
-		vector<fastq_read> right_reads = right_.ReadFile();
+	vector<PairedFastqRead> Read() {
+		vector<FastqRead> left_reads = left_.ReadFile();
+		vector<FastqRead> right_reads = right_.ReadFile();
 		assert(left_reads.size() == right_reads.size());
-		vector<paired_fastq_read> paired_reads;
+		vector<PairedFastqRead> paired_reads;
 		for(size_t i = 0; i < left_reads.size(); i++)
-			paired_reads.push_back(paired_fastq_read(left_reads[i],
+			paired_reads.push_back(PairedFastqRead(left_reads[i],
 					right_reads[i]));
 		return paired_reads;
 	}
@@ -123,7 +123,7 @@ public:
 	FastqWriter(string fname) :
 		out_(fname.c_str()) { }
 
-	void Write(vector<fastq_read> reads) {
+	void Write(vector<FastqRead> reads) {
 		for(size_t i = 0; i < reads.size(); i++) {
 			out_ << reads[i].name << endl << reads[i].seq << endl <<
 					"+" << endl << reads[i].quality << endl;

@@ -1,0 +1,275 @@
+{
+  "$type": "Form",
+  "fields": [
+    
+    {
+      "$type": "SectionBreak",
+      "title": "Input Rep-seq data"
+    },
+
+    {
+      "$type": "RadioButton",
+      "id": "input-type",
+      "label": "Input type",
+      "value": 1,
+      "choices": [
+        {
+          "value": 0,
+          "label": "BaseSpace sample"
+        },
+        {
+          "value": 1,
+          "label": "Library file"
+        }
+      ],
+      "togglers": [
+        {
+          "toggleOnValue": 1,
+          "toggleFields": "reads-file"
+        },
+        {
+          "toggleOnValue": 0,
+          "toggleFields": "reads-sample"
+        }
+      ]
+    },
+
+    {
+      "$type": "SampleChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Rep-seq paired-end sample",
+      "required": true,
+      "requiredMessage": "Please choose a sample with input reads",
+      "id": "reads-sample",
+      "rules": "sample-reader, is-paired-end, sample-is-not-empty, sample-size-maximum"
+    },
+    {
+      "$type": "FileChooser",
+      "size": 300,
+      "allowedPermissions": "read",
+      "multiselect": false,
+      "label": "Merged Rep-seq library file",
+      "required": true,
+      "extensionFilters": ".fa,.fq,.fasta,.fastq,.gz",
+      "requiredMessage": "Please choose a file with input reads",
+      "id": "reads-file",
+      "rules": "read-file-format"
+    },
+
+    {
+      "$type": "SectionBreak",
+      "title": "Output"
+    },
+
+    {
+      "$type": "TextBox",
+      "size": 300,
+      "value": "default value!",
+      "label": "Analysis Name",
+      "required": true,
+      "requiredMessage": "Please enter name for your app session.",
+      "id": "app-session-name"
+    },
+
+    {
+      "$type": "ProjectChooser",
+      "size": 300,
+      "label": "Output project",
+      "valueType": "Output",
+      "allowedPermissions": "owner",
+      "required": true,
+      "requiredMessage": "Please choose an output project",
+      "id": "project-id",
+      "rules": "is-project-owner, is-project-writeable"
+    },
+
+    {
+      "$type": "SectionBreak",
+      "title": "Germline options"
+    },
+
+    {
+      "$type": "Select",
+      "id": "loci",
+      "label": "Loci",
+      "multiselect": false,
+      "helpText" : "Ig/TCR loci used for alignment and filtering at the VJFinder stage",
+      "value": "all",
+      "choices": [
+        {
+          "value": "IG",
+          "text": "IG",
+          "label": "IG",
+          "selected": true
+        },
+        {
+          "value": "IGH",
+          "text": "IGH",
+          "label": "IGH",
+          "selected": false
+        },
+        {
+          "value": "IGK",
+          "text": "IGK",
+          "label": "IGK",
+          "selected": false
+        },
+        {
+          "value": "IGL",
+          "text": "IGL",
+          "label": "IGL",
+          "selected": false
+        },
+        {
+          "value": "TR",
+          "text": "TR",
+          "label": "TR",
+          "selected": false
+        },
+        {
+          "value": "TRA",
+          "text": "TRA",
+          "label": "TRA",
+          "selected": false
+        },
+        {
+          "value": "TRB",
+          "text": "TRB",
+          "label": "TRB",
+          "selected": false
+        },
+        {
+          "value": "TRG",
+          "text": "TRG",
+          "label": "TRG",
+          "selected": false
+        },
+        {
+          "value": "TRD",
+          "text": "TRD",
+          "label": "TRD",
+          "selected": false
+        },
+        {
+          "value": "all",
+          "text": "all",
+          "label": "all",
+          "selected": false
+        }
+      ]
+    },
+    
+    {
+      "$type": "Select",
+      "id": "organism",
+      "label": "Organism",
+      "multiselect": false,
+      "choices": [
+        {
+          "value": "human",
+          "text": "human (Homo sapiens)",
+          "selected": true
+        },
+        {
+          "value": "mouse",
+          "text": "house mouse (Mus musculus)",
+          "selected": false
+        },
+        {
+          "value": "pig",
+          "text": "pig (Sus scrofa)",
+          "selected": false
+        },
+        {
+          "value": "rabbit",
+          "text": "rabbit (Oryctolagus cuniculus)",
+          "selected": false
+        },
+        {
+          "value": "rat",
+          "text": "Norway rat (Rattus norvegicus)",
+          "selected": false
+        },
+        {
+          "value": "rhesus_monkey",
+          "text": "Rhesus monkey (Macaca mulatta)",
+          "selected": false
+        }
+      ]
+    }
+    
+    
+  ],
+  "rulesets":[
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Own",
+      "severity": "Warning",
+      "message": "You aren't the owner of the selected project",
+      "id": "is-project-owner"
+    },
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Write",
+      "severity": "Error",
+      "message": "You have no permission to write into the selected project",
+      "id": "is-project-writeable"
+    },
+    {
+      "$type": "PermissionValidationRule",
+      "permissions": "Read",
+      "severity": "Error",
+      "message": "You do not have read access to the selected sample",
+      "id": "sample-reader"
+    },
+    {
+      "$type": "PairedEndSampleValidationRule",
+      "message": "This app currently only supports paired-end reads",
+      "relation": "Equals",
+      "value": true,
+      "severity": "Error",
+      "id": "is-paired-end"
+    },
+    {
+      "$type": "EmptySampleValidationRule",
+      "message": "Sample should not be empty",
+      "relation": "GreaterThan",
+      "value": 0,
+      "severity": "Error",
+      "id": "sample-is-not-empty"
+    },
+    {
+      "$type": "MaxSizeSampleValidationRule",
+      "message": "Sample seems too large (more than 1 gigabase)",
+      "relation": "LessThan",
+      "value": 1000000000,
+      "severity": "Warning",
+      "id": "sample-size-maximum"
+    },
+    {
+      "$type": "ScriptValidationRule",
+      "severity": "Error",
+      "callback": "
+        var file = dataProvider.GetProperty('Input.reads-file');
+        if (!file) {
+            return null;
+        }
+        var name = file['Name'];
+        if (!name) {
+            return null;
+        }
+        var re = /.*\\.f(ast)?(a|q)(\\.gz)?$/;
+        if (name.match(re)) {
+          return null;
+        } else {
+          return { Message: 'Input file extension should be one of these: .fa, .fasta, .fq, .fastq, .fa.gz, .fasta.gz, .fq.gz, .fastq.gz' };
+        }
+      ",
+      "message": "Input file extension should be one of these: .fa, .fasta, .fq, .fastq, .fa.gz, .fasta.gz, .fq.gz, .fastq.gz",
+      "id": "read-file-format"
+    }
+  ],
+  "id": "form-container"
+}

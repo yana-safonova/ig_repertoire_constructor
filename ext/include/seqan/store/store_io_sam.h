@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 #ifndef SEQAN_HEADER_STORE_IO_SAM_H
 #define SEQAN_HEADER_STORE_IO_SAM_H
 
-namespace SEQAN_NAMESPACE_MAIN
+namespace seqan
 {
 
 // ============================================================================
@@ -94,10 +94,10 @@ template <typename TId>
 struct MatchMateInfo_
 {
     TId     readId;
-    __int32 contigId;
+    int32_t contigId;
     TId     pairMatchId;
     TId     matePairId;//:(sizeof(TId)*8-1);
-    __int32 beginPos;
+    int32_t beginPos;
     bool    reversed;
 };
 
@@ -338,20 +338,6 @@ readRecords(FragmentStore<TSpec, TConfig> & store,
     }
 }
 
-/*!
- * @fn FragmentStore#readRecords
- * @brief Read all records from one @link BamFileIn @endlink.
- *
- * @signature void readRecords(store, bamFileIn, importFlags);
- *
- * @param[in,out] store       The @link FragmentStore @endlink object to store the records into.
- * @param[in,out] bamFileIn   The @link BamFileIn @endlink object to read from.
- * @param[in]     importFlags The import flags.
- *
- * @throw IOError On low-level I/O errors.
- * @throw ParseError On high-level file format errors.
- */
-
 template <typename TFSSpec, typename TConfig, typename TDirection, typename TSpec>
 inline void
 readRecords(FragmentStore<TFSSpec, TConfig> & store,
@@ -439,7 +425,7 @@ _readAlignments(
 //        refresh(fragStore.contigNameStoreCache);  // was done for the BamIOContext already
     refresh(fragStore.readNameStoreCache);
 
-    __uint64 recNo = 0;
+    uint64_t recNo = 0;
     while (!atEnd(iter))
     {
         try
@@ -1123,19 +1109,6 @@ writeRecords(FormattedFile<Bam, Output, TSpec> & bamFile,
     writeAlignments(bamFile, store, functor);
 }
 
-/*!
- * @fn FragmentStore#writeRecords
- * @brief Write all records to one @link BamFileOut @endlink.
- *
- * @signature void readRecords(bamFileOut, store);
- *
- * @param[in,out] bamFileOut  The @link BamFileOut @endlink object to write into.
- * @param[in]     store       The @link FragmentStore @endlink object.
- *
- * @throw IOError On low-level I/O errors.
- * @throw ParseError On high-level file format errors.
- */
-
 template <typename TSpec, typename TFSSpec, typename TFSConfig>
 inline void
 writeRecords(FormattedFile<Bam, Output, TSpec> & bamFile,
@@ -1145,6 +1118,6 @@ writeRecords(FormattedFile<Bam, Output, TSpec> & bamFile,
     writeRecords(bamFile, store, functor);
 }
 
-}// namespace SEQAN_NAMESPACE_MAIN
+}// namespace seqan
 
 #endif //#ifndef SEQAN_HEADER_...

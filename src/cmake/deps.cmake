@@ -13,8 +13,11 @@ endif()
 
 find_package(OpenMP QUIET)
 link_libraries(z)
-# link_libraries(bz2)
+link_libraries(bz2)
 link_libraries(pthread)
+
+add_definitions(-DSEQAN_HAS_ZLIB=1)
+add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 set(BOOST_ROOT "${EXT_DIR}/include")
 set(Boost_USE_MULTITHREADED ON)

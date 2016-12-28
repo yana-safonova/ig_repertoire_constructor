@@ -47,11 +47,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
-	vector<paired_fastq_read> paired_reads = PairedFastqReader(argv[1],
+	vector<PairedFastqRead> paired_reads = PairedFastqReader(argv[1],
 			argv[2]).Read();
 	INFO(paired_reads.size() << " paired reads were read from " << argv[1] <<
 			" and " << argv[2]);
-	vector<fastq_read> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
+	vector<FastqRead> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
 	INFO(merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged");
 	FastqWriter(string(argv[3])).Write(merged_reads);
 	INFO("Merged reads were written to " << string(argv[3]));

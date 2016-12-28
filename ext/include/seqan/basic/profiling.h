@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,12 @@
 // TODO(holtgrew): This could use some cleanup.
 
 #include <ctime>
+#ifndef PLATFORM_WINDOWS
+    #ifndef SEQAN_USE_CLOCKGETTIME
+    /* some systems e.g. darwin have no clock_gettime */
+        #include <sys/time.h>
+    #endif
+#endif
 
 //SEQAN_NO_GENERATED_FORWARDS: no forwards are generated for this file
 
@@ -87,7 +93,7 @@ namespace seqan
 #endif
 
 #ifdef PLATFORM_WINDOWS
-    typedef __int64   ProfileInt_; //IOREV _notio_
+    typedef int64_t   ProfileInt_; //IOREV _notio_
 #else
     typedef int64_t ProfileInt_; //IOREV _notio_
 #endif
@@ -256,7 +262,6 @@ namespace seqan
         #ifndef SEQAN_USE_CLOCKGETTIME
         /* some systems e.g. darwin have no clock_gettime */
 
-            #include <sys/time.h>
 
             inline _proFloat sysTime() {
                 struct timeval tp;

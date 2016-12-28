@@ -1,7 +1,7 @@
 // ==========================================================================
 //                 SeqAn - The Library for Sequence Analysis
 // ==========================================================================
-// Copyright (c) 2006-2015, Knut Reinert, FU Berlin
+// Copyright (c) 2006-2016, Knut Reinert, FU Berlin
 // Copyright (c) 2013 NVIDIA Corporation
 // All rights reserved.
 //
@@ -39,6 +39,8 @@
 
 #ifndef SEQAN_SEQUENCE_STRING_SET_CONCAT_DIRECT_H_
 #define SEQAN_SEQUENCE_STRING_SET_CONCAT_DIRECT_H_
+
+#include <algorithm>
 
 namespace seqan {
 
@@ -91,6 +93,16 @@ public:
     }
 
     template <typename TOtherString, typename TOtherSpec>
+    StringSet(StringSet<TOtherString, Owner<ConcatDirect<TOtherSpec> > > & other) :
+        limits(other.limits), concat(other.concat)
+    {}
+
+    template <typename TOtherString, typename TOtherSpec>
+    StringSet(StringSet<TOtherString, Owner<ConcatDirect<TOtherSpec> > > const & other) :
+        limits(other.limits), concat(other.concat)
+    {}
+
+    template <typename TOtherString, typename TOtherSpec>
     StringSet(StringSet<TOtherString, TOtherSpec> &other)
     {
         _initStringSetLimits(*this);
@@ -119,7 +131,6 @@ public:
     SEQAN_HOST_DEVICE inline typename Reference<StringSet>::Type
     operator[](TPos pos)
     {
-        SEQAN_CHECKPOINT;
         return value(*this, pos);
     }
 
@@ -127,7 +138,6 @@ public:
     SEQAN_HOST_DEVICE inline typename Reference<StringSet const>::Type
     operator[](TPos pos) const
     {
-        SEQAN_CHECKPOINT;
         return value(*this, pos);
     }
 
@@ -301,7 +311,7 @@ inline void assignValue(
     {
         TSignedLimitValue delta = (TSignedLimitValue)length(seq) - oldSize;
         TSize size = length(me);
-        while (pos < size)
+        while (static_cast<TSize>(pos) < size)
             me.limits[++pos] += delta;
     }
 }
@@ -334,6 +344,51 @@ template <typename TString, typename TSpec >
 inline void _refreshStringSetLimits(StringSet<TString, Owner<ConcatDirect<TSpec> > > &) {}
 
 // --------------------------------------------------------------------------
+// Function append()
+// --------------------------------------------------------------------------
+
+// more efficient overload for concat direct stringsets
+template <typename TString, typename TSpec, typename TStrings2, typename TExpand >
+inline SEQAN_FUNC_ENABLE_IF(And<Is<ContainerConcept<TStrings2> >,
+                                Is<ContainerConcept<typename Value<TStrings2>::Type > > >, void)
+append(StringSet<TString, Owner<ConcatDirect<TSpec> > > & me,
+       TStrings2 const & obj,
+       Tag<TExpand>)
+{
+    typedef typename Iterator<TStrings2 const>::Type TIt;
+
+    reserve(me.concat, lengthSum(me) + lengthSum(obj), Tag<TExpand>());
+    reserve(me.limits, length(me.limits) + length(obj), Tag<TExpand>());
+
+    for (TIt it = begin(obj), itEnd = end(obj); it != itEnd; ++it)
+        appendValue(me, *it, Tag<TExpand>());
+}
+
+// even more efficient if both stringsets are concatdirect
+template <typename TString1, typename TString2, typename TSpec1, typename TSpec2, typename TExpand>
+inline void
+append(StringSet<TString1, Owner<ConcatDirect<TSpec1> > > & me,
+       StringSet<TString2, Owner<ConcatDirect<TSpec2> > > const & obj,
+       Tag<TExpand>)
+{
+    typedef typename Size<TString1>::Type TSize;
+    typedef StringSet<TString1, Owner<ConcatDirect<TSpec1> > > TMe;
+    typedef typename Iterator<typename StringSetLimits<TMe>::Type>::Type TIt;
+
+    if (SEQAN_UNLIKELY(empty(obj)))
+        return;
+
+    TSize const oldLimLength = length(me.limits);
+    TSize const oldLength = back(me.limits);
+
+    append(me.concat, obj.concat, Tag<TExpand>());
+    append(me.limits, suffix(obj.limits, 1), Tag<TExpand>());
+
+    for (TIt it = begin(me.limits, Standard()) + oldLimLength, itEnd = end(me.limits, Standard()); it != itEnd; ++it)
+        *it += oldLength;
+}
+
+// --------------------------------------------------------------------------
 // Function appendValue()
 // --------------------------------------------------------------------------
 
@@ -341,10 +396,10 @@ template <typename TString, typename TString2, typename TSpec, typename TExpand>
 inline void appendValue(
     StringSet<TString, Owner<ConcatDirect<TSpec> > > & me,
     TString2 const & obj,
-    Tag<TExpand> tag)
+    Tag<TExpand>)
 {
-    appendValue(me.limits, lengthSum(me) + length(obj), tag);
-    append(me.concat, obj, tag);
+    appendValue(me.limits, lengthSum(me) + length(obj), Tag<TExpand>());
+    append(me.concat, obj, Tag<TExpand>());
 }
 
 // --------------------------------------------------------------------------
@@ -367,8 +422,68 @@ inline void insertValue(
     insertValue(me.limits, pos, me.limits[pos], tag);
     TLimitValue delta = (TLimitValue)length(seq);
     TSize size = length(me);
-    while (pos <size)
+    while (static_cast<TSize>(pos) < size)
         me.limits[++pos] += delta;
+}
+
+// --------------------------------------------------------------------------
+// Function replace()
+// --------------------------------------------------------------------------
+
+// special case
+template <typename TString, typename TSpec, typename TPositionBegin, typename TPositionEnd, typename TExpand >
+inline void replace(
+    StringSet<TString, Owner<ConcatDirect<TSpec> > > & target,
+    TPositionBegin pos_begin,
+    TPositionEnd pos_end,
+    StringSet<TString, Owner<ConcatDirect<TSpec> > > const & source,
+    Tag<TExpand> tag)
+{
+    typedef typename StringSetLimits<StringSet<TString, Owner<ConcatDirect<TSpec> > > >::Type   TLimits;
+
+    TLimits source_limits;
+    unsigned len = length(source);
+
+    appendValue(source_limits, target.limits[pos_begin]);
+    for(unsigned i = 0; i < len; ++i)
+        appendValue(source_limits, source_limits[i] + length(source[i]));
+    for(unsigned i = pos_end+1; i < length(target.limits); ++i)
+        appendValue(source_limits, source_limits[len-1+i-pos_begin] + (target.limits[i] - target.limits[i-1]));
+
+    replace(target.concat, pos_begin, pos_end, source.concat, tag);
+    replace(target.limits, pos_begin, length(target.limits), source_limits);
+}
+
+// // general case
+template <typename TString, typename TSpec, typename TPositionBegin, typename TPositionEnd, typename TSource, typename TExpand >
+inline SEQAN_FUNC_ENABLE_IF(And<Is<ContainerConcept<TSource> >, Is<ContainerConcept<typename Value<TSource>::Type> > >, void)
+replace(StringSet<TString, Owner<ConcatDirect<TSpec> > > & target,
+        TPositionBegin pos_begin,
+        TPositionEnd pos_end,
+        TSource const & source,
+        Tag<TExpand> tag)
+{
+    typedef StringSet<TString, Owner<ConcatDirect<TSpec> > > TStringSet;
+    typedef typename Position<TStringSet>::Type TPos;
+    typedef typename StringSetLimits<TStringSet>::Type TLimits;
+    typedef typename Concatenator<TStringSet>::Type TConcatenator;
+
+    // update limits
+    TLimits source_limits;
+    TPos len = length(source);
+
+    appendValue(source_limits, target.limits[pos_begin]);
+    for(TPos i = 0; i < len; ++i)
+        appendValue(source_limits, source_limits[i] + length(source[i]));
+    for(TPos i = pos_end+1; i < length(target.limits); ++i)
+        appendValue(source_limits, source_limits[len-1+i-pos_begin] + (target.limits[i] - target.limits[i-1]));
+
+    replace(target.limits, pos_begin, length(target.limits), source_limits);
+
+    // update concat
+    erase(target.concat, pos_begin, pos_end);
+    TConcatenator source_concat = concat(source);
+    insert(target.concat, pos_begin, source_concat, tag);
 }
 
 // --------------------------------------------------------------------------
@@ -429,14 +544,14 @@ template <typename TString, typename TSpec, typename TSize, typename TExpand >
 inline typename Size<StringSet<TString, Owner<ConcatDirect<TSpec> > > >::Type
 resize(StringSet<TString, Owner<ConcatDirect<TSpec> > > & me, TSize new_size, Tag<TExpand> tag)
 {
-    if (new_size < length(me.limits))
+    typedef typename Size<typename StringSetLimits<StringSet<TString, Owner<ConcatDirect<TSpec> > > >::Type>::Type TS;
+    if (static_cast<TS>(new_size) < length(me.limits))
     {
         resize(me.concat, me.limits[new_size]);
         return resize(me.limits, new_size + 1, tag) - 1;
     } else
         return resize(me.limits, new_size + 1, back(me.limits), tag) - 1;
 }
-
 
 // --------------------------------------------------------------------------
 // Function reserve()
