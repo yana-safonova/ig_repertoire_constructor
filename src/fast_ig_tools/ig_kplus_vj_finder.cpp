@@ -15,7 +15,7 @@ using std::endl;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
-
+#include "utils.hpp"
 #include <build_info.hpp>
 
 #include <seqan/seq_io.h>
@@ -119,6 +119,8 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
              "separator for alignment info file: 'comma', 'semicolon', 'tab' (or 'tabular') or custom string")
             ("min-len", po::value<size_t>(&min_len)->default_value(min_len),
              "minimal length of reported sequence")
+            ("consistent-loci", po::value<bool>(&consistent_loci)->default_value(consistent_loci),
+             "force V and J genes to be from the same locus")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -130,12 +132,16 @@ struct VJFinderParameters : public VJAlignerParameters, public VJQueryParameters
              "uncoverage limit of left end")
             ("right-uncoverage-limit", po::value<size_t>(&right_uncovered_limit)->default_value(right_uncovered_limit),
              "uncoverage limit of right end")
-            ("max-global-gap", po::value<int>(&max_global_gap)->default_value(max_global_gap),
+            ("max-global-gap", po::value<int>(&scoring.max_global_gap)->default_value(scoring.max_global_gap),
              "maximal allowed size of global gap")
-            ("max-local-insertions", po::value<int>(&max_local_insertions)->default_value(max_local_insertions),
+            ("max-local-insertions", po::value<int>(&scoring.max_local_insertions)->default_value(scoring.max_local_insertions),
              "maximal allowed size of local insertion")
-            ("max-local-deletions", po::value<int>(&max_local_deletions)->default_value(max_local_deletions),
+            ("max-local-deletions", po::value<int>(&scoring.max_local_deletions)->default_value(scoring.max_local_deletions),
              "maximal allowed size of local deletion")
+            ("gap-opening-cost", po::value<int>(&scoring.gap_opening_cost)->default_value(scoring.gap_opening_cost),
+             "gap opening cost")
+            ("gap-extention-cost", po::value<int>(&scoring.gap_extention_cost)->default_value(scoring.gap_extention_cost),
+             "gap extention cost")
             ("min-vsegment-length", po::value<size_t>(&min_v_segment_length)->default_value(min_v_segment_length),
              "minimal allowed length of V gene segment")
             ("min-jsegment-length", po::value<size_t>(&min_j_segment_length)->default_value(min_j_segment_length),
@@ -333,6 +339,7 @@ int main(int argc, char **argv) {
                         % (vjalignment.VStart(i) + 1 ) % vjalignment.VEnd(i)
                         % vjalignment.VScore(i)        % vjalignment.VId(i);
 
+                    cout << vjalignment.VMatches(i) << endl;
                     cout << vjalignment.VAlignmentSeqAn(i);
                 }
             } else {
@@ -345,6 +352,7 @@ int main(int argc, char **argv) {
                         % (vjalignment.JStart(i) + 1 )  % vjalignment.JEnd(i)
                         % vjalignment.JScore(i)         % vjalignment.JId(i);
 
+                    cout << vjalignment.JMatches(i) << endl;
                     cout << vjalignment.JAlignmentSeqAn(i);
                 }
             } else {

@@ -1,61 +1,158 @@
 #pragma once
 
-#include <vector>
-#include <array>
-#include <memory>
-#include <cassert>
 #include <algorithm>
-#include <unordered_map>
+#include <array>
+#include <boost/pool/object_pool.hpp>
+#include <cassert>
+#include <limits>
+#include <memory>
+#include <boost/unordered_map.hpp>
+#include <vector>
 
 #include <seqan/seq_io.h>
-using seqan::length;
 
-template<typename Tletter = seqan::Dna5>
-class Trie {
+namespace fast_ig_tools {
+template <typename T>
+using Decay = typename std::decay<T>::type;
+
+template <typename TArray>
+using ValueType = Decay<decltype(Decay<TArray>()[0])>;
+
+class Compressor {
 public:
-    Trie() : root{new TrieNode} {  }
-    Trie(const Trie&) = delete;
-    Trie& operator=(const Trie&) = delete;
-    Trie(Trie&&) = default;
-    Trie& operator=(Trie&&) = default;
-    ~Trie() = default;
+    enum class Type {HashCompressor, TrieCompressor};
+    virtual std::vector<size_t> checkout() = 0;
 
-    template<typename Tcont>
-    Trie(const Tcont &cont) : Trie() {
-        size_t i = 0;
-        for (const auto &s : cont) {
-            add(s, i);
-            ++i;
+    template <typename TValue, typename... Args>
+    static std::unique_ptr<Compressor> factor(Compressor::Type type, Args&&... args);
+
+    template <typename TIter>
+    static std::vector<size_t> compressed_reads_indices(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) {
+		using TValue = ValueType<decltype(*(TIter()))>;
+        auto compressor = Compressor::factor<TValue>(type, b, e);
+
+        return compressor->checkout();
+    }
+
+    template <typename TVector>
+    static std::vector<size_t> compressed_reads_indices(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) {
+        return compressed_reads_indices(reads.cbegin(), reads.cend(), type);
+    }
+
+    template <typename TIter>
+    static auto compressed_reads(TIter b, TIter e, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<Decay<decltype(*(TIter()))>>  {
+        auto indices = compressed_reads_indices(b, e, type);
+
+        std::vector<Decay<decltype(*(TIter()))>> result;
+        for (size_t i = 0; i < indices.size(); ++i, ++b) {
+            if (indices[i] == i) {
+                result.push_back(*b);
+            }
+        }
+
+        return result;
+    }
+
+    template <typename TVector>
+    static auto compressed_reads(const TVector &reads, Compressor::Type type = Compressor::Type::TrieCompressor) -> std::vector<ValueType<TVector>>  {
+        return compressed_reads(reads.cbegin(), reads.cend(), type);
+    }
+};
+
+
+class HashCompressor : public Compressor {
+public:
+    HashCompressor() {}
+    HashCompressor(const HashCompressor &) = delete;
+    HashCompressor &operator=(const HashCompressor &) = delete;
+    HashCompressor(HashCompressor &&) = default;
+    HashCompressor &operator=(HashCompressor &&) = default;
+    ~HashCompressor() = default;
+
+    size_t size() const {
+        return size_;
+    }
+
+    template <typename TCont>
+    HashCompressor(const TCont &cont) : HashCompressor(cont.cbegin(), cont.cend()) { }
+
+    template <typename TIter>
+    HashCompressor(TIter b, TIter e) : HashCompressor() {
+        for (; b !=e; ++b) {
+            add(*b);
+        }
+    }
+    template <typename T>
+    void add(const T &s) {
+        seqan::String<char> str = s;
+        map_[seqan::toCString(str)].push_back(size_++);
+    }
+
+    virtual std::vector<size_t> checkout() {
+        std::vector<size_t> result(this->size());
+        for (const auto &kv : map_) {
+            const auto &ids = kv.second;
+            size_t target = ids[0];
+            for (size_t id : ids) {
+                result[id] = target;
+            }
+        }
+
+        return result;
+    }
+
+private:
+    boost::unordered_map<std::string, std::vector<size_t>> map_;
+    size_t size_ = 0;
+};
+
+
+template <typename TValue = seqan::Dna5>
+class TrieCompressor : public Compressor {
+public:
+    TrieCompressor() {
+        // Do not use :member initialization syntax here. pool should be initialized BEFORE root
+        root_ = pool_.construct();
+    }
+    TrieCompressor(const TrieCompressor &) = delete;
+    TrieCompressor &operator=(const TrieCompressor &) = delete;
+    TrieCompressor(TrieCompressor &&) = default;
+    TrieCompressor &operator=(TrieCompressor &&) = default;
+    ~TrieCompressor() = default;
+
+
+    size_t size() const {
+        return size_;
+    }
+
+    template <typename TCont>
+    TrieCompressor(const TCont &cont) : TrieCompressor(cont.cbegin(), cont.cend()) { }
+
+    template <typename TIter>
+    TrieCompressor(TIter b, TIter e) : TrieCompressor() {
+        for (; b !=e; ++b) {
+            add(*b);
         }
     }
 
-    template<typename TcontRead, typename TcontAbun>
-    Trie(const TcontRead &cont_read, const TcontAbun &cont_abun) : Trie() {
-        size_t i = 0;
-        // Zip!!! I badly need zip!
-
-        auto it_read = cont_read.cbegin(), end_read = cont_read.cend();
-        auto it_abun = cont_abun.cbegin(), end_abun = cont_abun.cend();
-        for (; it_read != end_read && it_abun != end_abun; ++it_read, ++it_abun) {
-            add(*it_read, i, *it_abun);
-            ++i;
-        }
-
-        assert(it_read == end_read && it_abun == end_abun); // contairners should have the same length
-    }
-
-    template<typename T, typename Tf>
-    void add(const T &s, size_t id, const Tf &toIndex, size_t abundance = 1) {
+    template <typename T>
+    void add(const T &s) {
         assert(!isCompressed());
 
-        typename TrieNode::pointer_type p = this->root.get();
+        TrieNode *p = root_;
 
-        for (size_t i = 0; i < length(s); ++i) {
-            size_t el = toIndex(s[i]);
+        for (size_t i = 0; i < seqan::length(s); ++i) {
+            if (p->ids) {
+                // Ok, nice, we have found a sequence that is a prefix of the current read
+                // Join current sequence to the found prefix
+                // Do not construct trie further
+                break;
+            }
+            size_t el = seqan::ordValue(s[i]);
             assert((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
-                p->children[el] = new TrieNode();
+                p->children[el] = pool_.construct();
             }
 
             p = p->children[el];
@@ -65,70 +162,50 @@ public:
             p->ids = new IdCounter;
         }
 
-        p->ids->add(id, abundance);
-    }
-
-    template<typename T>
-    void add(const T &s, size_t id) {
-        auto to_size_t = [](const Tletter &letter) -> size_t { return seqan::ordValue(letter); };
-        add(s, id, to_size_t);
+        p->ids->add(size_);
+        size_++;
     }
 
     bool isCompressed() const {
-        return compressed;
+        return compressed_;
     }
 
     void compress() {
         if (!isCompressed()) {
-            // root->compress_to_longest();
-            root->compress_to_shortest();
+            root_->compress_to_prefix();
         }
     }
 
-    std::unordered_map<size_t, size_t> checkout(size_t nbucket = 0) {
-        if (nbucket == 0) {
-            nbucket = root->leaves_count();
+    virtual std::vector<size_t> checkout() {
+        if (!isCompressed()) {
+            compress();
         }
 
-        if (!isCompressed()) compress();
-
-        std::unordered_map<size_t, size_t> result(nbucket);
-        root->checkout(result);
+        std::vector<size_t> result(this->size());
+        root_->checkout_vector(result);
 
         return result;
-    }
 
-    std::unordered_map<size_t, std::vector<size_t>> checkout_ids(size_t nbucket = 0) {
-        if (nbucket == 0) {
-            nbucket = root->leaves_count();
-        }
-
-        if (!isCompressed()) compress();
-
-        std::unordered_map<size_t, std::vector<size_t>> result(nbucket);
-        root->checkout(result);
-
-        return result;
     }
 
 private:
-    static constexpr size_t card = seqan::ValueSize<Tletter>::VALUE;
+    class TrieNode;
+    static constexpr size_t card = seqan::ValueSize<TValue>::VALUE;
 
     struct IdCounter {
         std::vector<size_t> id_vector;
-        size_t count = 0;
+        TrieNode *target_node = nullptr;
 
-        void add(size_t id, size_t abundance = 1) {
+        void add(size_t id) {
             id_vector.push_back(id);
-            count += abundance;
         }
 
         bool empty() const {
-            return count == 0;
+            return id_vector.empty();
         }
 
         size_t size() const {
-            return count;
+            return id_vector.size();
         }
 
         size_t represent() const {
@@ -140,114 +217,46 @@ private:
 
     class TrieNode {
     public:
-        using pointer_type = TrieNode*;
-        static const size_t INFu = -1u;
-        std::array<pointer_type, card> children;
+        static const size_t INF = std::numeric_limits<size_t>::max();
+        std::array<TrieNode*, card> children;
 
-        TrieNode() : target_node{nullptr}, target_node_distance{INFu}, ids{nullptr} {
+        TrieNode() : ids{nullptr} {
             children.fill(nullptr);
         }
 
-        pointer_type target_node;
-
-        size_t target_node_distance;
         IdCounter *ids;
 
-        void compress_to_longest() {
-            target_node_distance = INFu;
-
-            for (auto &child : children) {
-                if (child) {
-                    child->compress_to_longest();
-                    if (target_node_distance > child->target_node_distance + 1) {
-                        target_node_distance = child->target_node_distance;
-                        target_node = child->target_node;
-                    }
-                }
-            }
-
-            if (target_node_distance == INFu) {
-                target_node_distance = 0;
-                target_node = this;
-            }
-        }
-
-        void compress_to_shortest(pointer_type p = nullptr, size_t dist = 0) {
-            target_node_distance = INFu;
-
+        // Compression to prefix
+        void compress_to_prefix(TrieNode *p = nullptr) {
             if (!p && ids) {
                 p = this;
-                dist = 0;
             }
 
             if (ids) {
-                target_node = p;
-                target_node_distance = dist;
+                ids->target_node = p;
             }
 
             for (auto &child : children) {
                 if (child) {
-                    child->compress_to_shortest(p, dist + 1);
+                    child->compress_to_prefix(p);
                 }
             }
         }
 
-        void compress_to_itselft() {
-            target_node_distance = INFu;
-
-            if (ids) {
-                target_node = this;
-                target_node_distance = 0;
-            }
-
-            for (auto &child : children) {
-                if (child) {
-                    child->compress_to_itselft();
-                }
-            }
-        }
-
-        void checkout(std::unordered_map<size_t, size_t> &result) const {
+        void checkout_vector(std::vector<size_t> &result) const {
             if (ids && !ids->empty()) {
-                size_t id = target_node->ids->represent();
-                result[id] += ids->size();
+                size_t target_id = ids->target_node->ids->represent();
+                for (size_t id : ids->id_vector) {
+                    result[id] = target_id;
+                }
             }
 
             // DFS
             for (const auto &child : children) {
-                if (child) child->checkout(result);
-            }
-        }
-
-        void checkout(std::unordered_map<size_t, std::vector<size_t>> &result) const {
-            if (ids && !ids->empty()) {
-                assert(!target_node->ids->empty());
-                size_t id = target_node->ids->represent();
-                result[id].insert(result[id].end(), ids->id_vector.cbegin(), ids->id_vector.cend());
-            }
-
-            // DFS
-            for (const auto &child : children) {
-                if (child) child->checkout(result);
-            }
-        }
-
-        size_t leaves_count() const {
-            size_t result = 0;
-            bool is_leaf = true;
-
-            for (const auto &child : children) {
                 if (child) {
-                    is_leaf = false;
-                    result += child->leaves_count();
+                    child->checkout_vector(result);
                 }
             }
-
-            if (is_leaf) {
-                result += 1;
-            }
-
-            return result;
         }
 
         ~TrieNode() {
@@ -255,14 +264,31 @@ private:
                 delete ids;
             }
 
-            for (auto &child : children) {
-                if (child) delete child;
-            }
+            // Do not do this! Destructors will be called by object_pool
+            // for (auto &child : children) {
+            //     if (child)
+            //         delete child;
+            // }
         }
     };
 
-    std::unique_ptr<TrieNode> root;
-    bool compressed = false;
+    boost::object_pool<TrieNode> pool_;
+    TrieNode *root_;
+    bool compressed_ = false;
+    size_t size_ = 0;
 };
 
+
+template <typename TValue, typename... Args>
+std::unique_ptr<Compressor> Compressor::factor(Compressor::Type type, Args&&... args) {
+    switch (type) {
+        case Compressor::Type::HashCompressor:
+            return std::unique_ptr<Compressor>(new HashCompressor(std::forward<Args>(args)...));
+        case Compressor::Type::TrieCompressor:
+            return std::unique_ptr<Compressor>(new TrieCompressor<TValue>(std::forward<Args>(args)...));
+        default:
+            return std::unique_ptr<Compressor>(nullptr);
+    }
+}
+}
 // vim: ts=4:sw=4

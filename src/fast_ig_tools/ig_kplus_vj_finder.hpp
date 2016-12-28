@@ -21,14 +21,13 @@ struct VJAlignerParameters {
     int K = 7;
     int word_size_j = 5;
     std::string organism = "human";
-    int max_global_gap = 24;
     int min_k_coverage = 50;
     int min_k_coverage_j = 13;
-    int max_local_deletions = 12;
-    int max_local_insertions = 12;
     std::string loci = "all";
-    std::string db_directory = "./germline";
+    std::string db_directory = "./data/germline";
     bool pseudogenes = true;
+
+    BlockAligner::ScoringScheme scoring;
 };
 
 
@@ -192,6 +191,20 @@ public:
             result = pre;
         }
 
+        // HACK!!!!!
+        // Ensure genes ends fixing
+        if (crop_left && fill_left && fix_left) {
+            for (size_t i = 0; i < fix_left; ++i) {
+                result[i] = v_gene[i];
+            }
+        }
+
+        if (crop_right && fill_right && fix_right) {
+            for (size_t i = 0; i < fix_right; ++i) {
+                result[length(result) - i - 1] = j_gene[length(j_gene) - i - 1];
+            }
+        }
+
         return result;
     }
 
@@ -258,6 +271,15 @@ public:
         return JHit(j_hit_index).seqan_alignment(read, JSeq(j_hit_index));
     }
 
+    std::string VMatches(size_t v_hit_index = 0) const {
+        return VHit(v_hit_index).visualize(read, VSeq(v_hit_index));
+    }
+
+    std::string JMatches(size_t j_hit_index = 0) const {
+        return JHit(j_hit_index).visualize(read, JSeq(j_hit_index));
+    }
+
+
     std::pair<TAlign, TAlign> AlignmentsSeqan(size_t v_hit_index = 0,
                                               size_t j_hit_index = 0) const {
         return { VAlignmentSeqAn(v_hit_index), JAlignmentSeqAn(j_hit_index) };
@@ -317,17 +339,14 @@ public:
         }
         all_loci_database.reset(all_db);
 
-        valigner.reset(new BlockAligner(all_loci_database->v_reads, param.K, param.max_global_gap,
-                                        100500, 100500,
-                                        param.max_local_insertions, param.max_local_deletions, param.min_k_coverage));
-        jaligner.reset(new BlockAligner(all_loci_database->j_reads, param.word_size_j, param.max_global_gap,
-                                        100500, 100500,
-                                        param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j));
+        valigner.reset(new BlockAligner(all_loci_database->v_reads, param.K, param.scoring,
+                                        param.min_k_coverage));
+        jaligner.reset(new BlockAligner(all_loci_database->j_reads, param.word_size_j, param.scoring,
+                                        param.min_k_coverage_j));
 
         for (const auto db : locus_databases) {
-            BlockAligner *p = new BlockAligner(db->j_reads, param.word_size_j, param.max_global_gap,
-                                               100500, 100500,
-                                               param.max_local_insertions, param.max_local_deletions, param.min_k_coverage_j);
+            BlockAligner *p = new BlockAligner(db->j_reads, param.word_size_j, param.scoring,
+                                               param.min_k_coverage_j);
             jaligners.push_back(std::shared_ptr<BlockAligner>(p));
         }
     }
@@ -353,7 +372,8 @@ public:
         char strand;
 
         // Fix strand if asked
-        std::tie(v_hits, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) : correct_strand_fake(read, param.max_candidates);
+        std::tie(v_hits, stranded_read, strand) = fix_strand ? correct_strand(read, param.max_candidates) :
+                                                  correct_strand_fake(read, param.max_candidates);
 
         if (v_hits.empty()) {
             return VJAlignment::EmptyVJAlignment(); // Empty TODO Add marker
@@ -471,10 +491,20 @@ private:
         return result;
     }
 
+    static std::string lymph_type(const std::string &locus) {
+        if (locus.substr(0, 2) == "IG") {
+            return "IG";
+        } else if (locus.substr(0, 2) == "TR") {
+            return "TCR";
+        } else {
+            throw std::invalid_argument("Invalid locus name: " + locus + ". Cannot identify lymphocyte type");
+        }
+    }
+
     std::string gene_file_name(const std::string &locus,
                                const std::string &gene,
                                bool pseudo = false) const {
-        return db_directory + "/" + organism + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
+        return db_directory + "/" + organism + "/" + lymph_type(locus) + "/" + locus + gene + (pseudo ? "-allP" : "") + ".fa";
     }
 
 

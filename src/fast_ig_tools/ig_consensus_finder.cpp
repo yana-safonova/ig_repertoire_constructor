@@ -13,6 +13,8 @@ namespace po = boost::program_options;
 
 #include "fast_ig_tools.hpp"
 #include "ig_final_alignment.hpp"
+#include "utils.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -26,17 +28,23 @@ std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> rea
     std::unordered_map<std::string, size_t> result;
     std::unordered_map<std::string, size_t> barcode2num;
 
-    std::string id, target;
+    std::string line;
     std::vector<std::string> targets;
     size_t num = 0;
-    while (rcm >> id >> target) {
-        if (barcode2num.count(target) == 0) { // TODO Use iterator here??
-            barcode2num[target] = num++;
-            targets.push_back(target);
-            assert(targets.size() == num);
-        }
+    while (std::getline(rcm, line)) {
+        const auto id_target = split(line, '\t');
+        VERIFY(id_target.size() > 0 && id_target.size() <= 2);
+        std::string id = id_target[0];
+        std::string target = id_target.size() == 2 ? id_target[1] : "";
+        if (!target.empty()) {
+            if (barcode2num.count(target) == 0) { // TODO Use iterator here??
+                barcode2num[target] = num++;
+                targets.push_back(target);
+                assert(targets.size() == num);
+            }
 
-        result[id] = barcode2num[target];
+            result[id] = barcode2num[target];
+        }
     }
 
     return { result, targets };
@@ -55,6 +63,7 @@ int main(int argc, char **argv) {
     std::string output_file = "repertoire.fa";
     std::string rcm_file = "cropped.rcm";
     bool use_hamming_alignment = false;
+    size_t coverage_limit = std::numeric_limits<size_t>::max() / 2;
     std::string config_file = "";
 
     // Parse cmd-line arguments
@@ -75,6 +84,8 @@ int main(int argc, char **argv) {
              "input RCM-file")
             ("hamming,H",
              "use Hamming-based (position-wise) multiple alignment instead of seqan's one")
+            ("coverage-limit,l", po::value<size_t>(&coverage_limit)->default_value(coverage_limit),
+             "cut consensus sequence when less than coverage-limit reads contribute, used to handle reads of different lengths, for hamming mode only")
             ;
 
         // Declare a group of options that will be
@@ -162,8 +173,10 @@ int main(int argc, char **argv) {
     auto rcm = read_rcm_file_string(rcm_file);
     for (size_t i = 0; i < input_reads.size(); ++i) {
         const char *id = toCString(input_ids[i]);
-        assert(rcm.first.count(id));
-        component_indices[i] = rcm.first[id];
+        //assert(rcm.first.count(id));
+        if (rcm.first.count(id)) {
+            component_indices[i] = rcm.first[id];
+        }
     }
 
     INFO(rcm.second.size() << " clusters were extracted from " << rcm_file);
@@ -194,7 +207,7 @@ int main(int argc, char **argv) {
         }
 
         if (use_hamming_alignment) {
-            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], 1005000);
+            consensuses[comp] = consensus_hamming_limited_coverage(input_reads, component2id[comp], abundances, coverage_limit);
         } else {
             consensuses[comp] = consensus(input_reads, component2id[comp]);
         }

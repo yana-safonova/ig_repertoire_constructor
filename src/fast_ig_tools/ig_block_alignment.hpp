@@ -186,8 +186,7 @@ int find_simple_gap(const Tsequence1 &read, const Tsequence2 &gene) {
 
 
 using TAlign = seqan::Align<Dna5String, seqan::ArrayGaps>;     // align type
-TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, const Dna5String &gene,
-                           size_t clipped_head = 0) {
+TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, const Dna5String &gene) {
     assert(path.check_overlaps());
     assert(!path.empty());
 
@@ -203,8 +202,7 @@ TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, co
     TRow & row_read = row(align, 1);
 
     // Clip head
-    setBeginPosition(row_read, clipped_head);
-    size_t read_len = length(read) - clipped_head;
+    size_t read_len = length(read);
     size_t gene_len = length(gene);
 
     // Add finishing gaps (reverse order since insert_gaps works with VIEW position!)
@@ -215,7 +213,7 @@ TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, co
     } else if (finishing_gap < 0) {
         // insertGaps(row_gene, gene_len, -finishing_gap);
         // Use clipping:
-        setEndPosition(row_read, clipped_head + read_len + finishing_gap);
+        setEndPosition(row_read, read_len + finishing_gap);
     } else {
         // Do nothing
     }
@@ -249,7 +247,7 @@ TAlign path2seqanAlignment(const AlignmentPath &path, const Dna5String &read, co
     } else if (starting_gap < 0) {
         // insertGaps(row_gene, 0, -starting_gap);
         // Use clipping:
-        setBeginPosition(row_read, clipped_head - starting_gap);
+        setBeginPosition(row_read, -starting_gap);
     } else {
         // Do nothing
     }
@@ -287,10 +285,10 @@ bool is_topologically_sorted(const T &combined, const Tf &has_edge) {
 
 
 template<typename Tf1, typename Tf2, typename Tf3>
-AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
-                                           const Tf1 &has_edge,
-                                           const Tf2 &edge_weight,
-                                           const Tf3 &vertex_weight) {
+std::pair<AlignmentPath, int> weighted_longest_path_in_DAG(const std::vector<Match> &combined,
+                                                           const Tf1 &has_edge,
+                                                           const Tf2 &edge_weight,
+                                                           const Tf3 &vertex_weight) {
     assert(combined.size() > 0);
 
     assert(std::is_sorted(combined.cbegin(), combined.cend(), Match::less_needle_pos));
@@ -324,6 +322,7 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
     path.reserve(combined.size());
 
     size_t maxi = std::max_element(values.cbegin(), values.cend()) - values.cbegin();
+    int score = values[maxi];
 
     while (true) {
         path.push_back(combined[maxi]);
@@ -342,7 +341,7 @@ AlignmentPath weighted_longest_path_in_DAG(const std::vector<Match> &combined,
     // Path should be correct, all edges should be
     assert(std::is_sorted(path.cbegin(), path.cend(), has_edge));
 
-    return path;
+    return { path, score };
 }
 
 
@@ -381,16 +380,13 @@ class BlockAligner {
 public:
     struct Alignment {
         int kp_coverage;
+        int int_score;
         AlignmentPath path;
         int start, finish;
         size_t needle_index;
         size_t needle_length;
         int overlap_length;
         double score;
-
-        bool operator< (const Alignment& b) const {
-            return this->kp_coverage < b.kp_coverage;
-        }
 
         size_t first_match_read_pos() const {
             return path.first().read_pos;
@@ -422,15 +418,20 @@ public:
 
 
         TAlign seqan_alignment(const Dna5String &read,
-                               const Dna5String &gene,
-                               size_t clipped_head = 0) const {
-            return path2seqanAlignment(this->path, read, gene, clipped_head);
+                               const Dna5String &gene) const {
+            return path2seqanAlignment(this->path, read, gene);
+        }
+
+        std::string visualize(const Dna5String &read,
+                              const Dna5String &gene) const {
+            return this->path.visualize_matches(length(gene), length(read));
         }
 
         static Alignment path2Alignment(AlignmentPath &path,
                                         const Dna5String &read,
                                         const Dna5String &query,
-                                        size_t needle_index) {
+                                        size_t needle_index,
+                                        int score) {
             int coverage_length = path.kplus_length();
 
             int left_shift = path.left_shift();
@@ -446,7 +447,9 @@ public:
 
             Alignment align;
             align.kp_coverage = coverage_length;
-            align.score = static_cast<double>(coverage_length) / static_cast<double>(length(query));
+            align.int_score = score;
+            // align.score = static_cast<double>(coverage_length) / static_cast<double>(length(query));
+            align.score = static_cast<double>(score) / static_cast<double>(length(query));
             align.path = std::move(path);
             align.start = start;
             align.finish = finish;
@@ -459,18 +462,23 @@ public:
     };
 
 public:
+    struct ScoringScheme {
+        int max_global_gap = 24;
+        int max_local_deletions = 12;
+        int max_local_insertions = 12;
+
+        int gap_opening_cost = 4;
+        int gap_extention_cost = 1;
+        int match_reward = 1;
+    };
+
+
     BlockAligner(const std::vector<Dna5String> &queries,
                  size_t K,
-                 int max_global_gap, int left_uncoverage_limit, int right_uncoverage_limit,
-                 int max_local_insertions,
-                 int max_local_deletions,
-                 int min_k_coverage) : max_local_insertions{max_local_insertions},
-                                       max_local_deletions{max_local_deletions},
-                                       min_k_coverage{min_k_coverage},
-                                       K{K},
-                                       left_uncoverage_limit{left_uncoverage_limit},
-                                       right_uncoverage_limit{right_uncoverage_limit},
-                                       max_global_gap{max_global_gap} {
+                 const ScoringScheme &scoring,
+                 int min_k_coverage) : K{K},
+                                       scoring{scoring},
+                                       min_k_coverage{min_k_coverage} {
             this->queries = queries;
 
             for (size_t j = 0; j < this->queries.size(); ++j) {
@@ -481,10 +489,11 @@ public:
             }
         }
 
-    std::vector<Alignment> query(const Dna5String &read, size_t limit, size_t start = 0, size_t finish = 10005000) const {
+    std::vector<Alignment> query(const Dna5String &read,
+                                 size_t limit,
+                                 size_t start = 0, size_t finish = 10005000) const {
         auto result = query_unordered(read, start, finish);
 
-        // std::cout << "SIZE: " << result.size() << std::endl;
 
         limit = std::min(limit, result.size());
         if (limit == 0) {
@@ -493,7 +502,7 @@ public:
 
         using ctuple_type = decltype(*result.cbegin());
 
-        auto score_function = [](const ctuple_type &a) { return a.kp_coverage; };
+        auto score_function = [](const ctuple_type &a) { return a.int_score; };
         auto comp = [&score_function](const ctuple_type &a,
                                       const ctuple_type &b) -> bool { return score_function(a) > score_function(b); };
 
@@ -502,25 +511,14 @@ public:
         result.resize(std::min(result.size(), limit));
         std::sort(result.begin(), result.end(), comp);
 
-        // const auto &gene = this->queries[result[0].needle_index];
-        // std::cout << read << std::endl;
-        // std::cout << gene << std::endl;
-        // std::cout << result[0].path.visualize_matches(length(gene), length(read)) << std::endl;
-        // auto align = path2seqanAlignment(result[0].path, read, gene);
-        // // replace_prefix_for_full_read(align, "AAAAAAAAAAAAAAAAAA" + read);
-        //
-        // Dna5String long_read = "AAAAAAAAA";
-        // int clipped_head = length(long_read);
-        // long_read += read;
-        // auto align2 = path2seqanAlignment(result[0].path, long_read, gene, clipped_head);
-        // std::cout << align;
-        // std::cout << align2;
-
         return result;
     }
 
 private:
-    Alignment make_align(const std::vector<Match> &combined, const Dna5String &read, const Dna5String &query, size_t needle_index) const {
+    Alignment make_align(const std::vector<Match> &combined,
+                         const Dna5String &read,
+                         const Dna5String &query,
+                         size_t needle_index) const {
         // std::sort(combined.begin(), combined.end(),
         //           [](const Match &a, const Match &b) -> bool { return a.needle_pos < b.needle_pos; });
         // assert(combined.size() > 0);
@@ -528,9 +526,9 @@ private:
         auto has_edge = [this](const Match &a, const Match &b) -> bool {
             int read_gap = b.read_pos - a.read_pos;
             int needle_gap = b.needle_pos - a.needle_pos;
-            int insert_size = read_gap - needle_gap;
+            int gap = read_gap - needle_gap;
 
-            if (insert_size > max_local_insertions || -insert_size > max_local_deletions) return false;
+            if (gap > scoring.max_local_insertions || -gap > scoring.max_local_deletions) return false;
 
             // Crossing check
             if (a.needle_pos >= b.needle_pos || a.read_pos >= b.read_pos) return false;
@@ -538,24 +536,27 @@ private:
             return true;
         };
 
-        auto vertex_weight = [](const Match &m) -> double {
-            return m.length;
+        auto vertex_weight = [this](const Match &m) -> double {
+            return m.length * scoring.match_reward;
         };
 
-        auto edge_weight = [&](const Match &a, const Match &b) -> double {
-            return -Match::overlap(a, b);
+        auto edge_weight = [this](const Match &a, const Match &b) -> double {
+            int read_gap = b.read_pos - a.read_pos;
+            int needle_gap = b.needle_pos - a.needle_pos;
+            int gap = read_gap - needle_gap;
+
+            return -Match::overlap(a, b) - ((gap) ? (scoring.gap_opening_cost + std::abs(gap) * scoring.gap_extention_cost) : 0);
         };
 
-        auto path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
+        auto _ = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
 
-        return Alignment::path2Alignment(path, read, query, needle_index);
+        return Alignment::path2Alignment(_.first, read, query, needle_index, _.second);
     }
 
-    bool check_alignment(const Alignment &align, const Dna5String &read, const Dna5String &query,
-                         size_t start, size_t finish) const {
+    bool check_alignment(const Alignment &align) const {
         const auto &path =  align.path; // FIXME
 
-        if (std::abs(path.global_gap()) > max_global_gap) { // TODO split into 2 args (ins/dels) positive gap is deletion here
+        if (std::abs(path.global_gap()) > scoring.max_global_gap) { // TODO split into 2 args (ins/dels) positive gap is deletion here
             // Omit such match
             return false;
         }
@@ -565,19 +566,11 @@ private:
             return false;
         }
 
-        int shift_min = start - left_uncoverage_limit;
-        int shift_max = static_cast<int>(finish) - static_cast<int>(length(query)) + right_uncoverage_limit;
-
-        if (path.left_shift() < shift_min || path.right_shift() > shift_max) {
-            // Omit candidates with unproper final shift
-            // Maybe we should make these limits less strict because of possibility of indels on edges?
-            return false;
-        }
-
         return true;
     }
 
-    std::vector<Alignment> query_unordered(const Dna5String &read, size_t start = 0, size_t finish = 10005000) const {
+    std::vector<Alignment> query_unordered(const Dna5String &read,
+                                           size_t start = 0, size_t finish = 10005000) const {
         std::vector<std::vector<KmerMatch>> needle2matches(queries.size());
 
         // if (length(read) < K) {
@@ -605,17 +598,8 @@ private:
                 size_t needle_index = p.needle_index;
                 size_t kmer_pos_in_read = j;
                 size_t kmer_pos_in_needle = p.position;
-                int shift = static_cast<int>(kmer_pos_in_read) - static_cast<int>(kmer_pos_in_needle);
 
-                // We make these limits less strict because of possibility of indels
-                // int shift_min = -left_uncoverage_limit - max_global_gap;
-                // int shift_max = static_cast<int>(length(read)) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
-                int shift_min = static_cast<int>(start) - left_uncoverage_limit - max_global_gap;
-                int shift_max = static_cast<int>(finish) - static_cast<int>(length(queries[needle_index])) + right_uncoverage_limit + max_global_gap;
-
-                if (shift >= shift_min && shift <= shift_max) {
-                    needle2matches[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
-                }
+                needle2matches[needle_index].push_back( { static_cast<int>(kmer_pos_in_needle), static_cast<int>(kmer_pos_in_read) } );
             }
         }
 
@@ -632,7 +616,7 @@ private:
             assert(combined.size() > 0);
 
             Alignment align = make_align(combined, read, queries[needle_index], needle_index);
-            if (check_alignment(align, read, queries[needle_index], start, finish)) {
+            if (check_alignment(align)) {
                 result.push_back(std::move(align));
             }
         }
@@ -641,12 +625,9 @@ private:
     }
 
     std::vector<Dna5String> queries;
-    int max_local_insertions;
-    int max_local_deletions;
-    int min_k_coverage;
     size_t K;
-    int left_uncoverage_limit, right_uncoverage_limit;
-    int max_global_gap;
+    ScoringScheme scoring;
+    int min_k_coverage;
     std::unordered_map<size_t, std::vector<PositionInDB>> kmer2needle;
 };
 

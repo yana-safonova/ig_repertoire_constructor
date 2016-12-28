@@ -14,6 +14,7 @@ using std::endl;
 #include "ig_final_alignment.hpp"
 #include "ig_matcher.hpp"
 #include "banded_half_smith_waterman.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -24,8 +25,8 @@ template<typename T>
 std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,
                                                            const KmerIndex &kmer2reads,
                                                            int tau, size_t K) {
-    int strategy_int = 1;
-    size_t required_read_length = (strategy_int != 0) ? (K * (tau + strategy_int)) : 0;
+    unsigned strategy = 1;
+    size_t required_read_length = (strategy != 0) ? (K * (tau + strategy)) : 0;
     if (length(read) < required_read_length) {
         return { 0, {} };
     }

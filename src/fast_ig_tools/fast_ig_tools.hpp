@@ -11,35 +11,21 @@
 #include <boost/format.hpp>
 using bformat = boost::format;
 
+using Graph = std::vector<std::vector<std::pair<size_t, int>>>;
 
-std::string join_cmd_line(size_t argc, char **argv) {
-    std::string result = argv[0];
-    for (size_t i = 1; i < argc; ++i) {
-        result += " ";
-        result += argv[i];
-    }
+size_t numEdges(const Graph &graph,
+                bool undirected = true);
 
-    return result;
-}
+void write_metis_graph(const Graph &graph,
+                       const std::string &filename,
+                       bool undirected = true);
 
+void write_metis_graph(const Graph &graph,
+                       const std::vector<size_t> &weights,
+                       const std::string &filename,
+                       bool undirected = true);
 
-void create_console_logger(std::string log_props_file = "") {
-    using namespace logging;
-
-    logger *lg = create_logger(log_props_file);
-    lg->add_writer(std::make_shared<console_writer>());
-    attach_logger(lg);
-}
-
-
-std::string running_time_format(const perf_counter &pc) {
-    unsigned ms = (unsigned)pc.time_ms();
-    unsigned secs = (ms / 1000) % 60;
-    unsigned mins = (ms / 1000 / 60) % 60;
-    unsigned hours = (ms / 1000 / 60 / 60);
-    boost::format bf("%u hours %u minutes %u seconds");
-    bf % hours % mins % secs;
-    return bf.str();
-}
+std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
+                                     size_t K, size_t n = 3);
 
 // vim: ts=4:sw=4
