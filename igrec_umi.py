@@ -1,4 +1,7 @@
+#!/usr/bin/env python2
+
 import os
+import os.path
 import sys
 
 import igrec
@@ -10,7 +13,7 @@ sys.path.append(spades_src)
 import support
 
 
-def HelpAndReturn(log, parser, exit_code = 0):
+def HelpAndReturn(log, parser, exit_code=0):
     log.write = log.info
     parser.print_help(log)
     sys.exit(exit_code)
@@ -77,7 +80,7 @@ def ParseCommandLineParams(log):
                                default=0.6,
                                dest="min_fillin",
                                help='Minimum fill-in of dense subgraphs [default: %(default)f]')
-    optional_args.set_defaults(compile = True)
+    optional_args.set_defaults(compile=True)
     optional_args.add_argument("-p", "--no-compilation",
                                dest="no_compilation",
                                action="store_true",
@@ -133,6 +136,7 @@ def ParseCommandLineParams(log):
         params.single_reads = "%s/merged_reads.fastq" % params.output
 
     return parser, params
+
 
 def CheckParamsCorrectness(parser, params, log):
     if params.single_reads:
@@ -204,7 +208,7 @@ class _StagePrepare:
                 file.write(line)
 
     @classmethod
-    def Prepare(self, params, stage_template, log, stage_dest = None, makefile_name = MAKEFILE):
+    def Prepare(self, params, stage_template, log, stage_dest=None, makefile_name=MAKEFILE):
         if not stage_dest:
             stage_dest = stage_template
         import shutil
@@ -228,10 +232,10 @@ class _StagePrepare:
 
 def InitMakeFiles(params, log):
     _StagePrepare.EnsureExists(params.output)
-    _StagePrepare.Prepare(params, ".", log, makefile_name ="Makefile_vars")
-    _StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest ="compilation")
+    _StagePrepare.Prepare(params, ".", log, makefile_name="Makefile_vars")
+    _StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest="compilation")
     if params.single_reads:
-        _StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest ="vj_finder")
+        _StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest="vj_finder")
     else:
         _StagePrepare.Prepare(params, "merged_reads", log)
         _StagePrepare.Prepare(params, "vj_finder", log)

@@ -31,7 +31,7 @@ std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,
         return { 0, {} };
     }
 
-    std::vector<int> costs;
+    std::vector<size_t> costs;
 
     auto hashes = polyhashes(read, K);
 
