@@ -113,7 +113,7 @@ std::vector<size_t> find_candidates(const T &read,
         cand.resize(target_size);
         std::iota(cand.begin(), cand.end(), 0);
     } else { // Minimizers strategy
-        std::vector<int> multiplicities;
+        std::vector<size_t> multiplicities;
 
         auto hashes = polyhashes(read, K);
 
