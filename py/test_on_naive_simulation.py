@@ -14,7 +14,8 @@ def run_and_quast_all(input_reads,
                       out_dir,
                       threads=4,
                       rerun_mixcr=True,
-                      do_not_run=False):
+                      do_not_run=False,
+                      run_igrec_old=False):
     import os.path
     import shutil
 
@@ -112,6 +113,8 @@ def run_and_quast_all(input_reads,
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
 
+        if run_igrec_old:
+            run_igrec_old(input_reads, threads=threads, output_dir=out_dir + "/ig_repertoire_constructor/")
         # if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr/final_repertoire.fa"):
         #     run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
 
@@ -124,6 +127,9 @@ def run_and_quast_all(input_reads,
                     out_dir + "/supernode/final_repertoire.rcm")
 
     kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2"]
+
+    if run_igrec_old:
+        kinds += ["ig_repertoire_constructor"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
@@ -192,7 +198,8 @@ if __name__ == "__main__":
                 run_and_quast_all(out_dir + "/merged_reads.fa.gz",
                                   output_dir + "/data/ideal_final_repertoire.fa.gz",
                                   output_dir + "/data/ideal_final_repertoire.rcm", out_dir,
-                                  rerun_mixcr=True)
+                                  rerun_mixcr=True,
+                                  run_igrec_old=True)
 
             import multiprocessing
             n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 4
