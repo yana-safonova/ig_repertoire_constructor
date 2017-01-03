@@ -28,7 +28,7 @@ class Timer:
 
     def delta(self):
         import time
-        return time.time() - self.start()
+        return time.time() - self.start
 
     def stamp(self, filename):
         delta = self.delta()
@@ -301,7 +301,7 @@ def simulate_data(input_file, output_dir, log=None,
 
 
 def run_ig_simulator(output_dir, log=None,
-                     chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000):
+                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000):
     if log is None:
         log = FakeLog()
 
@@ -312,10 +312,10 @@ def run_ig_simulator(output_dir, log=None,
             "chain": chain,
             "num_bases": num_bases,
             "num_mutated": num_mutated,
-            "reprtoire_size": reprtoire_size}
+            "repertoire_size": repertoire_size}
 
     timer = Timer()
-    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(reprtoire_size)d -o %(output_dir)s --skip-drawing" % args,
+    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args,
                      log=log)
     timer.stamp(output_dir + "/time.txt")
 
@@ -419,9 +419,10 @@ def run_vjfinder(input_file, output_dir, log=None,
             import shutil
             shutil.rmtree(output_dir)
 
+
 def rmdir(dir):
     import os.path
-    if os.path.isfile(dir):
+    if os.path.isdir(dir):
         import shutil
         shutil.rmtree(dir)
 
@@ -433,6 +434,8 @@ def run_igrec_old(input_file, output_dir, log=None,
     if log is None:
         log = FakeLog()
 
+    output_dir = os.path.abspath(output_dir)
+    input_file = os.path.abspath(input_file)
     args = {"path": path_to_igrec_old,
             "tau": tau,
             "threads": threads,
@@ -442,16 +445,16 @@ def run_igrec_old(input_file, output_dir, log=None,
     timer = Timer()
     cwd = os.getcwd()
     os.chdir(path_to_igrec_old)
-    support.sys_call("./ig_repertoire_constructor.py --tau=%(tau)d -t %(threads)d -s %(input_file)s -o %(output_dir)s %(additional_args)s" % args,
+    support.sys_call("%(path)s/ig_repertoire_constructor.py --tau=%(tau)d -t %(threads)d -s %(input_file)s -o %(output_dir)s %(additional_args)s" % args,
                      log=log)
     os.chdir(cwd)
     timer.stamp(output_dir + "/time.txt")
 
     # Rename output
     os.rename(output_dir + "/constructed_repertoire.clusters.fa",
-              output_dir + "final_repertoire.fa")
+              output_dir + "/final_repertoire.fa")
     os.rename(output_dir + "/constructed_repertoire.rcm",
-              output_dir + "final_repertoire.rcm")
+              output_dir + "/final_repertoire.rcm")
 
     if remove_tmp:
         rmdir(output_dir + "/configs")
