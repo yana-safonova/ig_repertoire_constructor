@@ -20,6 +20,11 @@ def parse_command_line(description="aimQUAST"):
     import argparse
 
     def ActionTestFactory(name):
+        initial_reads = "aimquast_test_dataset/%s/input_reads.fa.gz" % name
+        import os.path
+        if not os.path.isfile(initial_reads):
+            return None
+
         class ActionTest(argparse.Action):
 
             def __init__(self, option_strings, dest, nargs=None, **kwargs):
@@ -40,22 +45,23 @@ def parse_command_line(description="aimQUAST"):
 
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument("--test",
-                        action=ActionTestFactory("test"),
-                        default="",
-                        help="Running on test dataset")
-    parser.add_argument("--test-age1",
-                        action=ActionTestFactory("age1"),
-                        default="",
-                        help="Running on age1 dataset")
-    parser.add_argument("--test-age3",
-                        action=ActionTestFactory("age3"),
-                        default="",
-                        help="Running on age3 dataset")
-    parser.add_argument("--test-flu",
-                        action=ActionTestFactory("flu"),
-                        default="",
-                        help="Running on FLU dataset")
+    def add_test(name, key=None, display_name=None):
+        if key is None:
+            key = "--test-" + name
+        if display_name is None:
+            display_name = name
+
+        test_action = ActionTestFactory(name)
+        if test_action is not None:
+            parser.add_argument(key,
+                                action=test_action,
+                                help="Running on %s dataset" % display_name)
+
+    add_test("test", key="--test")
+    add_test("age1")
+    add_test("age3")
+    add_test("flu")
+
     parser.add_argument("--initial-reads", "-s",
                         type=str,
                         default="",
