@@ -204,13 +204,13 @@ if __name__ == "__main__":
                                        min_error=min_error,
                                        erroneous_site_len=300)
 
-                sizes = get_clusters_sizes(output_dir + "/data/ideal_final_repertoire.fa.gz")
+                sizes = get_clusters_sizes(output_dir + "/data/final_repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
                 print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
-                run_and_quast_all(out_dir + "/merged_reads.fa.gz",
-                                  output_dir + "/data/ideal_final_repertoire.fa.gz",
-                                  output_dir + "/data/ideal_final_repertoire.rcm", out_dir,
+                run_and_quast_all(out_dir + "/input_reads.fa.gz",
+                                  output_dir + "/data/final_repertoire.fa.gz",
+                                  output_dir + "/data/final_repertoire.rcm", out_dir,
                                   rerun_mixcr=True,
                                   do_run_igrec_old=is_simulated,
                                   threads=16)

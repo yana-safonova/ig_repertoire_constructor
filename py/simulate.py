@@ -181,13 +181,13 @@ def simulate_data_wo_errors(input_file, output_dir, log=None):
 
     input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
 
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
+    simulated_repertoire_to_rcm(input_file, "%s/final_repertoire.rcm" % output_dir)
 
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/final_repertoire.fa.gz" % output_dir)
 
     args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
+            "repertoire": output_dir + "/final_repertoire.fa.gz",
+            "rcm": output_dir + "/final_repertoire.rcm"}
     support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
                      log=log)
 
@@ -205,7 +205,7 @@ def simulate_data_from_dir(input_dir, output_dir, log=None,
     mkdir_p(output_dir)
 
     jit_fx_file(input_dir + "/error_free_reads.fa.gz",
-                "%s/merged_reads.fa.gz" % output_dir, **kwargs)
+                "%s/input_reads.fa.gz" % output_dir, **kwargs)
 
 
 def simulate_data(input_file, output_dir, log=None,
@@ -223,79 +223,18 @@ def simulate_data(input_file, output_dir, log=None,
 
     input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
 
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
+    simulated_repertoire_to_rcm(input_file, "%s/final_repertoire.rcm" % output_dir)
 
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
-
-    args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
-    support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
-                     log=log)
-
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
-
-    shutil.rmtree(temp_dir)
-
-
-def simulate_data(input_file, output_dir, log=None,
-                  **kwargs):
-    import tempfile
-    import shutil
-
-    if log is None:
-        log = FakeLog()
-
-    mkdir_p(output_dir)
-
-    temp_dir = tempfile.mkdtemp()
-    run_igrec(input_file, temp_dir, remove_tmp=False, tau=1)  # Run IgReC for VJF output
-
-    input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
-
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
-
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/final_repertoire.fa.gz" % output_dir)
 
     args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
+            "repertoire": output_dir + "/final_repertoire.fa.gz",
+            "rcm": output_dir + "/final_repertoire.rcm"}
     support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
                      log=log)
 
     # TODO factor this stage
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
-
-    shutil.rmtree(temp_dir)
-
-
-def simulate_data(input_file, output_dir, log=None,
-                  **kwargs):
-    import tempfile
-    import shutil
-
-    if log is None:
-        log = FakeLog()
-
-    mkdir_p(output_dir)
-
-    temp_dir = tempfile.mkdtemp()
-    run_igrec(input_file, temp_dir, remove_tmp=False, tau=1)  # Run IgReC for VJF output
-
-    input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
-
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
-
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
-
-    args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
-    support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
-                     log=log)
-
-    # TODO factor this stage
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
+    jit_fx_file(input_file, "%s/input_reads.fa.gz" % output_dir, **kwargs)
 
     shutil.rmtree(temp_dir)
 
@@ -730,8 +669,8 @@ if __name__ == "__main__":
     run_ig_simulator(ig_simulator_output_dir)
     simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta", output_dir)
 
-    run_igrec(output_dir + "/merged_reads.fa",
+    run_igrec(output_dir + "/input_reads.fa",
               output_dir + "/igrec_good/")
 
-    run_igrec(output_dir + "/merged_reads.fa",
+    run_igrec(output_dir + "/input_reads.fa",
               output_dir + "/igrec_bad/", additional_args="--create-triv-dec")
