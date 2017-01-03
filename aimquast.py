@@ -19,19 +19,6 @@ from aimquast_impl import splittering
 def parse_command_line(description="aimQUAST"):
     import argparse
 
-    class ActionTest(argparse.Action):
-
-        def __init__(self, option_strings, dest, nargs=None, **kwargs):
-            super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
-
-        def __call__(self, parser, namespace, values, option_string=None):
-            setattr(namespace, "initial_reads", "aimquast_test_dataset/merged_reads.fq")
-            setattr(namespace, "output_dir", "aimquast_test")
-            setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/igrec_bad/final_repertoire.fa")
-            setattr(namespace, "constructed_rcm", "aimquast_test_dataset/igrec_bad/final_repertoire.rcm")
-            setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
-            setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
-
     def ActionTestFactory(name):
         class ActionTest(argparse.Action):
 
@@ -54,7 +41,7 @@ def parse_command_line(description="aimQUAST"):
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("--test",
-                        action=ActionTest,
+                        action=ActionTestFactory("test"),
                         default="",
                         help="Running on test dataset")
     parser.add_argument("--test-age1",
