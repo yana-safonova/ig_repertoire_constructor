@@ -58,10 +58,11 @@ def run_and_quast_all(input_reads,
     igrec_runs = []
     # igrec_runs.append(IgReCRun("igrec_trivial", trivial=True))
     igrec_runs.append(IgReCRun("igrec"))
+    igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
     # igrec_runs.append(IgReCRun("igrec_nomsns", min_sread_size=1005000))
     # igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
-    igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
+    # igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
     # igrec_runs.append(IgReCRun("igrec_vote2", max_votes=2))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau3", tau=3, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
@@ -69,7 +70,6 @@ def run_and_quast_all(input_reads,
 
     # igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
     # igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
-    # igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
     # igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
@@ -140,6 +140,8 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
+        cmd = "gzip -f -k %(out_dir)s/%(kind)s/final_repertoire.fa" % args
+        os.system(cmd)
         # cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
         cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --no-rcm-based" % args
 
@@ -151,36 +153,37 @@ def run_and_quast_all(input_reads,
 
 
 if __name__ == "__main__":
-    mkdir_p(igrec_dir + "/SIMULATED")
-    mkdir_p(igrec_dir + "/SYNTHETIC")
-
     datasets = [igrec_dir + "/SIMULATED",
                 igrec_dir + "/SYNTHETIC"]
 
-    if not os.path.isfile(datasets[0] + "/repertoire.fa.gz"):
+    for dataset in datasets:
+        mkdir_p(dataset)
+        mkdir_p(dataset + "/data")
+
+    if not os.path.isfile(datasets[0] + "/data/repertoire.fa.gz"):
         import tempfile
         ig_simulator_output_dir = tempfile.mkdtemp()
         run_ig_simulator(ig_simulator_output_dir,
                          chain="HC", num_bases=1000, num_mutated=10000, repertoire_size=50000)
         rmdir(ig_simulator_output_dir)
         fastx2fastx(ig_simulator_output_dir + "/ideal_repertoire.clusters.fa",
-                    igrec_dir + "/SIMULATED/repertoire.fa.gz")
+                    igrec_dir + "/SIMULATED/data/repertoire.fa.gz")
 
-    if not os.path.isfile(datasets[1] + "/repertoire.fa.gz"):
+    if not os.path.isfile(datasets[1] + "/data/repertoire.fa.gz"):
         try:
             convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
-                                          igrec_dir + "/SYNTHETIC/repertoire.fa.gz")
+                                          igrec_dir + "/SYNTHETIC/data/repertoire.fa.gz")
         except BaseException as ex:
             print ex
             print "Cannot convert FLU SYNTHETIC reperoire, file not found"
 
     for dataset in datasets:
-        if not os.path.isfile(dataset + "/repertoire.fa.gz"):
+        if not os.path.isfile(dataset + "/data/repertoire.fa.gz"):
             continue
-        if not os.path.isfile(dataset + "/error_free_reads.fa.gz"):
-            multiplex_repertoire(dataset + "/repertoire.fa.gz",
-                                 dataset + "/error_free_reads.fa.gz")
-            simulate_data_wo_errors(dataset + "/error_free_reads.fa.gz",
+        if not os.path.isfile(dataset + "/data/error_free_reads.fa.gz"):
+            multiplex_repertoire(dataset + "/data/repertoire.fa.gz",
+                                 dataset + "/data/error_free_reads.fa.gz")
+            simulate_data_wo_errors(dataset + "/data/error_free_reads.fa.gz",
                                     dataset + "/data")
 
     print "Test datasets created!"
@@ -204,17 +207,17 @@ if __name__ == "__main__":
                                        min_error=min_error,
                                        erroneous_site_len=300)
 
-                sizes = get_clusters_sizes(output_dir + "/data/final_repertoire.fa.gz")
+                sizes = get_clusters_sizes(output_dir + "/data/repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
                 print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
                 run_and_quast_all(out_dir + "/input_reads.fa.gz",
-                                  output_dir + "/data/final_repertoire.fa.gz",
-                                  output_dir + "/data/final_repertoire.rcm", out_dir,
+                                  output_dir + "/data/repertoire.fa.gz",
+                                  output_dir + "/data/repertoire.rcm", out_dir,
                                   rerun_mixcr=True,
                                   do_run_igrec_old=is_simulated,
                                   threads=16)
 
             import multiprocessing
-            n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 4
+            n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 2
             Parallel(n_jobs=n_jobs)(delayed(JOB)(error_rate) for error_rate in lambdas)

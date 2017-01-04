@@ -302,14 +302,14 @@ def plot_two_sums(dir,
 
 
 def tool2color(tool, secondary=False):
-    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black"]
-    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black"]
+    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black", "lightpink"]
+    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black", "hotpink"]
     colors = secondary_colors if secondary else primary_colors
 
     def tool2id(tool):
         tool = tool.lower()
 
-        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr"]
+        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr", "ig_repertoire_constructor"]
         from Levenshtein import distance
         dists = [distance(tool, t) for t in tools]
         return min(range(len(dists)), key=lambda i: dists[i])
@@ -461,28 +461,34 @@ def plotplot(dir, out_dir, title, **kwargs):
     mkdir_p(out_dir)
     rocs(dir,
          tools=["igrec", "mixcr2", "supernode"],
-         labels=["IgReC", "MiXCR2", "pRESTO"],
+         labels=["IgReC", "MiXCR", "pRESTO"],
+         title=title,
+         out=out_dir + "/sensitivity_precision_plot",
+         **kwargs)
+    rocs(dir,
+         tools=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"],
+         labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"],
          title=title,
          out=out_dir + "/sensitivity_precision_plot_all",
          **kwargs)
-    rocs(dir,
-         tools=["igrec", "mixcr", "supernode"],
-         labels=["IgReC", "MiXCR", "pRESTO"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_old",
-         **kwargs)
-    rocs(dir,
-         tools=["igrec_tau3", "mixcr", "supernode"],
-         labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_tau3",
-         **kwargs)
-    rocs(dir,
-         tools=["igrec", "mixcr", "supernode", "igrec_vote"],
-         labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all_split",
-         **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode"],
+    #      labels=["IgReC", "MiXCR", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_old",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec_tau3", "mixcr", "supernode"],
+    #      labels=["IgReC tau = 3", "MiXCR", "pRESTO"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_tau3",
+    #      **kwargs)
+    # rocs(dir,
+    #      tools=["igrec", "mixcr", "supernode", "igrec_vote"],
+    #      labels=["IgReC", "MiXCR", "pRESTO", "IgReC split"],
+    #      title=title,
+    #      out=out_dir + "/sensitivity_precision_plot_all_split",
+    #      **kwargs)
     # rocs(dir,
     #      tools=["igrec", "mixcr", "supernode"],
     #      labels=["IgReC", "MiXCR1", "pRESTO"],
@@ -514,90 +520,8 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
-    plotplot(igrec_dir + "py/age3_all/", "AGE3_3", title="REAL", show_coords=True)
-    plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
-    sys.exit()
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering3/", "AGE3_3", title="REAL", show_coords=True)
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering2/", "AGE3_2", title="AGE3")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE3/filtering1/", "AGE3_1", title="AGE3")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="")
-    sys.exit()
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/AGE7/filtering3/", "AGE7_3", title="HEALTHY 2")
-
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGH/filtering3/", "FLU_FV_27_IGH_3", title="FLU_FV_27_IGH_3")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="FLU_FV_21_IGL_3")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGL/filtering3/", "FLU_FV_27_IGL_3", title="FLU_FV_27_IGL_3")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="FLU_FV_21_IGK_3")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27_IGK/filtering3/", "FLU_FV_27_IGK_3", title="FLU_FV_27_IGK_3")
-
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering2/", "FLU_FV_21_IGH_2", title="FLU_FV_21_IGH_2")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering3/", "FLU_FV_21_IGH_3", title="FLU_FV_21_IGH_3")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering1/", "FLU_FV_21_IGL_1", title="FLU_FV_21_IGL_1")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering2/", "FLU_FV_21_IGL_2", title="FLU_FV_21_IGL_2")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering3/", "FLU_FV_21_IGL_3", title="FLU_FV_21_IGL_3")
-
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering1/", "FLU_FV_21_IGK_1", title="FLU_FV_21_IGK_1")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering2/", "FLU_FV_21_IGK_2", title="FLU_FV_21_IGK_2")
-    # plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGK/filtering3/", "FLU_FV_21_IGK_3", title="FLU_FV_21_IGK_3")
-
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering1_jit0.5/", "FLU_FV_21_IGH_1_jit0.5", title="FLU_FV_21_IGH_1_jit0.5")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGH/filtering1_jit1/", "FLU_FV_21_IGH_1_jit1", title="FLU_FV_21_IGH_1_jit1")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering1_jit0.5/", "FLU_FV_21_IGL_1_jit0.5", title="FLU_FV_21_IGL_1_jit0.5")
-    plotplot(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21_IGL/filtering1_jit1/", "FLU_FV_21_IGL_1_jit1", title="FLU_FV_21_IGL_1_jit1")
-
-
-    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering3/", "FLU_FV_27_3", title="FLU_FV_27")
-    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering2/", "FLU_FV_27_2", title="FLU_FV_27")
-    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_27/filtering1/", "FLU_FV_27_1", title="FLU_FV_27")
-    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering3/", "FLU_FV_21_3", title="FLU_FV_21")
-    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering2/", "FLU_FV_21_2", title="FLU_FV_21")
-    # plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_21/filtering1/", "FLU_FV_21_1", title="FLU_FV_21")
-
-    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_22/filtering3/", "FLU_FV_22_3", title="FLU_FV_22")
-    plotplot(igrec_dir + "/src/extra/ref_bak_new/FLU_FV_23/filtering3/", "FLU_FV_23_3", title="FLU_FV_23")
-    sys.exit()
-
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21/filtering3/",
-             tool1="igrec", tool2="mixcr",
-             label1="IgReC",
-             label2="MiXCR",
-             title="Real data: FLU_FV_21",
-             out="sensitivity_precision_plot_flu_fv_21")
-
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_21/filtering3/",
-             tool1="igrec", tool2="supernode",
-             label1="IgReC",
-             label2="Supernode",
-             title="Real data: FLU_FV_21",
-             out="sensitivity_precision_plot_flu_fv_21")
-
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_22/filtering3/",
-             tool1="igrec", tool2="mixcr",
-             label1="IgReC",
-             label2="MiXCR",
-             title="Real data: FLU_FV_22",
-             out="sensitivity_precision_plot_flu_fv_22")
-
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27/filtering3/",
-             tool1="igrec", tool2="mixcr",
-             label1="IgReC",
-             label2="MiXCR",
-             title="Real data: FLU_FV_27",
-             out="sensitivity_precision_plot_flu_fv_27")
-
-    two_rocs(igrec_dir + "/src/extra/ig_quast_tool/FLU_FV_27/filtering3/",
-             tool1="igrec", tool2="supernode",
-             label1="IgReC",
-             label2="Supernode",
-             title="Real data: FLU_FV_27",
-             out="sensitivity_precision_plot_flu_fv_27")
+    plotplot(igrec_dir + "py/test_on_pd/age3/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMULATED_2/", "SIMULATED_2_figs", title="SIMULATED SIMPLE dataset, 2 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "SIMULATED_0.5_figs", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
+    # plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
