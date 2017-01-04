@@ -221,6 +221,9 @@ int main(int argc, char **argv) {
     std::ofstream out(output_file);
     out << "# Input file: " << input_file << std::endl;
     out << "# Reads: " << input_reads.size() << std::endl;
+    auto bfc = (long long)(input_reads.size()) * (input_reads.size() - 1) / 2;
+    out << "# Brute-force d_count: " << bfc << std::endl;
+    out << "# Brute-force av_d_count: " << double(input_reads.size() - 1) / 2  << std::endl;
     out << "# Minimal lenght: " << min_L << std::endl;
     out << "# tau: " << tau << std::endl;
     out << "k\td_count\tav_d_count" << std::endl;
