@@ -15,7 +15,8 @@ def run_and_quast_all(input_reads,
                       threads=4,
                       rerun_mixcr=True,
                       do_not_run=False,
-                      do_run_igrec_old=False):
+                      do_run_igrec_old=False,
+                      do_run_igrec=True):
     import os.path
     import shutil
 
@@ -107,8 +108,9 @@ def run_and_quast_all(input_reads,
     # # igrec_runs.append(IgReCRun("igrec_tau1_f095", tau=1, fillin=0.95))
 
     if not do_not_run:
-        for run in igrec_runs:
-            run.run()
+        if do_run_igrec:
+            for run in igrec_runs:
+                run.run()
 
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
@@ -215,7 +217,7 @@ if __name__ == "__main__":
                                   output_dir + "/data/repertoire.fa.gz",
                                   output_dir + "/data/repertoire.rcm", out_dir,
                                   rerun_mixcr=True,
-                                  do_run_igrec_old=is_simulated,
+                                  do_run_igrec_old=True,
                                   threads=16)
 
             import multiprocessing

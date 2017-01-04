@@ -156,8 +156,6 @@ def plot_various_error_rate_serg(dir,
     save_plot(out, format=format)
 
 
-
-
 def plot_various_error_rate(dir,
                             kinds,
                             labels,
@@ -167,7 +165,8 @@ def plot_various_error_rate(dir,
                             title="",
                             format=("png", "pdf", "svg"),
                             legend=True,
-                            which=None):
+                            which=None,
+                            prod_criterion=False):
     lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans)
     datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans)[1] for kind in kinds]
     import matplotlib.pyplot as plt
@@ -178,14 +177,20 @@ def plot_various_error_rate(dir,
     sns.set_style("darkgrid")
     colors = [tool2color(label) for label in labels]
 
-    def opt_size(sensitivity, precision):
-        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+    if prod_criterion:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] * precision[i])
+    else:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
 
     def get_what(dataset, what, cur_sizes):
         if what in ["sensitivity", "precision"]:
             return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "sum":
             return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "prod":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] * data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "minsize":
             return [size for data, size in zip(dataset, cur_sizes)]
         else:
@@ -215,11 +220,15 @@ def plot_various_error_rate(dir,
         plt.ylim((0. - eps, 1. + eps))
     elif what == "sum":
         plt.ylim((1. - eps, 2. + eps))
+    elif what == "prod":
+        plt.ylim((0. - eps, 1. + eps))
 
     if what in ["sensitivity", "precision"]:
         plt.ylabel(what)
     elif what == "sum":
         plt.ylabel("sensitivity + precision")
+    elif what == "prod":
+        plt.ylabel("sensitivity * precision")
     elif what == "minsize":
         plt.ylabel("optimal constructed min size")
 
@@ -243,7 +252,8 @@ def plot_two_sums(dir,
                   title="",
                   legend=True,
                   format=("png", "pdf", "svg"),
-                  which=None):
+                  which=None,
+                  prod_criterion=False):
     lambdas, _ = get_plot_various_error_rate_data(dir, kind=kind, woans=False)
     data_wa = get_plot_various_error_rate_data(dir, kind=kind, woans=False)[1]
     data_woa = get_plot_various_error_rate_data(dir, kind=kind, woans=True)[1]
@@ -255,14 +265,22 @@ def plot_two_sums(dir,
     sns.set_style("darkgrid")
     colors = ["cornflowerblue", "red", "orange", "black"]
 
-    def opt_size(sensitivity, precision):
-        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+    if prod_criterion:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] * precision[i])
+        what = "prod"
+    else:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+        what = "sum"
 
     def get_what(dataset, what, cur_sizes):
         if what in ["sensitivity", "precision"]:
             return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "sum":
             return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "prod":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] * data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "minsize":
             return [size for data, size in zip(dataset, cur_sizes)]
         else:
@@ -274,7 +292,8 @@ def plot_two_sums(dir,
             cur_sizes = [opt_size(data["reference_based"]["__data_sensitivity"], data["reference_based"]["__data_precision"]) for data in dataset]
         else:
             cur_sizes = [sizes] * len(dataset)
-        cur_for_plot = get_what(dataset, "sum", cur_sizes)
+
+        cur_for_plot = get_what(dataset, what, cur_sizes)
         forplot.append(cur_for_plot)
 
     labels = [label + ", simple", label + ", complex"]
@@ -286,9 +305,13 @@ def plot_two_sums(dir,
                  "b-", color=color, label=label)
 
     eps = 0.025
-    plt.ylim((1. - eps, 2. + eps))
+    if what == "sum":
+        plt.ylim((1. - eps, 2. + eps))
+        plt.ylabel("sensitivity + precision")
+    elif what == "prod":
+        plt.ylim((0. - eps, 1. + eps))
+        plt.ylabel("sensitivity * precision")
 
-    plt.ylabel("sensitivity + precision")
     plt.xlabel("Error rate")
 
     if title:
@@ -322,7 +345,8 @@ def plot_rocs(jsons, labels,
               out="two_rocs",
               title="",
               format=None,
-              show_coords=True):
+              show_coords=True,
+              prod_criterion=False):
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -334,8 +358,12 @@ def plot_rocs(jsons, labels,
     sensitivities = [json["reference_based"]["__data_sensitivity"] for json in jsons]
     precisions = [json["reference_based"]["__data_precision"] for json in jsons]
 
-    def opt_size(sensitivity, precision):
-        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+    if prod_criterion:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] * precision[i])
+    else:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
 
     opt_sizes = [opt_size(sensitivity, precision) for sensitivity, precision in zip(sensitivities, precisions)]
 
@@ -524,4 +552,8 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_2/", "SIMULATED_2_figs", title="SIMULATED SIMPLE dataset, 2 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "SIMULATED_0.5_figs", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
+
+    plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "Fig_11_a", title="SIMULATED SIMPLE dataset, 1.0 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "Fig_11_b", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/age3/", "Fig_13", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     # plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")
