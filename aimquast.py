@@ -20,7 +20,7 @@ def parse_command_line(description="aimQUAST"):
     import argparse
 
     def ActionTestFactory(name):
-        initial_reads = "aimquast_test_dataset/%s/input_reads.fa.gz" % name
+        initial_reads = igrec_dir + "/aimquast_test_dataset/%s/input_reads.fa.gz" % name
         import os.path
         if not os.path.isfile(initial_reads):
             return None
@@ -31,12 +31,12 @@ def parse_command_line(description="aimQUAST"):
                 super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
             def __call__(self, parser, namespace, values, option_string=None):
-                setattr(namespace, "initial_reads", "aimquast_test_dataset/%s/input_reads.fa.gz" % name)
+                setattr(namespace, "initial_reads", initial_reads)
                 setattr(namespace, "output_dir", "aimquast_test_%s" % name)
-                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
-                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
-                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/%s/repertoire.fa.gz" % name)
-                setattr(namespace, "reference_rcm", "aimquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "constructed_repertoire", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name)
                 setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
                 setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
                 setattr(namespace, "figure_format", "pdf,png")
