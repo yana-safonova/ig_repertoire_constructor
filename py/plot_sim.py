@@ -30,6 +30,33 @@ if __name__ == "__main__":
                             title="Precision (SIMULATED SIMPLE)",
                             kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"])
 
+
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="sensitivity", out="Fig_9a_with_IGRC",
+                            title="Sensitivity (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="precision", out="Fig_9b_with_IGRC",
+                            title="Precision (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="sum", out="Fig_9c_with_IGRC",
+                            prod_criterion=True,
+                            title="Sensitivity + precision (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="sensitivity", out="Fig_9a_prod_with_IGRC",
+                            prod_criterion=True,
+                            title="Sensitivity (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="precision", out="Fig_9b_prod_with_IGRC",
+                            prod_criterion=True,
+                            title="Precision (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+    plot_various_error_rate(igrec_dir + "/SIMULATED", what="prod", out="Fig_9c_prod_with_IGRC",
+                            prod_criterion=True,
+                            title="Sensitivity * precision (SIMULATED SIMPLE)",
+                            kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
+
+
+
     plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10",
                   title="Sensitivity + precision (SIMULATED)",
                   kind="igrec", label="IgReC")

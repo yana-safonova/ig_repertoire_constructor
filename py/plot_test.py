@@ -325,14 +325,14 @@ def plot_two_sums(dir,
 
 
 def tool2color(tool, secondary=False):
-    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black", "lightpink"]
-    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black", "hotpink"]
+    primary_colors =   ["cornflowerblue", "seagreen", "orange", "black", "violet", "black", "lightpink", "gold"]
+    secondary_colors = ["blue", "green", "darkorange", "dimgray", "orchid", "black", "hotpink", "yellow"]
     colors = secondary_colors if secondary else primary_colors
 
     def tool2id(tool):
         tool = tool.lower()
 
-        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr", "ig_repertoire_constructor"]
+        tools = ["igrec", "mixcr", "presto", "migec", "barigrec", "migec + mixcr", "ig_repertoire_constructor", "igrec_tau3"]
         from Levenshtein import distance
         dists = [distance(tool, t) for t in tools]
         return min(range(len(dists)), key=lambda i: dists[i])
@@ -499,6 +499,12 @@ def plotplot(dir, out_dir, title, **kwargs):
          title=title,
          out=out_dir + "/sensitivity_precision_plot_all",
          **kwargs)
+    rocs(dir,
+         tools=["igrec", "ig_repertoire_constructor", "igrec_tau3"],
+         labels=["IgReC", "IgRepertoireConstructor", "IgReC tau=3"],
+         title=title,
+         out=out_dir + "/sensitivity_precision_plot_old_vs_new",
+         **kwargs)
     # rocs(dir,
     #      tools=["igrec", "mixcr", "supernode"],
     #      labels=["IgReC", "MiXCR", "pRESTO"],
@@ -552,6 +558,9 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_2/", "SIMULATED_2_figs", title="SIMULATED SIMPLE dataset, 2 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "SIMULATED_0.5_figs", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SYNTHETIC_1/", "SYNTHETIC_1_figs", title="SYNTHETIC SIMPLE dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SYNTHETIC_2/", "SYNTHETIC_2_figs", title="SYNTHETIC SIMPLE dataset, 2 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SYNTHETIC_0.5/", "SYNTHETIC_0.5_figs", title="SYNTHETIC SIMPLE dataset, 0.5 errors per read", show_coords=True)
 
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "Fig_11_a", title="SIMULATED SIMPLE dataset, 1.0 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "Fig_11_b", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)

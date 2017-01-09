@@ -224,7 +224,7 @@ if __name__ == "__main__":
                                   output_dir + "/data/repertoire.fa.gz",
                                   output_dir + "/data/repertoire.rcm", out_dir,
                                   rerun_mixcr=False,
-                                  do_run_igrec_old=is_simulated,
+                                  do_run_igrec_old=True,
                                   threads=16)
 
             import multiprocessing
