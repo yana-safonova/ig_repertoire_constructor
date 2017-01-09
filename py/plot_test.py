@@ -548,12 +548,12 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
-    plotplot(igrec_dir + "py/test_on_pd/age3/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/REAL/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_2/", "SIMULATED_2_figs", title="SIMULATED SIMPLE dataset, 2 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "SIMULATED_0.5_figs", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
 
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "Fig_11_a", title="SIMULATED SIMPLE dataset, 1.0 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "Fig_11_b", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
-    plotplot(igrec_dir + "py/test_on_pd/age3/", "Fig_13", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/REAL/", "Fig_13", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     # plotplot(igrec_dir + "py/flu_all/", "FLU_FV_21_IGH_3", title="")

@@ -13,7 +13,9 @@ def run_and_quast_all(input_reads,
                       ideal_repertoire_rcm,
                       out_dir,
                       threads=4,
-                      rerun_mixcr=True,
+                      rerun_mixcr=False,
+                      rerun_igrec=False,
+                      rerun_aimquast=False,
                       do_not_run=False,
                       do_run_igrec_old=False,
                       do_run_igrec=True):
@@ -110,7 +112,8 @@ def run_and_quast_all(input_reads,
     if not do_not_run:
         if do_run_igrec:
             for run in igrec_runs:
-                run.run()
+                if rerun_igrec or not os.path.isfile(out_dir + "/" + run.name + "/final_repertoire.fa"):
+                    run.run()
 
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
@@ -119,7 +122,8 @@ def run_and_quast_all(input_reads,
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2full/", loci="all", region_from="FR1Begin", region_to="FR4End")
 
         if do_run_igrec_old:
-            run_igrec_old(input_reads, threads=threads, output_dir=out_dir + "/ig_repertoire_constructor")
+            if rerun_igrec or not os.path.isfile(out_dir + "/" + "ig_repertoire_constructor" + "/final_repertoire.fa"):
+                run_igrec_old(input_reads, threads=threads, output_dir=out_dir + "/ig_repertoire_constructor")
         # if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr/final_repertoire.fa"):
         #     run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
 
@@ -142,6 +146,8 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
+        if not rerun_aimquast and os.path.isfile("%(out_dir)s/%(kind)s/aimquast/aimquast.txt" % args):
+            continue
         cmd = "gzip -f -k %(out_dir)s/%(kind)s/final_repertoire.fa" % args
         os.system(cmd)
         # cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
@@ -202,12 +208,13 @@ if __name__ == "__main__":
         for min_error in min_error_interval:
             def JOB(error_rate):
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
-                simulate_data_from_dir(output_dir + "/data",
-                                       out_dir,
-                                       error_rate=error_rate,
-                                       seed=0,
-                                       min_error=min_error,
-                                       erroneous_site_len=300)
+                if not os.path.isfile(out_dir + "/input_reads.fa.gz"):
+                    simulate_data_from_dir(output_dir + "/data",
+                                           out_dir,
+                                           error_rate=error_rate,
+                                           seed=0,
+                                           min_error=min_error,
+                                           erroneous_site_len=300)
 
                 sizes = get_clusters_sizes(output_dir + "/data/repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
@@ -216,8 +223,8 @@ if __name__ == "__main__":
                 run_and_quast_all(out_dir + "/input_reads.fa.gz",
                                   output_dir + "/data/repertoire.fa.gz",
                                   output_dir + "/data/repertoire.rcm", out_dir,
-                                  rerun_mixcr=True,
-                                  do_run_igrec_old=True,
+                                  rerun_mixcr=False,
+                                  do_run_igrec_old=is_simulated,
                                   threads=16)
 
             import multiprocessing
