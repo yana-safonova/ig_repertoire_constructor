@@ -19,32 +19,24 @@ from aimquast_impl import splittering
 def parse_command_line(description="aimQUAST"):
     import argparse
 
-    class ActionTest(argparse.Action):
-
-        def __init__(self, option_strings, dest, nargs=None, **kwargs):
-            super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
-
-        def __call__(self, parser, namespace, values, option_string=None):
-            setattr(namespace, "initial_reads", "aimquast_test_dataset/merged_reads.fq")
-            setattr(namespace, "output_dir", "aimquast_test")
-            setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/igrec_bad/final_repertoire.fa")
-            setattr(namespace, "constructed_rcm", "aimquast_test_dataset/igrec_bad/final_repertoire.rcm")
-            setattr(namespace, "reference_repertoire", "aimquast_test_dataset/ideal_final_repertoire.fa")
-            setattr(namespace, "reference_rcm", "aimquast_test_dataset/ideal_final_repertoire.rcm")
-
     def ActionTestFactory(name):
+        initial_reads = igrec_dir + "/aimquast_test_dataset/%s/input_reads.fa.gz" % name
+        import os.path
+        if not os.path.isfile(initial_reads):
+            return None
+
         class ActionTest(argparse.Action):
 
             def __init__(self, option_strings, dest, nargs=None, **kwargs):
                 super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
             def __call__(self, parser, namespace, values, option_string=None):
-                setattr(namespace, "initial_reads", "aimquast_test_dataset/%s/input_reads.fa.gz" % name)
+                setattr(namespace, "initial_reads", initial_reads)
                 setattr(namespace, "output_dir", "aimquast_test_%s" % name)
-                setattr(namespace, "constructed_repertoire", "aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
-                setattr(namespace, "constructed_rcm", "aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
-                setattr(namespace, "reference_repertoire", "aimquast_test_dataset/%s/repertoire.fa.gz" % name)
-                setattr(namespace, "reference_rcm", "aimquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "constructed_repertoire", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name)
                 setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
                 setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
                 setattr(namespace, "figure_format", "pdf,png")
@@ -53,22 +45,23 @@ def parse_command_line(description="aimQUAST"):
 
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument("--test",
-                        action=ActionTest,
-                        default="",
-                        help="Running on test dataset")
-    parser.add_argument("--test-age1",
-                        action=ActionTestFactory("age1"),
-                        default="",
-                        help="Running on age1 dataset")
-    parser.add_argument("--test-age3",
-                        action=ActionTestFactory("age3"),
-                        default="",
-                        help="Running on age3 dataset")
-    parser.add_argument("--test-flu",
-                        action=ActionTestFactory("flu"),
-                        default="",
-                        help="Running on FLU dataset")
+    def add_test(name, key=None, display_name=None):
+        if key is None:
+            key = "--test-" + name
+        if display_name is None:
+            display_name = name
+
+        test_action = ActionTestFactory(name)
+        if test_action is not None:
+            parser.add_argument(key,
+                                action=test_action,
+                                help="Running on %s dataset" % display_name)
+
+    add_test("test", key="--test")
+    add_test("age1")
+    add_test("age3")
+    add_test("flu")
+
     parser.add_argument("--initial-reads", "-s",
                         type=str,
                         default="",

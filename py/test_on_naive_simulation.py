@@ -13,8 +13,12 @@ def run_and_quast_all(input_reads,
                       ideal_repertoire_rcm,
                       out_dir,
                       threads=4,
-                      rerun_mixcr=True,
-                      do_not_run=False):
+                      rerun_mixcr=False,
+                      rerun_igrec=False,
+                      rerun_aimquast=False,
+                      do_not_run=False,
+                      do_run_igrec_old=False,
+                      do_run_igrec=True):
     import os.path
     import shutil
 
@@ -57,10 +61,11 @@ def run_and_quast_all(input_reads,
     igrec_runs = []
     # igrec_runs.append(IgReCRun("igrec_trivial", trivial=True))
     igrec_runs.append(IgReCRun("igrec"))
+    igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
     # igrec_runs.append(IgReCRun("igrec_nomsns", min_sread_size=1005000))
     # igrec_runs.append(IgReCRun("igrec_msns2", min_sread_size=2))
     # igrec_runs.append(IgReCRun("igrec_msns3", min_sread_size=3))
-    igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
+    # igrec_runs.append(IgReCRun("igrec_vote", max_votes=1))
     # igrec_runs.append(IgReCRun("igrec_vote2", max_votes=2))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau3", tau=3, trivial=True))
     # igrec_runs.append(IgReCRun("igrec_trivial_tau2", tau=2, trivial=True))
@@ -68,7 +73,6 @@ def run_and_quast_all(input_reads,
 
     # igrec_runs.append(IgReCRun("igrec", additional_args="--debug"))
     # igrec_runs.append(IgReCRun("igrec_split", additional_args="--no-equal-compression --debug"))
-    # igrec_runs.append(IgReCRun("igrec_tau3", tau=3))
     # igrec_runs.append(IgReCRun("igrec_split_tau3", tau=3, additional_args=" --no-equal-compression --debug"))
     # igrec_runs.append(IgReCRun("igrec_tau2", tau=2))
     # igrec_runs.append(IgReCRun("igrec_tau1", tau=1))
@@ -106,12 +110,20 @@ def run_and_quast_all(input_reads,
     # # igrec_runs.append(IgReCRun("igrec_tau1_f095", tau=1, fillin=0.95))
 
     if not do_not_run:
-        for run in igrec_runs:
-            run.run()
+        if do_run_igrec:
+            for run in igrec_runs:
+                if rerun_igrec or not os.path.isfile(out_dir + "/" + run.name + "/final_repertoire.fa"):
+                    run.run()
 
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
 
+        if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2full/final_repertoire.fa"):
+            run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2full/", loci="all", region_from="FR1Begin", region_to="FR4End")
+
+        if do_run_igrec_old:
+            if rerun_igrec or not os.path.isfile(out_dir + "/" + "ig_repertoire_constructor" + "/final_repertoire.fa"):
+                run_igrec_old(input_reads, threads=threads, output_dir=out_dir + "/ig_repertoire_constructor")
         # if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr/final_repertoire.fa"):
         #     run_mixcr(input_reads, threads=threads, output_dir=out_dir + "/mixcr/", loci="all")
 
@@ -123,7 +135,10 @@ def run_and_quast_all(input_reads,
         shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full"]
+
+    if do_run_igrec_old:
+        kinds += ["ig_repertoire_constructor"]
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
@@ -131,6 +146,10 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
+        if not rerun_aimquast and os.path.isfile("%(out_dir)s/%(kind)s/aimquast/aimquast.txt" % args):
+            continue
+        cmd = "gzip -f -k %(out_dir)s/%(kind)s/final_repertoire.fa" % args
+        os.system(cmd)
         # cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
         cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --no-rcm-based" % args
 
@@ -142,58 +161,72 @@ def run_and_quast_all(input_reads,
 
 
 if __name__ == "__main__":
-    mkdir_p("various_error_rate")
-    mkdir_p("var_err_rate_real")
+    datasets = [igrec_dir + "/SIMULATED",
+                igrec_dir + "/SYNTHETIC"]
 
-    ig_simulator_output_dir = "/tmp/ig_simulator"
-    datasets = [ig_simulator_output_dir + "/final_repertoire.fasta",
-                igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz"]
-    output_dirs = [igrec_dir + "/various_error_rate", igrec_dir + "/var_err_rate_real"]
+    for dataset in datasets:
+        mkdir_p(dataset)
+        mkdir_p(dataset + "/data")
 
-    if True:
+    if not os.path.isfile(datasets[0] + "/data/repertoire.fa.gz"):
+        import tempfile
+        ig_simulator_output_dir = tempfile.mkdtemp()
         run_ig_simulator(ig_simulator_output_dir,
-                         chain="HC", num_bases=1000, num_mutated=10000, reprtoire_size=50000)
+                         chain="HC", num_bases=1000, num_mutated=10000, repertoire_size=50000)
+        rmdir(ig_simulator_output_dir)
+        fastx2fastx(ig_simulator_output_dir + "/ideal_repertoire.clusters.fa",
+                    igrec_dir + "/SIMULATED/data/repertoire.fa.gz")
 
+    if not os.path.isfile(datasets[1] + "/data/repertoire.fa.gz"):
         try:
             convert_abvitro_to_repertoire("/Jake/data/input/ImmunoSeq/AbVitro/flu_time_course/FV/assembled_umis/21_assemble_combined.fastq",
-                                          igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz")
-            multiplex_repertoire(igrec_dir + "/var_err_rate_real/flu_repertoire.fa.gz",
-                                 igrec_dir + "/var_err_rate_real/error_free_reads.fa.gz")
+                                          igrec_dir + "/SYNTHETIC/data/repertoire.fa.gz")
         except BaseException as ex:
             print ex
-            print "Cannot multiplex reperoire, file not found"
+            print "Cannot convert FLU SYNTHETIC reperoire, file not found"
 
-        for dataset, output_dir in zip(datasets, output_dirs):
-            if not os.path.isfile(dataset):
-                continue
-            simulate_data_wo_errors(dataset,
-                                    output_dir + "/data")
-
-    # lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5, 4]
-    lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
-    for output_dir in output_dirs:
-        if not os.path.isfile(output_dir + "/data/error_free_reads.fa.gz"):
+    for dataset in datasets:
+        if not os.path.isfile(dataset + "/data/repertoire.fa.gz"):
             continue
-        min_error_interval = [0, 1] if "real" not in output_dir else [0]
+        if not os.path.isfile(dataset + "/data/error_free_reads.fa.gz"):
+            multiplex_repertoire(dataset + "/data/repertoire.fa.gz",
+                                 dataset + "/data/error_free_reads.fa.gz")
+            simulate_data_wo_errors(dataset + "/data/error_free_reads.fa.gz",
+                                    dataset + "/data")
+
+    print "Test datasets created!"
+
+    lambdas = [0, 0.0625, 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2]
+    for output_dir in datasets:
+        if not os.path.isfile(output_dir + "/data/error_free_reads.fa.gz"):
+            print "Not such dataset, skip!"
+            continue
+        is_synthetic = "SYNTHETIC" in output_dir
+        is_simulated = not is_synthetic
+        #
+        min_error_interval = [0, 1]
         for min_error in min_error_interval:
             def JOB(error_rate):
                 out_dir = output_dir + "/errate_%0.4f" % error_rate if not min_error else output_dir + "/errate_%0.4f_woans" % error_rate
-                simulate_data_from_dir(output_dir + "/data",
-                                       out_dir,
-                                       error_rate=error_rate,
-                                       seed=0,
-                                       min_error=min_error,
-                                       erroneous_site_len=300)
+                if not os.path.isfile(out_dir + "/input_reads.fa.gz"):
+                    simulate_data_from_dir(output_dir + "/data",
+                                           out_dir,
+                                           error_rate=error_rate,
+                                           seed=0,
+                                           min_error=min_error,
+                                           erroneous_site_len=300)
 
-                sizes = get_clusters_sizes(output_dir + "/data/ideal_final_repertoire.fa.gz")
+                sizes = get_clusters_sizes(output_dir + "/data/repertoire.fa.gz")
                 print "Reference consists of %d clusters" % len(sizes)
                 print "Reference consists of %d large (>=5) clusters" % len([size for size in sizes if size >= 5])
 
-                run_and_quast_all(out_dir + "/merged_reads.fa.gz",
-                                  output_dir + "/data/ideal_final_repertoire.fa.gz",
-                                  output_dir + "/data/ideal_final_repertoire.rcm", out_dir,
-                                  rerun_mixcr=True)
+                run_and_quast_all(out_dir + "/input_reads.fa.gz",
+                                  output_dir + "/data/repertoire.fa.gz",
+                                  output_dir + "/data/repertoire.rcm", out_dir,
+                                  rerun_mixcr=False,
+                                  do_run_igrec_old=True,
+                                  threads=16)
 
             import multiprocessing
-            n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 4
+            n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 2
             Parallel(n_jobs=n_jobs)(delayed(JOB)(error_rate) for error_rate in lambdas)
