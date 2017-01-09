@@ -133,7 +133,7 @@ def run_and_quast_all(input_reads,
 
     kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full"]
 
-    if run_igrec_old:
+    if do_run_igrec_old:
         kinds += ["ig_repertoire_constructor"]
 
     for kind in kinds:
