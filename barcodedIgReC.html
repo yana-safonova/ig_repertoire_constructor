@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <title>BarcodedIgReC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+</head>
+<body>
+<section class="page-header">
+    <h1 class="project-name" align=center>BarcodedIgReC</h1>
+    <h2 class="project-tagline" align=center>An algorithm for repertoire construction from barcoded Illumina MiSeq reads</h2>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub TBD</b></a>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip TBD</b></a>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz TBD</b></a>
+</section>
+
+<section class="main-content">
+
+    <h2>Content</h2>
+    <p align = "center">
+    <ul>
+        <li><a href = "#motivation">Motivation</a></li>
+        <li><a href = "#algorithm">Algorithm</a></li>
+        <li><a href = "#references">Manual and citations</a></li>
+    </ul>
+    </p>
+
+
+    <h2 id = "motivation">Motivation</h2>
+    <p align = "justify">
+        With increasing amount of immunosequencing data the barcoded data also gains popularity.
+        Repertoire construction is a complex clustering problem with the largest obstacle of distinguishing natural diversity of antibodies from PCR errors.
+        Barcoding helps to separate these two sources of variations in IG sequences
+        and makes PCR error correction possible while preserving even close antibody variations.
+        Also barcoding allows to quantify antibodies more precisely.
+    </p>
+
+
+    <h2 id = "algorithm">Algorithm</h2>
+    <p align = justify>
+        BarcodedIgReC takes as an input paired-end or single reads with unique molecular identifiers (UMIs).
+        Reads should cover variable region of antibodies.
+        BarcodedIgReC corrects sequencing and amplification errors and constructs an antibody repertoire.
+    </p>
+    The algorithm performs the following steps:
+    <ul>
+        <li><b><a href = "index.html#vj_finder">VJ Finder</a>: </b>V, J labeling, cleaning and cropping input reads.</li>
+        <li><b><a href = "#clustering">Clustering using barcode information</a>:</b> read clustering inside barcodes and barcode error correction.</li>
+        <li><b><a href = "index.html">IgReC TODO: fix link?</a>:</b> Merge close clusters without usage of barcodes applying IgReC algorithm with custom clustering parameters.</li>
+    </ul>
+
+    <h3 id = "clustering">Clustering using barcode information</h3>
+    <p align = justify>
+        On this step BarcodedIgReC focuses on dealing with artifacts which barcoding introduces into the data.
+        <ul>
+            <li><b>Barcode errors:</b>
+                since barcoded sequences undergo amplification, some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
+            </li>
+            <li><b>Barcode collisions:</b>
+                in an ideal experiment, barcodes are randomly and uniformly generated.
+                In particular, we observe certain amount of distinct molecules get identical barcodes attached.
+            </li>
+            <li><b>Chimeric reads:</b>
+                about 1-8% of reads in Rep-seq datasets are chimeric.
+                When not filtered out, they introduce artificial diversity into the antibody repertoire.
+            </li>
+        </ul>
+    </p>
+
+
+    <h2 id = "references">Manual and citations</h2>
+    <p align = "justify">
+        BarcodedIgReC manual can be found <a href = 'barcodedIgReC_manual.html'>here (TBD)</a>.
+    </p>
+
+    <p align = "justify">
+        <b>Citation:</b> TBD
+    </p>
+
+    <footer class="site-footer">
+        <span class="site-footer-owner">
+            <a href="https://github.com/yana-safonova/ig_repertoire_constructor">IgRepertoireConstructor</a> is maintained by
+            Center for Algorithmic Biotechnology, Saint Petersburg State University.
+        </span>
+    </footer>
+
+</section>
+
+
+</body>
+</html>
+
