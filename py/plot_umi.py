@@ -32,19 +32,19 @@ if __name__ == "__main__":
     # plot_sens_prec_umi(sys.argv[1])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="sensitivity", out="sensitivity_fig",
-                                 title="SIMULATED, sensitivity",
+                                 title="Sensitivity plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="precision", out="precision_fig",
-                                 title="SIMULATED, precision",
+                                 title="Precision plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="sum", out="sens_prec_fig",
-                                 title="SIMULATED, sens+prec",
+                                 title="Sensitivity * precision plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
                                  legend_loc=2,
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="minsize", out="min_size_fig",
-                                 title="SIMULATED, size threshold",
+                                 title="Size threshold plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
                                  legend_loc=2,
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])

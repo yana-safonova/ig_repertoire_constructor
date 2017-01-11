@@ -91,7 +91,8 @@ def plot_various_error_rate_serg(dir,
                                  format=("png", "pdf", "svg"),
                                  legend=True,
                                  legend_loc=3,
-                                 which=None):
+                                 which=None,
+                                 prod_criterion=False):
     lambdas, _ = get_plot_various_error_rate_data_serg(dir, kind=kinds[0], woans=woans)
     datas = [get_plot_various_error_rate_data_serg(dir, kind=kind, woans=woans)[1] for kind in kinds]
     import matplotlib.pyplot as plt
@@ -102,14 +103,20 @@ def plot_various_error_rate_serg(dir,
     sns.set_style("darkgrid")
     colors = [tool2color(label) for label in labels]
 
-    def opt_size(sensitivity, precision):
-        return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+    if prod_criterion:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] * precision[i])
+    else:
+        def opt_size(sensitivity, precision):
+            return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
 
     def get_what(dataset, what, cur_sizes):
         if what in ["sensitivity", "precision"]:
             return [data["reference_based"]["__data_" + what][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "sum":
             return [data["reference_based"]["__data_sensitivity"][size - 1] + data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
+        elif what == "prod":
+            return [data["reference_based"]["__data_sensitivity"][size - 1] * data["reference_based"]["__data_precision"][size - 1] for data, size in zip(dataset, cur_sizes)]
         elif what == "minsize":
             return [size for data, size in zip(dataset, cur_sizes)]
         else:
@@ -127,20 +134,27 @@ def plot_various_error_rate_serg(dir,
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
+
+    print title, what
     for y, color, label in zipped:
         plt.plot(lambdas, y,
                  "b-", color=color, label=label)
+        print label, y
 
     eps = 0.025
     if what in ["sensitivity", "precision"]:
         plt.ylim((0. - eps, 1. + eps))
     elif what == "sum":
         plt.ylim((1. - eps, 2. + eps))
+    elif what == "prod":
+        plt.ylim((0. - eps, 1. + eps))
 
     if what in ["sensitivity", "precision"]:
         plt.ylabel(what)
     elif what == "sum":
         plt.ylabel("sensitivity + precision")
+    elif what == "prod":
+        plt.ylabel("sensitivity * precision")
     elif what == "minsize":
         plt.ylabel("optimal constructed min size")
 
