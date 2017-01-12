@@ -8,7 +8,7 @@
 #include "../ig_tools/utils/string_tools.hpp"
 
 std::default_random_engine PcrSimulator::random_engine_;
-const size_t PcrSimulator::READ_ERROR_COUNT_INF = std::numeric_limits<size_t>::max() / 2;
+const size_t PcrSimulator::CHIMERIC_READ_ERROR_COUNT = std::numeric_limits<size_t>::max() / 2;
 const size_t PcrSimulator::MAP_NOWHERE = std::numeric_limits<size_t>::max();
 
 void PcrSimulator::ReadRepertoire(const std::string& repertoire_file_path) {
@@ -59,7 +59,7 @@ void PcrSimulator::ReportAverageErrorRate() {
     size_t total_errors = 0;
     size_t interesting_reads = 0;
     for (const auto& record : amplified_reads_) {
-        if (record.error_count < READ_ERROR_COUNT_INF) {
+        if (record.error_count < CHIMERIC_READ_ERROR_COUNT) {
             total_errors += record.error_count;
             interesting_reads ++;
         }
@@ -108,7 +108,7 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
         const seqan::Dna5String new_read(left + right);
         size_t barcode_idx = (options_.barcode_position & 1) && barcode_position_distribution(random_engine_) == 1 ? left_idx : right_idx;
         const seqan::Dna5String& new_barcode = amplified_reads_[barcode_idx].barcode;
-        AddRecord(new_id, new_read, new_barcode);
+        AddChimericRecord(new_id, new_read, new_barcode);
         read_to_compressed_.push_back(MAP_NOWHERE);
         read_to_original_.push_back(MAP_NOWHERE);
     }
@@ -119,6 +119,10 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
 
 void PcrSimulator::AddRecord(const string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count) {
     amplified_reads_.emplace_back(std::to_string(amplified_reads_.size()) + id, read, barcode, error_count);
+}
+
+void PcrSimulator::AddChimericRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode){
+    AddRecord(id, read, barcode, CHIMERIC_READ_ERROR_COUNT);
 }
 
 void PcrSimulator::SimulatePcr() {
