@@ -127,9 +127,10 @@ void PcrSimulator::AddChimericRecord(const std::string& id, const seqan::Dna5Str
 
 void PcrSimulator::SimulatePcr() {
     barcode_error_count_ = 0;
+    double pcr_error_prob = options_.error_prob_first;
     for (size_t i = 0; i < options_.cycles_count; i ++) {
-        double pcr_error_prob = options_.error_prob_first + (options_.error_prob_last - options_.error_prob_first) * static_cast<double>(i) / static_cast<double>(options_.cycles_count - 1);
         AmplifySequences(pcr_error_prob);
+        pcr_error_prob += (options_.error_prob_last - options_.error_prob_first) / static_cast<double>(options_.cycles_count - 1);
     }
 
     ReportAverageErrorRate();
