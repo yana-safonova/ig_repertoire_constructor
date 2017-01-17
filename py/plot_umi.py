@@ -32,19 +32,20 @@ if __name__ == "__main__":
     # plot_sens_prec_umi(sys.argv[1])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="sensitivity", out="sensitivity_fig",
-                                 title="Sensitivity plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
+                                 title="Sensitivity plot\n(SIMULATED BARCODED dataset)",
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="precision", out="precision_fig",
-                                 title="Precision plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
+                                 title="Precision plot\n(SIMULATED BARCODED dataset)",
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="sum", out="sens_prec_fig",
-                                 title="Sensitivity * precision plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
+                                 title="Sensitivity * precision plot\n(SIMULATED BARCODED dataset)",
                                  legend_loc=2,
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
     plot_various_error_rate_serg("/Marx/serg/data/ig_simulator/new_error_rates/",
                                  what="minsize", out="min_size_fig",
-                                 title="Size threshold plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
+                                 title="Size threshold plot\n(SIMULATED BARCODED dataset)",
+                                 # title="Size threshold plot (SIMULATED BARCODED dataset, 2.0 errors per read)",
                                  legend_loc=2,
                                  kinds=["barigrec", "igrec", "presto", "migec"], labels=["BarcodedIgReC", "IgReC", "pRESTO", "MiGEC + MiXCR"])
