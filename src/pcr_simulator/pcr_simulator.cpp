@@ -85,10 +85,11 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
                     auto current_value = pos < length(new_barcode) ? new_barcode[pos] : new_read[pos - length(new_barcode)];
                     int new_value_candidate = std::rand() % 3;
                     int new_value = new_value_candidate + (new_value_candidate >= current_value ? 1 : 0);
-                    pos < length(new_barcode) ? new_barcode[pos] : new_read[pos - length(new_barcode)] = new_value;
                     if (pos >= length(new_barcode)) {
+                        new_read[pos - length(new_barcode)] = new_value;
                         errors ++;
                     } else {
+                        new_barcode[pos] = new_value;
                         barcode_error_count_ ++;
                     }
                 }
