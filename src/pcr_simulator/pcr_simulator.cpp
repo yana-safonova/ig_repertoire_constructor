@@ -14,6 +14,11 @@ const size_t PcrSimulator::MAP_NOWHERE = std::numeric_limits<size_t>::max();
 void PcrSimulator::ReadRepertoire(const std::string& repertoire_file_path) {
     seqan::SeqFileIn reads_file(repertoire_file_path.c_str());
     readRecords(original_ids_, original_reads_, reads_file);
+    size_t total_length = 0;
+    for (const auto& read : original_reads_) {
+        total_length += length(read);
+    }
+    INFO("Average read length: " << static_cast<double>(total_length) / static_cast<double>(original_reads_.size()));
 }
 
 void PcrSimulator::Amplify(size_t output_estimation_limit) {
