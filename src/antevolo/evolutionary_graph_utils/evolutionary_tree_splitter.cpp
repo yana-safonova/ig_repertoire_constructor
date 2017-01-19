@@ -5,7 +5,7 @@ namespace antevolo {
                                                                            size_t root_id) {
         std::queue<size_t> vertex_queue;
         vertex_queue.push(root_id);
-        EvolutionaryTree connected_tree;
+        EvolutionaryTree connected_tree(tree.GetCloneSet());
         while(!vertex_queue.empty()) {
             size_t cur_vertex = vertex_queue.front();
             vertex_queue.pop();

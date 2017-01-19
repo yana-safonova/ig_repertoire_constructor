@@ -16,10 +16,16 @@ namespace antevolo {
                 size_t root_vertex,
                 CloneSetWithFakes& clone_set,
                 std::shared_ptr<EvolutionaryEdgeConstructor> edge_constructor);
-        void ReconstructAncestralLineage(EvolutionaryEdgePtr edge,
-                                         EvolutionaryTree& tree,
-                                         const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor,
-                                         std::vector<size_t>& roots);
+        void ReconstructAncestralLineageSimple(
+                EvolutionaryEdgePtr edge,
+                EvolutionaryTree& tree,
+                const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor,
+                std::vector<size_t>& roots,
+                boost::unordered_map<size_t, size_t>& iterator_index_map);
+//        void ReconstructAncestralLineage(EvolutionaryEdgePtr edge,
+//                                         EvolutionaryTree& tree,
+//                                         const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor,
+//                                         std::vector<size_t>& roots);
 
         void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                                 const boost::unordered_set<size_t>& vertices_nums) override;
@@ -27,16 +33,17 @@ namespace antevolo {
                                    const boost::unordered_set<size_t> &vertices_nums, EvolutionaryTree &tree) override;
 
         void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
-                                                EvolutionaryTree &tree, SparseGraphPtr hg_component,
-                                                size_t component_id) override;
+                                                EvolutionaryTree &tree) override;
 
-        void HandleRoot(size_t root_num,
-                        const std::vector<size_t>& clones_sharing_cdr3,
-                        EvolutionaryTree& tree,
-                        boost::unordered_map<size_t, EvolutionaryEdgePtr>& roots_nearest_neighbours,
-                        const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor);
+        void HandleRootNeighbour(
+                size_t root_num,
+                size_t dst_num,
+                const boost::unordered_set<size_t>& vertices_nums,
+                EvolutionaryTree& tree,
+                boost::unordered_map<size_t, EvolutionaryEdgePtr>& roots_nearest_neighbours,
+                const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor);
     public:
-        Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakes &clone_set,
+        Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,
                                      const AntEvoloConfig::AlgorithmParams &config,
                                      const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                      CDR3HammingGraphInfo& hamming_graph_info)

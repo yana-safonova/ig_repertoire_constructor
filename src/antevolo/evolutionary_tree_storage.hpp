@@ -4,13 +4,13 @@
 
 namespace antevolo {
     class EvolutionaryTreeStorage {
-        const CloneSetWithFakes *clone_set_ptr_;
-
+//        const CloneSetWithFakes *clone_set_ptr_;
         std::vector<EvolutionaryTree> trees_;
 
     public:
-        EvolutionaryTreeStorage(const CloneSetWithFakes &clone_set) :
-                clone_set_ptr_(&clone_set) { }
+        EvolutionaryTreeStorage()//(const CloneSetWithFakes &clone_set) :
+//                clone_set_ptr_(&clone_set)
+        { }
 
         void Add(EvolutionaryTree tree);
 

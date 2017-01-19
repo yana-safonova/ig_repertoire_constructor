@@ -40,8 +40,7 @@ namespace antevolo {
                                    const boost::unordered_set<size_t> &vertices_nums,
                                    EvolutionaryTree &tree) = 0;
         virtual void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
-                                                        EvolutionaryTree &tree, SparseGraphPtr hg_component,
-                                                        size_t component_id) = 0;
+                                                        EvolutionaryTree &tree) = 0;
     public:
 
         Base_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,

@@ -67,7 +67,7 @@ namespace antevolo {
         for (auto i : indices) {
             ++abundances[i];
         }
-        annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone> annotated_clone_set;
+        annotation_utils::CDRAnnotatedCloneSet annotated_clone_set;
         size_t compressed_clone_index = 0;
         for (size_t i = 0; i < uncompressed_annotated_clone_set.size(); ++i) {
             if (abundances[i] != 0) {
@@ -79,7 +79,6 @@ namespace antevolo {
         INFO(annotated_clone_set.size() << " unique prefixes were created");
 
         //end trie_compressor
-        CloneSetWithFakes clone_set_with_fakes(annotated_clone_set);
 
         writer.OutputCDRDetails();
         writer.OutputSHMs();
@@ -91,12 +90,12 @@ namespace antevolo {
                 read_labeler);
         INFO("Tree construction starts");
         auto tree_storage = AntEvoloProcessor(config_,
-                                              clone_set_with_fakes,
+                                              annotated_clone_set,
                                               clone_by_read_constructor).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
-        EvolutionaryTreeStorage connected_tree_storage(clone_set_with_fakes); //todo: change clone_set
+        EvolutionaryTreeStorage connected_tree_storage; //todo: change clone_set
         for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             ConnectedTreeSplitter tree_splitter;
             auto connected_trees = tree_splitter.Split(*it);
@@ -105,15 +104,15 @@ namespace antevolo {
         }
         INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
                      " connected trees");
-        EvolutionaryStatsCalculator stats_calculator(clone_set_with_fakes);
+        EvolutionaryStatsCalculator stats_calculator;
         auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
         INFO(annotated_storage.size() << " annotations were computed");
-        AntEvoloOutputWriter output_writer(config_.output_params, clone_set_with_fakes, annotated_storage);
+        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
 
         for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
-            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it, clone_set_with_fakes);
+            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
         }
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);

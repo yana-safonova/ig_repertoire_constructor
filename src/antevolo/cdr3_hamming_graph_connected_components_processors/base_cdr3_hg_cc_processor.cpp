@@ -14,7 +14,7 @@ namespace antevolo {
             hamming_graph_info_(hamming_graph_info) { }
 
     EvolutionaryTree Base_CDR3_HG_CC_Processor::ConstructForest() {
-        EvolutionaryTree tree;
+        EvolutionaryTree tree(clone_set_);
         boost::unordered_set<size_t> vertices_nums(hamming_graph_info_.GetAllClones());
         std::map<size_t, size_t> rank;
         std::map<size_t, size_t> parent;

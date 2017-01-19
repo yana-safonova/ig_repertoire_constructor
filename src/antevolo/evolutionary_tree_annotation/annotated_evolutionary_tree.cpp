@@ -48,8 +48,9 @@ namespace antevolo {
     }
 
     size_t AnnotatedEvolutionaryTree::RootDepth() const {
+        const auto& clone_set = GetCloneSet();
         size_t root_id = tree_ptr_->GetRoot();
-        return (*clone_set_prt_)[root_id].VSHMs().size() + (*clone_set_prt_)[root_id].JSHMs().size();
+        return clone_set[root_id].VSHMs().size() + clone_set[root_id].JSHMs().size();
     }
 
     size_t AnnotatedEvolutionaryTree::NumAddedSHMs() const {
@@ -57,10 +58,11 @@ namespace antevolo {
     }
 
     size_t AnnotatedEvolutionaryTree::SHMDepth() const {
+        const auto& clone_set = GetCloneSet();
         size_t shm_depth = 0;
         for(auto it = tree_ptr_->c_vertex_begin(); it != tree_ptr_->c_vertex_end(); it++) {
             if(tree_ptr_->IsLeaf(*it)) {
-                auto leaf_clone = (*clone_set_prt_)[*it];
+                auto leaf_clone = clone_set[*it];
                 shm_depth = std::max(shm_depth, leaf_clone.VSHMs().size() + leaf_clone.JSHMs().size() +
                         GetNumCDR3SHMsFromCloneToRoot(*it) - RootDepth());
             }
@@ -69,19 +71,20 @@ namespace antevolo {
     }
 
     void AnnotatedEvolutionaryTree::AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t rel_src_pos, size_t rel_dst_pos) {
+        const auto& clone_set = GetCloneSet();
         CheckConsistencyFatal(src_id);
         CheckConsistencyFatal(dst_id);
         if(cdr3_shms_map_.find(dst_id) != cdr3_shms_map_.end()) {
             cdr3_shms_map_[dst_id] = std::vector<CDR3SHM>();
         }
-        size_t src_pos = (*clone_set_prt_)[src_id].CDR3Range().start_pos + rel_src_pos;
-        size_t dst_pos = (*clone_set_prt_)[dst_id].CDR3Range().start_pos + rel_dst_pos;
+        size_t src_pos = clone_set[src_id].CDR3Range().start_pos + rel_src_pos;
+        size_t dst_pos = clone_set[dst_id].CDR3Range().start_pos + rel_dst_pos;
         CDR3SHM cdr3_shm(src_pos, dst_pos,
                          rel_src_pos, rel_dst_pos,
-                         (*clone_set_prt_)[src_id].Read().seq[src_pos],
-                         (*clone_set_prt_)[dst_id].Read().seq[dst_pos],
-                         (*clone_set_prt_)[src_id].GetAminoAcidByNucleotidePos(src_pos),
-                         (*clone_set_prt_)[dst_id].GetAminoAcidByNucleotidePos(dst_pos));
+                         clone_set[src_id].Read().seq[src_pos],
+                         clone_set[dst_id].Read().seq[dst_pos],
+                         clone_set[src_id].GetAminoAcidByNucleotidePos(src_pos),
+                         clone_set[dst_id].GetAminoAcidByNucleotidePos(dst_pos));
         cdr3_shms_map_[dst_id].push_back(cdr3_shm);
         all_cdr3_shms_.push_back(cdr3_shm);
         unique_cdr3_shms_.insert(cdr3_shm);

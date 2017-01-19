@@ -6,15 +6,12 @@
 
 namespace antevolo {
     class EvolutionaryStatsCalculator {
-        const CloneSetWithFakes &clone_set_;
 
         AnnotatedEvolutionaryTree AddSHMsFromRoot(AnnotatedEvolutionaryTree annotated_tree) const;
 
         AnnotatedEvolutionaryTree AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree) const;
 
     public:
-        EvolutionaryStatsCalculator(const CloneSetWithFakes &clone_set) :
-                clone_set_(clone_set) {}
 
         AnnotatedEvolutionaryTree ComputeStatsForTree(const EvolutionaryTree &tree) const;
 

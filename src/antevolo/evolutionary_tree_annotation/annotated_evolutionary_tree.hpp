@@ -6,7 +6,6 @@
 
 namespace antevolo {
     class AnnotatedEvolutionaryTree {
-        const annotation_utils::CDRAnnotatedCloneSet* clone_set_prt_;
         const EvolutionaryTree *tree_ptr_;
         TreeBasedSHMAnnotator shm_annotator_;
 
@@ -23,10 +22,9 @@ namespace antevolo {
         void CheckConsistencyFatal(size_t clone_id) const;
 
     public:
-        AnnotatedEvolutionaryTree(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                                  const EvolutionaryTree &tree) : clone_set_prt_(&clone_set),
-                                                                  tree_ptr_(&tree),
-                                                                  shm_annotator_(clone_set, tree) { }
+        AnnotatedEvolutionaryTree(const EvolutionaryTree &tree) :
+                tree_ptr_(&tree),
+                shm_annotator_(tree) { }
 
         void AddSegmentSHMForClone(size_t clone_id, annotation_utils::SHM shm);
 
@@ -63,5 +61,7 @@ namespace antevolo {
         SHMConstIterator cend() const { return all_segment_shms_.cend(); }
 
         size_t GetNumCDR3SHMsFromCloneToRoot(size_t clone_id) const;
+
+        const CloneSetWithFakes& GetCloneSet() const { return tree_ptr_->GetCloneSet(); }
     };
 }

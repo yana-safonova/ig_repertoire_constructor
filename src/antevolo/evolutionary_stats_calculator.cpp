@@ -4,12 +4,13 @@
 
 namespace antevolo {
     AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromRoot(AnnotatedEvolutionaryTree annotated_tree) const {
+        const auto& clone_set = annotated_tree.GetCloneSet();
         auto root_id = annotated_tree.Tree().GetRoot();
-        auto v_shms = clone_set_[root_id].VSHMs();
+        auto v_shms = clone_set[root_id].VSHMs();
         for(auto it = v_shms.cbegin(); it != v_shms.cend(); it++) {
             annotated_tree.AddSegmentSHMForClone(root_id, *it);
         }
-        auto j_shms = clone_set_[root_id].JSHMs();
+        auto j_shms = clone_set[root_id].JSHMs();
         for(auto it = j_shms.cbegin(); it != j_shms.cend(); it++) {
             annotated_tree.AddSegmentSHMForClone(root_id, *it);
         }
@@ -18,19 +19,20 @@ namespace antevolo {
 
     AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::AddSHMsFromEdges(AnnotatedEvolutionaryTree annotated_tree) const {
         const EvolutionaryTree& tree = annotated_tree.Tree();
+        const auto& clone_set = tree.GetCloneSet();
         for (auto it = tree.cbegin(); it != tree.cend(); it++) {
             auto edge = *it;
-            auto added_v_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set_[edge->SrcNum()].VSHMs(),
-                                                                              clone_set_[edge->DstNum()].VSHMs());
-            auto added_j_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set_[edge->SrcNum()].JSHMs(),
-                                                                              clone_set_[edge->DstNum()].JSHMs());
+            auto added_v_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set[edge->SrcNum()].VSHMs(),
+                                                                              clone_set[edge->DstNum()].VSHMs());
+            auto added_j_shms = annotation_utils::SHMComparator::GetAddedSHMs(clone_set[edge->SrcNum()].JSHMs(),
+                                                                              clone_set[edge->DstNum()].JSHMs());
             for (auto it = added_v_shms.begin(); it != added_v_shms.end(); it++)
                 annotated_tree.AddSegmentSHMForClone(edge->DstNum(), *it);
             for (auto it = added_j_shms.begin(); it != added_j_shms.end(); it++)
                 annotated_tree.AddSegmentSHMForClone(edge->DstNum(), *it);
-            if(clone_set_[edge->SrcNum()].CDR3() != clone_set_[edge->DstNum()].CDR3()) {
-                auto src_cdr3 = clone_set_[edge->SrcNum()].CDR3();
-                auto dst_cdr3 = clone_set_[edge->DstNum()].CDR3();
+            if(clone_set[edge->SrcNum()].CDR3() != clone_set[edge->DstNum()].CDR3()) {
+                auto src_cdr3 = clone_set[edge->SrcNum()].CDR3();
+                auto dst_cdr3 = clone_set[edge->DstNum()].CDR3();
                 // todo: works only for mismatches in CDR3, refactor this in future
                 VERIFY_MSG(seqan::length(src_cdr3) == seqan::length(dst_cdr3), "CDR3 " << src_cdr3 <<
                         " and " << dst_cdr3 << " have different lengths");
@@ -47,7 +49,7 @@ namespace antevolo {
     }
 
     AnnotatedEvolutionaryTree EvolutionaryStatsCalculator::ComputeStatsForTree(const EvolutionaryTree &tree) const {
-        AnnotatedEvolutionaryTree annotated_tree(clone_set_, tree);
+        AnnotatedEvolutionaryTree annotated_tree(tree);
         VERIFY_MSG(!tree.IsForest(), "Input tree is a forest containing " << tree.GetRootNumber() << " trees");
         annotated_tree = AddSHMsFromRoot(annotated_tree);
         annotated_tree = AddSHMsFromEdges(annotated_tree);
@@ -61,7 +63,7 @@ namespace antevolo {
 
     AnnotatedTreeStorage EvolutionaryStatsCalculator::ComputeStatsForStorage(
             const EvolutionaryTreeStorage &storage) const {
-        AnnotatedTreeStorage annotated_storage(clone_set_);
+        AnnotatedTreeStorage annotated_storage;
         for(auto it = storage.cbegin(); it != storage.cend(); it++) {
             annotated_storage.AddAnnotatedTree(ComputeStatsForTree(*it));
         }

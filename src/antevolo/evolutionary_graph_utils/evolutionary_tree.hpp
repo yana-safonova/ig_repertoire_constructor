@@ -10,6 +10,8 @@
 
 namespace antevolo {
     class EvolutionaryTree {
+        const CloneSetWithFakes& clone_set_with_fakes_;
+
         boost::unordered_map<size_t, EvolutionaryEdgePtr> edges_; // key is a src clone
         std::set<size_t> vertices_;
 
@@ -23,7 +25,9 @@ namespace antevolo {
         //std::string vertices_output_fname_;
 
     public:
-
+        EvolutionaryTree(const CloneSetWithFakes& clone_set_with_fakes) :
+                clone_set_with_fakes_(clone_set_with_fakes)
+                {}
         void ReplaceEdge(size_t clone_num, EvolutionaryEdgePtr edge);
 
         void AddEdge(size_t dst_id, EvolutionaryEdgePtr edge);
@@ -90,6 +94,8 @@ namespace antevolo {
         size_t GetVJClassIndex() const { return VJ_class_index_;}
         size_t GetConnectedComponentIndex() const { return connected_component_index_;}
         size_t GetTreeIndex() const { return tree_index_;}
+
+        const CloneSetWithFakes& GetCloneSet() const { return clone_set_with_fakes_;}
     };
 
     std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree);

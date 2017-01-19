@@ -32,7 +32,7 @@ namespace antevolo {
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
 
     public:
-        VJClassProcessor(CloneSetWithFakes& clone_set,
+        VJClassProcessor(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                          const AntEvoloConfig::OutputParams &output_params,
                          const AntEvoloConfig::AlgorithmParams &config,
                          ShmModel& model,

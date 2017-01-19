@@ -8,7 +8,7 @@
 namespace antevolo {
     class AntEvoloProcessor {
         const AntEvoloConfig& config_;
-        CloneSetWithFakes& clone_set_;
+        const annotation_utils::CDRAnnotatedCloneSet& clone_set_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
 
         std::vector<EvolutionaryTreeStorage> thread_tree_storages_;
@@ -17,14 +17,14 @@ namespace antevolo {
 
     public:
         AntEvoloProcessor(const AntEvoloConfig& config,
-                          CloneSetWithFakes& clone_set,
+                          const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                           const AnnotatedCloneByReadConstructor& clone_by_read_constructor) :
                 config_(config),
                 clone_set_(clone_set),
                 clone_by_read_constructor_(clone_by_read_constructor) {
 
             for(int i = 0; i < config.run_params.num_threads; i++)
-                thread_tree_storages_.push_back(EvolutionaryTreeStorage(clone_set));
+                thread_tree_storages_.push_back(EvolutionaryTreeStorage());
         }
 
         EvolutionaryTreeStorage ConstructClonalTrees();

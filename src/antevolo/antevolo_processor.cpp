@@ -8,7 +8,7 @@
 namespace antevolo {
 
     EvolutionaryTreeStorage AntEvoloProcessor::JoinEvolutionaryStoragesFromThreads() {
-        EvolutionaryTreeStorage resulting_tree_storage(clone_set_)  ;
+        EvolutionaryTreeStorage resulting_tree_storage;
         for(auto it = thread_tree_storages_.begin(); it != thread_tree_storages_.end(); it++)
             resulting_tree_storage.AppendArchive(*it);
         return resulting_tree_storage;
