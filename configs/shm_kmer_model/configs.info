@@ -1,6 +1,7 @@
 io_params {
     input_params {
-        input_filename src/shm_kmer_model/test/shm_kmer_model_test.fasta
+        v_alignments test_dataset/shm_kmer_model/v_alignments.fasta
+        cdr_details test_dataset/shm_kmer_model/cdr_details.txt
     }
     output_params {
         output_dir shm_test

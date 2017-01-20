@@ -13,7 +13,8 @@
 struct shm_config {
     struct io_params {
         struct input_params {
-            std::string input_filename;
+            std::string v_alignments;
+            std::string cdr_details;
         };
 
         struct output_params {

@@ -36,7 +36,8 @@ void updateIO(shm_config::io_params &io) {
 
 void load(shm_config::io_params::input_params &input_params, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    load(input_params.input_filename, pt, "input_filename");
+    load(input_params.v_alignments, pt, "v_alignments");
+    load(input_params.cdr_details, pt, "cdr_details");
 }
 
 void load(shm_config::io_params::output_params &output, boost::property_tree::ptree const &pt, bool) {

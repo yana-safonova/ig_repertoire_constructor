@@ -15,13 +15,13 @@ add_executable(shm_kmer_model
         shm_config.cpp
         shm_kmer_model_estimator.cpp
         alignment_reader/alignment_reader.cpp
-        alignment_checker/no_gaps_alignment_checker.cpp
-        alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
-        mutation_strategies/trivial_strategy.cpp
-        statistics_estimator/statistics_estimator.cpp
-        statistics_exporter/statistics_exporter.cpp
-        mutation_strategies/no_k_neighbours.cpp
-        statistics_estimator/mutation_statistics.cpp
+        # alignment_checker/no_gaps_alignment_checker.cpp
+        # alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
+        # mutation_strategies/trivial_strategy.cpp
+        # statistics_estimator/statistics_estimator.cpp
+        # statistics_exporter/statistics_exporter.cpp
+        # mutation_strategies/no_k_neighbours.cpp
+        # statistics_estimator/mutation_statistics.cpp
         command_line_routines.hpp
         command_line_routines.cpp
         )
