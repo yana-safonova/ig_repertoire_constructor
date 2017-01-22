@@ -10,6 +10,6 @@
 class NoGapsAlignmentChecker: public ns_abstract_alignment_checker::AbstractAlignmentChecker {
 public:
     explicit NoGapsAlignmentChecker(const shm_config::alignment_checker_params &) { }
-    virtual bool check(const ns_gene_alignment::ReadGermlineAlignment &) const;
+    virtual bool check(const ns_gene_alignment::EvolutionaryEdgeAlignment &) const;
     virtual ~NoGapsAlignmentChecker() { }
 };

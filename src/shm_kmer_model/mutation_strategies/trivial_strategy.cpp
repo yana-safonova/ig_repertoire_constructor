@@ -12,8 +12,8 @@ using namespace ns_gene_alignment;
 
 
 std::vector<size_t> TrivialMutationStrategy::calculate_relevant_positions
-    (ns_gene_alignment::ReadGermlineAlignment &alignment) const {
-    std::vector<size_t> relevant_positions(alignment.read().size() - kmer_len_ + 1);
+    (ns_gene_alignment::EvolutionaryEdgeAlignment &alignment) const {
+    std::vector<size_t> relevant_positions(alignment.son().size() - kmer_len_ + 1);
     std::iota(relevant_positions.begin(), relevant_positions.end(), kmer_len_ / 2);
     return relevant_positions;
 }

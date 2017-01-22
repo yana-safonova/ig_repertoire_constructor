@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../shm_config.hpp"
-#include "../gene_alignment/gene_alignment.hpp"
+#include "../evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "../mutation_strategies/abstract_mutation_strategy.hpp"
 #include "mutation_statistics.hpp"
 
@@ -17,5 +17,5 @@ private:
 public:
     explicit StatisticsEstimator(const shm_config::mutations_strategy_params &config);
 
-    MutationsStatistics calculate_mutation_statistics(ns_gene_alignment::VectorReadGermlineAlignments &) const;
+    MutationsStatistics calculate_mutation_statistics(ns_gene_alignment::VectorEvolutionaryEdgeAlignments &) const;
 };

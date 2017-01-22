@@ -8,7 +8,7 @@
 
 #include <cmath>
 
-#include "../shm_config.hpp"
+#include "shm_config.hpp"
 #include "abstract_alignment_cropper.hpp"
 
 class UptoLastReliableKmerAlignmentCropper: public ns_abstract_alignment_cropper::AbstractAlignmentCropper {
@@ -21,7 +21,7 @@ public:
     explicit UptoLastReliableKmerAlignmentCropper(const shm_config::alignment_cropper_params::
     upto_reliable_kmer_cropper_params &config);
 
-    void crop(ns_gene_alignment::ReadGermlineAlignment &alignment) const;
+    void crop(ns_gene_alignment::EvolutionaryEdgeAlignment &alignment) const;
     virtual ~UptoLastReliableKmerAlignmentCropper() { }
 
 private:

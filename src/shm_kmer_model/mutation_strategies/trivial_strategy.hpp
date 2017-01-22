@@ -12,6 +12,6 @@ public:
     explicit TrivialMutationStrategy(const shm_config::mutations_strategy_params &config) :
         AbstractMutationStrategy(config) { }
 
-    std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::ReadGermlineAlignment &) const;
+    std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::EvolutionaryEdgeAlignment &) const;
     virtual ~TrivialMutationStrategy() { }
 };

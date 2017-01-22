@@ -17,20 +17,21 @@ StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_pa
         mutation_strategy_ = std::make_shared<NoKNeighboursMutationStrategy>(NoKNeighboursMutationStrategy(config));
 }
 
-MutationsStatistics StatisticsEstimator::calculate_mutation_statistics(VectorReadGermlineAlignments &alignments) const {
+MutationsStatistics
+StatisticsEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlignments &alignments) const {
     MutationsStatistics mutations_statistics(kmer_len_);
     for (auto &alignment : alignments) {
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
 
         for (auto it = relevant_positions.begin(); it != relevant_positions.end(); ++it) {
             size_t center_nucl_pos = *it;
-            std::string gene_substring = alignment.germline().substr(center_nucl_pos - kmer_len_ / 2, kmer_len_);
+            std::string gene_substring = alignment.parent().substr(center_nucl_pos - kmer_len_ / 2, kmer_len_);
 
-            if ((alignment.read()[center_nucl_pos] == 'N') ||
+            if ((alignment.son()[center_nucl_pos] == 'N') ||
                 (gene_substring.find_first_of('N') != std::string::npos))
                 continue;
 
-            size_t position = seqan::ordValue(static_cast<seqan::Dna>(alignment.read()[center_nucl_pos]));
+            size_t position = seqan::ordValue(static_cast<seqan::Dna>(alignment.son()[center_nucl_pos]));
             mutations_statistics.at(gene_substring).at(position)++;
         }
     }

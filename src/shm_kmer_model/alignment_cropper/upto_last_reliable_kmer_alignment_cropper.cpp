@@ -13,7 +13,7 @@ UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
                      std::round(
                          std::pow(hash_base, kmer_len - 1)))) { }
 
-void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineAlignment &alignment) const {
+void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::EvolutionaryEdgeAlignment &alignment) const {
     using std::pair;
     using std::make_pair;
     using std::string;
@@ -23,52 +23,54 @@ void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::ReadGermlineA
 
     // Find the correct left and right boarder. After that we crop alignment up these boarders.
     auto left_boarder = find_correct_boarder<PairStringCIterator>(
-        make_pair(alignment.read().cbegin(), alignment.germline().cbegin()),
-        make_pair(alignment.read().cend(), alignment.germline().cend()));
+        make_pair(alignment.son().cbegin(), alignment.parent().cbegin()),
+        make_pair(alignment.son().cend(), alignment.parent().cend()));
 
     auto right_boarder = find_correct_boarder<PairStringCRIterator>(
-        make_pair(alignment.read().crbegin(), alignment.germline().crbegin()),
-        make_pair(alignment.read().crend(), alignment.germline().crend()));
+        make_pair(alignment.son().crbegin(), alignment.parent().crbegin()),
+        make_pair(alignment.son().crend(), alignment.parent().crend()));
 
-    alignment.set_read(left_boarder.first, right_boarder.first.base());
-    alignment.set_germline(left_boarder.second, right_boarder.second.base());
+    alignment.substract_cdr_positions(left_boarder.first - alignment.son().cbegin());
+
+    alignment.set_son(left_boarder.first, right_boarder.first.base());
+    alignment.set_parent(left_boarder.second, right_boarder.second.base());
 }
 
 template<typename PairIter>
 PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
     const PairIter &begin_iterators, const PairIter &end_iterators) const {
-    long long hash_germline = 0, hash_read = 0, hash_mult = 1;
+    long long hash_parent = 0, hash_son = 0, hash_mult = 1;
 
     auto iter_boarder(std::make_pair(begin_iterators.first + kmer_len,
                                      begin_iterators.second + kmer_len));
-    // Calculate hashes of first kmer in both germline gene and read.
+    // Calculate hashes of first kmer in both parent gene and son.
     while (iter_boarder.first != begin_iterators.first) {
         --iter_boarder.first;
         --iter_boarder.second;
 
-        hash_germline += (*iter_boarder.first) * hash_mult;
-        hash_read += (*iter_boarder.second) * hash_mult;
+        hash_parent += (*iter_boarder.first) * hash_mult;
+        hash_son += (*iter_boarder.second) * hash_mult;
 
         hash_mult *= hash_base;
     }
     // If the hashes are equal — no need to crop anything.
-    if (hash_germline == hash_read)
+    if (hash_parent == hash_son)
         return begin_iterators;
 
     assert(iter_boarder.first == begin_iterators.first);
     assert(iter_boarder.second == begin_iterators.second);
 
-    // Otherwise, find a kmer with equal hashes in the germline gene sequence and the read.
+    // Otherwise, find a kmer with equal hashes in the parent gene sequence and the son.
     while (iter_boarder.first + kmer_len != end_iterators.first &&
-        hash_germline != hash_read) {
-        hash_germline -= (*iter_boarder.first) * hash_max_pow;
-        hash_read -= (*iter_boarder.second) * hash_max_pow;
+        hash_parent != hash_son) {
+        hash_parent -= (*iter_boarder.first) * hash_max_pow;
+        hash_son -= (*iter_boarder.second) * hash_max_pow;
 
-        hash_germline *= hash_base;
-        hash_read *= hash_base;
+        hash_parent *= hash_base;
+        hash_son *= hash_base;
 
-        hash_germline += *(iter_boarder.first + kmer_len);
-        hash_read += *(iter_boarder.second + kmer_len);
+        hash_parent += *(iter_boarder.first + kmer_len);
+        hash_son += *(iter_boarder.second + kmer_len);
 
         ++iter_boarder.first;
         ++iter_boarder.second;

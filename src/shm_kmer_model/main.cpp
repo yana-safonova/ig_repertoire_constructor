@@ -67,14 +67,14 @@ int main(int argc, char *argv[]) {
     try {
         std::string cfg_filename = load_config(argc, argv);
         create_console_logger(cfg_filename);
-        // int error_code = shm_kmer_model_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
-        //                                                                  shm_cfg::get().achp,
-        //                                                                  shm_cfg::get().acrp,
-        //                                                                  shm_cfg::get().mfp).Run();
-        // if (error_code != 0) {
-        //     INFO("SHM k-mer Model Calculator finished abnormally");
-        //     return error_code;
-        // }
+        int error_code = shm_kmer_model_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
+                                                                         shm_cfg::get().achp,
+                                                                         shm_cfg::get().acrp,
+                                                                         shm_cfg::get().mfp).Run();
+        if (error_code != 0) {
+            INFO("SHM k-mer Model Calculator finished abnormally");
+            return error_code;
+        }
 
     } catch (std::bad_alloc const &e) {
         std::cerr << "Not enough memory to run SHM Kmer-Model Calculator." << e.what() << std::endl;
@@ -87,13 +87,13 @@ int main(int argc, char *argv[]) {
         return EINTR;
     }
 
-    // std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    // auto duration = end - start;
-    // auto secs = std::chrono::duration_cast<std::chrono::seconds>(duration);
-    // auto mins = std::chrono::duration_cast<std::chrono::minutes>(duration);
-    // auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
-    // INFO("Running time: " << hours.count() << " hours " << mins.count() <<
-    //     " minutes " << secs.count() << " seconds");
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    auto duration = end - start;
+    auto secs = std::chrono::duration_cast<std::chrono::seconds>(duration);
+    auto mins = std::chrono::duration_cast<std::chrono::minutes>(duration);
+    auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
+    INFO("Running time: " << hours.count() << " hours " << mins.count() <<
+        " minutes " << secs.count() << " seconds");
 
     return 0;
 }
