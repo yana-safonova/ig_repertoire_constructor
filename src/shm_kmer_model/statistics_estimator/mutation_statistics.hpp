@@ -15,7 +15,7 @@ private:
     statistics_type statistics;
 
 public:
-    explicit MutationsStatistics(unsigned int kmer_len);
+    explicit MutationsStatistics(unsigned int kmer_len = unsigned());
 
     statistics_type::iterator begin() noexcept { return statistics.begin(); }
     statistics_type::const_iterator begin() const noexcept { return statistics.begin(); }

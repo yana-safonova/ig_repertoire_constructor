@@ -20,7 +20,8 @@ struct shm_config {
         struct output_params {
             std::string output_dir;
             std::string log_filename;
-            std::string output_filename;
+            std::string output_filename_fr;
+            std::string output_filename_cdr;
         };
 
         input_params input;

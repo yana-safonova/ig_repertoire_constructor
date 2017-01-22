@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../shm_config.hpp"
-#include "../evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
-#include "../mutation_strategies/abstract_mutation_strategy.hpp"
+#include "shm_config.hpp"
+#include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
+#include "mutation_strategies/abstract_mutation_strategy.hpp"
 #include "mutation_statistics.hpp"
 
 class StatisticsEstimator {
@@ -14,8 +14,15 @@ private:
     ns_abstract_mutation_strategy::AbstractMutationStrategyPtr mutation_strategy_;
     unsigned int kmer_len_;
 
+private:
+    void calculate_mutation_statistics_per_position(MutationsStatistics &mutations_statistics,
+                                                    const size_t center_nucl_pos,
+                                                    const ns_gene_alignment::EvolutionaryEdgeAlignment&) const;
+
 public:
     explicit StatisticsEstimator(const shm_config::mutations_strategy_params &config);
 
-    MutationsStatistics calculate_mutation_statistics(ns_gene_alignment::VectorEvolutionaryEdgeAlignments &) const;
+
+    std::pair<MutationsStatistics, MutationsStatistics>
+    calculate_mutation_statistics(ns_gene_alignment::VectorEvolutionaryEdgeAlignments &) const;
 };

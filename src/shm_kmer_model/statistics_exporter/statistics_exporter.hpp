@@ -10,12 +10,8 @@
 
 class StatisticsExporter {
 private:
-    std::string output_filename_;
     const char separator = ';';
 
 public:
-    explicit StatisticsExporter(const std::string &output_filename) :
-        output_filename_(output_filename) { }
-
-    void export_statistics(const MutationsStatistics &) const;
+    void export_statistics(const std::string &output_filename, const MutationsStatistics &) const;
 };

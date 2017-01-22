@@ -8,8 +8,8 @@
 #include "shm_kmer_model_estimator.hpp"
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "germline_alignment_reader/alignment_reader.hpp"
-// #include "statistics_estimator/statistics_estimator.hpp"
-// #include "statistics_exporter/statistics_exporter.hpp"
+#include "statistics_estimator/statistics_estimator.hpp"
+#include "statistics_exporter/statistics_exporter.hpp"
 
 int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
     const std::string boarder("=============");
@@ -33,21 +33,23 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
     ns_gene_alignment::VectorEvolutionaryEdgeAlignments alignments(germline_alignment_reader.read_alignments());
     INFO(boarder << " Reading alignments finishes " << boarder);
 
-    // INFO(boarder << " Estimating statistics starts " << boarder);
-    // INFO(std::string("Strategy for mutations: ") <<
-    //     mutations_strategy_params_.mutation_strategy_method_names[
-    //         static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
+    INFO(boarder << " Estimating statistics starts " << boarder);
+    INFO(std::string("Strategy for mutations: ") <<
+        mutations_strategy_params_.mutation_strategy_method_names[
+            static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
 
-    // StatisticsEstimator statistics_estimator(mutations_strategy_params_);
-    // MutationsStatistics statistics =
-    //     statistics_estimator.calculate_mutation_statistics(alignments);
-    // INFO(boarder << " Estimating statistics finishes" << boarder);
+    StatisticsEstimator statistics_estimator(mutations_strategy_params_);
+    MutationsStatistics statistics_fr, statistics_cdr;
+    std::tie(statistics_fr, statistics_cdr) = statistics_estimator.calculate_mutation_statistics(alignments);
+    INFO(boarder << " Estimating statistics finishes" << boarder);
 
-    // INFO(boarder << " Exporting statistics starts " << boarder);
-    // INFO(std::string("output filename: ") << io_params_.output.output_filename);
-    // StatisticsExporter statistics_exporter(io_params_.output.output_filename);
-    // statistics_exporter.export_statistics(statistics);
-    // INFO(boarder << " Exporting statistics finishes " << boarder);
+    INFO(boarder << " Exporting statistics starts " << boarder);
+    INFO(std::string("output filename for FR: ") << io_params_.output.output_filename_fr);
+    INFO(std::string("output filename for CDR: ") << io_params_.output.output_filename_cdr);
+    StatisticsExporter statistics_exporter;
+    statistics_exporter.export_statistics(io_params_.output.output_filename_fr, statistics_fr);
+    statistics_exporter.export_statistics(io_params_.output.output_filename_cdr, statistics_cdr);
+    INFO(boarder << " Exporting statistics finishes " << boarder);
 
     return 0;
 }

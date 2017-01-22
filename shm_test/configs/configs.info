@@ -5,7 +5,8 @@ io_params {
     }
     output_params {
         output_dir shm_test
-        output_filename shm_kmer_model_test
+        output_filename_fr shm_kmer_model_test_fr
+        output_filename_cdr shm_kmer_model_test_cdr
         log_filename log.properties
     }
 }

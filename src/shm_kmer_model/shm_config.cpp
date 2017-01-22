@@ -31,7 +31,8 @@ std::string error_message_strategy(const std::string &what_about,
 // IO parameters START
 void updateIO(shm_config::io_params &io) {
     io.output.log_filename = path::append_path(io.output.output_dir, io.output.log_filename);
-    io.output.output_filename = path::append_path(io.output.output_dir, io.output.output_filename);
+    io.output.output_filename_fr = path::append_path(io.output.output_dir, io.output.output_filename_fr);
+    io.output.output_filename_cdr = path::append_path(io.output.output_dir, io.output.output_filename_cdr);
 }
 
 void load(shm_config::io_params::input_params &input_params, boost::property_tree::ptree const &pt, bool) {
@@ -44,7 +45,8 @@ void load(shm_config::io_params::output_params &output, boost::property_tree::pt
     using config_common::load;
     load(output.output_dir, pt, "output_dir");
     load(output.log_filename, pt, "log_filename");
-    load(output.output_filename, pt, "output_filename");
+    load(output.output_filename_fr, pt, "output_filename_fr");
+    load(output.output_filename_cdr, pt, "output_filename_cdr");
 }
 
 void load(shm_config::io_params &io, boost::property_tree::ptree const &pt, bool) {

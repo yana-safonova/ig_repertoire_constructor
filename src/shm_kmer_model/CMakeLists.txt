@@ -21,7 +21,7 @@ add_executable(shm_kmer_model
         mutation_strategies/no_k_neighbours.cpp
         statistics_estimator/statistics_estimator.cpp
         statistics_estimator/mutation_statistics.cpp
-        # statistics_exporter/statistics_exporter.cpp
+        statistics_exporter/statistics_exporter.cpp
         command_line_routines.hpp
         command_line_routines.cpp
         )

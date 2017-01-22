@@ -7,8 +7,10 @@
 #include "seqan/basic.h"
 #include "statistics_exporter.hpp"
 
-void StatisticsExporter::export_statistics(const MutationsStatistics &statistics) const {
-    std::ofstream out(output_filename_);
+void StatisticsExporter::export_statistics(const std::string &output_filename,
+                                           const MutationsStatistics & statistics) const
+{
+    std::ofstream out(output_filename);
 
     auto alphabet_size = seqan::ValueSize<seqan::Dna>::VALUE;
     for (size_t i = 0; i < alphabet_size; ++i)

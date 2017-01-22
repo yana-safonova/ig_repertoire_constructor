@@ -30,12 +30,15 @@ void parse_command_line_args(shm_config &cfg, int argc, char** argv) {
          ("v_alignments,v", po::value<std::string>(&cfg.io.input.v_alignments)->
                             default_value(cfg.io.input.v_alignments),
                             "name of an input v_alignments file (FASTA)")
-         ("cdr_details,c", po::value<std::string>(&cfg.io.input.cdr_details)->
+         ("cdr_details,d", po::value<std::string>(&cfg.io.input.cdr_details)->
                            default_value(cfg.io.input.cdr_details),
                            "name of an input cdr details file (FASTA)")
-         ("output-filename,o", po::value<std::string>(&cfg.io.output.output_filename)->
-                               default_value(cfg.io.output.output_filename),
-                               "output filename")
+         ("output-filename-fr,f", po::value<std::string>(&cfg.io.output.output_filename_fr)->
+                                    default_value(cfg.io.output.output_filename_fr),
+                                    "output filename for FR statistics")
+         ("output-filename-cdr,c", po::value<std::string>(&cfg.io.output.output_filename_cdr)->
+                                    default_value(cfg.io.output.output_filename_cdr),
+                                    "output filename for CDR statistics")
          ("mutation-strategy,s", po::value<shm_config::mutations_strategy_params::MutationsStrategyMethod>
                                  (&cfg.mfp.mutations_strategy_method)->
                                  default_value(cfg.mfp.mutations_strategy_method,
