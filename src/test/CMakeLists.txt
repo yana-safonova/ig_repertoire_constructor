@@ -5,6 +5,7 @@ include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
+include_directories(${SHM_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
 
@@ -27,8 +28,8 @@ make_test(test_shm_kmer_model test_shm_kmer_model.cpp
         ../shm_kmer_model/shm_config.cpp
         ../shm_kmer_model/shm_kmer_model_estimator.hpp
         ../shm_kmer_model/shm_kmer_model_estimator.cpp
-        ../shm_kmer_model/alignment_reader/alignment_reader.cpp
-        ../shm_kmer_model/gene_alignment/gene_alignment.hpp
+        ../shm_kmer_model/germline_alignment_reader/alignment_reader.cpp
+        ../shm_kmer_model/evolutionary_edge_alignment/evolutionary_edge_alignment.hpp
         ../shm_kmer_model/alignment_checker/abstract_alignment_checker.hpp
         ../shm_kmer_model/alignment_checker/no_gaps_alignment_checker.hpp
         ../shm_kmer_model/alignment_checker/no_gaps_alignment_checker.cpp

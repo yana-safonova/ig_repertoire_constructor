@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../shm_config.hpp"
+#include "shm_config.hpp"
 #include "abstract_alignment_checker.hpp"
 
 class NoGapsAlignmentChecker: public ns_abstract_alignment_checker::AbstractAlignmentChecker {

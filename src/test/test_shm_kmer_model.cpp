@@ -6,11 +6,11 @@
 #include <gmock/gmock.h>
 #include <logger/log_writers.hpp>
 
-#include "../shm_kmer_model/gene_alignment/gene_alignment.hpp"
+#include "../shm_kmer_model/evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "../shm_kmer_model/alignment_checker/no_gaps_alignment_checker.hpp"
 #include "../shm_kmer_model/shm_config.hpp"
 #include "../shm_kmer_model/alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
-#include "../shm_kmer_model/alignment_reader/alignment_reader.hpp"
+#include "../shm_kmer_model/germline_alignment_reader/alignment_reader.hpp"
 #include "../shm_kmer_model/mutation_strategies/trivial_strategy.hpp"
 #include "../shm_kmer_model/mutation_strategies/no_k_neighbours.hpp"
 
@@ -32,11 +32,11 @@ TEST_F(AlignmentCheckerTest, CheckingIsCorrect) {
     load(shm_config_ach_nogaps, config_ach_nogaps);
     NoGapsAlignmentChecker alch(shm_config_ach_nogaps.achp);
 
-    ns_gene_alignment::ReadGermlineAlignment alignment1("AAA", "CCC", "id");
+    ns_gene_alignment::EvolutionaryEdgeAlignment alignment1("AAA", "CCC", "id");
     ASSERT_TRUE(alch.check(alignment1));
-    ns_gene_alignment::ReadGermlineAlignment alignment2("AAA--", "CCCAA", "id");
+    ns_gene_alignment::EvolutionaryEdgeAlignment alignment2("AAA--", "CCCAA", "id");
     ASSERT_FALSE(alch.check(alignment2));
-    ns_gene_alignment::ReadGermlineAlignment alignment3("AAA--", "-CCAA", "id");
+    ns_gene_alignment::EvolutionaryEdgeAlignment alignment3("AAA--", "-CCAA", "id");
     ASSERT_FALSE(alch.check(alignment3));
 }
 
@@ -52,99 +52,99 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
     UptoLastReliableKmerAlignmentCropper alcr(shm_config_acr_last_rel_kmer.acrp.rkmp);
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("AAAAAAAAAAAAAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("AAAAAAAAAAAAAAA",
                                                            "AAAAAAAAAAAAAAA", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "AAAAAAAAAAAAAAA");
-        ASSERT_EQ(alignment.germline(), "AAAAAAAAAAAAAAA");
+        ASSERT_EQ(alignment.son(),     "AAAAAAAAAAAAAAA");
+        ASSERT_EQ(alignment.parent(), "AAAAAAAAAAAAAAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("ABAAAAAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
                                                            "ABAAAAAAAAACAAA", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "ABAAAAAAAAACAAA");
-        ASSERT_EQ(alignment.germline(), "ABAAAAAAAAACAAA");
+        ASSERT_EQ(alignment.son(),     "ABAAAAAAAAACAAA");
+        ASSERT_EQ(alignment.parent(), "ABAAAAAAAAACAAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("BBAAAAAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("BBAAAAAAAAACAAA",
                                                            "ABAAAAAAAAACAAA", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "BAAAAAAAAACAAA");
-        ASSERT_EQ(alignment.germline(), "BAAAAAAAAACAAA");
+        ASSERT_EQ(alignment.son(),     "BAAAAAAAAACAAA");
+        ASSERT_EQ(alignment.parent(), "BAAAAAAAAACAAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("ABAAAAAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
                                                            "ABAAAAAAAAACAAB", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "ABAAAAAAAAACAA");
-        ASSERT_EQ(alignment.germline(), "ABAAAAAAAAACAA");
+        ASSERT_EQ(alignment.son(),     "ABAAAAAAAAACAA");
+        ASSERT_EQ(alignment.parent(), "ABAAAAAAAAACAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("ABAAAAAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
                                                            "CBAAAAAAAAACAAB", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "BAAAAAAAAACAA");
-        ASSERT_EQ(alignment.germline(), "BAAAAAAAAACAA");
+        ASSERT_EQ(alignment.son(),     "BAAAAAAAAACAA");
+        ASSERT_EQ(alignment.parent(), "BAAAAAAAAACAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("ABAAACAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("ABAAACAAAAACAAA",
                                                            "CBAAADAAAAACAAB", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "AAAAACAA");
-        ASSERT_EQ(alignment.germline(), "AAAAACAA");
+        ASSERT_EQ(alignment.son(),     "AAAAACAA");
+        ASSERT_EQ(alignment.parent(), "AAAAACAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("ABAAACAAAAACAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("ABAAACAAAAACAAA",
                                                            "CBAAADAAAAACAAB", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "AAAAACAA");
-        ASSERT_EQ(alignment.germline(), "AAAAACAA");
+        ASSERT_EQ(alignment.son(),     "AAAAACAA");
+        ASSERT_EQ(alignment.parent(), "AAAAACAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("CAGGTGCAGCTGFTGC",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("CAGGTGCAGCTGFTGC",
                                                            "CAGCCGCAGCTGGTGC", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "GCAGCTG");
-        ASSERT_EQ(alignment.germline(), "GCAGCTG");
+        ASSERT_EQ(alignment.son(),     "GCAGCTG");
+        ASSERT_EQ(alignment.parent(), "GCAGCTG");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("CCGFTGCAGCTGFTTC",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("CCGFTGCAGCTGFTTC",
                                                            "CAGhCGCAGCTGGTGC", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "GCAGCTG");
-        ASSERT_EQ(alignment.germline(), "GCAGCTG");
+        ASSERT_EQ(alignment.son(),     "GCAGCTG");
+        ASSERT_EQ(alignment.parent(), "GCAGCTG");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("AAAAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("AAAAAA",
                                                            "AAAAAC", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "AAAAA");
-        ASSERT_EQ(alignment.germline(), "AAAAA");
+        ASSERT_EQ(alignment.son(),     "AAAAA");
+        ASSERT_EQ(alignment.parent(), "AAAAA");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("CAGACGCAGCTGGTGF",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("CAGACGCAGCTGGTGF",
                                                            "AAGACGDAGCTGGTGC", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "AGACGCAGCTGGTG");
-        ASSERT_EQ(alignment.germline(), "AGACGDAGCTGGTG");
+        ASSERT_EQ(alignment.son(),     "AGACGCAGCTGGTG");
+        ASSERT_EQ(alignment.parent(), "AGACGDAGCTGGTG");
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("CAGGTGCAGZZGGTGCAGTCTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTGCACGAGACA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("CAGGTGCAGZZGGTGCAGTCTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTGCACGAGACA",
                                                            "CAGGZGCAGCTGGTZCAGZCTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTGTGZGAGAGA", "id");
         alcr.crop(alignment);
-        ASSERT_EQ(alignment.read(),     "CTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTG");
-        ASSERT_EQ(alignment.germline(), "CTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTG");
+        ASSERT_EQ(alignment.son(),     "CTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTG");
+        ASSERT_EQ(alignment.parent(), "CTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTG");
     }
 }
 
@@ -156,22 +156,23 @@ public:
 
 TEST_F(AlignmentReaderTest, CheckingIsCorrect) {
     shm_config shm_config_ar;
-    std::string config_ar = "test_dataset/shm_kmer_model/alignment_reader.config.info";
+    std::string config_ar = "test_dataset/shm_kmer_model/germline_alignment_reader.config.info";
 
     load(shm_config_ar, config_ar);
 
-    ns_alignment_reader::AlignmentReader alignment_reader(shm_config_ar.io.input.input_filename,
+    ns_alignment_reader::AlignmentReader alignment_reader(shm_config_ar.io.input.v_alignments,
+                                                          shm_config_ar.io.input.cdr_details,
                                                           shm_config_ar.achp,
                                                           shm_config_ar.acrp);
 
     auto alignments = alignment_reader.read_alignments();
     ASSERT_EQ(alignments.size(), 4);
-    ASSERT_EQ(alignments[0].read(), "CAGGTGCAGCTGGTGCAGTCTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTGCACGAGAGA");
-    ASSERT_EQ(alignments[0].germline(), "CAGGTGCAGCTGGTGCAGTCTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTGTGCGAGAGA");
+    ASSERT_EQ(alignments[0].son(), "CAGGTGCAGCTGGTGCAGTCTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTGCACGAGAGA");
+    ASSERT_EQ(alignments[0].parent(), "CAGGTGCAGCTGGTGCAGTCTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTGTGCGAGAGA");
     ASSERT_EQ(alignments[0].gene_id(), "cluster___8___size___1_HM855674|IGHV1-2*05|Homo sapiens|F|V-REGION|24..319|296 nt|1| | | | |296+0=296| | |");
 
-    ASSERT_EQ(alignments[1].read(),     "CAGCTGCAGCTGCAGGAGTCGGGCCCAGGGCTGGTGAAGCCTTCGGGTCCAAGAACCAGTTCTCCCTAGAGGTGACCTCGGTGACCGCCGCAGACACGGCTGTGTATTAATGTGCGAG");
-    ASSERT_EQ(alignments[1].germline(), "CAGCTGCAGCTGCAGGAGTCGGGCCCAGGACTGGTGAAGCCTTCGGGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTACTGTGCGAG");
+    ASSERT_EQ(alignments[1].son(),     "CAGCTGCAGCTGCAGGAGTCGGGCCCAGGGCTGGTGAAGCCTTCGGGTCCAAGAACCAGTTCTCCCTAGAGGTGACCTCGGTGACCGCCGCAGACACGGCTGTGTATTAATGTGCGAG");
+    ASSERT_EQ(alignments[1].parent(), "CAGCTGCAGCTGCAGGAGTCGGGCCCAGGACTGGTGAAGCCTTCGGGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTACTGTGCGAG");
     ASSERT_EQ(alignments[1].gene_id(),  "cluster___0___size___1_AB019439|IGHV4-39*01|Homo sapiens|F|V-REGION|11626..11924|299 nt|1| | | | |299+0=299| | |");
 
 }
@@ -189,7 +190,7 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     NoKNeighboursMutationStrategy ms_nkn(shm_config_ms.mfp);
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("AACCGGTTAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("AACCGGTTAA",
                                                            "AATCGGAAAA", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
@@ -198,7 +199,7 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("AACCGGAAAA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("AACCGGAAAA",
                                                            "AATCGGAAAA", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
@@ -209,14 +210,14 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("TCTCCAACGTTTTCTG",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("TCTCCAACGTTTTCTG",
                                                            "CCTCCATCGGTTTCTG", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         EXPECT_THAT(rel_pos, testing::ElementsAre(3, 6, 9, 12, 13));
     }
 
     {
-        ns_gene_alignment::ReadGermlineAlignment alignment("TTTCCAACGTTTTCTGTGCACGAGGA",
+        ns_gene_alignment::EvolutionaryEdgeAlignment alignment("TTTCCAACGTTTTCTGTGCACGAGGA",
                                                            "CCTCCATCGGTTTCTGTGCATGACGA", "id");
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         EXPECT_THAT(rel_pos, testing::ElementsAre(6, 9, 12, 13, 14, 15, 16, 17, 20, 23));
