@@ -49,7 +49,7 @@ public:
         cdr2_end_(cdr2_end)
     {
         VERIFY(parent.size() == son.size());
-        VERIFY(cdr1_start <= cdr1_end <= cdr2_start <= cdr2_end);
+        VERIFY(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end);
     }
 
     const std::string &parent() const { return parent_; }
