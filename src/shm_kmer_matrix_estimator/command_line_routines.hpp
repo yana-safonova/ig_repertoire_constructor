@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
-void parse_command_line_args(shm_config &cfg, int argc, char **argv);
+void parse_command_line_args(shm_kmer_matrix_estimator_config &cfg, int argc, char **argv);
 
 } // End namespace shm_kmer_matrix_estimator

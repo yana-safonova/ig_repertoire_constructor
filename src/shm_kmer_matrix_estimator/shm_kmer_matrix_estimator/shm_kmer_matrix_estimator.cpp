@@ -9,23 +9,23 @@
 
 namespace shm_kmer_matrix_estimator {
 
-ShmKmerMatrixEstimator::ShmKmerMatrixEstimator(const shm_config::mutations_strategy_params &shm_config_ms,
-                                         const shm_config::alignment_checker_params &shm_config_ach,
-                                         const shm_config::alignment_cropper_params &shm_config_acp) :
+ShmKmerMatrixEstimator::ShmKmerMatrixEstimator(const shm_kmer_matrix_estimator_config::mutations_strategy_params &shm_config_ms,
+                                         const shm_kmer_matrix_estimator_config::alignment_checker_params &shm_config_ach,
+                                         const shm_kmer_matrix_estimator_config::alignment_cropper_params &shm_config_acp) :
     kmer_len_(shm_config_ms.kmer_len)
 {
-    using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
+    using MutationStrategyMethod = shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod;
     if (shm_config_ms.mutations_strategy_method == MutationStrategyMethod::Trivial)
         mutation_strategy_ = std::unique_ptr<TrivialMutationStrategy>(new TrivialMutationStrategy(shm_config_ms));
     else if (shm_config_ms.mutations_strategy_method == MutationStrategyMethod::NoKNeighbours)
         mutation_strategy_ = std::unique_ptr<NoKNeighboursMutationStrategy>(new NoKNeighboursMutationStrategy(shm_config_ms));
 
-    using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
+    using AlignmentCheckerMethod = shm_kmer_matrix_estimator_config::alignment_checker_params::AlignmentCheckerMethod;
     if (shm_config_ach.alignment_checker_method == AlignmentCheckerMethod::NoGaps) {
         alignment_checker_ = std::unique_ptr<NoGapsAlignmentChecker>(new NoGapsAlignmentChecker(shm_config_ach));
     }
 
-    using AlignmentCropperMethod = shm_config::alignment_cropper_params::AlignmentCropperMethod ;
+    using AlignmentCropperMethod = shm_kmer_matrix_estimator_config::alignment_cropper_params::AlignmentCropperMethod ;
     if (shm_config_acp.alignment_cropper_method == AlignmentCropperMethod::UptoLastReliableKMer) {
         alignment_cropper_ =
             std::unique_ptr<UptoLastReliableKmerAlignmentCropper>

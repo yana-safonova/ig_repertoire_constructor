@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <algorithm>
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 
 #include "../include/config_common.hpp"
 
@@ -14,7 +14,7 @@ namespace shm_kmer_matrix_estimator {
 std::string error_message_strategy(const std::string &what_about,
                                    const std::string &supplied_method,
                                    const std::vector<std::string> &available_methods,
-                                   const std::string &where = "shm_config") {
+                                   const std::string &where = "shm_kmer_matrix_estimator_config") {
     std::string message(":::(");
     message += where + ") wrong ";
     message += what_about;
@@ -31,19 +31,19 @@ std::string error_message_strategy(const std::string &what_about,
 }
 
 // IO parameters START
-void updateIO(shm_config::io_params &io) {
+void updateIO(shm_kmer_matrix_estimator_config::io_params &io) {
     io.output.log_filename = path::append_path(io.output.output_dir, io.output.log_filename);
     io.output.output_filename_fr = path::append_path(io.output.output_dir, io.output.output_filename_fr);
     io.output.output_filename_cdr = path::append_path(io.output.output_dir, io.output.output_filename_cdr);
 }
 
-void load(shm_config::io_params::input_params &input_params, boost::property_tree::ptree const &pt, bool) {
+void load(shm_kmer_matrix_estimator_config::io_params::input_params &input_params, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(input_params.v_alignments, pt, "v_alignments");
     load(input_params.cdr_details, pt, "cdr_details");
 }
 
-void load(shm_config::io_params::output_params &output, boost::property_tree::ptree const &pt, bool) {
+void load(shm_kmer_matrix_estimator_config::io_params::output_params &output, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(output.output_dir, pt, "output_dir");
     load(output.log_filename, pt, "log_filename");
@@ -51,7 +51,7 @@ void load(shm_config::io_params::output_params &output, boost::property_tree::pt
     load(output.output_filename_cdr, pt, "output_filename_cdr");
 }
 
-void load(shm_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
+void load(shm_kmer_matrix_estimator_config::io_params &io, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(io.input, pt, "input_params");
     load(io.output, pt, "output_params");
@@ -60,10 +60,10 @@ void load(shm_config::io_params &io, boost::property_tree::ptree const &pt, bool
 // IO parameters FINISH
 
 // Alignment Checker parameters START
-void load(shm_config::alignment_checker_params &achp,
+void load(shm_kmer_matrix_estimator_config::alignment_checker_params &achp,
           boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
+    using AlignmentCheckerMethod = shm_kmer_matrix_estimator_config::alignment_checker_params::AlignmentCheckerMethod;
     std::string method_str(pt.get<std::string>("alignment_checker_method"));
     std::string method_str_lowercase(method_str);
     std::transform(method_str.begin(), method_str.end(),
@@ -80,17 +80,17 @@ void load(shm_config::alignment_checker_params &achp,
 // Alignment Checker parameters FINISH
 
 // Alignment Cropper parameters START
-void load(shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &rkmp,
+void load(shm_kmer_matrix_estimator_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &rkmp,
           boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(rkmp.kmer_len, pt, "kmer_len");
     load(rkmp.hash_base, pt, "hash_base");
 }
 
-void load(shm_config::alignment_cropper_params &acrp,
+void load(shm_kmer_matrix_estimator_config::alignment_cropper_params &acrp,
           boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    using AlignmentCropperMethod = shm_config::alignment_cropper_params::AlignmentCropperMethod;
+    using AlignmentCropperMethod = shm_kmer_matrix_estimator_config::alignment_cropper_params::AlignmentCropperMethod;
     std::string method_str(pt.get<std::string>("alignment_cropper_method"));
     std::string method_str_lowercase(method_str);
     std::transform(method_str.begin(), method_str.end(),
@@ -108,16 +108,16 @@ void load(shm_config::alignment_cropper_params &acrp,
 // Alignment Cropper parameters FINISH
 
 // Mismatch Finder parameters START
-void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params &,
+void load(shm_kmer_matrix_estimator_config::mutations_strategy_params::trivial_mutations_strategy_params &,
           boost::property_tree::ptree const &, bool) {}
 
-void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &,
+void load(shm_kmer_matrix_estimator_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &,
           boost::property_tree::ptree const &, bool) {}
 
-void load(shm_config::mutations_strategy_params &mfp,
+void load(shm_kmer_matrix_estimator_config::mutations_strategy_params &mfp,
           boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
-    using MutationsStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
+    using MutationsStrategyMethod = shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod;
     std::string method_str(pt.get<std::string>("mutations_strategy_method"));
     std::string method_str_lowercase(method_str);
     std::transform(method_str.begin(), method_str.end(),
@@ -139,7 +139,7 @@ void load(shm_config::mutations_strategy_params &mfp,
 // Mismatch Finder parameters FINISH
 
 // Main load functions
-void load(shm_config &cfg, boost::property_tree::ptree const &pt, bool complete) {
+void load(shm_kmer_matrix_estimator_config &cfg, boost::property_tree::ptree const &pt, bool complete) {
     using config_common::load;
     load(cfg.io, pt, "io_params", complete);
     load(cfg.achp, pt, "alignment_checker_params");
@@ -147,19 +147,19 @@ void load(shm_config &cfg, boost::property_tree::ptree const &pt, bool complete)
     load(cfg.mfp, pt, "mutations_strategy_params");
 }
 
-void load(shm_config &cfg, std::string const &filename) {
+void load(shm_kmer_matrix_estimator_config &cfg, std::string const &filename) {
     boost::property_tree::ptree pt;
     boost::property_tree::read_info(filename, pt);
     load(cfg, pt, true);
 }
 
-std::istream &operator>>(std::istream &in, shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy) {
+std::istream &operator>>(std::istream &in, shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod &strategy) {
     std::string token_original;
     in >> token_original;
     std::string token(token_original.size(), ' ');
     std::transform(token_original.begin(), token_original.end(),
                    token.begin(), ::tolower);
-    using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
+    using MutationStrategyMethod = shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod;
     if (token == "trivial")
         strategy = MutationStrategyMethod::Trivial;
     else if (token == "nokneighbours")
@@ -167,7 +167,7 @@ std::istream &operator>>(std::istream &in, shm_config::mutations_strategy_params
     else {
         std::string message = error_message_strategy("mutation strategy",
                                                      token_original,
-                                                     shm_config::mutations_strategy_params::
+                                                     shm_kmer_matrix_estimator_config::mutations_strategy_params::
                                                      mutation_strategy_method_names,
                                                      "command line argument");
         throw std::invalid_argument(message);
@@ -175,11 +175,11 @@ std::istream &operator>>(std::istream &in, shm_config::mutations_strategy_params
     return in;
 }
 
-const std::vector<std::string> shm_config::alignment_checker_params::alignment_checker_method_names =
+const std::vector<std::string> shm_kmer_matrix_estimator_config::alignment_checker_params::alignment_checker_method_names =
     {std::string("NoGaps")};
-const std::vector<std::string> shm_config::alignment_cropper_params::alignment_cropper_method_names =
+const std::vector<std::string> shm_kmer_matrix_estimator_config::alignment_cropper_params::alignment_cropper_method_names =
     {std::string("UptoLastReliableKMer")};
-const std::vector<std::string> shm_config::mutations_strategy_params::mutation_strategy_method_names =
+const std::vector<std::string> shm_kmer_matrix_estimator_config::mutations_strategy_params::mutation_strategy_method_names =
     {std::string("Trivial"), std::string("NoKNeighbours")};
 
 } // End namespace shm_kmer_matrix_estimator

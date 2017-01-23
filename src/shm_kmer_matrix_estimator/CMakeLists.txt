@@ -14,7 +14,7 @@ include_directories(${CORE_DIR})
 
 add_executable(shm_kmer_matrix_estimator
         main.cpp
-        shm_config.cpp
+        shm_kmer_matrix_estimator_config.cpp
         shm_kmer_matrix_estimator_pipeline.cpp
         germline_alignment_reader/alignment_reader.cpp
         alignment_checker/no_gaps_alignment_checker.cpp

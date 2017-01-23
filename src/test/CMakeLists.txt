@@ -24,7 +24,7 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 #                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
 make_test(test_shm_kmer_model test_shm_kmer_model.cpp
-        ../shm_kmer_matrix_estimator/shm_config.cpp
+        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_config.cpp
         ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_pipeline.cpp
         ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
         ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp

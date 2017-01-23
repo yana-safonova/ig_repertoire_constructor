@@ -7,7 +7,7 @@
 #include <vector>
 #include <tuple>
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "alignment_checker/abstract_alignment_checker.hpp"
 #include "alignment_checker/no_gaps_alignment_checker.hpp"
@@ -29,8 +29,8 @@ private:
 public:
     AlignmentReader(const std::string &alignments_filename,
                     const std::string &cdr_details_filename,
-                    const shm_config::alignment_checker_params &alignment_checker_params,
-                    const shm_config::alignment_cropper_params &alignment_cropper_params);
+                    const shm_kmer_matrix_estimator_config::alignment_checker_params &alignment_checker_params,
+                    const shm_kmer_matrix_estimator_config::alignment_cropper_params &alignment_cropper_params);
 
     VectorEvolutionaryEdgeAlignments read_alignments() const;
 };

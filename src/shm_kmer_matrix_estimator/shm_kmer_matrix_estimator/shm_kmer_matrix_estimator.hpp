@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "mutation_strategies/abstract_mutation_strategy.hpp"
 #include "alignment_checker/abstract_alignment_checker.hpp"
@@ -28,9 +28,9 @@ private:
                                                     const EvolutionaryEdgeAlignment &) const;
 
 public:
-    explicit ShmKmerMatrixEstimator(const shm_config::mutations_strategy_params &shm_config_ms,
-                                    const shm_config::alignment_checker_params &shm_config_ach,
-                                    const shm_config::alignment_cropper_params &shm_config_acp);
+    explicit ShmKmerMatrixEstimator(const shm_kmer_matrix_estimator_config::mutations_strategy_params &shm_config_ms,
+                                    const shm_kmer_matrix_estimator_config::alignment_checker_params &shm_config_ach,
+                                    const shm_kmer_matrix_estimator_config::alignment_cropper_params &shm_config_acp);
 
 
     std::pair<KmerMatrix, KmerMatrix>

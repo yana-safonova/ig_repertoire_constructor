@@ -4,7 +4,7 @@
 #include "segfault_handler.hpp"
 #include "copy_file.hpp"
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include "command_line_routines.hpp"
 #include "shm_kmer_matrix_estimator_pipeline.hpp"
 

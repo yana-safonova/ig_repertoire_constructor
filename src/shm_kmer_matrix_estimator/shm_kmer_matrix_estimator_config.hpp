@@ -11,7 +11,7 @@
 
 namespace shm_kmer_matrix_estimator {
 
-struct shm_config {
+struct shm_kmer_matrix_estimator_config {
     struct io_params {
         struct input_params {
             std::string v_alignments;
@@ -74,10 +74,10 @@ struct shm_config {
 };
 
 std::istream &operator>>(std::istream &in,
-                         shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy);
+                         shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod &strategy);
 
-void load(shm_config &cfg, std::string const &filename);
+void load(shm_kmer_matrix_estimator_config &cfg, std::string const &filename);
 
-typedef config_common::config<shm_config> shm_cfg;
+typedef config_common::config<shm_kmer_matrix_estimator_config> shm_cfg;
 
 } // End namespace shm_kmer_matrix_estimator

@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include "abstract_mutation_strategy.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
 class TrivialMutationStrategy: public AbstractMutationStrategy {
 public:
-    explicit TrivialMutationStrategy(const shm_config::mutations_strategy_params &config) :
+    explicit TrivialMutationStrategy(const shm_kmer_matrix_estimator_config::mutations_strategy_params &config) :
         AbstractMutationStrategy(config) {}
 
     virtual std::vector<size_t> calculate_relevant_positions(EvolutionaryEdgeAlignment &) const override;

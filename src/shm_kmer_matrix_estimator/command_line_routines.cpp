@@ -17,7 +17,7 @@ bool command_line_requires_parsing(int argc, char **argv) {
 }
 
 // cfg contains default values from shm_config file
-void parse_command_line_args(shm_config &cfg, int argc, char **argv) {
+void parse_command_line_args(shm_kmer_matrix_estimator_config &cfg, int argc, char **argv) {
     if (!command_line_requires_parsing(argc, argv))
         return;
 
@@ -40,7 +40,7 @@ void parse_command_line_args(shm_config &cfg, int argc, char **argv) {
         ("output-filename-cdr,c", po::value<std::string>(&cfg.io.output.output_filename_cdr)->
              default_value(cfg.io.output.output_filename_cdr),
          "output filename for CDR statistics")
-        ("mutation-strategy,s", po::value<shm_config::mutations_strategy_params::MutationsStrategyMethod>
+        ("mutation-strategy,s", po::value<shm_kmer_matrix_estimator_config::mutations_strategy_params::MutationsStrategyMethod>
              (&cfg.mfp.mutations_strategy_method)->
              default_value(cfg.mfp.mutations_strategy_method,
                            cfg.mfp.mutation_strategy_method_names[

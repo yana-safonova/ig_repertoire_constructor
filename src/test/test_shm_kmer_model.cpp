@@ -8,7 +8,7 @@
 
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "alignment_checker/no_gaps_alignment_checker.hpp"
-#include "shm_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include "alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
 #include "germline_alignment_reader/alignment_reader.hpp"
 #include "mutation_strategies/trivial_strategy.hpp"
@@ -29,7 +29,7 @@ public:
 };
 
 TEST_F(AlignmentCheckerTest, CheckingIsCorrect) {
-    shm_config shm_config_ach_nogaps;
+    shm_kmer_matrix_estimator_config shm_config_ach_nogaps;
     std::string config_ach_nogaps = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_ach_nogaps, config_ach_nogaps);
     NoGapsAlignmentChecker alch(shm_config_ach_nogaps.achp);
@@ -48,7 +48,7 @@ public:
 };
 
 TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
-    shm_config shm_config_acr_last_rel_kmer;
+    shm_kmer_matrix_estimator_config shm_config_acr_last_rel_kmer;
     std::string config_acr_last_rel_kmer = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_acr_last_rel_kmer, config_acr_last_rel_kmer);
     UptoLastReliableKmerAlignmentCropper alcr(shm_config_acr_last_rel_kmer.acrp.rkmp);
@@ -213,7 +213,7 @@ public:
 
 
 TEST_F(AlignmentReaderTest, CheckingIsCorrect) {
-    shm_config shm_config_ar;
+    shm_kmer_matrix_estimator_config shm_config_ar;
     std::string config_ar = "configs/shm_kmer_matrix_estimator/configs.info";
 
     load(shm_config_ar, config_ar);
@@ -240,7 +240,7 @@ public:
 };
 
 TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
-    shm_config shm_config_ms;
+    shm_kmer_matrix_estimator_config shm_config_ms;
     std::string config_ms_nkn = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_ms, config_ms_nkn);
 

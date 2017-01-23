@@ -8,7 +8,7 @@
 namespace shm_kmer_matrix_estimator {
 
 UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
-    const shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &shm_config) :
+    const shm_kmer_matrix_estimator_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &shm_config) :
     kmer_len(shm_config.kmer_len),
     hash_base(shm_config.hash_base),
     hash_max_pow(static_cast<unsigned int>(
