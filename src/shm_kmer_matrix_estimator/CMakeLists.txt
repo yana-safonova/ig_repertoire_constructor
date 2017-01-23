@@ -19,6 +19,8 @@ add_executable(shm_kmer_matrix_estimator
         alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
         mutation_strategies/trivial_strategy.cpp
         mutation_strategies/no_k_neighbours.cpp
+        kmer_utils/kmer_utils.cpp
+        kmer_utils/kmer_indexed_vector.cpp
         statistics_estimator/statistics_estimator.cpp
         statistics_estimator/mutation_statistics.cpp
         statistics_exporter/statistics_exporter.cpp
