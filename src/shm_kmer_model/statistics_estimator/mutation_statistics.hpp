@@ -9,6 +9,8 @@
 #include <vector>
 #include <seqan/file.h>
 
+namespace shm_kmer_matrix_estimator {
+
 class MutationsStatistics {
 private:
     using statistics_type = std::unordered_map<std::string, std::vector<unsigned int>>;
@@ -42,3 +44,5 @@ private:
                              unsigned int curr_len,
                              std::string kmer) const;
 };
+
+} // End namespace shm_kmer_matrix_estimator

@@ -9,6 +9,7 @@
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 
+namespace shm_kmer_matrix_estimator {
 
 struct shm_config {
     struct io_params {
@@ -35,7 +36,7 @@ struct shm_config {
     };
 
     struct alignment_cropper_params {
-        struct alignment_cropper_method_params { };
+        struct alignment_cropper_method_params {};
         struct upto_reliable_kmer_cropper_params:
             public alignment_cropper_method_params {
             unsigned int kmer_len;
@@ -49,7 +50,7 @@ struct shm_config {
     };
 
     struct mutations_strategy_params {
-        struct mutations_strategy_method_params { };
+        struct mutations_strategy_method_params {};
         struct trivial_mutations_strategy_params:
             public mutations_strategy_method_params {
         };
@@ -72,10 +73,11 @@ struct shm_config {
     mutations_strategy_params mfp;
 };
 
-std::istream& operator>>(std::istream& in,
+std::istream &operator>>(std::istream &in,
                          shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy);
 
 void load(shm_config &cfg, std::string const &filename);
 
 typedef config_common::config<shm_config> shm_cfg;
 
+} // End namespace shm_kmer_matrix_estimator

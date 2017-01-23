@@ -14,14 +14,14 @@
 #include "alignment_cropper/abstract_alignment_cropper.hpp"
 #include "alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
 
-namespace ns_alignment_reader {
+namespace shm_kmer_matrix_estimator {
 
 class AlignmentReader {
 private:
     std::string alignments_filename_;
     std::string cdr_details_filename_;
-    ns_abstract_alignment_checker::AbstractAlignmentCheckerPtr alignment_checker_ptr_;
-    ns_abstract_alignment_cropper::AbstractAlignmentCropperPtr alignment_cropper_ptr_;
+    AbstractAlignmentCheckerPtr alignment_checker_ptr_;
+    AbstractAlignmentCropperPtr alignment_cropper_ptr_;
 
 private:
     const size_t csv_cdr1_const = 9;
@@ -32,6 +32,7 @@ public:
                     const shm_config::alignment_checker_params &alignment_checker_params,
                     const shm_config::alignment_cropper_params &alignment_cropper_params);
 
-    ns_gene_alignment::VectorEvolutionaryEdgeAlignments read_alignments() const;
+    VectorEvolutionaryEdgeAlignments read_alignments() const;
 };
-}
+
+} // End namespace shm_kmer_matrix_estimator

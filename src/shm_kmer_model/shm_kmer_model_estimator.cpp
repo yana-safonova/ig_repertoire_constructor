@@ -11,7 +11,9 @@
 #include "statistics_estimator/statistics_estimator.hpp"
 #include "statistics_exporter/statistics_exporter.hpp"
 
-int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
+namespace shm_kmer_matrix_estimator {
+
+int SHMkmerModelEstimator::Run() const {
     const std::string boarder("=============");
     INFO(boarder << " SHM k-mer Model Calculator starts " << boarder);
 
@@ -20,23 +22,23 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
     INFO(std::string("input cdr_details filename: ") << io_params_.input.cdr_details);
 
     INFO(std::string("Strategy for checking: ") <<
-        alignment_checker_params_.alignment_checker_method_names[
-            static_cast<size_t> (alignment_checker_params_.alignment_checker_method)]);
+                                                alignment_checker_params_.alignment_checker_method_names[
+                                                    static_cast<size_t> (alignment_checker_params_.alignment_checker_method)]);
     INFO(std::string("Strategy for cropping: ") <<
-        alignment_cropper_params_.alignment_cropper_method_names[
-            static_cast<size_t> (alignment_cropper_params_.alignment_cropper_method)]);
+                                                alignment_cropper_params_.alignment_cropper_method_names[
+                                                    static_cast<size_t> (alignment_cropper_params_.alignment_cropper_method)]);
 
-    ns_alignment_reader::AlignmentReader germline_alignment_reader(io_params_.input.v_alignments,
-                                                                   io_params_.input.cdr_details,
-                                                                   alignment_checker_params_,
-                                                                   alignment_cropper_params_);
-    ns_gene_alignment::VectorEvolutionaryEdgeAlignments alignments(germline_alignment_reader.read_alignments());
+    AlignmentReader germline_alignment_reader(io_params_.input.v_alignments,
+                                              io_params_.input.cdr_details,
+                                              alignment_checker_params_,
+                                              alignment_cropper_params_);
+    VectorEvolutionaryEdgeAlignments alignments(germline_alignment_reader.read_alignments());
     INFO(boarder << " Reading alignments finishes " << boarder);
 
     INFO(boarder << " Estimating statistics starts " << boarder);
     INFO(std::string("Strategy for mutations: ") <<
-        mutations_strategy_params_.mutation_strategy_method_names[
-            static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
+                                                 mutations_strategy_params_.mutation_strategy_method_names[
+                                                     static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
 
     StatisticsEstimator statistics_estimator(mutations_strategy_params_);
     MutationsStatistics statistics_fr, statistics_cdr;
@@ -44,8 +46,8 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
     INFO(boarder << " Estimating statistics finishes" << boarder);
 
     INFO(boarder << " Exporting statistics starts " << boarder);
-    INFO(std::string("output filename for FR: ") << io_params_.output.output_filename_fr);
-    INFO(std::string("output filename for CDR: ") << io_params_.output.output_filename_cdr);
+    INFO(std::string("Output filename for FR: ") << io_params_.output.output_filename_fr);
+    INFO(std::string("Output filename for CDR: ") << io_params_.output.output_filename_cdr);
     StatisticsExporter statistics_exporter;
     statistics_exporter.export_statistics(io_params_.output.output_filename_fr, statistics_fr);
     statistics_exporter.export_statistics(io_params_.output.output_filename_cdr, statistics_cdr);
@@ -53,3 +55,5 @@ int shm_kmer_model_estimator::SHMkmerModelEstimator::Run() const {
 
     return 0;
 }
+
+} // End namespace shm_kmer_matrix_estimator

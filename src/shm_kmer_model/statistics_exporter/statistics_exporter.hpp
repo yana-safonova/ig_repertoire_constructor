@@ -8,6 +8,8 @@
 
 #include "../statistics_estimator/mutation_statistics.hpp"
 
+namespace shm_kmer_matrix_estimator {
+
 class StatisticsExporter {
 private:
     const char separator = ';';
@@ -15,3 +17,5 @@ private:
 public:
     void export_statistics(const std::string &output_filename, const MutationsStatistics &) const;
 };
+
+} // End namespace shm_kmer_matrix_estimator

@@ -7,9 +7,13 @@
 #include "shm_config.hpp"
 #include "abstract_alignment_checker.hpp"
 
-class NoGapsAlignmentChecker: public ns_abstract_alignment_checker::AbstractAlignmentChecker {
+namespace shm_kmer_matrix_estimator {
+
+class NoGapsAlignmentChecker: public AbstractAlignmentChecker {
 public:
-    explicit NoGapsAlignmentChecker(const shm_config::alignment_checker_params &) { }
-    virtual bool check(const ns_gene_alignment::EvolutionaryEdgeAlignment &) const;
+    explicit NoGapsAlignmentChecker(const shm_config::alignment_checker_params &) {}
+    virtual bool check(const EvolutionaryEdgeAlignment &) const override;
     virtual ~NoGapsAlignmentChecker() { }
 };
+
+} // End namespace shm_kmer_matrix_estimator

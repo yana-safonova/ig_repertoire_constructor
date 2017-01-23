@@ -7,9 +7,10 @@
 #include "seqan/basic.h"
 #include "statistics_exporter.hpp"
 
+namespace shm_kmer_matrix_estimator {
+
 void StatisticsExporter::export_statistics(const std::string &output_filename,
-                                           const MutationsStatistics & statistics) const
-{
+                                           const MutationsStatistics &statistics) const {
     std::ofstream out(output_filename);
 
     auto alphabet_size = seqan::ValueSize<seqan::Dna>::VALUE;
@@ -30,3 +31,5 @@ void StatisticsExporter::export_statistics(const std::string &output_filename,
         out << "\n";
     }
 }
+
+} // End namespace shm_kmer_matrix_estimator

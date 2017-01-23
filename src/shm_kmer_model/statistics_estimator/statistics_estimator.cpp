@@ -6,21 +6,20 @@
 #include "mutation_strategies/no_k_neighbours.hpp"
 #include "statistics_estimator.hpp"
 
-using namespace ns_gene_alignment;
+namespace shm_kmer_matrix_estimator {
 
 StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_params &config) :
     kmer_len_(config.kmer_len) {
     using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
     if (config.mutations_strategy_method == MutationStrategyMethod::Trivial)
-        mutation_strategy_ = std::make_shared<TrivialMutationStrategy>(TrivialMutationStrategy(config));
+        mutation_strategy_ = std::unique_ptr<TrivialMutationStrategy>(new TrivialMutationStrategy(config));
     else if (config.mutations_strategy_method == MutationStrategyMethod::NoKNeighbours)
-        mutation_strategy_ = std::make_shared<NoKNeighboursMutationStrategy>(NoKNeighboursMutationStrategy(config));
+        mutation_strategy_ = std::unique_ptr<NoKNeighboursMutationStrategy>(new NoKNeighboursMutationStrategy(config));
 }
 
 void StatisticsEstimator::calculate_mutation_statistics_per_position(MutationsStatistics &mutations_statistics,
                                                                      const size_t center_nucl_pos,
-                                                                     const EvolutionaryEdgeAlignment& alignment) const
-{
+                                                                     const EvolutionaryEdgeAlignment &alignment) const {
     std::string gene_substring = alignment.parent().substr(center_nucl_pos - kmer_len_ / 2, kmer_len_);
     if ((alignment.son()[center_nucl_pos] == 'N') ||
         (gene_substring.find_first_of('N') != std::string::npos)) {
@@ -60,3 +59,5 @@ StatisticsEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlignme
     }
     return std::make_pair(mutations_statistics_fr, mutations_statistics_cdr);
 }
+
+} // End namespace shm_kmer_matrix_estimator

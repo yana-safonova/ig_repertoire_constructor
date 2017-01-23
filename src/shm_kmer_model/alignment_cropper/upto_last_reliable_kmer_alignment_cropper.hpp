@@ -11,7 +11,9 @@
 #include "shm_config.hpp"
 #include "abstract_alignment_cropper.hpp"
 
-class UptoLastReliableKmerAlignmentCropper: public ns_abstract_alignment_cropper::AbstractAlignmentCropper {
+namespace shm_kmer_matrix_estimator {
+
+class UptoLastReliableKmerAlignmentCropper: public AbstractAlignmentCropper {
 private:
     const unsigned int kmer_len;
     const unsigned int hash_base;
@@ -19,12 +21,14 @@ private:
 
 public:
     explicit UptoLastReliableKmerAlignmentCropper(const shm_config::alignment_cropper_params::
-    upto_reliable_kmer_cropper_params &config);
+                                                  upto_reliable_kmer_cropper_params &config);
 
-    void crop(ns_gene_alignment::EvolutionaryEdgeAlignment &alignment) const;
+    void crop(EvolutionaryEdgeAlignment &alignment) const override;
     virtual ~UptoLastReliableKmerAlignmentCropper() { }
 
 private:
     template<typename PairIter>
     PairIter find_correct_boarder(const PairIter &, const PairIter &) const;
 };
+
+} // End namespace shm_kmer_matrix_estimator

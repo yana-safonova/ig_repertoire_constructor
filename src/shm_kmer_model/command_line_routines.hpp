@@ -6,4 +6,8 @@
 
 #include "shm_config.hpp"
 
-void parse_command_line_args(shm_config &cfg, int argc, char** argv);
+namespace shm_kmer_matrix_estimator {
+
+void parse_command_line_args(shm_config &cfg, int argc, char **argv);
+
+} // End namespace shm_kmer_matrix_estimator

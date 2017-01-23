@@ -7,11 +7,15 @@
 #include "../shm_config.hpp"
 #include "abstract_mutation_strategy.hpp"
 
-class TrivialMutationStrategy: public ns_abstract_mutation_strategy::AbstractMutationStrategy {
+namespace shm_kmer_matrix_estimator {
+
+class TrivialMutationStrategy: public AbstractMutationStrategy {
 public:
     explicit TrivialMutationStrategy(const shm_config::mutations_strategy_params &config) :
-        AbstractMutationStrategy(config) { }
+        AbstractMutationStrategy(config) {}
 
-    std::vector<size_t> calculate_relevant_positions(ns_gene_alignment::EvolutionaryEdgeAlignment &) const;
-    virtual ~TrivialMutationStrategy() { }
+    std::vector<size_t> calculate_relevant_positions(EvolutionaryEdgeAlignment &) const override;
+    virtual ~TrivialMutationStrategy() {}
 };
+
+} // End namespace shm_kmer_matrix_estimator

@@ -1,7 +1,5 @@
 #include <chrono>
 
-// TODO remove that standard.hpp include! Cosmetic refactoring of SPAdes utils is needed.
-#include "standard.hpp"
 #include "logger/log_writers.hpp"
 #include "segfault_handler.hpp"
 #include "copy_file.hpp"
@@ -9,6 +7,8 @@
 #include "shm_config.hpp"
 #include "command_line_routines.hpp"
 #include "shm_kmer_model_estimator.hpp"
+
+using namespace shm_kmer_matrix_estimator;
 
 void make_dirs() {
     path::make_dir(shm_cfg::get().io.output.output_dir);
@@ -67,12 +67,12 @@ int main(int argc, char *argv[]) {
     try {
         std::string cfg_filename = load_config(argc, argv);
         create_console_logger(cfg_filename);
-        int error_code = shm_kmer_model_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
+        int error_code = shm_kmer_matrix_estimator::SHMkmerModelEstimator(shm_cfg::get().io,
                                                                          shm_cfg::get().achp,
                                                                          shm_cfg::get().acrp,
                                                                          shm_cfg::get().mfp).Run();
         if (error_code != 0) {
-            INFO("SHM k-mer Model Calculator finished abnormally");
+            INFO("SHM k-mer Model Calculator finished abnormally. Error code: " << error_code);
             return error_code;
         }
 

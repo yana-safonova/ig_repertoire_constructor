@@ -9,7 +9,8 @@
 #include <string>
 #include <vector>
 
-namespace ns_gene_alignment {
+namespace shm_kmer_matrix_estimator {
+
 // using DnaGapped = seqan::ModifiedAlphabet<seqan::Dna5, seqan::ModExpand<'-'>>;
 // using DnaGappedString = seqan::String<DnaGapped>;
 // using DnaGappedAlignment = seqan::Align<DnaGappedString, seqan::ArrayGaps>;
@@ -18,7 +19,6 @@ namespace ns_gene_alignment {
 // In AntEvolo we need to calculate weight not only of germline->read edges but also of evolutionary tree's edges.
 // Due to that we call the class EvolutionaryEdgeAlignment instead of GermlineReadAlignemnt
 class EvolutionaryEdgeAlignment {
-private:
 private:
     // first component is parent. It could be gene.
     // second component is son.
@@ -87,4 +87,5 @@ public:
     }
 };
 using VectorEvolutionaryEdgeAlignments = std::vector<EvolutionaryEdgeAlignment>;
-}
+
+} // End namespace shm_kmer_matrix_estimator

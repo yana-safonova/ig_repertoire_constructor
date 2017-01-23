@@ -9,10 +9,12 @@
 
 #include "../include/config_common.hpp"
 
+namespace shm_kmer_matrix_estimator {
+
 std::string error_message_strategy(const std::string &what_about,
                                    const std::string &supplied_method,
                                    const std::vector<std::string> &available_methods,
-                                   const std::string &where="config") {
+                                   const std::string &where = "config") {
     std::string message(":::(");
     message += where + ") wrong ";
     message += what_about;
@@ -107,10 +109,10 @@ void load(shm_config::alignment_cropper_params &acrp,
 
 // Mismatch Finder parameters START
 void load(shm_config::mutations_strategy_params::trivial_mutations_strategy_params &,
-          boost::property_tree::ptree const &, bool) { }
+          boost::property_tree::ptree const &, bool) {}
 
 void load(shm_config::mutations_strategy_params::no_kneighbours_mutations_strategy_params &,
-          boost::property_tree::ptree const &, bool) { }
+          boost::property_tree::ptree const &, bool) {}
 
 void load(shm_config::mutations_strategy_params &mfp,
           boost::property_tree::ptree const &pt, bool) {
@@ -151,7 +153,7 @@ void load(shm_config &cfg, std::string const &filename) {
     load(cfg, pt, true);
 }
 
-std::istream& operator>>(std::istream& in, shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy) {
+std::istream &operator>>(std::istream &in, shm_config::mutations_strategy_params::MutationsStrategyMethod &strategy) {
     std::string token_original;
     in >> token_original;
     std::string token(token_original.size(), ' ');
@@ -177,5 +179,7 @@ const std::vector<std::string> shm_config::alignment_checker_params::alignment_c
     {std::string("NoGaps")};
 const std::vector<std::string> shm_config::alignment_cropper_params::alignment_cropper_method_names =
     {std::string("UptoLastReliableKMer")};
-const std::vector<std::string> shm_config::mutations_strategy_params:: mutation_strategy_method_names =
+const std::vector<std::string> shm_config::mutations_strategy_params::mutation_strategy_method_names =
     {std::string("Trivial"), std::string("NoKNeighbours")};
+
+} // End namespace shm_kmer_matrix_estimator

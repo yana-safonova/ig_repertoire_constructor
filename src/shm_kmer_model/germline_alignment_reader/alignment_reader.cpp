@@ -9,30 +9,28 @@
 
 #include "alignment_reader.hpp"
 
-using namespace ns_gene_alignment;
-using namespace ns_alignment_reader;
+namespace shm_kmer_matrix_estimator {
 
 AlignmentReader::AlignmentReader(const std::string &alignments_filename,
                                  const std::string &cdr_details_filename,
                                  const shm_config::alignment_checker_params &alignment_checker_params,
                                  const shm_config::alignment_cropper_params &alignment_cropper_params) :
     alignments_filename_(alignments_filename),
-    cdr_details_filename_(cdr_details_filename)
-{
+    cdr_details_filename_(cdr_details_filename) {
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
     if (alignment_checker_params.alignment_checker_method == AlignmentCheckerMethod::NoGaps) {
-        alignment_checker_ptr_ = std::make_shared<NoGapsAlignmentChecker>
-            (NoGapsAlignmentChecker(alignment_checker_params));
+        alignment_checker_ptr_ = std::unique_ptr<NoGapsAlignmentChecker>
+            (new NoGapsAlignmentChecker(alignment_checker_params));
     }
 
     using AlignmentCropperMethod = shm_config::alignment_cropper_params::AlignmentCropperMethod;
     if (alignment_cropper_params.alignment_cropper_method == AlignmentCropperMethod::UptoLastReliableKMer) {
-        alignment_cropper_ptr_ = std::make_shared<UptoLastReliableKmerAlignmentCropper>
-            (UptoLastReliableKmerAlignmentCropper(alignment_cropper_params.rkmp));
+        alignment_cropper_ptr_ = std::unique_ptr<UptoLastReliableKmerAlignmentCropper>
+            (new UptoLastReliableKmerAlignmentCropper(alignment_cropper_params.rkmp));
     }
 }
 
-ns_gene_alignment::VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
+VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
     // cdr_details
     std::ifstream cdr_details(cdr_details_filename_);
     VERIFY(cdr_details);
@@ -71,7 +69,6 @@ ns_gene_alignment::VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignm
 
         EvolutionaryEdgeAlignment alignment(std::move(germline_seq), std::move(read_seq), gene_id,
                                             cdr1_start, cdr1_end, cdr2_start, cdr2_end);
-        // std::cout << cdr1_start << " " << cdr1_end << " " << cdr2_start << " " << cdr2_end << std::endl;
 
         if (alignment_checker_ptr_->check(alignment)) {
             alignment_cropper_ptr_->crop(alignment);
@@ -82,3 +79,5 @@ ns_gene_alignment::VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignm
     }
     return alignments;
 }
+
+} // End namespace shm_kmer_matrix_estimator

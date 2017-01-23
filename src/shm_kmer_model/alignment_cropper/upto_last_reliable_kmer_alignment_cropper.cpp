@@ -5,15 +5,17 @@
 #include <cassert>
 #include "upto_last_reliable_kmer_alignment_cropper.hpp"
 
+namespace shm_kmer_matrix_estimator {
+
 UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
     const shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &config) :
     kmer_len(config.kmer_len),
     hash_base(config.hash_base),
     hash_max_pow(static_cast<unsigned int>(
                      std::round(
-                         std::pow(hash_base, kmer_len - 1)))) { }
+                         std::pow(hash_base, kmer_len - 1)))) {}
 
-void UptoLastReliableKmerAlignmentCropper::crop(ns_gene_alignment::EvolutionaryEdgeAlignment &alignment) const {
+void UptoLastReliableKmerAlignmentCropper::crop(EvolutionaryEdgeAlignment &alignment) const {
     using std::pair;
     using std::make_pair;
     using std::string;
@@ -77,3 +79,5 @@ PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
     }
     return iter_boarder;
 }
+
+} // End namespace shm_kmer_matrix_estimator

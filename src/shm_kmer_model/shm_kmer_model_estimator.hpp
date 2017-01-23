@@ -5,7 +5,8 @@
 #pragma once
 #include "shm_config.hpp"
 
-namespace shm_kmer_model_estimator {
+namespace shm_kmer_matrix_estimator {
+
 class SHMkmerModelEstimator {
     const shm_config::io_params &io_params_;
     const shm_config::alignment_checker_params &alignment_checker_params_;
@@ -24,4 +25,5 @@ public:
 
     int Run() const;
 };
-}
+
+} // End namespace shm_kmer_matrix_estimator

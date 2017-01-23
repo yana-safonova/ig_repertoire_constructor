@@ -1,6 +1,6 @@
 io_params {
     input_params {
-        v_alignments test_dataset/shm_kmer_model/v_alignments.fasta
+        v_alignments test_dataset/shm_kmer_model/v_alignment.fasta
         cdr_details test_dataset/shm_kmer_model/cdr_details.txt
     }
     output_params {

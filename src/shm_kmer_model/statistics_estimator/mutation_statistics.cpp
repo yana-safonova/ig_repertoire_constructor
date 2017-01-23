@@ -4,6 +4,8 @@
 
 #include "mutation_statistics.hpp"
 
+namespace shm_kmer_matrix_estimator {
+
 MutationsStatistics::MutationsStatistics(unsigned int kmer_len) {
     std::vector<std::string> kmers;
     generate_kmer_keys(kmers, kmer_len);
@@ -32,3 +34,5 @@ void MutationsStatistics::generate_kmer_keys_(std::vector<std::string> &kmers,
         generate_kmer_keys_(kmers, kmer_len, curr_len + 1, kmer);
     }
 }
+
+} // End namespace shm_kmer_matrix_estimator

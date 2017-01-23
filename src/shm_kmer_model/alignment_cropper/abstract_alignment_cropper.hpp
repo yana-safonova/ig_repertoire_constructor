@@ -7,11 +7,13 @@
 #include <memory>
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 
-namespace ns_abstract_alignment_cropper {
+namespace shm_kmer_matrix_estimator {
+
 class AbstractAlignmentCropper {
 public:
-    virtual void crop(ns_gene_alignment::EvolutionaryEdgeAlignment &) const = 0;
+    virtual void crop(EvolutionaryEdgeAlignment &) const = 0;
     virtual ~AbstractAlignmentCropper() { }
 };
-using AbstractAlignmentCropperPtr = std::shared_ptr<AbstractAlignmentCropper>;
-}
+using AbstractAlignmentCropperPtr = std::unique_ptr<AbstractAlignmentCropper>;
+
+} // End namespace shm_kmer_matrix_estimator
