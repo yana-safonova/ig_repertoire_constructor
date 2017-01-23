@@ -9,6 +9,8 @@ project(shm_kmer_matrix_estimator CXX)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${SPADES_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
+include_directories(${VDJ_UTILS_DIR})
+include_directories(${CORE_DIR})
 
 add_executable(shm_kmer_matrix_estimator
         main.cpp
@@ -27,4 +29,11 @@ add_executable(shm_kmer_matrix_estimator
         command_line_routines.cpp
         )
 
-target_link_libraries(shm_kmer_matrix_estimator boost_program_options input yaml-cpp graph_utils ${COMMON_LIBRARIES})
+target_link_libraries(shm_kmer_matrix_estimator
+                      vdj_utils
+                      core
+                      boost_program_options
+                      input
+                      yaml-cpp
+                      graph_utils
+                      ${COMMON_LIBRARIES})

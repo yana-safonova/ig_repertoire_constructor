@@ -9,6 +9,9 @@
 #include <string>
 #include <vector>
 
+#include "convert.hpp"
+#include "annotation_utils/annotated_clone.hpp"
+
 namespace shm_kmer_matrix_estimator {
 
 // using DnaGapped = seqan::ModifiedAlphabet<seqan::Dna5, seqan::ModExpand<'-'>>;
@@ -51,6 +54,16 @@ public:
         VERIFY(parent.size() == son.size());
         VERIFY(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end);
     }
+
+    EvolutionaryEdgeAlignment(const annotation_utils::AnnotatedClone& clone) :
+        parent_(core::dna5String_to_string(clone.VAlignment().subject().seq())),
+        son_(core::dna5String_to_string(clone.VAlignment().query().seq)),
+        gene_id_(core::seqan_string_to_string(clone.VAlignment().subject().name())),
+        cdr1_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos),
+        cdr1_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).end_pos),
+        cdr2_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos),
+        cdr2_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).end_pos)
+    { }
 
     const std::string &parent() const { return parent_; }
     const std::string &son() const { return son_; }

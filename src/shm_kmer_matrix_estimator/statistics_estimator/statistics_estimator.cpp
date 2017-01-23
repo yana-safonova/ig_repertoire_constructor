@@ -43,6 +43,9 @@ StatisticsEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlignme
     KmerMatrix mutations_statistics_fr(kmer_matrix_size);
     KmerMatrix mutations_statistics_cdr(kmer_matrix_size);
     for (auto &alignment : alignments) {
+        if (not alignment_checker_->check(alignment)) {
+            continue;
+        }
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
         size_t i = 0;
         while (i < relevant_positions.size() and relevant_positions[i] < alignment.cdr1_start()) {
