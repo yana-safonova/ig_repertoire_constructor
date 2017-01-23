@@ -4,17 +4,25 @@
 
 #include "mutation_strategies/trivial_strategy.hpp"
 #include "mutation_strategies/no_k_neighbours.hpp"
+#include "alignment_checker/no_gaps_alignment_checker.hpp"
 #include "statistics_estimator.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
-StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_params &config) :
-    kmer_len_(config.kmer_len) {
+StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_params &config_ms,
+                                         const shm_config::alignment_checker_params &config_ach) :
+    kmer_len_(config_ms.kmer_len)
+{
     using MutationStrategyMethod = shm_config::mutations_strategy_params::MutationsStrategyMethod;
-    if (config.mutations_strategy_method == MutationStrategyMethod::Trivial)
-        mutation_strategy_ = std::unique_ptr<TrivialMutationStrategy>(new TrivialMutationStrategy(config));
-    else if (config.mutations_strategy_method == MutationStrategyMethod::NoKNeighbours)
-        mutation_strategy_ = std::unique_ptr<NoKNeighboursMutationStrategy>(new NoKNeighboursMutationStrategy(config));
+    if (config_ms.mutations_strategy_method == MutationStrategyMethod::Trivial)
+        mutation_strategy_ = std::unique_ptr<TrivialMutationStrategy>(new TrivialMutationStrategy(config_ms));
+    else if (config_ms.mutations_strategy_method == MutationStrategyMethod::NoKNeighbours)
+        mutation_strategy_ = std::unique_ptr<NoKNeighboursMutationStrategy>(new NoKNeighboursMutationStrategy(config_ms));
+
+    using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
+    if (config_ach.alignment_checker_method == AlignmentCheckerMethod::NoGaps) {
+        alignment_checker_ = std::unique_ptr<NoGapsAlignmentChecker>(new NoGapsAlignmentChecker(config_ach));
+    }
 }
 
 void StatisticsEstimator::calculate_mutation_statistics_per_position(KmerMatrix &mutations_statistics,
