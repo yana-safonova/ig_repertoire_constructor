@@ -30,7 +30,7 @@ public:
 
 TEST_F(AlignmentCheckerTest, CheckingIsCorrect) {
     shm_config shm_config_ach_nogaps;
-    std::string config_ach_nogaps = "configs/shm_kmer_model/configs.info";
+    std::string config_ach_nogaps = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_ach_nogaps, config_ach_nogaps);
     NoGapsAlignmentChecker alch(shm_config_ach_nogaps.achp);
 
@@ -49,7 +49,7 @@ public:
 
 TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
     shm_config shm_config_acr_last_rel_kmer;
-    std::string config_acr_last_rel_kmer = "configs/shm_kmer_model/configs.info";
+    std::string config_acr_last_rel_kmer = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_acr_last_rel_kmer, config_acr_last_rel_kmer);
     UptoLastReliableKmerAlignmentCropper alcr(shm_config_acr_last_rel_kmer.acrp.rkmp);
 
@@ -214,7 +214,7 @@ public:
 
 TEST_F(AlignmentReaderTest, CheckingIsCorrect) {
     shm_config shm_config_ar;
-    std::string config_ar = "configs/shm_kmer_model/configs.info";
+    std::string config_ar = "configs/shm_kmer_matrix_estimator/configs.info";
 
     load(shm_config_ar, config_ar);
 
@@ -241,7 +241,7 @@ public:
 
 TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     shm_config shm_config_ms;
-    std::string config_ms_nkn = "configs/shm_kmer_model/configs.info";
+    std::string config_ms_nkn = "configs/shm_kmer_matrix_estimator/configs.info";
     load(shm_config_ms, config_ms_nkn);
 
     NoKNeighboursMutationStrategy ms_nkn(shm_config_ms.mfp);

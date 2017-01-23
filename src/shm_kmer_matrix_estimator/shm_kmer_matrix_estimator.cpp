@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "logger/logger.hpp"
-#include "shm_kmer_model_estimator.hpp"
+#include "shm_kmer_matrix_estimator.hpp"
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "germline_alignment_reader/alignment_reader.hpp"
 #include "statistics_estimator/statistics_estimator.hpp"
@@ -13,7 +13,7 @@
 
 namespace shm_kmer_matrix_estimator {
 
-int SHMkmerModelEstimator::Run() const {
+int SHMkmerMatrixEstimator::Run() const {
     const std::string boarder("=============");
     INFO(boarder << " SHM k-mer Model Calculator starts " << boarder);
 
