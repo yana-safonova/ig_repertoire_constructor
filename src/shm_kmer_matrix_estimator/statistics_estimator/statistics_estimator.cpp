@@ -17,7 +17,7 @@ StatisticsEstimator::StatisticsEstimator(const shm_config::mutations_strategy_pa
         mutation_strategy_ = std::unique_ptr<NoKNeighboursMutationStrategy>(new NoKNeighboursMutationStrategy(config));
 }
 
-void StatisticsEstimator::calculate_mutation_statistics_per_position(MutationsStatistics &mutations_statistics,
+void StatisticsEstimator::calculate_mutation_statistics_per_position(KmerMatrix &mutations_statistics,
                                                                      const size_t center_nucl_pos,
                                                                      const EvolutionaryEdgeAlignment &alignment) const {
     std::string gene_substring = alignment.parent().substr(center_nucl_pos - kmer_len_ / 2, kmer_len_);
@@ -29,10 +29,11 @@ void StatisticsEstimator::calculate_mutation_statistics_per_position(MutationsSt
     mutations_statistics.at(gene_substring).at(position)++;
 }
 
-std::pair<MutationsStatistics, MutationsStatistics>
+std::pair<KmerMatrix, KmerMatrix>
 StatisticsEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlignments &alignments) const {
-    MutationsStatistics mutations_statistics_fr(kmer_len_);
-    MutationsStatistics mutations_statistics_cdr(kmer_len_);
+    size_t kmer_matrix_size = static_cast<size_t>(pow(4., kmer_len_));
+    KmerMatrix mutations_statistics_fr(kmer_matrix_size);
+    KmerMatrix mutations_statistics_cdr(kmer_matrix_size);
     for (auto &alignment : alignments) {
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
         size_t i = 0;

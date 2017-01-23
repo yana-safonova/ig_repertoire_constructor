@@ -24,7 +24,7 @@ void copy_configs(std::string cfg_filename, std::string to) {
 std::string get_config_fname(int argc, char **argv) {
     if(argc == 2 and (std::string(argv[1]) != "--help" and std::string(argv[1]) != "-h"))
         return std::string(argv[1]);
-    return "configs/shm_kmer_model/configs.info";
+    return "configs/shm_kmer_matrix_estimator/configs.info";
 }
 
 std::string load_config(int argc, char **argv) {

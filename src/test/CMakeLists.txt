@@ -28,6 +28,8 @@ make_test(test_shm_kmer_model test_shm_kmer_model.cpp
         ../shm_kmer_matrix_estimator/shm_config.cpp
         ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.hpp
         ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
         ../shm_kmer_matrix_estimator/germline_alignment_reader/alignment_reader.cpp
         ../shm_kmer_matrix_estimator/evolutionary_edge_alignment/evolutionary_edge_alignment.hpp
         ../shm_kmer_matrix_estimator/alignment_checker/abstract_alignment_checker.hpp
@@ -40,13 +42,11 @@ make_test(test_shm_kmer_model test_shm_kmer_model.cpp
         ../shm_kmer_matrix_estimator/mutation_strategies/trivial_strategy.hpp
         ../shm_kmer_matrix_estimator/mutation_strategies/trivial_strategy.cpp
         ../shm_kmer_matrix_estimator/statistics_estimator/statistics_estimator.hpp
-        ../shm_kmer_matrix_estimator/statistics_estimator/mutation_statistics.hpp
         ../shm_kmer_matrix_estimator/statistics_estimator/statistics_estimator.cpp
         ../shm_kmer_matrix_estimator/statistics_exporter/statistics_exporter.hpp
         ../shm_kmer_matrix_estimator/statistics_exporter/statistics_exporter.cpp
         ../shm_kmer_matrix_estimator/mutation_strategies/no_k_neighbours.hpp
-        ../shm_kmer_matrix_estimator/mutation_strategies/no_k_neighbours.cpp
-        ../shm_kmer_matrix_estimator/statistics_estimator/mutation_statistics.cpp)
+        ../shm_kmer_matrix_estimator/mutation_strategies/no_k_neighbours.cpp)
 
 add_executable(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp

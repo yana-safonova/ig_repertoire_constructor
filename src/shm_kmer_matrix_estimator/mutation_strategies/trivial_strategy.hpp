@@ -14,7 +14,7 @@ public:
     explicit TrivialMutationStrategy(const shm_config::mutations_strategy_params &config) :
         AbstractMutationStrategy(config) {}
 
-    std::vector<size_t> calculate_relevant_positions(EvolutionaryEdgeAlignment &) const override;
+    virtual std::vector<size_t> calculate_relevant_positions(EvolutionaryEdgeAlignment &) const override;
     virtual ~TrivialMutationStrategy() {}
 };
 

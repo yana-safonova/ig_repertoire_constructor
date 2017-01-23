@@ -37,11 +37,11 @@ int SHMkmerMatrixEstimator::Run() const {
 
     INFO(boarder << " Estimating statistics starts " << boarder);
     INFO(std::string("Strategy for mutations: ") <<
-                                                 mutations_strategy_params_.mutation_strategy_method_names[
-                                                     static_cast<size_t> (mutations_strategy_params_.mutations_strategy_method)]);
+        mutations_strategy_params_.mutation_strategy_method_names[
+            static_cast<size_t>(mutations_strategy_params_.mutations_strategy_method)]);
 
     StatisticsEstimator statistics_estimator(mutations_strategy_params_);
-    MutationsStatistics statistics_fr, statistics_cdr;
+    KmerMatrix statistics_fr, statistics_cdr;
     std::tie(statistics_fr, statistics_cdr) = statistics_estimator.calculate_mutation_statistics(alignments);
     INFO(boarder << " Estimating statistics finishes" << boarder);
 

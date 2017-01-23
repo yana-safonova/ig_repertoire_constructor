@@ -6,7 +6,7 @@
 
 #include <string>
 
-#include "../statistics_estimator/mutation_statistics.hpp"
+#include "kmer_matrix/kmer_matrix.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
@@ -15,7 +15,8 @@ private:
     const char separator = ';';
 
 public:
-    void export_statistics(const std::string &output_filename, const MutationsStatistics &) const;
+    void export_statistics(const std::string &output_filename,
+                           const KmerMatrix &) const;
 };
 
 } // End namespace shm_kmer_matrix_estimator

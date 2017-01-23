@@ -22,7 +22,6 @@ add_executable(shm_kmer_matrix_estimator
         kmer_utils/kmer_utils.cpp
         kmer_utils/kmer_indexed_vector.cpp
         statistics_estimator/statistics_estimator.cpp
-        statistics_estimator/mutation_statistics.cpp
         statistics_exporter/statistics_exporter.cpp
         command_line_routines.hpp
         command_line_routines.cpp

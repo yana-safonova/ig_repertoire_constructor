@@ -5,7 +5,6 @@
 #include <boost/program_options.hpp>
 #include <logger/logger.hpp>
 #include "command_line_routines.hpp"
-#include "shm_config.hpp"
 
 namespace shm_kmer_matrix_estimator {
 

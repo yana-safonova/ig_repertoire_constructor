@@ -6,11 +6,12 @@
 
 #include "seqan/basic.h"
 #include "statistics_exporter.hpp"
+#include "kmer_utils/kmer_utils.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
 void StatisticsExporter::export_statistics(const std::string &output_filename,
-                                           const MutationsStatistics &statistics) const {
+                                           const KmerMatrix &statistics) const {
     std::ofstream out(output_filename);
 
     auto alphabet_size = seqan::ValueSize<seqan::Dna>::VALUE;
@@ -18,16 +19,14 @@ void StatisticsExporter::export_statistics(const std::string &output_filename,
         out << separator << seqan::Dna(i);
     out << "\n";
 
-    std::vector<std::string> kmers;
-    for (auto it = statistics.cbegin(); it != statistics.cend(); ++it)
-        kmers.push_back(it->first);
-    std::sort(kmers.begin(), kmers.end());
+    // TODO remove magic const
+    std::vector<std::string> kmers(KmerUtils::GenerateAllKmersFixedLength(5));
 
-    for (auto it = kmers.begin(); it != kmers.end(); ++it) {
-        auto &vec = statistics.at(*it);
-        out << *it;
-        for (auto it2 = vec.begin(); it2 != vec.end(); ++it2)
-            out << separator << *it2;
+    for (const auto& kmer: kmers) {
+        const std::array<unsigned int, 4>& vec(statistics.at(kmer));
+        out << kmer;
+        for (const auto& freq: vec)
+            out << separator << freq;
         out << "\n";
     }
 }
