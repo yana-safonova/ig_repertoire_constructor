@@ -8,9 +8,14 @@
 
 namespace shm_kmer_matrix_estimator {
 
-bool NoGapsAlignmentChecker::check(const EvolutionaryEdgeAlignment &germline_read_pair) const {
-    return germline_read_pair.parent().find_first_of('-') == std::string::npos &&
-           germline_read_pair.son().   find_first_of('-') == std::string::npos;
+bool NoGapsAlignmentChecker::check(EvolutionaryEdgeAlignment &evolutionary_edge) const {
+    if (evolutionary_edge.IsChecked())
+        return evolutionary_edge.CheckIsOk();
+    evolutionary_edge.SetChecked();
+    bool check_result = evolutionary_edge.parent().find_first_of('-') == std::string::npos &&
+                        evolutionary_edge.son().   find_first_of('-') == std::string::npos;
+    evolutionary_edge.SetCheckResult(check_result);
+    return check_result;
 }
 
 } // End namespace shm_kmer_matrix_estimator

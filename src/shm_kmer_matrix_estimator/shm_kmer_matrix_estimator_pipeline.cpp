@@ -5,15 +5,15 @@
 #include <algorithm>
 
 #include "logger/logger.hpp"
-#include "shm_kmer_matrix_estimator.hpp"
+#include "shm_kmer_matrix_estimator_pipeline.hpp"
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "germline_alignment_reader/alignment_reader.hpp"
-#include "statistics_estimator/statistics_estimator.hpp"
-#include "statistics_exporter/statistics_exporter.hpp"
+#include "shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.hpp"
+#include "kmer_matrix_exporter/kmer_matrix_exporter.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
-int SHMkmerMatrixEstimator::Run() const {
+int SHMkmerMatrixEstimatorPipeline::Run() const {
     const std::string boarder("=============");
     INFO(boarder << " SHM k-mer Model Calculator starts " << boarder);
 
@@ -40,7 +40,9 @@ int SHMkmerMatrixEstimator::Run() const {
         mutations_strategy_params_.mutation_strategy_method_names[
             static_cast<size_t>(mutations_strategy_params_.mutations_strategy_method)]);
 
-    StatisticsEstimator statistics_estimator(mutations_strategy_params_, alignment_checker_params_);
+    ShmKmerMatrixEstimator statistics_estimator(mutations_strategy_params_,
+                                             alignment_checker_params_,
+                                             alignment_cropper_params_);
     KmerMatrix statistics_fr, statistics_cdr;
     std::tie(statistics_fr, statistics_cdr) = statistics_estimator.calculate_mutation_statistics(alignments);
     INFO(boarder << " Estimating statistics finishes" << boarder);
@@ -48,7 +50,7 @@ int SHMkmerMatrixEstimator::Run() const {
     INFO(boarder << " Exporting statistics starts " << boarder);
     INFO(std::string("Output filename for FR: ") << io_params_.output.output_filename_fr);
     INFO(std::string("Output filename for CDR: ") << io_params_.output.output_filename_cdr);
-    StatisticsExporter statistics_exporter;
+    KmerMatrixExporter statistics_exporter;
     statistics_exporter.export_statistics(io_params_.output.output_filename_fr, statistics_fr);
     statistics_exporter.export_statistics(io_params_.output.output_filename_cdr, statistics_cdr);
     INFO(boarder << " Exporting statistics finishes " << boarder);

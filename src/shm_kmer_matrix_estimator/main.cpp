@@ -6,7 +6,7 @@
 
 #include "shm_config.hpp"
 #include "command_line_routines.hpp"
-#include "shm_kmer_matrix_estimator.hpp"
+#include "shm_kmer_matrix_estimator_pipeline.hpp"
 
 using namespace shm_kmer_matrix_estimator;
 
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     try {
         std::string cfg_filename = load_config(argc, argv);
         create_console_logger(cfg_filename);
-        int error_code = shm_kmer_matrix_estimator::SHMkmerMatrixEstimator(shm_cfg::get().io,
+        int error_code = shm_kmer_matrix_estimator::SHMkmerMatrixEstimatorPipeline(shm_cfg::get().io,
                                                                            shm_cfg::get().achp,
                                                                            shm_cfg::get().acrp,
                                                                            shm_cfg::get().mfp).Run();

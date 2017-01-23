@@ -8,15 +8,18 @@
 #include "evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 #include "mutation_strategies/abstract_mutation_strategy.hpp"
 #include "alignment_checker/abstract_alignment_checker.hpp"
+#include "alignment_cropper/abstract_alignment_cropper.hpp"
+#include "alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
 #include "kmer_utils/kmer_indexed_vector.hpp"
 #include "kmer_matrix/kmer_matrix.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
-class StatisticsEstimator {
+class ShmKmerMatrixEstimator {
 private:
     AbstractMutationStrategyPtr mutation_strategy_;
     AbstractAlignmentCheckerPtr alignment_checker_;
+    AbstractAlignmentCropperPtr alignment_cropper_;
     unsigned int kmer_len_;
 
 private:
@@ -25,8 +28,9 @@ private:
                                                     const EvolutionaryEdgeAlignment &) const;
 
 public:
-    explicit StatisticsEstimator(const shm_config::mutations_strategy_params &config_ms,
-                                 const shm_config::alignment_checker_params &config_ach);
+    explicit ShmKmerMatrixEstimator(const shm_config::mutations_strategy_params &shm_config_ms,
+                                    const shm_config::alignment_checker_params &shm_config_ach,
+                                    const shm_config::alignment_cropper_params &shm_config_acp);
 
 
     std::pair<KmerMatrix, KmerMatrix>

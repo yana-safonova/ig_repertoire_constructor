@@ -35,6 +35,10 @@ private:
     size_t cdr2_start_;
     size_t cdr2_end_;
 
+    bool cropped_;
+    bool checked_;
+    bool check_result_;
+
 public:
     EvolutionaryEdgeAlignment(const std::string &parent,
                               const std::string &son,
@@ -49,7 +53,10 @@ public:
         cdr1_start_(cdr1_start),
         cdr1_end_(cdr1_end),
         cdr2_start_(cdr2_start),
-        cdr2_end_(cdr2_end)
+        cdr2_end_(cdr2_end),
+        cropped_(false),
+        checked_(false),
+        check_result_(false)
     {
         VERIFY(parent.size() == son.size());
         VERIFY(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end);
@@ -98,6 +105,14 @@ public:
         cdr1_start_ -= x, cdr1_end_ -= x;
         cdr2_start_ -= x, cdr2_end_ -= x;
     }
+
+    bool IsCropped() const { return cropped_; }
+    bool IsChecked() const { return checked_; }
+    bool CheckIsOk() const { return check_result_; }
+
+    void SetCropped() { cropped_ = true; }
+    void SetChecked() { checked_ = true; }
+    void SetCheckResult(bool check_result) { check_result_ = check_result; }
 };
 using VectorEvolutionaryEdgeAlignments = std::vector<EvolutionaryEdgeAlignment>;
 

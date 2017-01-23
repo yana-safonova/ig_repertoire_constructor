@@ -16,7 +16,7 @@ bool command_line_requires_parsing(int argc, char **argv) {
     return std::string(argv[1]) == "--help" or std::string(argv[1]) == "-h";
 }
 
-// cfg contains default values from config file
+// cfg contains default values from shm_config file
 void parse_command_line_args(shm_config &cfg, int argc, char **argv) {
     if (!command_line_requires_parsing(argc, argv))
         return;

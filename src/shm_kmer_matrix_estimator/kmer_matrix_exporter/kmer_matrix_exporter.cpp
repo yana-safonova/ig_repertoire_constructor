@@ -5,12 +5,12 @@
 #include <fstream>
 
 #include "seqan/basic.h"
-#include "statistics_exporter.hpp"
+#include "kmer_matrix_exporter.hpp"
 #include "kmer_utils/kmer_utils.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
-void StatisticsExporter::export_statistics(const std::string &output_filename,
+void KmerMatrixExporter::export_statistics(const std::string &output_filename,
                                            const KmerMatrix &statistics) const {
     std::ofstream out(output_filename);
 

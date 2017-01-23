@@ -11,7 +11,7 @@ namespace shm_kmer_matrix_estimator {
 
 class AbstractAlignmentChecker {
 public:
-    virtual bool check(const EvolutionaryEdgeAlignment &) const = 0;
+    virtual bool check(EvolutionaryEdgeAlignment &) const = 0;
     virtual ~AbstractAlignmentChecker() { }
 };
 

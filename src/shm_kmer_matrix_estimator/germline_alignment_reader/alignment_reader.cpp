@@ -16,7 +16,8 @@ AlignmentReader::AlignmentReader(const std::string &alignments_filename,
                                  const shm_config::alignment_checker_params &alignment_checker_params,
                                  const shm_config::alignment_cropper_params &alignment_cropper_params) :
     alignments_filename_(alignments_filename),
-    cdr_details_filename_(cdr_details_filename) {
+    cdr_details_filename_(cdr_details_filename)
+{
     using AlignmentCheckerMethod = shm_config::alignment_checker_params::AlignmentCheckerMethod;
     if (alignment_checker_params.alignment_checker_method == AlignmentCheckerMethod::NoGaps) {
         alignment_checker_ptr_ = std::unique_ptr<NoGapsAlignmentChecker>

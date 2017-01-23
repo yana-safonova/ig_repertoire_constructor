@@ -14,7 +14,7 @@ namespace shm_kmer_matrix_estimator {
 std::string error_message_strategy(const std::string &what_about,
                                    const std::string &supplied_method,
                                    const std::vector<std::string> &available_methods,
-                                   const std::string &where = "config") {
+                                   const std::string &where = "shm_config") {
     std::string message(":::(");
     message += where + ") wrong ";
     message += what_about;

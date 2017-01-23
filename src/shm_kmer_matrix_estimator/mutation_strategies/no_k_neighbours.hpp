@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../shm_config.hpp"
+#include "shm_config.hpp"
 #include "abstract_mutation_strategy.hpp"
 
 namespace shm_kmer_matrix_estimator {

@@ -9,7 +9,7 @@
 #include <vector>
 #include <string>
 
-#include "../shm_config.hpp"
+#include "shm_config.hpp"
 #include "../evolutionary_edge_alignment/evolutionary_edge_alignment.hpp"
 
 namespace shm_kmer_matrix_estimator {

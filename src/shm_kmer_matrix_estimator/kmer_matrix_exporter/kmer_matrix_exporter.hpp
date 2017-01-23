@@ -10,7 +10,7 @@
 
 namespace shm_kmer_matrix_estimator {
 
-class StatisticsExporter {
+class KmerMatrixExporter {
 private:
     const char separator = ';';
 

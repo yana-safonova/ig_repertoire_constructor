@@ -8,14 +8,17 @@
 namespace shm_kmer_matrix_estimator {
 
 UptoLastReliableKmerAlignmentCropper::UptoLastReliableKmerAlignmentCropper(
-    const shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &config) :
-    kmer_len(config.kmer_len),
-    hash_base(config.hash_base),
+    const shm_config::alignment_cropper_params::upto_reliable_kmer_cropper_params &shm_config) :
+    kmer_len(shm_config.kmer_len),
+    hash_base(shm_config.hash_base),
     hash_max_pow(static_cast<unsigned int>(
                      std::round(
                          std::pow(hash_base, kmer_len - 1)))) {}
 
 void UptoLastReliableKmerAlignmentCropper::crop(EvolutionaryEdgeAlignment &alignment) const {
+    if (alignment.IsCropped())
+        return;
+
     using std::pair;
     using std::make_pair;
     using std::string;
@@ -36,6 +39,7 @@ void UptoLastReliableKmerAlignmentCropper::crop(EvolutionaryEdgeAlignment &align
 
     alignment.set_son(left_boarder.first, right_boarder.first.base());
     alignment.set_parent(left_boarder.second, right_boarder.second.base());
+    alignment.SetCropped();
 }
 
 template<typename PairIter>

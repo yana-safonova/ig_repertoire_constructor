@@ -15,7 +15,7 @@ include_directories(${CORE_DIR})
 add_executable(shm_kmer_matrix_estimator
         main.cpp
         shm_config.cpp
-        shm_kmer_matrix_estimator.cpp
+        shm_kmer_matrix_estimator_pipeline.cpp
         germline_alignment_reader/alignment_reader.cpp
         alignment_checker/no_gaps_alignment_checker.cpp
         alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
@@ -23,8 +23,8 @@ add_executable(shm_kmer_matrix_estimator
         mutation_strategies/no_k_neighbours.cpp
         kmer_utils/kmer_utils.cpp
         kmer_utils/kmer_indexed_vector.cpp
-        statistics_estimator/statistics_estimator.cpp
-        statistics_exporter/statistics_exporter.cpp
+        shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.cpp
+        kmer_matrix_exporter/kmer_matrix_exporter.cpp
         command_line_routines.hpp
         command_line_routines.cpp
         )
