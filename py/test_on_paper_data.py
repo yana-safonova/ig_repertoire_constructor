@@ -25,6 +25,7 @@ if __name__ == "__main__":
     queue = []
     queue.append(("test", "test"))
     queue.append(("age3", "REAL"))
+    queue.append(("flu", "FLU"))
     queue.append(("SIMULATED_0.5", "SIMULATED_0.5"))
     queue.append(("SIMULATED_1", "SIMULATED_1"))
     queue.append(("SIMULATED_2", "SIMULATED_2"))
