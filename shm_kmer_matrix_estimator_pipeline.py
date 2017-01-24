@@ -74,23 +74,21 @@ def PrepareParser():
     parser = ArgumentHiddenParser(description="== " + tool_name + " ==",
                                   add_help=False)
     req_args = parser.add_argument_group("Required params")
-    input_params = req_args.add_argument_group()
-    input_params.add_argument("-v", "--v_alignments",
-                              dest="v_alignments",
-                              type=extant_file,
-                              required=True,
-                              help="Input V alignments FASTA")
-    input_params.add_argument("-d", "--cdr_details",
-                              type=extant_file,
-                              dest="cdr_details",
-                              required=True,
-                              help="Input CDR Details")
-    output_params = req_args.add_argument_group()
-    output_params.add_argument("-o", "--output",
-                               type=str,
-                               dest="output_dir",
-                               required=True,
-                               help="Output directory")
+    req_args.add_argument("-v", "--v_alignments",
+                          dest="v_alignments",
+                          type=extant_file,
+                          required=True,
+                          help="Input V alignments FASTA")
+    req_args.add_argument("-d", "--cdr_details",
+                          type=extant_file,
+                          dest="cdr_details",
+                          required=True,
+                          help="Input CDR Details")
+    req_args.add_argument("-o", "--output",
+                          type=str,
+                          dest="output_dir",
+                          required=True,
+                          help="Output directory")
 
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-s", "--mutation_strategy",
