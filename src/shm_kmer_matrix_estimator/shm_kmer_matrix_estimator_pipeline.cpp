@@ -22,11 +22,11 @@ int SHMkmerMatrixEstimatorPipeline::Run() const {
     INFO(std::string("input cdr_details filename: ") << io_params_.input.cdr_details);
 
     INFO(std::string("Strategy for checking: ") <<
-                                                alignment_checker_params_.alignment_checker_method_names[
-                                                    static_cast<size_t> (alignment_checker_params_.alignment_checker_method)]);
+        alignment_checker_params_.alignment_checker_method_names[
+            static_cast<size_t> (alignment_checker_params_.alignment_checker_method)]);
     INFO(std::string("Strategy for cropping: ") <<
-                                                alignment_cropper_params_.alignment_cropper_method_names[
-                                                    static_cast<size_t> (alignment_cropper_params_.alignment_cropper_method)]);
+        alignment_cropper_params_.alignment_cropper_method_names[
+            static_cast<size_t> (alignment_cropper_params_.alignment_cropper_method)]);
 
     AlignmentReader germline_alignment_reader(io_params_.input.v_alignments,
                                               io_params_.input.cdr_details,
