@@ -1,12 +1,12 @@
 io_params {
     input_params {
-        v_alignments test_dataset/shm_kmer_model/v_alignments.fasta
-        cdr_details test_dataset/shm_kmer_model/cdr_details.txt
+        v_alignments test_dataset/shm_kmer_matrix_estimator/v_alignment.fasta
+        cdr_details test_dataset/shm_kmer_matrix_estimator/cdr_details.txt
     }
     output_params {
-        output_dir shm_test
-        output_filename_fr shm_kmer_model_test_fr
-        output_filename_cdr shm_kmer_model_test_cdr
+        output_dir test_dataset/shm_kmer_matrix_estimator
+        output_filename_fr kmer_matrix_fr.csv
+        output_filename_cdr kmer_matrix_cdr.csv
         log_filename log.properties
     }
 }
