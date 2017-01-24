@@ -679,7 +679,7 @@ class RepertoireMatch:
         rb["missed_clusters"] = self.missed_clusters()
         rb["extra_clusters"] = self.extra_clusters()
         rb["missed_clusters_sizes"] = self.missed_clusters_cons_sizes()
-        rb["extra_clusters_sizes"] = self.extra_clusters_ref_sizes()
+        rb["extra_clusters_ref_sizes"] = self.extra_clusters_ref_sizes()
 
     def __get_measure_for_plotting(self,
                                    size=1,
@@ -2297,12 +2297,12 @@ class Report:
             s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
             s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
 
-            extra_clusters_sizes = rb["extra_clusters_sizes"]
-            n_ec4 = sum([1 for size in extra_clusters_sizes if size == 4])
-            n_ec3 = sum([1 for size in extra_clusters_sizes if size == 3])
-            n_ec2 = sum([1 for size in extra_clusters_sizes if size == 2])
-            n_ec1 = sum([1 for size in extra_clusters_sizes if size == 1])
-            n_ec0 = sum([1 for size in extra_clusters_sizes if size == 0])
+            extra_clusters_ref_sizes = rb["extra_clusters_ref_sizes"]
+            n_ec4 = sum([1 for size in extra_clusters_ref_sizes if size == 4])
+            n_ec3 = sum([1 for size in extra_clusters_ref_sizes if size == 3])
+            n_ec2 = sum([1 for size in extra_clusters_ref_sizes if size == 2])
+            n_ec1 = sum([1 for size in extra_clusters_ref_sizes if size == 1])
+            n_ec0 = sum([1 for size in extra_clusters_ref_sizes if size == 0])
             s += "\tExtra clusters with size == 4:\t\t%d\n" % n_ec4
             s += "\tExtra clusters with size == 3:\t\t%d\n" % n_ec3
             s += "\tExtra clusters with size == 2:\t\t%d\n" % n_ec2
