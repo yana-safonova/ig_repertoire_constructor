@@ -25,8 +25,6 @@ add_executable(shm_kmer_matrix_estimator
         kmer_utils/kmer_indexed_vector.cpp
         shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.cpp
         kmer_matrix_exporter/kmer_matrix_exporter.cpp
-        command_line_routines.hpp
-        command_line_routines.cpp
         )
 
 target_link_libraries(shm_kmer_matrix_estimator

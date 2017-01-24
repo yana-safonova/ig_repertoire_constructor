@@ -5,24 +5,12 @@
 #include "copy_file.hpp"
 
 #include "shm_kmer_matrix_estimator_config.hpp"
-#include "command_line_routines.hpp"
 #include "shm_kmer_matrix_estimator_pipeline.hpp"
 
 using namespace shm_kmer_matrix_estimator;
 
-void make_dirs() {
-    path::make_dir(shm_cfg::get().io.output.output_dir);
-}
-
-void copy_configs(std::string cfg_filename, std::string to) {
-    if (!path::make_dir(to)) {
-        WARN("Could not create files use in /tmp directory");
-    }
-    path::copy_files_by_ext(path::parent_path(cfg_filename), to, ".info", true);
-}
-
 std::string get_config_fname(int argc, char **argv) {
-    if(argc == 2 and (std::string(argv[1]) != "--help" and std::string(argv[1]) != "-h"))
+    if(argc == 2)
         return std::string(argv[1]);
     return "configs/shm_kmer_matrix_estimator/configs.info";
 }
@@ -31,18 +19,7 @@ std::string load_config(int argc, char **argv) {
     std::string cfg_filename = get_config_fname(argc, argv);
     path::CheckFileExistenceFATAL(cfg_filename);
     shm_cfg::create_instance(cfg_filename);
-    std::string path_to_copy = path::append_path(shm_cfg::get().io.output.output_dir, "configs");
-    path::make_dir(path_to_copy);
-    copy_configs(cfg_filename, path_to_copy);
-    parse_command_line_args(shm_cfg::get_writable(), argc, argv);
     return cfg_filename;
-}
-
-void load_config(std::string cfg_filename) {
-    path::CheckFileExistenceFATAL(cfg_filename);
-    shm_cfg::create_instance(cfg_filename);
-    std::string path_to_copy = path::append_path(shm_cfg::get().io.output.output_dir, "configs");
-    copy_configs(cfg_filename, path_to_copy);
 }
 
 void create_console_logger(std::string cfg_filename) {
@@ -68,9 +45,9 @@ int main(int argc, char *argv[]) {
         std::string cfg_filename = load_config(argc, argv);
         create_console_logger(cfg_filename);
         int error_code = shm_kmer_matrix_estimator::SHMkmerMatrixEstimatorPipeline(shm_cfg::get().io,
-                                                                           shm_cfg::get().achp,
-                                                                           shm_cfg::get().acrp,
-                                                                           shm_cfg::get().mfp).Run();
+                                                                                   shm_cfg::get().achp,
+                                                                                   shm_cfg::get().acrp,
+                                                                                   shm_cfg::get().mfp).Run();
         if (error_code != 0) {
             INFO("SHM k-mer Model Calculator finished abnormally. Error code: " << error_code);
             return error_code;
