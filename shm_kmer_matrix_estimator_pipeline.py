@@ -79,7 +79,7 @@ def PrepareParser():
                           type=extant_file,
                           required=True,
                           help="Input V alignments FASTA")
-    req_args.add_argument("-d", "--cdr_details",
+    req_args.add_argument("-c", "--cdr_details",
                           type=extant_file,
                           dest="cdr_details",
                           required=True,
