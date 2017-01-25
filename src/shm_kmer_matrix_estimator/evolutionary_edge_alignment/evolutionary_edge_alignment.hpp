@@ -97,7 +97,7 @@ public:
     }
 
     size_t size() const {
-        VERIFY_MSG(parent.size() == son.size(), "Parent and son lengths are not equal");
+        VERIFY_MSG(parent_.size() == son_.size(), "Parent and son lengths are not equal");
         return parent_.size();
     }
 
