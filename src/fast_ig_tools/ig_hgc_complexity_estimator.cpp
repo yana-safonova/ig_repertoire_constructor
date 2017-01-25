@@ -31,7 +31,7 @@ std::pair<size_t, std::vector<size_t>> find_candidates_num(const T &read,
         return { 0, {} };
     }
 
-    std::vector<int> costs;
+    std::vector<size_t> costs;
 
     auto hashes = polyhashes(read, K);
 
@@ -65,12 +65,11 @@ size_t complexityEstimation(const std::vector<T> &input_reads,
                             int tau,
                             int K,
                             std::vector<std::vector<size_t>> &opt_kmers) {
-    std::atomic<size_t> result;
-    result = 0;
 
     Graph g(input_reads.size());
 
-    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+    size_t result = 0;
+    SEQAN_OMP_PRAGMA(parallel for reduction(+:result) schedule(dynamic, 8))
     for (size_t j = 0; j < input_reads.size(); ++j) {
         auto _ = find_candidates_num(input_reads[j], kmer2reads, tau, K);
         opt_kmers[j] = _.second;
@@ -222,6 +221,9 @@ int main(int argc, char **argv) {
     std::ofstream out(output_file);
     out << "# Input file: " << input_file << std::endl;
     out << "# Reads: " << input_reads.size() << std::endl;
+    auto bfc = (long long)(input_reads.size()) * (input_reads.size() - 1) / 2;
+    out << "# Brute-force d_count: " << bfc << std::endl;
+    out << "# Brute-force av_d_count: " << double(input_reads.size() - 1) / 2  << std::endl;
     out << "# Minimal lenght: " << min_L << std::endl;
     out << "# tau: " << tau << std::endl;
     out << "k\td_count\tav_d_count" << std::endl;
