@@ -24,7 +24,7 @@ namespace {
 
     bool read_args(int argc, const char* const* argv, Params& params) {
         namespace po = boost::program_options;
-        po::options_description cmdl_options("Is this needed?");
+        po::options_description cmdl_options;
         cmdl_options.add_options()
                 ("help,h", "print help message")
                 ("reads,r", po::value<std::string>(&params.reads_path)->required(), "input file with reads")

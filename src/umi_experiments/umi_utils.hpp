@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+#include <unordered_map>
 #include <verify.hpp>
 #include <seqan/seq_io.h>
 #include "../ig_tools/utils/string_tools.hpp"
