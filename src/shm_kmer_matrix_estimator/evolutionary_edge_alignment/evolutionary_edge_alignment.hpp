@@ -58,7 +58,8 @@ public:
         checked_(false),
         check_result_(false)
     {
-        VERIFY_MSG(parent.size() == son.size(), "Parent and son lengths are not equal");
+        VERIFY_MSG(parent.size() == son.size(),
+                   "Parent and son lengths are not equal\n" + parent + "\n" + son + "\n" + gene_id);
         VERIFY_MSG(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end,
                    "Incorrect cdr initial values");
     }
@@ -97,7 +98,8 @@ public:
     }
 
     size_t size() const {
-        VERIFY_MSG(parent_.size() == son_.size(), "Parent and son lengths are not equal");
+        VERIFY_MSG(parent_.size() == son_.size(),
+                   "Parent and son lengths are not equal\n" + parent_ + "\n" + son_ + "\n" + gene_id_);
         return parent_.size();
     }
 

@@ -49,16 +49,6 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
     auto NamesIterator = names.cbegin();
 
     while (ReadIterator != reads.cend()) {
-        // Reading cdr info
-        std::getline(cdr_details, cdr_details_line);
-        std::istringstream cdr_details_stream(cdr_details_line);
-        std::string temp;
-        size_t cdr1_start, cdr1_end, cdr2_start, cdr2_end;
-        for (size_t i = 0; i < csv_cdr1_const; ++i) {
-            cdr_details_stream >> temp;
-        }
-        cdr_details_stream >> cdr1_start >> cdr1_end >> temp >> cdr2_start >> cdr2_end;
-
         // Reading v_alignment
         std::string read_seq = std::string(seqan::toCString(*ReadIterator));
         ++ReadIterator;
@@ -67,6 +57,19 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
         assert(NamesIterator != names.cend());
         std::string germline_seq = std::string(seqan::toCString(*ReadIterator));
         std::string gene_id = std::string(seqan::toCString(*NamesIterator));
+        ++ReadIterator;
+        ++NamesIterator;
+
+        // Reading cdr info
+        std::getline(cdr_details, cdr_details_line);
+        std::istringstream cdr_details_stream(cdr_details_line);
+        std::string temp;
+        size_t cdr1_start, cdr1_end, cdr2_start, cdr2_end;
+        for (size_t i = 0; i < csv_cdr1_const; ++i) {
+            cdr_details_stream >> temp;
+        }
+        if (not (cdr_details_stream >> cdr1_start >> cdr1_end >> temp >> cdr2_start >> cdr2_end))
+            continue;
 
         EvolutionaryEdgeAlignment alignment(std::move(germline_seq), std::move(read_seq), gene_id,
                                             cdr1_start, cdr1_end, cdr2_start, cdr2_end);
@@ -75,8 +78,6 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
             alignment_cropper_ptr_->crop(alignment);
             alignments.emplace_back(std::move(alignment));
         }
-        ++ReadIterator;
-        ++NamesIterator;
     }
     return alignments;
 }
