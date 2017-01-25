@@ -34,7 +34,7 @@ AlignmentReader::AlignmentReader(const std::string &alignments_filename,
 VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
     // cdr_details
     std::ifstream cdr_details(cdr_details_filename_);
-    VERIFY(cdr_details);
+    VERIFY_MSG(cdr_details, "File is not open");
     std::string cdr_details_line;
     std::getline(cdr_details, cdr_details_line); // skip header
 

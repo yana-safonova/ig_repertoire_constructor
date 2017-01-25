@@ -52,7 +52,7 @@ std::vector<std::string> KmerUtils::GenerateAllKmersFixedLength(const size_t kme
 
 size_t KmerUtils::GetMutationIndexByKmerAndNucl(const std::string &kmer, const char nucl) {
     const char center_kmer_nucl = kmer[kmer.size() / 2];
-    VERIFY(center_kmer_nucl != nucl);
+    VERIFY_MSG(center_kmer_nucl != nucl, "Mutation of central nucl to the same nucl");
     size_t index_nucl(GetIndexNucl(nucl));
     size_t index_center_kmer_nucl(GetIndexNucl(center_kmer_nucl));
     return index_nucl - (index_nucl > index_center_kmer_nucl);

@@ -133,7 +133,7 @@ public:
     size_t kmer_len() const {
         double kmer_len_ = log(static_cast<double>(size())) /
                            log(static_cast<double>(seqan::ValueSize<seqan::Dna>::VALUE));
-        VERIFY(floor(kmer_len_) == kmer_len_);
+        VERIFY_MSG(floor(kmer_len_) == kmer_len_, "kmer_len_ is not integer");
         return static_cast<size_t>(floor(kmer_len_));
     }
 };

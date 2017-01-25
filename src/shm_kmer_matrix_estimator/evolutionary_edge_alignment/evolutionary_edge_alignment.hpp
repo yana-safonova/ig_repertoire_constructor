@@ -58,8 +58,9 @@ public:
         checked_(false),
         check_result_(false)
     {
-        VERIFY(parent.size() == son.size());
-        VERIFY(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end);
+        VERIFY_MSG(parent.size() == son.size(), "Parent and son lengths are not equal");
+        VERIFY_MSG(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end,
+                   "Incorrect cdr initial values");
     }
 
     EvolutionaryEdgeAlignment(const annotation_utils::AnnotatedClone& clone) :
@@ -96,12 +97,12 @@ public:
     }
 
     size_t size() const {
-        VERIFY(parent_.size() == son_.size());
+        VERIFY_MSG(parent.size() == son.size(), "Parent and son lengths are not equal");
         return parent_.size();
     }
 
     void substract_cdr_positions(size_t x) {
-        VERIFY(cdr1_start_ >= x);
+        VERIFY_MSG(cdr1_start_ >= x, "Incorrect substract value");
         cdr1_start_ -= x, cdr1_end_ -= x;
         cdr2_start_ -= x, cdr2_end_ -= x;
     }
@@ -109,7 +110,6 @@ public:
     bool IsCropped() const { return cropped_; }
     bool IsChecked() const { return checked_; }
     bool CheckIsOk() const { return check_result_; }
-
     void SetCropped() { cropped_ = true; }
     void SetChecked() { checked_ = true; }
     void SetCheckResult(bool check_result) { check_result_ = check_result; }
