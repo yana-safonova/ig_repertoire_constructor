@@ -1,11 +1,13 @@
 import os
+import glob
+from collections import defaultdict
 
 import special_utils.os_utils as os_utils
 
 
 class SampleReader(object):
     """ Sample is any data to be processed
-    that can be located by the default folder structure:
+    that can be located by the default directory structure:
     chain_type/indiv_number/strategy.
     For example, a kmer frequency matrix.
 
@@ -22,32 +24,16 @@ class SampleReader(object):
                         'chihua/Sid/abzikadze/datasets/'):
         working_dir = os.path.join(prefix_dir, root_dir,
                                    self.dir_data)
-        chain_types = os_utils.list_only_dirs(working_dir)
+        # default directory structure: chain_type/indiv_number/strategy
+        pattern = os.path.join(working_dir, "*", "*", "*", self.filename_data)
 
-        samples = {}
-        for chain_type in chain_types:
-            chain_type_dir = os.path.join(working_dir, chain_type)
-            indiv_numbers = os_utils.list_only_dirs(chain_type_dir)
-            for indiv_number in indiv_numbers:
-                if indiv_number in ignore_indiv_number:
-                    continue
-                indiv_number_dir = os.path.join(chain_type_dir, indiv_number)
-                strategies = os_utils.list_only_dirs(indiv_number_dir)
-                for strategy in strategies:
-                    strategy_path = os.path.join(indiv_number_dir, strategy)
-                    if os.path.isdir(strategy_path):
-                        sample_to_read = os.path.join(strategy_path,
-                                                      self.filename_data)
-                        sample = self.read_func(sample_to_read)
-                        new_key = root_dir + indiv_number_dir
-                        try:
-                            samples[strategy][chain_type][new_key] = \
-                                    sample
-                        except:
-                            try:
-                                samples[strategy][chain_type] = \
-                                    {new_key: sample}
-                            except:
-                                samples[strategy] = {chain_type: {new_key:
-                                                                  sample}}
+        rec_dd = lambda: defaultdict(rec_dd)
+        samples = rec_dd()
+        for sample_filename in glob.iglob(pattern):
+            sample_filename_spitted = sample_filename.split(os.sep)
+            chain_type, indiv_number, strategy = sample_filename_spitted[-4:-1]
+            if indiv_number in ignore_indiv_number:
+                continue
+            sample = self.read_func(sample_filename)
+            samples[strategy][chain_type][indiv_number] = sample
         return samples
