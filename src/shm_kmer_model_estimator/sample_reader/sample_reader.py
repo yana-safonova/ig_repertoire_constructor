@@ -2,8 +2,6 @@ import os
 import glob
 from collections import defaultdict
 
-import special_utils.os_utils as os_utils
-
 
 class SampleReader(object):
     """ Sample is any data to be processed
@@ -27,7 +25,9 @@ class SampleReader(object):
         # default directory structure: chain_type/indiv_number/strategy
         pattern = os.path.join(working_dir, "*", "*", "*", self.filename_data)
 
-        rec_dd = lambda: defaultdict(rec_dd)
+        def rec_dd():
+            return defaultdict(rec_dd)
+
         samples = rec_dd()
         for sample_filename in glob.iglob(pattern):
             sample_filename_spitted = sample_filename.split(os.sep)
