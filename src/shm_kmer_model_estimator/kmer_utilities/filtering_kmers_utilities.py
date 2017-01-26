@@ -13,7 +13,12 @@ def filter_by_coverage(samples,
                        mean_function=pd.DataFrame.median,
                        threshold_function=pd.Panel.max):
     """ Function filters a dataframe samples basing on the strategy
-    samples -- normally a 3D array. 3rd dim -- for different samples.
+    samples -- normally a 3D array.
+    3rd dim -- for different samples.
+
+    mean_function -- across samples.
+    threshold_function -- across nucleotides.
+
     Reasonable choice for mean_function could be: np.median, np.mean
     ...                   threshold_function could be: np.min, np.max
     """

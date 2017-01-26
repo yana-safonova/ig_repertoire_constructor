@@ -6,13 +6,17 @@ import pandas as pd
 
 def calculate_mutability_diversity(samples,
                                    data_to_plot,
-                                   good_coverage_indices=np.arange(4**5),
-                                   kmer_names=np.array([''.join(p) for p in
-                                                        itertools.product(
-                                                        ['A', 'C', 'G', 'T'],
-                                                        repeat=5)]),
-                                   nonmutated_ind=(np.arange(4**5) / 4**2)
-                                   % 4):
+                                   kmer_names=None,
+                                   nonmutated_ind=None,
+                                   good_coverage_indices=np.arange(4**5)):
+    if kmer_names is None:
+        kmer_names = [''.join(p) for p in
+                      itertools.product(['A', 'C', 'G', 'T'], repeat=5)]
+        kmer_names = np.array(kmer_names),
+
+    if nonmutated_ind is None:
+        nonmutated_ind = (np.arange(4**5) / 4**2) % 4
+
     samples = np.copy(samples)
     good_coverage_indices = np.copy(good_coverage_indices)
 
@@ -27,16 +31,18 @@ def calculate_mutability_diversity(samples,
     nonmutated_ind = nonmutated_ind[ind]
     samples = samples[:, ind, :]
 
+    def get_mutability_dataframe(pd_structure):
+        data = [data_to_plot(samples[:, i, :], i, nonmutated_ind)
+                for i in xrange(samples.shape[1])]
+        data = np.array(data)
+        return pd_structure(data, kmer_names[ind])
+
     if data_to_plot == calculate_full_substitution:
-        mutability_dataframe = pd.Panel(
-            np.array([data_to_plot(samples[:, i, :], i, nonmutated_ind)
-                      for i in xrange(samples.shape[1])]),
-            items=kmer_names[ind])
+        mutability_dataframe = \
+            get_mutability_dataframe(lambda a, b: pd.Panel(a, items=b))
     else:
-        mutability_dataframe = pd.DataFrame(
-            np.array([data_to_plot(samples[:, i, :], i, nonmutated_ind)
-                      for i in xrange(samples.shape[1])]),
-            index=kmer_names[ind])
+        mutability_dataframe = \
+            get_mutability_dataframe(lambda a, b: pd.DataFrame(a, index=b))
         mutability_dataframe = mutability_dataframe.T
 
     return ind, mutability_dataframe
