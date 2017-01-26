@@ -3,7 +3,7 @@ from sample_reader import SampleReader
 from disk_memoize.disk_memoize import memoize_to_disk
 
 
-# @memoize_to_disk
+@memoize_to_disk
 def read_matrix(x):
     return pd.read_csv(x, sep=';', header=0, index_col=0)
 
