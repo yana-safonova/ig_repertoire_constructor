@@ -68,7 +68,7 @@ ShmKmerMatrixEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlig
             calculate_mutation_statistics_per_position(mutations_statistics_fr, relevant_positions[i], alignment);
             i++;
         }
-        while (i < relevant_positions.size() and relevant_positions[i] < alignment.cdr2_end()) {
+        while (i < relevant_positions.size() and relevant_positions[i] <= alignment.cdr2_end()) {
             calculate_mutation_statistics_per_position(mutations_statistics_cdr, relevant_positions[i], alignment);
             i++;
         }
