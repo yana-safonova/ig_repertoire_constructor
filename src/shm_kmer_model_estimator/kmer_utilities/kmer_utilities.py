@@ -21,3 +21,10 @@ def central_nucl_indexes(kmer_len=5):
                n_nucl**half_kmer_len
                for x in xrange(len(nucl_bases())**kmer_len)]
     return indexes
+
+
+def nonmutated_index(kmer, kmer_len=5):
+    """ Simple routine to get index in the alphabet
+    of a central nucl in a kmer. """
+    nonmutated_nucl = kmer[kmer_len // 2]
+    return nucl_bases().index(nonmutated_nucl)

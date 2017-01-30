@@ -12,10 +12,11 @@ def calculate_mutability_diversity(samples,
     if kmer_names is None:
         kmer_names = [''.join(p) for p in
                       itertools.product(['A', 'C', 'G', 'T'], repeat=5)]
-        kmer_names = np.array(kmer_names),
+    kmer_names = np.array(kmer_names)
 
     if nonmutated_ind is None:
         nonmutated_ind = (np.arange(4**5) / 4**2) % 4
+    nonmutated_ind = np.array(nonmutated_ind)
 
     samples = np.copy(samples)
     good_coverage_indices = np.copy(good_coverage_indices)
