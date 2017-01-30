@@ -28,3 +28,14 @@ def nonmutated_index(kmer, kmer_len=5):
     of a central nucl in a kmer. """
     nonmutated_nucl = kmer[kmer_len // 2]
     return nucl_bases().index(nonmutated_nucl)
+
+
+def kmer_index(kmer, kmer_len=5):
+    bases = nucl_bases()
+    base = len(bases)
+    p = 1
+    index = 0
+    for s in list(kmer)[::-1]:
+        index += bases.index(s) * p
+        p *= base
+    return index

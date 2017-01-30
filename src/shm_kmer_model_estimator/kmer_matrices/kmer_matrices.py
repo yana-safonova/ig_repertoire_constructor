@@ -1,12 +1,11 @@
 import numpy as np
 
-from kmer_utilities.kmer_utilities import central_nucl_indexes
+from kmer_utilities.kmer_utilities import central_nucl_indexes, \
+                                          kmer_names, \
+                                          kmer_index
 
 class KmerMatrices(object):
     def __init__(self, fr_matrices, cdr_matrices):
-        # self.fr_matrices = np.concatenate(fr_matrices.values(), 2)
-        # self.cdr_matrices = np.concatenate(cdr_matrices.values(), 2)
-
         central_ind = central_nucl_indexes()
         central_ind = np.array(central_ind)
         matrix_shape = fr_matrices.itervalues().next().shape
@@ -27,9 +26,21 @@ class KmerMatrices(object):
             self.matrices.append(matrix[:, :, np.newaxis])
         self.matrices = np.concatenate(self.matrices, 2)
 
-
     def __str__(self):
         return self.matrices.__str__()
 
     def __repr__(self):
         return self.matrices.__repr__()
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            if key not in kmer_names():
+                raise TypeError, "Not a kmer string argument: %s" % key
+            index = kmer_index(key)
+            return self.matrices[index, :, :].T
+        if isinstance(key, int):
+            return self.matrices[:, :, key]
+        if isinstance(key, slice):
+            return self.matrices[:, :, key.start:key.stop:key.step]
+        raise TypeError, "Unknown key type: %s" % key
+
