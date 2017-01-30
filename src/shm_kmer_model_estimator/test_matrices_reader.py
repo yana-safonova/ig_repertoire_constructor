@@ -14,3 +14,8 @@ matrices = reader.read("age")
 kmers = kmer_names()
 for ind, kmer in enumerate(kmers):
     assert ind == kmer_index(kmer)
+
+from sample_reader.standard_samples import concatenate_kmer_matrices_all_data
+
+matrices = concatenate_kmer_matrices_all_data()
+print(matrices[MutationStrategies.Trivial][Chains.IGH].matrices.shape)

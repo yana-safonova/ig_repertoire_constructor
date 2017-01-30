@@ -1,35 +1,38 @@
-""" This module contains standard samples from AbVitro and age datasets.
-Func concatenate_samples creates a Panel that is as full as possible. """
-
-from kmer_freq_matrix_reader import KmerFreqMatrixReader
+""" This module contains standard samples from AbVitro and age datasets."""
 
 import pandas as pd
+
+from kmer_matrices_reader import KmerMatricesReader
+from kmer_matrices.kmer_matrices import KmerMatrices
+from chains.chains import Chains
+from mutation_strategies.mutation_strategies import MutationStrategies
 
 
 def concatenate_kmer_freq_matrices(
         input_data,
-        kmer_freq_matrix_reader=KmerFreqMatrixReader(),
-        chain_type='IGH', strategy='NoKNeighbours'):
-    assert chain_type in ['IGH', 'IGL', 'IGK']
-    samples = [kmer_freq_matrix_reader.read(*x) for x in input_data]
-    result = pd.concat((sample[strategy][chain_type] for sample in samples))
-    return result
+        kmer_matrices_reader=KmerMatricesReader()):
+    matrices = [kmer_matrices_reader.read(*x) for x in input_data]
+    dict_matrices = dict.fromkeys(MutationStrategies)
+    for strategy in MutationStrategies:
+        matrices_str = \
+            [matrix[strategy] for matrix in matrices]
+        dict_matrices[strategy] = dict.fromkeys(Chains)
+        for chain in Chains:
+            matrices_chain = \
+                [matrix[chain] for matrix in matrices_str if chain in matrix]
+            dict_matrices[strategy][chain] = \
+                KmerMatrices.FromKmerMatricesList(matrices_chain)
+    return dict_matrices
 
 
 def concatenate_kmer_matrices_all_data(
-        chain_type="IGH", strategy="NoKNeighbours",
-        kmer_freq_matrix_reader=KmerFreqMatrixReader()):
+        kmer_matrices_reader=KmerMatricesReader()):
     input_data = [("AbVitro/flu_time_course/FV/", ['25']),
                   ("AbVitro/flu_time_course/GMC/", ['8']),
                   ("AbVitro/flu_time_course/IDO/", []),
-                  ("AbVitro/paired", [])]
-
-    if chain_type == "IGH":
-        input_data += [("age/", [])]
-
+                  ("AbVitro/paired", []),
+                  ("age", [])]
     result = concatenate_kmer_freq_matrices(
         input_data=input_data,
-        kmer_freq_matrix_reader=kmer_freq_matrix_reader,
-        chain_type=chain_type,
-        strategy=strategy)
+        kmer_matrices_reader=kmer_matrices_reader)
     return result

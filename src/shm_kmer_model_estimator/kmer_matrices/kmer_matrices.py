@@ -5,7 +5,10 @@ from kmer_utilities.kmer_utilities import central_nucl_indexes, \
                                           kmer_index
 
 class KmerMatrices(object):
-    def __init__(self, fr_matrices, cdr_matrices):
+    def __init__(self, fr_matrices=None, cdr_matrices=None):
+        if fr_matrices is None or cdr_matrices is None:
+            return
+
         central_ind = central_nucl_indexes()
         central_ind = np.array(central_ind)
         matrix_shape = fr_matrices.itervalues().next().shape
@@ -25,6 +28,24 @@ class KmerMatrices(object):
             matrix = np.concatenate((fr_mut, cdr_mut, subst), 1)
             self.matrices.append(matrix[:, :, np.newaxis])
         self.matrices = np.concatenate(self.matrices, 2)
+
+        self.fr_matrices = \
+            [fr[:, :, np.newaxis] for fr in fr_matrices.itervalues()]
+        self.cdr_matrices = \
+            [cdr[:, :, np.newaxis] for cdr in cdr_matrices.itervalues()]
+        self.fr_matrices = np.concatenate(self.fr_matrices, 2)
+        self.cdr_matrices = np.concatenate(self.cdr_matrices, 2)
+
+    @classmethod
+    def FromKmerMatricesList(cls, kmer_matrices):
+        obj = cls()
+        obj.matrices = \
+            np.concatenate([x.matrices for x in kmer_matrices], 2)
+        obj.fr_matrices = \
+            np.concatenate([x.fr_matrices for x in kmer_matrices], 2)
+        obj.cdr_matrices = \
+            np.concatenate([x.cdr_matrices for x in kmer_matrices], 2)
+        return obj
 
     def __str__(self):
         return self.matrices.__str__()
