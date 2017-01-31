@@ -59,5 +59,5 @@ models = estimator.estimate_models(matrices)
 for strategy in models:
     for chain in models[strategy]:
         model = models[strategy][chain]
-        model.dataset.to_csv(strategy.name + '_' + chain.name + '.csv', na_rep='nan')
+        model.dataset.to_csv('models/' + strategy.name + '_' + chain.name + '.csv', na_rep='nan')
 
