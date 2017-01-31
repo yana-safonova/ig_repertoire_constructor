@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+from config.config import config
 from kmer_matrices_reader import KmerMatricesReader
 from kmer_matrices.kmer_matrices import KmerMatrices
 from chains.chains import Chains
@@ -27,12 +28,7 @@ def concatenate_kmer_freq_matrices(
 
 def concatenate_kmer_matrices_all_data(
         kmer_matrices_reader=KmerMatricesReader()):
-    input_data = [("AbVitro/flu_time_course/FV/", ['25']),
-                  ("AbVitro/flu_time_course/GMC/", ['8']),
-                  ("AbVitro/flu_time_course/IDO/", []),
-                  ("AbVitro/paired", []),
-                  ("age", [])]
     result = concatenate_kmer_freq_matrices(
-        input_data=input_data,
+        input_data=config.input_data,
         kmer_matrices_reader=kmer_matrices_reader)
     return result

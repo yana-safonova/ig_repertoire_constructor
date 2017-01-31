@@ -1,8 +1,10 @@
 import numpy as np
 import pandas as pd
 
+from config.config import config
 from sample_reader import read_samples
 from kmer_matrices.kmer_matrices import KmerMatrices
+
 
 def read_matrix(x):
     pandas_array = pd.read_csv(x, sep=';', header=0, index_col=0)
@@ -10,9 +12,9 @@ def read_matrix(x):
 
 
 class KmerMatricesReader:
-    def __init__(self, dir_data='kmer_statistics_fr_cdr',
-                 filename_fr='kmer_matrix_fr.csv',
-                 filename_cdr='kmer_matrix_cdr.csv',
+    def __init__(self, dir_data=config.kmer_matrices_dir,
+                 filename_fr=config.filename_fr,
+                 filename_cdr=config.filename_cdr,
                  read_func=read_matrix):
         self.dir_data = dir_data
         self.filename_fr = filename_fr
@@ -30,7 +32,7 @@ class KmerMatricesReader:
         return matrices
 
     def read(self, root_dir, ignore_indiv_number=[],
-             prefix_dir='/Sid/abzikadze/datasets/'):
+             prefix_dir=config.data_dir):
         def read_matrix(filename_data):
             return read_samples(filename_data=filename_data,
                                 dir_data=self.dir_data,

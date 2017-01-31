@@ -9,15 +9,17 @@ class KmerMatrices(object):
         if fr_matrices is None or cdr_matrices is None:
             return
 
-        central_ind = central_nucl_indexes()
-        central_ind = np.array(central_ind)
         matrix_shape = fr_matrices.itervalues().next().shape
         nonmut_matrix_shape = list(matrix_shape)
         nonmut_matrix_shape[1] -= 1
+
+        central_ind = central_nucl_indexes()
+        central_ind = np.array(central_ind)
         central_ind_mask = np.zeros(matrix_shape, dtype=np.bool)
 
         central_ind_mask[xrange(len(central_ind_mask)),
                           central_ind] = True
+
         self.matrices = []
         for fr, cdr in zip(fr_matrices.values(), cdr_matrices.values()):
             fr_mut, cdr_mut = fr[central_ind_mask], cdr[central_ind_mask]

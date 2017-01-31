@@ -2,6 +2,7 @@ import os
 import glob
 from collections import defaultdict
 
+from config.config import config
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
 
@@ -16,7 +17,7 @@ Items: numbers of datasets.
 """
 def read_samples(dir_data, filename_data, read_func,
                  root_dir, ignore_indiv_number=[],
-                 prefix_dir="/Sid/abzikadze/datasets/"):
+                 prefix_dir=config.data_dir):
     working_dir = os.path.join(prefix_dir, root_dir, dir_data)
     # default directory structure: chain_type/indiv_number/strategy
     pattern = os.path.join(working_dir, "*", "*", "*", filename_data)
