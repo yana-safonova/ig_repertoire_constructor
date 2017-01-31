@@ -15,16 +15,28 @@ kmers = kmer_names()
 for ind, kmer in enumerate(kmers):
     assert ind == kmer_index(kmer)
 
-from sample_reader.standard_samples import concatenate_kmer_matrices_all_data
-
-matrices = concatenate_kmer_matrices_all_data()
-# print(matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"])
-
-
-#from config.config import config
-#print(config.input_data)
-
+# from sample_reader.standard_samples import concatenate_kmer_matrices_all_data
+# 
+# matrices = concatenate_kmer_matrices_all_data()
+# # print(matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"])
+# 
+# 
+# #from config.config import config
+# #print(config.input_data)
+# 
+# from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
+# 
+# test_sample = matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"]
+# lklh = ShmKmerLikelihood(test_sample, check_gradient=True, number_of_tests=2)
+# 
+from test_sample_generator.generate_test_sample import generate_sample
+from shm_kmer_likelihood_optimize.shm_kmer_likelihood_optimize import ShmKmerLikelihoodOptimizator
 from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
 
-test_sample = matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"]
-lklh = ShmKmerLikelihood(test_sample, check_gradient=True, number_of_tests=2)
+sample = generate_sample(100, 40, [1, 5], [1, 1], [20, 1, 10])
+lklh = ShmKmerLikelihood(sample)
+optimizator = ShmKmerLikelihoodOptimizator(lklh)
+optim_res = optimizator.maximize()
+print(optim_res['optim_result_beta_fr'].x)
+print(optim_res['optim_result_beta_cdr'].x)
+print(optim_res['optim_res_dir'].x)
