@@ -18,7 +18,13 @@ for ind, kmer in enumerate(kmers):
 from sample_reader.standard_samples import concatenate_kmer_matrices_all_data
 
 matrices = concatenate_kmer_matrices_all_data()
-print(matrices[MutationStrategies.Trivial][Chains.IGH].matrices)
+# print(matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"])
+
 
 #from config.config import config
 #print(config.input_data)
+
+from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
+
+test_sample = matrices[MutationStrategies.Trivial][Chains.IGH]["AAAAA"]
+lklh = ShmKmerLikelihood(test_sample, check_gradient=True, number_of_tests=2)

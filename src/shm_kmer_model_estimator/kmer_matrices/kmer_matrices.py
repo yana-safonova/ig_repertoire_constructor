@@ -22,12 +22,19 @@ class KmerMatrices(object):
 
         self.matrices = []
         for fr, cdr in zip(fr_matrices.values(), cdr_matrices.values()):
-            fr_mut, cdr_mut = fr[central_ind_mask], cdr[central_ind_mask]
-            fr_mut, cdr_mut = fr_mut[:, np.newaxis], cdr_mut[:, np.newaxis]
+            fr_nonmut, cdr_nonmut = fr[central_ind_mask], cdr[central_ind_mask]
+            fr_nonmut  = fr_nonmut[:, np.newaxis]
+            cdr_nonmut  = cdr_nonmut[:, np.newaxis]
+
             fr_subst = fr[~central_ind_mask].reshape(nonmut_matrix_shape)
             cdr_subst = cdr[~central_ind_mask].reshape(nonmut_matrix_shape)
             subst = fr_subst + cdr_subst
-            matrix = np.concatenate((fr_mut, cdr_mut, subst), 1)
+
+            fr_mut = np.sum(fr_subst, axis=1)[:, np.newaxis]
+            cdr_mut = np.sum(cdr_subst, axis=1)[:, np.newaxis]
+
+            matrix = np.concatenate((fr_mut, fr_nonmut,
+                                     cdr_mut, cdr_nonmut, subst), 1)
             self.matrices.append(matrix[:, :, np.newaxis])
         self.matrices = np.concatenate(self.matrices, 2)
 
