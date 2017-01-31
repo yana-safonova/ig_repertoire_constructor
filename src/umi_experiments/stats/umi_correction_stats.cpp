@@ -1,6 +1,6 @@
 #include "string"
 #include "../../ig_tools/utils/string_tools.hpp"
-#include "../umi_utils.hpp"
+#include <umi_utils.hpp>
 #include <logger/log_writers.hpp>
 #include <segfault_handler.hpp>
 #include <boost/program_options.hpp>
@@ -8,25 +8,7 @@
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
-
-std::unordered_map<seqan::CharString, size_t> read_rcm_file(std::string file_path) {
-    INFO("Reading rcm from " << file_path);
-    std::unordered_map<seqan::CharString, size_t> rcm;
-    std::unordered_set<size_t> clusters;
-    std::ifstream file(file_path);
-    std::string s;
-    while (std::getline(file, s)) {
-        const auto& mapping = split(s, '\t');
-        VERIFY(mapping.size() >= 1 && mapping.size() <= 2);
-        if (mapping.size() == 2) {
-            size_t cluster = std::stoull(mapping[1]);
-            rcm[seqan::CharString(mapping[0])] = cluster;
-            clusters.insert(cluster);
-        }
-    }
-    INFO(rcm.size() << " nonempty mappings read. " << clusters.size() << " clusters in total.");
-    return rcm;
-}
+#include <utils/io.hpp>
 
 size_t get_simulated_read_id(const seqan::CharString& id) {
     std::string s = seqan_string_to_string(id);
