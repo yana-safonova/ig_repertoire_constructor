@@ -1,0 +1,13 @@
+{
+    "input_data": [
+        ["AbVitro/flu_time_course/FV/", ["25"]],
+        ["AbVitro/flu_time_course/GMC/", ["8"]],
+        ["AbVitro/flu_time_course/IDO/", []],
+        ["AbVitro/paired", []],
+        ["age", []]
+    ],
+    "data_dir": "/Sid/abzikadze/datasets/",
+    "kmer_matrices_dir": "kmer_statistics_fr_cdr",
+    "filename_fr": "kmer_matrix_fr.csv",
+    "filename_cdr": "kmer_matrix_cdr.csv"
+}

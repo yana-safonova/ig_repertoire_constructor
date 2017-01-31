@@ -65,6 +65,6 @@ class ShmKmerLikelihoodOptimizator:
         return {'start_beta_fr': self.x0_beta_fr,
                 'start_beta_cdr': self.x0_beta_cdr,
                 'start_dir': self.x0_dir,
-                'optim_result_beta_fr': minimize_result_beta_fr,
-                'optim_result_beta_cdr': minimize_result_beta_cdr,
+                'optim_res_beta_fr': minimize_result_beta_fr,
+                'optim_res_beta_cdr': minimize_result_beta_cdr,
                 'optim_res_dir': minimize_result_dir}
