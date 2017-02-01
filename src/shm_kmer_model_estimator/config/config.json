@@ -24,5 +24,6 @@
         "start_point_dir_shape1",
         "start_point_dir_shape2",
         "start_point_dir_shape3"
-    ]
+    ],
+    "output_directory": "/Sid/abzikadze/shm_models/"
 }
