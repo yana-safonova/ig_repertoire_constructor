@@ -54,6 +54,9 @@ estimator = ShmKmerModelEstimator()
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
 import pickle
+from config.config import config
+
+print(config.output_csv_header)
 
 models = estimator.estimate_models(matrices)
 for strategy in models:

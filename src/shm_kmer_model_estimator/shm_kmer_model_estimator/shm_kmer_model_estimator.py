@@ -6,6 +6,7 @@ from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
 import kmer_utilities.kmer_utilities as kmer_utils
 from shm_kmer_model.cab_shm_model import CAB_SHM_Model
 
+from config.config import config
 
 class ShmKmerModelEstimator(object):
     def __init__(self, kmer_len=5):
@@ -14,19 +15,7 @@ class ShmKmerModelEstimator(object):
         self.kmer_len = kmer_len
         self.half_kmer_len = kmer_len // 2
         self.kmer_names = kmer_utils.kmer_names(kmer_len)
-        self.column_names = ['beta_FR_shape1', 'beta_FR_shape2',
-                             'beta_CDR_shape1', 'beta_CDR_shape2',
-                             'dir_shape1', 'dir_shape2', 'dir_shape3',
-                             'success_optim_beta_FR',
-                             'success_optim_beta_CDR',
-                             'success_optim_dir',
-                             'start_point_beta_FR_shape1',
-                             'start_point_beta_FR_shape2',
-                             'start_point_beta_CDR_shape1',
-                             'start_point_beta_CDR_shape2',
-                             'start_point_dir_shape1',
-                             'start_point_dir_shape2',
-                             'start_point_dir_shape3']
+        self.column_names = config.output_csv_header
         self.central_nucl_indexes = kmer_utils.central_nucl_indexes(kmer_len)
         self.n_param = len(self.column_names)
 
