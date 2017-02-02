@@ -74,6 +74,12 @@ import numpy as np
 matrices = concatenate_kmer_matrices_all_data()
 matrices = matrices[MutationStrategies.Trivial][Chains.IGH]
 
-print(matrices.shape)
 filtered = filter_by_coverage(matrices, threshold_function=np.min)
-print(filtered.kmer_names)
+
+
+from mutability_diversity.calculate_mutability_diversity import *
+mut_fr = calculate_mutability_fr(matrices)
+mut_cdr = calculate_mutability_cdr(matrices)
+subst = calculate_substitution(matrices)
+# print(np.sum(np.isnan(calculate_mutability_fr(matrices)), axis=1))
+

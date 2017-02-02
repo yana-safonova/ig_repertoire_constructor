@@ -16,8 +16,8 @@ Reader returns a dictionary of pandas.Panel.
 Items: numbers of datasets.
 """
 def read_samples(dir_data, filename_data, read_func,
-                 root_dir, ignore_indiv_number=[],
-                 prefix_dir=config.data_dir):
+                 prefix_dir, root_dir,
+                 ignore_indiv_number=[]):
     working_dir = os.path.join(prefix_dir, root_dir, dir_data)
     # default directory structure: chain_type/indiv_number/strategy
     pattern = os.path.join(working_dir, "*", "*", "*", filename_data)
