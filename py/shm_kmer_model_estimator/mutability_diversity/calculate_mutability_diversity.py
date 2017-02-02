@@ -1,75 +1,22 @@
+from __future__ import division
 import itertools
 
 import numpy as np
 import pandas as pd
 
 
-def calculate_mutability_diversity(samples,
-                                   data_to_plot,
-                                   kmer_names=None,
-                                   nonmutated_ind=None,
-                                   good_coverage_indices=np.arange(4**5)):
-    if kmer_names is None:
-        kmer_names = [''.join(p) for p in
-                      itertools.product(['A', 'C', 'G', 'T'], repeat=5)]
-    kmer_names = np.array(kmer_names)
-
-    if nonmutated_ind is None:
-        nonmutated_ind = (np.arange(4**5) / 4**2) % 4
-    nonmutated_ind = np.array(nonmutated_ind)
-
-    samples = np.copy(samples)
-    good_coverage_indices = np.copy(good_coverage_indices)
-
-    kmer_names = kmer_names[good_coverage_indices]
-    nonmutated_ind = nonmutated_ind[good_coverage_indices]
-
-    order_array = np.array([np.median(data_to_plot(samples[:, i, :], i,
-                                                   nonmutated_ind))
-                            for i in xrange(samples.shape[1])])
-    ind = np.argsort(-order_array)
-
-    nonmutated_ind = nonmutated_ind[ind]
-    samples = samples[:, ind, :]
-
-    def get_mutability_dataframe(pd_structure):
-        data = [data_to_plot(samples[:, i, :], i, nonmutated_ind)
-                for i in xrange(samples.shape[1])]
-        data = np.array(data)
-        return pd_structure(data, kmer_names[ind])
-
-    if data_to_plot == calculate_full_substitution:
-        mutability_dataframe = \
-            get_mutability_dataframe(lambda a, b: pd.Panel(a, items=b))
-    else:
-        mutability_dataframe = \
-            get_mutability_dataframe(lambda a, b: pd.DataFrame(a, index=b))
-        mutability_dataframe = mutability_dataframe.T
-
-    return ind, mutability_dataframe
+def calculate_mutability_fr(kmer_matrices):
+    matrices = kmer_matrices.matrices
+    return matrices[:, 0, :] / (matrices[:, 0, :] + matrices[:, 1, :])
 
 
-def calculate_mutability(row, row_index, nonmutated_ind):
-    return 1 - row[:, nonmutated_ind[row_index]] / np.sum(row, 1, dtype=float)
+def calculate_mutability_cdr(kmer_matrices):
+    matrices = kmer_matrices.matrices
+    return matrices[:, 2, :] / (matrices[:, 2, :] + matrices[:, 3, :])
 
 
-def calculate_substitution(row, row_index, nonmutated_ind, i):
-    return row[:, (nonmutated_ind[row_index] + i) % 4] / \
-           (np.sum(row, 1, dtype=float) - row[:, nonmutated_ind[row_index]])
-
-
-def calculate_substitution_1(row, row_index, nonmutated_ind):
-    return calculate_substitution(row, row_index, nonmutated_ind, 1)
-
-
-def calculate_substitution_2(row, row_index, nonmutated_ind):
-    return calculate_substitution(row, row_index, nonmutated_ind, 2)
-
-
-def calculate_substitution_3(row, row_index, nonmutated_ind):
-    return calculate_substitution(row, row_index, nonmutated_ind, 3)
-
-
-def calculate_full_substitution(row, row_index, nonmutated_ind):
-    return [calculate_substitution(row, row_index, nonmutated_ind, i)
-            for i in xrange(3)]
+def calculate_substitution(kmer_matrices):
+    matrices = kmer_matrices.matrices
+    norm = np.sum(matrices[:, 4:, :], axis = 1)
+    norm = norm[:, np.newaxis, :]
+    return matrices[:, 4:, :] / norm
