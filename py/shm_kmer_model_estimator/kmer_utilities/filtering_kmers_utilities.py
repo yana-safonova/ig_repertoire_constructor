@@ -1,20 +1,18 @@
 #!/usr/bin/env python2
 
 from __future__ import print_function
+import numpy as np
 
 import kmer_utilities
-
-import numpy as np
-import pandas as pd
+from kmer_matrices.kmer_matrices import KmerMatrices
 
 
-def filter_by_coverage(samples,
+def filter_by_coverage(kmer_matrices,
                        coverage_threshold=100,
-                       mean_function=pd.DataFrame.median,
-                       threshold_function=pd.Panel.max):
-    """ Function filters a dataframe samples basing on the strategy
-    samples -- normally a 3D array.
-    3rd dim -- for different samples.
+                       mean_function=np.median,
+                       threshold_function=np.max):
+    """ Function filters kmer_matrices basing on the strategy
+    kmer_matrices -- a KmerMatrices class object
 
     mean_function -- across samples.
     threshold_function -- across nucleotides.
@@ -22,8 +20,7 @@ def filter_by_coverage(samples,
     Reasonable choice for mean_function could be: np.median, np.mean
     ...                   threshold_function could be: np.min, np.max
     """
-    coverage = mean_function(threshold_function(samples, axis=0), axis=1)
-    ind_coverage = np.array(coverage > coverage_threshold)
-    kmer_names = np.array(kmer_utilities.kmer_names())
-    kmer_names = kmer_names[ind_coverage]
-    return ind_coverage, samples.iloc[:, ind_coverage, :]
+    pure_matrices = kmer_matrices.matrices
+    coverage = mean_function(threshold_function(pure_matrices, axis=1), axis=1)
+    covered_ind  = np.array(coverage > coverage_threshold)
+    return KmerMatrices.FromKmerMatricesByFiltering(kmer_matrices, covered_ind)

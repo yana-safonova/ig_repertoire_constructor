@@ -45,6 +45,9 @@ class KmerMatrices(object):
         self.fr_matrices = np.concatenate(self.fr_matrices, 2)
         self.cdr_matrices = np.concatenate(self.cdr_matrices, 2)
 
+        self.shape = self.matrices.shape
+        self.kmer_names = kmer_names()
+
     @classmethod
     def FromKmerMatricesList(cls, kmer_matrices):
         obj = cls()
@@ -54,6 +57,21 @@ class KmerMatrices(object):
             np.concatenate([x.fr_matrices for x in kmer_matrices], 2)
         obj.cdr_matrices = \
             np.concatenate([x.cdr_matrices for x in kmer_matrices], 2)
+
+        obj.shape = obj.matrices.shape
+        obj.kmer_names = kmer_matrices[0].kmer_names
+        return obj
+
+    @classmethod
+    def FromKmerMatricesByFiltering(cls, kmer_matrices, covered_ind):
+        obj = cls()
+        filtered_kmer_names = np.array(kmer_matrices.kmer_names)
+        filtered_kmer_names = filtered_kmer_names[covered_ind]
+        obj.kmer_names = list(filtered_kmer_names)
+        obj.matrices = kmer_matrices.matrices[covered_ind, :, :]
+        obj.fr_matrices = kmer_matrices.fr_matrices[covered_ind, :, :]
+        obj.cdr_matrices = kmer_matrices.cdr_matrices[covered_ind, :, :]
+        obj.shape = obj.matrices.shape
         return obj
 
     def __str__(self):
@@ -66,6 +84,8 @@ class KmerMatrices(object):
         if isinstance(key, str):
             if key not in kmer_names():
                 raise TypeError, "Not a kmer string argument: %s" % key
+            if key not in self.kmer_names:
+                raise TypeError, "This kmer %s% is not in matrix" & key
             index = kmer_index(key)
             return self.matrices[index, :, :].T
         if isinstance(key, int):
