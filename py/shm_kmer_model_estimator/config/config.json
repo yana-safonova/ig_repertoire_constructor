@@ -1,0 +1,17 @@
+{
+    "output_csv_header": [
+        "beta_FR_shape1", "beta_FR_shape2",
+        "beta_CDR_shape1", "beta_CDR_shape2",
+        "dir_shape1", "dir_shape2", "dir_shape3",
+        "success_optim_beta_FR",
+        "success_optim_beta_CDR",
+        "success_optim_dir",
+        "start_point_beta_FR_shape1",
+        "start_point_beta_FR_shape2",
+        "start_point_beta_CDR_shape1",
+        "start_point_beta_CDR_shape2",
+        "start_point_dir_shape1",
+        "start_point_dir_shape2",
+        "start_point_dir_shape3"
+    ]
+}
