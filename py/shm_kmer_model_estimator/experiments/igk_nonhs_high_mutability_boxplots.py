@@ -35,10 +35,10 @@ if __name__ == '__main__':
     for gene, seq in germline.iteritems():
         if gene not in annotation_germline.index:
             continue
-        cdr1_start = annotation_germline.cdr1_start[gene]# - kmer_len // 2
-        cdr1_end = annotation_germline.cdr1_end[gene] + 1# + kmer_len // 2
-        cdr2_start = annotation_germline.cdr2_start[gene]# - kmer_len // 2
-        cdr2_end = annotation_germline.cdr2_end[gene] + 1# + kmer_len // 2
+        cdr1_start = annotation_germline.cdr1_start[gene] - 1 - kmer_len // 2
+        cdr1_end = annotation_germline.cdr1_end[gene] + kmer_len // 2
+        cdr2_start = annotation_germline.cdr2_start[gene] - 1 - kmer_len // 2
+        cdr2_end = annotation_germline.cdr2_end[gene] + kmer_len // 2
         cdr1_start, cdr1_end = int(cdr1_start), int(cdr1_end)
         cdr2_start, cdr2_end = int(cdr2_start), int(cdr2_end)
         cdr1 = seq[cdr1_start:cdr1_end]
