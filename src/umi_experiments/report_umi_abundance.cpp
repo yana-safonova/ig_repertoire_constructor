@@ -108,7 +108,8 @@ int main(int argc, const char* const* argv) {
         std::vector<string> parts = split(id, "___");
         size_t cluster = std::stoull(parts[1]);
         size_t size = std::stoull(parts[3]);
-        new_read_ids[i] = seqan::CharString("cluster_" + std::to_string(cluster) + "|UMIs_" + std::to_string(final_cluster_umi_abundances[cluster]) + "|reads_" + std::to_string(size));
+//        new_read_ids[i] = seqan::CharString("cluster_" + std::to_string(cluster) + "|UMIs_" + std::to_string(final_cluster_umi_abundances[cluster]) + "|reads_" + std::to_string(size));
+        new_read_ids[i] = seqan::CharString("cluster___" + std::to_string(cluster) + "___size___" + std::to_string(final_cluster_umi_abundances[cluster]));
     }
     write_seqan_records(params.output_path, new_read_ids, input.read_seqs);
 }
