@@ -30,14 +30,16 @@ def parse_args():
     return parser.parse_args()
 
 
-def read_input_config(args):
+def read_input_config():
+    args = parse_args()
     with open(args.input, "r") as handle:
         config = json.load(handle,
                            object_hook=lambda d: argparse.Namespace(**d))
     return config.prefix_dir, config.input_data, config.kmer_model_estimating
 
+
 def main():
-    prefix_dir, input_data, model_est_params = read_input_config(parse_args())
+    prefix_dir, input_data, model_est_params = read_input_config()
     matrices = concatenate_kmer_freq_matrices(
         input_data=input_data,
         prefix_dir=prefix_dir,
