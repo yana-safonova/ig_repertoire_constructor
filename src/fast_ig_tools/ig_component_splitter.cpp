@@ -230,6 +230,7 @@ int main(int argc, char **argv) {
     bool discard = false;
     bool recursive = true;
     bool flu = false;
+    bool allow_unassigned = false;
 
     // Parse cmd-line arguments
     try {
@@ -265,6 +266,8 @@ int main(int argc, char **argv) {
              "whether to perform recursive splitting")
             ("flu,F", po::value<bool>(&flu)->default_value(flu),
              "Use FLU preset")
+            ("allow-unassigned,A", po::value<bool>(&allow_unassigned)->default_value(allow_unassigned),
+             "Allow unassigned reads in RCM")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -346,13 +349,28 @@ int main(int argc, char **argv) {
     component_indices.resize(input_reads.size());
 
     INFO("Reading read-cluster map starts");
-    auto rcm = read_rcm_file(rcm_file);
+    const auto rcm = read_rcm_file(rcm_file);
 
     std::unordered_map<std::string, std::vector<size_t>> comp2readnum;
 
+    size_t assigned_reads = 0;
     for (size_t i = 0; i < input_reads.size(); ++i) {
-        const char *id = toCString(input_ids[i]);
-        comp2readnum[rcm[id]].push_back(i);
+        std::string id = toCString(input_ids[i]);
+        auto pcomponent = rcm.find(id);
+        if (pcomponent != rcm.end()) {
+            comp2readnum[pcomponent->second].push_back(i);
+            ++assigned_reads;
+        } else {
+            DEBUG("Read " << id <<  " not found in RCM " << rcm_file);
+        }
+    }
+
+    INFO(assigned_reads << " over " << input_reads.size() << " reads assigned");
+    if (assigned_reads < input_reads.size() && !allow_unassigned) {
+        ERROR(input_reads.size() - assigned_reads << " unassigned reads in RCM " << rcm_file);
+        ERROR("Unassigned reads are not allowed");
+        ERROR("Pass option '--allow-unassigned=1' to allow");
+        return 1;
     }
 
     INFO(comp2readnum.size() << " clusters were extracted from " << rcm_file);
