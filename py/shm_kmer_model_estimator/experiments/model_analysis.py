@@ -10,13 +10,15 @@ from collections import OrderedDict
 import numpy as np
 import pandas as pd
 
+from special_utils.os_utils import smart_makedirs
+
+from config.config import config, read_config
+from config.parse_input_args import parse_args
+
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
 
-model_dir = "/Sid/abzikadze/shm_models/"
-
-
-def read_models():
+def read_models(model_dir):
     models_path = glob(os.path.join(model_dir, "*.csv"))
     models = OrderedDict()
 
@@ -116,6 +118,8 @@ def coverage_kmers_utils(model, strategy, chain):
                 ('# genomic subst (fr + cdr)', len(gen_kmers_all)),
                 ('# well estimated kmers fr', len(est_fr & so_fr)),
                 ('# well estimated kmers cdr', len(est_cdr & so_cdr)),
+                ('# well estimated kmers fr or cdr', len((est_fr & so_fr) | (est_cdr & so_cdr))),
+                ('# well estimated kmers fr and cdr', len((est_fr & so_fr) & (est_cdr & so_cdr))),
                 ('# well estimated kmers subst', len(est_subst & so_subst)),
                 ('# genomic - well estimated kmers fr', len(gen_kmers_fr - (est_fr & so_fr))),
                 ('# genomic - well estimated kmers cdr', len(gen_kmers_cdr - (est_cdr & so_cdr))),
@@ -142,11 +146,18 @@ def coverage_kmers_utils(model, strategy, chain):
 
 
 if __name__ == '__main__':
-    models = read_models()
+    input_config = read_config(parse_args().input)
+    models = read_models(input_config.kmer_model_estimating.outdir)
     chains = [Chains.IGH, Chains.IGK, Chains.IGL]
     mut_str = [MutationStrategies.NoKNeighbours]
-    apply_to_each_model(models,
-                        coverage_kmers_utils,
-                        verbose=False,
-                        chains=chains,
-                        strategies=mut_str).to_csv("model_analysis.csv", sep=',')
+    model_config = input_config.kmer_model_estimating
+    outdir = os.path.join(model_config.outdir,
+                          model_config.analysis_dir)
+    outfile = os.path.join(outdir, model_config.kmer_coverage_analysis)
+    smart_makedirs(outdir)
+    apply_to_each_model(
+        models,
+        coverage_kmers_utils,
+        verbose=False,
+        chains=chains,
+        strategies=mut_str).to_csv(outfile, sep=',')

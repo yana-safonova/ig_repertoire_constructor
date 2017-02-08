@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 plt.rcParams['figure.figsize'] = 15, 10
 
+from config.config import config, read_config
+from config.parse_input_args import parse_args
 from special_utils.os_utils import smart_makedirs
 
 from spots.spots import coldspots, hotspots
@@ -18,7 +20,6 @@ from mutation_strategies.mutation_strategies import MutationStrategies
 
 from kmer_utilities.filtering_kmers_utilities import filter_by_coverage
 from sample_reader.standard_samples import concatenate_kmer_freq_matrices
-from model_estimator import read_input_config
 from mutability_diversity.calculate_mutability_diversity \
     import calculate_mutability_fr, \
            calculate_mutability_cdr, \
@@ -83,15 +84,15 @@ def plot_mutability_boxplots(matrices, output_dir):
 
 
 if __name__ == "__main__":
-    prefix_dir, input_data, model_est_params = read_input_config()
+    input_config = read_config(parse_args().input)
     matrices = concatenate_kmer_freq_matrices(
-        input_data=input_data,
-        prefix_dir=prefix_dir,
-        dir_data=model_est_params.kmer_matrices_dir,
-        filename_fr=model_est_params.filename_fr,
-        filename_cdr=model_est_params.filename_cdr)
+        input_data=input_config.input_data,
+        prefix_dir=input_config.prefix_dir,
+        dir_data=input_config.kmer_model_estimating.kmer_matrices_dir,
+        filename_fr=input_config.kmer_model_estimating.filename_fr,
+        filename_cdr=input_config.kmer_model_estimating.filename_cdr)
 
-    spots_boxplots = os.path.join(model_est_params.figures_dir,
-                                  model_est_params.spots_boxplots)
+    spots_boxplots = os.path.join(input_config.kmer_model_estimating.figures_dir,
+                                  input_config.kmer_model_estimating.spots_boxplots)
     smart_makedirs(spots_boxplots)
     plot_mutability_boxplots(matrices, spots_boxplots)
