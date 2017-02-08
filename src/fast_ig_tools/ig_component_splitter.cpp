@@ -118,7 +118,7 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
     VERIFY(maximal_mismatch.majory_votes >= maximal_mismatch.secondary_votes);
 
-    DEBUG("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
+    TRACE("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
     bool do_split = false;
     auto mmsv = maximal_mismatch.secondary_votes;
 
@@ -363,7 +363,7 @@ int main(int argc, char **argv) {
             comp2readnum[pcomponent->second].push_back(i);
             ++assigned_reads;
         } else {
-            DEBUG("Read " << id <<  " not found in RCM " << rcm_file);
+            TRACE("Read " << id <<  " not found in RCM " << rcm_file);
         }
     }
 
