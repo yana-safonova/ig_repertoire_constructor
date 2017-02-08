@@ -5,6 +5,7 @@
 #include <build_info.hpp>
 
 #include <iostream>
+#include <sstream>
 using std::cout;
 
 #include <boost/program_options.hpp>
@@ -399,15 +400,20 @@ int main(int argc, char **argv) {
         const auto &indices = kv.second;
         auto result = split_component(input_reads, indices, max_votes, discard, recursive, flu);
         for (size_t i = 0; i < result.size(); ++i) {
-            // TODO Add optionally continuous numbering
-            bformat fmt("cluster___%sX%d___size___%d");
-            fmt % comp % i % result[i].second.size();
+            std::stringstream ss(comp);
+            if (result.size() > 1) {
+                ss << "X" << i;
+            }
+            std::string cluster_id = ss.str();
+
+            bformat fmt("cluster___%s___size___%d");
+            fmt % cluster_id % result[i].second.size();
             std::string id = fmt.str();
 
             seqan::writeRecord(seqFileOut_output, id, result[i].first);
             for (size_t read_index : result[i].second) {
                 std::string read_id = seqan::toCString(input_ids[read_index]);
-                out_rcm << read_id << "\t" << comp << "X" << i << "\n";
+                out_rcm << read_id << "\t" << cluster_id << "\n";
             }
         }
     }
