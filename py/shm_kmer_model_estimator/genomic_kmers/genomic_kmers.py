@@ -6,24 +6,24 @@ from Bio import SeqIO
 from chains.chains import Chains
 
 
-file_dir = os.path.dirname(os.path.realpath(__file__))
-file_dir = os.path.abspath(file_dir)
-igrec_path = os.path.normpath(os.path.join(file_dir, "..", "..", ".."))
-germline_path = os.path.join(igrec_path, "data", "germline", "human", "IG")
-annotation_filename = os.path.join(igrec_path,
-                                   "data",
-                                   "annotation",
-                                   "human_v_imgt.txt")
+def get_genomic_kmers(chain, k=5):
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    file_dir = os.path.abspath(file_dir)
+    igrec_path = os.path.normpath(os.path.join(file_dir, "..", "..", ".."))
+    germline_path = os.path.join(igrec_path, "data", "germline", "human", "IG")
+    annotation_filename = os.path.join(igrec_path,
+                                       "data",
+                                       "annotation",
+                                       "human_v_imgt.txt")
 
-k = 5
-
-def get_genomic_kmers(chain):
     if chain == Chains.IGH:
         germline_filename = os.path.join(germline_path, "IGHV.fa")
     elif chain == Chains.IGK:
         germline_filename = os.path.join(germline_path, "IGKV.fa")
     elif chain == Chains.IGL:
         germline_filename = os.path.join(germline_path, "IGLV.fa")
+    else:
+        raise ValueError("Chain %s is not supported" % chain)
 
     with open(germline_filename, 'r') as f:
         germline = list(SeqIO.parse(f, "fasta"))
@@ -49,18 +49,13 @@ def get_genomic_kmers(chain):
         fr3_start  = int(annot.fr3_start [gene] - 1)
         fr3_end    = int(annot.fr3_end   [gene] - 1)
 
-        fr1 = seq[fr1_start:cdr1_start]
-        fr2 = seq[fr2_start:cdr2_start]
-        fr3 = seq[fr3_start:fr3_end]
-        cdr1 = seq[cdr1_start:fr2_start]
-        cdr2 = seq[cdr2_start:fr3_start]
+        hk = k // 2
+        kmers_fr += [seq[i - hk : i + hk + 1] for i in xrange(hk, cdr1_start)]
+        kmers_fr += [seq[i - hk : i + hk + 1] for i in xrange(fr2_start, cdr2_start)]
+        kmers_fr += [seq[i - hk : i + hk + 1] for i in xrange(fr3_start, len(seq) - hk)]
 
-        kmers_fr += [seq[i : i + k] for i in xrange(len(fr1) - k + 1)]
-        kmers_fr += [seq[i : i + k] for i in xrange(len(fr2) - k + 1)]
-        kmers_fr += [seq[i : i + k] for i in xrange(len(fr3) - k + 1)]
-
-        kmers_cdr += [seq[i : i + k] for i in xrange(len(cdr1) - k + 1)]
-        kmers_cdr += [seq[i : i + k] for i in xrange(len(cdr2) - k + 1)]
+        kmers_cdr += [seq[i - hk : i + hk + 1] for i in xrange(cdr1_start, fr2_start)]
+        kmers_cdr += [seq[i - hk : i + hk + 1] for i in xrange(cdr2_start, fr3_start)]
 
     kmers_fr = list(set(kmers_fr))
     kmers_cdr = list(set(kmers_cdr))
