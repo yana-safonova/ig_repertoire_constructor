@@ -371,7 +371,7 @@ int main(int argc, char **argv) {
     if (assigned_reads < input_reads.size() && !allow_unassigned) {
         ERROR(input_reads.size() - assigned_reads << " unassigned reads in RCM " << rcm_file);
         ERROR("Unassigned reads are not allowed");
-        ERROR("Pass option '--allow-unassigned=1' to allow");
+        ERROR("Pass option '--allow-unassigned=true' to allow");
         return 1;
     }
 
