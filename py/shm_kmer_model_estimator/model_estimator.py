@@ -10,6 +10,7 @@ from shm_kmer_model_estimator.shm_kmer_model_estimator \
     import ShmKmerModelEstimator
 
 from experiments.model_analysis import coverage_kmers_utils_all_models
+from experiments.spots_boxplots import plot_mutability_boxplots
 
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
@@ -25,7 +26,7 @@ def output_models(models, output_directory):
             model.to_csv(path, na_rep='nan')
 
 
-def coverage_analysis(models, input_config):
+def convergence_analysis(models, input_config):
     chains = [Chains.IGH, Chains.IGK, Chains.IGL]
     mut_str = [MutationStrategies.NoKNeighbours]
     model_config = input_config.kmer_model_estimating
@@ -38,17 +39,37 @@ def coverage_analysis(models, input_config):
                                     strategies=mut_str).to_csv(outfile, sep=',')
 
 
+def mutability_boxplots(matrices, input_config):
+    spots_boxplots = os.path.join(input_config.kmer_model_estimating.figures_dir,
+                                  input_config.kmer_model_estimating.spots_boxplots)
+    smart_makedirs(spots_boxplots)
+    plot_mutability_boxplots(matrices, spots_boxplots)
+
+
 def main():
+    print("Reading input config from %s" % parse_args().input)
     input_config = read_config(parse_args().input)
+    print("Reading kmer matrices started")
     matrices = concatenate_kmer_freq_matrices(
         input_data=input_config.input_data,
         prefix_dir=input_config.prefix_dir,
         dir_data=input_config.kmer_model_estimating.kmer_matrices_dir,
         filename_fr=input_config.kmer_model_estimating.filename_fr,
         filename_cdr=input_config.kmer_model_estimating.filename_cdr)
+
+    print("Reading kmer matrices ended")
+    print("Plotting mutability boxplots started")
+    mutability_boxplots(matrices, input_config)
+    print("Plotting mutability boxplots finished")
+
+    print("Estimating models started")
     models = ShmKmerModelEstimator().estimate_models(matrices)
+    print("Estimating models finished")
+    print("Outputing models to %s" % input_config.kmer_model_estimating.outdir)
     output_models(models, input_config.kmer_model_estimating.outdir)
-    coverage_analysis(models, input_config)
+
+    print("Analysis of models' convergence")
+    convergence_analysis(models, input_config)
 
 
 if __name__ == "__main__":
