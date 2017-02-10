@@ -18,6 +18,7 @@ from config.parse_input_args import parse_args
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
 
+
 def read_models(model_dir):
     models_path = glob(os.path.join(model_dir, "*.csv"))
     models = OrderedDict()
@@ -32,25 +33,25 @@ def read_models(model_dir):
     return models
 
 
-def apply_to_each_model(models, func, chains=None, strategies=None, verbose=False):
+def coverage_kmers_utils_all_models(models, chains=None, strategies=None, verbose=False):
     if chains is None:
         chains = Chains
     if strategies is None:
         strategies = MutationStrategies
 
     from pprint import pprint
-    res2 = OrderedDict()
+    res = OrderedDict()
 
     for strategy in strategies:
         for chain in chains:
-            res2[(strategy, chain)] = \
-                func(models[(strategy, chain)], strategy, chain)
+            res[(strategy, chain)] = \
+                coverage_kmers_utils(models[strategy][chain], strategy, chain)
             if verbose:
                 pprint("Strategy: %s, Chain: %s" %(strategy.name, chain.name))
                 pprint(res[strategy][chain])
                 print("")
-    return pd.DataFrame(res2, index=res2[(MutationStrategies.NoKNeighbours, Chains.IGH)].keys())
- 
+    return pd.DataFrame(res, index=res[(MutationStrategies.NoKNeighbours, Chains.IGH)].keys())
+
 
 def coverage_kmers_utils(model, strategy, chain):
     from kmer_utilities.kmer_utilities import kmer_names
@@ -157,7 +158,6 @@ if __name__ == '__main__':
     smart_makedirs(outdir)
     apply_to_each_model(
         models,
-        coverage_kmers_utils,
         verbose=False,
         chains=chains,
         strategies=mut_str).to_csv(outfile, sep=',')
