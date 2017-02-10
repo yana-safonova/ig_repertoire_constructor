@@ -40,9 +40,10 @@ class ShmKmerModelEstimator(object):
             direchlet = res['optim_res_dir']
 
             def x_success(start, max_obj):
-                # if np.any(np.isnan(start)):
-                #     return 0, np.repeat(np.nan, len(start))
-                return max_obj.success, max_obj.x
+                success = max_obj.success
+                if np.any(np.isnan(max_obj.x)):
+                    success = 0
+                return success, max_obj.x
 
             fr_success, fr_x = x_success(start_fr, fr)
             cdr_success, cdr_x = x_success(start_cdr, cdr)

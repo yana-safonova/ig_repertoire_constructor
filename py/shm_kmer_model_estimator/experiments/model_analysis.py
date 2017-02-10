@@ -33,7 +33,7 @@ def read_models(model_dir):
     return models
 
 
-def coverage_kmers_utils_all_models(models, chains=None, strategies=None, verbose=False):
+def convergence_analysis(models, chains=None, strategies=None, verbose=False):
     if chains is None:
         chains = Chains
     if strategies is None:
@@ -45,7 +45,7 @@ def coverage_kmers_utils_all_models(models, chains=None, strategies=None, verbos
     for strategy in strategies:
         for chain in chains:
             res[(strategy, chain)] = \
-                coverage_kmers_utils(models[strategy][chain], strategy, chain)
+                convergence_analysis_chain_strategy(models[strategy][chain], strategy, chain)
             if verbose:
                 pprint("Strategy: %s, Chain: %s" %(strategy.name, chain.name))
                 pprint(res[strategy][chain])
@@ -53,7 +53,7 @@ def coverage_kmers_utils_all_models(models, chains=None, strategies=None, verbos
     return pd.DataFrame(res, index=res[(MutationStrategies.NoKNeighbours, Chains.IGH)].keys())
 
 
-def coverage_kmers_utils(model, strategy, chain):
+def convergence_analysis_chain_strategy(model, strategy, chain):
     from kmer_utilities.kmer_utilities import kmer_names
     kmer_names = np.array(kmer_names())
 
