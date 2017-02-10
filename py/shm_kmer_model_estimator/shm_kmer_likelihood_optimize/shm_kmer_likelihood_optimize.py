@@ -26,14 +26,27 @@ class ShmKmerLikelihoodOptimizator:
         self.lkhd_dir = (lambda x: -lklh.likelihood_dir(x))
         self.grad_dir = (lambda x: -lklh.gradient_dir(x))
 
-    def __get_start_point(self, lklh, scale_beta=1, scale_dir=1):
+    def __get_start_point(self, lklh, scale_beta=None, scale_dir=None):
         def get_beta_start_point(sample, mut, nmut, scale_beta=scale_beta):
-            # if np.any(sample[:, [mut, nmut]] == 0):
-            #     return np.repeat(np.nan, 2)
+            means = sample[:, mut] / (sample[:, mut] + sample[:, nmut])
+            means = means[~np.isnan(means)]
+            if len(means) == 0:
+                return np.repeat(np.nan, 2)
 
-            beta_shape = sample[:, mut] / (sample[:, mut] + sample[:, nmut])
-            beta_shape = np.mean(beta_shape[~np.isnan(beta_shape)])
-            beta_shape = scale_beta * np.array([beta_shape, 1 - beta_shape])
+            first_moment = np.nanmean(means)
+            beta_shape = np.nanmean(means)
+
+            if scale_beta is None:
+                second_moment = np.nanmean(means**2)
+                if np.allclose(second_moment, first_moment):
+                    return np.repeat(np.nan, 2)
+                scale_beta = \
+                    (first_moment - second_moment) / \
+                    (second_moment - first_moment**2)
+                assert scale_beta > 0
+
+            beta_shape = \
+                scale_beta * np.array([first_moment, 1 - first_moment])
             return beta_shape
 
         beta_shape_fr = get_beta_start_point(sample=lklh.sample,
@@ -43,19 +56,26 @@ class ShmKmerLikelihoodOptimizator:
                                               mut=lklh.cdr_mut_ind,
                                               nmut=lklh.cdr_nonmut_ind)
 
-        # if np.any(lklh.mutated_sample == 0):
-        #     return beta_shape_fr, beta_shape_cdr, np.repeat(np.nan, 3)
 
         scaled_mutated_sample = (lklh.mutated_sample.T /
                                  np.sum(lklh.mutated_sample, axis=1)).T
-        dir_lambda = np.mean(scaled_mutated_sample, axis=0)
-        dir_lambda *= scale_dir
+        dir_mean = np.nanmean(scaled_mutated_sample, axis=0)
+        if scale_dir is None:
+            if np.any(dir_mean == 1) or \
+               np.any(dir_mean == 0) or \
+               np.any(np.isnan(dir_mean)):
+                scale_dir = np.nan
+            else:
+                dir_var = np.nanvar(scaled_mutated_sample, axis=0)
+                scale_dir = dir_var / (dir_mean * (1 - dir_mean))
+                scale_dir = np.nanmean(scale_dir)
+                assert scale_dir > 0
+
+        dir_lambda = scale_dir * dir_mean
         return beta_shape_fr, beta_shape_cdr, dir_lambda
 
     def maximize(self):
         def smart_minimize(*args, **kwargs):
-            # if np.any(np.isnan(kwargs["x0"])):
-            #     return np.repeat(np.nan, len(kwargs["x0"]))
             return minimize(*args, **kwargs)
         minimize_result_beta_fr = smart_minimize(fun=self.lkhd_beta_fr,
                                                  x0=self.x0_beta_fr,
@@ -72,9 +92,12 @@ class ShmKmerLikelihoodOptimizator:
                                              bounds=self.bounds_dir,
                                              method=self.method,
                                              jac=self.grad_dir)
-        # if not minimize_result_beta_fr.success:
-        #     print minimize_result_beta_fr
-        #     print self.lklh.sample[:, [0, 1]]
+        # if not minimize_result_dir.success:
+        #     print self.lklh.sample[:, 4:]
+        #     print self.x0_dir
+        #     print self.lkhd_dir(self.x0_dir)
+        #     print minimize_result_dir
+        #     assert False
         return {'start_beta_fr': self.x0_beta_fr,
                 'start_beta_cdr': self.x0_beta_cdr,
                 'start_dir': self.x0_dir,
