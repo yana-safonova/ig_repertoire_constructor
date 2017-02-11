@@ -12,6 +12,7 @@ from shm_kmer_model_estimator.shm_kmer_model_estimator \
 from experiments.model_analysis import convergence_analysis
 from experiments.spots_boxplots import plot_mutability_boxplots
 from experiments.fr_cdr_comparison import compare_fr_cdr
+from experiments.loci_comparison import compare_loci
 
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
@@ -60,6 +61,18 @@ def wrapper_compare_fr_cdr(matrices, input_config):
     compare_fr_cdr(matrices, figures_dir).to_csv(outfile, sep=',')
 
 
+def wrapper_compare_loci(matrices, input_config):
+    model_config = input_config.kmer_model_estimating
+    figures_dir = os.path.join(model_config.figures_dir,
+                               model_config.loci_comparison_dir)
+    smart_makedirs(figures_dir)
+    outdir = os.path.join(model_config.outdir,
+                          model_config.analysis_dir)
+    outfile = os.path.join(outdir, model_config.loci_comparison_filename)
+    smart_makedirs(outdir)
+    compare_loci(matrices, figures_dir).to_csv(outfile, sep=',')
+
+
 def main():
     print("Reading input config from %s" % parse_args().input)
     input_config = read_config(parse_args().input)
@@ -70,7 +83,6 @@ def main():
         dir_data=input_config.kmer_model_estimating.kmer_matrices_dir,
         filename_fr=input_config.kmer_model_estimating.filename_fr,
         filename_cdr=input_config.kmer_model_estimating.filename_cdr)
-
     print("Reading kmer matrices ended")
     print("Plotting mutability boxplots started")
     wrapper_plot_mutability_boxplots(matrices, input_config)
@@ -79,6 +91,10 @@ def main():
     print("FR and CDR comparison started")
     wrapper_compare_fr_cdr(matrices, input_config)
     print("FR and CDR comparison finished")
+
+    print("Various loci comparison started")
+    wrapper_compare_loci(matrices, input_config)
+    print("Various loci comparison ended")
 
     print("Estimating models started")
     models = ShmKmerModelEstimator().estimate_models(matrices)

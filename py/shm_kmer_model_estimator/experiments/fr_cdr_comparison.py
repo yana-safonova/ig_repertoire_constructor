@@ -21,8 +21,14 @@ from mutability_diversity.calculate_mutability_diversity \
 
 from scipy.stats import ttest_ind, mannwhitneyu
 
-ttest_pv = lambda a, b: ttest_ind(a, b, equal_var=False).pvalue[0]
-mannwhitneyu_pv = lambda a, b: mannwhitneyu(a, b, alternative="less").pvalue
+
+def ttest_pv(a, b):
+    return ttest_ind(a, b, equal_var=False).pvalue[0]
+
+
+def mannwhitneyu_pv(a, b):
+    return mannwhitneyu(a, b, alternative="less").pvalue
+
 
 def compare_fr_cdr(matrices, figures_dir):
     def compare_fr_cdr_by_strategy_chain(matrices,
