@@ -31,6 +31,8 @@ def nonmutated_index(kmer, kmer_len=5):
 
 
 def kmer_index(kmer, kmer_len=5):
+    """ Simple routine to get index of a kmer in list of all kmers. """
+    assert len(kmer) == kmer_len
     bases = nucl_bases()
     base = len(bases)
     p = 1
@@ -39,3 +41,20 @@ def kmer_index(kmer, kmer_len=5):
         index += bases.index(s) * p
         p *= base
     return index
+
+
+def mutative_bases(kmer, kmer_len=5):
+    """ Simple routine to get all bases to which central base can mutate """
+    assert len(kmer) == kmer_len
+    bases = nucl_bases()
+    cent_n = kmer[kmer_len // 2]
+    bases.remove(cent_n)
+    return bases
+
+
+def reverse_mut_kmer(kmer, base, kmer_len=5):
+    assert len(kmer) == kmer_len
+    mut_kmer = list(kmer)
+    mut_kmer[kmer_len // 2] = base
+    return ''.join(mut_kmer)
+

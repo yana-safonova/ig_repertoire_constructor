@@ -13,6 +13,7 @@ from experiments.model_analysis import convergence_analysis
 from experiments.spots_boxplots import plot_mutability_boxplots
 from experiments.fr_cdr_comparison import compare_fr_cdr
 from experiments.loci_comparison import compare_loci
+from experiments.forward_backward_mutations import compare_forward_backward_mutations
 
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
@@ -28,10 +29,9 @@ def output_models(models, output_directory):
             model.to_csv(path, na_rep='nan')
 
 
-def wrapper_convergence_analysis(models, input_config):
+def wrapper_convergence_analysis(models, model_config):
     chains = [Chains.IGH, Chains.IGK, Chains.IGL]
     mut_str = [MutationStrategies.NoKNeighbours]
-    model_config = input_config.kmer_model_estimating
     outdir = os.path.join(model_config.outdir,
                           model_config.analysis_dir)
     outfile = os.path.join(outdir, model_config.model_convergence_analysis)
@@ -41,69 +41,89 @@ def wrapper_convergence_analysis(models, input_config):
                          strategies=mut_str).to_csv(outfile, sep=',')
 
 
-def wrapper_plot_mutability_boxplots(matrices, input_config):
-    spots_boxplots = os.path.join(input_config.kmer_model_estimating.figures_dir,
-                                  input_config.kmer_model_estimating.spots_boxplots)
+def wrapper_plot_mutability_boxplots(matrices, model_config):
+    spots_boxplots = os.path.join(model_config.figures_dir,
+                                  model_config.spots_boxplots)
     smart_makedirs(spots_boxplots)
     plot_mutability_boxplots(matrices, spots_boxplots)
 
 
-def wrapper_compare_fr_cdr(matrices, input_config):
-    model_config = input_config.kmer_model_estimating
+def make_figures_analysis_dirs(model_config, figures_exp_dir):
     figures_dir = os.path.join(model_config.figures_dir,
-                               model_config.fr_cdr_comparison_dir)
+                               figures_exp_dir)
     smart_makedirs(figures_dir)
 
     outdir = os.path.join(model_config.outdir,
                           model_config.analysis_dir)
-    outfile = os.path.join(outdir, model_config.fr_cdr_comparison_filename)
     smart_makedirs(outdir)
+    return figures_dir, outdir
+
+
+def wrapper_compare_fr_cdr(matrices, model_config):
+    figures_dir, outdir = make_figures_analysis_dirs(
+        model_config,
+        model_config.fr_cdr_comparison_dir)
+    outfile = os.path.join(outdir, model_config.fr_cdr_comparison_filename)
     compare_fr_cdr(matrices, figures_dir).to_csv(outfile, sep=',')
 
 
-def wrapper_compare_loci(matrices, input_config):
-    model_config = input_config.kmer_model_estimating
-    figures_dir = os.path.join(model_config.figures_dir,
-                               model_config.loci_comparison_dir)
-    smart_makedirs(figures_dir)
-    outdir = os.path.join(model_config.outdir,
-                          model_config.analysis_dir)
+def wrapper_compare_loci(matrices, model_config):
+    figures_dir, outdir = make_figures_analysis_dirs(
+        model_config,
+        model_config.loci_comparison_dir)
     outfile = os.path.join(outdir, model_config.loci_comparison_filename)
-    smart_makedirs(outdir)
     compare_loci(matrices, figures_dir).to_csv(outfile, sep=',')
+
+
+def wrapper_compare_forward_backward_mutations(matrices, model_config):
+    figures_dir, outdir = make_figures_analysis_dirs(
+        model_config,
+        model_config.forward_backward_mutations_comparison_dir)
+    outfile = os.path.join(
+        outdir,
+        model_config.forward_backward_mutations_comparison_filename)
+    compare_forward_backward_mutations(matrices,
+                                       figures_dir).to_csv(outfile, sep=',')
 
 
 def main():
     print("Reading input config from %s" % parse_args().input)
     input_config = read_config(parse_args().input)
+    model_config = input_config.kmer_model_estimating
     print("Reading kmer matrices started")
     matrices = concatenate_kmer_freq_matrices(
         input_data=input_config.input_data,
         prefix_dir=input_config.prefix_dir,
-        dir_data=input_config.kmer_model_estimating.kmer_matrices_dir,
-        filename_fr=input_config.kmer_model_estimating.filename_fr,
-        filename_cdr=input_config.kmer_model_estimating.filename_cdr)
+        dir_data=model_config.kmer_matrices_dir,
+        filename_fr=model_config.filename_fr,
+        filename_cdr=model_config.filename_cdr)
+
+    wrapper_compare_forward_backward_mutations(matrices, model_config)
     print("Reading kmer matrices ended")
     print("Plotting mutability boxplots started")
-    wrapper_plot_mutability_boxplots(matrices, input_config)
+    wrapper_plot_mutability_boxplots(matrices, model_config)
     print("Plotting mutability boxplots finished")
 
     print("FR and CDR comparison started")
-    wrapper_compare_fr_cdr(matrices, input_config)
+    wrapper_compare_fr_cdr(matrices, model_config)
     print("FR and CDR comparison finished")
 
     print("Various loci comparison started")
-    wrapper_compare_loci(matrices, input_config)
+    wrapper_compare_loci(matrices, model_config)
     print("Various loci comparison ended")
+
+    print("Comparison of forward and backward mutations started")
+    wrapper_compare_forward_backward_mutations(matrices, model_config)
+    print("Comparison of forward and backward mutations finished")
 
     print("Estimating models started")
     models = ShmKmerModelEstimator().estimate_models(matrices)
     print("Estimating models finished")
-    print("Outputing models to %s" % input_config.kmer_model_estimating.outdir)
-    output_models(models, input_config.kmer_model_estimating.outdir)
+    print("Outputing models to %s" % model_config.outdir)
+    output_models(models, model_config.outdir)
 
     print("Analysis of models' convergence")
-    wrapper_convergence_analysis(models, input_config)
+    wrapper_convergence_analysis(models, model_config)
 
 
 if __name__ == "__main__":

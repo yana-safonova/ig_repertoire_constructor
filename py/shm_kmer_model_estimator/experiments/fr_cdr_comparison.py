@@ -26,8 +26,8 @@ def ttest_pv(a, b):
     return ttest_ind(a, b, equal_var=False).pvalue[0]
 
 
-def mannwhitneyu_pv(a, b):
-    return mannwhitneyu(a, b, alternative="less").pvalue
+def mannwhitneyu_pv(a, b, alternative="less"):
+    return mannwhitneyu(a, b, alternative=alternative).pvalue
 
 
 def compare_fr_cdr(matrices, figures_dir):
