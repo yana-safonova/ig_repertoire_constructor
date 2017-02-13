@@ -7,11 +7,11 @@ class ShmKmerLikelihoodOptimizator:
     """ This class is for lkhd optimization.
     Input: lklh itself. """
     def __init__(self, lklh,
-                 x0_beta_fr=None, x0_beta_cdr=None, x0_dir=None,
+                 x0_beta_fr=None, x0_beta_cdr=None,
+                 x0_beta_full=None, x0_dir=None,
                  bounds=None, method='L-BFGS-B'):
-        if x0_beta_fr is None or x0_beta_cdr is None or x0_dir is None:
-            self.x0_beta_fr, self.x0_beta_cdr, self.x0_dir = \
-                self.__get_start_point(lklh)
+        self.x0_beta_fr, self.x0_beta_cdr, self.x0_beta_full, self.x0_dir = \
+            self.__get_start_point(lklh)
         if bounds is None:
             positive = ((0, None),)
             self.bounds_beta = positive * 2
@@ -23,6 +23,8 @@ class ShmKmerLikelihoodOptimizator:
         self.grad_beta_fr = (lambda x: -lklh.gradient_beta_fr(*x))
         self.lkhd_beta_cdr = (lambda x: -lklh.likelihood_beta_cdr(*x))
         self.grad_beta_cdr = (lambda x: -lklh.gradient_beta_cdr(*x))
+        self.lkhd_beta_full = (lambda x: -lklh.likelihood_beta_full(*x))
+        self.grad_beta_full = (lambda x: -lklh.gradient_beta_full(*x))
         self.lkhd_dir = (lambda x: -lklh.likelihood_dir(x))
         self.grad_dir = (lambda x: -lklh.gradient_dir(x))
 
@@ -55,7 +57,14 @@ class ShmKmerLikelihoodOptimizator:
         beta_shape_cdr = get_beta_start_point(sample=lklh.sample,
                                               mut=lklh.cdr_mut_ind,
                                               nmut=lklh.cdr_nonmut_ind)
-
+        sample = np.copy(lklh.sample)
+        sample[:, lklh.fr_mut_ind] = \
+            np.sum(sample[:, [lklh.fr_mut_ind, lklh.cdr_mut_ind]], axis=1)
+        sample[:, lklh.fr_nonmut_ind] = \
+            np.sum(sample[:, [lklh.fr_nonmut_ind, lklh.cdr_nonmut_ind]], axis=1)
+        beta_shape_full = get_beta_start_point(sample=sample,
+                                               mut=lklh.fr_mut_ind,
+                                               nmut=lklh.fr_nonmut_ind)
 
         scaled_mutated_sample = (lklh.mutated_sample.T /
                                  np.sum(lklh.mutated_sample, axis=1)).T
@@ -72,7 +81,7 @@ class ShmKmerLikelihoodOptimizator:
                 assert scale_dir > 0
 
         dir_lambda = scale_dir * dir_mean
-        return beta_shape_fr, beta_shape_cdr, dir_lambda
+        return beta_shape_fr, beta_shape_cdr, beta_shape_full, dir_lambda
 
     def maximize(self):
         def smart_minimize(*args, **kwargs):
@@ -87,6 +96,11 @@ class ShmKmerLikelihoodOptimizator:
                                                   bounds=self.bounds_beta,
                                                   method=self.method,
                                                   jac=self.grad_beta_cdr)
+        minimize_result_beta_full = smart_minimize(fun=self.lkhd_beta_full,
+                                                  x0=self.x0_beta_full,
+                                                  bounds=self.bounds_beta,
+                                                  method=self.method,
+                                                  jac=self.grad_beta_full)
         minimize_result_dir = smart_minimize(fun=self.lkhd_dir,
                                              x0=self.x0_dir,
                                              bounds=self.bounds_dir,
@@ -100,7 +114,9 @@ class ShmKmerLikelihoodOptimizator:
         #     assert False
         return {'start_beta_fr': self.x0_beta_fr,
                 'start_beta_cdr': self.x0_beta_cdr,
+                'start_beta_full': self.x0_beta_full,
                 'start_dir': self.x0_dir,
                 'optim_res_beta_fr': minimize_result_beta_fr,
                 'optim_res_beta_cdr': minimize_result_beta_cdr,
+                'optim_res_beta_full': minimize_result_beta_full,
                 'optim_res_dir': minimize_result_dir}

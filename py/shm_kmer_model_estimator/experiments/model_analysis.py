@@ -5,7 +5,7 @@ sys.path.insert(0, "..")
 
 import os
 from glob import glob
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -21,14 +21,16 @@ from mutation_strategies.mutation_strategies import MutationStrategies
 
 def read_models(model_dir):
     models_path = glob(os.path.join(model_dir, "*.csv"))
-    models = OrderedDict()
+    def rec_dd():
+        return defaultdict(rec_dd)
+    models = rec_dd()
 
     for model_path in models_path:
         model_filename = os.path.basename(model_path)
         model_filename = model_filename.split('.')[0]
         strategy, chain = model_filename.split('_')
         strategy, chain = MutationStrategies[strategy], Chains[chain]
-        models[(strategy, chain)] = pd.read_csv(model_path)
+        models[strategy][chain] = pd.read_csv(model_path)
 
     return models
 
@@ -76,6 +78,8 @@ def convergence_analysis_chain_strategy(model, strategy, chain):
     good_sp_kmers_cdr = nonnan_ind(model, ["start_point_beta_CDR_shape1",
                                            "start_point_beta_CDR_shape2"])
 
+    good_sp_kmers_full = nonnan_ind(model, ["start_point_beta_FULL_shape1",
+                                            "start_point_beta_FULL_shape2"])
 
     good_sp_kmers_subst = nonnan_ind(model, ["start_point_dir_shape1",
                                              "start_point_dir_shape2",
@@ -92,75 +96,64 @@ def convergence_analysis_chain_strategy(model, strategy, chain):
     est_cdr = nonnan_ind(model, ["beta_CDR_shape1",
                                  "beta_CDR_shape2"])
 
+    est_full = nonnan_ind(model, ["beta_FULL_shape1",
+                                  "beta_FULL_shape2"])
+
     est_subst = nonnan_ind(model, ["dir_shape1",
                                    "dir_shape2",
                                    "dir_shape3"])
     so_fr = np.array(model.success_optim_beta_FR, dtype=np.bool)
     so_cdr = np.array(model.success_optim_beta_CDR, dtype=np.bool)
+    so_full = np.array(model.success_optim_beta_FULL, dtype=np.bool)
     so_subst = np.array(model.success_optim_dir, dtype=np.bool)
-    so_fr, so_cdr, so_subst = kmer_names[so_fr], kmer_names[so_cdr], kmer_names[so_subst]
-    so_fr, so_cdr, so_subst = set(so_fr), set(so_cdr), set(so_subst)
+    so_fr, so_cdr, so_full, so_subst = kmer_names[so_fr], kmer_names[so_cdr], kmer_names[so_full], kmer_names[so_subst]
+    so_fr, so_cdr, so_full, so_subst = set(so_fr), set(so_cdr), set(so_full), set(so_subst)
 
     assert good_sp_kmers_fr <= gen_kmers_fr
     assert good_sp_kmers_cdr <= gen_kmers_cdr
+    assert good_sp_kmers_full <= gen_kmers_all
     assert good_sp_kmers_subst <= gen_kmers_all
 
     assert est_fr == good_sp_kmers_fr
     assert est_cdr == good_sp_kmers_cdr
+    assert est_full <= good_sp_kmers_full
     assert est_subst <= good_sp_kmers_subst
-    return OrderedDict([# '# est FR / # good start point FR': len(est_fr) / len(good_sp_kmers_fr),
-                # '# est CDR / # good start point CDR': len(est_cdr) / len(good_sp_kmers_cdr),
-                # '# est subst / # good start point subst': len(est_subst) / len(good_sp_kmers_subst),
-                # '# (good sp FR) - (est FR)': len(good_sp_kmers_fr - est_fr),
-                # '# (good sp CDR) - (est CDR)': len(good_sp_kmers_cdr - est_cdr),
-                # '# (good sp subst) - (est subst)': len(good_sp_kmers_subst - est_subst),
+    return OrderedDict([
                 ('# genomic fr', len(gen_kmers_fr)),
                 ('# genomic cdr', len(gen_kmers_cdr)),
                 ('# genomic subst (fr + cdr)', len(gen_kmers_all)),
                 ('# well estimated kmers fr', len(est_fr & so_fr)),
                 ('# well estimated kmers cdr', len(est_cdr & so_cdr)),
-                ('# well estimated kmers fr or cdr', len((est_fr & so_fr) | (est_cdr & so_cdr))),
+                ('# well estimated kmers mut full', len(est_full & so_full)),
                 ('# well estimated kmers fr and cdr', len((est_fr & so_fr) & (est_cdr & so_cdr))),
                 ('# well estimated kmers subst', len(est_subst & so_subst)),
                 ('# genomic - good start point fr', len(gen_kmers_fr - good_sp_kmers_fr)),
                 ('# genomic - good start point cdr', len(gen_kmers_cdr - good_sp_kmers_cdr)),
+                ('# genomic - good start point mut full', len(gen_kmers_all - good_sp_kmers_full)),
                 ('# genomic - good start point subst', len(gen_kmers_all - good_sp_kmers_subst)),
                 ('# genomic - well estimated kmers fr', len(gen_kmers_fr - (est_fr & so_fr))),
                 ('# genomic - well estimated kmers cdr', len(gen_kmers_cdr - (est_cdr & so_cdr))),
+                ('# genomic - well estimated kmers mut full', len(gen_kmers_all - (est_full & so_full))),
                 ('# genomic - well estimated kmers subst', len(gen_kmers_all - (est_subst & so_subst))),
                 ('# good start point - well estimated kmers fr', len(good_sp_kmers_fr - (est_fr & so_fr))),
                 ('# good start point - well estimated kmers cdr', len(good_sp_kmers_cdr - (est_cdr & so_cdr))),
+                ('# good start point - well estimated kmers mut full', len(good_sp_kmers_full - (est_full & so_full))),
                 ('# good start point - well estimated kmers subst', len(good_sp_kmers_subst - (est_subst & so_subst))),
-                # ('# good start point FR / # gen FR', len(good_sp_kmers_fr) / len(gen_kmers_fr)),
-                # ('# good start point CDR / # gen CDR', len(good_sp_kmers_cdr) / len(gen_kmers_cdr)),
-                # ('# good start point subst / #gen subst', len(good_sp_kmers_subst) / len(gen_kmers_all)),
-                # ('# kmers in (gen FR) - (good sp FR)', len(gen_kmers_fr - good_sp_kmers_fr)),
-                # ('# kmers in (gen CDR) - (good sp CDR)', len(gen_kmers_cdr - good_sp_kmers_cdr)),
-                # ('# kmers in (gen subst) - (good sp subst)', len(gen_kmers_all - good_sp_kmers_subst)),
-                # ('# kmers optim not successful that est, FR', len(est_fr - so_fr)),
-                # ('# kmers optim not successful that est, CDR', len(est_cdr - so_cdr)),
-                # ('# kmers optim not successful that est, subst', len(est_subst - so_subst)),
-                # ('# kmers optim not successful and good est that gen, FR', len(gen_kmers_fr - so_fr)),
-                # ('# kmers optim not successful and good est that gen, CDR', len(gen_kmers_cdr - so_cdr)),
-                # ('# kmers optim not successful and good est that gen, subst', len(gen_kmers_all - so_subst)),
-                # ('% kmers optim not successful and good est that gen, FR', len(gen_kmers_fr - (so_fr & est_fr)) / len(gen_kmers_fr)),
-                # ('% kmers optim not successful and good est that gen, CDR', len(gen_kmers_cdr - (so_cdr & est_cdr)) / len(gen_kmers_cdr)),
-                # ('% kmers optim not successful and good est that gen, subst', len(gen_kmers_all - (so_subst & est_subst)) / len(gen_kmers_all))
             ])
 
 
 if __name__ == '__main__':
     input_config = read_config(parse_args().input)
-    models = read_models(input_config.kmer_model_estimating.outdir)
+    model_config = input_config.kmer_model_estimating
+    models = read_models(model_config.outdir)
     chains = [Chains.IGH, Chains.IGK, Chains.IGL]
     mut_str = [MutationStrategies.NoKNeighbours]
-    model_config = input_config.kmer_model_estimating
     outdir = os.path.join(model_config.outdir,
                           model_config.analysis_dir)
-    outfile = os.path.join(outdir, model_config.kmer_coverage_analysis)
+    outfile = os.path.join(outdir, model_config.model_convergence_analysis)
     smart_makedirs(outdir)
-    apply_to_each_model(
-        models,
+    convergence_analysis(
+        models=models,
         verbose=False,
         chains=chains,
         strategies=mut_str).to_csv(outfile, sep=',')

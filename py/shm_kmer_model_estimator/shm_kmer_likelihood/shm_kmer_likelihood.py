@@ -41,6 +41,16 @@ class ShmKmerLikelihood:
                                       mut=self.sample[:, self.cdr_mut_ind],
                                       nmut=self.sample[:, self.cdr_nonmut_ind])
 
+    def likelihood_beta_full(self, beta_shape1, beta_shape2):
+        mut = np.sum(self.sample[:, [self.fr_mut_ind,
+                                     self.cdr_mut_ind]], axis=1)
+        nmut = np.sum(self.sample[:, [self.fr_nonmut_ind,
+                                      self.cdr_nonmut_ind]], axis=1)
+        return self.__likelihood_beta(beta_shape1=beta_shape1,
+                                      beta_shape2=beta_shape2,
+                                      mut=mut,
+                                      nmut=nmut)
+
     def likelihood_dir(self, dir_lambda):
         result_p21 = multibetaln(self.mutated_sample + dir_lambda, 1)
         result_p22 = multibetaln(dir_lambda)
@@ -65,6 +75,16 @@ class ShmKmerLikelihood:
                                     mut=self.sample[:, self.cdr_mut_ind],
                                     nmut=self.sample[:, self.cdr_nonmut_ind])
 
+    def gradient_beta_full(self, beta_shape1, beta_shape2):
+        mut = np.sum(self.sample[:, [self.fr_mut_ind,
+                                     self.cdr_mut_ind]], axis=1)
+        nmut = np.sum(self.sample[:, [self.fr_nonmut_ind,
+                                      self.cdr_nonmut_ind]], axis=1)
+        return self.__gradient_beta(beta_shape1=beta_shape1,
+                                    beta_shape2=beta_shape2,
+                                    mut=mut,
+                                    nmut=nmut)
+
     def gradient_dir(self, dir_lambda):
         N = self.sample.shape[0]
 
@@ -80,11 +100,15 @@ class ShmKmerLikelihood:
         cglikelihood_p0_cdr = (lambda x: self.likelihood_beta_cdr(*x))
         cggrad_p0_cdr = (lambda x: self.gradient_beta_cdr(*x))
 
+        cglikelihood_p0_full = (lambda x: self.likelihood_beta_full(*x))
+        cggrad_p0_full = (lambda x: self.gradient_beta_full(*x))
+
         cglikelihood_p1 = (lambda x: self.likelihood_dir(x))
         cggrad_p1 = (lambda x: self.gradient_dir(x))
 
         for i in xrange(number_of_tests):
             point = np.random.exponential(size=7, scale=10)
+            assert check_grad(cglikelihood_p0_full, cggrad_p0_full, x0=point[:2]) < tol
             assert check_grad(cglikelihood_p0_fr, cggrad_p0_fr, x0=point[:2]) < tol
             assert check_grad(cglikelihood_p0_cdr, cggrad_p0_cdr, x0=point[2:4]) < tol
             assert check_grad(cglikelihood_p1, cggrad_p1, x0=point[4:]) < tol

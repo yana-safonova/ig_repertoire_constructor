@@ -1,6 +1,9 @@
 import pandas as pd
 import numpy as np
 
+from joblib import Parallel, delayed
+from joblib.pool import has_shareable_memory
+
 from shm_kmer_likelihood_optimize.shm_kmer_likelihood_optimize \
     import ShmKmerLikelihoodOptimizator
 from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
@@ -20,23 +23,24 @@ class ShmKmerModelEstimator(object):
         self.central_nucl_indexes = kmer_utils.central_nucl_indexes(kmer_len)
         self.n_param = len(self.column_names)
 
-    def __estimate_backend(self, kmer_matrices):
+    def estimate_backend(self, kmer_matrices):
         kmers = kmer_utils.kmer_names()
         results = np.empty((len(kmers), self.n_param))
 
         for i, kmer in enumerate(kmers):
-            if i % 250 == 0:
-                print(i)
             lkho = ShmKmerLikelihood(kmer_matrices[kmer])
             res = ShmKmerLikelihoodOptimizator(lkho).maximize()
 
             start_fr = res['start_beta_fr']
             start_cdr = res['start_beta_cdr']
+            start_full = res['start_beta_full']
             start_dir = res['start_dir']
-            starts = np.concatenate([start_fr, start_cdr, start_dir])
+            starts = np.concatenate([start_fr, start_cdr,
+                                     start_full, start_dir])
 
             fr = res['optim_res_beta_fr']
             cdr = res['optim_res_beta_cdr']
+            full = res['optim_res_beta_full']
             direchlet = res['optim_res_dir']
 
             def x_success(start, max_obj):
@@ -47,12 +51,14 @@ class ShmKmerModelEstimator(object):
 
             fr_success, fr_x = x_success(start_fr, fr)
             cdr_success, cdr_x = x_success(start_cdr, cdr)
+            full_success, full_x = x_success(start_full, full)
             dir_success, dir_x = x_success(start_dir, direchlet)
 
-            success = np.array([fr_success, cdr_success, dir_success])
+            success = np.array([fr_success, cdr_success,
+                                full_success, dir_success])
 
             results[i, ] = \
-                np.concatenate((fr_x, cdr_x, dir_x,
+                np.concatenate((fr_x, cdr_x, full_x, dir_x,
                                 success,
                                 starts))
         results = pd.DataFrame(data=results,
@@ -61,21 +67,31 @@ class ShmKmerModelEstimator(object):
         #return CAB_SHM_Model(results)
         return results
 
-    def estimate_models(self, dict_kmer_matrices,
+    def estimate_models(self, kmer_matrices,
                         strategies=None, chains=None):
         if strategies is None:
-            strategies = dict_kmer_matrices.keys()
+            strategies = kmer_matrices.keys()
         if chains is None:
-            chains = dict_kmer_matrices[strategies[0]].keys()
+            chains = kmer_matrices[strategies[0]].keys()
         models = dict.fromkeys(strategies)
         for strategy in strategies:
             models[strategy] = dict.fromkeys(chains)
 
         n_models = len(strategies) * len(chains)
-
-        for strategy in strategies:
-            for chain in chains:
-                print("%s, %s" % (strategy.name, chain.name))
-                kmer_matrices = dict_kmer_matrices[strategy][chain]
-                models[strategy][chain] = self.__estimate_backend(kmer_matrices)
+        r = Parallel(n_jobs=n_models, max_nbytes=1e10)(
+            delayed(joblib_est, has_shareable_memory)
+            (models, strategy, chain, self, kmer_matrices) \
+            for strategy in strategies \
+            for chain in chains
+        )
+        for strategy, chain, model in r:
+            models[strategy][chain] = model
+        # for strategy in strategies:
+        #     for chain in chains:
+        #         models[strategy][chain] = \
+        #             self.estimate_backend(kmer_matrices[strategy][chain])
         return models
+
+def joblib_est(models, strategy, chain, estimator, kmer_matrices):
+    return strategy, chain, \
+           estimator.estimate_backend(kmer_matrices[strategy][chain])
