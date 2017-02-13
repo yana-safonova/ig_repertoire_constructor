@@ -1,6 +1,7 @@
 include ../Makefile_vars
 
 CONSENSUS = ../ig_consensus_finder
+UMI_CLUSTERING = ../umi_clustering
 
 all:
 	$(MAKE) -C ../compilation
@@ -24,6 +25,12 @@ final_repertoire.fa final_repertoire.rcm: $(CONSENSUS)/final_repertoire_uncompre
 	tmp.fa \
 	final_repertoire.rcm \
 	final_repertoire.fa
+
+	$(BIN)/report_umi_abundance \
+	--final-rcm final_repertoire.rcm \
+	--inter-rcm $(UMI_CLUSTERING)/intermediate_repertoire.rcm \
+	--repertoire final_repertoire.fa \
+	--output final_repertoire_umi.fa.gz
 
 clean:
 	$(MAKE) -C $(CONSENSUS) clean
