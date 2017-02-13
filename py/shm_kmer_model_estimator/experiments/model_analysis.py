@@ -30,7 +30,7 @@ def read_models(model_dir):
         model_filename = model_filename.split('.')[0]
         strategy, chain = model_filename.split('_')
         strategy, chain = MutationStrategies[strategy], Chains[chain]
-        models[strategy][chain] = pd.read_csv(model_path)
+        models[strategy][chain] = pd.read_csv(model_path, index_col=0)
 
     return models
 

@@ -14,9 +14,12 @@ from experiments.spots_boxplots import plot_mutability_boxplots
 from experiments.fr_cdr_comparison import compare_fr_cdr
 from experiments.loci_comparison import compare_loci
 from experiments.forward_backward_mutations import compare_forward_backward_mutations
+from experiments.plot_beta_dir import plot_distr
+from experiments.model_analysis import read_models
 
 from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
+
 
 
 def output_models(models, output_directory):
@@ -86,6 +89,12 @@ def wrapper_compare_forward_backward_mutations(matrices, model_config):
                                        figures_dir).to_csv(outfile, sep=',')
 
 
+def wrapper_plot_distr(models, model_config):
+    figures_dir = os.path.join(model_config.figures_dir,
+                               model_config.model_distribution_figs)
+    plot_distr(models, figures_dir)
+
+
 def main():
     print("Reading input config from %s" % parse_args().input)
     input_config = read_config(parse_args().input)
@@ -125,6 +134,10 @@ def main():
     print("Analysis of models' convergence")
     wrapper_convergence_analysis(models, model_config)
 
+    models = read_models(model_config.outdir)
+    print("Model distribution plots are drawing...")
+    wrapper_plot_distr(models, model_config)
+    print("Finished drawing model distribution plots")
 
 if __name__ == "__main__":
     main()
