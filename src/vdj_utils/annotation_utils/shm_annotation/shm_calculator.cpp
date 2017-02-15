@@ -143,7 +143,7 @@ namespace annotation_utils {
         VERIFY_MSG(all_shms.SegmentType() == germline_utils::SegmentType::VariableSegment,
                    "Segment " << all_shms.SegmentType() << " is not variable or diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
-        last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos + 1;
+        last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos - 1;
         last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_);
     }
 
