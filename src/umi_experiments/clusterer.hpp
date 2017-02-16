@@ -192,7 +192,9 @@ namespace clusterer {
             return current_umi_to_cluster_;
         }
 
-        void write_clusters_and_correspondence(const std::string& base_output_dir, const std::string& postfix, bool save_clusters, bool output);
+        void write_clusters_and_correspondence(const std::string& base_output_dir, const std::string& postfix, bool save_clusters, bool output,
+                                               const std::string& fasta_file_name = "intermediate_repertoire.fasta",
+                                               const std::string& rcm_file_name = "intermediate_repertoire.rcm");
 
     private:
         // It's supposed that the merged cluster is not considered in the partition together with either of parents.
@@ -535,7 +537,8 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    void Clusterer<ElementType>::write_clusters_and_correspondence(const std::string& base_output_dir, const std::string& postfix, bool save_clusters, bool output) {
+    void Clusterer<ElementType>::write_clusters_and_correspondence(const std::string& base_output_dir, const std::string& postfix, bool save_clusters, bool output,
+                                                                   const std::string& fasta_file_name, const std::string& rcm_file_name) {
         if (!output) return;
 
         namespace fs = boost::filesystem;
@@ -568,9 +571,11 @@ namespace clusterer {
             fs::create_directory(output_dir);
             INFO("Created new");
         }
-        write_seqan_records(fs::path(output_dir).append("intermediate_repertoire.fasta"), repertoire_ids, repertoire_reads);
+        if (!fasta_file_name.empty()) {
+            write_seqan_records(fs::path(output_dir).append(fasta_file_name), repertoire_ids, repertoire_reads);
+        }
 
-        std::ofstream read_to_cluster_ofs(fs::path(output_dir).append("intermediate_repertoire.rcm").string());
+        std::ofstream read_to_cluster_ofs(fs::path(output_dir).append(rcm_file_name).string());
         for (const auto& read : reads_) {
             read_to_cluster_ofs << read.GetReadId();
             if (read_id_to_cluster_id.count(read.GetId())) {

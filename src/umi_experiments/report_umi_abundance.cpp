@@ -103,13 +103,29 @@ int main(int argc, const char* const* argv) {
     INFO("Updating read ids");
     std::unordered_map<size_t, size_t> final_cluster_umi_abundances = get_umi_abundances(input.intermediate_rcm, input.final_rcm);
     std::vector<seqan::CharString> new_read_ids(input.read_ids.size());
+    std::vector<size_t> cluster_umi_abundances(new_read_ids.size());
     for (size_t i = 0; i < input.read_ids.size(); i ++) {
         const std::string id = seqan_string_to_string(input.read_ids[i]);
         std::vector<string> parts = split(id, "___");
         size_t cluster = std::stoull(parts[1]);
         size_t size = std::stoull(parts[3]);
 //        new_read_ids[i] = seqan::CharString("cluster_" + std::to_string(cluster) + "|UMIs_" + std::to_string(final_cluster_umi_abundances[cluster]) + "|reads_" + std::to_string(size));
-        new_read_ids[i] = seqan::CharString("cluster___" + std::to_string(cluster) + "___size___" + std::to_string(final_cluster_umi_abundances[cluster]));
+        size_t umi_abundances = final_cluster_umi_abundances[cluster];
+        new_read_ids[i] = seqan::CharString("cluster___" + std::to_string(cluster) + "___size___" + std::to_string(umi_abundances));
+        cluster_umi_abundances[i] = umi_abundances;
     }
-    write_seqan_records(params.output_path, new_read_ids, input.read_seqs);
+
+    std::vector<size_t> sort_permutation(input.read_ids.size());
+    std::iota(sort_permutation.begin(), sort_permutation.end(), 0);
+    std::sort(sort_permutation.begin(), sort_permutation.end(), [&cluster_umi_abundances] (size_t left, size_t right) { return cluster_umi_abundances[left] > cluster_umi_abundances[right]; });
+
+    std::vector<seqan::CharString> sorted_read_ids(input.read_ids.size());
+    std::vector<seqan::Dna5String> sorted_read_seqs(sorted_read_ids.size());
+    for (size_t i = 0; i < sorted_read_ids.size(); i ++) {
+        sorted_read_ids[i] = new_read_ids[sort_permutation[i]];
+        sorted_read_seqs[i] = input.read_seqs[sort_permutation[i]];
+    }
+
+//    write_seqan_records(params.output_path, new_read_ids, input.read_seqs);
+    write_seqan_records(params.output_path, sorted_read_ids, sorted_read_seqs);
 }
