@@ -655,6 +655,9 @@ class RepertoireMatch:
         rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
         rb["reference_vs_constructed_constructed_clusters_sizes"] = map(int, list(self.M2MDATA.constructed_cluster_sizes))
         rb["reference_vs_constructed_reference_clusters_sizes"] = map(int, list(self.M2MDATA.reference_cluster_sizes))
+        rb["reference_vs_constructed_overcorrected"] = sum(self.M2MDATA.constructed_cluster_sizes > self.M2MDATA.reference_cluster_sizes)
+        is_large = self.M2MDATA.reference_cluster_sizes >= size
+        rb["reference_vs_constructed_overcorrected_large"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large] > self.M2MDATA.reference_cluster_sizes[is_large])
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
