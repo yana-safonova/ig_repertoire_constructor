@@ -2,10 +2,12 @@
 #include <verify.hpp>
 #include <logger/logger.hpp>
 #include <bitset>
+#include <unordered_set>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem.hpp>
 #include "pcr_simulator.hpp"
 #include "../ig_tools/utils/string_tools.hpp"
+#include "../umi_experiments/umi_utils.hpp"
 
 std::default_random_engine PcrSimulator::random_engine_;
 const size_t PcrSimulator::CHIMERIC_READ_ERROR_COUNT = std::numeric_limits<size_t>::max() / 2;
@@ -14,6 +16,7 @@ const size_t PcrSimulator::MAP_NOWHERE = std::numeric_limits<size_t>::max();
 void PcrSimulator::ReadRepertoire(const std::string& repertoire_file_path) {
     seqan::SeqFileIn reads_file(repertoire_file_path.c_str());
     readRecords(original_ids_, original_reads_, reads_file);
+    INFO("Total " << original_ids_.size() << " records read.");
     size_t total_length = 0;
     for (const auto& read : original_reads_) {
         total_length += length(read);
@@ -37,6 +40,14 @@ void PcrSimulator::Amplify(size_t output_estimation_limit) {
     amplified_reads_ = std::vector<Record>();
     for (size_t i = 0; i < original_reads_.size(); i ++) {
         amplified_reads_.emplace_back("original_" + std::to_string(i), original_reads_[i], GenerateBarcode(), 0);
+    }
+
+    {
+        std::unordered_set<seqan::Dna5String> barcodes(amplified_reads_.size());
+        for (const auto& read : amplified_reads_) {
+            barcodes.insert(read.barcode);
+        }
+        INFO("Total " << barcodes.size() << " unique barcodes generated.");
     }
 
     SimulatePcr();
