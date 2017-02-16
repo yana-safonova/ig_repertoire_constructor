@@ -28,7 +28,7 @@ final_repertoire.fa final_repertoire.rcm: $(CONSENSUS)/final_repertoire_uncompre
 
 	$(BIN)/report_umi_abundance \
 	--final-rcm final_repertoire.rcm \
-	--inter-rcm $(UMI_CLUSTERING)/intermediate_repertoire.rcm \
+	--inter-rcm $(UMI_CLUSTERING)/intermediate_repertoire_close_umi.rcm \
 	--repertoire final_repertoire.fa \
 	--output final_repertoire_umi.fa.gz
 
