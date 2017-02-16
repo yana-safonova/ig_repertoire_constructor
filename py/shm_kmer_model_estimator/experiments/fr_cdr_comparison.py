@@ -7,7 +7,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-plt.rcParams['figure.figsize'] = 15, 10
 
 from collections import OrderedDict
 
@@ -68,8 +67,11 @@ def compare_fr_cdr(matrices, figures_dir):
                            data=means, inner="quartile", split=True)
         plt.ylim([0, 0.55])
         fig = g.get_figure()
-        fig.savefig(os.path.join(figures_dir, figure_file),
+        fig.set_size_inches(4, 3)
+        fig.savefig(os.path.join(figures_dir, figure_file + "pdf"),
                     format='pdf', dpi=150)
+        fig.savefig(os.path.join(figures_dir, figure_file + "png"),
+                    format='png', dpi=150)
         plt.close()
         return OrderedDict([
                    ("# well-covered kmers", len(matrices.kmer_names)),
@@ -80,7 +82,7 @@ def compare_fr_cdr(matrices, figures_dir):
     results = OrderedDict()
     for strategy in MutationStrategies:
         for chain in Chains:
-            figure_file = "violinplot_%s_%s.pdf" % (strategy.name, chain.name)
+            figure_file = "violinplot_%s_%s." % (strategy.name, chain.name)
             results[(strategy, chain)] = \
                 compare_fr_cdr_by_strategy_chain(matrices[strategy][chain],
                                                  chain, strategy,
