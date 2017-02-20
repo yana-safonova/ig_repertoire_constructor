@@ -32,12 +32,21 @@
 
     <h2 id = "motivation">Motivation</h2>
     <p align = "justify">
-        With increasing amount of immunosequencing data the barcoded data also gains popularity.
+        Construction of an antibody repertoire is an important preliminary step in various immunological applications.
         Repertoire construction is a complex clustering problem with the largest obstacle of distinguishing natural diversity of antibodies from PCR errors.
         Barcoding helps to separate these two sources of variations in IG sequences
         and makes PCR error correction possible while preserving even close antibody variations.
         Also barcoding allows to quantify antibodies more precisely.
+        One can estimate number of corresponding antibodies through the number of reads in the cluster.
+        However, as the following figure shows, such estimation can be very inaccurate.
     </p>
+    <table align = center>
+        <tr>
+            <td align = center>
+                <img src = "barigrec_figures/umi_cnt_to_read_cnt.png" width = 100% alt = "Barcode count to read count scatterplot">
+            </td>
+        </tr>
+    </table>
 
 
     <h2 id = "algorithm">Algorithm</h2>
@@ -48,9 +57,10 @@
     </p>
     The algorithm performs the following steps:
     <ul>
-        <li><b><a href = "index.html#vj_finder">VJ Finder</a>: </b>V, J labeling, cleaning and cropping input reads.</li>
+        <li><b><a href = "index.html#vj_finder">VJ Finder</a>: </b>V, J labeling, cleaning, aligning and cropping input reads.</li>
         <li><b><a href = "#clustering">Clustering using barcode information</a>:</b> read clustering inside barcodes and barcode error correction.</li>
-        <li><b><a href = "index.html">IgReC TODO: fix link?</a>:</b> Merge close clusters without usage of barcodes applying IgReC algorithm with custom clustering parameters.</li>
+        <li><b><a href = "index.html">IgReC</a>:</b>Apply IgReC tool, which constructs repertoire from non-barcoded reads, to the clustering output.
+            On this step we use custom clustering parameters for IgReC to merge only almost identical sequences.</li>
     </ul>
 
     <h3 id = "clustering">Clustering using barcode information</h3>
@@ -61,8 +71,9 @@
                 since barcoded sequences undergo amplification, some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
             </li>
             <li><b>Barcode collisions:</b>
-                in an ideal experiment, barcodes are randomly and uniformly generated.
-                In particular, we observe certain amount of distinct molecules get identical barcodes attached.
+                in a model experiment barcodes are randomly and uniformly generated.
+                In particular, we expect certain number of distinct molecules get identical barcodes attached.
+                Too short barcodes or a bias introduced during barcode generation can only increase the collision probability.
             </li>
             <li><b>Chimeric reads:</b>
                 about 1-8% of reads in Rep-seq datasets are chimeric.
