@@ -655,9 +655,21 @@ class RepertoireMatch:
         rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
         rb["reference_vs_constructed_constructed_clusters_sizes"] = map(int, list(self.M2MDATA.constructed_cluster_sizes))
         rb["reference_vs_constructed_reference_clusters_sizes"] = map(int, list(self.M2MDATA.reference_cluster_sizes))
-        rb["reference_vs_constructed_overcorrected"] = sum(self.M2MDATA.constructed_cluster_sizes > self.M2MDATA.reference_cluster_sizes)
+        cf = 1.0
+        rb["reference_vs_constructed_overcorrected"] = sum(self.M2MDATA.constructed_cluster_sizes > cf * self.M2MDATA.reference_cluster_sizes)
+        rb["reference_vs_constructed_num"] = len(self.M2MDATA.constructed_cluster_sizes)
         is_large = self.M2MDATA.reference_cluster_sizes >= size
-        rb["reference_vs_constructed_overcorrected_large"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large] > self.M2MDATA.reference_cluster_sizes[is_large])
+        is_overcorrected = self.M2MDATA.constructed_cluster_sizes > cf * self.M2MDATA.reference_cluster_sizes
+        rb["reference_vs_constructed_overcorrected_large"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large] > cf * self.M2MDATA.reference_cluster_sizes[is_large])
+        rb["reference_vs_constructed_large_num"] = sum(is_large)
+        import numpy as np
+        rb["reference_vs_constructed_overcorrected_large_median_rate"] = np.median(self.M2MDATA.constructed_cluster_sizes[is_large & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large & is_overcorrected])
+        is_large50 = self.M2MDATA.reference_cluster_sizes >= 50
+        rb["reference_vs_constructed_overcorrected_large50"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large50] > cf * self.M2MDATA.reference_cluster_sizes[is_large50])
+        rb["reference_vs_constructed_large50_num"] = sum(is_large50)
+        rb["reference_vs_constructed_overcorrected_large_median_rate50"] = np.median(self.M2MDATA.constructed_cluster_sizes[is_large50 & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large50 & is_overcorrected])
+        rb["reference_vs_constructed_overcorrected_large_mean_rate50"] = np.mean(self.M2MDATA.constructed_cluster_sizes[is_large50 & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large50 & is_overcorrected])
+        rb["reference_vs_constructed_overcorrected_large_mean_rate"] = np.mean(self.M2MDATA.constructed_cluster_sizes[is_large & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large & is_overcorrected])
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
