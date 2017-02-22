@@ -58,7 +58,7 @@ if __name__ == "__main__":
 
 
     plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10",
-                  title="Sensitivity + precision (SIMULATED)",
+                  title="sensitivity + precision (SIMULATED)",
                   kind="igrec", label="IgReC")
 
     plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10_prod",
