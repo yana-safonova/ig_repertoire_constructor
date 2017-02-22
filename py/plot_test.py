@@ -310,7 +310,7 @@ def plot_two_sums(dir,
         cur_for_plot = get_what(dataset, what, cur_sizes)
         forplot.append(cur_for_plot)
 
-    labels = [label + ", simple", label + ", complex"]
+    labels = [label + ", SIMULATED SIMPLE", label + ", SIMULATED COMPLEX"]
     zipped = zip(forplot, colors, labels)
     if which is not None:
         zipped = [zipped[i] for i in which]
