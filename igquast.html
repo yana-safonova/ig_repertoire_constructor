@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>IgQUAST by IgReC team</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name" align=center>IgQUAST</h1>
+      <h2 class="project-tagline" align=center>A tool for antibody/TCR repertoires quality assessment</h2>
+      IgQUAST is a part of IgReC toolkit. Use <a href="index.html">main page</a> for download
+      <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub</b></a> -->
+      <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip</b></a> -->
+      <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz</b></a> -->
+    </section>
+
+    <section class="main-content">
+        <h2>Content</h2>
+        <p align = "center">
+        <ul>
+            <li><a href = "#motivation">Motivation and purposes</a></li>
+            <li><a href = "#approach">Our approach</a></li>
+            <li><a href = "#ig_repertoire_constructor">IgReC</a></li>
+            <li><a href = "#mass_spectra_analysis">Mass Spectra Analyzer</a></li>
+            <li><a href = "#dsf">DSF (Dense Subgraph Finder)</a></li>
+            <li><a href = "#references">Manual and citations</a></li>
+        </ul>
+        </p>
+
+
+        <h2 id = "motivation">Motivation and purposes</h2>
+        <p align = "justify">
+            Construction of antibody repertoire is a preliminary step of any immunological analysis based on
+            immunosequencing reads.
+            However, for this moment there is no any golden standard solution for this problem.
+            Each repertoire construction strategy has its own advantages and disadvantages.
+            In order to benchmark all proposed repertoire construction approach we developed IgQUAST: ImmunoGlobulus QUality
+            ASsessment Tool,
+            a tool for benchmarking of immune repertoire construction tools and quality assessment of adaptive immune repertoires.
+        </p>
+
+        <p align = "justify">
+        <h3>General purposes</h3>
+            <ol>
+                <li> Comparison of repertoire construction tools on reference datasets using integral performance metrics</li>
+                <li> Parameter tuning for repertoire construction tools</li>
+                <li> Quality estimation of a constructed repertoire without known reference</li>
+                <li> Detection of problematic clusters and (potential) drawbacks of repertoire construction strategies</li>
+            </ol>
+        </p>
+
+        <h2 id = "inputoutput">Input and output</h2>
+        <p align = "justify">
+        Basically, IgQUAST takes as an input the constructed repertoire in CLUSTER.FASTA
+        format (see <a href="ig_repertoire_constructor_manual.html#clusters_fasta">IgReC manual</a>
+        for comprehensive file format description).
+        </p>
+
+        <p align = "justify">
+        For comprehensive analysis it also requires additional information: the initial read library and
+        reference repertoire.
+        Naturally, without reference repertoire IgQUAST cannot perform reference-based analisys.
+        The more information you provide, the more detailed results you will get.
+        See the <a href="igquast_manual.html">manual</a> for all possible input options.
+        </p>
+
+        <p align = "justify">
+        As an output IgQUAST reports a bunch of plots (see below for description and explanation of the most important of them)
+        along with numerical statistics.
+        All stats are reported as machine-readable JSON format in order to simplify automatic analysis.
+        </p>
+
+        <p align = "justify">
+        IgQUAST in an active development now, thus, some new plots and stats could be added in the nearest future.
+        Stay tuned! Your feedback is also appreciated (see <a href="#feedback">Feedback</a> below).
+        </p>
+
+        <p align = "justify">
+        Please note, IgQUAST is designed for repertoire construction problem only!
+        It supposes that input reads are already merged, filtered and cropped and it cannot
+        test the corresponding stages.
+        </p>
+
+        <h2 id = "reference">Reference source</h2>
+        <p align = "justify">
+        For reference-based benchmarking an imunosequencing library with known reference repertoire should be used.
+        We suppose using of one of the following reference sources:
+
+        <h3 id = "umi">Molecular barcoding</h3>
+        <p align = "justify">
+        Molecular identifiers (UMIs) or barcodes can be used for B-cell labeling.
+        Such labeling allows one to reconstruct immunoglobulin sequences and, thus,
+        provides one with a reference dataset for benchmarking.
+        </p>
+
+        <p align = "justify">
+        Please note that currently available barcoding techniques are not perfect.
+        Remember about barcode collision, barcode corruption, chimeric reads, etc.
+        Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
+        </p>
+
+        <p align = "justify">
+        The better option is to use an approach specially designed for barcode-assisted antibody repertoire construction.
+        We strongly suggest to use our tool <a href="barigrec.html">BarIgReC</a> for this task.
+        </p>
+
+        <p align = "justify">
+        The second option is consider specially designed semi-artificial test datasets.
+        Such datasets could be obtained by aggressive input read and barcode filtering, when
+        every suspicious barcode and every suspicious read is omitted.
+        Such approach is definitely
+        improper for real-life repertoire construction (since it loses a big part of repertoire diversity, i.e., it is biased),
+        but it is good for test dataset preparation.
+        </p>
+
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/barcodes.png" width = 50% alt = "Molecular barcoding">
+                </td>
+            </tr>
+        </table>
+
+        <h3 id = "simulation">Simulation</h3>
+        <p align = "justify">
+        Simulated Rep-seq library also can be used as a reference.
+        Actually, there are no special requirements for simulator or/and simulated repertoire, but we suggest to
+        use our simulator:
+        <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator, a versatile immunosequencing simulator</a>,
+        that was specially designed for Ig repertoire construction benchmarking.
+        </p>
+
+
+        <h2 id = "referencebased">Reference-based metrics</h2>
+        
+
+
+
+        <h3 id = "matching">Sensitivity and precision</h3>
+        IgQUAST computes clusters in the reference repertoire that were ideally recovered in the constructed repertoire.
+        As integral measures of quality IgQUAST reports two following metrics:
+        <ul>
+            <li> <b>Precision</b> Larger precision &mdash; less number of false constructed clusters</li>
+            <li> <b>Sensitivity</b> Larger sensitivity &mdash; more correct clusters were reconstructed</li>
+        </ul>
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/sensitivity_precision_definition.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
+
+        These metrics are <i>antagonistic:</i> generally, more sensitivity means less precision and vice versa.
+        Thus, it is important to control both of them simultaneously.
+
+        <h3 id = "matching">Fuzzy repertoire-to-repertoire matching</h3>
+        IgQUAST also performs fuzzy repertoire-to-repertoire matching.
+        It allows to detect “almost correct” clusters.
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/fuzzy1.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+                <td align = center>
+                    <img src = "docs/igquast/fuzzy2.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
+        Analysis of error positions in almost correct clusters revealed that
+        error are concentrated in FR1 &amp; FR4 and can be easily corrected using
+        germline database
+
+        <h3 id = "matching">Min-size threshold</h3>
+        Distribution of cluster sizes is highly uneven!
+        Thus, most clusters in a repertoire have small size.
+        At the same time, consensus computed by a small cluster is unreliable
+
+
+        We cannot construct consensus by two reads in non-trivial case
+        Due to dependency of amplification errors larger cluster may be unreliable too
+
+        <ul>
+            <li> In case of real analysis we should exclude small clusters from the
+                constructed repertoire to improve precision. Constructed min-size
+                threshold is a parameter of the repertoire construction procedure</li>
+            <li> For benchmarking we should not take small clusters into account during
+                sensitivity/precision computation to make the metrics stable. Reference
+                min-size threshold is a parameter of the benchmarking procedure</li>
+            <li>IgQUAST computes sensitivity and precision for various constructed min-size
+                values and for fixed reference min-size = 5</li>
+        </ul>
+
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/sens_prec_plot.png" width = 50% alt = "Sensitivity-precision plot example">
+                </td>
+            </tr>
+        </table>
+
+        <h3 id = "matching">Cluster size underestimation</h3>
+        Error correction does not fix ALL errors => cluster sizes are underestimated (TODO more details. copied from slides)
+
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/underestimation1.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+                <td align = center>
+                    <img src = "docs/igquast/underestimation2.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
+
+
+        <h3 id = "matching">Cluster purity metrics</h3>
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/purity.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
+
+
+        Constructed purity: measure of cluster overcorrection
+        Reference purity: measure of cluster undercorrection
+
+
+
+        <h2 id = "referencebased">Reference-free metrics</h2>
+        <h3 id = "matching">Reference-free overcorrection detection and cluster splitting</h3>
+
+        To detect overcorrection construct consensus and count errors by position
+To fix overcorrection split cluster by position with maximum # errors
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/splitting1.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+                <td align = center>
+                    <img src = "docs/igquast/splitting2.png" width = 50% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
+
+
+
+
+
+        <h2 id="feedback">Feedback and bug reports</h2>
+        Your comments, bug reports, and suggestions are very welcome. They will help us to further improve IgQUAST.
+        <br><br> If you have any trouble running IgQUAST, please send us the log file from the output directory.
+        <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
+
+
+        <h2 id = "references">Manual and citations</h2>
+        <p align = "center">
+            <ul>
+                <li>IgQUAST manual can be found <a href = 'igquast_manual.html'>here</a>.</li>
+            </ul>
+        </p>
+
+        <p align = "justify">
+            <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
+            Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
+            IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
+            Bioinformatics. 2015 Jun 15; 31(12): i53-i61.
+            <a href = http://bioinformatics.oxfordjournals.org/content/31/12/i53.long>doi: 10.1093/bioinformatics/btv238.</a>
+        </p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner">
+            <a href="https://github.com/yana-safonova/ig_repertoire_constructor">IgQUAST</a> is maintained by
+            Center for Algorithmic Biotechnology, Saint Petersburg University
+        </span>
+      </footer>
+
+    </section>
+
+  </body>
+</html>
+

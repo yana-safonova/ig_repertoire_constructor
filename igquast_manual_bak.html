@@ -1,76 +1,56 @@
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>aimQUAST Manual</title>
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>igQUAST Manual</title>
     <style type="text/css">
         .code {
             background-color: lightgray;
-            white-space: pre-wrap;       /* css-3 */
-            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-            white-space: -pre-wrap;      /* Opera 4-6 */
-            white-space: -o-pre-wrap;    /* Opera 7 */
-            word-wrap: break-word;       /* Internet Explorer 5.5+ */
         }
     </style>
     <style>
-
     </style>
 </head>
 
-<body>
-<h1>aimQUAST manual</h1>
-1. <a href="#intro">What is aimQUAST?</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;1.1. <a href="#aimquast_input">Input</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;1.2. <a href="#aimquast_output">Output</a><br>
+<h1>igQUAST manual</h1>
+1. <a href="#intro">What is igQUAST?</a><br>
+
 2. <a href="#install">Installation</a><br>
-3. <a href="#aimquast_usage">aimQUAST usage</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#aimquast_basic">Basic options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#aimquast_advanced">Advanced options</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#aimquast_examples">Examples</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#aimquast_output_files">Output files</a><br>
-4. <a href="#feedback">Feedback and bug reports</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href="#citation">Citation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
 
-    <!-- -------- -->
+3. <a href="#igquast_usage">igQUAST usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igrec_basic">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igrec_advanced">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igrec_examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igrec_output">Output files</a><br>
 
-    <h2 id="intro">1. What is aimQUAST?</h2> aimQUAST (Adaptive IMmune QUality ASsessment Tool) is a tool for adaptive immune repertoires quality assessment.
-    aimQUAST can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
-	aimQUAST provides reference-based and reference-free analysis:
-    <ul>
-        <li>During reference-based analysis the tool computes sensitivity and
-            precision of reconstructed repertoire, detects undercorrected
-            (erroneously split) and overcorrected (erroneously joined) clusters
-            and estimates rate of correctly fixed initial reads.
-        </li>
-        <li>During reference-free analysis the tool estimates error rate and error profile of the initial RepSeq library. Also it detects overestimated clusters using amplification-free Poisson model.
-        </li>
-    </ul>
+4. <a href = "#examples">Examples</a><br>
 
-    <h3 id="aimquast_input">1.1. Input</h3> aimQUAST takes as an input:
-    <ul>
-        <li>Initial RepSeq library;</li>
-        <li>Analyzed adaptive immune repertoire constructed on this library;</li>
-        <li>For reference-based analysis, reference repertoire constructed on the same library.</li>
-    </ul>
-	Initial RepSeq library should be in FASTA or FASTQ format.
-		Reads should be properly cropped (should start from V gene begining and finish by J gene ending) and reads from negative strand should
-		be reversed. Cropping and strand correction of RepSeq reads may be performed by VJFinder tool from IgRepertoireConstructor package
-        (see <a href="manual.html">IgRepertoireConstructor manual</a> for VJ Finder input-output format description).
-	<br>
-	Analyzed and reference repertoires should be presented by two files each:
-		repertoire sequences in FASTA format and read-cluster map (RCM)
-		file in a special format. See <a href="manual.html#repertoire_files">IgRepertoireConstructor manual</a>
-		for a comprehensive repertoire format description. One of these two
-		files could be missing, in this case the tool reconstructs it using
-		available information.
+5.  <a href="#repertoire_files">Antibody repertoire representation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.1. <a href="#clusters_fasta">CLUSTERS.FASTA file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.2. <a href="#read_cluster_map">RCM file format</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;6.3. <a href="#alignment_info">Alignment Info file format</a><br>
 
+6. <a href="#feedback">Feedback and bug reports</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;7.1. <a href="#citation">Citation</a><br>
 
-    <h3 id="aimquast_output">1.2. Output</h3> aimQUAST reports:
-    <ul>
-        <li>Plots for visual analysis;</li>
-        <li>Metrics report.</li>
-    </ul>
+<!--- ----------------- -->
 
-    Plots are reported in PNG, PDF and SVG formats. Metrics are reported in text (brief) and JSON (full) formats.
+<a id="intro"></a>
+<h2>1. What is igQUAST?</h2>
+igQUAST (ImmunoGlobulin QUality ASsessment Tool) is a tool for antibody repertoires quality assessment.
+igQUAST also could be used for T-cells repertoires.
+igQUAST can be used for benchmarking of antibody repertoire construction tools and for quality estimation of constructed repertoires.
+igQUAST provides reference-based and reference-free analysis:
+<ul>
+    <li>During reference-based analysis the tool computes sensitivity and
+        precision of reconstructed repertoire, detects undercorrected
+        (erroneously split) and overcorrected (erroneously joined) clusters
+        and estimates rate of correctly fixed initial reads.
+    </li>
+    <li>During reference-free analysis the tool estimates error rate and error profile of the initial RepSeq library. Also it detects overestimated clusters using special probabilistic model.
+    </li>
+</ul>
+
+<a id="install"></a>
+<h2>2. Installation</h2>
 
     <h2 id=install>2. Installation</h2>
 aimQUAST has the following dependencies:
