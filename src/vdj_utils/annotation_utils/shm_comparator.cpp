@@ -10,9 +10,39 @@ namespace annotation_utils {
         return true;
     }
 
+    static std::vector<SHM> get_following_insertions_block(GeneSegmentSHMs::SHMConstIterator it,
+                                                           GeneSegmentSHMs::SHMConstIterator end) {
+        std::vector<SHM> res;
+        do {
+            res.push_back(*it);
+            ++it;
+        } while (it != end &&
+                 it->shm_type == SHMType::InsertionSHM &&
+                 it->gene_nucl_pos == res.back().gene_nucl_pos &&
+                 it->read_nucl_pos == res.back().read_nucl_pos + 1);
+        return res;
+    }
+    static bool insertion_blocks_are_equal(const std::vector<SHM>& block1,
+                                           const std::vector<SHM>& block2) {
+        if (block1.size() != block2.size()) {
+            return false;
+        }
+        for (size_t i = 0; i < block1.size(); ++i) {
+            const auto& shm1 = block1[i];
+            const auto& shm2 = block2[i];
+            if (shm1.read_nucl != shm2.read_nucl) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     bool SHMComparator::SHMs1AreNestedInSHMs2(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
         size_t index2 = 0;
         for(auto it1 = shms1.cbegin(); it1 != shms1.cend(); it1++) {
+            if (it1->shm_type == SHMType::InsertionSHM) {
+                continue;
+            }
             bool shm_found = false;
             for(size_t i = index2; i < shms2.size(); i++)
                 if(*it1 == shms2[i]) {
@@ -23,7 +53,40 @@ namespace annotation_utils {
             if(!shm_found)
                 return false;
         }
+        return AllSHMs1InsertionBlocksArePresentedInSHMs2(shms1, shms2);
+//        return SHMsInsertionBlocksAreEqual(shms1, shms2);
+    }
+
+    bool SHMComparator::AllSHMs1InsertionBlocksArePresentedInSHMs2(GeneSegmentSHMs shms1,
+                                                                   GeneSegmentSHMs shms2) {
+        size_t index2 = 0;
+        for (auto it1 = shms1.cbegin(); it1 != shms1.cend(); it1++) {
+            bool shm_found = false;
+            if (it1->shm_type != SHMType::InsertionSHM) {
+                continue;
+            }
+            auto shm1_block = get_following_insertions_block(it1, shms1.cend());
+            for(size_t i = index2; i < shms2.size(); i++) {
+                if (*it1 == shms2[i]) {
+                    auto shm2_block = get_following_insertions_block(shms2.cbegin() + i, shms2.cend());
+                    if (insertion_blocks_are_equal(shm1_block, shm2_block)) {
+                        shm_found = true;
+                        it1 += shm1_block.size() - 1;
+                        index2 = i + shm2_block.size();
+                        break;
+                    }
+                    return false;
+                }
+            }
+            if(!shm_found)
+                return false;
+        }
         return true;
+    }
+    bool SHMComparator::SHMsInsertionBlocksAreEqual(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2)
+    {
+        return AllSHMs1InsertionBlocksArePresentedInSHMs2(shms1, shms2) &&
+               AllSHMs1InsertionBlocksArePresentedInSHMs2(shms2, shms1);
     }
 
     size_t SHMComparator::GetNumberOfIntersections(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
