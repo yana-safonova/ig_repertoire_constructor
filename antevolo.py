@@ -118,6 +118,7 @@ def ModifyAntEvoloConfigFile(params, log):
     param_dict['input_reads'] = params.input_reads
     param_dict['output_dir'] = params.output_dir
     param_dict['cdr_labeler_config_fname'] = params.cdr_labeler_config_file
+    param_dict['num_threads'] = params.num_threads
     process_cfg.substitute_params(params.antevolo_config_file, param_dict, log)
 
 def ModifyCDRLabelerConfigFile(params, log):
@@ -134,7 +135,7 @@ def ModifyCDRLabelerConfigFile(params, log):
 def ModifyVjFinderConfigFile(params, log):
     vj_param_dict = dict()
     vj_param_dict['loci'] = params.loci
-    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/germline")
+    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_germline")
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
     vj_param_dict['germline_filenames_config'] = params.germline_config_file
     process_cfg.substitute_params(params.vj_finder_config_file, vj_param_dict, log)
