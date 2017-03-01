@@ -1,252 +1,240 @@
 #include <logger/logger.hpp>
+#include <block_alignment/pairwise_block_alignment.hpp>
 #include "parent_read_reconstructor.hpp"
 
 namespace antevolo {
 
-    core::Read ParentReadReconstructor::ReconstructParentRead(
-            const std::shared_ptr<annotation_utils::AnnotatedClone> &clone1,
-            const std::shared_ptr<annotation_utils::AnnotatedClone> &clone2,
-            size_t id) {
+    std::tuple<core::Read,
+            seqan::Align<seqan::Dna5String>,
+            seqan::Align<seqan::Dna5String>> ParentReadReconstructor::ReconstructParentRead(
+           const annotation_utils::AnnotatedClone& clone1,
+           const annotation_utils::AnnotatedClone& clone2,
+           size_t id,
+           size_t gene_cdr3_start_pos,
+           size_t gene_cdr3_end_pos) {
+
         // read
         std::stringstream s;
         s << std::string("fake_read_") << id << ("___size___1");
         std::string read_name = s.str();
         std::string res_string;
-        seqan::DnaString res_dna5string;
+        seqan::Dna5String res_dna5string;
 
-        auto read1 = clone1->Read().seq;
-        auto read2 = clone2->Read().seq;
+        auto read1 = clone1.Read().seq;
+        auto read2 = clone2.Read().seq;
 
+        const auto& v_gene = clone1.VGene();
+        const auto& j_gene = clone1.JGene();
 
-        auto v_shm_it1 = clone1->VSHMs().cbegin();
-        auto v_shm_it2 = clone2->VSHMs().cbegin();
+        const TRow& gene_v_alignment1 = seqan::row(clone1.VAlignment().Alignment(), 0);
+        const TRow& gene_v_alignment2 = seqan::row(clone2.VAlignment().Alignment(), 0);
+        const TRow& v_alignment1 = seqan::row(clone1.VAlignment().Alignment(), 1);
+        const TRow& v_alignment2 = seqan::row(clone2.VAlignment().Alignment(), 1);
+        size_t v_gene_cdr3_start_view_pos1 = seqan::toViewPosition(
+                gene_v_alignment1,
+                gene_cdr3_start_pos);
+        size_t v_gene_cdr3_start_view_pos2 = seqan::toViewPosition(
+                gene_v_alignment2,
+                gene_cdr3_start_pos);
 
-
-        size_t read1_length = seqan::length(read1);
-        size_t read2_length = seqan::length(read2);
-
-        TraverseReads(read1, read2,
-                      0, 0,
-                      clone1->CDR3Range().start_pos, clone2->CDR3Range().start_pos,
-                      v_shm_it1, v_shm_it2,
-                      clone1->VSHMs().cend(), clone2->VSHMs().cend(),
-                      res_string);
-        for (size_t i = clone1->CDR3Range().start_pos; i <= clone1->CDR3Range().end_pos; ++i) {
+        // since insertion blocks are equal,
+        // gene alignments must be identical before CDR3 start pos,
+        // check for equality
+        {
+            bool eq = true;
+            VERIFY(v_gene_cdr3_start_view_pos1 == v_gene_cdr3_start_view_pos2);
+            for (size_t i = 0; i < v_gene_cdr3_start_view_pos1; ++i) {
+                if (gene_v_alignment1[i] !=
+                    gene_v_alignment2[i]) {
+                    eq = false;
+                    break;
+                }
+            }
+            VERIFY(eq);
+        }
+        size_t alignment_length = length(v_alignment1);
+        // [0, cdr3_start_pos)
+        auto read_v_gaps = TraverseAlignments(v_alignment1,
+                                              v_alignment2,
+                                              gene_v_alignment1,
+                                              0,
+                                              0,
+                                              v_gene_cdr3_start_view_pos1,
+                                              v_gene_cdr3_start_view_pos2,
+                                              res_string);
+        // [cdr3_start_pos, v_gene_end_pos]
+        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos); i < alignment_length; ++i) {
+            if (v_alignment1[i] == '-') {
+                read_v_gaps.push_back(i);
+            }
+            else {
+                res_string.push_back(v_alignment1[i]);
+            }
+        }
+        // (v_gene_end_pos, j_gene_start_pos)
+        // -- the CDR3 part outside V and J
+        size_t v_clipping_end_position = res_string.length() + read_v_gaps.size();
+        for (size_t i = clone1.VAlignment().EndQueryPosition() + 1;
+             i < clone1.JAlignment().StartQueryPosition();
+             ++i) {
             res_string.push_back(read1[i]);
         }
-        auto j_shm_it1 = clone1->JSHMs().cbegin();
-        while (j_shm_it1 != clone1->JSHMs().cend() && j_shm_it1->read_nucl_pos <= clone1->CDR3Range().end_pos) {
-            j_shm_it1++;
+        size_t j_clipping_begin_position;
+        if (clone1.VAlignment().EndQueryPosition() < clone1.JAlignment().StartQueryPosition()) {
+            j_clipping_begin_position = res_string.length();
         }
-        auto j_shm_it2 = clone2->JSHMs().cbegin();
-        while (j_shm_it2 != clone2->JSHMs().cend() && j_shm_it2->read_nucl_pos <= clone2->CDR3Range().end_pos) {
-            j_shm_it2++;
+        else {
+            j_clipping_begin_position = res_string.length() - 1 -
+                    clone1.VAlignment().EndQueryPosition() + clone1.JAlignment().StartQueryPosition();
         }
-
-
-//        auto temp_shm1_it = j_shm_it1;
-//        while (temp_shm1_it != clone1->JSHMs().cend()) {
-//            INFO("read pos: " << temp_shm1_it->read_nucl_pos << ", type: " << temp_shm1_it->shm_type);
-//            temp_shm1_it++;
-//        }
-
-        TraverseReads(read1, read2,
-                      clone1->CDR3Range().end_pos + 1, clone2->CDR3Range().end_pos + 1,
-                      read1_length, read2_length,
-                      j_shm_it1, j_shm_it2,
-                      clone1->JSHMs().cend(), clone2->JSHMs().cend(),
-                      res_string);
-//        std::cout << res_string << std::endl;
+        
+        const TRow& gene_j_alignment1 = seqan::row(clone1.JAlignment().Alignment(), 0);
+        const TRow& gene_j_alignment2 = seqan::row(clone2.JAlignment().Alignment(), 0);
+        const TRow& j_alignment1 = seqan::row(clone1.JAlignment().Alignment(), 1);
+        const TRow& j_alignment2 = seqan::row(clone2.JAlignment().Alignment(), 1);
+        size_t j_gene_cdr3_end_view_pos1 = seqan::toViewPosition(
+                gene_j_alignment1,
+                gene_cdr3_end_pos);
+        size_t j_gene_cdr3_end_view_pos2 = seqan::toViewPosition(
+                gene_j_alignment2,
+                gene_cdr3_end_pos);
+        // again check for gene alignments' equality
+        {
+            bool eq = true;
+            size_t al_length = length(gene_j_alignment1);
+            VERIFY(al_length - j_gene_cdr3_end_view_pos1 == length(gene_j_alignment2) - j_gene_cdr3_end_view_pos2);
+            for (size_t i = 1; i < al_length - j_gene_cdr3_end_view_pos1; ++i) {
+                if (gene_j_alignment1[i + j_gene_cdr3_end_view_pos1] !=
+                    gene_j_alignment2[i + j_gene_cdr3_end_view_pos2]) {
+                    eq = false;
+                    break;
+                }
+            }
+            VERIFY(eq);
+        }
+        std::vector<size_t> read_j_gaps;
+        // [j_gene_start_pos, cdr3_end_pos]
+        for (size_t i = 0;
+             i <= j_gene_cdr3_end_view_pos1;
+             ++i) {
+            if (j_alignment1[i] == '-') {
+                read_j_gaps.push_back(i);
+            }
+            else {
+                if (toSourcePosition(j_alignment1, i) > clone1.VAlignment().EndQueryPosition()) {
+                    // there can be nothing between V and J
+                    res_string.push_back(j_alignment1[i]);
+                }
+            }
+        }
+        // (cdr3_end_pos, read_end_pos]
+        auto pre_j_gaps = TraverseAlignments(j_alignment1,
+                                             j_alignment2,
+                                             gene_j_alignment1,
+                                             j_gene_cdr3_end_view_pos1 + 1,
+                                             j_gene_cdr3_end_view_pos2 + 1,
+                                             length(j_alignment1),
+                                             length(j_alignment2),
+                                             res_string);
+        for (size_t g : pre_j_gaps) {
+            read_j_gaps.push_back(g);
+        }
 
         for (auto c : res_string) {
             seqan::append(res_dna5string, c);
         }
         core::Read res_read(read_name, res_dna5string, id);
-        return res_read;
+
+        using namespace seqan;
+        Align<Dna5String, ArrayGaps> seqan_v_alignment;
+        resize(rows(seqan_v_alignment), 2);
+        assignSource(row(seqan_v_alignment, 0), v_gene.seq());
+        assignSource(row(seqan_v_alignment, 1), res_read.seq);
+        TRow& v_gene_row = row(seqan_v_alignment, 0);
+        TRow& v_read_row = row(seqan_v_alignment, 1);
+        v_gene_row = gene_v_alignment1;
+        for (size_t i : read_v_gaps) {
+            insertGap(v_read_row, i);
+        }
+
+        setClippedEndPosition(v_read_row, v_clipping_end_position);
+
+        Align<Dna5String, ArrayGaps> seqan_j_alignment;
+        resize(rows(seqan_j_alignment), 2);
+        assignSource(row(seqan_j_alignment, 0), j_gene.seq());
+        assignSource(row(seqan_j_alignment, 1), res_read.seq);
+        TRow& j_gene_row = row(seqan_j_alignment, 0);
+        TRow& j_read_row = row(seqan_j_alignment, 1);
+        j_gene_row = gene_j_alignment1;
+
+        setClippedBeginPosition(j_read_row, j_clipping_begin_position);
+        for (size_t i : read_j_gaps) {
+            insertGap(j_read_row, i);
+        }
+
+        if (length(v_gene_row) != length(v_read_row)) {
+            INFO(" V: " << length(v_gene_row) << "\t" << length(v_read_row));
+        }
+        if (length(j_gene_row) != length(j_read_row)) {
+            INFO(" J: " << length(j_gene_row) << "\t" << length(j_read_row));
+        }
+
+        std::tuple<core::Read, Align<Dna5String, ArrayGaps>, Align<Dna5String, ArrayGaps>> res(
+                res_read,
+                seqan_v_alignment,
+                seqan_j_alignment);
+        return res;
     }
 
-    void ParentReadReconstructor::TraverseReads(const seqan::Dna5String& read1,
-                                                       const seqan::Dna5String& read2,
-                                                       size_t read1_start_pos,
-                                                       size_t read2_start_pos,
-                                                       size_t read1_end_pos,
-                                                       size_t read2_end_pos,
-                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it1,
-                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_it2,
-                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end1,
-                                                       annotation_utils::GeneSegmentSHMs::SHMConstIterator shm_end2,
-                                                       std::string& res_string) {
 
-        size_t read1_nucl_index = read1_start_pos;
-        size_t read2_nucl_index = read2_start_pos;
 
-        while (read1_nucl_index < read1_end_pos &&
-               read2_nucl_index < read2_end_pos) {
-            if ((shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos) &&
-                (shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos)) {
-                VERIFY_MSG(read1[read1_nucl_index] == read2[read2_nucl_index],
-                           "intersection_parent_constructor: unequal nucleotides on unmutated pos");
-                res_string.push_back(read1[read1_nucl_index]);
-                ++read1_nucl_index;
-                ++read2_nucl_index;
-                continue;
-            }
-            if (shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos) {
-                if (shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
-                    shm_it2++;
-                    ++read2_nucl_index;
-                    continue;
-                }
-                if (shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
-//                    INFO("deletion in read 2 on pos " << read2_nucl_index);
-                    res_string.push_back(shm_it2->gene_nucl);
-                    shm_it2++;
-                    ++read1_nucl_index;
-                    continue;
-                }
-                if (shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-                    shm_it2++;
-                    res_string.push_back(read1[read1_nucl_index]);
-                    ++read1_nucl_index;
-                    ++read2_nucl_index;
-                    continue;
-                }
-                VERIFY_MSG(false, "intersection_parent_constructor: got unknown SHM type");
-            }
-            if (shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos) {
-                if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM) {
-                    shm_it1++;
-                    ++read1_nucl_index;
-                    continue;
-                }
-                if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM) {
-//                    INFO("deletion in read 1 on pos " << read1_nucl_index);
-                    res_string.push_back(shm_it1->gene_nucl);
-                    shm_it1++;
-                    ++read2_nucl_index;
-                    continue;
-                }
-                if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-                    shm_it1++;
-                    res_string.push_back(read2[read2_nucl_index]);
-                    ++read1_nucl_index;
-                    ++read2_nucl_index;
-                    continue;
-                }
-                VERIFY_MSG(false, "intersection_parent_constructor: got unknown SHM type");
-                continue;
-            }
-            if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM &&
-                shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
-                shm_it1++;
-                shm_it2++;
-                continue;
-            }
-            if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM &&
-                shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
-                if (read1[read1_nucl_index] == read2[read2_nucl_index]) { // identical insertion
-                    res_string.push_back(read1[read1_nucl_index]);
-                }
-                shm_it1++;
-                shm_it2++;
-                ++read1_nucl_index;
-                ++read2_nucl_index;
-                continue;
-            }
-            if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM &&
-                shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-                if (read1[read1_nucl_index] == read2[read2_nucl_index]) { // identical substitution
-                    res_string.push_back(read1[read1_nucl_index]);
-//                    INFO("identical substitutions on pos " << read1_nucl_index);
+
+    /* !!
+     *  this function can only be applied to reads
+     *  with equal insertion blocks
+    */
+    std::vector<size_t> ParentReadReconstructor::TraverseAlignments(
+            const TRow& alignment1,
+            const TRow& alignment2,
+            const TRow& gene_alignment,
+            size_t view1_start_pos,
+            size_t view2_start_pos,
+            size_t view1_end_pos,
+            size_t view2_end_pos,
+            std::string &res_string) {
+
+        using namespace seqan;
+        std::vector<size_t> read_gaps;
+
+        size_t align1_start_pos = view1_start_pos;
+        size_t align2_start_pos = view2_start_pos;
+        size_t align1_end_pos = view1_end_pos;
+        size_t align2_end_pos = view2_end_pos;
+
+        VERIFY_MSG(align1_end_pos  - align1_start_pos == align2_end_pos - align2_start_pos,
+                   align1_start_pos << "\t" << align2_start_pos
+                                    << "\t" << align1_end_pos << "\t" << align2_end_pos);
+
+        size_t i = align1_start_pos;
+        size_t j = align2_start_pos;
+        while (i <  align1_end_pos &&
+               j <  align2_end_pos) {
+            if (alignment1[i] == alignment2[j]) {
+                if (alignment1[i] == '-') {
+                    read_gaps.push_back(i);
                 }
                 else {
-                    res_string.push_back(shm_it1->gene_nucl);
-//                    INFO("different substitutions on pos " << read1_nucl_index);
+                    res_string.push_back(alignment1[i]);
                 }
-                shm_it1++;
-                shm_it2++;
-                ++read1_nucl_index;
-                ++read2_nucl_index;
-                continue;
             }
-            if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM) {
-                shm_it1++;
-                ++read1_nucl_index;
-                continue;
+            else {
+                VERIFY(gene_alignment[i] != '-')
+                res_string.push_back(gene_alignment[i]);
             }
-            if (shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
-                shm_it2++;
-                ++read2_nucl_index;
-                continue;
-            }
-            if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM &&
-                shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
-                res_string.push_back(shm_it1->gene_nucl);
-                shm_it1++;
-                shm_it2++;
-                ++read1_nucl_index;
-                continue;
-            }
-            if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM &&
-                shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-                res_string.push_back(shm_it1->gene_nucl);
-                shm_it1++;
-                shm_it2++;
-                ++read2_nucl_index;
-                continue;
-            }
+            ++i;
+            ++j;
+
         }
-//        if (res_string.size() > 370)
-//            INFO("nucls:" << read1[370] << read1[371] << read1[372] << " " <<
-//                          read2[369] << read1[370] << read1[371] << " " <<
-//                          res_string[370] << res_string[371] << res_string[372] << std::endl);
-//        while (read1_nucl_index < read1_end_pos) {
-//            if ((shm_it1 == shm_end1 || read1_nucl_index != shm_it1->read_nucl_pos)) {;
-//                res_string.push_back(read1[read1_nucl_index]);
-//                ++read1_nucl_index;
-//                continue;
-//            }
-//            if (shm_it1->shm_type == annotation_utils::SHMType::InsertionSHM) {
-//                shm_it1++;
-//                ++read1_nucl_index;
-//                continue;
-//            }
-//            if (shm_it1->shm_type == annotation_utils::SHMType::DeletionSHM) {
-//                res_string.push_back(shm_it1->gene_nucl);
-//                shm_it1++;
-//                continue;
-//            }
-//            if (shm_it1->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-//                shm_it1++;
-//                res_string.push_back(shm_it1->gene_nucl);
-//                ++read1_nucl_index;
-//                continue;
-//            }
-//        }
-//        while (read2_nucl_index < read2_end_pos) {
-//            if ((shm_it2 == shm_end2 || read2_nucl_index != shm_it2->read_nucl_pos)) {;
-//                res_string.push_back(read2[read2_nucl_index]);
-//                ++read2_nucl_index;
-//                continue;
-//            }
-//            if (shm_it2->shm_type == annotation_utils::SHMType::InsertionSHM) {
-//                shm_it2++;
-//                ++read2_nucl_index;
-//                continue;
-//            }
-//            if (shm_it2->shm_type == annotation_utils::SHMType::DeletionSHM) {
-//                res_string.push_back(shm_it2->gene_nucl);
-//                shm_it2++;
-//                continue;
-//            }
-//            if (shm_it2->shm_type == annotation_utils::SHMType::SubstitutionSHM) {
-//                shm_it2++;
-//                res_string.push_back(shm_it2->gene_nucl);
-//                ++read2_nucl_index;
-//                continue;
-//            }
-//        }
-        VERIFY_MSG(read1_nucl_index == read1_end_pos && read2_nucl_index == read2_end_pos,
-                   "ParentReadReconstructor: non-equal length of unmutated sequences");
+        return read_gaps;
     }
 }

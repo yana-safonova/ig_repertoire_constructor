@@ -7,8 +7,8 @@ namespace antevolo {
         trees_.push_back(tree); // probably, we can use move here
     }
 
-    void EvolutionaryTreeStorage::AppendArchive(EvolutionaryTreeStorage tree_storage) {
-        for(auto it = tree_storage.begin(); it != tree_storage.end(); it++) {
+    void EvolutionaryTreeStorage::AppendArchive(const EvolutionaryTreeStorage& tree_storage) {
+        for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             trees_.push_back(*it);
         }
     }

@@ -1,11 +1,11 @@
 #include "evolutionary_tree_splitter.hpp"
 
 namespace antevolo {
-    EvolutionaryTree ConnectedTreeSplitter::GetTreeByRoot(const EvolutionaryTree &tree,
+    EvolutionaryTree ConnectedTreeSplitter::GetTreeByRoot(const EvolutionaryTree& tree,
                                                                            size_t root_id) {
         std::queue<size_t> vertex_queue;
         vertex_queue.push(root_id);
-        EvolutionaryTree connected_tree;
+        EvolutionaryTree connected_tree(tree.GetCloneSetPtr());
         while(!vertex_queue.empty()) {
             size_t cur_vertex = vertex_queue.front();
             vertex_queue.pop();
@@ -27,7 +27,7 @@ namespace antevolo {
     }
 
     // todo: add tree_index (3rd) assigning
-    std::vector<EvolutionaryTree> ConnectedTreeSplitter::Split(const EvolutionaryTree &tree) {
+    std::vector<EvolutionaryTree> ConnectedTreeSplitter::Split(const EvolutionaryTree& tree) {
         std::vector<EvolutionaryTree> connected_trees;
         if(tree.GetRootNumber() == 1) {
             connected_trees.push_back(tree);

@@ -55,6 +55,7 @@ namespace antevolo {
 
     void EvolutionaryTree::AddAllEdges() {
         for (auto p : edges_) {
+            VERIFY(p.second->DstClone()->CDR3Range().length() == p.second->SrcClone()->CDR3Range().length());
             AddEdge(p.first, p.second);
         }
     }

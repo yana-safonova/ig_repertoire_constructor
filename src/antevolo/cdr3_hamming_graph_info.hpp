@@ -13,7 +13,7 @@ namespace antevolo {
         const UniqueCDR3IndexMap& cdr3_to_indices_vector_map_;
         const CDR3ToIndexMap& cdr3_to_old_index_map_;
         const std::vector<std::string>& unique_cdr3s_;
-        SparseGraphPtr& hg_component_;
+        SparseGraphPtr hg_component_;
         size_t component_id_;
 
     public:

@@ -15,11 +15,12 @@ namespace antevolo {
 
     void VJClassProcessor::CreateUniqueCDR3Map(
             core::DecompositionClass decomposition_class) {
+        const auto& clone_set = *clone_set_ptr_;
         for(auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
-            if(clone_set_[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
+            if(clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
                 continue;
-            auto cdr3 = core::dna5String_to_string(clone_set_[*it].CDR3());
-            if(unique_cdr3s_map_.find(cdr3) == unique_cdr3s_map_.end())
+            auto cdr3 = core::dna5String_to_string(clone_set[*it].CDR3());
+            if (unique_cdr3s_map_.find(cdr3) == unique_cdr3s_map_.end())
                 unique_cdr3s_map_[cdr3] = std::vector<size_t>();
             unique_cdr3s_map_[cdr3].push_back(*it);
         }
@@ -53,7 +54,7 @@ namespace antevolo {
 
     // return connected components of Hamming graph on CDR3s
     std::vector<SparseGraphPtr> VJClassProcessor::ComputeCDR3HammingGraphs(std::string cdr_fasta,
-                                                                                         std::string graph_fname) {
+                                                                           std::string graph_fname) {
         std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
         std::stringstream ss;
         ss << run_graph_constructor << " -i " << cdr_fasta <<
@@ -79,12 +80,14 @@ namespace antevolo {
                                                 unique_cdr3s_,
                                                 hg_component,
                                                 component_id);
-
         auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
-                new Kruskal_CDR3_HG_CC_Processor(clone_set_,
+                new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                  config_,
                                                  clone_by_read_constructor_,
-                                                 hamming_graph_info));
+                                                 hamming_graph_info,
+                                                 current_fake_clone_index_,
+                                                 reconstructed_,
+                                                 rejected_));
         auto tree = forest_calculator->ConstructForest();
         return tree;
     }

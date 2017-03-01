@@ -13,6 +13,9 @@ namespace antevolo {
         size_t num_mismatches_;
         ShmModel& model_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
+        size_t& current_fake_clone_index_;
+        size_t& reconstructed_;
+        size_t& rejected_;
 
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
@@ -32,17 +35,23 @@ namespace antevolo {
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
 
     public:
-        VJClassProcessor(CloneSetWithFakes& clone_set,
+        VJClassProcessor(CloneSetWithFakesPtr clone_set,
                          const AntEvoloConfig::OutputParams &output_params,
                          const AntEvoloConfig::AlgorithmParams &config,
                          ShmModel& model,
-                         const AnnotatedCloneByReadConstructor& clone_by_read_constructor) :
+                         const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                         size_t& current_fake_clone_index,
+                         size_t& reconstructed,
+                         size_t& rejected) :
                 BaseCandidateCalculator(clone_set),
                 config_(config),
                 output_params_(output_params),
                 num_mismatches_(config.similar_cdr3s_params.num_mismatches),
                 model_(model),
-                clone_by_read_constructor_(clone_by_read_constructor) { }
+                clone_by_read_constructor_(clone_by_read_constructor),
+                current_fake_clone_index_(current_fake_clone_index),
+                reconstructed_(reconstructed),
+                rejected_(rejected) { }
 
         //EvolutionaryEdgeConstructor* GetEdgeConstructor();
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);

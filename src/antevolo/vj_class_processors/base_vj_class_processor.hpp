@@ -4,10 +4,11 @@
 namespace antevolo {
     class BaseCandidateCalculator {
     protected:
-        CloneSetWithFakes& clone_set_;
+        CloneSetWithFakesPtr clone_set_ptr_;
 
     public:
-        BaseCandidateCalculator(CloneSetWithFakes& clone_set) : clone_set_(clone_set) { }
+        BaseCandidateCalculator(CloneSetWithFakesPtr clone_set_ptr) :
+                clone_set_ptr_(clone_set_ptr) { }
 
         //virtual std::vector<ClonallyRelatedCandidates> ComputeCandidates(core::DecompositionClass decomposition_class) = 0;
 

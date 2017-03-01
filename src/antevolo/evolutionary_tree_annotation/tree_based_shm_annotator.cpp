@@ -8,10 +8,11 @@ namespace antevolo {
 
     // todo: write unit test
     bool TreeBasedSHMAnnotator::SHMIsSynonymousWrtToParent(size_t dst_clone, annotation_utils::SHM shm) {
+        const auto& clone_set = tree_ptr_->GetCloneSet();
         size_t src_clone = tree_ptr_->GetParentEdge(dst_clone)->SrcNum();
-        auto src_gene_alignment = (*clone_set_ptr_)[src_clone].GetAlignmentBySegment(shm.segment_type);
+        auto src_gene_alignment = clone_set[src_clone].GetAlignmentBySegment(shm.segment_type);
         size_t src_nucl_pos = src_gene_alignment.QueryPositionBySubjectPosition(shm.gene_nucl_pos);
-        return shm.read_aa == (*clone_set_ptr_)[src_clone].GetAminoAcidByNucleotidePos(src_nucl_pos);
+        return shm.read_aa == clone_set[src_clone].GetAminoAcidByNucleotidePos(src_nucl_pos);
     }
 
     EvolutionaryAnnotatedSHM TreeBasedSHMAnnotator::GetAnnotationForNodeWithParent(size_t clone_id,

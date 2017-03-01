@@ -6,10 +6,10 @@
 namespace antevolo {
     class CloneSetDecomposer {
     protected:
-        const CloneSetWithFakes& clone_set_;
+        const annotation_utils::CDRAnnotatedCloneSet& clone_set_;
 
     public:
-        CloneSetDecomposer(const CloneSetWithFakes& clone_set) :
+        CloneSetDecomposer(const annotation_utils::CDRAnnotatedCloneSet& clone_set) :
                 clone_set_(clone_set) { }
 
         virtual core::Decomposition CreateDecomposition() const = 0;

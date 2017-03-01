@@ -20,10 +20,14 @@ namespace antevolo {
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
     protected:
-        CloneSetWithFakes& clone_set_;
+//        const annotation_utils::CDRAnnotatedCloneSet& clone_set_;
+        CloneSetWithFakesPtr clone_set_ptr_;
         const AntEvoloConfig::AlgorithmParams& config_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
         CDR3HammingGraphInfo& hamming_graph_info_;
+        size_t& current_fake_clone_index_;
+        size_t& reconstructed_;
+        size_t& rejected_;
 
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
         boost::unordered_map<size_t, bool> parent_edge_handled_;
@@ -32,22 +36,25 @@ namespace antevolo {
 
         void AddUndirectedPair(size_t src_num, size_t dst_num);
 
-        void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
-                                 boost::unordered_set<size_t> vertices_nums);
+        void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,
+                                 const boost::unordered_set<size_t>& vertices_nums);
         virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                                         const boost::unordered_set<size_t>& vertices_nums) = 0;
         virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                    const boost::unordered_set<size_t> &vertices_nums,
                                    EvolutionaryTree &tree) = 0;
-        virtual void ReconstructMissingVertices(const boost::unordered_set<size_t> &vertices_nums,
-                                                        EvolutionaryTree &tree, SparseGraphPtr hg_component,
-                                                        size_t component_id) = 0;
+        virtual void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
+                                                EvolutionaryTree& tree) = 0;
     public:
 
-        Base_CDR3_HG_CC_Processor(CloneSetWithFakes& clone_set,
+//        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+        Base_CDR3_HG_CC_Processor(CloneSetWithFakesPtr clone_set_ptr,
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                  CDR3HammingGraphInfo& hamming_graph_info);
+                                  CDR3HammingGraphInfo& hamming_graph_info,
+                                  size_t& current_fake_clone_index,
+                                  size_t& reconstructed,
+                                  size_t& rejected);
 
         EvolutionaryTree ConstructForest();
 
