@@ -21,6 +21,7 @@
 
     <section class="main-content">
 
+        <!---
         <h2>Content</h2>
         <p align = "center">
         <ul>
@@ -33,19 +34,17 @@
             <li><a href = "#references">Manual and citations</a></li>
         </ul>
         </p>
+        --->
 
 
         <h2 id = "motivation">Full-length sequencing of adaptive immune repertoires</h2>
-        <p align = "justify">
-            Construction of antibody repertoire is a preliminary step of any immunological analysis based on Rep-seq reads.
-            Accurate construction of adaptive immune repertoire (antibody / TCR) avoids erroneous analysis of natural variations and antibody abundances.
-        </p>
 
         <p align = justify>
             Modern sequencing technologies (e.g., Illumina MiSeq) allow biologists to perform full-length scanning of
-            antibody repertoire.
+            adaptive immune repertoire.
             For example, a pair of overlapping paired-end Illumina MiSeq reads is able to cover entire variable regions of antibody or TCR:
         </p>
+
         <table align = center>
             <tr>
                 <td align = center>
@@ -54,8 +53,13 @@
             </tr>
         </table>
 
+        <p align = "justify">
+            Repertoire construction is a preliminary step of any immunological analysis based on Rep-seq reads.
+            Accurate construction of adaptive immune repertoire (antibody / TCR) avoids erroneous analysis of natural variations and antibody abundances.
+        </p>
+
         <p align = justify>
-            Repertoire construction problem can be formulated as a huge error-correction or read clustering problem:
+            Repertoire construction problem can be formulated as a huge instance of error-correction or read clustering problem:
         </p>
         <table align = center width = "100%">
             <tr>
@@ -63,56 +67,72 @@
             </tr>
         </table>
         <p align = justify>
-            A repertoire construction tool takes full-length Rep-seq reads (a result of RNA or DNA sequencing of variable regions of B / T lymphocytes)
+            A repertoire construction tool takes full-length Rep-seq reads as an input
             and constructs a repertoire as a set of <i>clusters</i>.
-            Each cluster represent a group of reads correponding to identical antibody (or TCRs) chains.
+            Each cluster represent a group of reads corresponding to identical antibody (or TCRs) chains.
             Clusters from a repertoire are characterized by sequence and abundance.
         </p>
 
-        <h2 id = "approach">Our approach</h2>
+        <h2 id = "approach">Our approach to analysis of adaptive immune repertoires</h2>
         <p align = "justify">
             <b>IgRepertoireConstructor</b> constructs antibody repertoire from immunosequencing reads and
             uses mass spectra to validate the constructed antibody repertoires.
-            The whole pipeline includes two parts:
-        </p>
+            The whole pipeline includes several parts:
         <ul>
-            <li> <b>IgReC</b> performs construction of antibody repertoire from immunosequencing reads:
+            <li>
+                <a href = "#igrec_description"><b>IgReC</b></a> performs construction of antibody repertoire from immunosequencing reads:
                 it corrects sequencing and amplification errors and joins together reads corresponding
                 to identical antibodies.
-                Constructed repertoire can be used as a highly accurate input for various immunological applications, e.g.,
-                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.
-                Details of IgReC algorithm can be found <a href = "#ig_repertoire_constructor">below</a>.
+                Constructed repertoire present a highly accurate input for various immunological applications, e.g.,
+                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.<br>
+
+                We also provide <a href = ""><b>Barcoded IgReC</b></a>, a modification of IgReC tool for processing barcoded Rep-seq data.
             </li>
             <li>
-                <b>Mass Spectra Analyzer</b> is a tool for immunoproteogenomics analysis.
-                Repertoire constructed by IgRepertoireConstructor can be converted into a
-                database and used for mass spectra identifications (using some standard tool, e.g., MS-GF+).
+                <a href = "#ms_analyzer_description"><b>Mass Spectra Analyzer</b></a> is a tool for immunoproteogenomics analysis.
+                Repertoire constructed by IgReC can be converted into a
+                database and used for mass spectra identifications (using some standard tool, e.g., <a href = "https://omics.pnl.gov/software/ms-gf">MS-GF+</a>).
                 Mass Spectra Analyzer performs analysis of the computed matches and computes various statistics
                 showing similarity of the constructed repertoire and mass spectra.
-                Mass Spectra Analyzer details are described <a href = "#mass_spectra_analysis">below</a>.
             </li>
         </ul>
+        </p>
+
         <table align = "center" width = "100%">
             <tr>
-                <td align = center width="1000000px"><img src="docs/immunogenomics_pipeline.svg" width = "90%" alt="pipeline"></td>
+                <td align = center width="1000000px"><img src="docs/immunogenomics_pipeline.svg" width = "100%" alt="pipeline"></td>
             </tr>
             <tr>
                 <td align = center><small>Pipeline of antibody repertoire analysis.</small></td>
             </tr>
         </table>
 
+        <p align = justify>
+            <ul>
+                <li>
+                    <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a>
+                </li>
+                <li>
+                    <a href = ""><b>IgQUAST:</b></a>
+                </li>
+                <li>
+                    <a href = ""><b>AntEvolo:</b></a>
+                </li>
+            </ul>
+        </p>
 
-        <h2 id = "ig_repertoire_constructor">IgReC</h2>
+
+        <h2 id = "igrec_description">IgReC</h2>
         <p align = justify>
             IgReC takes as an input reads (paired-end or single) covering variable region of antibodies and
             corrects sequencing and amplification errors.
-        </p>
-        Algorithm performs the following steps:
+            Algorithm performs the following steps:
             <ul>
-                <li><b>VJ Finder: </b>V, J labeling, cleaning and cropping input reads.</li>
-                <li><b>Construction & clustering of Hamming graph: </b>representation of cleaned reads as a Hamming graph and finding of groups of highly similar antibodies.</li>
-                <li><b>Antibody construction:</b> reconstruction of antibody sequences from the constructed groups, cleaning amplification errors.</li>
+                <li><b>VJ Finder:</b> VJ labeling, cleaning and cropping input reads.</li>
+                <li><b>Constructing & clustering Hamming graph:</b> representation of cleaned reads as a Hamming graph and finding of groups of highly similar antibodies.</li>
+                <li><b>Receptor sequence construction:</b> reconstruction of antibody sequences from the constructed groups, cleaning amplification errors.</li>
             </ul>
+        </p>
 
         <h3 id = "vj_finder">VJ Finder</h3>
         <p align = justify>
@@ -121,7 +141,7 @@
         <ol>
             <li>Finding and discarding contaminated reads.</li>
             <li>Cropping remaining immunosequencing reads by the start position of the closest V gene segment and the end position of the closest J gene segment.
-            VJ Finder also discards reads covering V gene segment only since they can not be unambiguously assigned to antibody cluster.</li>
+            VJ Finder also discards reads covering V gene segment only since they can not be unambiguously assigned to a cluster in a repertoire.</li>
         </ol>
 
         <p align = justify>
@@ -157,17 +177,18 @@
         </small>
 
 
-        <h3 id = "graph_algos">Construction and clustering of Hamming graph</h3>
+        <h3 id = "graph_algos">Constructing & clustering Hamming graph</h3>
         <p align = justify>
-            We use Hamming graph to show similarity between reads.
-            Vertices of Hamming graph represent reads remaining after VJ Finder,
-            edge connects <i>read1</i> and <i>read2</i> if Hamming distance between these them is relatively small.
-
+            We use Hamming graph to identify similar Rep-seq reads.
+            Vertices of Hamming graph represent unique reads.
+            An edge connects <i>read1</i> and <i>read2</i> if Hamming distance between these them is relatively small.
+        </p>
+        <p align = justify>
             After construction of graph, we use clustering techniques that allow us to find
             dense subgraphs (corrupted cliques) in the graph (see figure below).
             These dense subgraphs present groups of highly similar antibodies.
-            Algorithm for search of corrupted cliques is also implemented as a separate tool and
-            is described in <a href = "#dsf">Dense Subgraph Finder</a> section.
+            For finding dense subgraphs, IgReC uses the <a href = "dense_subgraph_finder.html">DSF</a> algorithm
+            that is also available as a separate tool.
         </p>
 
         <table align = center border = "0">
@@ -176,19 +197,27 @@
             <td align = center><img src="figures/graph_357134_colored.jpg" alt = "hamming_graph_after_clusterization" width = 300px></td>
         </tr>
         <tr>
-            <td><small>Example of connected component of Hamming graph constructed from immunosequencing reads (heavy chain human repertoire).</small></td>
-            <td><small>Clustering of Hamming graph performed by IgReC. Each color corresponds to antibody cluster in repertoire.</small></td>
+            <td>
+                <small>Example of connected component of Hamming graph constructed from immunosequencing reads (heavy chain human repertoire).
+                </small>
+            </td>
+            <td>
+                <small>
+                    Clustering of Hamming graph performed by <a href = "dense_subgraph_finder.html">DSF</a>.
+                    Each color corresponds to antibody cluster in repertoire.
+                </small>
+            </td>
         </tr>
         </table>
 
-    <h2 id = "mass_spectra_analysis">Mass Spectra Analyzer</h2>
+    <h2 id = "ms_analyzer_description">Mass Spectra Analyzer</h2>
     <p align = "justify">
         This step performs immunoproteogenomics analysis to validate constructed repertoire using mass spectra.
         It takes alignment of mass spectra against constructed repertoire in
         <a href = "http://www.psidev.info/mzidentml">mzIdentML 1.1 format</a>
         (e.g., generated by <a href = "http://www.digitalproteomics.com/msgfplus.html">MS-GF+</a>) as an input and
-        outputs a set of metrics and graphs that show
-        how close are the constructed repertoire and provided mass spectra:
+        outputs a set of metrics and plots that show
+        similarity between constructed repertoire and mass spectra:
     </p>
 
     <table align="center" border="0">
@@ -217,15 +246,18 @@
 
         <h3>Citations</h3>
         <p align = "justify">
+        If you use our tools in your research, please cite our papers:
             <ul>
                 <li>
-                    <b>IgReC, BarcodedIgReC, IgQUAST, DiversityAnalyzer:</b> Alexander Shlemov, Sergey Bankevich,
+                    <b>IgReC, BarcodedIgReC, IgQUAST, DiversityAnalyzer:</b>
+                    Alexander Shlemov, Sergey Bankevich,
                     Andrey Bzikadze, Dmitry Chudakov, Yana Safonova, and Pavel A. Pevzner.
                     Reconstructing antibody repertoires from error-prone immunosequencing datasets.
                     Submitted.
                 </li>
                 <li>
-                    <b>IgRepertoireConstructor, DSF, immunoproteogenomics search:</b> Yana Safonova, Stefano Bonissone,
+                    <b>IgRepertoireConstructor, DSF, immunoproteogenomics search:</b>
+                    Yana Safonova, Stefano Bonissone,
                     Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
                     Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill, and Pavel A. Pevzner.
                     IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
@@ -240,7 +272,24 @@
                 <big>You could also be interested in other immunogenomics tools created in our lab:</br>
                     <ul>
                         <li>
-                            <a href = 'http://yana-safonova.github.io/ig_simulator/'><b>IgSimulator, a versatile immunosequencing simulator</b></a>.
+                            <a href = 'http://yana-safonova.github.io/ig_simulator/'>
+                                <b>IgSimulator, a versatile immunosequencing simulator</b>
+                            </a>.
+                        </li>
+                        <li>
+                            <a href = "diversity_analyzer.html">
+                                <b>Diversity Analyzer, a tool for diversity analysis of full-length Rep-seq sequences</b>
+                            </a>
+                        </li>
+                        <li>
+                            <a href = "">
+                                <b>IgQUAST, a quality assessment tool for full-length adaptive immune repertoires</b>
+                            </a>
+                        </li>
+                        <li>
+                            <a href = "">
+                                <b>Barcoded IgReC, a modification of IgReC algorithm for barcoded Rep-seq data</b>
+                            </a>
                         </li>
                     </ul>
                 </big>
