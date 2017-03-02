@@ -66,13 +66,17 @@
                 <td align = center width = "10000000px"><img src="docs/problem_antibody_repertoire_construction.svg" width = "80%" alt="pipeline"></td>
             </tr>
         </table>
+
+        <h3>Input / output</h3>
         <p align = justify>
             A repertoire construction tool takes full-length Rep-seq reads as an input
             and constructs a repertoire as a set of <i>clusters</i>.
             Each cluster represent a group of reads corresponding to identical antibody (or TCRs) chains.
             Clusters from a repertoire are characterized by sequence and abundance.
         </p>
+        <hr>
 
+        <!-------------------------------------------------------------- --->
         <h2 id = "approach">Our approach to analysis of adaptive immune repertoires</h2>
         <p align = "justify">
             <b>IgRepertoireConstructor</b> constructs antibody repertoire from immunosequencing reads and
@@ -120,7 +124,9 @@
                 </li>
             </ul>
         </p>
+        <hr>
 
+        <!-------------------------------------------------------------- --->
 
         <h2 id = "igrec_description">IgReC</h2>
         <p align = justify>
@@ -179,16 +185,13 @@
 
         <h3 id = "graph_algos">Constructing & clustering Hamming graph</h3>
         <p align = justify>
-            We use Hamming graph to identify similar Rep-seq reads.
+            IgReC constructs Hamming graph to identify similar Rep-seq reads.
             Vertices of Hamming graph represent unique reads.
             An edge connects <i>read1</i> and <i>read2</i> if Hamming distance between these them is relatively small.
         </p>
         <p align = justify>
-            After construction of graph, we use clustering techniques that allow us to find
-            dense subgraphs (corrupted cliques) in the graph (see figure below).
-            These dense subgraphs present groups of highly similar antibodies.
-            For finding dense subgraphs, IgReC uses the <a href = "dense_subgraph_finder.html">DSF</a> algorithm
-            that is also available as a separate tool.
+            After construction of graph, IgReC launches <a href = "dense_subgraph_finder.html">DSF</a> for finding dense subgraphs.
+            Dense subgraphs correspond to groups of highly similar antibodies:
         </p>
 
         <table align = center border = "0">
@@ -209,6 +212,12 @@
             </td>
         </tr>
         </table>
+
+        <h3>Receptor sequence construction</h3>
+
+        <hr>
+
+        <!-------------------------------------------------------------- --->
 
     <h2 id = "ms_analyzer_description">Mass Spectra Analyzer</h2>
     <p align = "justify">
@@ -233,8 +242,10 @@
                 </small>
             </td>
         </tr>
-    </table></br>
+    </table>
+        <hr>
 
+        <!-------------------------------------------------------------- --->
 
         <h2 id = "references">Manual and citations</h2>
         <p align = "center">
@@ -249,14 +260,14 @@
         If you use our tools in your research, please cite our papers:
             <ul>
                 <li>
-                    <b>IgReC, BarcodedIgReC, IgQUAST, DiversityAnalyzer:</b>
+                    <b>IgReC / BarcodedIgReC / IgQUAST / DiversityAnalyzer:</b>
                     Alexander Shlemov, Sergey Bankevich,
                     Andrey Bzikadze, Dmitry Chudakov, Yana Safonova, and Pavel A. Pevzner.
                     Reconstructing antibody repertoires from error-prone immunosequencing datasets.
                     Submitted.
                 </li>
                 <li>
-                    <b>IgRepertoireConstructor, DSF, immunoproteogenomics search:</b>
+                    <b>Immunoproteogenomics search / DSF:</b>
                     Yana Safonova, Stefano Bonissone,
                     Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
                     Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill, and Pavel A. Pevzner.
