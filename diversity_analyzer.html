@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8">
+    <title>Diversity Analyzer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+</head>
+<body>
+<section class="page-header">
+    <h1 class="project-name" align=center>Diversity Analyzer</h1>
+    <h2 class="project-tagline" align=center>Tool for diversity analysis of Rep-seq sequences</h2>
+</section>
+
+<section class="main-content">
+    <h2>Introduction</h2>
+    <p align = "justify">Diversity Analyzer is a tool for annotation and diversity analysis of full-length adaptive immune repertoires (antibodies or TCRs).
+        Diversity Analyzer is launched as a final step of <a href = "index.html">IgReC</a>.
+        It is also available as a stand alone tool.
+    </p>
+
+    <h3>Input</h3>
+    <p align = "justify">
+        Diversity Analyzer takes full-length immune sequences in FASTA/FASTQ format as an input.
+        Tool expects that input sequences cover entire variable regions of antibody or TCR: from the start of V segment to the end of J segment.
+        Tool is able to process raw Rep-seq libraries, as well as constructed repertoires.
+    </p>
+
+    <h3>Output</h3>
+    <p align = "justify">
+        Diversity Analyzer performs <a href = "#vj_labeling_output">V / J</a>,
+        <a href = "#cdr_labeling_output">CDR</a>,
+        and <a href = "#shm_labeling_output">SHM</a> labelings of input sequences;
+        computes their <a href = "#diversity_stats">diversity characteristics</a>;
+        computes <a href = "#substitution_output">nucleotide and amino acid substitutions</a>;
+        visualizes computed statistics and reports <a href = "#html_report">summary in user-friendly HTML format</a>.
+    </p>
+
+    <h2>Output details</h2>
+    Table of content:
+    <ol>
+        <li><a href = "#output_summary">Summary report</a></li>
+        <li><a href = "#vj_labeling_output">VJ labeling output</a></li>
+        <li><a href = "#cdr_labeling_output">CDR labeling output</a></li>
+        <li><a href = "#shm_labeling_output">SHM labeling output</a></li>
+        <li><a href = "#diversity_stats">Diversity statistics</a></li>
+        <li><a href = "#substitution_output">Nucleotide and amino acid substitutions</a></li>
+        <li><a href = "#html_report">Summary annotation report</a></li>
+    </ol>
+
+    <!------------------------------------------------------------------------>
+    <h3 id = "output_summary">1. Summary report</h3>
+    <p align = "justify">
+        Diversity Analyzer compiles a report in TSV format including basic diversity characteristics of input sequences.
+        For each input sequence, report contains information about:
+        <ul>
+            <li><b>Chain type:</b> IGH / IGK / IGL / TRA / TRB / TRG / TRD.</li>
+            <li><b>V and J hits</b>. Gene names are consistent with IMGT database.</li>
+            <li><b>Amino acid sequence.</b></li>
+            <li><b>Information about productiveness:</b> presence of stop codon (1 or 0); in-frame (1 or 0); productive (1 or 0).</li>
+            <li><b>Positions of CDR1, CDR2, and CDR3.</b> Note that all positions are inclusive.</li>
+        </ul>
+        Example of summary diversity output can be found <a href = "docs/divan_docs/cdr_details.txt">here</a>.
+    </p>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+    <h3 id = "vj_labeling_output">2. VJ labeling output</h3>
+    <p align = "justify">
+        Diversity Analyzer launches VJ Finder (ultra-fast aligner of Rep-seq reads) for finding V and J hits of input sequences.
+        Based on computed VJ labeling, DiversityAnalyzer reports heatmap showing VJ usage:<br></p>
+
+    <p align="center">
+        <a href = "docs/divan_docs/vj_heatmap.png">
+            <img src = docs/divan_docs/vj_heatmap.png width  = 30%><br>
+            Click for preview
+        </a>
+    </p>
+
+    <h4 id = "v_alignments">2.1. V alignments</h4>
+    <p align = "justify">
+        Diversity Analyzer reports all computed V alignments in FASTA file.
+        Each alignment is presented as a pair of gapped sequences of equal length.
+        Code below shows an example of V alignments in FASTA format for a single read-gene pair:
+    </p>
+
+    <code>
+        >INDEX:1|READ:1_merged_read|START_POS:0|END_POS:295
+        GAGGTGCAGTTGGTAGAGTCTGGGGGAGGATTGGTCCAGCCGGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGTAGTTATTGGATGAGCTGGGTCC
+        GCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTGGCCAACATAAAGCAAGATGAAAGTGAGAAATATTATGTGGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGC
+        CAAGAAGTCACTGTCTCTGCGAACGAACAGGCTGAGAGCCGAGTACATGGCTGTGTATTACTGTGCGAGTAC<br>
+
+        >INDEX:1|GENE:IGHV3-7*01|START_POS:0|END_POS:295|CHAIN_TYPE:IGH
+        GAGGTGCAGCTGGTGGAGTCTGGGGGAGGCTTGGTCCAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGTAGCTATTGGATGAGCTGGGTCC
+        GCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTGGCCAACATAAAGCAAGATGGAAGTGAGAAATACTATGTGGACTCTGTGAAGGGCCGATTCACCATCTCCAGAGACAACGC
+        CAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCTGTGTATTACTGTGCGAGAGA
+    </code>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+    <h3 id = "cdr_labeling_output">3. CDR labeling output</h3>
+    <p align = "justify">
+        Diversity Analyzer aligns input sequences against V and J segments from the IMGT database with known positions of CDRs
+        (positions are consistent with <a href = "">IgBlast</a>).
+        Using alignment, positions of germline CDRs are converted into positions of input full-length sequences:
+        
+        <img src="docs/divan_docs/cdr_computation.png" alt = "cdr_computation">
+
+        <a href = "http://www.imgt.org/IMGTindex/CDR.php">IMGT</a> and
+        <a href = "http://www.bioinf.org.uk/abs/#kabatnum">Kabat</a> notations are available for labeling.
+        Diversity Analyzer also reports computed CDR1s, CDR2s, and CDR3s in FASTA format.
+    </p>
+
+    <h4 id = "cdr_stats_output">3.1. CDR statistics</h4>
+    <p align = "justify">
+        If a chain is presented by at least 100 input sequences, Diversity Analyzer computes characteristics of its CDRs:
+    </p>
+
+    <p align="center">
+    <table border="0">
+        <col width="50%">
+        <col width="50%">
+
+    <tr>
+        <td align = justify>
+            <div style="width: 380px">
+                Upper right: distribution of CDR3 lengths.
+                Diversity Analyzer also selects length of CDR3s that presented by the largest number of CDR3s.
+                For CDR3s of this length, nucleotide (lower left) and amino acid (lower right) content are visualized.
+                Amino acids are colored according to their hydrophobicity.
+                Hydrophobic amino acids are colored in red, hydrophilic amino acids are colored in blue,
+                neutral amino acids are colored in pale colors.
+            </div>
+        </td>
+
+        <td align = center>
+            <div style="width: 380px">
+                <a href = "docs/divan_docs/IGH_CDR3_length.png">
+                    <img src = "docs/divan_docs/IGH_CDR3_length.png" alt = "cdr_nucl_length">
+                    Click for preview
+                </a>
+            </div>
+        </td>
+    </tr>
+
+        <tr>
+            <td align = center>
+                <div style="width: 380px">
+                    <a href = "docs/divan_docs/IGH_CDR3_nucls.png">
+                        <img src = "docs/divan_docs/IGH_CDR3_nucls.png" alt = "cdr_nucl_content">
+                        Click for preview
+                    </a>
+                </div>
+            </td>
+            <td align = center>
+                <div style="width: 380px">
+                    <a href = "docs/divan_docs/IGH_CDR3_aa.png">
+                        <img src = "docs/divan_docs/IGH_CDR3_aa.png" alt = "aa_nucl_content">
+                        Click for preview
+                    </a>
+                </div>
+        </tr>
+    </table>
+    </p>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+    <h3 id = "shm_labeling_output">4. SHM labeling output</h3>
+    <p align = "justify">
+        For each input sequence, Diversity Analyzer computes SHMs and compiles their characteristics in TSV format.
+        For each SHM, the following characteristics are reported:
+        <ul>
+            <li><b>SHM type:</b> substitution (S) / insertion (I) / deletion (D).</li>
+            <li><b>Positions on sequence and germline gene.</b></li>
+            <li><b>Nucleotides of sequence and germline gene at the position of SHM.</b>
+                In case of indel, SHM is denoted as '–'.</li>
+            <li><b>Amino acids of sequence and germline gene at the position of SHM.</b></li>
+            <li><b>Indicator of SHM synonymy:</b> 1 or 0.</li>
+            <li><b>Indicator whether SHM leads to occurrence of stop codon</b>: 1 or 0.</li>
+        </ul>
+
+        Lines corresponding to SHMs from different sequences are separated by lines containing information
+        about names of input sequence and germline gene, types of segment and chain.
+        Example of SHM report for a single sequence is given below:
+    </p>
+
+    <p align = center>
+        <a href = "docs/divan_docs/shm_details_example.jpg">
+            <img src="docs/divan_docs/shm_details_example.jpg" width = 60%><br>
+            Click for preview
+        </a>
+    </p>
+
+    <h4>4.1 SHM plots</h4>
+    <p align = justify>
+        If a chain presented by at least 100 sequences,
+        Diversity Analyzer reports plots for SHMs lying in V segments of sequences of this chain type:
+    </p>
+
+    <table>
+        <tr align = center>
+            <td><b>IGH</b></td>
+            <td><b>IGK</b></td>
+            <td><b>IGL</b></td>
+        </tr>
+        <tr align = center>
+            <td>
+                <a href = "docs/divan_docs/mutations_distribution_IGHV.png">
+                    <img src = docs/divan_docs/mutations_distribution_IGHV.png>
+                    Click for preview
+                </a>
+            </td>
+            <td>
+                <a href = "docs/divan_docs/mutations_distribution_IGKV.png">
+                    <img src = docs/divan_docs/mutations_distribution_IGKV.png>
+                    Click for preview
+                </a>
+            </td>
+            <td>
+                <a href = "docs/divan_docs/mutations_distribution_IGLV.png">
+                    <img src = docs/divan_docs/mutations_distribution_IGLV.png>
+                    Click for preview
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        Diversity Analyzer also reports statistics of special SHMs lying in V segments:
+    </p>
+    <table>
+        <tr align = center>
+            <td>
+                <b>Distribution of indel SHMs positions</b>
+            </td>
+            <td>
+                <b>Distribution of indel SHMs lengths</b>
+            </td>
+            <td>
+                <b>Distribution of synonymous SHMs positions</b>
+            </td>
+        </tr>
+        <tr align = center>
+            <td>
+                <a href = "docs/divan_docs/special_shms_positions.png">
+                    <img src="docs/divan_docs/special_shms_positions.png" width="70%"><br>
+                    Click for preview
+                </a>
+            </td>
+            <td>
+                <a href = "docs/divan_docs/indel_shms_length.png">
+                    <img src="docs/divan_docs/indel_shms_length.png" width="70%"><br>
+                    Click for preview
+                </a>
+            </td>
+            <td>
+                <a href = "docs/divan_docs/synonymous_shms_positions.png">
+                    <img src="docs/divan_docs/synonymous_shms_positions.png" width="200%"><br>
+                    Click for preview
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+
+    <h3 id = "diversity_stats">5. Diversity statistics</h3>
+
+    <p align = "justify">
+        For each computed CDR3, Diversity Analyzer computes its <i>abundance</i> as a number of input sequences with this CDR3.
+        For a collection of CDR3 abundances, Diversity Analyzer applies methods of population analysis for computation of diversity characteristics of input sequences.
+    </p>
+
+    <table align = center border="0">
+        <col width="50%">
+        <col width="50%">
+
+        <tr align = center>
+            <td><b>Simpson index (SI)</b></td>
+            <td><b>Clonal Simpson index (CSI)</b></td>
+        </tr>
+        <tr>
+            <td>
+                SI is computed as a probability of two randomly selected CDR3s to be equal.
+            </td>
+            <td>
+                CSI is an approximation of a probability of two randomly selected CDR3s to belong to the same clonal lineage.
+            </td>
+        </tr>
+    </table>
+
+    <p align = "justify">
+        A ratio of CSI to SI demonstrates relation between clonally related receptor sequences to random sequences.
+        The higher value of CSI / SI, the higher clonal diversity of an input dataset.
+        Example of the comparative analysis of three datasets with various properties is given below:
+    </p>
+
+    <table align="center" border="0">
+        <col width=33%>
+
+        <tr align = center>
+            <td><b>PBMCs</b></td>
+            <td><b>ASCs (negative to influenza <a href = "https://en.wikipedia.org/wiki/Hemagglutinin">HA</a>)</b></td>
+            <td><b>ASCs (positive to influenza <a href = "https://en.wikipedia.org/wiki/Hemagglutinin">HA</a>)</b></td>
+        </tr>
+        <tr align = center>
+            <td>0-th day of vaccination</td>
+            <td>7-th day of vaccination</td>
+            <td>7-th day of vaccination</td>
+        </tr>
+        <tr align = center>
+            <td>SRR3620098</td>
+            <td>SRR3620075</td>
+            <td>SRR3620074</td>
+        </tr>
+        <tr align = center>
+            <td>Low clonal diversity</td>
+            <td>Medium clonal diversity</td>
+            <td>High clonal diversity</td>
+        </tr>
+        <tr align = center>
+            <td><font color="red"><b>CSI / SI = 1.36</b></font></td>
+            <td><font color = "orange"><b>CSI / SI = 7.15</b></font></td>
+            <td><font color = "#32cd32"><b>CSI / SI = 11.96</b></font></td>
+        </tr>
+    </table>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+
+    <h3 id = "substitution_output">6. Amino acid and nucleotide substitutions</h3>
+
+    <p align = "justify">
+        Diversity Analyzer reports and visualizes matrices of nucleotide and amino acid substitutions:
+    </p>
+
+    <table>
+        <col width = 50%>
+        <col width = 50%>
+
+        <tr>
+            <td align="center">
+                <a href = "docs/divan_docs/nucl_substitutions.png">
+                    <img src = docs/divan_docs/nucl_substitutions.png>
+                    Click for preview
+                </a>
+            </td>
+            <td align="center">
+                <a href = "docs/divan_docs/aa_substitutions.png">
+                    <img src = docs/divan_docs/aa_substitutions.png>
+                    Click for preview
+                </a>
+            </td>
+        </tr>
+    </table>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+
+    <h3 id = "html_report">7. Summary annotation report</h3>
+    <p align = "justify">
+        Diversity Analyzer compiles all computed statistics and plots into a single report in HTML format.
+        Example of such report can be found <a href = "docs/divan_docs/annotation_report.html">here</a>.
+    </p>
+
+    <hr>
+    <!------------------------------------------------------------------------>
+</section>
