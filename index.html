@@ -35,16 +35,16 @@
         </p>
 
 
-        <h2 id = "motivation">Motivation</h2>
+        <h2 id = "motivation">Full-length sequencing of adaptive immune repertoires</h2>
         <p align = "justify">
-            Construction of antibody repertoire is a preliminary step of any immunological analysis based on sequencing reads.
-            Accurate construction of antibody repertoire avoids erroneous analysis of natural variations and antibody abundances.
+            Construction of antibody repertoire is a preliminary step of any immunological analysis based on Rep-seq reads.
+            Accurate construction of adaptive immune repertoire (antibody / TCR) avoids erroneous analysis of natural variations and antibody abundances.
         </p>
 
         <p align = justify>
             Modern sequencing technologies (e.g., Illumina MiSeq) allow biologists to perform full-length scanning of
             antibody repertoire.
-            For example, overlapping paired-end Illumina MiSeq reads cover variable regions of antibody:
+            For example, a pair of overlapping paired-end Illumina MiSeq reads is able to cover entire variable regions of antibody or TCR:
         </p>
         <table align = center>
             <tr>
@@ -55,7 +55,7 @@
         </table>
 
         <p align = justify>
-            Problem of construction of antibody repertoire can be formulated as follows:
+            Repertoire construction problem can be formulated as a huge error-correction or read clustering problem:
         </p>
         <table align = center width = "100%">
             <tr>
@@ -63,9 +63,10 @@
             </tr>
         </table>
         <p align = justify>
-            Antibody repertoire construction tool takes as an input sequencing reads (result of RNA-sequencing of some B-cells)
-            and constructs antibody repertoire as a set of <i>antibody clusters</i>.
-            Each antibody cluster represent a group of identical antibodies and is characterized by its sequence and abundance.
+            A repertoire construction tool takes full-length Rep-seq reads (a result of RNA or DNA sequencing of variable regions of B / T lymphocytes)
+            and constructs a repertoire as a set of <i>clusters</i>.
+            Each cluster represent a group of reads correponding to identical antibody (or TCRs) chains.
+            Clusters from a repertoire are characterized by sequence and abundance.
         </p>
 
         <h2 id = "approach">Our approach</h2>
@@ -210,7 +211,7 @@
         <p align = "center">
             <ul>
                 <li>IgRepertoireConstructor manual can be found <a href = 'ig_repertoire_constructor_manual.html'>here</a>.</li>
-                <li>DSF manual can be found <a href = 'dsf_manual.html'>here</a>.</li>
+
             </ul>
         </p>
 
@@ -218,13 +219,13 @@
         <p align = "justify">
             <ul>
                 <li>
-                    <b>IgReC, BarcodedIgReC, IgQUAST, & DiversityAnalyzer:</b> Alexander Shlemov, Sergey Bankevich,
+                    <b>IgReC, BarcodedIgReC, IgQUAST, DiversityAnalyzer:</b> Alexander Shlemov, Sergey Bankevich,
                     Andrey Bzikadze, Dmitry Chudakov, Yana Safonova, and Pavel A. Pevzner.
                     Reconstructing antibody repertoires from error-prone immunosequencing datasets.
                     Submitted.
                 </li>
                 <li>
-                    <b>IgRepertoireConstructor & immunoproteogenomics search:</b> Yana Safonova, Stefano Bonissone,
+                    <b>IgRepertoireConstructor, DSF, immunoproteogenomics search:</b> Yana Safonova, Stefano Bonissone,
                     Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
                     Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill, and Pavel A. Pevzner.
                     IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
@@ -246,12 +247,15 @@
             </p>            
       </footer>
 
+        <!---
+
       <footer class="site-footer">
         <span class="site-footer-owner">
             <a href="https://github.com/yana-safonova/ig_repertoire_constructor">IgRepertoireConstructor</a> is maintained by
             Center for Algorithmic Biotechnology, Saint Petersburg State University.
         </span>
       </footer>
+      --->
 
     </section>
 
