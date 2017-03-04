@@ -51,6 +51,7 @@
     <p align = justify>
         <b>Barcode errors.</b>
         Some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
+        In repertoires constructed from real datasets we observe up to 3% of the clusters contain erroneous barcodes.
         Ignoring barcoding errors leads to an explosion of small clusters that should be merged with larger ones.
     </p>
 
@@ -146,13 +147,15 @@
     <h3 id = "artifacts_results">Handling artifacts of barcoded datasets</h3>
     <p align = justify>
         <ul>
-            <li>In repertoires constructed from real datasets we observe up to 3% of the clusters contain erroneous barcodes.
-                TBD: how much do we detect?
+            <li>
+                BarcodedIgReC identifies and corrects 68% of reads with erroneous barcodes.
+                The remaining reads with erroneous barcodes form singleton clusters.
             </li>
-            <li>About 1-8% of reads in Rep-seq datasets are chimeric.
-                TBD: how much do we detect?
+            <li>
+                BarcodedIgReC detects 30% of chimeras introduced by the simulation.
+                The rest of chimeras do not contribute or harm the final repertoire after the result filtering.
             </li>
-            <li>BarcodedIgReC corrects about 96% of barcode collisions.</li>
+            <li>BarcodedIgReC corrects 96% of barcode collisions.</li>
         </ul>
     </p>
 
