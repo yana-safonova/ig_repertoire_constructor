@@ -12,59 +12,46 @@
   <body>
     <section class="page-header">
       <h1 class="project-name" align=center>IgQUAST</h1>
-      <h2 class="project-tagline" align=center>A tool for antibody/TCR repertoires quality assessment</h2>
-      IgQUAST is a part of IgReC toolkit. Use <a href="index.html">main page</a> for download
+      <h2 class="project-tagline" align=center>A tool for full-length antibody/TCR repertoires quality assessment</h2>
+      IgQUAST is a part of <a href="index.html">IgReC</a> toolkit
       <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub</b></a> -->
       <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip</b></a> -->
       <!-- <a href="https://github.com/yana&#45;safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz</b></a> -->
     </section>
 
     <section class="main-content">
-        <h2>Content</h2>
-        <p align = "center">
-        <ul>
-            <li><a href = "#motivation">Motivation and purposes</a></li>
-            <li><a href = "#approach">Our approach</a></li>
-            <li><a href = "#ig_repertoire_constructor">IgReC</a></li>
-            <li><a href = "#mass_spectra_analysis">Mass Spectra Analyzer</a></li>
-            <li><a href = "#dsf">DSF (Dense Subgraph Finder)</a></li>
-            <li><a href = "#references">Manual and citations</a></li>
-        </ul>
-        </p>
-
-
         <h2 id = "motivation">Motivation and purposes</h2>
         <p align = "justify">
             Construction of antibody repertoire is a preliminary step of any immunological analysis based on
-            immunosequencing reads.
-            However, for this moment there is no any golden standard solution for this problem.
+            Rep-seq reads.
+            However, for this moment there is no any gold standard solution for this problem.
             Each repertoire construction strategy has its own advantages and disadvantages.
-            In order to benchmark all proposed repertoire construction approach we developed IgQUAST: ImmunoGlobulus QUality
-            ASsessment Tool,
-            a tool for benchmarking of immune repertoire construction tools and quality assessment of adaptive immune repertoires.
+            In order to benchmark all proposed repertoire construction approaches, we developed IgQUAST (ImmunoGlobulin QUality
+            ASsessment Tool), a tool for benchmarking of full-length adaptive immune
+            repertoire construction tools and quality assessment of adaptive immune repertoires.
         </p>
 
         <p align = "justify">
         <h3>General purposes</h3>
             <ol>
-                <li> Comparison of repertoire construction tools on reference datasets using integral performance metrics</li>
-                <li> Parameter tuning for repertoire construction tools</li>
-                <li> Quality estimation of a constructed repertoire without known reference</li>
-                <li> Detection of problematic clusters and (potential) drawbacks of repertoire construction strategies</li>
+                <li> Reference-based and reference-free repertoire quality assestment</li>
+                <li> Overcorrection/undercorrection detection</li>
+                <li> Analysis of antibody abundancies</li>
+                <li> Detection of repertoire construction errors positions</li>
             </ol>
         </p>
 
+
         <h2 id = "inputoutput">Input and output</h2>
         <p align = "justify">
-        Basically, IgQUAST takes as an input the constructed repertoire in CLUSTER.FASTA
-        format (see <a href="ig_repertoire_constructor_manual.html#clusters_fasta">IgReC manual</a>
-        for comprehensive file format description).
+        IgQUAST takes as an input the constructed repertoire in
+        <a href="ig_repertoire_constructor_manual.html#clusters_fasta">CLUSTER.FASTA format.</a>
         </p>
 
         <p align = "justify">
         For comprehensive analysis it also requires additional information: the initial read library and
         reference repertoire.
-        Naturally, without reference repertoire IgQUAST cannot perform reference-based analisys.
+        Without reference repertoire IgQUAST cannot perform reference-based analisys.
         The more information you provide, the more detailed results you will get.
         See the <a href="igquast_manual.html">manual</a> for all possible input options.
         </p>
@@ -76,11 +63,7 @@
         </p>
 
         <p align = "justify">
-        IgQUAST in an active development now, thus, some new plots and stats could be added in the nearest future.
-        Stay tuned! Your feedback is also appreciated (see <a href="#feedback">Feedback</a> below).
-        </p>
-
-        <p align = "justify">
+        See input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
         Please note, IgQUAST is designed for repertoire construction problem only!
         It supposes that input reads are already merged, filtered and cropped and it cannot
         test the corresponding stages.
@@ -249,10 +232,6 @@ To fix overcorrection split cluster by position with maximum # errors
                 </td>
             </tr>
         </table>
-
-
-
-
 
         <h2 id="feedback">Feedback and bug reports</h2>
         Your comments, bug reports, and suggestions are very welcome. They will help us to further improve IgQUAST.
