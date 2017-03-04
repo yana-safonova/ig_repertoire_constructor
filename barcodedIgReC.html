@@ -12,7 +12,7 @@
 <body>
 <section class="page-header">
     <h1 class="project-name" align=center>BarcodedIgReC</h1>
-    <h2 class="project-tagline" align=center>An algorithm for repertoire construction from barcoded Illumina MiSeq reads</h2>
+    <h2 class="project-tagline" align=center>A modification of the <a href="index.html#ig_repertoire_constructor">IgReC</a> algorithm for barcoded Illumina MiSeq reads</h2>
     <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub TBD</b></a>
     <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip TBD</b></a>
     <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz TBD</b></a>
@@ -25,6 +25,7 @@
     <ul>
         <li><a href = "#motivation">Motivation</a></li>
         <li><a href = "#algorithm">Algorithm</a></li>
+        <li><a href = "#results">Results</a></li>
         <li><a href = "#references">Manual and citations</a></li>
     </ul>
     </p>
@@ -32,18 +33,78 @@
 
     <h2 id = "motivation">Motivation</h2>
     <p align = "justify">
-        Construction of an antibody repertoire is an important preliminary step in various immunological applications.
         Repertoire construction is a complex clustering problem with the largest obstacle of distinguishing natural diversity of antibodies from PCR errors.
-        Barcoding helps to separate these two sources of variations in IG sequences
-        and makes PCR error correction possible while preserving even close antibody variations.
-        Also barcoding allows to quantify antibodies more precisely.
-        One can estimate number of corresponding antibodies through the number of reads in the cluster.
-        However, as the following figure shows, such estimation can be very inaccurate.
+        Using molecular barcoding (UMIs) helps to separate these two sources of variations in Rep-seq and simplifies error correction.
     </p>
+
+
+    <h3 id = "umis">Molecular barcodes</h3>
+    <p align = "justify">
+        As an alternative to computational error correction of Rep-seq datasets,
+        biologists use molecular barcoding, an experimental approach that allows one to correct most amplification and sequencing errors,
+        thus enabling analysis of low-abundance receptor sequences.
+        This approach is based on attaching a unique barcode to each RNA molecule so that all amplified copies of this molecule contain the same barcode.
+        Hence errors in reads can be corrected by constructing the consensus of all reads with the same barcode.
+        However, there are three barcoded Rep-seq features which may damage the quality of the repertoire when not taken care of.
+    </p>
+
+    <p align = justify>
+        <b>Barcode errors.</b>
+        Some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
+        Ignoring barcoding errors leads to an explosion of small clusters that should be merged with larger ones.
+    </p>
+
+    <p align = justify>
+        <b>Chimeric reads.</b>
+        Some Rep-seq sample preparation protocols produce many chimeric reads (up to 8%).
+        Failure to detect chimeric reads reduces the accuracy of the consensus sequences in the constructed repertoire
+        and may lead to artificially inflated diversity (if chimeric reads form a separate cluster).
+        Most chimeric reads (resulting from “gluing” two distinct immunoglobulin molecules during amplification)
+        are filtered out by <a href = "index.html#vj_finder">VJ Finder</a> after alignment against the germline segments
+        since they contain only partial V or J segments.
+        However, some chimeric reads look like real antibody sequences.
+        Some of chimeric reads form larger clusters with hundreds of reads.
+        As the result, simply discarding small clusters does not address the problem of removing chimeric reads.
+    </p>
+
+    <p align = justify>
+        <b>Barcode collisions.</b>
+        In an ideal experiment, barcodes are randomly and uniformly generated.
+        Due to the birthday paradox we expect certain number of immunoglobulin molecules share a barcode (barcode collisions).
+        In a real experiment the expected number of barcode collisions increases even more.
+        If the barcode length is chosen appropriately, the number of collisions is typically less than 10 for a Rep-seq library consisting of a million reads
+        However, in some cases we can observe a significant number of them.
+        Also, we can observe a barcode collision on a read level.
+        That is two molecules get close barcodes (which is much more likely than exact barcode collision),
+        and amplicons of one of them get a barcode error leading to unrelated reads having same barcodes.
+        Ignoring barcode collisions may lead to a loss of natural diversity and corruption of the consensus sequences.
+    </p>
+    <table align = "center" width = "100%">
+        <tr>
+            <td align = center><img src="barigrec_figures/barcoding_problems.jpg" width = "90%" alt="pipeline"></td>
+        </tr>
+        <tr>
+            <td align = justify><small>
+                Each column represents reads with the same barcode shown on the top of the column.
+                Each color represents reads originating from the same RNA molecule.
+                E.g., blue and green reads in the left column share the same barcode GGTCA (barcode collision).
+                Some of red reads accumulated barcode error during amplification (shown as ACTTG barcode error).
+                The yellow-blue and yellow-red reads are chimeric.
+            </small></td>
+        </tr>
+    </table>
+
+
+    <h3 id = "quantification">Molecule quantification</h3>
+    In addition to easier error correction barcoding allows to quantify RNA molecules more precisely.
+    Roughly speaking the number of molecules representing a single clone is the number of barcodes in the corresponding cluster.
+    BarcodedIgReC takes advantage of its barcode correction step to avoid overestimation of the molecule number.
+    One can estimate the number of RNA molecules through the number of reads in the cluster.
+    However, as the following figure shows, such estimation can be very inaccurate.
     <table align = center>
         <tr>
             <td align = center>
-                <img src = "barigrec_figures/umi_cnt_to_read_cnt.png" width = 100% alt = "Barcode count to read count scatterplot">
+                <img src = "barigrec_figures/umi_cnt_to_read_cnt.png" width = 90% alt = "Barcode count to read count scatterplot">
             </td>
         </tr>
     </table>
@@ -52,35 +113,74 @@
     <h2 id = "algorithm">Algorithm</h2>
     <p align = justify>
         BarcodedIgReC takes as an input paired-end or single reads with unique molecular identifiers (UMIs).
-        Reads should cover variable region of antibodies.
+        Reads should cover variable region of antibodies/TCRs.
         BarcodedIgReC corrects sequencing and amplification errors and constructs an antibody repertoire.
     </p>
     The algorithm performs the following steps:
     <ul>
         <li><b><a href = "index.html#vj_finder">VJ Finder</a>: </b>V, J labeling, cleaning, aligning and cropping input reads.</li>
-        <li><b><a href = "#clustering">Clustering using barcode information</a>:</b> read clustering inside barcodes and barcode error correction.</li>
-        <li><b><a href = "index.html">IgReC</a>:</b>Apply IgReC tool, which constructs repertoire from non-barcoded reads, to the clustering output.
-            On this step we use custom clustering parameters for IgReC to merge only almost identical sequences.</li>
+        <li><b>Clustering using barcode information:</b> read clustering using barcode information and barcode error correction.
+        On this step the algorithm forms clusters of related reads, but some of them still need to be united.</li>
+        <li><b><a href = "index.html">IgReC</a>:</b> use consensuses of clusters constructed on the previous step as an input set for a non-barcoded IgReC tool.
+        On this step we use custom clustering parameters for IgReC to merge only almost identical sequences.</li>
     </ul>
 
     <h3 id = "clustering">Clustering using barcode information</h3>
     <p align = justify>
-        On this step BarcodedIgReC focuses on dealing with artifacts which barcoding introduces into the data.
+        On this step BarcodedIgReC focuses on dealing with already mentioned artifacts which are specific for barcoded data.
+        The algorithm groups reads by barcodes.
+        The groups are clustered by distance between reads to resolve barcode collisions.
+        This handles both types of barcode collisions, that is when two molecules get the same barcode, and when two unrelated reads get the same barcode
+        (as a result of almost collided molecule barcodes and a barcode error).
+        After that the clusters which have both close barcodes and consensuses are united.
+    </p>
+
+
+    <h2 id = "results">Results</h2>
+    <p align = justify>
+        We observe about 2 amplification errors per read on average for real datasets.
+        We simulated a barcoded dataset with such parameters
+        and obtained the following results reflecting the quality of repertoires constructed by BarcodedIgReC.
+    </p>
+
+    <h3 id = "artifacts_results">Handling artifacts of barcoded datasets</h3>
+    <p align = justify>
         <ul>
-            <li><b>Barcode errors:</b>
-                since barcoded sequences undergo amplification, some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
+            <li>In repertoires constructed from real datasets we observe up to 3% of the clusters contain erroneous barcodes.
+                TBD: how much do we detect?
             </li>
-            <li><b>Barcode collisions:</b>
-                in a model experiment barcodes are randomly and uniformly generated.
-                In particular, we expect certain number of distinct molecules get identical barcodes attached.
-                Too short barcodes or a bias introduced during barcode generation can only increase the collision probability.
+            <li>About 1-8% of reads in Rep-seq datasets are chimeric.
+                TBD: how much do we detect?
             </li>
-            <li><b>Chimeric reads:</b>
-                about 1-8% of reads in Rep-seq datasets are chimeric.
-                When not filtered out, they introduce artificial diversity into the antibody repertoire.
-            </li>
+            <li>BarcodedIgReC corrects about 96% of barcode collisions.</li>
         </ul>
     </p>
+
+    <h3 id = "sens_prec">Sensitivity and precision of constructed repertoires</h3>
+    <p align = justify>
+    </p>
+    <img src = "barigrec_figures/simulated_barcoded_read_error_rate_2.jpg" width = 70% alt = "Sensitivity-precision plot on read level">
+
+    <h3 id = "multiplicity">Reconstructed cluster sizes</h3>
+    <p align = justify>
+        We analyze how precisely BarcodedIgReC reconstructs cluster size.
+        Figure on the left shows dependence of a number of reads in reconstructed cluster on a number of reads in a reference cluster.
+        The median ratio of corresponding cluster read sizes is 0.81.
+        Figure on the right shows the same dependence, but for molecule number instead of read number.
+        It reflects how well we can estimate molecule number after repertoire construction.
+        The median ratio of corresponding cluster molecule sizes is 0.9.
+    </p>
+    <table align = center>
+        <tr>
+            <td>
+                <img src = "barigrec_figures/reference_vs_constructed_size_reads.png" width = 90% alt = "Reference vs constructed size in terms of read number">
+            </td>
+            <td>
+                <img src = "barigrec_figures/reference_vs_constructed_size_umi.png" width = 90% alt = "Reference vs constructed size in terms of barcode number">
+            </td>
+        </tr>
+    </table>
+
 
 
     <h2 id = "references">Manual and citations</h2>
