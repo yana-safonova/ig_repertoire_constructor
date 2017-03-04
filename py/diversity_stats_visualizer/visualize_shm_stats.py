@@ -361,8 +361,13 @@ def visualize_indel_shm_lengths(shm_df, output_fname, log):
     plt.legend(loc = 'upper center', ncol = len(dt), fontsize = 14)
     plt.xlabel("Insertion / deletion SHM length", fontsize = 16)
     plt.ylabel("# insertion / deletion SHMs", fontsize = 16)
-    plt.xlim(.5, max(max(deletions_lengths), max(insertion_length)) + .5)
-    plt.xticks(range(0, max(max(deletions_lengths), max(insertion_length)) + 1), fontsize = 14)
+    xlim_right = 0
+    if len(deletions_lengths) != 0:
+        xlim_right = max(deletions_lengths)
+    if len(insertion_length) != 0:
+        xlim_right = max(xlim_right, max(insertion_length)) 
+    plt.xlim(.5, xlim_right + .5)
+    plt.xticks(range(0, xlim_right + 1), fontsize = 14)
     plt.yticks(fontsize = 14)
     utils.output_figure(output_fname, "Distribution of insertion/deletion SHM lengths", log)
 
