@@ -81,7 +81,7 @@
         <!-------------------------------------------------------------- --->
         <h2 id = "approach">Our approach to analysis of adaptive immune repertoires</h2>
         <p align = "justify">
-            <b>IgRepertoireConstructor</b> constructs antibody repertoire from immunosequencing reads and
+            <b>IgRepertoireConstructor</b> constructs an antibody repertoire from Rep-seq reads and
             uses mass spectra to validate the constructed antibody repertoires.
             The whole pipeline includes several parts:
         <ul>
@@ -92,7 +92,8 @@
                 Constructed repertoire present a highly accurate input for various immunological applications, e.g.,
                 construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.<br>
 
-                We also provide <a href = ""><b>Barcoded IgReC</b></a>, a modification of IgReC tool for processing barcoded Rep-seq data.
+                If your sequencing data contains molecular barcodes (or UMIs),
+                we recommend to use <a href = ""><b>Barcoded IgReC</b></a>, a modification of IgReC tool for processing barcoded Rep-seq libraries.
             </li>
             <li>
                 <a href = "#ms_analyzer_description"><b>Mass Spectra Analyzer</b></a> is a tool for immunoproteogenomics analysis.
@@ -120,13 +121,18 @@
         <p align = justify>
             <ul>
                 <li>
-                    <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a>
+                    <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a> a tool for diversity analysis of Rep-seq data.
+                    Diversity Analyzer computes VJ, CDR, and SHM labelings of input receptor sequences.
+                    It also visualizes various statistics that help to analyze characteristics of an input dataset.
                 </li>
                 <li>
-                    <a href = ""><b>IgQUAST:</b></a>
+                    <a href = ""><b>IgQUAST:</b></a> a quality assessment tool for full-length adaptive immune repertoires.
+                    IgQUAST analyzes a repertoire based on an original Rep-seq library and a reference repertoire (if available).
+                    IgQUAST detects over- and undercorrection of clusters, computes sensitivity and specificity of a repertoire,
+                    and analyzes repertoire abundances.
                 </li>
                 <li>
-                    <a href = ""><b>AntEvolo:</b></a>
+                    <a href = "antevolo.html"><b>AntEvolo:</b> an algorithm for construction of clonal trees for an antibody repertoire.</a>
                 </li>
             </ul>
         </p>
