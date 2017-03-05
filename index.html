@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>IgRepertoireConstructor</title>
+    <title>Y-Tools</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -11,9 +11,9 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name" align=center>IgRepertoireConstructor</h1>
-      <h2 class="project-tagline" align=center>An algorithm for construction of
-          full-length adaptive immune repertoires from Rep-seq data</h2>
+      <h1 class="project-name" align=center>Y-Tools</h1>
+      <h2 class="project-tagline" align=center>tools for construction of full-length adaptive immune repertoires and
+          immunoinformatics analysis</h2>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub</b></a>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip</b></a>
       <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz</b></a>
@@ -37,22 +37,97 @@
         --->
 
 
-        <h2 id = "motivation">Full-length sequencing of adaptive immune repertoires</h2>
+        <h2 id = "motivation">Rep-seq or full-length sequencing of adaptive immune repertoires</h2>
 
         <p align = justify>
             Modern sequencing technologies (e.g., Illumina MiSeq) allow biologists to perform full-length scanning of
             adaptive immune repertoire.
-            For example, a pair of overlapping paired-end Illumina MiSeq reads is able to cover entire variable regions of antibody or TCR:
+            For example, a pair of overlapping paired-end Illumina MiSeq reads (250x2 or 300x2) is able to cover a variable region of antibody or TCR:
         </p>
 
-        <table align = center>
-            <tr>
-                <td align = center>
-                    <img src = "docs/antibody_sequencing.png" width = 50% alt = "antibody_sequencing">
-                </td>
+        <div align = center>
+            <img src = "docs/antibody_sequencing.png" width = 80% alt = "antibody_sequencing">
+        </div>
+
+        Lengths of variable regions for various type of immune chains are given below:
+        <table>
+            <col width = 25%>
+            <tr align="center">
+                <td><b>Chain type</b></td>
+                <td><b>Cell type</b></td>
+                <td><b>V(D)J content</b></td>
+                <td><b>Approximate length (nt)</b></td>
+            </tr>
+            <tr align="center">
+                <td>IGH</td>
+                <td>B lymphocyte</td>
+                <td>VDJ</td>
+                <td>~360</td>
+            </tr>
+            <tr align="center">
+                <td>IGK</td>
+                <td>B lymphocyte</td>
+                <td>VJ</td>
+                <td>~330</td>
+            </tr>
+            <tr align="center">
+                <td>IGL</td>
+                <td>B lymphocyte</td>
+                <td>VJ</td>
+                <td>~330</td>
             </tr>
         </table>
 
+        <h3>Our tools for analysis of adaptive immune repertoires</h3>
+
+
+        <table align = "center" width = "100%">
+            <tr>
+                <td align = center width="1000000px">
+                    <a href = "docs/immunogenomics_pipeline.svg">
+                        <img src="docs/immunogenomics_pipeline.svg" width = "100%" alt="pipeline">
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td align = center><small>Y-tools in a nutshell</small></td>
+            </tr>
+        </table>
+
+        <p align = justify>
+        <ul>
+            <li>
+                <b>IgReC</b>
+            </li>
+            <li>
+                <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a> a tool for diversity analysis of Rep-seq data.
+                Diversity Analyzer computes VJ, CDR, and SHM labelings of input receptor sequences.
+                It also visualizes various statistics that help to analyze characteristics of an input dataset.
+            </li><br>
+            <li>
+                <a href = "igquast.html"><b>IgQUAST:</b></a> a quality assessment tool for full-length adaptive immune repertoires.
+                IgQUAST analyzes a repertoire based on an original Rep-seq library and a reference repertoire (if available).
+                IgQUAST detects over- and undercorrection of clusters, computes sensitivity and specificity of a repertoire,
+                and analyzes repertoire abundances.
+            </li><br>
+            <li>
+                <a href = "antevolo.html"><b>AntEvolo:</b></a> an algorithm for construction of clonal trees for an antibody repertoire.
+            </li><br>
+            <li>
+                <a href = "#ms_analyzer_description"><b>Mass Spectra Analyzer</b></a> is a tool for immunoproteogenomics analysis.
+                Repertoire constructed by IgReC can be converted into a
+                database and used for mass spectra identifications (using some standard tool,
+                e.g., <a href = "https://omics.pnl.gov/software/ms-gf">MS-GF+</a>).
+                Mass Spectra Analyzer performs analysis of the computed matches and computes various statistics
+                showing similarity of the constructed repertoire and mass spectra.
+            </li>
+        </ul>
+        </p>
+        <hr>
+
+        <!-------------------------------------------------------------- --->
+        <h2>Construction of full-length adaptive immune repertoires</h2>
+        <h3>Repertoire construction problem</h3>
         <p align = "justify">
             Repertoire construction is a preliminary step of any immunological analysis based on Rep-seq reads.
             Accurate construction of adaptive immune repertoire (antibody / TCR) avoids erroneous analysis of natural variations and antibody abundances.
@@ -76,67 +151,22 @@
             Each cluster represent a group of reads corresponding to identical antibody (or TCRs) chains.
             Clusters from a repertoire are characterized by sequence and abundance.
         </p>
-        <hr>
 
-        <!-------------------------------------------------------------- --->
-        <h2 id = "approach">Our approach to analysis of adaptive immune repertoires</h2>
-        <p align = "justify">
-            <b>IgRepertoireConstructor</b> constructs an antibody repertoire from Rep-seq reads and
-            uses mass spectra to validate the constructed antibody repertoires.
-            The whole pipeline includes several parts:
+        <h3>Our tools</h3>
         <ul>
             <li>
                 <a href = "#igrec_description"><b>IgReC</b></a> performs construction of antibody repertoire from immunosequencing reads:
                 it corrects sequencing and amplification errors and joins together reads corresponding
                 to identical antibodies.
                 Constructed repertoire present a highly accurate input for various immunological applications, e.g.,
-                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.<br><br>
-
+                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.<
+            </li><br>
+            <li>
                 If your sequencing data contains molecular barcodes (or UMIs),
                 we recommend to use <a href = "barcodedIgReC.html"><b>Barcoded IgReC</b></a>,
                 a modification of IgReC tool for processing barcoded Rep-seq libraries.
-            </li><br>
-            <li>
-                <a href = "#ms_analyzer_description"><b>Mass Spectra Analyzer</b></a> is a tool for immunoproteogenomics analysis.
-                Repertoire constructed by IgReC can be converted into a
-                database and used for mass spectra identifications (using some standard tool, e.g., <a href = "https://omics.pnl.gov/software/ms-gf">MS-GF+</a>).
-                Mass Spectra Analyzer performs analysis of the computed matches and computes various statistics
-                showing similarity of the constructed repertoire and mass spectra.
             </li>
         </ul>
-        </p>
-
-        <table align = "center" width = "100%">
-            <tr>
-                <td align = center width="1000000px">
-                    <a href = "docs/immunogenomics_pipeline.svg">
-                        <img src="docs/immunogenomics_pipeline.svg" width = "100%" alt="pipeline">
-                    </a>
-                </td>
-            </tr>
-            <tr>
-                <td align = center><small>Pipeline of antibody repertoire analysis.</small></td>
-            </tr>
-        </table>
-
-        <p align = justify>
-            <ul>
-                <li>
-                    <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a> a tool for diversity analysis of Rep-seq data.
-                    Diversity Analyzer computes VJ, CDR, and SHM labelings of input receptor sequences.
-                    It also visualizes various statistics that help to analyze characteristics of an input dataset.
-                </li><br>
-                <li>
-                    <a href = "igquast.html"><b>IgQUAST:</b></a> a quality assessment tool for full-length adaptive immune repertoires.
-                    IgQUAST analyzes a repertoire based on an original Rep-seq library and a reference repertoire (if available).
-                    IgQUAST detects over- and undercorrection of clusters, computes sensitivity and specificity of a repertoire,
-                    and analyzes repertoire abundances.
-                </li><br>
-                <li>
-                    <a href = "antevolo.html"><b>AntEvolo:</b></a> an algorithm for construction of clonal trees for an antibody repertoire.
-                </li>
-            </ul>
-        </p>
         <hr>
 
         <!-------------------------------------------------------------- --->
