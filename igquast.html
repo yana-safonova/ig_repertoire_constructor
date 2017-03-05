@@ -42,7 +42,7 @@
         </p>
 
 
-        <h2 id = "inputoutput">Input and output</h2>
+        <h2 id = "inputoutput">Quality assessment scenarios</h2>
         <p align = "justify">
         IgQUAST takes as an input the constructed repertoire in
         <a href="ig_repertoire_constructor_manual.html#clusters_fasta">CLUSTER.FASTA format.</a>
@@ -51,7 +51,7 @@
         <p align = "justify">
         For comprehensive analysis it also requires additional information: the initial read library and
         reference repertoire.
-        Without reference repertoire IgQUAST cannot perform reference-based analisys.
+        Without reference repertoire IgQUAST cannot perform reference-based analysis.
         The more information you provide, the more detailed results you will get.
         See the <a href="igquast_manual.html">manual</a> for all possible input options.
         </p>
@@ -69,8 +69,17 @@
         test the corresponding stages.
         </p>
 
-        <h2 id = "reference">Reference source</h2>
+
+		TODO Add table with different scenarios
+
+        <h2 id = "reference">Reference repertoire</h2>
         <p align = "justify">
+		We have two options here: simulated repertoire or construct repertoire using barcoded data and run repertoire construction in
+		the <i>blind</i> (regardless of barcodes) mode.
+
+		Shrink this section, add references.
+
+
         For reference-based benchmarking an imunosequencing library with known reference repertoire should be used.
         We suppose using of one of the following reference sources:
 
@@ -128,8 +137,8 @@
         IgQUAST computes clusters in the reference repertoire that were ideally recovered in the constructed repertoire.
         As integral measures of quality IgQUAST reports two following metrics:
         <ul>
-            <li> <b>Precision</b> Larger precision &mdash; less number of false constructed clusters</li>
-            <li> <b>Sensitivity</b> Larger sensitivity &mdash; more correct clusters were reconstructed</li>
+            <li> <b>Precision</b> The larger precision, the less number of false constructed clusters</li>
+            <li> <b>Sensitivity</b> The larger sensitivity, the more correct clusters were reconstructed</li>
         </ul>
         <table align = center>
             <tr>
@@ -142,7 +151,7 @@
         These metrics are <i>antagonistic:</i> generally, more sensitivity means less precision and vice versa.
         Thus, it is important to control both of them simultaneously.
 
-        <h3 id = "matching">Fuzzy repertoire-to-repertoire matching</h3>
+        <h3 id = "matching">Detection of repertoire construction errors positions</h3>
         IgQUAST also performs fuzzy repertoire-to-repertoire matching.
         It allows to detect “almost correct” clusters.
         <table align = center>
@@ -159,7 +168,7 @@
         error are concentrated in FR1 &amp; FR4 and can be easily corrected using
         germline database
 
-        <h3 id = "matching">Min-size threshold</h3>
+        <h3 id = "matching">Finding optimal min-size threshold</h3>
         Distribution of cluster sizes is highly uneven!
         Thus, most clusters in a repertoire have small size.
         At the same time, consensus computed by a small cluster is unreliable
@@ -187,7 +196,12 @@
             </tr>
         </table>
 
-        <h3 id = "matching">Cluster size underestimation</h3>
+        <h3 id = "matching">Cluster abundances estimation</h3>
+		Clusters are also characterized by their abundances. IgQUAST analyzes abundances.
+
+		Use red for overcorrected clusters
+
+
         Error correction does not fix ALL errors => cluster sizes are underestimated (TODO more details. copied from slides)
 
         <table align = center>
@@ -218,7 +232,7 @@
 
 
         <h2 id = "referencebased">Reference-free metrics</h2>
-        <h3 id = "matching">Reference-free overcorrection detection and cluster splitting</h3>
+        <h3 id = "matching">Reference-free detection of over/undercorrected clusters</h3>
 
         To detect overcorrection construct consensus and count errors by position
 To fix overcorrection split cluster by position with maximum # errors
@@ -247,6 +261,11 @@ To fix overcorrection split cluster by position with maximum # errors
         </p>
 
         <p align = "justify">
+            <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
+            Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
+            IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
+            Bioinformatics. 2015 Jun 15; 31(12): i53-i61.
+            <a href = http://bioinformatics.oxfordjournals.org/content/31/12/i53.long>doi: 10.1093/bioinformatics/btv238.</a>
             <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus,
             Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner.
             IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis.
