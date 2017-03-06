@@ -14,8 +14,7 @@ sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ash_python_utils import idFormatByFileName, smart_open
 
 
-def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name,
-                 out_file):
+def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name, out_file):
     # Obtain read ids
     with smart_open(reads_file_name, "r") as fh:
         ids = [str(record.id) for record in SeqIO.parse(fh, idFormatByFileName(reads_file_name))]

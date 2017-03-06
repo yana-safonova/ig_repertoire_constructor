@@ -92,12 +92,12 @@ public:
 };
 
 class Clusterization {
-	const vector<fastq_read> &reads_;
+	const vector<FastqRead> &reads_;
 	vector<pair<size_t, size_t> > index_cluster_;
     map<size_t, pair<string, size_t> > cluster_seq_size_;
 
 public:
-	Clusterization(const vector<fastq_read> &reads) :
+	Clusterization(const vector<FastqRead> &reads) :
 		reads_(reads) { }
 
 	void Add(size_t index, size_t cluster) {
@@ -130,8 +130,8 @@ public:
 };
 
 class Clusterizator {
-	const vector<fastq_read> &reads_;
-	ReadIndex<fastq_read> &read_index_;
+	const vector<FastqRead> &reads_;
+	ReadIndex<FastqRead> &read_index_;
 	SequenceComparer &seq_comparer_;
 	ConcurrentDSU clusters_;
     map<size_t, string> read_seq_map_;
@@ -183,8 +183,8 @@ class Clusterizator {
     }
 
 public:
-	Clusterizator(const vector<fastq_read> &reads,
-			ReadIndex<fastq_read> &read_index,
+	Clusterizator(const vector<FastqRead> &reads,
+			ReadIndex<FastqRead> &read_index,
 			SequenceComparer &seq_comparer) :
 	reads_(reads),
 	read_index_(read_index),

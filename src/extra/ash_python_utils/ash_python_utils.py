@@ -72,7 +72,7 @@ def md5_file(fname):
     return hash_md5.hexdigest()
 
 
-def fastx2fastx(input_file, output_file, quality=50):
+def fastx2fastx(input_file, output_file, quality=50, constant=True):
     from Bio import SeqIO
 
     input_format, output_format = idFormatByFileName(input_file), idFormatByFileName(output_file)
@@ -84,7 +84,12 @@ def fastx2fastx(input_file, output_file, quality=50):
         else:
             for record in SeqIO.parse(fin, input_format):
                 if output_format == "fastq":
-                    record.letter_annotations["phred_quality"] = [quality] * len(record)
+                    if constant:
+                        phred = [quality] * len(record)
+                    else:
+                        phred = [quality] * (len(record) - 1)
+                        phred.append(quality - 1)
+                    record.letter_annotations["phred_quality"] = phred
                 SeqIO.write(record, fout, output_format)
 
 

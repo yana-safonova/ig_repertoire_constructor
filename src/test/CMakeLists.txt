@@ -5,6 +5,7 @@ include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
+include_directories(${SHM_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
 
@@ -15,6 +16,25 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 #           ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
 #           ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
 #           ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
+
+# add_executable(test_dsf test_dsf.cpp
+#                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
+#                ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
+#                ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
+#                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
+
+make_test(test_shm_kmer_model test_shm_kmer_model.cpp
+        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_config.cpp
+        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_pipeline.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
+        ../shm_kmer_matrix_estimator/germline_alignment_reader/alignment_reader.cpp
+        ../shm_kmer_matrix_estimator/alignment_checker/no_gaps_alignment_checker.cpp
+        ../shm_kmer_matrix_estimator/alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
+        ../shm_kmer_matrix_estimator/mutation_strategies/trivial_strategy.cpp
+        ../shm_kmer_matrix_estimator/kmer_matrix_exporter/kmer_matrix_exporter.cpp
+        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.cpp
+        ../shm_kmer_matrix_estimator/mutation_strategies/no_k_neighbours.cpp)
 
 add_executable(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp

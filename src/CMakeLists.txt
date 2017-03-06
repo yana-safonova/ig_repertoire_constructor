@@ -35,6 +35,7 @@ set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
 set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
 set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
+set(SHM_DIR "${SPADES_MAIN_SRC_DIR}/shm_kmer_matrix_estimator")
 
 # Everything option-dependent
 include(options)
@@ -81,6 +82,7 @@ add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
 add_subdirectory(graph_utils)
+add_subdirectory(shm_kmer_matrix_estimator)
 add_subdirectory(core)
 add_subdirectory(algorithms)
 add_subdirectory(vdj_utils)
@@ -88,6 +90,8 @@ add_subdirectory(vj_finder)
 add_subdirectory(cdr_labeler)
 add_subdirectory(antevolo)
 add_subdirectory(test)
+add_subdirectory(umi_experiments)
+add_subdirectory(pcr_simulator)
 
 # FIXME: Should we just configure spades_init instead?
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"

@@ -502,9 +502,9 @@ public:
 
         using ctuple_type = decltype(*result.cbegin());
 
-        auto score_function = [](const ctuple_type &a) { return a.int_score; };
-        auto comp = [&score_function](const ctuple_type &a,
-                                      const ctuple_type &b) -> bool { return score_function(a) > score_function(b); };
+        auto score_function = [](ctuple_type &a) { return a.int_score; };
+        auto comp = [&score_function](ctuple_type &a,
+                                      ctuple_type &b) -> bool { return score_function(a) > score_function(b); };
 
         // Return top <limit> positions
         std::nth_element(result.begin(), result.begin() + limit, result.end(), comp);

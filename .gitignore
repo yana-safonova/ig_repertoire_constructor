@@ -2,6 +2,7 @@
 igrec_test
 dsf_test
 .idea
+src/.idea/
 build/
 
 # cmake files

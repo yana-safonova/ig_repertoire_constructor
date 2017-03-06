@@ -13,11 +13,13 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../../../"
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py")
 from igblast_utils import ParseIgBlastOutput
 import support
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ash_python_utils import CreateLogger, AttachFileLogger, linear_search, idFormatByFileName, smart_open, md5_file, fq2fa
 
+from simulate import run_vjfinder
 
 class HitTableRowVJF:
     def __init__(self, _type, query_id, subject_id, start, end):
@@ -40,13 +42,14 @@ def parse_vjf_output(filename, readfile):
         reader = csv.reader(csv_file, delimiter="\t")
         headers = reader.next()
 
-        id_col = linear_search(headers, "id")
-        Vstart_col = linear_search(headers, "Vstart")
-        Vend_col = linear_search(headers, "Vend")
-        Vgene_col = linear_search(headers, "Vid")
-        Jgene_col = linear_search(headers, "Jid")
-        Jstart_col = linear_search(headers, "Jstart")
-        Jend_col = linear_search(headers, "Jend")
+# Read_name	Chain_type	V_hit	V_start_pos	V_end_pos	V_score	J_hit	J_start_pos	J_end_pos	J_score
+        id_col = linear_search(headers, "Read_name")
+        Vstart_col = linear_search(headers, "V_start_pos")
+        Vend_col = linear_search(headers, "V_end_pos")
+        Vgene_col = linear_search(headers, "V_hit")
+        Jgene_col = linear_search(headers, "J_hit")
+        Jstart_col = linear_search(headers, "J_start_pos")
+        Jend_col = linear_search(headers, "J_end_pos")
         for line in reader:
             desc = line[id_col]
 
@@ -56,9 +59,9 @@ def parse_vjf_output(filename, readfile):
             Jend = int(line[Jend_col])
 
             Vgene = line[Vgene_col]
-            Vgene = Vgene[:Vgene.find(" ")]
+            # Vgene = Vgene[:Vgene.find(" ")]
             Jgene = line[Jgene_col]
-            Jgene = Jgene[:Jgene.find(" ")]
+            # Jgene = Jgene[:Jgene.find(" ")]
 
             ind = descr_to_ind[desc]
             result[desc]["V"] = HitTableRowVJF("V", desc, Vgene, Vstart, Vend)
@@ -122,7 +125,8 @@ def parse_command_line():
 
     args.path = args.workdir + "/../../../"
 
-    args.germline_J_file = args.path + "/data/germline/human/IGHJ-allP.fa"
+    # args.germline_J_file = args.path + "/data/germline/human/IG/IGHJ-allP.fa"
+    args.germline_J_file = args.path + "/data/germline/human/IG/IGHJ.fa"
 
     return args
 
@@ -131,7 +135,9 @@ def get_vjf_output(args):
     args.vjfinder_output = args.storage_dir + "/" + args.input_hash + "_vjf"
     if not args.do_not_run_vjfinder or not os.path.exists(args.vjfinder_output):
         vjf_time = time.time()
-        support.sys_call("%(path)s/build/release/bin/ig_kplus_vj_finder --db-directory=%(path)s/data/germline -i %(input)s -o %(vjfinder_output)s --separator=tab --loci=IGH --organism=human %(options)s" % args.__dict__, log)
+        # support.sys_call("%(path)s/build/release/bin/ig_kplus_vj_finder --db-directory=%(path)s/data/germline -i %(input)s -o %(vjfinder_output)s --separator=tab --loci=IGH --organism=human %(options)s" % args.__dict__, log)
+        run_vjfinder(args.input, args.vjfinder_output, loci="IGH", additional_args="  --pseudogenes=false",
+                     log=log)
         vjf_time = time.time() - vjf_time
         log.info("VJFinder time: %fs" % vjf_time)
 

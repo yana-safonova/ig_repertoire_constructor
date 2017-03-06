@@ -1,0 +1,15 @@
+# Absolute paths
+IGREC = %RUN_PATH
+BIN := $(IGREC)/build/release/bin
+SRC := $(IGREC)/src
+PY_SRC := $(IGREC)/py
+UMI_SRC := $(SRC)/umi_experiments
+
+# Relative paths
+VJ_FINDER = vj_finder
+INTER_REP = intermediate_repertoire.fasta
+INTER_REP_RCM = intermediate_repertoire.rcm
+COMPRESSED_INTER_REP = intermediate_repertoire_compressed.fasta
+COMPRESSED_INTER_REP_RCM = intermediate_repertoire_compressed.rcm
+SW_GRAPH = sw.graph
+DENSE_SUBGRAPHS = dense_subgraphs.txt

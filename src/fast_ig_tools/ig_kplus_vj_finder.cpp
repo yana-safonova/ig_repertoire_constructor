@@ -15,7 +15,7 @@ using std::endl;
 
 #include <boost/program_options.hpp>
 #include "fast_ig_tools.hpp"
-
+#include "utils.hpp"
 #include <build_info.hpp>
 
 #include <seqan/seq_io.h>
