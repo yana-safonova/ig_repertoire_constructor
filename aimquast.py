@@ -39,7 +39,7 @@ def parse_command_line(description="aimQUAST"):
                 setattr(namespace, "reference_rcm", igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name)
                 setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
                 setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
-                setattr(namespace, "figure_format", "pdf,png")
+                setattr(namespace, "figure_format", "png")
 
         return ActionTest
 
@@ -113,14 +113,14 @@ def parse_command_line(description="aimQUAST"):
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
 
     parser.add_argument("--no-reference-free",
-                        dest="no_reference_free",
+                        dest="reference_free",
                         action="store_true",
-                        help="disable reference-free measures")
+                        help="disable reference-free metrics")
     parser.add_argument("--reference-free",
-                        dest="no_reference_free",
+                        dest="reference_free",
                         action="store_false",
-                        help="enable reference-free measures (default)")
-    parser.set_defaults(no_reference_free=True)
+                        help="enable reference-free metrics (default)")
+    parser.set_defaults(reference_free=True)
 
     parser.add_argument("--no-experimental",
                         dest="experimental",
@@ -189,7 +189,7 @@ def main(args):
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and not args.no_reference_free and args.rcm_based:
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free and args.rcm_based:
         # rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
         if args.figure_format:
@@ -211,7 +211,7 @@ def main(args):
             rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
         rep.report(report, "constructed_stats")
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm and not args.no_reference_free and args.rcm_based:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free and args.rcm_based:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
 
         if args.figure_format:
@@ -270,9 +270,10 @@ def main(args):
             res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
                                                    format=args.figure_format, marginals=False)
 
-            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size_hexes",
-                                                   points=False,
-                                                   format=args.figure_format, marginals=False)
+            if args.experimental:
+                res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size_hexes",
+                                                       points=False,
+                                                       format=args.figure_format, marginals=False)
 
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)

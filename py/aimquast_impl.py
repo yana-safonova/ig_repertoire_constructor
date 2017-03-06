@@ -192,6 +192,7 @@ class MultToMultData:
                                            points=True,
                                            marginals=False):
         import seaborn as sns
+        import numpy as np
 
         if points:
             f, ax = initialize_plot()
@@ -211,6 +212,8 @@ class MultToMultData:
             return ceil(number * p) / p
         uplimit = round_up(uplimit, -2)
 
+        is_overcorrected = self.constructed_cluster_sizes > self.reference_cluster_sizes
+
         if marginals:
             g = sns.JointGrid(x=self.reference_cluster_sizes,
                               y=self.constructed_cluster_sizes,
@@ -223,8 +226,15 @@ class MultToMultData:
             ax = g.ax_joint
         else:
             if points:
-                plt.plot(self.reference_cluster_sizes, self.constructed_cluster_sizes, "bo",
+                plt.plot(self.reference_cluster_sizes[~is_overcorrected],
+                         self.constructed_cluster_sizes[~is_overcorrected], "bo",
+                         color="blue",
                          label="clusters", alpha=0.5,
+                         markersize=6)
+                plt.plot(self.reference_cluster_sizes[is_overcorrected],
+                         self.constructed_cluster_sizes[is_overcorrected], "bo",
+                         color="red",
+                         label="overestimated clusters", alpha=0.5,
                          markersize=6)
 
             else:
