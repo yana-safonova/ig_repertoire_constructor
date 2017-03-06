@@ -9,7 +9,6 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
-plt.rcParams['figure.figsize'] = 15, 10
 
 from config.config import config, read_config
 from config.parse_input_args import parse_args
@@ -93,6 +92,7 @@ def compare_forward_backward_mutations(matrices, figures_dir):
         g = sns.distplot(mutation_ratios)
         plt.xlim(xmin=0, xmax=50)
         fig = g.get_figure()
+        fig.set_size_inches(4, 3)
         fig.savefig(os.path.join(figures_dir, figure_file),
                     format='pdf', dpi=150)
         plt.close()

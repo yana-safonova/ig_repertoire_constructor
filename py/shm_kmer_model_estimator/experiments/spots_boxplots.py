@@ -60,6 +60,7 @@ def plot_mutability_boxplots(matrices, output_dir):
             [t.set_facecolor(i) for (i,t) in zip(colors, g.artists)]
             g.set_ylim(0, 1)
             fig = g.get_figure()
+            fig.set_size_inches(10, 7)
             fig.savefig(fig_name, format='pdf', dpi=150)
             plt.close()
 
