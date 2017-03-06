@@ -33,6 +33,8 @@ namespace antevolo {
         boost::unordered_map<size_t, bool> parent_edge_handled_;
         boost::unordered_map<size_t, EvolutionaryEdgePtr> undirected_components_edges_;
 
+        static const size_t EVO_EDGE_MAX_LENGTH = 400;
+
 
         void AddUndirectedPair(size_t src_num, size_t dst_num);
 
@@ -43,8 +45,38 @@ namespace antevolo {
         virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                    const boost::unordered_set<size_t> &vertices_nums,
                                    EvolutionaryTree &tree) = 0;
-        virtual void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
-                                                EvolutionaryTree& tree) = 0;
+        void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
+                                                EvolutionaryTree& tree);
+
+
+
+        bool ReconstructAncestralLineageSimple(
+                EvolutionaryEdgePtr edge,
+                EvolutionaryTree &tree,
+                boost::unordered_set<size_t> &vertices_nums,
+                const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor,
+                std::vector<size_t> &roots,
+                boost::unordered_map<size_t, size_t> &iterator_index_map);
+        void HandleRootNeighbour(
+                size_t root_num,
+                size_t dst_num,
+                boost::unordered_set<size_t>& vertices_nums,
+                EvolutionaryTree& tree,
+                boost::unordered_map<size_t, EvolutionaryEdgePtr>& roots_nearest_neighbours,
+                const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor);
+
+        size_t GetUndirectedCompopentRoot(size_t root_num) {
+            if (undirected_components_edges_.find(root_num) != undirected_components_edges_.end()) {
+                return undirected_components_edges_[root_num]->DstNum();
+            }
+            return size_t(-1);
+        }
+
+        const EvolutionaryEdgePtr& GetUndirectedComponentParentEdge(size_t root_num) {
+            return undirected_components_edges_[root_num];
+        }
+
+
     public:
 
 //        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
@@ -61,17 +93,6 @@ namespace antevolo {
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);
             return std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
-        }
-
-        size_t GetUndirectedCompopentRoot(size_t root_num) {
-            if (undirected_components_edges_.find(root_num) != undirected_components_edges_.end()) {
-                return undirected_components_edges_[root_num]->DstNum();
-            }
-            return size_t(-1);
-        }
-
-        const EvolutionaryEdgePtr& GetUndirectedComponentParentEdge(size_t root_num) {
-            return undirected_components_edges_[root_num];
         }
 
         virtual ~Base_CDR3_HG_CC_Processor() {};
