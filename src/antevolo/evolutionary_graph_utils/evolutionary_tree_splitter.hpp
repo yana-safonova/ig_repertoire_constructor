@@ -12,7 +12,9 @@ namespace antevolo {
     };
 
     class ConnectedTreeSplitter : public EvolutionaryTreeSplitter {
-        EvolutionaryTree GetTreeByRoot(const EvolutionaryTree &tree, size_t root_id);
+        EvolutionaryTree GetTreeByRoot(const EvolutionaryTree& tree,
+                                       size_t root_id,
+                                       size_t tree_3rd_idx);
 
     public:
         std::vector<EvolutionaryTree> Split(const EvolutionaryTree &tree);

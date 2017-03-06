@@ -1,11 +1,14 @@
 #include "evolutionary_tree_splitter.hpp"
 
 namespace antevolo {
-    EvolutionaryTree ConnectedTreeSplitter::GetTreeByRoot(const EvolutionaryTree& tree,
-                                                                           size_t root_id) {
+    EvolutionaryTree
+    ConnectedTreeSplitter::GetTreeByRoot(const EvolutionaryTree& tree,
+                                         size_t root_id,
+                                         size_t tree_3rd_idx) {
         std::queue<size_t> vertex_queue;
         vertex_queue.push(root_id);
         EvolutionaryTree connected_tree(tree.GetCloneSetPtr());
+        connected_tree.SetTreeIndices(tree.GetVJClassIndex(), tree.GetConnectedComponentIndex(), tree_3rd_idx);
         while(!vertex_queue.empty()) {
             size_t cur_vertex = vertex_queue.front();
             vertex_queue.pop();
@@ -26,7 +29,6 @@ namespace antevolo {
         return connected_tree;
     }
 
-    // todo: add tree_index (3rd) assigning
     std::vector<EvolutionaryTree> ConnectedTreeSplitter::Split(const EvolutionaryTree& tree) {
         std::vector<EvolutionaryTree> connected_trees;
         if(tree.GetRootNumber() == 1) {
@@ -34,8 +36,10 @@ namespace antevolo {
             return connected_trees;
         }
         auto roots = tree.GetRoots();
+        size_t connected_tree_idx = 0;
         for(auto it = roots.begin(); it != roots.end(); it++) {
-            EvolutionaryTree connected_tree = GetTreeByRoot(tree, *it);
+            EvolutionaryTree connected_tree = GetTreeByRoot(tree, *it, connected_tree_idx);
+            connected_tree_idx++;
             connected_trees.push_back(connected_tree);
         }
         VERIFY_MSG(connected_trees.size() == tree.GetRootNumber(), "ERROR: number of connected trees (" <<

@@ -68,8 +68,8 @@ namespace antevolo {
             total_reconstructed += reconstructed[i];
             total_rejected += rejected[i];
         }
-        INFO("number of reconstructed clones: " << total_reconstructed
-             << "\tnumber of edges rejected due to inequality of insertion blocks: " << total_rejected);
+        INFO("Number of reconstructed clones: " << total_reconstructed
+             << ",\tnumber of edges rejected due to inequality of insertion blocks: " << total_rejected);
         return JoinEvolutionaryStoragesFromThreads();
     }
 }

@@ -114,7 +114,8 @@ namespace antevolo {
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
 
-        for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+//        for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+        for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
             output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
