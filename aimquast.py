@@ -52,7 +52,7 @@ def parse_command_line(description="aimQUAST"):
             display_name = name
 
         test_action = ActionTestFactory(name)
-        if test_action is not None:
+        if test_action is not None:  # Test dataset exists
             parser.add_argument(key,
                                 action=test_action,
                                 help="Running on %s dataset" % display_name)
@@ -88,7 +88,7 @@ def parse_command_line(description="aimQUAST"):
     parser.add_argument("--tau",
                         type=int,
                         default=6,
-                        help="maximal distance for repertoire-to-repertoire matching")
+                        help="maximal distance for repertoire-to-repertoire matching (default: %(default)d)")
     parser.add_argument("--rcm-based",
                         action="store_true",
                         dest="rcm_based",
@@ -96,11 +96,11 @@ def parse_command_line(description="aimQUAST"):
     parser.add_argument("--no-rcm-based",
                         action="store_false",
                         dest="rcm_based",
-                        help="disable partition-based metrics and plots")
+                        help="disable partition-based metrics and plots (default)")
     parser.set_defaults(rcm_based=False)
     parser.add_argument("--reference-size-cutoff",
                         default=5,
-                        help="reference size cutoff")
+                        help="reference size cutoff (default: %(default)d)")
     parser.add_argument("--json",
                         help="file for JSON output (default: <output_dir>/aimquast.json)")
     parser.add_argument("--text",
