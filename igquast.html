@@ -32,9 +32,9 @@
         <p align = "justify">
         <h3>General purposes</h3>
             <ol>
-                <li> Reference-based and reference-free repertoire quality assestment</li>
+                <li> Reference-based and reference-free repertoire quality assessment</li>
                 <li> Overcorrection/undercorrection detection</li>
-                <li> Analysis of antibody abundancies</li>
+                <li> Analysis of antibody abundances</li>
                 <li> Detection of repertoire construction errors positions</li>
             </ol>
         </p>
@@ -42,94 +42,132 @@
 
         <h2 id = "inputoutput">Quality assessment scenarios</h2>
         <p align = "justify">
-        IgQUAST takes as an input the constructed repertoire in
-        <a href="ig_repertoire_constructor_manual.html#clusters_fasta">CLUSTER.FASTA format.</a>
+        See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
+        Please note, IgQUAST can benchmark repertoire construction stage itself only.
+        It supposes that input reads are already merged, filtered from contaminations and cropped by V/J ends.
         </p>
 
         <p align = "justify">
-        For comprehensive analysis it also requires additional information: the initial read library and
-        reference repertoire.
-        Without reference repertoire IgQUAST cannot perform reference-based analysis.
-        The more information you provide, the more detailed results you will get.
-        See the <a href="igquast_manual.html">manual</a> for all possible input options.
-        </p>
-
-        <p align = "justify">
-        As an output IgQUAST reports a bunch of plots (see below for description and explanation of the most important of them)
+        As an output IgQUAST reports a bunch of plots
         along with numerical statistics.
         All stats are reported as machine-readable JSON format in order to simplify automatic analysis.
         </p>
 
         <p align = "justify">
-        See input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
-        Please note, IgQUAST is designed for repertoire construction problem only!
-        It supposes that input reads are already merged, filtered and cropped and it cannot
-        test the corresponding stages.
+        For comprehensive analysis IgQIUAST also requires additional information: the initial read library and
+        reference repertoire.
+		IgQUAST can perform analysis using different scenarios depending on the provided input (described in the table below).
         </p>
 
 
-		TODO Add table with different scenarios
+        <p align = "justify">
+		<table>
+		<tr>
+			<td align="center">
+				<b>Scenario</b>
+			</td>
+			<td align="center">
+				<b>Requirements</b>
+			</td>
+			<td align="center">
+				<b>Resultant plots and statistics</b>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<a href="#repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</a>
+			</td>
+			<td>
+				Constructed and reference repertoires in
+				<a href="ig_repertoire_constructor_manual.html#clusters_fasta">CLUSTER.FA format</a>
+			</td>
+			<td>
+			Error-position detection plot,
+			sensitivity, precision, optimal min-size estimation
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<a href="#reference_based_over_under_corection">Reference-based over/under correction detection</a>
+			</td>
+			<td>
+				Initial input Rep-Seq library, reference and constructed repertoires
+				<a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> files
+			</td>
+			<td>
+				constructed_majority_secondary — dependence of secondary votes count on majority votes count in the analyzed repertoire. This plot helps to detect overcorrection
+				constructed_purity_distribution — distribution of cluster purity in the analyzed repertoire. This plot helps to detect overcorrection
+				reference_majority_secondary — dependence of secondary votes count on majority votes count in the reference repertoire. This plot helps to detect undercorrection
+				reference_purity_distribution — distribution of cluster purity in the reference repertoire. This plot helps to detect undercorrection
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<a href="#reference_free_over_under_corection">Reference-free over/under correction detection</a>
+			</td>
+			<td>
+				Initial input Rep-Seq library, constructed repertoire
+				<a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> file
+			</td>
+			<td>
+				cluster_error_profile,
+				distribution_of_errors_in_reads,
+				estimation_of_max_error_distribution,
+				bad_constructed_clusters,
+				bad_reference_clusters
+			</td>
+		</tr>
+		</table>
+        </p>
+
+
+        <p align = "justify">
+		If some required input is missing, IgQUAST tries to reconstruct missing info.
+		For example, if some analysis requires RCM file for the repertoire, IgQUAST performs
+		RCM restoration by mapping input reads into provided repertoire sequences.
+		However, such restorations are not fully reliable since they require additional assumptions
+		on the benchmarked tool. Thus, it is better to provide to IgQUAST as much information as possible.
 
         <h2 id = "reference">Reference repertoire</h2>
         <p align = "justify">
-		We have two options here: simulated repertoire or construct repertoire using barcoded data and run repertoire construction in
+		To obtain reference repertoire we
+		have two options: simulate the repertoire or construct the repertoire using
+		barcoded data and run repertoire construction in
 		the <i>blind</i> (regardless of barcodes) mode.
 
-		Shrink this section, add references.
-
-
-        For reference-based benchmarking an imunosequencing library with known reference repertoire should be used.
-        We suppose using of one of the following reference sources:
+        <h3 id = "simulation">Simulation</h3>
+        <p align = "justify">
+        There are no special requirements for simulation software or/and simulated repertoire,
+		but we suggest to use our <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator</a>,
+        that was specially designed for benchmarking adaptive immune repertoire construction strategies.
+        </p>
 
         <h3 id = "umi">Molecular barcoding</h3>
         <p align = "justify">
-        Molecular identifiers (UMIs) or barcodes can be used for B-cell labeling.
-        Such labeling allows one to reconstruct immunoglobulin sequences and, thus,
+		Molecular identifiers (UMIs) or <i>barcodes</i> can be used for B-cell labeling.
+        Such labeling allows one to reconstruct adaptive immune sequences using consensus by groups
+		and, thus,
         provides one with a reference dataset for benchmarking.
         </p>
 
         <p align = "justify">
         Please note that currently available barcoding techniques are not perfect.
-        Remember about barcode collision, barcode corruption, chimeric reads, etc.
         Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
-        </p>
-
-        <p align = "justify">
         The better option is to use an approach specially designed for barcode-assisted antibody repertoire construction.
         We strongly suggest to use our tool <a href="barigrec.html">BarIgReC</a> for this task.
         </p>
 
         <p align = "justify">
-        The second option is consider specially designed semi-artificial test datasets.
+        Another approach to deal with barcoding artifacts is to consider specially designed semi-artificial test datasets.
         Such datasets could be obtained by aggressive input read and barcode filtering, when
         every suspicious barcode and every suspicious read is omitted.
         Such approach is definitely
-        improper for real-life repertoire construction (since it loses a big part of repertoire diversity, i.e., it is biased),
+        improper for real-life repertoire construction (since it loses a significant part of repertoire diversity, i.e., it is biased),
         but it is good for test dataset preparation.
         </p>
 
-        <table align = center>
-            <tr>
-                <td align = center>
-                    <img src = "docs/igquast/barcodes.png" width = 50% alt = "Molecular barcoding">
-                </td>
-            </tr>
-        </table>
 
-        <h3 id = "simulation">Simulation</h3>
-        <p align = "justify">
-        Simulated Rep-seq library also can be used as a reference.
-        Actually, there are no special requirements for simulator or/and simulated repertoire, but we suggest to
-        use our simulator:
-        <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator, a versatile immunosequencing simulator</a>,
-        that was specially designed for Ig repertoire construction benchmarking.
-        </p>
-
-
-        <h2 id = "referencebased">Reference-based metrics</h2>
-        
-
-
+        <h2 id = "repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</h2>
 
         <h3 id = "matching">Sensitivity and precision</h3>
         IgQUAST computes clusters in the reference repertoire that were ideally recovered in the constructed repertoire.
@@ -214,6 +252,7 @@
         </table>
 
 
+        <h2 id = "reference_based_over_under_corection">Reference-based over/undercorrection detection</h2>
         <h3 id = "matching">Cluster purity metrics</h3>
         <table align = center>
             <tr>
@@ -229,8 +268,8 @@
 
 
 
-        <h2 id = "referencebased">Reference-free metrics</h2>
-        <h3 id = "matching">Reference-free detection of over/undercorrected clusters</h3>
+        <h2 id = "reference_free_over_under_corection">Reference-free over/undercorrection detection</h2>
+        <h3>Reference-free detection of over/undercorrected clusters</h3>
 
         To detect overcorrection construct consensus and count errors by position
 To fix overcorrection split cluster by position with maximum # errors
@@ -258,13 +297,6 @@ To fix overcorrection split cluster by position with maximum # errors
             </ul>
         </p>
 
-        <!-- <p align = "justify"> -->
-        <!--     <b>Citation:</b> Yana Safonova, Stefano Bonissone, Eugene Kurpilyansky, Ekaterina Starostina, Alla Lapidus, -->
-        <!--     Jeremy Stinson, Laura DePalatis, Wendy Sandoval, Jennie Lill and Pavel A. Pevzner. -->
-        <!--     IgRepertoireConstructor: a novel algorithm for antibody repertoire construction and immunoproteogenomics analysis. -->
-        <!--     Bioinformatics. 2015 Jun 15; 31(12): i53&#45;i61. -->
-        <!--     <a href = http://bioinformatics.oxfordjournals.org/content/31/12/i53.long>doi: 10.1093/bioinformatics/btv238.</a> -->
-        <!-- </p> -->
         <p align = "justify">
             <b>Citation:</b>
 			Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
@@ -276,7 +308,7 @@ To fix overcorrection split cluster by position with maximum # errors
 
       <footer class="site-footer">
         <span class="site-footer-owner">
-            <a href="https://github.com/yana-safonova/ig_repertoire_constructor/igquast.html">IgQUAST</a> is maintained by
+            <a href="https://github.com/yana-safonova/ig_repertoire_constructor">IgReC</a> is maintained by
             Center for Algorithmic Biotechnology, Saint Petersburg University
         </span>
       </footer>
