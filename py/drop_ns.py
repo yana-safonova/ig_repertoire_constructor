@@ -67,6 +67,6 @@ if __name__ == "__main__":
                 if len(id_cluster) == 1 or id_cluster[1] not in to_drop_ids:
                     fout.write(line)
                 else:
-                    fout.write(id_cluster[0] + "\n")
+                    fout.write(id_cluster[0] + "\t\n")
 
     print "Conversion %s -> %s done" % (args.input, args.output)

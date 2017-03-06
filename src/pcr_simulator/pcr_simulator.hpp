@@ -28,7 +28,7 @@ private:
     size_t barcode_error_count_;
 
 public:
-    static const size_t READ_ERROR_COUNT_INF;
+    static const size_t CHIMERIC_READ_ERROR_COUNT;
 
     PcrSimulator(const Options::SimulationOptions& options) : options_(options) {
         random_engine_.seed(8356);
@@ -44,7 +44,8 @@ private:
     seqan::Dna5String GenerateBarcode();
     void ReportAverageErrorRate();
     void SimulatePcr();
-    void AddRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count = READ_ERROR_COUNT_INF);
+    void AddRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count);
+    void AddChimericRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode);
     void AmplifySequences(double pcr_error_prob);
     void UpdateReadIds();
     void WriteRepertoire(const std::string& path);
