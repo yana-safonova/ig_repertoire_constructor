@@ -1,6 +1,6 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>aimQUAST Manual</title>
+    <title>IgQUAST Manual</title>
     <style type="text/css">
         .code {
             background-color: lightgray;
@@ -17,44 +17,49 @@
 </head>
 
 <body>
-<h1>aimQUAST manual</h1>
-1. <a href="#intro">What is aimQUAST?</a><br>
+<h1>IgQUAST manual</h1>
+1. <a href="#intro">What is IgQUAST?</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1. <a href="#igquast_input">Input</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.2. <a href="#igquast_output">Output</a><br>
 2. <a href="#install">Installation</a><br>
-3. <a href="#aimquast_usage">aimQUAST usage</a><br>
+3. <a href="#igquast_usage">IgQUAST usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igquast_basic">Basic options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igquast_advanced">Advanced options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igquast_examples">Examples</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igquast_output_files">Output files</a><br>
-4. <a href="#feedback">Feedback and bug reports</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href="#citation">Citation</a><br>
+4. <a href="#references">Citations</a><br>
+5. <a href="#feedback">Feedback and bug reports</a><br>
 
     <!-- -------- -->
 
-    <h2 id="intro">1. What is aimQUAST?</h2> aimQUAST (Adaptive IMmune QUality ASsessment Tool) is a tool for adaptive immune repertoires quality assessment.
-    aimQUAST can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
-	aimQUAST provides reference-based and reference-free analysis:
+    <h2 id="intro">1. What is IgQUAST?</h2> IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality <b>AS</b>sessment <b>T</b>ool)
+    is a tool for adaptive immune repertoires quality assessment.
+    IgQUAST can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
+	IgQUAST provides reference-based and reference-free analysis:
     <ul>
         <li>During reference-based analysis the tool computes sensitivity and
             precision of reconstructed repertoire, detects undercorrected
             (erroneously split) and overcorrected (erroneously joined) clusters
             and estimates rate of correctly fixed initial reads.
         </li>
-        <li>During reference-free analysis the tool estimates error rate and error profile of the initial RepSeq library. Also it detects overestimated clusters using amplification-free Poisson model.
+        <li>During reference-free analysis the tool estimates error rate and error profile of the initial Rep-Seq library.
+            Also it detects overestimated clusters using amplification-free Poisson model.
         </li>
     </ul>
 
-    <h3 id="igquast_input">1.1. Input</h3> aimQUAST takes as an input:
+    <h3 id="igquast_input">1.1. Input</h3> IgQUAST takes as an input:
     <ul>
-        <li>Initial RepSeq library;</li>
+        <li>Initial Rep-Seq library;</li>
         <li>Analyzed adaptive immune repertoire constructed on this library;</li>
         <li>For reference-based analysis, reference repertoire constructed on the same library.</li>
     </ul>
-	Initial RepSeq library should be in FASTA or FASTQ format.
-		Reads should be properly cropped (should start from V gene begining and finish by J gene ending) and reads from negative strand should
-		be reversed. Cropping and strand correction of RepSeq reads may be performed by VJFinder tool from IgRepertoireConstructor package
-        (see <a href="manual.html">IgRepertoireConstructor manual</a> for VJ Finder input-output format description).
+	Initial Rep-Seq library should be in FASTA or FASTQ format.
+		Reads should be properly cropped (should start from V gene beginning
+        and finish by J gene ending) and reads from negative strand should
+		be reversed.
+        Cropping and strand correction of Rep-Seq reads may be performed by
+        VJFinder tool from IgRepertoireConstructor package
+        (see <a href="manual.html">IgRepertoireConstructor manual</a> for VJFinder input-output format description).
 	<br>
 	Analyzed and reference repertoires should be presented by two files each:
 		repertoire sequences in FASTA format and read-cluster map (RCM)
@@ -64,7 +69,7 @@
 		available information.
 
 
-    <h3 id="aimquast_output">1.2. Output</h3> aimQUAST reports:
+    <h3 id="igquast_output">1.2. Output</h3> IgQUAST reports:
     <ul>
         <li>Plots for visual analysis;</li>
         <li>Metrics report.</li>
@@ -73,7 +78,7 @@
     Plots are reported in PNG, PDF and SVG formats. Metrics are reported in text (brief) and JSON (full) formats.
 
     <h2 id=install>2. Installation</h2>
-aimQUAST has the following dependencies:
+IgQUAST has the following dependencies:
 <ul>
     <li>64-bit Linux system</li>
     <li>g++ (version 4.7 or higher)</li>
@@ -89,31 +94,31 @@ aimQUAST has the following dependencies:
     </ul></li>
 </ul>
 
-	aimQUAST is a part of IgRepertoireConstructor package.<br> See <a
+	IgQUAST is a part of IgRepertoireConstructor package.<br> See <a
 		href="manual.html#install">IgRepertoireConstructor manual</a> for
 	installation instructions.
 	<br>
 	<br>
-	Please verify your aimQUAST installation
-	prior to initiate the aimQUAST:
+	Please verify your IgQUAST installation
+	prior to initiate the IgQUAST:
     <pre class="code">
 <code>
-    ./aimquast.py --test
+    ./igquast.py --test
 </code>
 </pre> If the installation is successful, you will find the following information at the end of the log:
 
     <pre class="code">
 <code>
-  Thank you for using aimQUAST!
-  Log was written to aimquast_test/aimquast.log
+  Thank you for using IgQUAST!
+  Log was written to igquast_test/igquast.log
 </code>
 </pre>
 
-<h2 id="usage">3. aimQUAST usage</h2>
-    To run aimQUAST, type:
+<h2 id="usage">3. IgQUAST usage</h2>
+    To run IgQUAST, type:
     <pre class="code">
     <code>
-    ./aimQUAST.py [options] -s &lt;initial reads&gt; -c &lt;constructed repertoire FASTA&gt; -C &lt;constructed repertoire RCM&gt; -r &lt;reference repertoire FASTA&gt; -R &lt;reference repertoire RCM&gt; -o &lt;output dir for plots&gt;
+    ./igquast.py [options] -s &lt;initial reads&gt; -c &lt;constructed repertoire FASTA&gt; -C &lt;constructed repertoire RCM&gt; -r &lt;reference repertoire FASTA&gt; -R &lt;reference repertoire RCM&gt; -o &lt;output dir for plots&gt;
     </code>
 </pre>
 
@@ -132,56 +137,66 @@ aimQUAST has the following dependencies:
     <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Could be gzipped.
     <br><br>
 
-    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial RepSeq reads in FASTA or FASTQ format. Could be gzipped.
+    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-Seq reads in FASTA or FASTQ format. Could be gzipped.
     <br><br>
 
     <code>-o / --output-dir &lt;output dir&gt;</code><br> output directory (required).
     <br><br>
 
     <code>--text &lt;text report file&gt;</code><br> File for text report output.
+    Default: <code>&lt;output dir&gt;/igquast.txt</code>
     <br><br>
 
     <code>--json &lt;JSON report file&gt;</code><br> File for JSON report output.
+    Default: <code>&lt;output dir&gt;/igquast.json</code>
     <br><br>
 
     <code>--test</code><br> Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
     <pre class="code">
     <code>
-    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test -c aimquast_test_dataset/igrec_bad/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm -r aimquast_test_dataset/ideal_final_repertoire.fa -R aimquast_test_dataset/ideal_final_repertoire.rcm --text aimquast_test/aimquast.txt --json aimquast_test/aimquast.json
+    ./igquast.py -s igquast_test_dataset/merged_reads.fq -o igquast_test -c igquast_test_dataset/igrec_bad/final_repertoire.fa -C igquast_test_dataset/igrec_bad/final_repertoire.rcm -r igquast_test_dataset/ideal_final_repertoire.fa -R igquast_test_dataset/ideal_final_repertoire.rcm --text igquast_test/igquast.txt --json igquast_test/igquast.json
     </code>
 </pre>
 
-    <code>--help</code><br> Printing help.
+    <code>-h / --help</code><br> Printing help.
     <br><br>
 
-    <h3 id="aimquast_advanced">3.2. Advanced options</h3>
+    <h3 id="igquast_advanced">3.2. Advanced options</h3>
 
-    <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure format(s) for outputted plots. Allowed values are <code>png</code>, <code>pdf</code> and <code>svg</code>. Several values should be separated by commas. Use empty string for non-producing plots. Default value is <code>png</code>.
+    <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure
+    format(s) for outputted plots. Allowed values are <code>png</code>,
+    <code>pdf</code> and <code>svg</code>. Several values should be separated
+    by commas. Use empty string for non-producing plots. Default value is
+    <code>png</code>.
     <br><br>
 
-    <code>--reference-size-cutoff &lt;positive integer&gt;</code><br> Cutoff for reference cluster size. Lesser reference clusters are discarded during repertoire-to-repertoire comparison. See related paper for comprehensive discussion. Default value is <code>5</code>.
+    <code>--reference-size-cutoff &lt;positive integer&gt;</code><br> Cutoff
+    for reference cluster size. Lesser reference clusters are discarded during
+    repertoire-to-repertoire comparison. See related paper for comprehensive
+    discussion. Default value is <code>5</code>.
     <br><br>
 
-    <code>--export-bad-clusters</code><br> Export bad clusters during reference-free analysis.
+    <code>--export-bad-clusters</code><br> Export untrustworthy clusters during reference-free analysis.
     <!-- -->
 
-    <h3 id="aimquast_examples">3.3. Examples</h3> Provide reference-free analysis only:
+    <h3 id="igquast_examples">3.3. Examples</h3> Provide reference-free analysis only:
     <pre class="code">
     <code>
-    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test -c aimquast_test_dataset/igrec_good/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm
+    ./igquast.py -s igquast_test_dataset/merged_reads.fq -o igquast_test -c igquast_test_dataset/igrec_good/final_repertoire.fa -C igquast_test_dataset/igrec_bad/final_repertoire.rcm
     </code>
 </pre> Do not plot figures, make JSON report only:
     <pre class="code">
     <code>
-    ./aimquast.py -s aimquast_test_dataset/merged_reads.fq -o aimquast_test -c aimquast_test_dataset/igrec_good/final_repertoire.fa -C aimquast_test_dataset/igrec_bad/final_repertoire.rcm -r aimquast_test_dataset/ideal_final_repertoire.fa -R aimquast_test_dataset/ideal_final_repertoire.rcm --figure-format= --json aimquast_test/aimquast.json
+    ./igquast.py -s igquast_test_dataset/merged_reads.fq -o igquast_test -c igquast_test_dataset/igrec_good/final_repertoire.fa -C igquast_test_dataset/igrec_bad/final_repertoire.rcm -r igquast_test_dataset/ideal_final_repertoire.fa -R igquast_test_dataset/ideal_final_repertoire.rcm --figure-format=
     </code>
 </pre>
 
-    <h3 id="aimquast_output_files">3.4. Output files</h3> aimQUAST creates working directory (which name was specified using option <code>-o</code>) and outputs the following files there:
+    <h3 id="igquast_output_files">3.4. Output files</h3> IgQUAST creates working directory
+    (which name was specified using option <code>-o</code>) and outputs the following files there:
 
     <ul>
         <li>
-            <b>aimquast.log</b> &mdash; full log file of aimQUAST
+            <b>igquast.log</b> &mdash; full log file of IgQUAST
         </li>
         <li>
             <b>constructed.rcm, reference.rcm, constructed.fa.gz. reference.fa.gz</b> &mdash; Reconstructed missing repertoire files
@@ -204,25 +219,32 @@ aimQUAST has the following dependencies:
 				<li><b>{constructed,reference}_cluster_error_profile</b> &mdash; error profile estimation for analyzed and reference repertoire respectively</li>
 				<li><b>{constructed,reference}_distribution_of_errors_in_reads</b> &mdash; distribution of the number of errors in reads for analyzed and reference repertoire respectively</li>
 				<li><b>{constructed,reference}_estimation_of_max_error_distribution</b> &mdash; for each cluster, max errors by position for analyzed and reference repertoire respectively. This plot helps to detect overcorrection in the simplest amplification-free model</li>
-			</ul>
-        </li>
-        <li>
-            <b>reference_free/bad_constructed_clusters</b> &mdash; Directory with clusters from analyzed repertoire,
-			which are identified as overcorrected during reference-free analysis
-        </li>
-        <li>
-            <b>reference_free/bad_reference_clusters</b> &mdash; Directory with clusters from reference repertoire,
-			which are identified as overcorrected during reference-free analysis
+                <li>
+                    <b>bad_constructed_clusters</b> &mdash; Directory with clusters from analyzed repertoire,
+                    which are identified as overcorrected during reference-free analysis
+                </li>
+                <li>
+                    <b>bad_reference_clusters</b> &mdash; Directory with clusters from reference repertoire,
+                    which are identified as overcorrected during reference-free analysis
+                </li>
+            </ul>
         </li>
     </ul>
 
-    Files for reports (in text and JSON) are specified by corresponding options.
+    Files for the reports (in text and JSON formats) are specified by the corresponding options.
 
+    <h2 id = "references">4. Citation</h2>
+    <p align = "justify">
+        Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
+        Dmitriy Chudakov,
+        Yana Safonova,
+        and Pavel A. Pevzner.
+        Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted to Genome Research)</i>
+    </p>
     <!-- -------- -->
-    <h2 id="feedback">4. Feedback and bug reports</h2> Your comments, bug reports, and suggestions are very welcome. They will help us to further improve aimQUAST.
-    <br><br> If you have any trouble running aimQUAST, please send us the log file from the output directory.
+    <h2 id="feedback">5. Feedback and bug reports</h2> Your comments, bug
+    reports, and suggestions are very welcome. They will help us to further
+    improve IgQUAST.
+    <br><br> If you have any trouble running IgQUAST, please send us the log file from the output directory.
     <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
-
-    <!-- <h3 id="citation">4.1. Citation</h3> If you use aimQUAST in your research, please refer to TODO Update citation -->
-    <!-- <a href="http://bioginformatics.oxfordjournals.org/content/31/12/i53.long" target="_blank">Safonova et al., 2015</a>. -->
 </body>
