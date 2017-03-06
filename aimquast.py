@@ -190,21 +190,23 @@ def main(args):
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free and args.rcm_based:
-        # rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
-
         if args.figure_format:
             mkdir_p(args.reference_free_dir)
 
-            # rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
-            #                                format=args.figure_format)
-            # rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
-            #                                          format=args.figure_format)
+            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
+                                           format=args.figure_format)
+            rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
+                                                     format=args.figure_format)
             # rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
             #                                               format=args.figure_format)
             rep.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest",
                                                      format=args.figure_format)
-            rep.largest().plot_cluster_error_profile_new(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest_new",
+            rep.largest().plot_cluster_error_profile_old(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest_old",
                                                          format=args.figure_format)
+            rep.largest().plot_cluster_discordance_profile(out=args.reference_free_dir + "/constructed_cluster_error_discordance_profile_largest",
+                                                           format=args.figure_format)
+            rep.plot_cluster_discordance_profile(out=args.reference_free_dir + "/constructed_cluster_error_discordance_profile",
+                                                 format=args.figure_format)
 
         if args.export_bad_clusters:
             mkdir_p(args.reference_free_dir)
@@ -217,14 +219,18 @@ def main(args):
         if args.figure_format:
             mkdir_p(args.reference_free_dir)
 
+            rep_ideal.largest().plot_cluster_error_profile_old(out=args.reference_free_dir + "/reference_cluster_error_profile_largest_old",
+                                                               format=args.figure_format)
+            rep_ideal.largest().plot_cluster_discordance_profile(out=args.reference_free_dir + "/reference_cluster_discordance_profile_largest",
+                                                                 format=args.figure_format)
+            rep_ideal.plot_cluster_discordance_profile(out=args.reference_free_dir + "/reference_cluster_discordance_profile",
+                                                       format=args.figure_format)
             rep_ideal.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile_largest",
                                                            format=args.figure_format)
-            rep_ideal.largest().plot_cluster_error_profile_new(out=args.reference_free_dir + "/reference_cluster_error_profile_largest_new",
-                                                               format=args.figure_format)
-            # rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
-            #                                      format=args.figure_format)
-            # rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
-            #                                                format=args.figure_format)
+            rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
+                                                 format=args.figure_format)
+            rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
+                                                           format=args.figure_format)
             # rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
             #                                                     format=args.figure_format)
 
@@ -324,13 +330,6 @@ def main(args):
     if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire and args.experimental:
         splittering(rcm2rcm, rep, args, report)
 
-
-
-
-
-
-
-
     log.info(report)
 
     if args.text:
@@ -378,7 +377,3 @@ if __name__ == "__main__":
             sys.exit(exc_value)
 
     log.info("Log was written to " + args.log)
-# CMD line
-# ./aimquast.py -s tmp_dir/merged_reads.fq -c tmp_dir/final_repertoire.fa -o oppo -C tmp_dir/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
-# ./aimquast.py -s tmp_dir/merged_reads.fq -c tmp_dir/BAD/final_repertoire.fa -o oppo -C tmp_dir/BAD/final_repertoire.rcm -r tmp_dir/ideal_final_repertoire.fa -R tmp_dir/ideal_final_repertoire.rcm
-# ./aimquast.py -s /ssd/simulated/igrec/vj_finder/cleaned_reads.fa -c /ssd/simulated/igrec/final_repertoire.fa  -C /ssd/simulated/igrec/final_repertoire.rcm -o /ssd/simulated/oppo -r /ssd/simulated/ideal_repertoire.clusters.fa -R /ssd/simulated/ideal_repertoire.rcm

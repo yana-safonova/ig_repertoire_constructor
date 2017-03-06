@@ -1945,13 +1945,13 @@ class Repertoire:
 
         save_plot(out, format=format)
 
-    def plot_cluster_error_profile(self,
-                                   out="error_profile",
-                                   bins=25,
-                                   title="",
-                                   min_size=None,
-                                   legend=False,
-                                   format=None):
+    def plot_cluster_error_profile_old(self,
+                                       out="error_profile",
+                                       bins=25,
+                                       title="",
+                                       min_size=None,
+                                       legend=False,
+                                       format=None):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -2036,13 +2036,13 @@ class Repertoire:
 
         save_plot(out, format=format)
 
-    def plot_cluster_error_profile_new(self,
-                                       out="error_profile",
-                                       bins=25,
-                                       title="",
-                                       min_size=None,
-                                       legend=False,
-                                       format=None):
+    def plot_cluster_discordance_profile(self,
+                                         out="discordance_profile",
+                                         bins=25,
+                                         title="",
+                                         min_size=None,
+                                         legend=False,
+                                         format=None):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -2123,12 +2123,12 @@ class Repertoire:
 
         save_plot(out, format=format)
 
-    def plot_cluster_error_profile_old(self,
-                                       out="error_profile",
-                                       bins=25,
-                                       title="",
-                                       min_size=None,
-                                       format=None):
+    def plot_cluster_error_profile(self,
+                                   out="error_profile",
+                                   bins=25,
+                                   title="",
+                                   min_size=None,
+                                   format=None):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
