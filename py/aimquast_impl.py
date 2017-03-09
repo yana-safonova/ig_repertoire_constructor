@@ -1752,14 +1752,17 @@ class Repertoire:
     def __invalidate(self):
         pass
 
-    def largest(self):
+    def largest(self, index=0):
         from collections import defaultdict
         from copy import copy
 
         result = copy(self)
-        largest_cluster = max(self.__clusters.itervalues(), key=lambda cluster: len(cluster))
+        clusters = list(self.__clusters.items())
+        clusters.sort(reverse=True, key=lambda t: (len(t[1]), t[0]))
+        index = min(len(clusters), index)
+        largest_cluster = clusters[index][1]
         result.__clusters = defaultdict(Cluster)
-        result.__clusters["0"] = largest_cluster
+        result.__clusters[str(index)] = largest_cluster
 
         result.__invalidate()
 
