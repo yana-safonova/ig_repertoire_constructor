@@ -200,12 +200,15 @@ def main(args):
                                                      format=args.figure_format)
             # rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
             #                                               format=args.figure_format)
-            rep.largest().plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile_largest" % name,
-                                                     format=args.figure_format)
-            rep.largest().plot_cluster_error_profile_old(out=dir + "/%s_cluster_error_profile_largest_old" % name,
+            for i in range(5):
+                cluster = rep.largest(i)
+                cluster.plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile_largest_%d" % (name, i + 1),
+                                                   format=args.figure_format)
+                cluster.plot_cluster_error_profile_old(out=dir + "/%s_cluster_error_profile_largest_old_%d" % (name, i + 1),
+                                                       format=args.figure_format)
+                cluster.plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile_largest_%d" % (name, i + 1),
                                                          format=args.figure_format)
-            rep.largest().plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile_largest" % name,
-                                                           format=args.figure_format)
+
             rep.plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile" % name,
                                                  format=args.figure_format)
 
