@@ -25,7 +25,6 @@ namespace annotation_utils {
         const_iterator end   () const { return annotated_clones_.end   (); }
         const_iterator cend  () const { return annotated_clones_.cend  (); }
         size_t size() const { return annotated_clones_.size(); }
-        size_t size() const { return annotated_clones_.size(); }
 
         const AnnotatedClone& operator[](size_t index) const {
             VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set");

@@ -77,7 +77,8 @@ add_executable(antevolo
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
         related_clones_iterator.cpp
-        shm_model/shm_model.cpp)
+        shm_model/shm_model.cpp
+        posterior_distribution_calculator/posterior_distribution_calculator.cpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

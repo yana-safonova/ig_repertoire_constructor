@@ -12,6 +12,7 @@
 
 namespace shm_kmer_matrix_estimator {
 
-using KmerMatrix = KmerIndexedVector<std::array<unsigned int, seqan::ValueSize<seqan::Dna>::VALUE>>;
+using KmerMatrixRowType = std::array<unsigned int, seqan::ValueSize<seqan::Dna>::VALUE>;
+using KmerMatrix = KmerIndexedVector<KmerMatrixRowType>;
 
 } // End namespace shm_kmer_matrix_estimator
