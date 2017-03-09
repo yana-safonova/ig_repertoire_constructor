@@ -44,6 +44,7 @@ add_executable(antevolo
         ../cdr_labeler/cdr_output.cpp
         ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
         ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
+        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_config.cpp
 #        diversity_analyser.cpp
 #        cdr_launch.cpp
 #        ../fast_ig_tools/ig_trie_compressor.cpp

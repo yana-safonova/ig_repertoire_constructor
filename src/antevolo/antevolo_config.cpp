@@ -1,10 +1,12 @@
 #include "antevolo_config.hpp"
+#include "shm_kmer_matrix_estimator_config.hpp"
 #include <config_common.hpp>
 
 namespace antevolo {
     void load(AntEvoloConfig::InputParams &input_params, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(input_params.cdr_labeler_config_fname, pt, "cdr_labeler_config_fname");
+        load(input_params.shm_kmer_matrix_estimator_config_fname, pt, "shm_kmer_matrix_estimator_config_fname");
         load(input_params.input_reads, pt, "input_reads");
 
         load(input_params.shm_kmer_model_igh, pt, "shm_kmer_model_igh");
@@ -71,5 +73,6 @@ namespace antevolo {
         //cdr_labeler_config.vj_finder_config.algorithm_params.germline_params.loci = "IGH";
         cdr_labeler_config.shm_params.shm_finding_algorithm =
                 cdr_labeler::CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm;
+        shm_kmer_matrix_estimator::load(shm_config, input_params.shm_kmer_matrix_estimator_config_fname);
     }
 }
