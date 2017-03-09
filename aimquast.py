@@ -198,8 +198,8 @@ def main(args):
                                            format=args.figure_format)
             rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
                                                      format=args.figure_format)
-            # rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
-            #                                               format=args.figure_format)
+            rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
+                                                          format=args.figure_format)
             for i in range(5):
                 cluster = rep.largest(i)
                 cluster.plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile_largest_%d" % (name, i + 1),

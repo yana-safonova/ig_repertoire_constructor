@@ -1875,7 +1875,7 @@ class Repertoire:
                                                   pv_threshold=0.01,
                                                   title="",
                                                   annotate=False,
-                                                  points=False,
+                                                  points=True,
                                                   format=None,
                                                   cis=False):
         import numpy as np
