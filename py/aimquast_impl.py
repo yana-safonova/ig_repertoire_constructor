@@ -1553,9 +1553,9 @@ def majority_secondary(reads):
     # In [5]: np.fromstring("ACGT", count=4, dtype=np.uint8)
     # Out[5]: array([65, 67, 71, 84], dtype=uint8)
 
-    mx = np.zeros(shape=(l, 4))
+    mx = np.zeros(shape=(l, 4), dtype=int)
     for read in reads:
-        read = np.fromstring(str(read.seq), dtype=np.uint8, count=l)  # TODO use fromstring here
+        read = np.fromstring(str(read.seq), dtype=np.uint8, count=l)
         # assert len(read) == l
         mx[read == 65, 0] += 1
         mx[read == 67, 1] += 1
