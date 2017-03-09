@@ -75,7 +75,8 @@ add_executable(antevolo
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
-        related_clones_iterator.cpp)
+        related_clones_iterator.cpp
+        shm_model/shm_model.cpp)
 
 target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
 

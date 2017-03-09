@@ -15,8 +15,16 @@
 #include "annotated_clone_by_read_constructor.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
 
+#include "shm_model/shm_model.hpp"
+
 namespace antevolo {
+    void AntEvoloLaunch::ShmModelPosteriorCalculation() {
+        ShmModel model(config_.input_params.shm_kmer_model_igh);
+        INFO(model.size());
+    }
+
     void AntEvoloLaunch::Launch() {
+        ShmModelPosteriorCalculation();
         // INFO("AntEvolo starts");
         // core::ReadArchive read_archive(config_.input_params.input_reads);
         // if(config_.cdr_labeler_config.vj_finder_config.io_params.output_params.output_details.fix_spaces)
