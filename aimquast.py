@@ -189,55 +189,37 @@ def main(args):
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free and args.rcm_based:
-        if args.figure_format:
-            mkdir_p(args.reference_free_dir)
 
-            rep.plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile",
+    def ref_free_plots(rep, name, dir):
+        if args.figure_format:
+            mkdir_p(dir)
+
+            rep.plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile" % name,
                                            format=args.figure_format)
-            rep.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/constructed_distribution_of_errors_in_reads",
+            rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
                                                      format=args.figure_format)
-            # rep.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/constructed_estimation_of_max_error_distribution",
+            # rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
             #                                               format=args.figure_format)
-            rep.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest",
+            rep.largest().plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile_largest" % name,
                                                      format=args.figure_format)
-            rep.largest().plot_cluster_error_profile_old(out=args.reference_free_dir + "/constructed_cluster_error_profile_largest_old",
+            rep.largest().plot_cluster_error_profile_old(out=dir + "/%s_cluster_error_profile_largest_old" % name,
                                                          format=args.figure_format)
-            rep.largest().plot_cluster_discordance_profile(out=args.reference_free_dir + "/constructed_cluster_error_discordance_profile_largest",
+            rep.largest().plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile_largest" % name,
                                                            format=args.figure_format)
-            rep.plot_cluster_discordance_profile(out=args.reference_free_dir + "/constructed_cluster_error_discordance_profile",
+            rep.plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile" % name,
                                                  format=args.figure_format)
 
         if args.export_bad_clusters:
-            mkdir_p(args.reference_free_dir)
-            rep.export_bad_clusters(out=args.reference_free_dir + "/bad_constructed_clusters/")
-        rep.report(report, "constructed_stats")
+            mkdir_p(dir)
+            rep.export_bad_clusters(out=dir + "/bad_%s_clusters/" % name)
+        rep.report(report, "%s_stats" % name)
+
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free and args.rcm_based:
+        ref_free_plots(rep, "constructed", args.reference_free_dir)
 
     if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free and args.rcm_based:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
-
-        if args.figure_format:
-            mkdir_p(args.reference_free_dir)
-
-            rep_ideal.largest().plot_cluster_error_profile_old(out=args.reference_free_dir + "/reference_cluster_error_profile_largest_old",
-                                                               format=args.figure_format)
-            rep_ideal.largest().plot_cluster_discordance_profile(out=args.reference_free_dir + "/reference_cluster_discordance_profile_largest",
-                                                                 format=args.figure_format)
-            rep_ideal.plot_cluster_discordance_profile(out=args.reference_free_dir + "/reference_cluster_discordance_profile",
-                                                       format=args.figure_format)
-            rep_ideal.largest().plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile_largest",
-                                                           format=args.figure_format)
-            rep_ideal.plot_cluster_error_profile(out=args.reference_free_dir + "/reference_cluster_error_profile",
-                                                 format=args.figure_format)
-            rep_ideal.plot_distribution_of_errors_in_reads(out=args.reference_free_dir + "/reference_distribution_of_errors_in_reads",
-                                                           format=args.figure_format)
-            # rep_ideal.plot_estimation_of_max_error_distribution(out=args.reference_free_dir + "/reference_estimation_of_max_error_distribution",
-            #                                                     format=args.figure_format)
-
-        if args.export_bad_clusters:
-            mkdir_p(args.reference_free_dir)
-            rep_ideal.export_bad_clusters(out=args.reference_free_dir + "/bad_reference_clusters/")
-        rep_ideal.report(report, "reference_stats")
+        ref_free_plots(rep_ideal, "reference", args.reference_free_dir)
 
     if args.constructed_repertoire and args.reference_repertoire:
         res = RepertoireMatch(args.constructed_repertoire,
