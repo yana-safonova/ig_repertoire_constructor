@@ -35,7 +35,7 @@
     <h2 id="intro">1. What is IgQUAST?</h2> IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality <b>AS</b>sessment <b>T</b>ool)
     is a tool for adaptive immune repertoires quality assessment.
     IgQUAST can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
-	IgQUAST provides reference-based and reference-free analysis:
+    IgQUAST provides reference-based and reference-free analysis:
     <ul>
         <li>During reference-based analysis the tool computes sensitivity and
             precision of reconstructed repertoire, detects undercorrected
@@ -43,7 +43,7 @@
             and estimates rate of correctly fixed initial reads.
         </li>
         <li>During reference-free analysis the tool estimates error rate and error profile of the initial Rep-Seq library.
-            Also it detects overestimated clusters using amplification-free Poisson model.
+            <!-- Also it detects overestimated clusters using amplification&#45;free Poisson model. -->
         </li>
     </ul>
 
@@ -53,20 +53,20 @@
         <li>Analyzed adaptive immune repertoire constructed on this library;</li>
         <li>For reference-based analysis, reference repertoire constructed on the same library.</li>
     </ul>
-	Initial Rep-Seq library should be in FASTA or FASTQ format.
-		Reads should be properly cropped (should start from V gene beginning
+    Initial Rep-Seq library should be in FASTA or FASTQ format.
+        Reads should be properly cropped (should start from V gene beginning
         and finish by J gene ending) and reads from negative strand should
-		be reversed.
+        be reversed.
         Cropping and strand correction of Rep-Seq reads may be performed by
         VJFinder tool from IgRepertoireConstructor package
         (see <a href="manual.html">IgRepertoireConstructor manual</a> for VJFinder input-output format description).
-	<br>
-	Analyzed and reference repertoires should be presented by two files each:
-		repertoire sequences in FASTA format and read-cluster map (RCM)
-		file in a special format. See <a href="manual.html#repertoire_files">IgRepertoireConstructor manual</a>
-		for a comprehensive repertoire format description. One of these two
-		files could be missing, in this case the tool reconstructs it using
-		available information.
+    <br>
+    Analyzed and reference repertoires should be presented by two files each:
+        repertoire sequences in FASTA format and read-cluster map (RCM)
+        file in a special format. See <a href="manual.html#repertoire_files">IgRepertoireConstructor manual</a>
+        for a comprehensive repertoire format description. One of these two
+        files could be missing, in this case the tool reconstructs it using
+        available information.
 
 
     <h3 id="igquast_output">1.2. Output</h3> IgQUAST reports:
@@ -94,13 +94,13 @@ IgQUAST has the following dependencies:
     </ul></li>
 </ul>
 
-	IgQUAST is a part of IgRepertoireConstructor package.<br> See <a
-		href="manual.html#install">IgRepertoireConstructor manual</a> for
-	installation instructions.
-	<br>
-	<br>
-	Please verify your IgQUAST installation
-	prior to initiate the IgQUAST:
+    IgQUAST is a part of IgRepertoireConstructor package.<br> See <a
+        href="manual.html#install">IgRepertoireConstructor manual</a> for
+    installation instructions.
+    <br>
+    <br>
+    Please verify your IgQUAST installation
+    prior to initiate the IgQUAST:
     <pre class="code">
 <code>
     ./igquast.py --test
@@ -170,6 +170,9 @@ IgQUAST has the following dependencies:
     <code>png</code>.
     <br><br>
 
+    <code>--tau &lt;positive integer&gt;</code><br>Maximal distance for repertoire-to-repertoire matching (default: 6)
+    <br><br>
+
     <code>--reference-size-cutoff &lt;positive integer&gt;</code><br> Cutoff
     for reference cluster size. Lesser reference clusters are discarded during
     repertoire-to-repertoire comparison. See related paper for comprehensive
@@ -177,7 +180,14 @@ IgQUAST has the following dependencies:
     <br><br>
 
     <code>--export-bad-clusters</code><br> Export untrustworthy clusters during reference-free analysis.
-    <!-- -->
+    <br><br>
+    <code>--experimental</code><br> Enable experimental features.
+    <br><br>
+    <code>--rcm-based</code><br> Enable RCM-based metrics and plots. They are disabled by default since they are time- and
+    memory- consuming.
+    <br><br>
+
+
 
     <h3 id="igquast_examples">3.3. Examples</h3> Provide reference-free analysis only:
     <pre class="code">
@@ -192,33 +202,50 @@ IgQUAST has the following dependencies:
 </pre>
 
     <h3 id="igquast_output_files">3.4. Output files</h3> IgQUAST creates working directory
-    (which name was specified using option <code>-o</code>) and outputs the following files there:
+    (which name is specified using option <code>-o</code>) and outputs the following files there:
 
     <ul>
         <li>
-            <b>igquast.log</b> &mdash; full log file of IgQUAST
+            <b>igquast.log</b> &mdash; full log of the IgQUAST run
         </li>
         <li>
             <b>constructed.rcm, reference.rcm, constructed.fa.gz. reference.fa.gz</b> &mdash; Reconstructed missing repertoire files
         </li>
         <li>
-			<b>reference_based</b> &mdash; Directory with reference-based plots:
-			<ul>
-				<li><b>min_cluster_size_choose</b> &mdash; sensitivity and precision depending on cluster size threshold for the analyzed repertoire</li>
-				<li><b>octoplot</b> &mdash; sensitivity and precision distance distribution depending on cluster size threshold for the analyzed repertoire</li>
-				<li><b>multiplicity_distribution</b> &mdash; cluster size distribution for analyzed and reference repertoires</li>
-				<li><b>constructed_majority_secondary</b> &mdash; dependence of secondary votes count on majority votes count in the analyzed repertoire. This plot helps to detect overcorrection</li>
-				<li><b>constructed_purity_distribution</b> &mdash; distribution of cluster purity in the analyzed repertoire. This plot helps to detect overcorrection</li>
-				<li><b>reference_majority_secondary</b> &mdash; dependence of secondary votes count on majority votes count in the reference repertoire. This plot helps to detect undercorrection</li>
-				<li><b>reference_purity_distribution</b> &mdash; distribution of cluster purity in the reference repertoire. This plot helps to detect undercorrection</li>
-			</ul>
+            <b>reference_based</b> &mdash; Directory with reference-based plots:
+            <ul>
+                <li><b>error_pos_dist</b> &mdash; TBD</li>
+                <li><b>min_cluster_size_choose</b> &mdash; sensitivity and precision depending on cluster size threshold for the analyzed repertoire</li>
+                <li><b>octoplot</b> &mdash; constructed to reference and reference to constructed distance distribution depending on cluster size threshold for the analyzed repertoire. 8 plots in all on one figure</li>
+                <li><b>{constructed_to_reference,reference_to_constructed}_distance_distribution_size_{1,3,5,10}</b> &mdash; the same 8 plots separately</li>
+                <li><b>multiplicity_distribution</b> &mdash; cluster size distribution for analyzed and reference repertoires</li>
+
+                <li><b>constructed_majority_secondary</b> &mdash; dependence of secondary votes count on majority votes count in the analyzed repertoire. This plot helps to detect overcorrection</li>
+                <li><b>constructed_majority_secondary_large</b> &mdash; the same plot for large clusters only</li>
+                <li><b>constructed_majority_secondary_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+
+                <li><b>constructed_purity_distribution</b> &mdash; distribution of cluster purity in the analyzed repertoire. This plot helps to detect overcorrection</li>
+                <li><b>constructed_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
+                <li><b>constructed_purity_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+
+                <li><b>reference_majority_secondary</b> &mdash; dependence of secondary votes count on majority votes count in the reference repertoire. This plot helps to detect undercorrection</li>
+                <li><b>reference_majority_secondary_large</b> &mdash; the same plot for large clusters only</li>
+                <li><b>reference_majority_secondary_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+
+                <li><b>reference_purity_distribution</b> &mdash; distribution of cluster purity in the reference repertoire. This plot helps to detect undercorrection</li>
+                <li><b>reference_purity_distribution_large</b> &mdash; the same plot fro large clusters only</li>
+                <li><b>reference_purity_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+
+                <li><b>reference_discordance_distribution</b> &mdash; TBD</li>
+                <li><b>constructed_discordance_distribution</b> &mdash; TBD</li>
+            </ul>
         </li>
         <li>
             <b>reference_free</b> &mdash; Directory with reference-free plots:
-			<ul>
-				<li><b>{constructed,reference}_cluster_error_profile</b> &mdash; error profile estimation for analyzed and reference repertoire respectively</li>
-				<li><b>{constructed,reference}_distribution_of_errors_in_reads</b> &mdash; distribution of the number of errors in reads for analyzed and reference repertoire respectively</li>
-				<li><b>{constructed,reference}_estimation_of_max_error_distribution</b> &mdash; for each cluster, max errors by position for analyzed and reference repertoire respectively. This plot helps to detect overcorrection in the simplest amplification-free model</li>
+            <ul>
+                <li><b>{constructed,reference}_cluster_error_profile</b> &mdash; error profile estimation for analyzed and reference repertoire respectively</li>
+                <li><b>{constructed,reference}_distribution_of_errors_in_reads</b> &mdash; distribution of the number of errors in reads for analyzed and reference repertoire respectively</li>
+                <li><b>{constructed,reference}_estimation_of_max_error_distribution</b> &mdash; for each cluster, max errors by position for analyzed and reference repertoire respectively. This plot helps to detect overcorrection in the simplest amplification-free model</li>
                 <li>
                     <b>bad_constructed_clusters</b> &mdash; Directory with clusters from analyzed repertoire,
                     which are identified as overcorrected during reference-free analysis
@@ -233,7 +260,7 @@ IgQUAST has the following dependencies:
 
     Files for the reports (in text and JSON formats) are specified by the corresponding options.
 
-    <h2 id = "references">4. Citation</h2>
+    <h2 id = "references">4. Citations</h2>
     <p align = "justify">
         Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
         Dmitriy Chudakov,
