@@ -1,6 +1,5 @@
 #include <verify.hpp>
 
-#include "model_utils/shm_model.hpp"
 #include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
 

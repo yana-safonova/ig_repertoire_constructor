@@ -6,7 +6,10 @@ namespace antevolo {
         using config_common::load;
         load(input_params.cdr_labeler_config_fname, pt, "cdr_labeler_config_fname");
         load(input_params.input_reads, pt, "input_reads");
-        load(input_params.model_input, pt, "model_input");
+
+        load(input_params.shm_kmer_model_igh, pt, "shm_kmer_model_igh");
+        load(input_params.shm_kmer_model_igk, pt, "shm_kmer_model_igk");
+        load(input_params.shm_kmer_model_igl, pt, "shm_kmer_model_igl");
     }
 
     void update_paths(AntEvoloConfig::OutputParams &output_params) {

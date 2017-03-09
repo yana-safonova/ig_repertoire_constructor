@@ -14,6 +14,7 @@ include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${GRAPH_UTILS})
 include_directories(${CDR_LABELER_DIR})
+include_directories(${SHM_DIR})
 
 add_executable(antevolo
         ../cdr_labeler/cdr_config.cpp
@@ -41,6 +42,8 @@ add_executable(antevolo
 #        ../cdr_labeler/cdr_annotator.cpp
         ../cdr_labeler/compressed_cdr_set.cpp
         ../cdr_labeler/cdr_output.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
+        ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
 #        diversity_analyser.cpp
 #        cdr_launch.cpp
 #        ../fast_ig_tools/ig_trie_compressor.cpp
@@ -48,7 +51,7 @@ add_executable(antevolo
         vj_class_processors/clonally_related_candidates.cpp
         vj_class_processors/vj_class_processor.cpp
         vj_class_processors/edmonds_tarjan_DMST_calculator.cpp
-        model_utils/shm_model.cpp
+#        model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
         #evolutionary_graph_utils/evolutionary_graph.cpp
         #evolutionary_graph_utils/evolutionary_graph_constructor.cpp

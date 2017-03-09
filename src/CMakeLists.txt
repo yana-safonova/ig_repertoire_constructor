@@ -36,6 +36,7 @@ set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
 set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
 set(SHM_DIR "${SPADES_MAIN_SRC_DIR}/shm_kmer_matrix_estimator")
+set(ANTEVOLO_DIR "${SPADES_MAIN_SRC_DIR}/antevolo")
 
 # Everything option-dependent
 include(options)
