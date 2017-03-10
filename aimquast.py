@@ -37,9 +37,6 @@ def parse_command_line(description="aimQUAST"):
                 setattr(namespace, "constructed_rcm", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
                 setattr(namespace, "reference_repertoire", igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name)
                 setattr(namespace, "reference_rcm", igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name)
-                setattr(namespace, "json", "aimquast_test_%s/aimquast.json" % name)
-                setattr(namespace, "text", "aimquast_test_%s/aimquast.txt" % name)
-                setattr(namespace, "figure_format", "png")
 
         return ActionTest
 
@@ -61,6 +58,7 @@ def parse_command_line(description="aimQUAST"):
     add_test("age1")
     add_test("age3")
     add_test("flu")
+    add_test("presentation")
 
     parser.add_argument("--initial-reads", "-s",
                         type=str,
@@ -109,18 +107,19 @@ def parse_command_line(description="aimQUAST"):
                         action="store_true",
                         help="export bad clusters during reference-free analysis")
     parser.add_argument("--figure-format", "-F",
-                        default="png",
+                        type=str,
+                        default="svg,png,pdf",
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
 
     parser.add_argument("--no-reference-free",
                         dest="reference_free",
-                        action="store_true",
-                        help="disable reference-free metrics")
+                        action="store_false",
+                        help="disable reference-free metrics (default)")
     parser.add_argument("--reference-free",
                         dest="reference_free",
-                        action="store_false",
-                        help="enable reference-free metrics (default)")
-    parser.set_defaults(reference_free=True)
+                        action="store_true",
+                        help="enable reference-free metrics")
+    parser.set_defaults(reference_free=False)
 
     parser.add_argument("--no-experimental",
                         dest="experimental",
@@ -149,11 +148,14 @@ def parse_command_line(description="aimQUAST"):
     if args.text is None:
         args.text = args.output_dir + "/aimquast.txt"
 
+    if args.reference_free:
+        args.rcm_based = True
+
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
 
     args.figure_format = [fmt.strip() for fmt in args.figure_format.strip().split(",")]
-    args.figure_format = [format for format in args.figure_format if format in ["svg", "pdf", "png"]]
+    args.figure_format = [fmt for fmt in args.figure_format if fmt in ["svg", "pdf", "png"]]
 
     return args
 
@@ -194,23 +196,23 @@ def main(args):
         if args.figure_format:
             mkdir_p(dir)
 
-            rep.plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile" % name,
-                                           format=args.figure_format)
             rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
                                                      format=args.figure_format)
             rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
                                                           format=args.figure_format)
             for i in range(5):
                 cluster = rep.largest(i)
-                cluster.plot_cluster_error_profile(out=dir + "/%s_cluster_error_profile_largest_%d" % (name, i + 1),
-                                                   format=args.figure_format)
-                cluster.plot_cluster_error_profile_old(out=dir + "/%s_cluster_error_profile_largest_old_%d" % (name, i + 1),
-                                                       format=args.figure_format)
-                cluster.plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile_largest_%d" % (name, i + 1),
-                                                         format=args.figure_format)
+                cluster.plot_profile(out=dir + "/%s_cluster_discordance_profile_largest_%d" % (name, i + 1),
+                                     format=args.figure_format)
+                cluster.plot_profile(out=dir + "/%s_cluster_error_profile_largest_%d" % (name, i + 1),
+                                     discordance=False,
+                                     format=args.figure_format)
 
-            rep.plot_cluster_discordance_profile(out=dir + "/%s_cluster_error_discordance_profile" % name,
-                                                 format=args.figure_format)
+            rep.plot_profile(out=dir + "/%s_cluster_discordance_profile" % name,
+                             format=args.figure_format)
+            rep.plot_profile(out=dir + "/%s_cluster_error_profile" % name,
+                             discordance=False,
+                             format=args.figure_format)
 
         if args.export_bad_clusters:
             mkdir_p(dir)
