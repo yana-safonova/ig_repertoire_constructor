@@ -42,9 +42,6 @@ add_executable(antevolo
 #        ../cdr_labeler/cdr_annotator.cpp
         ../cdr_labeler/compressed_cdr_set.cpp
         ../cdr_labeler/cdr_output.cpp
-        ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
-        ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
-        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_config.cpp
 #        diversity_analyser.cpp
 #        cdr_launch.cpp
 #        ../fast_ig_tools/ig_trie_compressor.cpp
@@ -80,5 +77,14 @@ add_executable(antevolo
         shm_model/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp)
 
-target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
+target_link_libraries(
+        antevolo
+        shm_kmer_matrix_estimator_library
+        core
+        algorithms
+        vdj_utils
+        graph_utils
+        input
+        boost_program_options
+        ${COMMON_LIBRARIES})
 

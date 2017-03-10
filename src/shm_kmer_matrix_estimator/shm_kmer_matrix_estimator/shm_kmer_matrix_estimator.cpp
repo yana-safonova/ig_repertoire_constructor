@@ -45,6 +45,19 @@ void ShmKmerMatrixEstimator::calculate_mutation_statistics_per_position(KmerMatr
     mutations_statistics.at(gene_substring).at(position)++;
 }
 
+
+std::pair<KmerMatrix, KmerMatrix>
+ShmKmerMatrixEstimator::calculate_mutation_statistics(
+        const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>& clone_set) const
+{
+    VectorEvolutionaryEdgeAlignments alignments;
+    for (const auto& clone : clone_set) {
+        alignments.emplace_back(clone);
+    }
+    return calculate_mutation_statistics(alignments);
+}
+
+
 std::pair<KmerMatrix, KmerMatrix>
 ShmKmerMatrixEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlignments &alignments) const {
     size_t kmer_matrix_size = static_cast<size_t>(pow(4., kmer_len_));
@@ -56,6 +69,7 @@ ShmKmerMatrixEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlig
         }
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
         size_t i = 0;
+
         while (i < relevant_positions.size() and relevant_positions[i] < alignment.cdr1_start()) {
             calculate_mutation_statistics_per_position(mutations_statistics_fr, relevant_positions[i], alignment);
             i++;

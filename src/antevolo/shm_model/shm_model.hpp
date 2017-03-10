@@ -74,4 +74,6 @@ public:
     size_t size() const;
 };
 
+std::ostream& operator<<(std::ostream& os, const ShmModel& obj);
+
 } // End namespace antevolo

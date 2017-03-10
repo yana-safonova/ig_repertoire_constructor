@@ -12,6 +12,7 @@
 #include "alignment_cropper/upto_last_reliable_kmer_alignment_cropper.hpp"
 #include "kmer_utils/kmer_indexed_vector.hpp"
 #include "kmer_matrix/kmer_matrix.hpp"
+#include "annotation_utils/annotated_clone_set.hpp"
 
 namespace shm_kmer_matrix_estimator {
 
@@ -35,6 +36,10 @@ public:
 
     std::pair<KmerMatrix, KmerMatrix>
     calculate_mutation_statistics(VectorEvolutionaryEdgeAlignments &) const;
+
+    std::pair<KmerMatrix, KmerMatrix>
+    calculate_mutation_statistics(
+        const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>& clone_set) const;
 };
 
 } // End namespace shm_kmer_matrix_estimator

@@ -65,14 +65,19 @@ public:
     }
 
     EvolutionaryEdgeAlignment(const annotation_utils::AnnotatedClone& clone) :
-        parent_(core::dna5String_to_string(clone.VAlignment().subject().seq())),
-        son_(core::dna5String_to_string(clone.VAlignment().query().seq)),
+        parent_(core::seqan_string_to_string(seqan::row(clone.VAlignment().Alignment(), 0))),
+        son_   (core::seqan_string_to_string(seqan::row(clone.VAlignment().Alignment(), 1))),
         gene_id_(core::seqan_string_to_string(clone.VAlignment().subject().name())),
         cdr1_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos),
         cdr1_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).end_pos),
         cdr2_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos),
         cdr2_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).end_pos)
-    { }
+    {
+        VERIFY_MSG(parent_.size() == son_.size(),
+                   "Parent and son lengths are not equal\n" + parent_ + "\n" + son_ + "\n" + gene_id_);
+        VERIFY_MSG(cdr1_start_ <= cdr1_end_ and cdr1_end_ <= cdr2_start_ and cdr2_start_ <= cdr2_end_,
+                   "Incorrect cdr initial values");
+    }
 
     const std::string &parent() const { return parent_; }
     const std::string &son() const { return son_; }
