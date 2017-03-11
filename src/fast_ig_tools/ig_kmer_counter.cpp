@@ -4,6 +4,7 @@
 namespace po = boost::program_options;
 
 #include <iostream>
+#include <sstream>
 using std::cout;
 using std::cin;
 using std::cerr;
@@ -11,6 +12,7 @@ using std::endl;
 
 #include "fast_ig_tools.hpp"
 #include "ig_matcher.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
 using seqan::Dna5String;
@@ -144,12 +146,26 @@ int main(int argc, char **argv) {
     INFO("Minimal length: " << min_L);
 
     INFO("K-mer index construction");
-    auto kmer2reads = kmerIndexConstruction(input_reads, K);
+    // auto kmer2reads = kmerIndexConstruction(input_reads, K);
+
+
+    std::unordered_map<std::string, size_t> prefix_count;
+    for (const auto read : input_reads) {
+        if (length(read) >= K) {
+            std::stringstream ss;
+            ss << seqan::prefix(read, K);
+            std::string s;
+            ss >> s;
+            prefix_count[s] += 1;
+        }
+    }
+    const auto &kmer2reads = prefix_count;
 
     std::vector<size_t> kmer_abundances;
     kmer_abundances.reserve(kmer2reads.size());
     for (const auto _ : kmer2reads) {
-        kmer_abundances.push_back(_.second.size());
+        // kmer_abundances.push_back(_.second.size());
+        kmer_abundances.push_back(_.second);
     }
     std::sort(kmer_abundances.rbegin(), kmer_abundances.rend());
 

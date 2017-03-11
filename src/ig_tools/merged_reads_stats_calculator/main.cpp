@@ -1,6 +1,6 @@
 #include "quality_statistics.hpp"
 
-void OutputMergedRL(vector<fastq_read> &reads, ostream &out) {
+void OutputMergedRL(vector<FastqRead> &reads, ostream &out) {
 	for(auto it = reads.begin(); it != reads.end(); it++)
 		out << it->seq.size() << endl;
 }

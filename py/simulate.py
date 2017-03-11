@@ -15,8 +15,27 @@ from ig_compress_equal_clusters import parse_cluster_mult
 
 
 path_to_ig_simulator = igrec_dir + "/../ig_simulator/"
-path_to_mixcr = igrec_dir + "/src/extra/aimquast/mixcr/"
+path_to_mixcr = igrec_dir + "/src/extra/tools/mixcr-1.7"
+path_to_mixcr2 = igrec_dir + "/src/extra/tools/mixcr-2.0"
 path_to_igrec = igrec_dir
+path_to_igrec_old = igrec_dir + "/../ig_repertoire_constructor_old"
+
+
+class Timer:
+    def __init__(self):
+        import time
+        self.start = time.time()
+
+    def delta(self):
+        import time
+        return time.time() - self.start
+
+    def stamp(self, filename):
+        delta = self.delta()
+        with smart_open(filename, "w") as f:
+            f.write("%f\n" % delta)
+
+        return delta
 
 
 def parse_final_repertoire_id(id):
@@ -162,13 +181,13 @@ def simulate_data_wo_errors(input_file, output_dir, log=None):
 
     input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
 
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
+    simulated_repertoire_to_rcm(input_file, "%s/final_repertoire.rcm" % output_dir)
 
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/final_repertoire.fa.gz" % output_dir)
 
     args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
+            "repertoire": output_dir + "/final_repertoire.fa.gz",
+            "rcm": output_dir + "/final_repertoire.rcm"}
     support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
                      log=log)
 
@@ -186,7 +205,7 @@ def simulate_data_from_dir(input_dir, output_dir, log=None,
     mkdir_p(output_dir)
 
     jit_fx_file(input_dir + "/error_free_reads.fa.gz",
-                "%s/merged_reads.fa.gz" % output_dir, **kwargs)
+                "%s/input_reads.fa.gz" % output_dir, **kwargs)
 
 
 def simulate_data(input_file, output_dir, log=None,
@@ -204,85 +223,24 @@ def simulate_data(input_file, output_dir, log=None,
 
     input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
 
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
+    simulated_repertoire_to_rcm(input_file, "%s/final_repertoire.rcm" % output_dir)
 
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
-
-    args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
-    support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
-                     log=log)
-
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
-
-    shutil.rmtree(temp_dir)
-
-
-def simulate_data(input_file, output_dir, log=None,
-                  **kwargs):
-    import tempfile
-    import shutil
-
-    if log is None:
-        log = FakeLog()
-
-    mkdir_p(output_dir)
-
-    temp_dir = tempfile.mkdtemp()
-    run_igrec(input_file, temp_dir, remove_tmp=False, tau=1)  # Run IgReC for VJF output
-
-    input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
-
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
-
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
+    simulated_repertoire_to_final_repertoire(input_file, "%s/final_repertoire.fa.gz" % output_dir)
 
     args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
+            "repertoire": output_dir + "/final_repertoire.fa.gz",
+            "rcm": output_dir + "/final_repertoire.rcm"}
     support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
                      log=log)
 
     # TODO factor this stage
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
-
-    shutil.rmtree(temp_dir)
-
-
-def simulate_data(input_file, output_dir, log=None,
-                  **kwargs):
-    import tempfile
-    import shutil
-
-    if log is None:
-        log = FakeLog()
-
-    mkdir_p(output_dir)
-
-    temp_dir = tempfile.mkdtemp()
-    run_igrec(input_file, temp_dir, remove_tmp=False, tau=1)  # Run IgReC for VJF output
-
-    input_file = temp_dir + "/vj_finder/cleaned_reads.fa"
-
-    simulated_repertoire_to_rcm(input_file, "%s/ideal_final_repertoire.rcm" % output_dir)
-
-    simulated_repertoire_to_final_repertoire(input_file, "%s/ideal_final_repertoire.fa.gz" % output_dir)
-
-    args = {"path": igrec_dir,
-            "repertoire": output_dir + "/ideal_final_repertoire.fa.gz",
-            "rcm": output_dir + "/ideal_final_repertoire.rcm"}
-    support.sys_call("%(path)s/py/ig_compress_equal_clusters.py %(repertoire)s %(repertoire)s -r %(rcm)s" % args,
-                     log=log)
-
-    # TODO factor this stage
-    jit_fx_file(input_file, "%s/merged_reads.fa.gz" % output_dir, **kwargs)
+    jit_fx_file(input_file, "%s/input_reads.fa.gz" % output_dir, **kwargs)
 
     shutil.rmtree(temp_dir)
 
 
 def run_ig_simulator(output_dir, log=None,
-                     chain="HC", num_bases=100, num_mutated=1000, reprtoire_size=5000):
+                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000):
     if log is None:
         log = FakeLog()
 
@@ -293,10 +251,12 @@ def run_ig_simulator(output_dir, log=None,
             "chain": chain,
             "num_bases": num_bases,
             "num_mutated": num_mutated,
-            "reprtoire_size": reprtoire_size}
+            "repertoire_size": repertoire_size}
 
-    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(reprtoire_size)d -o %(output_dir)s --skip-drawing" % args,
+    timer = Timer()
+    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args,
                      log=log)
+    timer.stamp(output_dir + "/time.txt")
 
 
 def convert_mixcr_output_to_igrec(input_file, output_file):
@@ -309,6 +269,137 @@ def convert_mixcr_output_to_igrec(input_file, output_file):
             size = int(size)
             fout.write(">cluster___%d___size___%d\n" % (i, size))
             fout.write(seq + "\n")
+
+
+def convert_mixcr2_output_to_igrec(input_file, output_file, initial_reads, output_rcm):
+    with smart_open(initial_reads) as fh:
+        record_ids = [str(record.description) for record in SeqIO.parse(fh, idFormatByFileName(initial_reads))]
+
+    targets = [None] * len(record_ids)
+    with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
+        # Skip header
+        fh.next()
+
+        for i, line in enumerate(fh):
+            seq, size, ids = line.strip().split("\t")
+            ids = ids.strip().split(",")
+            ids = map(int, ids)
+            for id in ids:
+                targets[id] = i
+            size = int(size)
+            assert size <= len(ids)  # WHY?????????????
+            # if size != len(ids):
+            #     print size
+            #     print ids
+            size = len(ids)
+            fout.write(">cluster___%d___size___%d\n" % (i, size))
+            fout.write(seq + "\n")
+
+        empty_num = max(target for target in targets if target is not None) + 1
+        # print empty_num
+        with smart_open(initial_reads) as fh:
+            for j, record in enumerate(SeqIO.parse(fh, idFormatByFileName(initial_reads))):
+                if targets[j] is None:
+                    targets[j] = empty_num
+                    empty_num += 1
+                    fout.write(">cluster___%d___size___%d\n" % (targets[j], 1))
+                    fout.write(str(record.seq) + "\n")
+
+    with smart_open(output_rcm, "w") as rcm:
+        for id, target_cluster in zip(record_ids, targets):
+            assert target_cluster is not None
+            rcm.write("%s\t%d\n" % (id, target_cluster))
+
+
+def dict2class(d):
+    class Empty:
+        pass
+
+    res = Empty()
+    res.__dict__ = d
+    return res
+
+
+def run_vjfinder(input_file, output_dir, log=None,
+                 loci="all", threads=16, additional_args="",
+                 remove_tmp=False):
+    if log is None:
+        log = FakeLog()
+
+    import os.path
+    import os
+
+    args = {"path": path_to_igrec,
+            "loci": loci,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "organism": "human",
+            "path_to_germline": igrec_dir + "/data/germline",
+            "additional_args": additional_args}
+    args = dict2class(args)
+
+    command_line = args.path + "/build/release/bin/vj_finder" + \
+        " -i " + os.path.abspath(args.input_file) + \
+        " -o " + os.path.abspath(args.output_dir) + \
+        " --db-directory " + os.path.abspath(args.path_to_germline) + \
+        " -t " + str(args.threads) + \
+        " --loci " + args.loci + \
+        " --organism " + args.organism + " " + args.additional_args
+    cwd = os.getcwd()
+    os.chdir(igrec_dir)
+    timer = Timer()
+    support.sys_call(command_line, log=log)
+    timer.stamp(output_dir + "/time.txt")
+    os.chdir(cwd)
+    if remove_tmp:
+        import os.path
+        if os.path.isfile(output_dir):
+            import shutil
+            shutil.rmtree(output_dir)
+
+
+def rmdir(dir):
+    import os.path
+    if os.path.isdir(dir):
+        import shutil
+        shutil.rmtree(dir)
+
+
+def run_igrec_old(input_file, output_dir, log=None,
+                  tau=3,
+                  threads=16, additional_args="",
+                  remove_tmp=True):
+    if log is None:
+        log = FakeLog()
+
+    output_dir = os.path.abspath(output_dir)
+    input_file = os.path.abspath(input_file)
+    args = {"path": path_to_igrec_old,
+            "tau": tau,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "additional_args": additional_args}
+    timer = Timer()
+    cwd = os.getcwd()
+    os.chdir(path_to_igrec_old)
+    support.sys_call("%(path)s/ig_repertoire_constructor.py --tau=%(tau)d -t %(threads)d -s %(input_file)s -o %(output_dir)s %(additional_args)s" % args,
+                     log=log)
+    os.chdir(cwd)
+    timer.stamp(output_dir + "/time.txt")
+
+    # Rename output
+    os.rename(output_dir + "/constructed_repertoire.clusters.fa",
+              output_dir + "/final_repertoire.fa")
+    os.rename(output_dir + "/constructed_repertoire.rcm",
+              output_dir + "/final_repertoire.rcm")
+
+    if remove_tmp:
+        rmdir(output_dir + "/configs")
+        rmdir(output_dir + "/saves")
+        rmdir(output_dir + "/temp_files")
+        rmdir(output_dir + "/hamming_graphs_tau_%d" % tau)
 
 
 def run_igrec(input_file, output_dir, log=None,
@@ -329,20 +420,21 @@ def run_igrec(input_file, output_dir, log=None,
             "output_dir": output_dir,
             "min_sread_size": min_sread_size,
             "additional_args": additional_args}
+    timer = Timer()
     support.sys_call("%(path)s/igrec.py --tau=%(tau)d --min-fillin=%(min_fillin)f -t %(threads)d --loci %(loci)s -s %(input_file)s -o %(output_dir)s --min-sread-size %(min_sread_size)d %(additional_args)s" % args,
                      log=log)
+    timer.stamp(output_dir + "/time.txt")
     if remove_tmp:
-        import os.path
-        if os.path.isfile(output_dir + "/vj_finder"):
-            import shutil
-            shutil.rmtree(output_dir + "/vj_finder")
+        rmdir(output_dir + "/vj_finder")
 
 
 def run_mixcr(input_file, output_dir,
               log=None,
               loci="all", enforce_fastq=False,
               threads=16,
-              remove_tmp=True):
+              remove_tmp=True,
+              species="hsa",
+              version=1):
     if log is None:
         log = FakeLog()
 
@@ -359,19 +451,28 @@ def run_mixcr(input_file, output_dir,
     else:
         input_file_tmp = None
 
-    args = {"path": path_to_mixcr,
+    path = path_to_mixcr if version == 1 else path_to_mixcr2
+    args = {"path": path,
             "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
-            "mixcr_cmd": "java -jar %s/mixcr.jar" % path_to_mixcr,
+            "mixcr_cmd": "java -jar %s/mixcr.jar" % path,
             "threads": threads,
             "input_file": input_file,
             "output_dir": output_dir,
-            "loci": loci}
+            "species": species,
+            "loci": loci,
+            "loci_arg": "loci" if version == 1 else "chains"}
 
-    support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --loci %(loci)s --noMerge -OvParameters.geneFeatureToAlign=VTranscript %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+    timer = Timer()
+    support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge -OvParameters.geneFeatureToAlign=VTranscript --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
                      log=log)
     support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt -OassemblingFeatures=\"{FR1Begin:FR4Begin}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
                      log=log)
-    support.sys_call("%(mixcr_cmd)s exportClones -pf %(path)s/preset.pf -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
+    support.sys_call("%(mixcr_cmd)s exportClones -sequence -count -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
+                     log=log)
+    timer.stamp(output_dir + "/time.txt")
+
+    args["features"] = "-count -sequence -nFeature CDR3 -vHit -jHit -vAlignment -jAlignment -aaFeature CDR3"
+    support.sys_call("%(mixcr_cmd)s exportClones %(features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/features.txt" % args,
                      log=log)
     convert_mixcr_output_to_igrec("%(output_dir)s/mixcr.txt" % args, "%(output_dir)s/mixcr_uncompressed.fa" % args)
     support.sys_call("%(compress_eq_clusters_cmd)s %(output_dir)s/mixcr_uncompressed.fa %(output_dir)s/final_repertoire.fa" % args)
@@ -384,6 +485,133 @@ def run_mixcr(input_file, output_dir,
         os.remove(output_dir + "/mixcr.txt")
         os.remove(output_dir + "/mixcr.vdjca")
         os.remove(output_dir + "/mixcr_uncompressed.fa")
+
+
+def run_mixcr2(input_file, output_dir,
+               log=None,
+               loci="all", enforce_fastq=False,
+               threads=16,
+               remove_tmp=True,
+               species="hsa",
+               region_from="FR1Begin", region_to="FR4Begin"):
+    if log is None:
+        log = FakeLog()
+
+    mkdir_p(output_dir)
+
+    if enforce_fastq and idFormatByFileName(input_file) == "fasta":
+        input_file_fq = "%s/input_reads.fq" % output_dir
+        fastx2fastx(input_file, input_file_fq)
+        input_file = input_file_tmp = input_file_fq
+    elif idFormatByFileName(input_file) == "fasta":
+        input_file_fasta = "%s/input_reads.fasta" % output_dir
+        fastx2fastx(input_file, input_file_fasta)
+        input_file = input_file_tmp = input_file_fasta
+    else:
+        input_file_tmp = None
+
+    path = path_to_mixcr2
+    args = {"path": path,
+            "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
+            "mixcr_cmd": "java -jar %s/mixcr.jar" % path,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "species": species,
+            "loci": loci,
+            "from": region_from,
+            "to": region_to,
+            "loci_arg": "chains"}
+
+    # support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+    timer = Timer()
+    #                  log=log)
+    support.sys_call("%(mixcr_cmd)s align -p kaligner2 --species %(species)s -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --noMerge --%(loci_arg)s %(loci)s -OreadsLayout=Collinear -OvParameters.geneFeatureToAlign=VTranscript -OallowPartialAlignments=true %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+                     log=log)
+    # support.sys_call("%(mixcr_cmd)s assemble -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -t %(threads)d -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    # support.sys_call("%(mixcr_cmd)s assemble -f -p default_affine -OassemblingFeatures=VDJRegion -OseparateByC=true -OqualityAggregationType=Average -OclusteringFilter.specificMutationProbability=1E-5 -OmaxBadPointsPercent=0 -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    #                  log=log)
+    # support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+    #                  log=log)
+    support.sys_call("%(mixcr_cmd)s assemble -t %(threads)d -f -r %(output_dir)s/assemble_report.txt --index %(output_dir)s/index_file -OassemblingFeatures=\"{%(from)s:%(to)s}\" %(output_dir)s/mixcr.vdjca %(output_dir)s/mixcr.clns" % args,
+                     log=log)
+    args["small_features"] = "-sequence -count -readIds %(output_dir)s/index_file" % args
+    support.sys_call("%(mixcr_cmd)s exportClones %(small_features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/mixcr.txt" % args,
+                     log=log)
+    timer.stamp(output_dir + "/time.txt")
+
+    args["features"] = "-count -sequence -nFeature CDR3 -vHit -jHit -vAlignment -jAlignment -aaFeature CDR3 -readIds %(output_dir)s/index_file" % args
+    support.sys_call("%(mixcr_cmd)s exportClones %(features)s -f --no-spaces %(output_dir)s/mixcr.clns %(output_dir)s/features.txt" % args,
+                     log=log)
+    # convert_mixcr_output_to_igrec("%(output_dir)s/mixcr.txt" % args, "%(output_dir)s/mixcr_uncompressed.fa" % args)
+
+    convert_mixcr2_output_to_igrec("%(output_dir)s/mixcr.txt" % args,
+                                   "%(output_dir)s/mixcr_uncompressed.fa" % args,
+                                   input_file,
+                                   "%(output_dir)s/mixcr_uncompressed.rcm" % args)
+    support.sys_call("%(compress_eq_clusters_cmd)s %(output_dir)s/mixcr_uncompressed.fa %(output_dir)s/final_repertoire.fa -r %(output_dir)s/mixcr_uncompressed.rcm -R %(output_dir)s/final_repertoire.rcm" % args)
+
+    if remove_tmp:
+        if input_file_tmp is not None:
+            os.remove(input_file_tmp)
+
+        os.remove(output_dir + "/align_report.txt")
+        os.remove(output_dir + "/assemble_report.txt")
+        os.remove(output_dir + "/mixcr.clns")
+        os.remove(output_dir + "/mixcr.txt")
+        os.remove(output_dir + "/features.txt")
+        os.remove(output_dir + "/mixcr.vdjca")
+        os.remove(output_dir + "/mixcr_uncompressed.fa")
+        os.remove(output_dir + "/mixcr_uncompressed.rcm")
+        os.remove(output_dir + "/index_file")
+
+
+def run_mixcr2_alignment_only(input_file, output_dir,
+                              log=None,
+                              loci="all", enforce_fastq=False,
+                              threads=16,
+                              remove_tmp=True,
+                              species="hsa"):
+    if log is None:
+        log = FakeLog()
+
+    mkdir_p(output_dir)
+
+    if enforce_fastq and idFormatByFileName(input_file) == "fasta":
+        input_file_fq = "%s/input_reads.fq" % output_dir
+        fastx2fastx(input_file, input_file_fq)
+        input_file = input_file_tmp = input_file_fq
+    elif idFormatByFileName(input_file) == "fasta":
+        input_file_fasta = "%s/input_reads.fasta" % output_dir
+        fastx2fastx(input_file, input_file_fasta)
+        input_file = input_file_tmp = input_file_fasta
+    else:
+        input_file_tmp = None
+
+    path = path_to_mixcr2
+    args = {"path": path,
+            "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
+            "mixcr_cmd": "java -jar %s/mixcr.jar" % path,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "species": species,
+            "loci": loci,
+            "loci_arg": "chains"}
+
+    # support.sys_call("%(mixcr_cmd)s align -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --%(loci_arg)s %(loci)s --noMerge --species %(species)s %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+    #                  log=log)
+    timer = Timer()
+    support.sys_call("%(mixcr_cmd)s align -p kaligner2 --species %(species)s -t %(threads)d -f -g -r %(output_dir)s/align_report.txt --noMerge --%(loci_arg)s %(loci)s -OreadsLayout=Collinear -OvParameters.geneFeatureToAlign=VTranscript -OallowPartialAlignments=true %(input_file)s %(output_dir)s/mixcr.vdjca" % args,
+                     log=log)
+    timer.stamp(output_dir + "/time.txt")
+
+    if remove_tmp:
+        if input_file_tmp is not None:
+            os.remove(input_file_tmp)
+
+        os.remove(output_dir + "/align_report.txt")
+        os.remove(output_dir + "/mixcr.vdjca")
 
 
 def parse_presto_id(id):
@@ -416,8 +644,10 @@ def run_presto(input_file, output_dir,
     args = {"input_file": input_file_new,
             "output_dir": output_dir}
 
+    timer = Timer()
     support.sys_call("CollapseSeq.py -s %(input_file)s --outdir %(output_dir)s --outname presto" % args,
                      log=log)
+    timer.stamp(output_dir + "/time.txt")
 
     presto_output = output_dir + "/presto_collapse-unique.fasta"
     repertoire_fa = output_dir + "/final_repertoire.fa"
@@ -439,8 +669,8 @@ if __name__ == "__main__":
     run_ig_simulator(ig_simulator_output_dir)
     simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta", output_dir)
 
-    run_igrec(output_dir + "/merged_reads.fa",
+    run_igrec(output_dir + "/input_reads.fa",
               output_dir + "/igrec_good/")
 
-    run_igrec(output_dir + "/merged_reads.fa",
+    run_igrec(output_dir + "/input_reads.fa",
               output_dir + "/igrec_bad/", additional_args="--create-triv-dec")

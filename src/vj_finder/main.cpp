@@ -51,7 +51,10 @@ std::string get_config_fname(int argc, char **argv) {
 
 std::string load_config(int argc, char **argv) {
     std::string cfg_filename = get_config_fname(argc, argv);
-    path::CheckFileExistenceFATAL(cfg_filename);
+    if (!path::FileExists(cfg_filename)) {
+        std::cout << "File " << cfg_filename << " doesn't exist or can't be read!" << std::endl;
+        exit(-1);
+    }
     vj_finder::vjf_cfg::create_instance(cfg_filename);
     parse_command_line_args(vj_finder::vjf_cfg::get_writable(), argc, argv);
     prepare_output_dir(vj_finder::vjf_cfg::get().io_params.output_params.output_files);

@@ -27,3 +27,6 @@ cdr:
 
 ant:
 	$(MAKE) -C build/release/antevolo
+
+umi:
+	$(MAKE) -C build/release/umi_experiments

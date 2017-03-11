@@ -88,6 +88,7 @@ seqan::String<T> consensus_hamming(const std::vector<seqan::String<T>> &reads,
 template<typename T = seqan::Dna5>
 seqan::String<T> consensus_hamming_limited_coverage(const std::vector<seqan::String<T>> &reads,
                                                     const std::vector<size_t> &indices,
+                                                    const std::vector<size_t> &abundances,
                                                     size_t coverage_limit = 5) {
     using namespace seqan;
     using std::vector;
@@ -108,8 +109,8 @@ seqan::String<T> consensus_hamming_limited_coverage(const std::vector<seqan::Str
     for (size_t i : indices) {
         const auto &read = reads[i];
         for (size_t j = 0; j < length(read); ++j) {
-            profile[j].count[ordValue(read[j])] += 1;
-            coverage[j] += 1;
+            profile[j].count[ordValue(read[j])] += abundances[i];
+            coverage[j] += abundances[i];
         }
     }
 

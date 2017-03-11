@@ -181,7 +181,7 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
-        if  not os.path.exists(self.run_rcm_recoverer):
+        if not os.path.exists(self.run_rcm_recoverer):
             log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
@@ -386,7 +386,9 @@ class VJAlignmentPhase(Phase):
                        " --loci " + self.__params.loci + \
                        " --organism " + self.__params.organism
         if self.__params.no_pseudogenes:
-            command_line += " --no-pseudogenes"
+            command_line += " --pseudogenes=off"
+        else:
+            command_line += " --pseudogenes=on"
         cwd = os.getcwd()
         os.chdir(home_directory)
         support.sys_call(command_line, self._log)

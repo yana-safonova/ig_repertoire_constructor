@@ -1,5 +1,3 @@
-#include <fstream>
-#include <vector>
 #include <cassert>
 #include <algorithm>
 
@@ -7,41 +5,48 @@
 #include <build_info.hpp>
 
 #include <iostream>
+#include <sstream>
 using std::cout;
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
+#include <boost/algorithm/string.hpp>
+
 #include "fast_ig_tools.hpp"
 #include "ig_final_alignment.hpp"
 #include "ig_matcher.hpp"
+#include "utils.hpp"
 
 #include <seqan/seq_io.h>
+#undef NDEBUG
+#include <cassert>
+
 using seqan::Dna5String;
 using seqan::SeqFileIn;
 using seqan::SeqFileOut;
 using seqan::CharString;
 
-std::pair<std::unordered_map<std::string, size_t>, std::vector<std::string>> read_rcm_file_string(const std::string &file_name) {
+
+std::unordered_map<std::string, std::string> read_rcm_file(const std::string &file_name) {
     std::ifstream rcm(file_name.c_str());
 
-    std::unordered_map<std::string, size_t> result;
-    std::unordered_map<std::string, size_t> barcode2num;
+    std::unordered_map<std::string, std::string> result;
 
     std::string id, target;
-    std::vector<std::string> targets;
-    size_t num = 0;
-    while (rcm >> id >> target) {
-        if (barcode2num.count(target) == 0) { // TODO Use iterator here??
-            barcode2num[target] = num++;
-            targets.push_back(target);
-            VERIFY(targets.size() == num);
+    std::string line;
+    while (std::getline(rcm, line)) {
+        std::vector<std::string> strs;
+        boost::split(strs, line, boost::is_any_of("\t"));
+        for (auto &s : strs) {
+            boost::trim(s);
         }
-
-        result[id] = barcode2num[target];
+        if (strs.size() == 2 && strs[0] != "" && strs[1] != "") {
+            result[strs[0]] = strs[1];
+        }
     }
 
-    return { result, targets };
+    return result;
 }
 
 
@@ -50,7 +55,13 @@ void split_component(const std::vector<seqan::String<T>> &reads,
                      const std::vector<size_t> &indices,
                      std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> &out,
                      size_t max_votes = 1,
-                     bool discard = false) {
+                     bool discard = false,
+                     bool recursive = true,
+                     bool flu = true) {
+    if (!max_votes) {
+        max_votes = std::numeric_limits<size_t>::max() / 2;
+    }
+
     if (indices.size() == 0) {
         return;
     }
@@ -64,11 +75,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
 
     String<ProfileChar<T>> profile;
 
-    size_t len = length(reads[indices[0]]);
-    // for (size_t i : indices) {
-        // Use hashmap instead of TrieCompressor, then uncomment this
-        // VERIFY(length(reads[i]) == len);
-    // }
+    size_t len = 0;
+    for (size_t i : indices) {
+        len = std::max(len, length(reads[i]));
+    }
 
     resize(profile, len);
 
@@ -91,6 +101,8 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     };
 
+    // INFO("Splitting component size=" << indices.size() << " len=" << len);
+
     std::vector<PositionVote> secondary_votes;
     for (size_t j = 0; j < len; ++j) {
         std::vector<std::pair<size_t, size_t>> v;
@@ -104,9 +116,26 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     auto maximal_mismatch = *std::max_element(secondary_votes.cbegin(), secondary_votes.cend());
+    VERIFY(maximal_mismatch.majory_votes >= maximal_mismatch.secondary_votes);
 
-    INFO("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
-    if (maximal_mismatch.secondary_votes <= max_votes) {
+    TRACE("VOTES: " << maximal_mismatch.majory_votes << "/" << maximal_mismatch.secondary_votes << " POSITION: " << maximal_mismatch.position);
+    bool do_split = false;
+    auto mmsv = maximal_mismatch.secondary_votes;
+
+    if (flu) {
+        do_split = -0.0064174097073423269 * indices.size() + 0.79633984048973583 * mmsv - 4.3364230321953841 > 0;
+    } else {
+        do_split = mmsv >= max_votes;
+    }
+    if (indices.size() <= 5) {
+        do_split = false;
+    }
+
+    if (max_votes > 100500) {
+        do_split = false;
+    }
+
+    if (! do_split) {
         seqan::String<T> consensus;
         for (size_t i = 0; i < length(profile); ++i) {
             size_t idx = getMaxIndex(profile[i]);
@@ -130,8 +159,10 @@ void split_component(const std::vector<seqan::String<T>> &reads,
         }
     }
 
-    auto majory_consensus = consensus(reads, indices_majory);
-    auto secondary_consensus = consensus(reads, indices_secondary);
+    VERIFY(indices_secondary.size() == maximal_mismatch.secondary_votes);
+
+    auto majory_consensus = consensus_hamming(reads, indices_majory);
+    auto secondary_consensus = consensus_hamming(reads, indices_secondary);
 
     for (size_t i : indices_other) {
         auto dist_majory = hamming_rtrim(reads[i], majory_consensus);
@@ -145,31 +176,44 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     }
 
     VERIFY(indices_majory.size() + indices_secondary.size() == indices.size());
+    VERIFY(indices_majory.size() <= indices.size());
 
     INFO("Component splitted " << indices_majory.size() << " + " << indices_secondary.size());
-    split_component(reads, indices_majory, out);
+
+    if (!recursive) {
+        max_votes = 0;
+    }
+
+    split_component(reads, indices_majory, out, max_votes, discard, flu);
 
     if (discard) {
         for (size_t index : indices_secondary) {
             out.push_back({ reads[index], { index } });
         }
     } else {
-        split_component(reads, indices_secondary, out);
+        VERIFY(indices_secondary.size() < indices.size());
+        split_component(reads, indices_secondary, out, max_votes, discard, flu);
     }
 }
-
 
 
 template<typename T = seqan::Dna5>
 std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> split_component(const std::vector<seqan::String<T>> &reads,
                                                                               const std::vector<size_t> &indices,
-                                                                              size_t max_votes = 1,
-                                                                              bool discard = false) {
+                                                                              size_t max_votes = 0,
+                                                                              bool discard = false,
+                                                                              bool recursive = true,
+                                                                              bool flu = true) {
+    if (!max_votes) {
+        max_votes = std::numeric_limits<size_t>::max() / 2;
+    }
+
     std::vector<std::pair<seqan::String<T>, std::vector<size_t>>> result;
-    split_component(reads, indices, result, max_votes, discard);
+    split_component(reads, indices, result, max_votes, discard, recursive, flu);
 
     return result;
 }
+
 
 int main(int argc, char **argv) {
     segfault_handler sh;
@@ -179,13 +223,16 @@ int main(int argc, char **argv) {
     INFO("Command line: " << join_cmd_line(argc, argv));
 
     int nthreads = 4;
-    std::string reads_file = "input.fa";
-    std::string output_file = "repertoire.fa";
-    std::string rcm_file = "cropped.rcm";
-    std::string output_rcm_file = "cropped.rcm";
-    std::string config_file = "";
-    size_t max_votes = 1;
+    std::string reads_file;
+    std::string output_file;
+    std::string rcm_file;
+    std::string output_rcm_file;
+    std::string config_file;
+    size_t max_votes = std::numeric_limits<size_t>::max() / 2;
     bool discard = false;
+    bool recursive = true;
+    bool flu = false;
+    bool allow_unassigned = false;
 
     // Parse cmd-line arguments
     try {
@@ -204,7 +251,7 @@ int main(int argc, char **argv) {
             ("rcm-file,R", po::value<std::string>(&rcm_file)->default_value(rcm_file),
              "input RCM-file")
             ("output-rcm-file,M", po::value<std::string>(&output_rcm_file)->default_value(output_rcm_file),
-             "input RCM-file");
+             "output RCM-file");
 
         // Declare a group of options that will be
         // allowed both on command line and in
@@ -215,8 +262,14 @@ int main(int argc, char **argv) {
              "the number of parallel threads")
             ("max-votes,V", po::value<size_t>(&max_votes)->default_value(max_votes),
              "max secondary votes threshold")
-            ("disacrd,D", po::value<bool>(&discard)->default_value(discard),
+            ("discard,D", po::value<bool>(&discard)->default_value(discard),
              "whether to discard secondary votes")
+            ("recursive,C", po::value<bool>(&recursive)->default_value(recursive),
+             "whether to perform recursive splitting")
+            ("flu,F", po::value<bool>(&flu)->default_value(flu),
+             "Use FLU preset")
+            ("allow-unassigned,A", po::value<bool>(&allow_unassigned)->default_value(allow_unassigned),
+             "Allow unassigned reads in RCM")
             ;
 
         // Hidden options, will be allowed both on command line and
@@ -298,55 +351,70 @@ int main(int argc, char **argv) {
     component_indices.resize(input_reads.size());
 
     INFO("Reading read-cluster map starts");
-    auto rcm = read_rcm_file_string(rcm_file);
+    const auto rcm = read_rcm_file(rcm_file);
+
+    std::unordered_map<std::string, std::vector<size_t>> comp2readnum;
+
+    size_t assigned_reads = 0;
     for (size_t i = 0; i < input_reads.size(); ++i) {
-        const char *id = toCString(input_ids[i]);
-        VERIFY(rcm.first.count(id));
-        component_indices[i] = rcm.first[id];
+        std::string id = toCString(input_ids[i]);
+        auto pcomponent = rcm.find(id);
+        if (pcomponent != rcm.end()) {
+            comp2readnum[pcomponent->second].push_back(i);
+            ++assigned_reads;
+        } else {
+            TRACE("Read " << id <<  " not found in RCM " << rcm_file);
+        }
     }
 
-    INFO(rcm.second.size() << " clusters were extracted from " << rcm_file);
-
-    std::vector<std::vector<size_t>> component2id(rcm.second.size());
-    for (size_t i = 0; i < component_indices.size(); ++i) {
-        component2id[component_indices[i]].push_back(i);
+    INFO(assigned_reads << " over " << input_reads.size() << " reads assigned");
+    if (assigned_reads < input_reads.size() && !allow_unassigned) {
+        ERROR(input_reads.size() - assigned_reads << " unassigned reads in RCM " << rcm_file);
+        ERROR("Unassigned reads are not allowed");
+        ERROR("Pass option '--allow-unassigned=true' to allow");
+        return 1;
     }
+
+    INFO(comp2readnum.size() << " clusters were extracted from " << rcm_file);
 
     size_t max_component_size = 0;
-    for (const auto &_ : component2id) {
-        max_component_size = std::max(max_component_size, _.size());
+    for (const auto &kv : comp2readnum) {
+        max_component_size = std::max(max_component_size, kv.second.size());
     }
     INFO(bformat("Size of maximal cluster: %d") % max_component_size);
 
     omp_set_num_threads(nthreads);
     INFO(bformat("Computation of consensus using %d threads starts") % nthreads);
-
-    using T = seqan::Dna5;
-
-    std::vector<std::vector<std::pair<seqan::String<T>, std::vector<size_t>>>> results(component2id.size());
-    SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-    for (size_t comp = 0; comp < component2id.size(); ++comp) {
-        results[comp] = split_component(input_reads, component2id[comp], max_votes, discard);
-    }
-
     INFO("Saving results");
 
     SeqFileOut seqFileOut_output(output_file.c_str());
 
     std::ofstream out_rcm(output_rcm_file.c_str());
 
-    for (size_t comp = 0; comp < results.size(); ++comp) {
-        const auto &result = results[comp];
+
+    std::vector<std::pair<std::string, std::vector<size_t>>> comp2readnum_sorted(comp2readnum.cbegin(), comp2readnum.cend());
+    std::sort(comp2readnum_sorted.begin(), comp2readnum_sorted.end());
+
+    // TODO Use multithreading
+    for (const auto &kv : comp2readnum_sorted) {
+        const auto &comp = kv.first;
+        const auto &indices = kv.second;
+        auto result = split_component(input_reads, indices, max_votes, discard, recursive, flu);
         for (size_t i = 0; i < result.size(); ++i) {
-            // TODO Add optionally continuous numbering
-            bformat fmt("cluster___%dX%d___size___%d");
-            fmt % comp % i % result[i].second.size();
+            std::stringstream ss(comp);
+            if (result.size() > 1) {
+                ss << "X" << i;
+            }
+            std::string cluster_id = ss.str();
+
+            bformat fmt("cluster___%s___size___%d");
+            fmt % cluster_id % result[i].second.size();
             std::string id = fmt.str();
 
             seqan::writeRecord(seqFileOut_output, id, result[i].first);
             for (size_t read_index : result[i].second) {
                 std::string read_id = seqan::toCString(input_ids[read_index]);
-                out_rcm << read_id << "\t" << comp << "X" << i << "\n";
+                out_rcm << read_id << "\t" << cluster_id << "\n";
             }
         }
     }

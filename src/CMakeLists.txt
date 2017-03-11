@@ -88,6 +88,8 @@ add_subdirectory(vj_finder)
 add_subdirectory(cdr_labeler)
 add_subdirectory(antevolo)
 add_subdirectory(test)
+add_subdirectory(umi_experiments)
+add_subdirectory(pcr_simulator)
 
 # FIXME: Should we just configure spades_init instead?
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
