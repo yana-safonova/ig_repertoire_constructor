@@ -108,7 +108,7 @@ def parse_command_line(description="aimQUAST"):
                         help="export bad clusters during reference-free analysis")
     parser.add_argument("--figure-format", "-F",
                         type=str,
-                        default="svg,png,pdf",
+                        default="png",
                         help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
 
     parser.add_argument("--no-reference-free",
@@ -130,6 +130,16 @@ def parse_command_line(description="aimQUAST"):
                         action="store_true",
                         help="enable experimental features")
     parser.set_defaults(experimental=False)
+
+    parser.add_argument("--no-reconstruct",
+                        dest="reconstruct",
+                        action="store_false",
+                        help="do not reconstruct missing repetoire files (default)")
+    parser.add_argument("--reconstruct",
+                        dest="reconstruct",
+                        action="store_true",
+                        help="reconstruct missing repertoire files if possible")
+    parser.set_defaults(reconstruct=False)
 
     args = parser.parse_args()
 
@@ -161,36 +171,37 @@ def parse_command_line(description="aimQUAST"):
 
 
 def main(args):
-    report = Report()
+    if args.reconstruct:
+        if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
+            log.info("Try to reconstruct repertoire RCM file...")
+            rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
+            args.constructed_rcm = args.output_dir + "/constructed.rcm"
+            write_rcm(rcm, args.constructed_rcm)
 
-    if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
-        log.info("Try to reconstruct repertoire RCM file...")
-        rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
-        args.constructed_rcm = args.output_dir + "/constructed.rcm"
-        write_rcm(rcm, args.constructed_rcm)
+        if args.initial_reads and not args.constructed_repertoire and args.constructed_rcm:
+            log.info("Try to reconstruct repertoire sequence file...")
+            args.constructed_repertoire = args.output_dir + "/constructed.fa.gz"
+            run_consensus_constructor(rcm_file=args.constructed_rcm,
+                                      initial_reads=args.initial_reads,
+                                      output_file=args.constructed_repertoire)
 
-    if args.initial_reads and not args.constructed_repertoire and args.constructed_rcm:
-        log.info("Try to reconstruct repertoire sequence file...")
-        args.constructed_repertoire = args.output_dir + "/constructed.fa.gz"
-        run_consensus_constructor(rcm_file=args.constructed_rcm,
-                                  initial_reads=args.initial_reads,
-                                  output_file=args.constructed_repertoire)
+        if args.initial_reads and args.reference_repertoire and not args.reference_rcm and args.rcm_based:
+            log.info("Try to reconstruct reference RCM file...")
+            rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
+            args.reference_rcm = args.output_dir + "/reference.rcm"
+            write_rcm(rcm, args.reference_rcm)
 
-    if args.initial_reads and args.reference_repertoire and not args.reference_rcm and args.rcm_based:
-        log.info("Try to reconstruct reference RCM file...")
-        rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
-        args.reference_rcm = args.output_dir + "/reference.rcm"
-        write_rcm(rcm, args.reference_rcm)
-
-    if args.initial_reads and not args.reference_repertoire and args.reference_rcm and args.rcm_based:
-        log.info("Try to reconstruct reference repertoire sequence file...")
-        args.reference_repertoire = args.output_dir + "/reference.fa.gz"
-        run_consensus_constructor(rcm_file=args.reference_rcm,
-                                  initial_reads=args.initial_reads,
-                                  output_file=args.reference_repertoire)
+        if args.initial_reads and not args.reference_repertoire and args.reference_rcm and args.rcm_based:
+            log.info("Try to reconstruct reference repertoire sequence file...")
+            args.reference_repertoire = args.output_dir + "/reference.fa.gz"
+            run_consensus_constructor(rcm_file=args.reference_rcm,
+                                      initial_reads=args.initial_reads,
+                                      output_file=args.reference_repertoire)
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
+
+    report = Report()
 
     def ref_free_plots(rep, name, dir):
         if args.figure_format:
