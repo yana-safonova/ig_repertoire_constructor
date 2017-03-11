@@ -16,7 +16,7 @@ from aimquast_impl import Report, reconstruct_rcm, write_rcm, run_consensus_cons
 from aimquast_impl import splittering
 
 
-def parse_command_line(description="aimQUAST"):
+def parse_command_line():
     import argparse
 
     def ActionTestFactory(name):
@@ -40,7 +40,8 @@ def parse_command_line(description="aimQUAST"):
 
         return ActionTest
 
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(description="IgQUAST: a tool for adaptive immune repertoires quality assessment",
+                                     epilog="Report bugs to <igtools_support@googlegroups.com>")
 
     def add_test(name, key=None, display_name=None):
         if key is None:
@@ -60,86 +61,114 @@ def parse_command_line(description="aimQUAST"):
     add_test("flu")
     add_test("presentation")
 
-    parser.add_argument("--initial-reads", "-s",
-                        type=str,
-                        default="",
-                        help="FASTA/FASTQ file with initial reads, empty string for non-providing (default: <empty>)")
-    parser.add_argument("--constructed-repertoire", "-c",
-                        type=str,
-                        default="",
-                        help="constructed repertoire file")
-    parser.add_argument("--constructed-rcm", "-C",
-                        type=str,
-                        default="",
-                        help="constructed RCM file, empty string for non-providing (default: <empty>)")
-    parser.add_argument("--reference-repertoire", "-r",
-                        type=str,
-                        default="",
-                        help="reference reperoire file, empty string for non-providing (default: <empty>)")
-    parser.add_argument("--reference-rcm", "-R",
-                        type=str,
-                        default="",
-                        help="reference repertoire RCM, empty for non-providing (default: <empty>)")
-    parser.add_argument("--output-dir", "-o",
+    def add_selector(group,
+                     key,
+                     default,
+                     nokey=None,
+                     var=None,
+                     help=None,
+                     help_true=None,
+                     help_false=None):
+        if var is None:
+            var = key.replace("--", "").replace("-", "_")
+        if help_true is None:
+            help_true = "enable " + help
+        if help_false is None:
+            help_false = "disable " + help
+        if default is True:
+            help_true += " (default)"
+        else:
+            help_false += " (default)"
+        if nokey is None:
+            nokey = key.replace("--", "--no-")
+
+        selector = group.add_mutually_exclusive_group(required=False)
+        selector.add_argument(key,
+                              dest=var,
+                              action="store_true",
+                              help=help_true)
+        selector.add_argument(nokey,
+                              dest=var,
+                              action="store_false",
+                              help=help_false)
+        group.set_defaults(**{var: default})
+
+        return group
+
+    input = parser.add_argument_group("Input")
+    input.add_argument("--initial-reads", "-s",
+                       type=str,
+                       default="",
+                       help="FASTA/FASTQ file with initial reads, empty string for non-providing (default: <empty>)")
+    input.add_argument("--constructed-repertoire", "-c",
+                       type=str,
+                       default="",
+                       help="constructed repertoire file")
+    input.add_argument("--constructed-rcm", "-C",
+                       type=str,
+                       default="",
+                       help="constructed RCM file, empty string for non-providing (default: <empty>)")
+    input.add_argument("--reference-repertoire", "-r",
+                       type=str,
+                       default="",
+                       help="reference reperoire file, empty string for non-providing (default: <empty>)")
+    input.add_argument("--reference-rcm", "-R",
+                       type=str,
+                       default="",
+                       help="reference repertoire RCM, empty for non-providing (default: <empty>)")
+    add_selector(input,
+                 "--reconstruct",
+                 default=False,
+                 help_true="reconstruct missing repertoire files if possible",
+                 help_false="do not reconstruct missing repetoire files")
+
+    output = parser.add_argument_group("Output")
+    output.add_argument("--output-dir", "-o",
                         type=str,
                         help="output dir for results")
-    parser.add_argument("--tau",
+
+    output.add_argument("--figure-format", "-F",
+                        type=str,
+                        default="png",
+                        help="format(s) for produced figures separated by commas, empty for non-producing figures (default: %(default)s)")
+
+    output.add_argument("--json",
+                        type=str,
+                        help="file for JSON report output (default: <output_dir>/aimquast.json)")
+    output.add_argument("--text",
+                        type=str,
+                        help="file for text report output (default: <output_dir>/aimquast.txt)")
+
+    scenarios = parser.add_argument_group("Performed scenarios")
+    add_selector(scenarios,
+                 "--rcm-based",
+                 default=True,
+                 help="partition-based metrics and plots")
+
+    add_selector(scenarios,
+                 "--export-bad-clusters",
+                 default=False,
+                 help_true="export bad clusters during reference-free analysis",
+                 help_false="do not export bad clusters during reference-free analysis")
+
+    add_selector(scenarios,
+                 "--reference-free",
+                 default=False,
+                 help="reference-free metrics")
+
+    add_selector(scenarios,
+                 "--experimental",
+                 default=False,
+                 help="experimental features")
+
+    params = parser.add_argument_group("Additional algorithm parameters")
+    params.add_argument("--reference-size-cutoff",
+                        default=5,
+                        help="reference size cutoff (default: %(default)d)")
+    params.add_argument("--tau",
                         type=int,
                         default=6,
                         help="maximal distance for repertoire-to-repertoire matching (default: %(default)d)")
-    parser.add_argument("--rcm-based",
-                        action="store_true",
-                        dest="rcm_based",
-                        help="enable partition-based metrics and plots")
-    parser.add_argument("--no-rcm-based",
-                        action="store_false",
-                        dest="rcm_based",
-                        help="disable partition-based metrics and plots (default)")
-    parser.set_defaults(rcm_based=False)
-    parser.add_argument("--reference-size-cutoff",
-                        default=5,
-                        help="reference size cutoff (default: %(default)d)")
-    parser.add_argument("--json",
-                        help="file for JSON output (default: <output_dir>/aimquast.json)")
-    parser.add_argument("--text",
-                        help="file for text output (default: <output_dir>/aimquast.txt)")
-    parser.add_argument("--export-bad-clusters",
-                        action="store_true",
-                        help="export bad clusters during reference-free analysis")
-    parser.add_argument("--figure-format", "-F",
-                        type=str,
-                        default="png",
-                        help="format(s) for producing figures, empty for non-producing (default: %(default)s)")
-
-    parser.add_argument("--no-reference-free",
-                        dest="reference_free",
-                        action="store_false",
-                        help="disable reference-free metrics (default)")
-    parser.add_argument("--reference-free",
-                        dest="reference_free",
-                        action="store_true",
-                        help="enable reference-free metrics")
-    parser.set_defaults(reference_free=False)
-
-    parser.add_argument("--no-experimental",
-                        dest="experimental",
-                        action="store_false",
-                        help="disable experimental features (default)")
-    parser.add_argument("--experimental",
-                        dest="experimental",
-                        action="store_true",
-                        help="enable experimental features")
-    parser.set_defaults(experimental=False)
-
-    parser.add_argument("--no-reconstruct",
-                        dest="reconstruct",
-                        action="store_false",
-                        help="do not reconstruct missing repetoire files (default)")
-    parser.add_argument("--reconstruct",
-                        dest="reconstruct",
-                        action="store_true",
-                        help="reconstruct missing repertoire files if possible")
-    parser.set_defaults(reconstruct=False)
 
     args = parser.parse_args()
 
@@ -160,6 +189,9 @@ def parse_command_line(description="aimQUAST"):
 
     if args.reference_free:
         args.rcm_based = True
+
+    if args.export_bad_clusters:
+        args.reference_free = True
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
