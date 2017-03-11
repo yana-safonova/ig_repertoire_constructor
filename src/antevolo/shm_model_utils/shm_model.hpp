@@ -36,10 +36,6 @@ private:
     SuccessMLEOptimazation beta_full_success_mle_;
     SuccessMLEOptimazation dirichlet_success_mle_;
 
-private:
-    double beta_expectation(const std::string&,
-                            const annotation_utils::StructuralRegion&) const;
-
 public:
     ShmModel() = delete;
 
@@ -86,6 +82,8 @@ public:
     double beta_fr_expectation(const std::string& kmer) const;
     double beta_cdr_expectation(const std::string& kmer) const;
     double beta_full_expectation(const std::string& kmer) const;
+    double beta_expectation(const std::string&,
+                            const annotation_utils::StructuralRegion&) const;
     double dirichlet_expectation(const std::string& kmer, const char nucl) const;
 
     double likelihood_kmer_nucl(const std::string& kmer,
