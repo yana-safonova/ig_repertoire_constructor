@@ -12,12 +12,12 @@
 #include "verify.hpp"
 
 using namespace shm_kmer_matrix_estimator;
-
-namespace antevolo {
-
+using namespace annotation_utils;
 using boost::tokenizer;
 using boost::escaped_list_separator;
 using Tokenizer = tokenizer<escaped_list_separator<char>>;
+
+namespace antevolo {
 
 ShmModel::ShmModel(const std::string &filename) {
     std::fstream in(filename);
@@ -27,7 +27,7 @@ ShmModel::ShmModel(const std::string &filename) {
 
     getline(in, line); // skip the header
 
-    auto string_to_bool = [](std::string &s) { return std::stoi(s) != 0; };
+    auto string_to_bool = [](std::string &s) { return std::stoi(s); };
 
     while (getline(in, line)) {
         if (line.empty()) {
@@ -78,8 +78,96 @@ ShmModel::ShmModel(const std::string &filename) {
     }
 }
 
-size_t ShmModel::size() const {
-    return beta_fr_params_.size();
+const ShmModel::ModelParametersVector& ShmModel::beta_params(const annotation_utils::StructuralRegion& region) const {
+    if (region == StructuralRegion::FR)
+        return beta_fr_params_;
+    if (region == StructuralRegion::CDR)
+        return beta_cdr_params_;
+    return beta_full_params_; // region == StructuralRegion::AnyRegion
+}
+
+const ShmModel::ModelParametersVector&
+ShmModel::start_point_beta_params(const annotation_utils::StructuralRegion& region) const {
+    if (region == StructuralRegion::FR)
+        return start_point_beta_fr_params_;
+    if (region == StructuralRegion::CDR)
+        return start_point_beta_cdr_params_;
+    return start_point_beta_full_params_; // region == StructuralRegion::AnyRegion
+}
+
+const ShmModel::SuccessMLEOptimazation&
+ShmModel::beta_success_mle(const annotation_utils::StructuralRegion& region) const {
+    if (region == StructuralRegion::FR)
+        return beta_fr_success_mle_;
+    if (region == StructuralRegion::CDR)
+        return beta_cdr_success_mle_;
+    return beta_full_success_mle_; // region == StructuralRegion::AnyRegion
+}
+
+double ShmModel::beta_expectation(const std::string& kmer,
+                                  const annotation_utils::StructuralRegion& region) const
+{
+    auto &param = beta_params(region)[kmer];
+    auto &param_full = beta_full_params_[kmer];
+    auto &start = start_point_beta_params(region)[kmer];
+    auto &success = beta_success_mle(region)[kmer];
+    auto &success_full = beta_full_success_mle_[kmer];
+
+    if ( success and
+         not isnan(param[0]) and not isnan(param[1]) ) {
+        return param[0] / (param[0] + param[1]);
+    } else if ( success_full and
+                not isnan(param_full[0]) and not isnan(param_full[1]) ) {
+        return param_full[0] / (param_full[0] + param_full[1]);
+    }
+    return start[0] / (start[0] + start[1]);
+}
+
+double ShmModel::beta_fr_expectation(const std::string &kmer) const {
+    return beta_expectation(kmer, StructuralRegion::FR);
+}
+
+double ShmModel::beta_cdr_expectation(const std::string &kmer) const {
+    return beta_expectation(kmer, StructuralRegion::CDR);
+}
+
+double ShmModel::beta_full_expectation(const std::string &kmer) const {
+    return beta_expectation(kmer, StructuralRegion::AnyRegion);
+}
+
+double ShmModel::dirichlet_expectation(const std::string& kmer, const char nucl) const {
+    const size_t mutation_index(KmerUtils::GetMutationIndexByKmerAndNucl(kmer, nucl));
+    auto &param = dirichlet_params_[kmer];
+    auto &success = dirichlet_success_mle_[kmer];
+    auto &start = start_point_dirichlet_params_[kmer];
+
+    if ( success and
+         not isnan(param[0]) and not isnan(param[1]) and not isnan(param[2]) ) {
+        return param[mutation_index] / (param[0] + param[1] + param[2]);
+    }
+    return start[mutation_index] / (start[0] + start[1] + start[2]);
+}
+
+double ShmModel::likelihood_kmer_nucl(const std::string& kmer,
+                                      const char nucl,
+                                      const StructuralRegion& region) const
+{
+    if (kmer.find('-') != std::string::npos and kmer.find('N') != std::string::npos) {
+        return nanf("");
+    }
+
+    double beta_exp = beta_expectation(kmer, region);
+    if (kmer[kmer_len() / 2] == nucl) {
+        return 1 - beta_exp;
+    }
+    return beta_exp * dirichlet_expectation(kmer, nucl);
+}
+
+double ShmModel::loglikelihood_kmer_nucl(const std::string& kmer,
+                                         const char nucl,
+                                         const StructuralRegion& region) const
+{
+    return log(likelihood_kmer_nucl(kmer, nucl, region));
 }
 
 std::ostream &operator<<(std::ostream &os, const ShmModel &obj) {

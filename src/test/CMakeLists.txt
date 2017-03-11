@@ -6,8 +6,19 @@ include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
 include_directories(${SHM_DIR})
+include_directories(${ANTEVOLO_DIR})
 
-link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
+link_libraries(
+        gtest
+        gmock_main
+        gmock
+        graph_utils
+        vdj_utils
+        algorithms
+        core
+        input
+        shm_kmer_matrix_estimator_library
+        ${COMMON_LIBRARIES})
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
@@ -23,18 +34,7 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 #                ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
 #                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
-make_test(test_shm_kmer_model test_shm_kmer_model.cpp
-        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_config.cpp
-        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator_pipeline.cpp
-        ../shm_kmer_matrix_estimator/kmer_utils/kmer_utils.cpp
-        ../shm_kmer_matrix_estimator/kmer_utils/kmer_indexed_vector.cpp
-        ../shm_kmer_matrix_estimator/germline_alignment_reader/alignment_reader.cpp
-        ../shm_kmer_matrix_estimator/alignment_checker/no_gaps_alignment_checker.cpp
-        ../shm_kmer_matrix_estimator/alignment_cropper/upto_last_reliable_kmer_alignment_cropper.cpp
-        ../shm_kmer_matrix_estimator/mutation_strategies/trivial_strategy.cpp
-        ../shm_kmer_matrix_estimator/kmer_matrix_exporter/kmer_matrix_exporter.cpp
-        ../shm_kmer_matrix_estimator/shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.cpp
-        ../shm_kmer_matrix_estimator/mutation_strategies/no_k_neighbours.cpp)
+make_test(test_shm_kmer_model test_shm_kmer_model.cpp)
 
 add_executable(test_dsf test_dsf.cpp
                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
@@ -69,7 +69,10 @@ add_executable(test_cdr_labeling test_cdr_labeler.cpp
         ../cdr_labeler/read_labeler.cpp
         )
 
-add_executable(test_antevolo test_antevolo.cpp
+make_test(test_antevolo test_antevolo.cpp
+        ../antevolo/antevolo_config.cpp
+        ../antevolo/shm_model_utils/shm_model.cpp
+        ../antevolo/shm_model_utils/shm_model_edge_weight_calculator.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
         ../vj_finder/vj_alignment_structs.cpp

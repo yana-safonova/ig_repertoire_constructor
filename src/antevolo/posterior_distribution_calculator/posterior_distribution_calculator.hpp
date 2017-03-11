@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "shm_model/shm_model.hpp"
+#include "shm_model_utils/shm_model.hpp"
 #include "kmer_matrix/kmer_matrix.hpp"
 
 namespace antevolo {

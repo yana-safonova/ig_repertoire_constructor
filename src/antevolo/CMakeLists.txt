@@ -49,7 +49,6 @@ add_executable(antevolo
         vj_class_processors/clonally_related_candidates.cpp
         vj_class_processors/vj_class_processor.cpp
         vj_class_processors/edmonds_tarjan_DMST_calculator.cpp
-#        model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
         #evolutionary_graph_utils/evolutionary_graph.cpp
         #evolutionary_graph_utils/evolutionary_graph_constructor.cpp
@@ -74,8 +73,9 @@ add_executable(antevolo
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
         related_clones_iterator.cpp
-        shm_model/shm_model.cpp
-        posterior_distribution_calculator/posterior_distribution_calculator.cpp)
+        shm_model_utils/shm_model.cpp
+        posterior_distribution_calculator/posterior_distribution_calculator.cpp
+        shm_model_utils/shm_model_edge_weight_calculator.cpp)
 
 target_link_libraries(
         antevolo

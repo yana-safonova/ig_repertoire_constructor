@@ -15,7 +15,7 @@
 #include "annotated_clone_by_read_constructor.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
 
-#include "shm_model/shm_model.hpp"
+#include "shm_model_utils/shm_model.hpp"
 
 #include "shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.hpp"
 #include "posterior_distribution_calculator/posterior_distribution_calculator.hpp"
