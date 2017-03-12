@@ -2455,20 +2455,6 @@ def splittering(rcm2rcm, rep, args, report):
     print "Saved clusters logit", s
 
     good = score_diffs > 0
-    if False:
-        import statsmodels.api as sm
-
-        m = sm.Logit(good, np.vstack((np.ones(len(max_second_votes)),
-                                      cluster_sizes,
-                                      max_second_votes)).T)
-        # m = sm.Logit(good, np.vstack((cluster_sizes,
-        #                               max_second_votes)).T)
-        res = m.fit()
-        # print res.aic, res.bic
-        print res.params
-        coef = res.params
-        print zip(res.predict(), score_diffs)
-
     coef, intercept, score = plot_logit(good, np.vstack((cluster_sizes,
                                                          max_second_votes)).T,
                                         colors=colors)
