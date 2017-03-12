@@ -649,8 +649,6 @@ class RepertoireMatch:
         if size is None:
             size = self.reference_trust_cutoff
 
-        rb["min_size"] = size
-
         rb["precision"] = self.precision(size)
         rb["sensitivity"] = self.sensitivity(size)
         rb["cons2ref"] = self.cons2ref(size)
@@ -2172,20 +2170,23 @@ class Report:
     def __str__(self):
         s = ""
 
+        min_size = self.min_size
         if "reference_based" in self.__dict__:
             rb = self.reference_based
-            s += "Reference-based quality measures (with size threshold = %(min_size)d):\n" % rb
-            s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
-            s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
-            s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
-            s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
-            s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
-            s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
 
-            extra_clusters_ref_sizes = rb["extra_clusters_ref_sizes"]
-            for size in reversed(range(rb["min_size"])):
-                n_ec = sum([1 for sz in extra_clusters_ref_sizes if sz == size])
-                s += "\tExtra clusters with size == %d:\t\t%d\n" % (size, n_ec)
+            if "sensitivity" in rb:
+                s += "Reference-based quality measures (with size threshold = %d):\n" % min_size
+                s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
+                s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
+                s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+                s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
+                s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
+                s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
+
+                extra_clusters_ref_sizes = rb["extra_clusters_ref_sizes"]
+                for size in reversed(range(min_size)):
+                    n_ec = sum([1 for sz in extra_clusters_ref_sizes if sz == size])
+                    s += "\tExtra clusters with size == %d:\t\t%d\n" % (size, n_ec)
 
             if "jaccard_index" in rb:
                 s += "\tClustering similarity measures:\n"
@@ -2342,10 +2343,13 @@ def splittering(rcm2rcm, rep, args, report):
         plt.close()
     map(F, [1, 5, 10, 15, 50])
 
-    os.system(igrec_dir + "/build/release/bin/ig_component_splitter -i %s -o %s -R %s -M %s -V 1 --recursive=false --flu=false" % (args.initial_reads,
-                                                                                                                                   args.output_dir + "/splitted.fa.gz",
-                                                                                                                                   args.constructed_rcm,
-                                                                                                                                   args.output_dir + "/splitted.rcm"))
+    os.system(igrec_dir + "/build/release/bin/ig_component_splitter \
+			  -i %s -o %s -R %s -M %s -V 1 \
+              --allow-unassigned=true \
+              --recursive=false --flu=false" % (args.initial_reads,
+                                                args.output_dir + "/splitted.fa.gz",
+                                                args.constructed_rcm,
+                                                args.output_dir + "/splitted.rcm"))
 
     def read_fa_cluster_ids(filename):
         with smart_open(filename) as f:

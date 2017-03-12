@@ -234,6 +234,7 @@ def main(args):
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
 
     report = Report()
+    report.min_size = args.reference_size_cutoff
 
     def ref_free_plots(rep, name, dir):
         if args.figure_format:
