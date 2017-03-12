@@ -24,7 +24,6 @@ namespace antevolo {
         INFO("Largest class contains " << vj_decomposition.MaxClassSize() << " clone(s)");
         omp_set_num_threads(config_.run_params.num_threads);
         INFO("Construction of clonal trees starts");
-        ShmModel model(5, config_.input_params); // todo: move magic constant to config
         std::vector<size_t> fake_clone_indices(config_.run_params.num_threads);
         std::vector<size_t> reconstructed(config_.run_params.num_threads);
         std::vector<size_t> rejected(config_.run_params.num_threads);
@@ -40,7 +39,6 @@ namespace antevolo {
             auto vj_class_processor = VJClassProcessor(fakes_clone_set_ptr,
                                                        config_.output_params,
                                                        config_.algorithm_params,
-                                                       model,
                                                        clone_by_read_constructor_,
                                                        fake_clone_indices[thread_id],
                                                        reconstructed[thread_id],

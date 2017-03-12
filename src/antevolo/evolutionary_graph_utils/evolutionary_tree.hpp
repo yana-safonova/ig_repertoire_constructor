@@ -3,7 +3,6 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
-#include "model_utils/shm_model.hpp"
 #include "evolutionary_graph_utils/evolutionary_edge/base_evolutionary_edge.hpp"
 #include "evolutionary_edge_constructor.hpp"
 #include "../clone_set_with_fakes.hpp"

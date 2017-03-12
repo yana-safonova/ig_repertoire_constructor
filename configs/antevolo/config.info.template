@@ -1,7 +1,10 @@
 input_params {
     input_reads test7_compressed.fq; test_dataset/test7.fastq ;test_dataset/merged_reads.fastq
     cdr_labeler_config_fname configs/cdr_labeler/config.info  
-    model_input data/shm_model/model_input.csv
+    shm_kmer_matrix_estimator_config_fname configs/shm_kmer_matrix_estimator/default_config_antevolo.info
+    shm_kmer_model_igh data/shm_model/NoKNeighbours_IGH.csv
+    shm_kmer_model_igk data/shm_model/NoKNeighbours_IGK.csv
+    shm_kmer_model_igl data/shm_model/NoKNeighbours_IGL.csv
 }
 
 output_params {

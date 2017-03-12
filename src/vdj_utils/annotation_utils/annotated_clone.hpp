@@ -7,7 +7,7 @@
 #include "../alignment_utils/pairwise_alignment.hpp"
 
 namespace annotation_utils {
-    enum StructuralRegion { CDR1, CDR2, CDR3 };
+    enum StructuralRegion { CDR, FR, CDR1, CDR2, CDR3, FR1, FR2, FR3, FR4, UnknownRegion, AnyRegion };
 
     std::ostream& operator<<(std::ostream& out, const StructuralRegion &region);
 

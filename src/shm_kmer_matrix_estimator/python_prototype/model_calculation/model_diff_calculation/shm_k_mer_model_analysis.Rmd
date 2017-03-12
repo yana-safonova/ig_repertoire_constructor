@@ -1,0 +1,881 @@
+---
+title: "SHM_model_analysis"
+author: "Andy"
+date: "March 3, 2016"
+output: html_document
+---
+
+
+```{r}
+setwd('/home/ashlemov/chihua/')
+```
+
+```{r}
+library(lattice)
+```
+
+```{r}
+before.flu = 3
+```
+
+# Dirichlet distribution
+
+```{r}
+library("rgl")
+library("akima")
+library("tcR")
+library('gtools')
+library('parallel')
+library('SimplicialCubature')
+```
+
+```{r}
+datasets.before.flu = list(
+  GMC.IGH.k_neighbour[[1]], GMC.IGH.k_neighbour[[2]], GMC.IGH.k_neighbour[[3]],
+  IDO.IGH.k_neighbour[[1]], IDO.IGH.k_neighbour[[2]], IDO.IGH.k_neighbour[[3]],
+  FV.IGH.k_neighbour [[1]], FV.IGH.k_neighbour [[2]], FV.IGH.k_neighbour [[3]]
+)
+```
+
+```{r}
+datasets.after.flu = unlist(list(
+  GMC.IGH.k_neighbour[-c(1:3, 8)],
+  FV.IGH.k_neighbour[-c(1:3, 5)],
+  IDO.IGH.k_neighbour[-(1:3)]
+), recursive = FALSE)
+```
+
+
+```{r}
+mers5 <- generate.kmers(.k = 5)
+```
+
+```{r}
+get.dir.samp.from.datasets <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- t(sapply(datasets, function(x) x[kmer,]))
+  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
+  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
+  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
+  
+  samp  
+}
+```
+
+
+```{r}
+calc.dir.model <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- get.dir.samp.from.datasets(kmer, datasets)  
+  res <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")
+  res$par
+}
+```
+
+```{r}
+model.before <- t(sapply(mers5, calc.dir.model, datasets.before.flu))
+model.after <- t(sapply(mers5, calc.dir.model, datasets.after.flu))
+model.age <- t(sapply(mers5, calc.dir.model, age.IGH.k_neighbour))
+```
+
+```{r}
+mutability.before.flu <- rowSums(sapply(datasets.before.flu, rowSums))
+mutability.after.flu <- rowSums(sapply(datasets.after.flu, rowSums))
+mutability.age <- rowSums(sapply(age.IGH.k_neighbour, rowSums))
+
+# head(sort(rowSums(sapply(datasets.before.flu, rowSums)), decreasing = TRUE))
+# head(sort(rowSums(sapply(datasets.after.flu, rowSums)), decreasing = TRUE))
+```
+
+```{r}
+plot.dirichlet <- function(kmer, datasets, model, direchlet.dimention = 3, color = "black", draw.lines = FALSE, col.lines = "green", add = FALSE, transp = 0.5) {
+  x1 <- x2 <- seq(0.01, .99, by=.01) 
+  
+  f <- function(x1, x2) { 
+    ddirichlet(x = matrix(c(x1, x2, 1-x1-x2), ncol=3), alpha = model[kmer,])
+  }
+  
+  z <- outer(x1, x2, f) 
+  z[z <= 0] <- NA
+  
+  persp(x1, x2, z, 
+         main = "Dirichlet Distribution", 
+         col = color, 
+         theta = 50, 
+         phi = 20, 
+         r = 50, 
+         d = 0.1, 
+         expand = 0.5, 
+         ltheta = 90, 
+         lphi = 180, 
+         shade = 0.75, 
+         ticktype = "detailed", 
+         nticks = 5)
+  
+  if (add) {
+    persp3d(x = x1, y = x2, z = z + runif(min = 1e-3, max = 2e-3, n = 1), col = color, add = add, alpha = 1 - transp, cex = 3)
+  } else {
+    persp3d(x = x1, y = x2, z = z, col = color, add = add, alpha = 1 - transp, cex = 3)
+  } 
+
+  if (draw.lines) {
+    samp <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets)
+  
+    samp <- samp / rowSums(samp)
+    print(samp)
+    apply(samp, 1, function(row) {
+        print(row)
+        lines3d(x = c(row[1], row[1]), c(row[2], row[2]), c(0, max(z, na.rm = TRUE)),
+                color = col.lines, lwd = 2)
+      }
+    )  
+  }
+}
+```
+
+
+```{r}
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "GTGTA", datasets = age.IGH.k_neighbour, model = model.after, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.before.flu, model = model.before, color = "red")
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE)
+```
+
+## Difference between "before flu" and "after flu".
+
+```{r}
+permutation.test <- function(M, datasets1, datasets2, kmer, diff.func, direchlet.dimention = 3, draw = FALSE, ...) {
+  print(kmer)
+  par1 <- calc.dir.model(kmer = kmer, datasets = datasets1)
+  par2 <- calc.dir.model(kmer = kmer, datasets = datasets2)
+
+  real.value <- diff.func(par1, par2, ...)
+  print(real.value)
+  
+  samp1 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets1)
+  samp2 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets2)
+
+  samp <- rbind(samp1, samp2)
+
+  len <- seq_len(nrow(samp))
+  res <- mclapply(1:M, function(...) {
+  #res <- replicate(M, {
+    part1 <- sample(len, size = nrow(samp1))
+    samp1 <- samp[part1, ]
+    samp2 <- samp[-part1, ]
+    par1 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp1, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+    par2 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp2, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+
+    diff <- diff.func(par1, par2, ...)
+    diff
+  }, mc.cores = 3)
+  res <- unlist(res)
+  if (draw) {
+    hist(res, main = kmer)
+    abline(v = real.value, col="red")
+  }
+  #write.table(x = data.frame(kmer = kmer, distributions_are_closed = (real.value < quantile(res, 0.95, na.rm = TRUE))),
+  #            file = output.file, append = TRUE, col.names = FALSE)
+  real.value < quantile(res, 0.95, na.rm = TRUE)
+}
+```
+
+```{r}
+l1.mean.diff <- function(par1, par2, ...) {
+  sum(abs(par1 / sum(par1) - par2 / sum(par2)))
+}
+```
+
+```{r}
+# l1.disrt.diff <- function(par1, par2, ...) {
+#   f <- function(x)
+#     abs(ddirichlet(x, alpha = par1) - ddirichlet(x, alpha = par2))
+#   adaptintegrate(f, CanonicalSimplex())
+# }
+```
+
+```{r}
+JSD.Div <- function(par1, par2, N) {
+    samp1 <- rdirichlet(n = N, alpha = par1)
+    samp2 <- rdirichlet(n = N, alpha = par2)
+    A <- ddirichlet(samp1, par1)
+    B <- ddirichlet(samp1, par2)
+    C <- ddirichlet(samp2, par1)
+    D <- ddirichlet(samp2, par2)
+    
+    sqrt(mean(mean(log2(2 * A / (A + B))) + mean(log2(2 * D / (C + D)))))
+}
+```
+
+```{r}
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='AACAA', diff.func = l1.mean.diff)
+permutation.test(100, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='ACAAA', diff.func = JSD.Dir, N = 1000)
+```
+
+```{r}
+kmer = "ACAAA"
+res <- replicate(100, JSD.Dir(model.before[kmer,], model.after[kmer,], N=1000))
+mean(res)
+```
+
+```{r}
+# output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_flu_before_after.txt"
+# file.create(output.file)
+# mers5.l1.mean.before.after <- sapply(X = mers5, FUN = function(kmer) {
+#   result <- permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer=kmer, diff.func = l1.mean.diff)
+#   cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+# })
+# 
+# output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/JSD.Div_flu_before_after.txt"
+# file.create(output.file)
+# mers5.l1.mean.before.after <- sapply(X = mers5, FUN = function(kmer) {
+#   result <- permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer=kmer, diff.func = JSD.Div, N = 1000)
+#   cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+# })
+```
+
+```{r}
+mers5.l1.mean.before.after <- read.table("l1.mean.diff_flu_before_after.txt", col.names = c("kmer", "are.similar"))
+```
+
+```{r}
+length(which(! mers5.l1.mean.before.after$are.similar))
+which(! mers5.l1.mean.before.after$are.similar)
+```
+
+```{r}
+susp.kmers <- sort(mutability.before.flu[which(! mers5.l1.mean.before.after$are.similar)], decreasing = TRUE)
+susp.kmers <- names(susp.kmers[1 : (which.max(susp.kmers <= 1) - 1)])
+```
+
+TCTGG GAGTG TGGTA CATAT AACTA GGCTG GTGGT CAGGG AGAGC CCAGC CTGTT CTTGA CACGC GATAA GCTGC TCACA ACTGC TATCC TAGAC AAAGT GTTTA CCCTA TCTAC TAAGA TCTAG TGGGC GCGCC TCGAA 
+41057 21472 18641 17629 15504 10981  7791  7493  5231  4483  4273  4050  2488  2081  1668  1580  1274   885   758   721   645   637   431   259   248   215   159    61 
+
+ACTTC
+   36
+
+
+```{r}
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='TCTGG', diff.func = l1.mean.diff, draw = TRUE)
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='TCTGG', diff.func = JSD.Div, N = 1000, draw = TRUE)
+```
+
+```{r}
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='GAGTG', diff.func = l1.mean.diff, draw = TRUE)
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='GAGTG', diff.func = JSD.Div, N = 1000, draw = TRUE)
+```
+
+```{r}
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='TGGTA', diff.func = l1.mean.diff, draw = TRUE)
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='TGGTA', diff.func = JSD.Div, N = 1000, draw = TRUE)
+```
+
+```{r}
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='CATAT', diff.func = l1.mean.diff, draw = TRUE)
+permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer='CATAT', diff.func = JSD.Div, N = 1000, draw = TRUE)
+```
+
+```{r}
+js.div.for.susp.kmers <- sapply(susp.kmers, function(kmer) {
+  permutation.test(1000, datasets1 = datasets.before.flu, datasets2 = datasets.after.flu, kmer = kmer, diff.func = JSD.Div, N = 1000, draw = TRUE)
+})
+```
+
+```{r}
+js.div.for.susp.kmers
+```
+
+```{r}
+plot.dirichlet(kmer = "GAGTG", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GAGTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+GAGTG.before <- get.dir.samp.from.datasets(kmer = "GAGTG", datasets = datasets.before.flu)
+GAGTG.before / rowSums(GAGTG.before)
+
+GAGTG.after <- get.dir.samp.from.datasets(kmer = "GAGTG", datasets = datasets.after.flu)
+GAGTG.after / rowSums(GAGTG.after)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGAGC", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AGAGC", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+AGAGC.before <- get.dir.samp.from.datasets(kmer = "AGAGC", datasets = datasets.before.flu)
+AGAGC.before / rowSums(AGAGC.before)
+
+AGAGC.after <- get.dir.samp.from.datasets(kmer = "AGAGC", datasets = datasets.after.flu)
+AGAGC.after / rowSums(AGAGC.after)
+```
+
+```{r}
+plot.dirichlet(kmer = "ACTGC", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "ACTGC", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+ACTGC.before <- get.dir.samp.from.datasets(kmer = "ACTGC", datasets = datasets.before.flu)
+ACTGC.before / rowSums(ACTGC.before)
+
+ACTGC.after <- get.dir.samp.from.datasets(kmer = "ACTGC", datasets = datasets.after.flu)
+ACTGC.after / rowSums(ACTGC.after)
+```
+
+For how many kmers is everything OK?
+
+```{r}
+threshold.min.mutability <- 300
+```
+
+
+```{r}
+#mers5.l1.mean.before.after$kmer[mers5.l1.mean.before.after$are.similar]
+#mutability.before.flu.sorted <- sort(mutability.before.flu, decreasing = TRUE)
+#mutability.after.flu.sorted <- sort(mutability.after.flu, decreasing = TRUE)
+median.mutability.before.flu <- apply(sapply(datasets.before.flu, rowSums), 1, median)
+median.mutability.after.flu <-  apply(sapply(datasets.after.flu, rowSums), 1, median)
+```
+
+```{r}
+sum((mutability.before.flu + mutability.after.flu > threshold.min.mutability) & mers5.l1.mean.before.after$are.similar)
+sum((median.mutability.before.flu + median.mutability.after.flu > threshold.min.mutability) & mers5.l1.mean.before.after$are.similar)
+```
+
+
+## Difference between trivial and k.neighbour
+
+```{r}
+datasets.before.flu.k_neighbour = list(
+  GMC.IGH.k_neighbour[[1]], GMC.IGH.k_neighbour[[2]], GMC.IGH.k_neighbour[[3]],
+  IDO.IGH.k_neighbour[[1]], IDO.IGH.k_neighbour[[2]], IDO.IGH.k_neighbour[[3]],
+  FV.IGH.k_neighbour [[1]], FV.IGH.k_neighbour [[2]], FV.IGH.k_neighbour [[3]]
+)
+```
+
+```{r}
+datasets.before.flu.trivial = list(
+  GMC.IGH.trivial[[1]], GMC.IGH.trivial[[2]], GMC.IGH.trivial[[3]],
+  IDO.IGH.trivial[[1]], IDO.IGH.trivial[[2]], IDO.IGH.trivial[[3]],
+  FV.IGH.trivial [[1]], FV.IGH.trivial [[2]], FV.IGH.trivial [[3]]
+)
+```
+
+```{r}
+model.before.k_neighbour <- t(sapply(mers5, calc.dir.model, datasets.before.flu.k_neighbour))
+model.before.trivial <- t(sapply(mers5, calc.dir.model, datasets.before.flu.trivial))
+```
+
+```{r}
+plot.dirichlet(kmer = "TCTGG", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TCTGG", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AAAAC", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AAAAC", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_flu_before_kn_trivial.txt"
+file.create(output.file)
+mers5.l1.mean.before.kn.trivial <- sapply(X = mers5, FUN = function(kmer) {
+  result <- permutation.test(1000, datasets1 = datasets.before.flu.k_neighbour, datasets2 = datasets.before.flu.trivial, kmer=kmer, diff.func = l1.mean.diff)
+  cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+})
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_flu_before_kn_trivial.txt"
+mers5.l1.mean.before.kn.trivial <- read.table(file = output.file, col.names = c("kmer", "are.similar"))
+```
+
+```{r}
+length(mers5.l1.mean.before.kn.trivial$kmer[which(!mers5.l1.mean.before.kn.trivial$are.similar)])
+length(which(
+  median.mutability.before.flu[
+    mers5.l1.mean.before.kn.trivial$kmer[which(!mers5.l1.mean.before.kn.trivial$are.similar)]
+  ] > threshold.min.mutability
+))
+mers5.l1.mean.before.kn.trivial$kmer[which(!mers5.l1.mean.before.kn.trivial$are.similar)]
+```
+
+```{r}
+plot.dirichlet(kmer = "TTGGA", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TTGGA", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+median.mutability.before.flu["TTGGA"]
+```
+
+```{r}
+plot.dirichlet(kmer = "AACCC", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AACCC", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+median.mutability.before.flu["AACCC"]
+```
+
+```{r}
+plot.dirichlet(kmer = "TACTA", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TACTA", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+median.mutability.before.flu["TACTA"]
+```
+
+```{r}
+plot.dirichlet(kmer = "GTAGT", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GTAGT", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+median.mutability.before.flu["GTAGT"]
+```
+
+```{r}
+plot.dirichlet(kmer = "GAGAG", datasets = datasets.before.flu.k_neighbour, model = model.before.k_neighbour, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GAGAG", datasets = datasets.before.flu.trivial, model = model.before.trivial, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+median.mutability.before.flu["GAGAG"]
+```
+
+
+## IGL vs IGK
+
+```{r}
+datasets.full.flu_k_neighbour.IGL = unlist(list(
+  GMC.IGL.k_neighbour[-8],
+  FV.IGL.k_neighbour[-5],
+  IDO.IGL.k_neighbour
+), recursive = FALSE)
+```
+
+```{r}
+datasets.full.flu_k_neighbour.IGK = unlist(list(
+  GMC.IGK.k_neighbour[-8],
+  FV.IGK.k_neighbour[-5],
+  IDO.IGK.k_neighbour
+), recursive = FALSE)
+```
+
+```{r}
+datasets.full.flu_k_neighbour.IGH = unlist(list(
+  GMC.IGH.k_neighbour[-8],
+  FV.IGH.k_neighbour[-5],
+  IDO.IGH.k_neighbour
+), recursive = FALSE)
+```
+
+```{r}
+model.full.flu.k_n.IGL <- t(sapply(mers5, calc.dir.model, datasets.full.flu_k_neighbour.IGL))
+model.full.flu.k_n.IGK <- t(sapply(mers5, calc.dir.model, datasets.full.flu_k_neighbour.IGK))
+model.full.flu.k_n.IGH <- t(sapply(mers5, calc.dir.model, datasets.full.flu_k_neighbour.IGH))
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGL_IGK.txt"
+file.create(output.file)
+mers5.l1.mean.full.flu.k_n.IGL.IGK <- sapply(X = mers5, FUN = function(kmer) {
+  result <- permutation.test(1000, datasets1 = datasets.full.flu_k_neighbour.IGL, datasets2 = datasets.full.flu_k_neighbour.IGK,
+                             kmer=kmer, diff.func = l1.mean.diff)
+  cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+})
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGL_IGK.txt"
+mers5.l1.mean.full.flu.k_n.IGL.IGK <- read.table(file = output.file, col.names = c("kmer", "are.similar"))
+```
+
+```{r}
+table(mers5.l1.mean.full.flu.k_n.IGL.IGK$are.similar)
+```
+
+```{r}
+median.mutability.full.flu_k_neighbour.IGK <- apply(sapply(datasets.full.flu_k_neighbour.IGK, rowSums), 1, median)
+median.mutability.full.flu_k_neighbour.IGL <- apply(sapply(datasets.full.flu_k_neighbour.IGL, rowSums), 1, median)
+median.mutability.full.flu_k_neighbour.IGH <- apply(sapply(datasets.full.flu_k_neighbour.IGH, rowSums), 1, median)
+```
+
+```{r}
+tail(sort(median.mutability.full.flu_k_neighbour.IGK), 10)
+tail(sort(median.mutability.full.flu_k_neighbour.IGL), 10)
+```
+
+```{r}
+plot.dirichlet(kmer = "TCTCC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TCTCC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCAG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AGCAG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AAGCT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AAGCT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "TACTG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TACTG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "CAGCA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", draw.lines = FALSE, col.lines = "red")
+plot.dirichlet(kmer = "CAGCA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, draw.lines = FALSE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "TTCTA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TTCTA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+to poster
+```{r}
+plot.dirichlet(kmer = "AGCTC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCTC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+to poster?
+```{r}
+plot.dirichlet(kmer = "CAGTA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAGTA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+# IGH vs IGK
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGH_IGK.txt"
+file.create(output.file)
+mers5.l1.mean.full.flu.k_n.IGH.IGK <- sapply(X = mers5, FUN = function(kmer) {
+  result <- permutation.test(1000, datasets1 = datasets.full.flu_k_neighbour.IGH, datasets2 = datasets.full.flu_k_neighbour.IGK,
+                             kmer=kmer, diff.func = l1.mean.diff)
+  cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+})
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGH_IGK.txt"
+mers5.l1.mean.full.flu.k_n.IGH.IGK <- read.table(file = output.file, col.names = c("kmer", "are.similar"))
+```
+
+# IGH vs IGL
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGH_IGL.txt"
+file.create(output.file)
+mers5.l1.mean.full.flu.k_n.IGH.IGL <- sapply(X = mers5, FUN = function(kmer) {
+  result <- permutation.test(1000, datasets1 = datasets.full.flu_k_neighbour.IGH, datasets2 = datasets.full.flu_k_neighbour.IGL,
+                             kmer=kmer, diff.func = l1.mean.diff)
+  cat(kmer, " ", result, "\n", file = output.file, append = TRUE)
+})
+```
+
+```{r}
+output.file <- "/home/ashlemov/Yandex.Disk/Documents/lab/vers2/src/shm_kmer_model/model_calculation/l1.mean.diff_full_flu_IGH_IGL.txt"
+mers5.l1.mean.full.flu.k_n.IGH.IGL <- read.table(file = output.file, col.names = c("kmer", "are.similar"))
+```
+
+```{r}
+plot.dirichlet(kmer = "TCCCT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TCCCT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TCCCT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TCTCC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TCTCC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TCTCC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AACCG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AACCG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AACCG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ACACA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ACACA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ACACA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ACAAT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCAA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCAA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCAA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCCG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCCG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCCG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CAGGG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CAGGG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAGGG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CCAAG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CCGTG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CCGTG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CCGTG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GGCTC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GGCTC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GGCTC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TACAA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TACAA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", add = TRUE, col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TACAA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+ very interesting kmer. Watch IGH
+```{r}
+plot.dirichlet(kmer = "TACTG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0, draw.lines = TRUE)
+plot.dirichlet(kmer = "TACTG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TACTG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0, draw.lines = TRUE)
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TGGAA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+ 
+
+
+```{r}
+x <- mers5.l1.mean.full.flu.k_n.IGH.IGL$kmer[which(mers5.l1.mean.full.flu.k_n.IGH.IGL$are.similar)]
+length(which(
+  median.mutability.full.flu_k_neighbour.IGH[x] > threshold.min.mutability &
+    median.mutability.full.flu_k_neighbour.IGL[x] > threshold.min.mutability &
+     median.mutability.full.flu_k_neighbour.IGK[x] > threshold.min.mutability
+))
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCTA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCTA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+ 
+```{r}
+plot.dirichlet(kmer = "AGCTC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCTC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCTC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGGGA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGGGA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGGGA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ATCTA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ATCTA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ATCTA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "ATTAC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CAAAC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAAAC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CAAAC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CAACT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAACT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CAACT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CTATT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CTATT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CTATT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CTCCT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CTCTG", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CTCTG", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CTCTG", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GCACC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GCACC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GCACC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GGATC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GGATC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GGATC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GGGGA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GGGGA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GGGGA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GTAAT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GTAAT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GTAAT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "GTTTC", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GTTTC", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GTTTC", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TAGTA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TAGTA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TAGTA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "TAGTT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "TAGTT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "TAGTT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+hot spot example
+```{r}
+plot.dirichlet(kmer = "GAGTT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "GAGTT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "GAGTT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+x <- mers5.l1.mean.full.flu.k_n.IGH.IGK$kmer[which(mers5.l1.mean.full.flu.k_n.IGH.IGK$are.similar)]
+length(which(
+  median.mutability.full.flu_k_neighbour.IGH[x] > threshold.min.mutability &
+    median.mutability.full.flu_k_neighbour.IGK[x] > threshold.min.mutability
+))
+```
+
+```{r}
+x <- mers5.l1.mean.full.flu.k_n.IGL.IGK$kmer[which(mers5.l1.mean.full.flu.k_n.IGL.IGK$are.similar)]
+length(which(
+  median.mutability.full.flu_k_neighbour.IGL[x] > threshold.min.mutability &
+    median.mutability.full.flu_k_neighbour.IGK[x] > threshold.min.mutability &
+      median.mutability.full.flu_k_neighbour.IGL[x] > threshold.min.mutability
+))
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGCTT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGCTT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "green", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "CAGGA", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+# to poster
+
+
+```{r}
+plot.dirichlet(kmer = "GAGTG", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGAGC", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+```
+
+```{r}
+plot.dirichlet(kmer = "AGACT", datasets = datasets.full.flu_k_neighbour.IGH, model = model.full.flu.k_n.IGH, color = "red", col.lines = "red", transp = 0)
+plot.dirichlet(kmer = "AGACT", datasets = datasets.full.flu_k_neighbour.IGK, model = model.full.flu.k_n.IGK, color = "blue", add = TRUE, col.lines = "green", transp = 0)
+plot.dirichlet(kmer = "AGACT", datasets = datasets.full.flu_k_neighbour.IGL, model = model.full.flu.k_n.IGL, color = "green", add = TRUE, col.lines = "green", transp = 0)
+rgl.snapshot("/home/ashlemov/Yandex.Disk/Documents/lab/lab_publications/immunogenomics/recomb_2016_ant_evolo_poster/figures/AGACT.png")
+```

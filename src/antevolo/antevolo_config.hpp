@@ -1,13 +1,18 @@
 #pragma once
 
 #include <cdr_config.hpp>
+#include <shm_kmer_matrix_estimator_config.hpp>
 
 namespace antevolo {
     struct AntEvoloConfig {
         struct InputParams {
             std::string input_reads;
             std::string cdr_labeler_config_fname;
-            std::string model_input;
+            std::string shm_kmer_matrix_estimator_config_fname;
+
+            std::string shm_kmer_model_igh;
+            std::string shm_kmer_model_igk;
+            std::string shm_kmer_model_igl;
         };
 
         struct OutputParams {
@@ -45,6 +50,7 @@ namespace antevolo {
         RunParams run_params;
         AlgorithmParams algorithm_params;
         cdr_labeler::CDRLabelerConfig cdr_labeler_config;
+        shm_kmer_matrix_estimator::shm_kmer_matrix_estimator_config shm_config;
 
         void load(std::string antevolo_config_fname);
     };

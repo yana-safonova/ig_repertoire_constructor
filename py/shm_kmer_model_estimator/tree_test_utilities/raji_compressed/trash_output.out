@@ -1,0 +1,16 @@
+   0:00:00.005    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 167)   Command line: ./build/release/bin/ig_swgraph_construct -i /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr3_graphs/CDR3_sequences_key_1060.fasta -o /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr3_graphs/CDR3_sequences_key_1060.graph --tau 3 -S 0 -T 0 -k 10
+   0:00:00.006    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 168)   Input reads: /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr3_graphs/CDR3_sequences_key_1060.fasta
+   0:00:00.006    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 169)   k = 10, tau = 3
+   0:00:00.010    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 175)   Reading input reads starts
+   0:00:00.018    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 177)   1 reads were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr3_graphs/CDR3_sequences_key_1060.fasta
+   0:00:00.022    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 179)   Read length checking
+   0:00:00.022    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 215)   Truncated distance graph construction using 4 threads starts
+   0:00:00.022    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 216)   Construction of candidates graph
+   0:00:00.022    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 218)   Strategy 0 was chosen
+   0:00:00.022    4M /    4M   INFO  General                 (ig_swgraph_construct.cpp  : 227)   K-mer index construction
+   0:00:00.035   12M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 239)   Simularity computations: 0, average 0 per read
+   0:00:00.035   12M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 242)   Edges found: 0
+   0:00:00.035   12M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 243)   Strategy efficiency: nan
+   0:00:00.035   12M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 251)   Saving graph (without abundances)
+   0:00:00.037    4M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 293)   Graph was written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr3_graphs/CDR3_sequences_key_1060.graph
+   0:00:00.037    4M /   12M   INFO  General                 (ig_swgraph_construct.cpp  : 295)   Running time: 0 hours 0 minutes 0 seconds

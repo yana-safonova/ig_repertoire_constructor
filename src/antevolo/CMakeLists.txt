@@ -14,6 +14,7 @@ include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${GRAPH_UTILS})
 include_directories(${CDR_LABELER_DIR})
+include_directories(${SHM_DIR})
 
 add_executable(antevolo
         ../cdr_labeler/cdr_config.cpp
@@ -48,7 +49,6 @@ add_executable(antevolo
         vj_class_processors/clonally_related_candidates.cpp
         vj_class_processors/vj_class_processor.cpp
         vj_class_processors/edmonds_tarjan_DMST_calculator.cpp
-        model_utils/shm_model.cpp
         evolutionary_graph_utils/evolutionary_tree.cpp
         #evolutionary_graph_utils/evolutionary_graph.cpp
         #evolutionary_graph_utils/evolutionary_graph_constructor.cpp
@@ -72,7 +72,19 @@ add_executable(antevolo
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
-        related_clones_iterator.cpp)
+        related_clones_iterator.cpp
+        shm_model_utils/shm_model.cpp
+        posterior_distribution_calculator/posterior_distribution_calculator.cpp
+        shm_model_utils/shm_model_edge_weight_calculator.cpp)
 
-target_link_libraries(antevolo core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
+target_link_libraries(
+        antevolo
+        shm_kmer_matrix_estimator_library
+        core
+        algorithms
+        vdj_utils
+        graph_utils
+        input
+        boost_program_options
+        ${COMMON_LIBRARIES})
 

@@ -13,6 +13,9 @@ dsf:
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
 
+shm_kmer_matrix:
+	$(MAKE) -C build/release/shm_kmer_matrix_estimator
+
 check: all
 	$(MAKE) -C build/release check
 
