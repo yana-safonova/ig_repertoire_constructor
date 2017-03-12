@@ -2310,20 +2310,9 @@ def splittering(rcm2rcm, rep, args, report):
     second_votes = [cluster.max_secondary_vote() for cluster in rep.clusters.itervalues()]
     sizes = [len(cluster) for cluster in rep.clusters.itervalues()]
 
-    # print second_votes
-
     import seaborn as sns
     import numpy as np
     import matplotlib.pyplot as plt
-    # ax = sns.regplot(x=np.array(second_votes),
-    #                  y=np.array(purities),
-    #                  line_kws={"alpha": 0.7})
-    # ax.set_xlabel("Secondary votes")
-    # ax.set_ylabel("Purity")
-    # plt.ylim(0, 1)
-    # plt.xlim(0, max(second_votes))
-    # plt.savefig(args.reference_based_dir + "/purity_vs_secondvotesize.png")
-    # plt.close()
 
     x = np.array(second_votes, dtype=np.float) / np.array(sizes)
     y = np.array(purities)
