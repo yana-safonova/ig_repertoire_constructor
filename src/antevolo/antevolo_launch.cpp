@@ -121,47 +121,47 @@ namespace antevolo {
 
         AntEvoloLaunch::ShmModelPosteriorCalculation(annotated_clone_set);
 
-        // writer.OutputCDRDetails();
-        // writer.OutputSHMs();
+        writer.OutputCDRDetails();
+        writer.OutputSHMs();
 
-        // AnnotatedCloneByReadConstructor clone_by_read_constructor(
-        //         labeled_v_db,
-        //         labeled_j_db,
-        //         v_labeling,
-        //         j_labeling,
-        //         config_.cdr_labeler_config.vj_finder_config.algorithm_params,
-        //         config_.cdr_labeler_config.shm_params);
-        // INFO("Tree construction starts");
-        // auto tree_storage = AntEvoloProcessor(config_,
-        //                                       annotated_clone_set,
-        //                                       clone_by_read_constructor,
-        //                                       read_archive.size()).ConstructClonalTrees();
-        // INFO(tree_storage.size() << " evolutionary trees were created");
-        // INFO("Computation of evolutionary statistics");
-        // // todo: add refactoring!!!
-        // EvolutionaryTreeStorage connected_tree_storage;
-        // for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
-        //     ConnectedTreeSplitter tree_splitter;
-        //     auto connected_trees = tree_splitter.Split(*it);
-        //     for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
-        //         connected_tree_storage.Add(*it2);
-        //     }
-        // }
-        // INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
-        //              " connected trees");
-        // EvolutionaryStatsCalculator stats_calculator;
-        // auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
-        // INFO(annotated_storage.size() << " annotations were computed");
-        // AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
-        // output_writer.OutputTreeStats();
+        AnnotatedCloneByReadConstructor clone_by_read_constructor(
+                labeled_v_db,
+                labeled_j_db,
+                v_labeling,
+                j_labeling,
+                config_.cdr_labeler_config.vj_finder_config.algorithm_params,
+                config_.cdr_labeler_config.shm_params);
+        INFO("Tree construction starts");
+        auto tree_storage = AntEvoloProcessor(config_,
+                                              annotated_clone_set,
+                                              clone_by_read_constructor,
+                                              read_archive.size()).ConstructClonalTrees();
+        INFO(tree_storage.size() << " evolutionary trees were created");
+        INFO("Computation of evolutionary statistics");
+        // todo: add refactoring!!!
+        EvolutionaryTreeStorage connected_tree_storage;
+        for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+            ConnectedTreeSplitter tree_splitter;
+            auto connected_trees = tree_splitter.Split(*it);
+            for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
+                connected_tree_storage.Add(*it2);
+            }
+        }
+        INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
+                     " connected trees");
+        EvolutionaryStatsCalculator stats_calculator;
+        auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
+        INFO(annotated_storage.size() << " annotations were computed");
+        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
+        output_writer.OutputTreeStats();
 
-//      //   for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
-        // for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
-        //     output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
-        //     output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
-        //     //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
-        // }
-        // INFO("Clonal trees were written to " << config_.output_params.tree_dir);
+//        for (auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+        for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
+            output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
+            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
+            //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
+        }
+        INFO("Clonal trees were written to " << config_.output_params.tree_dir);
 
         //output_writer.OutputSHMForTrees();
         INFO("AntEvolo ends");
