@@ -141,7 +141,13 @@ def parse_command_line():
 
     scenarios = parser.add_argument_group("Performed scenarios")
     add_selector(scenarios,
-                 "--rcm-based",
+                 "--repertoire-to-repertoire-matching",
+                 default=True,
+                 help_true="perform repertoire-to-repertoire matching",
+                 help_false="do not perform repertoire-to-repertoire matching")
+
+    add_selector(scenarios,
+                 "--partition-based-metrics",
                  default=True,
                  help="partition-based metrics and plots")
 
@@ -187,11 +193,10 @@ def parse_command_line():
     if args.text is None:
         args.text = args.output_dir + "/aimquast.txt"
 
-    if args.reference_free:
-        args.rcm_based = True
-
     if args.export_bad_clusters:
         args.reference_free = True
+
+    args.rcm_based = args.reference_free or args.partition_based_metrics
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
@@ -263,10 +268,10 @@ def main(args):
             rep.export_bad_clusters(out=dir + "/bad_%s_clusters/" % name)
         rep.report(report, "%s_stats" % name)
 
-    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free and args.rcm_based:
+    if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free:
         ref_free_plots(rep, "constructed", args.reference_free_dir)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free and args.rcm_based:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
         ref_free_plots(rep_ideal, "reference", args.reference_free_dir)
 
@@ -315,7 +320,7 @@ def main(args):
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
-    if args.constructed_rcm and args.reference_rcm and args.rcm_based:
+    if args.constructed_rcm and args.reference_rcm and args.partition_based_metrics:
         rcm2rcm = RcmVsRcm(args.constructed_rcm,
                            args.reference_rcm)
 
@@ -358,7 +363,7 @@ def main(args):
             rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large", format=args.figure_format, constructed=False)
             rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
 
-    if args.constructed_rcm and args.reference_rcm and args.rcm_based and args.constructed_repertoire and args.reference_repertoire and args.experimental:
+    if args.constructed_rcm and args.reference_rcm and args.constructed_repertoire and args.reference_repertoire and args.experimental:
         splittering(rcm2rcm, rep, args, report)
 
     log.info(report)
