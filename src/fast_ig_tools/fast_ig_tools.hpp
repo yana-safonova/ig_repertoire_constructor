@@ -25,7 +25,7 @@ void write_metis_graph(const Graph &graph,
                        const std::string &filename,
                        bool undirected = true);
 
-std::vector<size_t> optimal_coverage(const std::vector<int> &multiplicities,
+std::vector<size_t> optimal_coverage(const std::vector<size_t> &multiplicities,
                                      size_t K, size_t n = 3);
 
 // vim: ts=4:sw=4

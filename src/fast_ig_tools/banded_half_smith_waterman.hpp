@@ -46,10 +46,11 @@ int half_sw_banded(const Ts1 &s1, const Ts2 &s2,
         return half_hamming(s1, s2, match, mismatch, lizard_tail);
     }
 
-    auto len1 = length(s1), len2 = length(s2); // Cache lengths because of length(s) computation maybe not O(1) e.g. for char*-strings
+    int len1 = static_cast<int>(length(s1));  // Cache lengths because of length(s) computation maybe not O(1) e.g. for char*-strings
+    int len2 = static_cast<int>(length(s2));  // Cache lengths because of length(s) computation maybe not O(1) e.g. for char*-strings
 
     vector<int> base(2*max_indels + 1, -INF);
-    for (auto i2 = max(0ul, len1 - max_indels); i2 <= min(len1 + max_indels, len2); ++i2) {
+    for (auto i2 = max(0, len1 - max_indels); i2 <= min(len1 + max_indels, len2); ++i2) {
         auto ind = i2 + max_indels - len1;
         base[ind] = lizard_tail(static_cast<int>(len2 - i2));
     }

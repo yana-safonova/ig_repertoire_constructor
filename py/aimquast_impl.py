@@ -68,15 +68,16 @@ def opt_min(sensitivity, precision):
 def hexbinblue(ax, x, y, gridsize=25, xlim=None, ylim=None):
     import matplotlib.colors as colors
     import matplotlib.pyplot as plt
-    h = ax.hexbin(x, y,
-                  gridsize=gridsize,
-                  # bins='log',
-                  norm=colors.LogNorm(),
-                  mincnt=1,
-                  edgecolor="darkblue",
-                  linewidths=1,
-                  cmap="Blues")
-    plt.colorbar(h, ax=ax)
+    h = plt.hexbin(x, y,
+                   gridsize=gridsize,
+                   # bins='log',
+                   norm=colors.LogNorm(),
+                   mincnt=1,
+                   edgecolor="darkblue",
+                   linewidths=1,
+                   cmap="Blues")
+    plt.axis([xlim[0], xlim[1], ylim[0], ylim[1]])
+    cb = plt.colorbar()
     if xlim is not None:
         ax.set_xlim(xlim)
     if ylim is not None:
@@ -192,7 +193,10 @@ class MultToMultData:
                                            marginals=False):
         import seaborn as sns
 
-        f, ax = initialize_plot()
+        if points:
+            f, ax = initialize_plot()
+        else:
+            f, ax = initialize_plot(figsize=(7.5, 6))
 
         if len(self.reference_cluster_sizes) == 0:
             # TODO Process more gently
@@ -224,12 +228,11 @@ class MultToMultData:
                          markersize=6)
 
             else:
-                f, ax = initialize_plot(figsize=(7.5, 6))
                 # ax.set_axis_bgcolor('darkgrey')
                 hexbinblue(ax, self.reference_cluster_sizes, self.constructed_cluster_sizes,
                            xlim=(0, uplimit), ylim=(0, uplimit))
                 # plt.axes().set_aspect('equal', 'datalim')
-                plt.axes().set_aspect('equal')
+                # plt.axes().set_aspect('equal')
 
             ax.set_xlabel("Reference cluster size")
             ax.set_ylabel("Constructed cluster size")
@@ -239,7 +242,7 @@ class MultToMultData:
 
         # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
-                label="rate median smoothing")
+                label="median smoothing")
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
