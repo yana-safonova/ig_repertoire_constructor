@@ -10,43 +10,7 @@ include_directories(${ANTEVOLO_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input shm_kmer_matrix_estimator_library ${COMMON_LIBRARIES})
 
-make_essential_test(test_sparse_graph test_sparse_graph.cpp)
-
-make_test(test_dsf test_dsf.cpp
-          ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
-          ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
-          ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
-          ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
-
-
 make_test(test_shm_kmer_model test_shm_kmer_model.cpp)
-
-make_test(test_germline_database test_germline_database.cpp)
-
-make_test(test_cdr_labeling test_cdr_labeler.cpp
-        ../vj_finder/vj_finder_config.cpp
-        ../vj_finder/germline_db_generator.cpp
-        ../vj_finder/vj_alignment_structs.cpp
-        ../vj_finder/vj_query_aligner.cpp
-        ../vj_finder/vj_hits_filter.cpp
-        ../vj_finder/vj_alignment_info.cpp
-        ../vj_finder/vj_query_fix_fill_crop.cpp
-        ../vj_finder/vj_query_processing.cpp
-        ../vj_finder/vj_parallel_processor.cpp
-        ../cdr_labeler/cdr_config.cpp
-        ../cdr_labeler/germline_db_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr1_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr2_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_v_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/hcdr3_j_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_helper.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/annotated_gene_labeler.cpp
-        ../cdr_labeler/immunoglobulin_cdr_labeling/immune_gene_labeling_helper.cpp
-        ../cdr_labeler/germline_db_labeling.cpp
-        ../cdr_labeler/read_labeler.cpp
-        )
 
 make_test(test_antevolo test_antevolo.cpp
         ../antevolo/antevolo_config.cpp
@@ -75,13 +39,13 @@ make_test(test_antevolo test_antevolo.cpp
         ../cdr_labeler/germline_db_labeling.cpp
         ../cdr_labeler/read_labeler.cpp)
 
-make_test(test_vj_finder test_vj_finder.cpp
-        ../vj_finder/vj_finder_config.cpp
-        ../vj_finder/germline_db_generator.cpp
-        ../vj_finder/vj_alignment_structs.cpp
-        ../vj_finder/vj_query_aligner.cpp
-        ../vj_finder/vj_hits_filter.cpp
-        ../vj_finder/vj_alignment_info.cpp
-        ../vj_finder/vj_query_fix_fill_crop.cpp
-        ../vj_finder/vj_query_processing.cpp
-        ../vj_finder/vj_parallel_processor.cpp)
+# make_test(test_dsf test_dsf.cpp)
+# target_link_libraries(test_dsf dense_sgraph_finder_library)
+
+# make_test(test_germline_database test_germline_database.cpp)
+# 
+# make_test(test_cdr_labeling test_cdr_labeler.cpp)
+# target_link_libraries(test_cdr_labeling cdr_labeler_library)
+# 
+# make_test(test_vj_finder test_vj_finder.cpp)
+# target_link_libraries(test_vj_finder vj_finder_library)

@@ -14,17 +14,9 @@ include_directories(${ALGORITHMS_DIR})
 include_directories(${VJ_FINDER_DIR})
 include_directories(${GRAPH_UTILS})
 
-add_executable(cdr_labeler
+
+add_library(cdr_labeler_library STATIC
         cdr_config.cpp
-        ../vj_finder/vj_finder_config.cpp
-        ../vj_finder/germline_db_generator.cpp
-        ../vj_finder/vj_alignment_structs.cpp
-        ../vj_finder/vj_query_aligner.cpp
-        ../vj_finder/vj_hits_filter.cpp
-        ../vj_finder/vj_alignment_info.cpp
-        ../vj_finder/vj_query_fix_fill_crop.cpp
-        ../vj_finder/vj_query_processing.cpp
-        ../vj_finder/vj_parallel_processor.cpp
         germline_db_labeler.cpp
         immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
         immunoglobulin_cdr_labeling/single_loop_labelers/hcdr1_labeler.cpp
@@ -40,9 +32,24 @@ add_executable(cdr_labeler
         compressed_cdr_set.cpp
         cdr_output.cpp
         diversity_analyser.cpp
-        #cdr_annotator.cpp
+        )
+
+target_link_libraries(cdr_labeler_library
+        core
+        vj_finder_library
+        algorithms
+        vdj_utils
+        graph_utils
+        input
+        boost_program_options
+        ${COMMON_LIBRARIES}
+        )
+
+add_executable(cdr_labeler
         cdr_launch.cpp
-        main.cpp)
+        main.cpp
+        )
 
-target_link_libraries(cdr_labeler core algorithms vdj_utils graph_utils input boost_program_options ${COMMON_LIBRARIES})
-
+target_link_libraries(cdr_labeler
+        cdr_labeler_library
+        )
