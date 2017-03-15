@@ -1735,7 +1735,7 @@ class Repertoire:
         clusters = defaultdict(Cluster)
 
         for id, cluster in rcm.iteritems():
-            if id in id2read and cluster is not None:  # TODO fix it considering to issue #99
+            if id in id2read and cluster is not None:  # TODO fix it according to issue #99
                 clusters[cluster].append(id2read[id])
                 clusters[cluster].name = cluster
 

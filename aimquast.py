@@ -129,7 +129,7 @@ def parse_command_line():
 
     output.add_argument("--figure-format", "-F",
                         type=str,
-                        default="png",
+                        default="png,pdf,svg",
                         help="format(s) for produced figures separated by commas, empty for non-producing figures (default: %(default)s)")
 
     output.add_argument("--json",
@@ -147,7 +147,7 @@ def parse_command_line():
                  help_false="do not perform repertoire-to-repertoire matching")
 
     add_selector(scenarios,
-                 "--partition-based-metrics",
+                 "--partition-based",
                  default=True,
                  help="partition-based metrics and plots")
 
@@ -196,7 +196,7 @@ def parse_command_line():
     if args.export_bad_clusters:
         args.reference_free = True
 
-    args.rcm_based = args.reference_free or args.partition_based_metrics
+    args.rcm_based = args.reference_free or args.partition_based
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
@@ -300,13 +300,13 @@ def main(args):
                                                size=size, differential=True,
                                                format=args.figure_format)
 
-                res.plot_octoplot(out=args.reference_based_dir + "/octoplot",
+                res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
                                   format=args.figure_format)
 
-            res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/min_cluster_size_choose",
+            res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/sensitivity_precision",
                                              format=args.figure_format)
 
-            res.plot_error_pos_dist(out=args.reference_based_dir + "/error_pos_dist",
+            res.plot_error_pos_dist(out=args.reference_based_dir + "/error_position_distribution",
                                     format=args.figure_format)
 
             res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
@@ -320,7 +320,7 @@ def main(args):
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
                                                 format=args.figure_format)
 
-    if args.constructed_rcm and args.reference_rcm and args.partition_based_metrics:
+    if args.constructed_rcm and args.reference_rcm and args.partition_based:
         rcm2rcm = RcmVsRcm(args.constructed_rcm,
                            args.reference_rcm)
 
