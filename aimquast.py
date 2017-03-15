@@ -330,7 +330,6 @@ def main(args):
 
         rcm2rcm_large = rcm2rcm.prune_copy(size, 1)
 
-        # TODO fix report!!!!????
         rcm2rcm_large.report(report)
 
         if args.figure_format:
