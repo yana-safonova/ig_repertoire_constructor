@@ -1,4 +1,37 @@
 <!DOCTYPE html>
+
+<script>
+
+    var button_beg = '<button id="button" onclick="showhide()">', button_end = '</button>';
+    var show_button = 'Show related works', hide_button = 'Hide';
+    function showhide() {
+        var div = document.getElementById( "hide_show" );
+        var showhide = document.getElementById( "showhide" );
+        if ( div.style.display !== "none" ) {
+            div.style.display = "none";
+            button = show_button;
+            showhide.innerHTML = button_beg + button + button_end;
+        } else {
+            div.style.display = "block";
+            button = hide_button;
+            showhide.innerHTML = button_beg + button + button_end;
+        }
+    }
+    function setup_button( status ) {
+        if ( status == 'show' ) {
+            button = hide_button;
+        } else {
+            button = show_button;
+        }
+        var showhide = document.getElementById( "showhide" );
+        showhide.innerHTML = button_beg + button + button_end;
+    }
+    window.onload = function () {
+        setup_button( 'hide' );
+        showhide(); // if setup_button is set to 'show' comment this line
+    }
+</script>
+
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
@@ -21,22 +54,6 @@
 
     <section class="main-content">
 
-        <!---
-        <h2>Content</h2>
-        <p align = "center">
-        <ul>
-            <li><a href = "#motivation">Motivation</a></li>
-            <li><a href = "#approach">Our approach</a></li>
-            <li><a href = "#ig_repertoire_constructor">IgReC</a></li>
-            <li><a href = "#mass_spectra_analysis">Mass Spectra Analyzer</a></li>
-            <li><a href = "diversity_analyzer.html">Diversity Analyzer</a></li>
-            <li><a href = "dense_subgraph_finder.html">DSF (Dense Subgraph Finder)</a></li>
-            <li><a href = "#references">Manual and citations</a></li>
-        </ul>
-        </p>
-        --->
-
-
         <h2 id = "motivation">Rep-seq or full-length sequencing of adaptive immune repertoires</h2>
 
         <p align = justify>
@@ -46,39 +63,40 @@
         </p>
 
         <div align = center>
-            <img src = "docs/antibody_sequencing.png" width = 80% alt = "antibody_sequencing">
+            <img src = "docs/antibody_sequencing.png" width = 65% alt = "antibody_sequencing">
         </div>
 
-        Lengths of variable regions for various type of immune chains are given below:
-        <table>
-            <col width = 25%>
-            <tr align="center">
-                <td><b>Chain type</b></td>
-                <td><b>Cell type</b></td>
-                <td><b>V(D)J content</b></td>
-                <td><b>Approximate length (nt)</b></td>
-            </tr>
-            <tr align="center">
-                <td>IGH</td>
-                <td>B lymphocyte</td>
-                <td>VDJ</td>
-                <td>~360</td>
-            </tr>
-            <tr align="center">
-                <td>IGK</td>
-                <td>B lymphocyte</td>
-                <td>VJ</td>
-                <td>~330</td>
-            </tr>
-            <tr align="center">
-                <td>IGL</td>
-                <td>B lymphocyte</td>
-                <td>VJ</td>
-                <td>~330</td>
-            </tr>
-        </table>
+        <!---
+        <div id="showhide"></div>
+        <div id="hide_show">
+            <ul>
+                <li>
+                    Benichou J., Ben-Hamo R., Louzoun Y., Efroni S..
+                    <a href = "https://www.ncbi.nlm.nih.gov/pubmed/22043864">Rep-Seq: uncovering the
+                        immunological repertoire through next-generation sequencing.</a> <i>Immunology</i>. 2012. 135(3): pp. 183-91.
+                </li>
+                <li>
+                    Turchaninova M.A., Davydov A., Britanova O.V., Shugay M., Bikos V., Egorov E.S.,
+                    Kirgizova V.I., Merzlyak E.M., Staroverov D.B., Bolotin D.A., Mamedov I.Z., Izraelson M.,
+                    Logacheva M.D., Kladova O., Plevova K., Pospisilova S., Chudakov D.M.
+                    <a href = "http://www.nature.com/nprot/journal/v11/n9/abs/nprot.2016.093.html">High-quality
+                        full-length immunoglobulin profiling with unique molecular barcoding.</a>
+                    <i>Nat Protoc.</i> 2016. 11(9): pp. 1599-616.
+                </li>
+            </ul>
+        </div>
+        --->
 
         <h3>Our tools for analysis of adaptive immune repertoires</h3>
+        <p align = justify>
+            Sequencing data of adaptive immune repertoires or <i>Rep-seq</i> is an input of various immunological studies.
+            We propose a set of tools for solving related immunoinformatics problems:
+        <ul>
+            <li>Repertoire construction and its quality assessment</li>
+            <li>Immunoproteogenomics</li>
+            <li>Diversity and clonal analysis</li>
+        </ul>
+        </p>
 
 
         <table align = "center" width = "100%">
@@ -94,11 +112,19 @@
             </tr>
         </table>
 
-        <p align = justify>
         <ul>
             <li>
-                <b>IgReC</b>
-            </li>
+                <a href = "#igrec_description"><b>IgReC</b></a> performs construction of antibody repertoire from immunosequencing reads:
+                it corrects sequencing and amplification errors and joins together reads corresponding
+                to identical antibodies.
+                Constructed repertoire present a highly accurate input for various immunological applications, e.g.,
+                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.
+            </li><br>
+            <li>
+                If your sequencing data contains unique molecular identifiers (or UMIs),
+                we recommend to use <a href = "barcodedIgReC.html"><b>Barcoded IgReC</b></a>,
+                a modification of IgReC tool for processing barcoded Rep-seq libraries.
+            </li><br>
             <li>
                 <a href = "diversity_analyzer.html"><b>Diversity Analyzer:</b></a> a tool for diversity analysis of Rep-seq data.
                 Diversity Analyzer computes VJ, CDR, and SHM labelings of input receptor sequences.
@@ -122,7 +148,7 @@
                 showing similarity of the constructed repertoire and mass spectra.
             </li>
         </ul>
-        </p>
+
         <hr>
 
         <!-------------------------------------------------------------- --->
@@ -149,24 +175,11 @@
             A repertoire construction tool takes full-length Rep-seq reads as an input
             and constructs a repertoire as a set of <i>clusters</i>.
             Each cluster represent a group of reads corresponding to identical antibody (or TCRs) chains.
-            Clusters from a repertoire are characterized by sequence and abundance.
+            Clusters in a repertoire are characterized by sequence and abundance.
+            IgReC reports repertoires in
+            <a href = "ig_repertoire_constructor_manual.html#repertoire_files">CLUSTERS.FASTA and RCM</a> formats.
         </p>
 
-        <h3>Our tools</h3>
-        <ul>
-            <li>
-                <a href = "#igrec_description"><b>IgReC</b></a> performs construction of antibody repertoire from immunosequencing reads:
-                it corrects sequencing and amplification errors and joins together reads corresponding
-                to identical antibodies.
-                Constructed repertoire present a highly accurate input for various immunological applications, e.g.,
-                construction of clonal trees, V(D)J labeling / CDR3 classification, mass spectra identification etc.<
-            </li><br>
-            <li>
-                If your sequencing data contains molecular barcodes (or UMIs),
-                we recommend to use <a href = "barcodedIgReC.html"><b>Barcoded IgReC</b></a>,
-                a modification of IgReC tool for processing barcoded Rep-seq libraries.
-            </li>
-        </ul>
         <hr>
 
         <!-------------------------------------------------------------- --->
@@ -256,7 +269,9 @@
         </tr>
         </table>
 
+        <!---
         <h3>Receptor sequence construction</h3>
+        --->
 
         <hr>
 
