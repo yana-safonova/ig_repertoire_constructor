@@ -8,6 +8,11 @@
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+    <style type="text/css">
+        .sc {
+            font-variant: small-caps;
+        }
+    </style>
   </head>
   <body>
     <section class="page-header">
@@ -20,51 +25,87 @@
     <section class="main-content">
         <h2 id = "motivation">Motivation and purposes</h2>
         <p align = "justify">
-            Construction of antibody repertoire is a preliminary step of any immunological analysis based on
-            Rep-seq reads.
+            Construction of antibody repertoire is a preliminary step of any immunological analysis based on Rep-seq reads.
             During several last years at least three tools
-            (IgRepertoireConstructor by Safonova et al (2015), MiXCR by Bolotin et al. (2015) and pRESTO by Vander Heiden et al. (2014))
+            (IgRepertoireConstructor by Safonova et al (2015),
+            MiXCR by Bolotin et al. (2015) and pRESTO by Vander Heiden et al. (2014))
             were released for this problem.
-            However, for this moment there is certain leader among them.
-            Each repertoire construction approach has its own advantages and disadvantages.
-            In order to benchmark different approaches, we developed IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality
+            Thus, the problem is widely addressed.
+            However, it cannot be said that it is completely solved due to the following reason:
+            there is no conventional quality assessment methodology for adaptive immune repertoire construction.
+            Without such methodology we cannot compare tools and determine their limitations.
+        </p>
+
+        <p align = "justify">
+            In order to fill this gap, we developed IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality
             <b>AS</b>sesstment <b>T</b>ool), a tool for benchmarking of full-length adaptive immune
             repertoire construction tools and quality assessment of adaptive immune repertoires.
         </p>
 
         <p align = "justify">
-        <!-- <h3>IgQUAST purposes</h3> -->
         IgQUAST has the following purposes:
             <ol>
-                <li> Reference-based and reference-free repertoire quality assessment;</li>
-                <li> Overcorrection/undercorrection detection;</li>
-                <li> Analysis of antibody abundances;</li>
-                <li> Detection of repertoire construcion errors positions.</li>
+                <li> <i>Reference-based</i> and <i>reference-free</i> repertoire quality assessment;</li>
+                <li> <i>Overcorrection/undercorrection</i> detection;</li>
+                <li> Analysis of antibody <i>abundances;</i></li>
+                <li> Detection of sequencing technology and repertoire construction strategy artifacts</li>
             </ol>
         </p>
 
 
-        <h2 id = "inputoutput">Quality assessment scenarios</h2>
-        TODO add definition of repertoire.
-
+        <h2 id = "quality_assessment_scenarios">Quality assessment scenarios</h2>
         <p align = "justify">
-        See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
-        Please note, IgQUAST can benchmark repertoire construction stage itself only.
-        It supposes that input reads are already merged, filtered from contaminations and cropped by V/J ends.
+            IgQUAST takes as an input:
+            <ul>
+                <li>Initial Rep-seq read library;</li>
+                <li>Analyzed adaptive immune repertoire constructed on this library;</li>
+                <li>For reference-based analysis, the reference repertoire constructed on the same library.</li>
+            </ul>
+
+            Analyzed constructed and reference repertoires should be presented by two files each,
+            repertoire sequences along with their <i>abundances</i> (the number of reads formed the cluster)
+            and map from initial reads to the corresponding clusters (read-to-cluster map, RCM).
+            Sequences file and RCM file should be consistent.
+
+            See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
+
+            Please note, IgQUAST can benchmark repertoire construction stage itself only.
+            It supposes that input reads are already merged, filtered from contaminations and cropped by V/J ends.
         </p>
 
-        <p align = "justify">
-        As an output IgQUAST reports a bunch of plots
-        along with numerical statistics.
-        All stats are reported in machine-readable JSON format in order to simplify automatic analysis.
-        </p>
+        <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
+        <ul>
+            <li>During reference-based analysis the tool compares two input repertoires, the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
+                This analysis is separated into two scenarios:
+                <ul>
+                    <li><b>Repertoire-to-repertoire matching</b> works with repertoire sequences only.
+                        It aligns each from two input repertoires against another one and computes metrics like <i>sensitivity</i> and <i>precision</i>,
+                        detects error positions in erroneously constructed sequences,
+                        and compare reference and constructed abundances for ideally reconstructed sequences.
+                    </li>
+                    <li><b>Partition-based analysis</b> works with initial reads partitions (RCMs, read-to-cluster maps) only.
+                        It compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
+                        Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
+                    </li>
+                </ul>
+            </li>
+            <li><b>Reference-free analysis</b> is performed to the constructed repertoire.
+                The tool detects overestimated clusters in the repertoire
+                using amplification-free Poisson model.
+                Also it estimates error rate and error profile of the initial read library.
+                In case of the reference repertoire is provided, the same analysis is performed for it.
+                All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
+            </li>
+        </ul>
 
         <p align = "justify">
-        For comprehensive analysis IgQIUAST also requires additional information: the initial read library and
-        reference repertoire.
-        IgQUAST can perform analysis using different scenarios depending on the provided input (described in the table below).
-        </p>
+            As an output IgQUAST reports a bunch of plots
+            along with numerical statistics.
+            Brief report is outputted to screen and saved to text file.
+            All computed metrics along with additional information (e.g. data to reproduce plots) are exported to JSON.
 
+            Table below summarizes scenarios requirements and results.
+        </p>
 
         <p align = "justify">
         <table>
@@ -76,7 +117,7 @@
                 <b>Requirements</b>
             </td>
             <td align="center">
-                <b>Resultant plots and statistics</b>
+                <b>Resultant output</b>
             </td>
         </tr>
         <tr>
@@ -88,247 +129,253 @@
                 <a href="ig_repertoire_constructor_manual.html#clusters_fasta">CLUSTER.FA format</a>
             </td>
             <td>
-            Constructed-to-reference and reference-to-constructed error distribution,
-            error-position detection,
-            multiplicity distribution,
-            sensitivity-precision (optimal min-size estimation),
-            cluster abundances estimation
-
-            Statistics:
-            Sensitivity/precision,
-            area under sensitivity-precision curve (AUC),
-            multiplicity median rate,
-            optimal sensitivity+precision, optimal constructed min-size,
-            # of extra clusters grouped by their size
-            TODO remove ERE
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="#reference_based_over_under_corection">Reference-based over/under correction detection</a>
-            </td>
-            <td>
-                Initial input Rep-Seq library, reference and constructed repertoires
-                <a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> files
-            </td>
-            <td>
-                Reference and constructed clusters purity and discordance distribution
+                Plots:
+                <ul>
+                    <li><a href="#distance_distributions">constructed-to-reference and reference-to-constructed distance distributions;</a></li>
+                    <li><a href="#error_position_distribution">error position distribution;</a></li>
+                    <li>abundance distributions;</li>
+                    <li>sensitivity-precision (optimal min-size estimation);</li>
+                    <li>cluster abundances estimation.</li>
+                </ul>
 
                 Statistics:
-                Clustering similarity measures:
-                    Jaccard index,
-                    Fowlkes-Mallows index,
-                    Rand index,
-                    Adjusted Rand index
-
-                Reference and construction repertoires purity
-                Over/under-correction measures:
-                    # pure constructed clusters,
-                    # dirty constructed clusters (->impure),
-                    # constructed secondary vote reads, (->discordance)
-                    # pure reference clusters,
-                    # dirty reference clusters,
-                    # reference secondary vote reads
+                <ul>
+                    <li>sensitivity/precision;</li>
+                    <li>area under sensitivity-precision curve (AUC);</li>
+                    <li>abundance median rate;</li>
+                    <li>optimal sensitivity+precision, optimal constructed min-size;</li>
+                    <li># of extra clusters of different size.</li>
+                </ul>
             </td>
         </tr>
         <tr>
             <td>
-                <a href="#reference_free_over_under_corection">Reference-free over/under correction detection</a>
+                <a href="#partition_based_analysis">Partition-based analysis</a>
+            </td>
+            <td>
+                Initial input Rep-seq library,
+                <a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> files for
+                the reference and the constructed repertoires
+            </td>
+            <td>
+                Plots:
+                <ul>
+                    <li>Constructed and reference purity distribution;</li>
+                    <li>Constructed and reference discordance distribution.</li>
+                </ul>
+
+                Statistics:
+                <ul>
+                    <li>Clustering similarity measures (Jaccard index, Fowlkes-Mallows index, Rand index, Adjusted Rand index);</li>
+                    <li>Overcorrection measures (# pure/impure constructed clusters, # constructed discordant reads);</li>
+                    <li>Undercorrection measures (# pure/impure reference clusters, # reference discordant reads).</li>
+                </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="#reference_free_analysis">Reference-free analysis</a>
                 for constructed repertoire
             </td>
             <td>
-                Initial input Rep-Seq library, constructed repertoire
+                Initial input Rep-seq library, constructed repertoire
                 <a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> file
             </td>
             <td>
-                Error and discordance profile (for entire repertoire and by clusters),
-                error distribution,
-                suspicious cluster detection,
-                error rate estimation
-            </td>
-        </tr>
-        <tr>
-            <td>
-                Over/under correction detection for reference repertoire</a>
-            </td>
-            <td>
-                Initial input Rep-Seq library, reference repertoire
-                <a href="ig_repertoire_constructor_manual.html#read_cluster_map">RCM</a> file
-            </td>
-            <td>
-                The same results as for constructed repertoire
+                Plots:
+                <ul>
+                    <li> error and discordance profiles (for entire repertoire and for 5 largets clusters);</li>
+                    <li> distribution of #errors in reads;</li>
+                    <li> scatterplot of max error by position against cluster size.</li>
+                </ul>
+
+                Statistics:
+                <ul>
+                    <li> error rate estimation.</li>
+                </ul>
+
+                Suspicious cluster IDs.
             </td>
         </tr>
         </table>
         </p>
 
         <p align = "justify">
-            Some scenarios may be disabled by default since they are time- and memory-consuming.
-            See <a href="igquast_manual.html#usage">IgQUAST manual</a> for options description.
-        </p>
-
-        <p align = "justify">
-        If some required input is missing, IgQUAST tries to reconstruct missing info.
-        For example, if some analysis requires RCM file for the repertoire, IgQUAST performs
-        RCM restoration by mapping input reads into provided repertoire sequences.
-        However, such restorations are not fully reliable since they require additional assumptions
-        on the benchmarked tool. Thus, it is better to provide to IgQUAST as much information as possible.
+            Some scenarios are disabled by default since they are time- and memory-consuming.
+            See <a href="igquast_manual.html#igquast_scenarios_options">IgQUAST manual</a> for options description.
         </p>
 
         <h2 id = "reference">Reference repertoire</h2>
         <p align = "justify">
-        To obtain reference repertoire we
-        have two options: simulate the repertoire or construct the repertoire using
-        barcoded data and run repertoire construction in
-        the <i>blind</i> (ignoring barcodes) mode.
+            To obtain reference repertoire we
+            have two options: simulate the repertoire or construct the repertoire using
+            barcoded data and run repertoire construction in
+            the <i>blind</i> (ignoring barcodes) mode.
         </p>
 
         <h3 id = "simulation">Simulation</h3>
         <p align = "justify">
-        There are no special requirements for simulation software or/and simulated repertoire,
-        but we suggest to use our <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator</a>,
-        that was specially designed for benchmarking adaptive immune repertoire construction strategies.
+            There are no special requirements for simulation software or/and simulated repertoire,
+            but we suggest to use our <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator</a> tool,
+            that was specially designed for benchmarking adaptive immune repertoire construction strategies.
         </p>
 
         <h3 id = "umi">Molecular barcoding</h3>
         <p align = "justify">
-        Molecular identifiers (UMIs) or <i>barcodes</i> can be used for B-cell labeling.
-        Such labeling allows one to reconstruct adaptive immune sequences using consensus by groups
-        and, thus,
-        provides one with a reference dataset for benchmarking.
+            Molecular identifiers (UMIs) or <i>barcodes</i> can be used for B-cell labeling.
+            Such labeling allows one to reconstruct adaptive immune sequences using consensus by groups
+            and, thus, provides one with a reference dataset for benchmarking.
         </p>
 
         <p align = "justify">
-        Please note that currently available barcoding techniques are not perfect.
-        Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
-        The better option is to use an approach specially designed for barcode-assisted antibody repertoire construction.
-        We strongly suggest to use our tool <a href="barigrec.html">BarIgReC</a> for this task.
+            Please note that currently available barcoding techniques are not perfect.
+            Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
+            The better option is to use a special tool designed for barcode-assisted antibody repertoire construction.
+            We suggest to use our <a href="barcodedIgReC.html">BarIgReC</a> tool for this.
         </p>
 
         <p align = "justify">
-        Another approach to deal with barcoding artifacts is to consider specially designed semi-artificial test datasets.
-        Such datasets could be obtained by aggressive input read and barcode filtering, when
-        every suspicious barcode and every suspicious read is omitted.
-        Such approach is definitely
-        improper for real-life repertoire construction (since it loses a significant part of repertoire diversity, i.e., it is biased),
-        but it is good for test dataset preparation.
+            Another approach to deal with barcoding artifacts is to consider specially designed semi-artificial test datasets.
+            Such datasets could be obtained by aggressive input read and barcode filtering, when
+            all suspicious barcodes and all suspicious reads are omitted.
+            Such approach is definitely improper for real-life repertoire construction
+            (since it misses a significant part of repertoire diversity, i.e., it is biased),
+            but it is appropriate for test dataset preparation.
         </p>
 
-        <h2>Story about min-size</h2>
+        <h2>Cluster abundance threshold</h2>
+        <p align = "justify">
+            Distribution of antibody abundances is usually highly uneven.
+            Most clusters in a repertoire have small size.
+            Note that consensus computed by a small cluster is unreliable.
+            we just cannot unambiguously construct a consensus by two reads in non-trivial case.
+            And due to non-independence of amplification errors and/or special sequencing errors pattern
+            even larger cluster may be unreliable too.
+        </p>
 
+        <p align = "justify">
+            Thus, we have to exclude small clusters from the analysis in order to make results more stable and interpretable.
+            The threshold for reference cluster size (<i>reference min-size</i>) is a <b>parameter of benchmarking procedure.</b>
+            IgQUAST uses 5 as a default value. See <a href="#citations">the paper</a> for more information about this choice.
+        </p>
+
+        <p align = "justify">
+            At the same time, during real-life repertoire construction one have to choose a threshold
+            for constructed cluster size. Constructed cluster size threshold (<i>constructed min-size</i>)
+            is a <b>parameter of repertoire construction procedure.</b>
+            The selection is tricky since the larger threshold, the less detailed but more precise result.
+            One have to find the optimal (in some sense) threshold value, the concrete optimality criterion depends
+            mostly on the final purpose of the research.
+        </p>
+
+
+        <p align = "justify">
+            For different repertoire construction strategies optimal (in any sense) threshold values can be different.
+            Due to this reason, IgQUAST computes statistics for various threshold values.
+        </p>
 
         <h2 id = "repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</h2>
+        <p align = "justify">
+            For each reference repertoire sequence IgQUAST finds the closest sequence in the constructed repertoire
+            and <i>vice versa</i>.
+            This allows us to compare repertoires in terms of their sequences.
+        </p>
 
+        <h3 id = "distance_distributions">Constructed-to-reference and reference-to-constructed distance distributions</h3>
+        <p align = "justify">
+            For each sequence in the constructed repertoire IgQUAST finds the closest sequence in the reference repertoire
+            and plots histogram of the distances. Also IgQUAST plots the same histogram mapping the reference repertoire to
+            the constructed one. Thus, we obtain two kinds of plots: constructed-to-reference and reference-to-constructed
+            errors distribution.
+        </p>
 
+        <p align = "justify">
+            IgQUAST constructs these plots for different <i>constructed min-size</i> values (1, 3, 5, 10) and for fixed
+            <i>reference min-size</i> (5 by default).
+        </p>
 
-
-        For each reference repertoire sequence IgQUAST finds the closest sequence in the constructed repertoire
-        and <i>vice versa</i>.
-        This allows us to compare repertoires in terms of their sequences and detect typical positions of errors.
-
-        ToDo Add story about reference threshold.
-
-        <h3 id = "matching">Errors distribution</h3>
-        For each sequence in the constructed repertoire IgQUAST finds the closest sequence in the reference repertoire
-        and plots histogram of the distances. Also IgQUAST plots the same histogram mapping the reference repertoire to
-        the constructed one. Thus, we obtain two kinds of plots: constructed-to-reference and reference-to-constructed
-        errors distribution.
-
-        Plot here.
+        <p align = "justify">
         <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/fuzzy2.png" width = 50% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/reference_to_constructed_distance_distribution_size_5.svg"
+                                     width = 100% alt = "Reference-to-constructed distance distribution, reference min-size = constructed min-size = 5">
+                </td>
+                <td align = center>
+                    <img src = "docs/igquast/octoplot.svg"
+                                     width = 100% alt = "Reference-to-constructed (sensitivity) and constructed-to-reference (precision) distance distributions for reference min-size = 5 and various constructed min-sizes">
+                </td>
+            </tr>
+            <tr>
+                <td align = center>
+                    Reference-to-constructed distance distribution, <i>reference min-size</i> = <i>constructed min-size</i> = 5
+                </td>
+                <td align = center>
+                    Reference-to-constructed (sensitivity) and constructed-to-reference (precision) distance distributions for <i>reference min-size</i> = 5 and various <i>constructed min-sizes</i>
                 </td>
             </tr>
         </table>
+        </p>
 
-        We plot these plots for different <i>constructed min-size</i> values (1, 3, 5, 10).
-        Altogether they form octoplot:
+        <p align = "justify">
+            These plots show how close input repertoires are.
+            It is necessary to inspect plots for different <i>min-size</i> values,
+            since small clusters are probably imperfect and should be excluded from the analysis.
+        </p>
 
-        Octoplot here!!!!!
+        <p align = "justify">
+            Plots above show that we have about 10% repertoire sequences with only one error.
+            Further we will investigate them in detail.
+        </p>
+
+        <h3 id = "error_position_distribution">Error position distribution</h3>
+        <p align = "justify">
+            For "almost correct" (matched with only one error, i.e. corresponded to the second blue bar in the left figure above)
+            constructed clusters IgQUAST plots error-position distribution (error profile).
+        </p>
+
+        <p align = "justify">
+            Such analysis can reveal sequencing technology or repertoire construction strategy artifacts.
+        </p>
+
+        <p align = "justify">
         <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/fuzzy1.png" width = 50% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/error_pos_dist_FR4.svg"
+                                     width = 100% alt = "">
                 </td>
             </tr>
-        </table>
-
-        These plots show how close input repertoires are.
-
-        It is necessary to discover plots for different <i>min-size</i> since small clusters are probably imperfect and
-        should be excluded from the analysis.
-
-        <h3 id = "matching">Detection of repertoire construction errors positions</h3>
-
-        For "almost correct" (matched with only one error) constructed clusters IgQUAST plots error-position distribution (error profile).
-
-        <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/fuzzy2.png" width = 50% alt = "Sensitivity and precision definition">
+                    TODO add caption
                 </td>
             </tr>
         </table>
+        </p>
 
-        For example above analysis revealed that
-        error are concentrated in FR4.
-        The key reason of this is high error-rate at the end of Ig read.
-        Fortunately, it could be easily fixed using J gene germline (e.g. <a>IMGT</a>) database.
+        Plots above reveal that error are concentrated in FR4.
+        The key reason of this is extremely high error rate at the end of Rep-seq read.
+        Fortunately, it could be easily fixed using V/D/J gene germline
+        (e.g. <a href="http://www.imgt.org/genedb/">IMGT</a>) database.
         FR4 is a conservative region and we do not miss many actual variations.
 
-        Our alignment tool VJFinder automatically fixes FR1 and FR4 during Ig reads alignment.
-        Thus, this property is not an issue for IgReC.
+        Our alignment tool VJFinder <font class="sc">VJFinder</font> automatically fixes FR1 and FR4 during Ig reads alignment.
+        Thus, it is not an issue for IgReC.
 
 
-        <h3 id = "matching">Sensitivity and precision</h3>
+        <h3 id = "sensitivity_precision">Sensitivity and precision</h3>
         IgQUAST computes clusters in the reference repertoire that were ideally recovered in the constructed repertoire.
         As integral measures of quality IgQUAST reports two following metrics:
         <ul>
             <li> <b>Precision</b> The larger precision, the less number of false constructed clusters</li>
             <li> <b>Sensitivity</b> The larger sensitivity, the more correct clusters were reconstructed</li>
         </ul>
+
         <table align = center>
             <tr>
                 <td align = center>
                     <img src = "docs/igquast/sensitivity_precision_definition.png" width = 50% alt = "Sensitivity and precision definition">
-                </td>
-            </tr>
-        </table>
-
-        These metrics are <i>antagonistic:</i> generally, more sensitivity means less precision and vice versa.
-        Thus, it is important to control both of them simultaneously.
-
-
-        The story about min-size.
-        Also add story about difference between two thresholds.
-        <ul>
-            <li> In case of real analysis we should exclude small clusters from the
-                constructed repertoire to improve precision. Constructed min-size
-                threshold is a parameter of the repertoire construction procedure</li>
-            <li> For benchmarking we should not take small clusters into account during
-                sensitivity/precision computation to make the metrics stable. Reference
-                min-size threshold is a parameter of the benchmarking procedure</li>
-            <li>IgQUAST computes sensitivity and precision for various constructed min-size
-                values and for fixed reference min-size = 5</li>
-        </ul>
-
-
-        <h3 id = "matching">Finding optimal min-size threshold</h3>
-        Distribution of cluster sizes is highly uneven!
-        Thus, most clusters in a repertoire have small size.
-        At the same time, consensus computed by a small cluster is unreliable
-
-
-        We cannot construct consensus by two reads in non-trivial case
-        Due to dependency of amplification errors larger cluster may be unreliable too
-
-
-        <table align = center>
-            <tr>
-                <td align = center>
-                    Add figure with different abundances and threshold effect demonstration.
                 </td>
                 <td align = center>
                     <img src = "docs/igquast/sens_prec_plot.png" width = 50% alt = "Sensitivity-precision plot example">
@@ -336,12 +383,15 @@
             </tr>
         </table>
 
+        These metrics are <i>antagonistic:</i> generally, the more sensitivity, the less precision and <i>vice versa.</i>
+        Thus, it is important to control both of them simultaneously.
 
 
         <h3 id = "matching">Cluster abundances estimation</h3>
-        Clusters are also characterized by their abundances.
-        For clusters presented in both repertoires, IgQUAST compares abundances.
-        Error correction does not fix ALL errors, hence typically cluster sizes are underestimated.
+        Repertoire clusters are also characterized by their abundances.
+        For clusters presented in both repertoires (so-called <i>ideal clusters</i>),
+        IgQUAST compares abundances.
+        Error correction does not fix ALL errors, therefore typically cluster sizes are underestimated.
         I.e., we can expect that the cluster abundance in the constructed repertoire is less than abundance
         in the reference repertoire.
         Otherwise, if the constructed abundance is much more than the reference abundance
@@ -351,25 +401,24 @@
 
         In the plot potentially overcorrected clusters are shown by red points, while other cluster are shown by blue ones.
 
-
         <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/underestimation1.png" width = 50% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/underestimation1.png" width = 100% alt = "Sensitivity and precision definition">
                 </td>
                 <td align = center>
-                    <img src = "docs/igquast/underestimation2.png" width = 50% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/underestimation2.png" width = 100% alt = "Sensitivity and precision definition">
                 </td>
             </tr>
         </table>
 
 
-        <h2 id = "reference_based_over_under_corection">Reference-based over/undercorrection detection</h2>
-        <h3 id = "matching">Cluster purity metrics</h3>
+        <h2 id = "">Partition-based analysis</h2>
+        <h3 id = "matching">Cluster purity and metrics</h3>
         <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/purity.png" width = 50% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
                 </td>
             </tr>
         </table>
@@ -379,28 +428,20 @@
         Reference purity: measure of cluster undercorrection
 
 
-        Add plots. Mb. from slides.
+        <table align = center>
+            <tr>
+                <td align = center>
+                    <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
+                </td>
+            </tr>
+        </table>
 
 
-        <h2 id = "reference_free_over_under_corection">Reference-free over/undercorrection detection</h2>
+        <h2 id = "reference_free_analysis">Reference-free analysis</h2>
         <h3>Reference-free detection of over/undercorrected clusters</h3>
 
         To detect overcorrection construct consensus and count errors by position
 
-
-        Remove story about splitting.
-
-
-        <table align = center>
-            <tr>
-                <td align = center>
-                    <img src = "docs/igquast/splitting1.png" width = 50% alt = "Sensitivity and precision definition">
-                </td>
-                <td align = center>
-                    <img src = "docs/igquast/splitting2.png" width = 50% alt = "Sensitivity and precision definition">
-                </td>
-            </tr>
-        </table>
 
         <h2 id="feedback">Feedback and bug reports</h2>
         Your comments, bug reports, and suggestions are very welcome. They will help us to further improve IgQUAST.
@@ -417,14 +458,14 @@
             </ul>
         </p>
 
-        <h2 id = "citations">Citation</h2>
+        <h2 id = "citations">Citations</h2>
         <p align = "justify">
             <!-- <b>Citation:</b> -->
             Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
-            Dmitriy Chudakov,
+            Dmitriy M. Chudakov,
             Yana Safonova,
             and Pavel A. Pevzner.
-            Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted)</i>
+            Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted to Genome Research)</i>
         </p>
 
       <footer class="site-footer">
@@ -438,4 +479,3 @@
 
   </body>
 </html>
-

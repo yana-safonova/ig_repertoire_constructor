@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en-us">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>IgQUAST Manual</title>
@@ -14,9 +16,6 @@
             font-variant: small-caps;
         }
     </style>
-    <style>
-
-    </style>
 </head>
 
 <body>
@@ -24,14 +23,14 @@
 1. <a href="#intro">What is <font class="sc">IgQUAST</font>?</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1. <a href="#igquast_input">Input</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.2. <a href="#igquast_output">Output</a><br>
-2. <a href="#install">Installation</a><br>
+2. <a href="#igquast_install">Installation</a><br>
 3. <a href="#igquast_usage"><font class="sc">IgQUAST</font> usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igquast_input_options">Input options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igquast_output_options">Output options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igquast_scenarios_options">Performed scenarios</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igquast_misc_options">Miscellaneous options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.5. <a href="#igquast_examples">Examples</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.6. <a href="#igquast_output_files">Output_files</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.6. <a href="#igquast_output_files">Output files</a><br>
 4. <a href="#references">Citations</a><br>
 5. <a href="#feedback">Feedback and bug reports</a><br>
 
@@ -40,7 +39,7 @@
     <h2 id="intro">1. What is <font class="sc">IgQUAST</font>?</h2> <font class="sc">IgQUAST</font> (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality <b>AS</b>sessment <b>T</b>ool)
     is a tool for adaptive immune repertoires quality assessment.
     <font class="sc">IgQUAST</font> can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
-    <font class="sc">IgQUAST</font> provides reference-based and reference-free analysis:
+    <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
     <ul>
         <li>During reference-based analysis the tool compares two input repertoires, the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
             This analysis is separated into two scenarios:
@@ -56,9 +55,10 @@
                 </li>
             </ul>
         </li>
-        <li>During reference-free analysis the tool detects overestimated clusters in the constructed repertoire
+		<li><b>Reference-free analysis</b> is performed to the constructed repertoire.
+            The tool detects overestimated clusters in the repertoire
             using amplification-free Poisson model.
-            Also the tool estimates error rate and error profile of the initial read library.
+            Also it estimates error rate and error profile of the initial read library.
             In case of the reference repertoire is provided, the same analysis is performed for it.
             All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
         </li>
@@ -66,15 +66,15 @@
 
     <h3 id="igquast_input">1.1. Input</h3> <font class="sc">IgQUAST</font> takes as an input:
     <ul>
-        <li>Initial Rep-Seq read library;</li>
+        <li>Initial Rep-seq read library;</li>
         <li>Analyzed adaptive immune repertoire constructed on this library;</li>
         <li>For reference-based analysis, the reference repertoire constructed on the same library.</li>
     </ul>
-    Initial Rep-Seq library should be in FASTA or FASTQ format.
+    Initial Rep-seq library should be in FASTA or FASTQ format.
         Reads should be properly cropped (should start from V gene beginning
         and finish by J gene ending), reads obtained from negative strand should
-        be reversed.
-        Cropping and strand correction of Rep-Seq reads may be performed by
+        be reversed, and contaminative reads should be filtered out.
+        Cropping, strand correction and contamination filtering may be performed by
         the <font class="sc">VJFinder</font> tool from the <font class="sc">IgRepertoireConstructor</font> package
         (see <a href="manual.html"><font class="sc">IgRepertoireConstructor</font> manual</a> for <font class="sc">VJFinder</font> input-output format description).
     <br>
@@ -82,7 +82,7 @@
         repertoire sequences in FASTA format and read-to-cluster map (RCM)
         file in a special format.
         See <a href="manual.html#repertoire_files"><font class="sc">IgRepertoireConstructor</font> manual</a>
-        for a comprehensive repertoire format description. One of these two
+        for the comprehensive repertoire format description. One of these two
         files could be missing, in this case the tool optionally tries to reconstruct it using
         available information.
 
@@ -95,7 +95,7 @@
 
     Plots are reported in PNG, PDF, and SVG formats. Metrics are reported in text (brief) and JSON (full) formats.
 
-    <h2 id=install>2. Installation</h2>
+    <h2 id=igquast_install>2. Installation</h2>
 <font class="sc">IgQUAST</font> has the following dependencies:
 <ul>
     <li>64-bit Linux system</li>
@@ -131,7 +131,7 @@
 </code>
 </pre>
 
-<h2 id="usage">3. <font class="sc">IgQUAST</font> usage</h2>
+<h2 id="igquast_usage">3. <font class="sc">IgQUAST</font> usage</h2>
     To run <font class="sc">IgQUAST</font>, type:
     <pre class="code">
     <code>
@@ -153,7 +153,7 @@
     <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Could be gzipped.
     <br><br>
 
-    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-Seq reads in FASTA or FASTQ format. Could be gzipped.
+    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-seq reads in FASTA or FASTQ format. Could be gzipped.
     <br><br>
 
     <code>--reconstruct | --no-reconstruct</code><br> Whether to reconstruct missing repertoire files if it is possible. Disabled by default.
@@ -173,9 +173,10 @@
 
     <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure
     format(s) for outputted plots. Allowed values are <code>png</code>,
-    <code>pdf</code> and <code>svg</code>. Several values should be separated
-    by commas. Use empty string for non-producing plots. Default value is
-    <code>png,pdf,svg</code>.
+    <code>pdf</code> and <code>svg</code>.
+    One can pass several values separated by commas.
+    Empty string means do not produce plots.
+    Default value is <code>png,pdf,svg</code>.
     <br><br>
 
     <h3 id="igquast_scenarios_options">3.3. Performed scenarios</h3>
@@ -214,12 +215,12 @@
     Perform reference-free analysis only:
     <pre class="code">
     <code>
-    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec_bad/final_repertoire.fa.gz -C igquast_test_dataset/igrec_bad/final_repertoire.rcm -o igquat_test --reference-free
+    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec_bad/final_repertoire.fa.gz -C igquast_test_dataset/test/igrec_bad/final_repertoire.rcm -o igquast_test --reference-free
     </code>
 </pre> Do not plot figures, make reports only:
     <pre class="code">
     <code>
-    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec/final_repertoire.fa.gz -C igquast_test_dataset/igrec/final_repertoire.rcm -r igquast_test_dataset/test/repertoire.fa.gz -R igquast_test_dataset/test/repertoire.rcm --figure-format= -o igquast_test
+    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec/final_repertoire.fa.gz -C igquast_test_dataset/test/igrec/final_repertoire.rcm -r igquast_test_dataset/test/repertoire.fa.gz -R igquast_test_dataset/test/repertoire.rcm --figure-format= -o igquast_test
     </code>
 </pre>
 
@@ -235,7 +236,7 @@
                 <li><b>sensitivity_precision</b> &mdash; sensitivity and precision depending on cluster size threshold for the constructed repertoire</li>
                 <li><b>distance_distribution</b> &mdash; constructed to reference and reference to constructed distance distribution depending on cluster size threshold for the constructed repertoire. 8 plots in all on one figure</li>
                 <li><b>{constructed_to_reference,reference_to_constructed}_distance_distribution_size_{1,3,5,10}</b> &mdash; the same 8 plots separately</li>
-                <li><b>multiplicity_distribution</b> &mdash; cluster size distribution for the constructed and reference repertoires</li>
+                <li><b>abundance_distributions</b> &mdash; cluster size distribution for the constructed and reference repertoires</li>
 
                 <li><b>constructed_purity_distribution</b> &mdash; distribution of cluster purity in the constructed repertoire. This plot helps to detect overcorrection</li>
                 <li><b>constructed_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
@@ -261,14 +262,14 @@
         <li>
             <b>reference_free</b> &mdash; Directory with reference-free plots:
             <ul>
-                <li><b>constructed_cluster_error_profile</b> &mdash; error profile estimation for all constructed repertoire clusters</li>
+                <li><b>constructed_cluster_error_profile</b> &mdash; error profile estimation for entire constructed repertoire</li>
                 <li><b>constructed_cluster_error_profile_largest_{1,2,3,4,5}</b> &mdash; error profile estimation for 5 largest constructed clusters separately</li>
-                <li><b>constructed_cluster_discordance_profile</b> &mdash; discordance (second vote letter) profile for all constructed repertoire clusters</li>
+                <li><b>constructed_cluster_discordance_profile</b> &mdash; discordance (second vote letter) profile for entire constructed repertoire</li>
                 <li><b>constructed_cluster_error_profile_largest_{1,2,3,4,5}</b> &mdash;  discordance profile for 5 largest constructed clusters</li>
 
                 <li><b>constructed_distribution_of_errors_in_reads</b> &mdash; distribution of the number of errors in reads for the constructed repertoire clusters</li>
-                <li><b>constructed_estimation_of_max_error_distribution</b> &mdash; for each cluster, max errors by position for the constructed repertoire.
-                    This plot helps to detect overcorrection in the simplest amplification-free model</li>
+                <li><b>constructed_max_error_scatter</b> &mdash; scatterplot of max errors by position against cluster size for the constructed repertoire.
+                    This plot helps to detect overcorrection</li>
                 <li><b>reference_*</b> &mdash; the same plots for the reference repertoire</li>
                 <li>
                     <b>bad_constructed_clusters</b> &mdash; Directory with clusters from the constructed repertoire,
@@ -309,3 +310,4 @@
     <br><br> If you have any trouble running <font class="sc">IgQUAST</font>, please provide us the log file from the output directory.
     <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
 </body>
+</html>
