@@ -19,14 +19,37 @@ def HelpAndReturn(log, parser, exit_code=0):
     sys.exit(exit_code)
 
 
+def EnsureRequiredParametersSet(params, parser, log):
+    if not params.output:
+        log.error("Please specify the output directory (-o/--output parameter)")
+        HelpAndReturn(log, parser)
+    if not params.loci:
+        log.error("Please specify loci (-l/--loci parameter)")
+        HelpAndReturn(log, parser)
+
+
 def ParseCommandLineParams(log):
-    from argparse import ArgumentParser
+    from argparse import ArgumentParser, Action
+
+    class ActionTest(Action):
+        def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, "single_reads", "test_dataset/barcodedIgReC_test.fasta")
+            setattr(namespace, "output", "barigrec_test")
+            setattr(namespace, "loci", "all")
+
     parser = ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
                             epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
                             """,
                             add_help=False)
+
+    parser.add_argument("--test",
+                        action=ActionTest,
+                        help="Run on test dataset")
 
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=False)
@@ -84,15 +107,19 @@ def ParseCommandLineParams(log):
     optional_args.add_argument("-p", "--no-compilation",
                                dest="no_compilation",
                                action="store_true",
-                               help="Exclude c++ code compilation from the pipeline")
+                               help="Exclude C++ code compilation from the pipeline")
     optional_args.add_argument("-c", "--ignore-code",
                                dest="ignore_code_changes",
                                action="store_true",
-                               help="Ignore code changes when checking stages depensences")
+                               help="Ignore code changes when checking stages dependencies")
     optional_args.add_argument("-k", "--detect-chimeras",
                                dest="detect_chimeras",
                                action="store_true",
-                               help="Detect chimeras after clustering, may take significant amount of time")
+                               help="Detect chimeras after clustering, may take significant amount of time, default behavior")
+    optional_args.add_argument("-K", "--no-detect-chimeras",
+                               dest="detect_chimeras",
+                               action="store_false",
+                               help="Do not detect chimeras after clustering")
     optional_args.add_argument("--clustering-thr",
                                type=int,
                                default=20,
@@ -113,7 +140,7 @@ def ParseCommandLineParams(log):
     vj_align_args.add_argument("-l", "--loci",
                                type=str,
                                dest="loci",
-                               required=True,
+                               # required=True,
                                help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
 
     vj_align_args.add_argument("--organism",
@@ -128,10 +155,12 @@ def ParseCommandLineParams(log):
     if len(sys.argv) == 1:
         HelpAndReturn(log, parser)
 
+    EnsureRequiredParametersSet(params, parser, log)
+
     # Process pair reads
     if params.left_reads or params.right_reads:
         if not params.left_reads or not params.right_reads:
-            log.info("ERROR: Both left (-1) and right (-2) paired-end reads should be specified\n")
+            log.error("Both left (-1) and right (-2) paired-end reads should be specified\n")
             sys.exit(-1)
         params.single_reads = "%s/merged_reads.fastq" % params.output
 
