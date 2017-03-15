@@ -34,7 +34,7 @@ def main():
             copy_file(dest, file, igrec_dir, root)
     for file in ["test_dataset/merged_reads.fastq"]:
         copy_file(dest, os.path.split(file)[-1], igrec_dir, os.path.join(igrec_dir, os.path.dirname(file)))
-    for dir in ["build", "configs", "data"]:
+    for dir in ["build", "pipeline_makefiles", "configs", "data"]:
         shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir))
 
     os.system("git -C %s log | head > %s/GIT_REVISION" % (igrec_dir, dest))

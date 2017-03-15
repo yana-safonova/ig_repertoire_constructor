@@ -242,7 +242,7 @@ class MultToMultData:
 
         # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
-                label="median smoothing")
+                label="median")
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
@@ -655,6 +655,21 @@ class RepertoireMatch:
         rb["reference_vs_constructed_error_rate_estimation"] = -safe_log(float(self.M2MDATA.median_rate(size)))
         rb["reference_vs_constructed_constructed_clusters_sizes"] = map(int, list(self.M2MDATA.constructed_cluster_sizes))
         rb["reference_vs_constructed_reference_clusters_sizes"] = map(int, list(self.M2MDATA.reference_cluster_sizes))
+        cf = 1.0
+        rb["reference_vs_constructed_overcorrected"] = sum(self.M2MDATA.constructed_cluster_sizes > cf * self.M2MDATA.reference_cluster_sizes)
+        rb["reference_vs_constructed_num"] = len(self.M2MDATA.constructed_cluster_sizes)
+        is_large = self.M2MDATA.reference_cluster_sizes >= size
+        is_overcorrected = self.M2MDATA.constructed_cluster_sizes > cf * self.M2MDATA.reference_cluster_sizes
+        rb["reference_vs_constructed_overcorrected_large"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large] > cf * self.M2MDATA.reference_cluster_sizes[is_large])
+        rb["reference_vs_constructed_large_num"] = sum(is_large)
+        import numpy as np
+        rb["reference_vs_constructed_overcorrected_large_median_rate"] = np.median(self.M2MDATA.constructed_cluster_sizes[is_large & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large & is_overcorrected])
+        is_large50 = self.M2MDATA.reference_cluster_sizes >= 50
+        rb["reference_vs_constructed_overcorrected_large50"] = sum(self.M2MDATA.constructed_cluster_sizes[is_large50] > cf * self.M2MDATA.reference_cluster_sizes[is_large50])
+        rb["reference_vs_constructed_large50_num"] = sum(is_large50)
+        rb["reference_vs_constructed_overcorrected_large_median_rate50"] = np.median(self.M2MDATA.constructed_cluster_sizes[is_large50 & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large50 & is_overcorrected])
+        rb["reference_vs_constructed_overcorrected_large_mean_rate50"] = np.mean(self.M2MDATA.constructed_cluster_sizes[is_large50 & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large50 & is_overcorrected])
+        rb["reference_vs_constructed_overcorrected_large_mean_rate"] = np.mean(self.M2MDATA.constructed_cluster_sizes[is_large & is_overcorrected] / self.M2MDATA.reference_cluster_sizes[is_large & is_overcorrected])
 
         precision, sizes = self.__get_data(what="precision")
         sensitivity, _ = self.__get_data(what="sensitivity")
@@ -679,7 +694,7 @@ class RepertoireMatch:
         rb["missed_clusters"] = self.missed_clusters()
         rb["extra_clusters"] = self.extra_clusters()
         rb["missed_clusters_sizes"] = self.missed_clusters_cons_sizes()
-        rb["extra_clusters_sizes"] = self.extra_clusters_ref_sizes()
+        rb["extra_clusters_ref_sizes"] = self.extra_clusters_ref_sizes()
 
     def __get_measure_for_plotting(self,
                                    size=1,
@@ -2297,12 +2312,12 @@ class Report:
             s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
             s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
 
-            extra_clusters_sizes = rb["extra_clusters_sizes"]
-            n_ec4 = sum([1 for size in extra_clusters_sizes if size == 4])
-            n_ec3 = sum([1 for size in extra_clusters_sizes if size == 3])
-            n_ec2 = sum([1 for size in extra_clusters_sizes if size == 2])
-            n_ec1 = sum([1 for size in extra_clusters_sizes if size == 1])
-            n_ec0 = sum([1 for size in extra_clusters_sizes if size == 0])
+            extra_clusters_ref_sizes = rb["extra_clusters_ref_sizes"]
+            n_ec4 = sum([1 for size in extra_clusters_ref_sizes if size == 4])
+            n_ec3 = sum([1 for size in extra_clusters_ref_sizes if size == 3])
+            n_ec2 = sum([1 for size in extra_clusters_ref_sizes if size == 2])
+            n_ec1 = sum([1 for size in extra_clusters_ref_sizes if size == 1])
+            n_ec0 = sum([1 for size in extra_clusters_ref_sizes if size == 0])
             s += "\tExtra clusters with size == 4:\t\t%d\n" % n_ec4
             s += "\tExtra clusters with size == 3:\t\t%d\n" % n_ec3
             s += "\tExtra clusters with size == 2:\t\t%d\n" % n_ec2

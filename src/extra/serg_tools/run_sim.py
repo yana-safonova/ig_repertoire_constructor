@@ -44,11 +44,16 @@ def ParseCommandLineParams():
                         type = int,
                         default = 16,
                         help = "Number of threads to use")
-    parser.add_argument("-p", "--error_rates",
+    parser.add_argument("-p", "--error-rates",
                         dest = "error_rates_str",
                         type = str,
                         required = True,
                         help = "Comma separated nucleotide error rates")
+    parser.add_argument("-b", "--barcode-length",
+                        dest = "barcode_length",
+                        type = int,
+                        default = 15,
+                        help = "Length of simulated barcodes")
     parser.add_argument("-e", "--exit_on_error",
                         dest = "exit_on_error",
                         action = "store_true",
@@ -102,7 +107,7 @@ def main():
     # for supernode_threshold in [100000, 10, 5]:
     for supernode_threshold in [100000]:
         # for barcode_length in [15, 9, 12]:
-        for barcode_length in [15]:
+        for barcode_length in [params.barcode_length]:
             # for pcr_error_rate in [0.006, 0.0006, 0.0025]:
             for pcr_error_rate in params.pcr_error_rates:
                 data_path = "%s/pcr_%g_super_%d_umi_%d" % (params.output_dir, pcr_error_rate, supernode_threshold, barcode_length)

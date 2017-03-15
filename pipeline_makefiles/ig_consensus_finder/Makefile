@@ -16,12 +16,12 @@ final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm: $(VJF)/clean
 	- \
 	final_repertoire_uncompressed.rcm
 
-	$(BIN)/ig_consensus_finder \
+	$(BIN)/ig_component_splitter \
 	--input-file $(VJF)/cleaned_reads.fa \
 	--rcm-file final_repertoire_uncompressed.rcm \
 	--output-file final_repertoire_uncompressed.fa \
-	--hamming \
-	--coverage-limit 1
+	--output-rcm-file final_repertoire_uncompressed_after_split.rcm \
+	--allow-unassigned true
 
 clean:
 	$(RM) final_repertoire_uncompressed.fa final_repertoire_uncompressed.rcm

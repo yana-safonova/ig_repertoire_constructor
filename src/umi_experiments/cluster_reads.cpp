@@ -24,7 +24,7 @@ namespace {
 
     bool read_args(int argc, const char* const* argv, Params& params) {
         namespace po = boost::program_options;
-        po::options_description cmdl_options("Is this needed?");
+        po::options_description cmdl_options;
         cmdl_options.add_options()
                 ("help,h", "print help message")
                 ("reads,r", po::value<std::string>(&params.reads_path)->required(), "input file with reads")
@@ -193,6 +193,7 @@ int main(int argc, const char* const* argv) {
 
         clusterer.write_clusters_and_correspondence(params.output_dir, "_5_chimeras", params.save_clusters, params.output_intermediate);
     }
+    clusterer.write_clusters_and_correspondence(params.output_dir, "", params.save_clusters, true, "", "intermediate_repertoire_close_umi.rcm");
 
 //    size_t edit_corrected_reads = clusterer::count_reads_with_corrected_umi(umi_to_clusters_edit_inside_umi, umi_to_clusters_edit_adj_umi);
 //    INFO(edit_corrected_reads << " reads have UMI corrected for edit dist.");
