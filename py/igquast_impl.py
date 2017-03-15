@@ -269,7 +269,7 @@ class Reperoire2RepertoireMatching:
                  tmp_file=None, max_tau=4, log=None):
         if tmp_file is None:
             import tempfile
-            tmp_file = tempfile.mkstemp(suffix=".graph", prefix="aimquast_")[1]
+            tmp_file = tempfile.mkstemp(suffix=".graph", prefix="igquast_")[1]
 
         run_ig_matcher2(reference_repertoire, constructed_repertoire,
                         tau=max_tau,

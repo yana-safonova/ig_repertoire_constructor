@@ -1,11 +1,11 @@
 #!/usr/bin/env python2
 
 from simulate import *
-from aimquast_impl import get_clusters_sizes
+from igquast_impl import get_clusters_sizes
 import os.path
 from joblib import Parallel, delayed
 
-path_to_aimquast = igrec_dir + "/aimquast.py"
+path_to_igquast = igrec_dir + "/igquast.py"
 
 
 def run_and_quast_all(input_reads,
@@ -15,7 +15,7 @@ def run_and_quast_all(input_reads,
                       threads=4,
                       rerun_mixcr=False,
                       rerun_igrec=False,
-                      rerun_aimquast=False,
+                      rerun_igquast=False,
                       do_not_run=False,
                       do_run_igrec_old=False,
                       do_run_igrec=True):
@@ -146,16 +146,18 @@ def run_and_quast_all(input_reads,
                 "input_reads": input_reads,
                 "out_dir": out_dir,
                 "kind": kind}
-        if not rerun_aimquast and os.path.isfile("%(out_dir)s/%(kind)s/aimquast/aimquast.txt" % args):
+        if not rerun_igquast and os.path.isfile("%(out_dir)s/%(kind)s/aimquast/aimquast.json" % args):
             continue
         cmd = "gzip -f -k %(out_dir)s/%(kind)s/final_repertoire.fa" % args
         os.system(cmd)
-        # cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --rcm-based --reference-free" % args
-        cmd = path_to_aimquast + " -s %(input_reads)s -r %(ideal_repertoire_fa)s -R %(ideal_repertoire_rcm)s -c %(out_dir)s/%(kind)s/final_repertoire.fa -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf --no-rcm-based" % args
+        cmd = path_to_igquast + " -s %(input_reads)s \
+            -r %(ideal_repertoire_fa)s -c %(out_dir)s/%(kind)s/final_repertoire.fa \
+            -o %(out_dir)s/%(kind)s/aimquast --no-reference-free -F png,pdf,svg \
+            --json %(out_dir)s/%(kind)s/aimquast/aimquast.json" % args
 
-        rcm = "%(out_dir)s/%(kind)s/final_repertoire.rcm" % args
-        if os.path.isfile(rcm):
-            cmd += " -C %s" % rcm
+        # rcm = "%(out_dir)s/%(kind)s/final_repertoire.rcm" % args
+        # if os.path.isfile(rcm):
+        #     cmd += " -C %s" % rcm
 
         os.system(cmd)
 

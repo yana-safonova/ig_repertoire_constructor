@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 
-from aimquast_impl import get_clusters_sizes
+from igquast_impl import get_clusters_sizes
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
