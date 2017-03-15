@@ -24,7 +24,7 @@
 1. <a href="#intro">What is <font class="sc">IgQUAST</font>?</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.1. <a href="#igquast_input">Input</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;1.2. <a href="#igquast_output">Output</a><br>
-2. <a href="#install">Installation</a><br>
+2. <a href="#igquast_install">Installation</a><br>
 3. <a href="#igquast_usage"><font class="sc">IgQUAST</font> usage</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#igquast_input_options">Input options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#igquast_output_options">Output options</a><br>
@@ -56,9 +56,10 @@
                 </li>
             </ul>
         </li>
-        <li>During reference-free analysis the tool detects overestimated clusters in the constructed repertoire
+        <li>Reference-free analysis is performed to the constructed repertoire.
+            The tool detects overestimated clusters in the repertoire
             using amplification-free Poisson model.
-            Also the tool estimates error rate and error profile of the initial read library.
+            Also it estimates error rate and error profile of the initial read library.
             In case of the reference repertoire is provided, the same analysis is performed for it.
             All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
         </li>
@@ -73,8 +74,8 @@
     Initial Rep-Seq library should be in FASTA or FASTQ format.
         Reads should be properly cropped (should start from V gene beginning
         and finish by J gene ending), reads obtained from negative strand should
-        be reversed.
-        Cropping and strand correction of Rep-Seq reads may be performed by
+        be reversed, and contaminative reads should be filtered out.
+        Cropping, strand correction and contamination filtering may be performed by
         the <font class="sc">VJFinder</font> tool from the <font class="sc">IgRepertoireConstructor</font> package
         (see <a href="manual.html"><font class="sc">IgRepertoireConstructor</font> manual</a> for <font class="sc">VJFinder</font> input-output format description).
     <br>
@@ -82,7 +83,7 @@
         repertoire sequences in FASTA format and read-to-cluster map (RCM)
         file in a special format.
         See <a href="manual.html#repertoire_files"><font class="sc">IgRepertoireConstructor</font> manual</a>
-        for a comprehensive repertoire format description. One of these two
+        for the comprehensive repertoire format description. One of these two
         files could be missing, in this case the tool optionally tries to reconstruct it using
         available information.
 
@@ -95,7 +96,7 @@
 
     Plots are reported in PNG, PDF, and SVG formats. Metrics are reported in text (brief) and JSON (full) formats.
 
-    <h2 id=install>2. Installation</h2>
+    <h2 id=igquast_install>2. Installation</h2>
 <font class="sc">IgQUAST</font> has the following dependencies:
 <ul>
     <li>64-bit Linux system</li>
@@ -131,7 +132,7 @@
 </code>
 </pre>
 
-<h2 id="usage">3. <font class="sc">IgQUAST</font> usage</h2>
+<h2 id="igquast_usage">3. <font class="sc">IgQUAST</font> usage</h2>
     To run <font class="sc">IgQUAST</font>, type:
     <pre class="code">
     <code>
@@ -173,9 +174,10 @@
 
     <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure
     format(s) for outputted plots. Allowed values are <code>png</code>,
-    <code>pdf</code> and <code>svg</code>. Several values should be separated
-    by commas. Use empty string for non-producing plots. Default value is
-    <code>png,pdf,svg</code>.
+    <code>pdf</code> and <code>svg</code>.
+    One can pass several values separated by commas.
+    Empty string means do not produce plots.
+    Default value is <code>png,pdf,svg</code>.
     <br><br>
 
     <h3 id="igquast_scenarios_options">3.3. Performed scenarios</h3>
