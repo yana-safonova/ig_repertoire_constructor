@@ -29,9 +29,9 @@ def EnsureRequiredParametersSet(params, parser, log):
 
 
 def ParseCommandLineParams(log):
-    from argparse import ArgumentParser, Action
+    import argparse
 
-    class ActionTest(Action):
+    class ActionTest(argparse.Action):
         def __init__(self, option_strings, dest, nargs=None, **kwargs):
             super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
@@ -39,8 +39,10 @@ def ParseCommandLineParams(log):
             setattr(namespace, "single_reads", "test_dataset/barcodedIgReC_test.fasta")
             setattr(namespace, "output", "barigrec_test")
             setattr(namespace, "loci", "all")
+            setattr(namespace, "no_compilation", True)
+            setattr(namespace, "ignore_code_changes", True)
 
-    parser = ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
+    parser = argparse.ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
                             epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
@@ -75,6 +77,19 @@ def ParseCommandLineParams(log):
                           default="",
                           help="Output directory. Required")
 
+    vj_align_args = parser.add_argument_group("Algorithm arguments")
+    vj_align_args.add_argument("-l", "--loci",
+                               type=str,
+                               dest="loci",
+                               # required=True,
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
+
+    vj_align_args.add_argument("--organism",
+                               type=str,
+                               default="human",
+                               dest="organism",
+                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
+
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
                                type=int,
@@ -93,25 +108,11 @@ def ParseCommandLineParams(log):
                                dest="igrec_tau",
                                help="Maximum allowed mismatches between UMI clusters"
                                     "[default: %(default)d]")
-    optional_args.add_argument("-n", "--min-super-read-size",
-                               type=int,
-                               default=1000000,
-                               dest="min_super_read_size",
-                               help="Minimum super read size [default: %(default)d]")
     optional_args.add_argument("-f", '--min-fillin',
                                type=float,
                                default=0.6,
                                dest="min_fillin",
                                help='Minimum fill-in of dense subgraphs [default: %(default)f]')
-    optional_args.set_defaults(compile=True)
-    optional_args.add_argument("-p", "--no-compilation",
-                               dest="no_compilation",
-                               action="store_true",
-                               help="Exclude C++ code compilation from the pipeline")
-    optional_args.add_argument("-c", "--ignore-code",
-                               dest="ignore_code_changes",
-                               action="store_true",
-                               help="Ignore code changes when checking stages dependencies")
     optional_args.add_argument("-k", "--detect-chimeras",
                                dest="detect_chimeras",
                                action="store_true",
@@ -125,29 +126,47 @@ def ParseCommandLineParams(log):
                                default=20,
                                dest="clustering_threshold",
                                help="Threshold distance to unite clusters")
-    # TODO: hide parameter
-    optional_args.add_argument("--debug-stages",
+
+    dev_args = parser.add_argument_group("Developer arguments")
+    dev_args.add_argument("-n", "--min-super-read-size",
+                               type=int,
+                               default=1000000,
+                               dest="min_super_read_size",
+                               # help="Minimum super read size [default: %(default)d]")
+                               help=argparse.SUPPRESS)
+    dev_args.add_argument("-p", "--no-compilation",
+                               dest="no_compilation",
+                               action="store_true",
+                               help=argparse.SUPPRESS)
+                               # help="Exclude C++ code compilation from the pipeline")
+    dev_args.add_argument("-P", "--do-compilation",
+                               dest="no_compilation",
+                               action="store_false",
+                               help=argparse.SUPPRESS)
+                               # help="Exclude C++ code compilation from the pipeline")
+    dev_args.add_argument("-c", "--ignore-code",
+                               dest="ignore_code_changes",
+                               action="store_true",
+                               help=argparse.SUPPRESS)
+                               # help="Ignore code changes when checking stages dependencies")
+    dev_args.add_argument("-C", "--no-ignore-code",
+                               dest="ignore_code_changes",
+                               action="store_false",
+                               help=argparse.SUPPRESS)
+                               # help="Ignore code changes when checking stages dependencies")
+    dev_args.add_argument("--debug-stages",
                                dest="output_intermediate",
                                action="store_true",
-                               help="Output repertoire after each step")
-    optional_args.add_argument("--umi-cleavage-length",
+                               help=argparse.SUPPRESS)
+                               # help="Output repertoire after each step")
+    dev_args.add_argument("--umi-cleavage-length",
                                type=int,
                                default=0,
                                dest="umi_cleavage_length",
-                               help="Cleave UMIs by the specified length (testing purposes only) [default: %(default)d]")
+                               help=argparse.SUPPRESS)
+                               # help="Cleave UMIs by the specified length (testing purposes only) [default: %(default)d]")
 
-    vj_align_args = parser.add_argument_group("Algorithm arguments")
-    vj_align_args.add_argument("-l", "--loci",
-                               type=str,
-                               dest="loci",
-                               # required=True,
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
 
-    vj_align_args.add_argument("--organism",
-                               type=str,
-                               default="human",
-                               dest="organism",
-                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
     params = parser.parse_args()
 
