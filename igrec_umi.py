@@ -157,13 +157,6 @@ def ParseCommandLineParams(log):
 
     EnsureRequiredParametersSet(params, parser, log)
 
-    # Process pair reads
-    if params.left_reads or params.right_reads:
-        if not params.left_reads or not params.right_reads:
-            log.error("Both left (-1) and right (-2) paired-end reads should be specified\n")
-            sys.exit(-1)
-        params.single_reads = "%s/merged_reads.fastq" % params.output
-
     return parser, params
 
 
@@ -278,23 +271,64 @@ def InitMakeFiles(params, log):
     return os.path.join(params.output, "final_repertoire")
 
 
+def PrintOutputFiles(params, log):
+    log.info("\nBarcodedIgReC output:")
+    log.info("  * Cleaned Ig-Seq reads were written to %s" % os.path.join(params.output, "vj_finder", "cleaned_reads.fa"))
+    log.info("  * Contaminated (not Ig-Seq) reads were written to %s" % os.path.join(params.output, "vj_finder", "filtered_reads.fa"))
+    log.info("  * VJ alignment output was written to %s" % os.path.join(params.output, "vj_finder", "v_alignments.fa"))
+    log.info("  * Antibody clusters of final repertoire with read multiplicities were written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire.fa"))
+    log.info("  * Antibody clusters of final repertoire with molecule multiplicities were written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire_umi.fa.gz"))
+    log.info("  * Read-cluster map of final repertoire was written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire.rcm"))
+
+
+def SupportInfo(log):
+    log.info("\nIn case you have troubles running BarcodedIgReC, "
+             "you can write to igtools_support@googlegroups.com.")
+    log.info("Please provide us with igrc.log file from the output directory.")
+
+
 def main():
     log = igrec.CreateLogger()
     parser, params = ParseCommandLineParams(log)
     CheckParamsCorrectness(parser, params, log)
-    if not os.path.exists(params.output):
-        os.makedirs(params.output)
-    igrec.CreateFileLogger(params, log)
-    igrec.PrintCommandLine(log)
-    final_dir = InitMakeFiles(params, log)
-    # We need freshly compiled version to get actual build info
-    if not params.no_compilation:
-        support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
-    from src.build_info.build_info import BuildInfo
-    print "===================Build info==================="
-    BuildInfo().Log(log)
-    print "================================================"
-    support.sys_call("make -C " + final_dir, log)
+    try:
+        if not os.path.exists(params.output):
+            os.makedirs(params.output)
+        igrec.CreateFileLogger(params, log)
+        igrec.PrintCommandLine(log)
+        final_dir = InitMakeFiles(params, log)
+        # We need freshly compiled version to get actual build info
+        if not params.no_compilation:
+            support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
+        from src.build_info.build_info import BuildInfo
+        print "===================Build info==================="
+        BuildInfo().Log(log)
+        print "================================================"
+        support.sys_call("make -C " + final_dir, log)
+        PrintOutputFiles(params, log)
+        log.info("\nThank you for using BarcodedIgReC!")
+    except KeyboardInterrupt:
+        log.info("\nBarcodedIgReC was interrupted!")
+    except Exception:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+    except BaseException:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+
+    log.info("Log was written to " + params.log_filename)
 
 
 if __name__ == '__main__':
