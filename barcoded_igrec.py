@@ -225,7 +225,7 @@ class _StagePrepare:
                 line = line.replace("%CLUSTERING_THRESHOLD", str(params.clustering_threshold))
                 line = line.replace("%DEBUG_STAGES", str(params.output_intermediate))
                 if '%' in line:
-                    log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
+                    log.error("Not all template variables substituted in the makefile, update barcoded_igrec.py script, line #%d: '%s'" % (idx, line))
                     exit(1)
                 file.write(line)
 
