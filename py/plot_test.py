@@ -508,6 +508,12 @@ def plotplot(dir, out_dir, title, **kwargs):
          out=out_dir + "/sensitivity_precision_plot",
          **kwargs)
     rocs(dir,
+         tools=["igrec", "mixcr2full", "supernode"],
+         labels=["IgReC", "MiXCR_full", "pRESTO"],
+         title=title,
+         out=out_dir + "/sensitivity_precision_plot_full_mixcr",
+         **kwargs)
+    rocs(dir,
          tools=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"],
          labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"],
          title=title,
@@ -569,6 +575,7 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 if __name__ == "__main__":
     plotplot(igrec_dir + "py/test_on_pd/REAL/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/REAL_CHU/", "REAL_CHU_figs", title="Sensitivity-precision plot (REAL MiGEC dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_2/", "SIMULATED_2_figs", title="SIMULATED SIMPLE dataset, 2 errors per read", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_0.5/", "SIMULATED_0.5_figs", title="SIMULATED SIMPLE dataset, 0.5 errors per read", show_coords=True)
