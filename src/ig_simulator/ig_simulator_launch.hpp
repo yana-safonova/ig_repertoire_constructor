@@ -1,0 +1,26 @@
+//
+// Created by Andrew Bzikadze on 3/15/17.
+//
+
+#pragma once
+
+#include "ig_simulator_config.hpp"
+
+namespace ig_simulator {
+
+class IgSimulatorLaunch {
+private:
+    IgSimulatorConfig config_;
+
+public:
+    IgSimulatorLaunch(const IgSimulatorConfig &config) :
+        config_(config)
+    { }
+
+    IgSimulatorLaunch(const IgSimulatorLaunch&) = delete;
+    IgSimulatorLaunch(IgSimulatorLaunch&&) = delete;
+
+    void Run();
+};
+
+} // End namespace ig_simulator

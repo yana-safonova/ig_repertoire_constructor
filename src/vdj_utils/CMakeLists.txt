@@ -21,6 +21,6 @@ add_library(vdj_utils STATIC
         annotation_utils/annotated_clone.cpp
         annotation_utils/annotated_clone_calculator.cpp
         annotation_utils/annotated_clone_set.cpp
-        )
+        germline_utils/germline_config.cpp)
 
 target_link_libraries(vdj_utils core ${COMMON_LIBRARIES})

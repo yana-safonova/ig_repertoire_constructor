@@ -23,7 +23,7 @@ class VJFinderTest : public ::testing::Test {
 public:
     void SetUp() {
         create_console_logger();
-        std::string config_fname = "configs/vj_finder/config.info";
+        std::string config_fname = "configs/vj_finder/config.info"
         vj_finder::load(vj_finder_config, config_fname);
         vj_finder_config.algorithm_params.fix_crop_fill_params.fill_right = true;
         vj_finder_config.algorithm_params.fix_crop_fill_params.fix_right = 3;
