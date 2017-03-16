@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en-us">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>IgQUAST Manual</title>
@@ -14,9 +16,6 @@
             font-variant: small-caps;
         }
     </style>
-    <style>
-
-    </style>
 </head>
 
 <body>
@@ -31,7 +30,7 @@
 &nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#igquast_scenarios_options">Performed scenarios</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#igquast_misc_options">Miscellaneous options</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;3.5. <a href="#igquast_examples">Examples</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;3.6. <a href="#igquast_output_files">Output_files</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.6. <a href="#igquast_output_files">Output files</a><br>
 4. <a href="#references">Citations</a><br>
 5. <a href="#feedback">Feedback and bug reports</a><br>
 
@@ -40,7 +39,7 @@
     <h2 id="intro">1. What is <font class="sc">IgQUAST</font>?</h2> <font class="sc">IgQUAST</font> (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality <b>AS</b>sessment <b>T</b>ool)
     is a tool for adaptive immune repertoires quality assessment.
     <font class="sc">IgQUAST</font> can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
-    <font class="sc">IgQUAST</font> provides reference-based and reference-free analysis:
+    <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
     <ul>
         <li>During reference-based analysis the tool compares two input repertoires, the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
             This analysis is separated into two scenarios:
@@ -56,7 +55,7 @@
                 </li>
             </ul>
         </li>
-        <li>Reference-free analysis is performed to the constructed repertoire.
+		<li><b>Reference-free analysis</b> is performed to the constructed repertoire.
             The tool detects overestimated clusters in the repertoire
             using amplification-free Poisson model.
             Also it estimates error rate and error profile of the initial read library.
@@ -67,11 +66,11 @@
 
     <h3 id="igquast_input">1.1. Input</h3> <font class="sc">IgQUAST</font> takes as an input:
     <ul>
-        <li>Initial Rep-Seq read library;</li>
+        <li>Initial Rep-seq read library;</li>
         <li>Analyzed adaptive immune repertoire constructed on this library;</li>
         <li>For reference-based analysis, the reference repertoire constructed on the same library.</li>
     </ul>
-    Initial Rep-Seq library should be in FASTA or FASTQ format.
+    Initial Rep-seq library should be in FASTA or FASTQ format.
         Reads should be properly cropped (should start from V gene beginning
         and finish by J gene ending), reads obtained from negative strand should
         be reversed, and contaminative reads should be filtered out.
@@ -154,7 +153,7 @@
     <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Could be gzipped.
     <br><br>
 
-    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-Seq reads in FASTA or FASTQ format. Could be gzipped.
+    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-seq reads in FASTA or FASTQ format. Could be gzipped.
     <br><br>
 
     <code>--reconstruct | --no-reconstruct</code><br> Whether to reconstruct missing repertoire files if it is possible. Disabled by default.
@@ -237,7 +236,8 @@
                 <li><b>sensitivity_precision</b> &mdash; sensitivity and precision depending on cluster size threshold for the constructed repertoire</li>
                 <li><b>distance_distribution</b> &mdash; constructed to reference and reference to constructed distance distribution depending on cluster size threshold for the constructed repertoire. 8 plots in all on one figure</li>
                 <li><b>{constructed_to_reference,reference_to_constructed}_distance_distribution_size_{1,3,5,10}</b> &mdash; the same 8 plots separately</li>
-                <li><b>multiplicity_distribution</b> &mdash; cluster size distribution for the constructed and reference repertoires</li>
+                <li><b>abundance_distributions</b> &mdash; cluster size distribution for the constructed and reference repertoires</li>
+                <li><b>cluster_abundances_scatterplot</b> &mdash; scatterplot of constructed cluster sizes against reference cluster sizes for ideally reconstructed clusters</li>
 
                 <li><b>constructed_purity_distribution</b> &mdash; distribution of cluster purity in the constructed repertoire. This plot helps to detect overcorrection</li>
                 <li><b>constructed_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
@@ -250,7 +250,7 @@
                 <li><b>reference_discordance_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
 
                 <li><b>reference_purity_distribution</b> &mdash; distribution of cluster purity in the reference repertoire. This plot helps to detect undercorrection</li>
-                <li><b>reference_purity_distribution_large</b> &mdash; the same plot fro large clusters only</li>
+                <li><b>reference_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
                 <li><b>reference_purity_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
 
                 <li><b>constructed_discordance_distribution</b> &mdash; distribution of reference cluster discordance
@@ -263,14 +263,14 @@
         <li>
             <b>reference_free</b> &mdash; Directory with reference-free plots:
             <ul>
-                <li><b>constructed_cluster_error_profile</b> &mdash; error profile estimation for all constructed repertoire clusters</li>
+                <li><b>constructed_cluster_error_profile</b> &mdash; error profile estimation for entire constructed repertoire</li>
                 <li><b>constructed_cluster_error_profile_largest_{1,2,3,4,5}</b> &mdash; error profile estimation for 5 largest constructed clusters separately</li>
-                <li><b>constructed_cluster_discordance_profile</b> &mdash; discordance (second vote letter) profile for all constructed repertoire clusters</li>
+                <li><b>constructed_cluster_discordance_profile</b> &mdash; discordance (second vote letter) profile for entire constructed repertoire</li>
                 <li><b>constructed_cluster_error_profile_largest_{1,2,3,4,5}</b> &mdash;  discordance profile for 5 largest constructed clusters</li>
 
                 <li><b>constructed_distribution_of_errors_in_reads</b> &mdash; distribution of the number of errors in reads for the constructed repertoire clusters</li>
-                <li><b>constructed_estimation_of_max_error_distribution</b> &mdash; for each cluster, max errors by position for the constructed repertoire.
-                    This plot helps to detect overcorrection in the simplest amplification-free model</li>
+                <li><b>constructed_max_error_scatter</b> &mdash; scatterplot of max errors by position against cluster size for the constructed repertoire.
+                    This plot helps to detect overcorrection</li>
                 <li><b>reference_*</b> &mdash; the same plots for the reference repertoire</li>
                 <li>
                     <b>bad_constructed_clusters</b> &mdash; Directory with clusters from the constructed repertoire,
@@ -286,7 +286,7 @@
             <b>constructed.rcm, reference.rcm, constructed.fa.gz. reference.fa.gz</b> &mdash; Reconstructed missing repertoire files
         </li>
         <li>
-            <b>igquast.log</b> &mdash; full log of the <font class="sc">IgQUAST</font> run.
+            <b>igquast.log</b> &mdash; full log of the <font class="sc">IgQUAST</font> run
         </li>
     </ul>
 
@@ -302,7 +302,7 @@
         Dmitriy M. Chudakov,
         Yana Safonova,
         and Pavel A. Pevzner.
-        Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted to Genome Research)</i>
+        Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted)</i>
     </p>
     <!-- -------- -->
     <h2 id="feedback">5. Feedback and bug reports</h2> Your comments, bug
@@ -311,3 +311,4 @@
     <br><br> If you have any trouble running <font class="sc">IgQUAST</font>, please provide us the log file from the output directory.
     <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
 </body>
+</html>
