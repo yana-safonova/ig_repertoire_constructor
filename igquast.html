@@ -273,7 +273,7 @@
             Due to this reason, IgQUAST computes statistics for various threshold values.
 			However, for good repertoire construction tool that does not underestimate abundances
 			we can expect that optimal <i>constructed min_size</i> is equal or close to
-			the <i>reference min_size</i>. 
+			the <i>reference min_size</i>.
         </p>
 
         <h2 id = "repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</h2>
@@ -446,6 +446,11 @@
 
         <h3 id = "abundance_distributions">Abundance distributions</h3>
         <p align = "justify">
+			Repertoire clusters are also characterized by their abundances, i.e., cluster sizes.
+			IgReC plots superposed abundance histograms. That allows one to compare abundance distributions.
+		</p>
+
+        <p align = "justify">
         <table align = center>
             <tr>
                 <td align = center width = 50 %>
@@ -466,46 +471,116 @@
         </table>
 		</p>
 
+        <p align = "justify">
+			Note that the histograms are more informative in log-scale
+			due to high unevenness of antibody abundance distribution.
+		</p>
+
+		<p align = "justify">
+			The plots above reveal that the constructed repertoire contains about 4 times more
+			small clusters.
+			The reason is in that repertoire construction tool cannot fix highly corrupted reads and
+			such reads typically become singletons. Thus, the most part of those small clusters have size 1.
+			<!-- IDEA. Plot the hist only for large (>=5) clusters -->
+		</p>
+
         <h3 id = "cluster_abundances_scatterplot">Cluster abundances scatterplot</h3>
-        Repertoire clusters are also characterized by their abundances.
-        For clusters presented in both repertoires (so-called <i>ideal clusters</i>),
-        IgQUAST compares abundances.
-        Error correction does not fix ALL errors, therefore typically cluster sizes are underestimated.
-        I.e., we can expect that the cluster abundance in the constructed repertoire is less than abundance
-        in the reference repertoire.
-        Otherwise, if the constructed abundance is much more than the reference abundance
-        (we say, "the abundance is overestimated"),
-        we suppose that the correspondent cluster is overcorrected, i.e. erroneously glued with the other (probably smaller)
-        cluster.
+		<p align = "justify">
+			Repertoire clusters are also characterized by their abundances.
+			For clusters presented in both repertoires (so-called <i>ideal clusters</i>),
+			IgQUAST compares abundances.
+		</p>
 
-        In the plot potentially overcorrected clusters are shown by red points, while other cluster are shown by blue ones.
+		<p align = "justify">
+			Error correction cannot fix all errors, therefore typically cluster sizes are underestimated.
+			I.e., we can expect that the cluster abundance in the constructed repertoire is less than abundance
+			in the reference repertoire.
+		</p>
 
+		<p align = "justify">
+			According to our experiments, the dependence between reference and constructed cluster size is almost linear.
+			The linear coefficient depends on library error rate and used repertoire construction strategy.
+			We can use this coefficient to compare different repertoire construction tools.
+		</p>
+
+		<p align = "justify">
+			For some clusters constructed abundance is much more than the reference abundance.
+			In this case we say: &ldquo;the abundance is overestimated&rdquo;.
+			We suppose that such clusters are <i>overcorrected,</i> i.e., erroneously glued with other (probably smaller)
+			clusters.
+
+			In the plot potentially overcorrected clusters are shown by red points, while other cluster are shown by blue ones.
+		</p>
+
+
+		<p align = "justify">
         <table align = center>
             <tr>
                 <td align = center width = 50%>
-                    <img src = "docs/igquast/underestimation1.png" width = 100% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/underestimation1.png"
+							width = 100%
+							alt = "">
                 </td>
                 <td align = center width = 50%>
-                    <img src = "docs/igquast/underestimation2.png" width = 100% alt = "Sensitivity and precision definition">
+                    <img src = "docs/igquast/cluster_abundances_scatterplot.png"
+							width = 100%
+							alt = "">
                 </td>
             </tr>
+			<tr>
+				<td>
+					Repertoire construction tool cannot fix highly corrupted reads.
+					Therefore, cluster abundances are typically underestimated.
+				</td>
+				<td>
+					Cluster abundances scatterplot for poorly constructed repertoire.
+					Abundances are highly underestimated, there are a lot of overcorrected (red) clusters.
+				</td>
+			</tr>
         </table>
+		</p>
 
 
         <h2 id = "partition_based_analysis">Partition-based analysis</h2>
         <h3 id = "cluster_purity_discordance_distributions">Cluster purity and discordance distributions</h3>
+
+		<p align = "justify">
+			For each constructed cluster compute its <i>purity</i> &mdash; the rate of reference cluster that is
+			the most presented in it. Also compute <i>discordance</i> &mdash; the rate of reference cluster that is
+			the second most presented in it. Symmetrically define purity and discordance for reference clusters.
+		</p>
+
+		<p align = "justify">
+		    Constructed purity and discordance are measure of cluster <i>overcorrection.</i>
+			If constructed cluster is impure then it is probably combined from several erroneously
+			joined reference clusters.
+		</p>
+
+		<p align = "justify">
+			Reference purity and discordance are measures of cluster <i>undercorrection.</i>
+			If reference cluster is impure then it is probably erroneously split into several constructed clusters.
+		</p>
+
+		<p align = "justify">
         <table align = center>
             <tr>
                 <td align = center>
                     <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
                 </td>
             </tr>
+			<tr>
+				<td>
+					Purity definition.
+					<!-- TODO Add discordance definition -->
+				</td>
         </table>
+		</p>
 
+		<p align = "justify">
+			Plots below demonstrate the difference between poorly constructed and accurate repertoires.
+		</p>
 
-        Constructed purity: measure of cluster overcorrection
-        Reference purity: measure of cluster undercorrection
-
+		<p align = "justify">
         <table align = center>
             <tr>
                 <td align = center width = 50%>
@@ -519,22 +594,46 @@
 							alt="">
                 </td>
             </tr>
+			<tr>
+				<td colspan=2>
+					Distribution of purity of large (>= 5) reference clusters for
+					poorly constructed (left) and accurate (right) repertoire.
+					Left repertoire contain more pure clusters, but also more impure ones.
+				</td>
+			</tr>
         </table>
+		</p>
 
+		<p align = "justify">
+			Note that pure constructed cluster does not mean correct constructed cluster.
+			Pure cluster may be an erroneously separated
+			part of a bigger cluster. We have to control both reference and construction purity.
+		</p>
+
+		<p align = "justify">
         <table align = center>
             <tr>
                 <td align = center width = 50%>
-                    <img src = "docs/igquast/reference_based_bad/constructed_discordance_distribution_large.svg"
+                    <img src = "docs/igquast/reference_based_bad/reference_purity_distribution_large.svg"
 							width = 100%
 							alt="">
                 </td>
                 <td align = center width = 50%>
-                    <img src = "docs/igquast/reference_based_good/constructed_discordance_distribution_large.svg"
+                    <img src = "docs/igquast/reference_based_good/reference_purity_distribution_large.svg"
 							width = 100%
 							alt="">
                 </td>
             </tr>
+			<tr>
+				<td colspan=2>
+					Distribution of purity of large (>= 5) reference clusters for
+					poorly constructed (left) and accurate (right) repertoire.
+					Left repertoire is undercorrected: there are a lot of impure reference clusters,
+					i.e., clusters that is erroneously split.
+				</td>
+			</tr>
         </table>
+		</p>
 
         <h2 id = "reference_free_analysis">Reference-free analysis</h2>
 		TODO add some intro.
