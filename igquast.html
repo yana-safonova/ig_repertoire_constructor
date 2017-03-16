@@ -18,7 +18,7 @@
     <section class="page-header">
       <h1 class="project-name" align=center>IgQUAST</h1>
       <h2 class="project-tagline" align=center>A tool for full-length antibody/TCR repertoires quality assessment</h2>
-      IgQUAST is a part of <a href="index.html" style="color:white;font-weight:bold;text-decoration: underline">IgReC</a> toolkit.
+      IgQUAST is a part of <a href="https://github.com/yana-safonova/ig_repertoire_constructor" style="color:white;font-weight:bold;text-decoration: underline">IgReC</a> toolkit.
       Use the <a href="index.html" style="color:white;font-weight:bold;text-decoration: underline">main page</a> for download
     </section>
 
@@ -133,18 +133,18 @@
                 <ul>
                     <li><a href="#distance_distributions">constructed-to-reference and reference-to-constructed distance distributions;</a></li>
                     <li><a href="#error_position_distribution">error position distribution;</a></li>
-                    <li>abundance distributions;</li>
-                    <li>sensitivity-precision (optimal min-size estimation);</li>
-                    <li>cluster abundances estimation.</li>
+					<li><a href="#sensitivity_precision">sensitivity-precision (optimal <i>constructed min-size</i> selection);</a></li>
+					<li><a href="#abundance_distributions">abundance distributions;</a></li>
+					<li><a href="#cluster_abundances_scatterplot">cluster abundances scatterplot</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
+                    <li>#extra clusters of different size;</li>
                     <li>sensitivity/precision;</li>
                     <li>area under sensitivity-precision curve (AUC);</li>
-                    <li>abundance median rate;</li>
                     <li>optimal sensitivity+precision, optimal constructed min-size;</li>
-                    <li># of extra clusters of different size.</li>
+                    <li>abundance median rate</li>
                 </ul>
             </td>
         </tr>
@@ -160,22 +160,21 @@
             <td>
                 Plots:
                 <ul>
-                    <li>Constructed and reference purity distribution;</li>
-                    <li>Constructed and reference discordance distribution.</li>
+					<li><a href="#cluster_purity_discordance_distributions">Constructed and reference purity distribution;</a></li>
+					<li><a href="#cluster_purity_discordance_distributions">Constructed and reference discordance distribution</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
                     <li>Clustering similarity measures (Jaccard index, Fowlkes-Mallows index, Rand index, Adjusted Rand index);</li>
-                    <li>Overcorrection measures (# pure/impure constructed clusters, # constructed discordant reads);</li>
-                    <li>Undercorrection measures (# pure/impure reference clusters, # reference discordant reads).</li>
+                    <li>Overcorrection measures (#pure/impure constructed clusters, #constructed discordant reads);</li>
+                    <li>Undercorrection measures (#pure/impure reference clusters, #reference discordant reads)</li>
                 </ul>
             </td>
         </tr>
         <tr>
             <td>
                 <a href="#reference_free_analysis">Reference-free analysis</a>
-                for constructed repertoire
             </td>
             <td>
                 Initial input Rep-seq library, constructed repertoire
@@ -184,17 +183,17 @@
             <td>
                 Plots:
                 <ul>
-                    <li> error and discordance profiles (for entire repertoire and for 5 largets clusters);</li>
-                    <li> distribution of #errors in reads;</li>
-                    <li> scatterplot of max error by position against cluster size.</li>
+					<li><a href="#error_discordance_profiles">error and discordance profiles (for entire repertoire and for 5 largets clusters);</a></li>
+					<li><a href="#distribution_of_errors_in_reads">distribution of #errors in reads;</a></li>
+					<li><a href="#constructed_max_error_scatter">scatterplot of max error by position against cluster size</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
-                    <li> error rate estimation.</li>
+                    <li> error rate estimation</li>
                 </ul>
 
-                Suspicious cluster IDs.
+                Suspicious cluster IDs
             </td>
         </tr>
         </table>
@@ -394,7 +393,10 @@
         Thus, it is important to control both of them simultaneously.
 
 
-        <h3 id = "matching">Cluster abundances estimation</h3>
+        <h3 id = "abundance_distributions">Abundance distributions</h3>
+		TBD
+
+        <h3 id = "cluster_abundances_scatterplot">Cluster abundances scatterplot</h3>
         Repertoire clusters are also characterized by their abundances.
         For clusters presented in both repertoires (so-called <i>ideal clusters</i>),
         IgQUAST compares abundances.
@@ -420,34 +422,40 @@
         </table>
 
 
-        <h2 id = "">Partition-based analysis</h2>
-        <h3 id = "matching">Cluster purity and metrics</h3>
-        <table align = center>
-            <tr>
-                <td align = center>
-                    <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
-                </td>
-            </tr>
-        </table>
-
-
-        Constructed purity: measure of cluster overcorrection
-        Reference purity: measure of cluster undercorrection
-
-
-        <table align = center>
-            <tr>
-                <td align = center>
-                    <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
-                </td>
-            </tr>
-        </table>
+        <h2 id = "partition_based_analysis">Partition-based analysis</h2>
+        <h3 id = "cluster_purity_discordance_distributions">Cluster purity and discordance distributions</h3>
+		TBD
+        <!-- <table align = center> -->
+        <!--     <tr> -->
+        <!--         <td align = center> -->
+        <!--             <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition"> -->
+        <!--         </td> -->
+        <!--     </tr> -->
+        <!-- </table> -->
+        <!--  -->
+        <!--  -->
+        <!-- Constructed purity: measure of cluster overcorrection -->
+        <!-- Reference purity: measure of cluster undercorrection -->
+        <!--  -->
+        <!--  -->
+        <!-- <table align = center> -->
+        <!--     <tr> -->
+        <!--         <td align = center> -->
+        <!--             <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition"> -->
+        <!--         </td> -->
+        <!--     </tr> -->
+        <!-- </table> -->
 
 
         <h2 id = "reference_free_analysis">Reference-free analysis</h2>
-        <h3>Reference-free detection of over/undercorrected clusters</h3>
+		<h3 id = "error_discordance_profiles">Error and discordance profiles</h3>
+		TBD
 
-        To detect overcorrection construct consensus and count errors by position
+		<h3 id = "distribution_of_errors_in_reads">Distribution of #errors in reads. Error-rate estimation</h3>
+		TBD
+
+		<h3 id = "constructed_max_error_scatter">Scatterplot of max error by position against cluster size</h3>
+		TBD
 
 
         <h2 id="feedback">Feedback and bug reports</h2>
