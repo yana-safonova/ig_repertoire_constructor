@@ -25,25 +25,22 @@
     <section class="main-content">
         <h2 id = "motivation">Motivation and purposes</h2>
         <p align = "justify">
-            Construction of antibody repertoire is a preliminary step of any immunological analysis based on Rep-seq reads.
-            During several last years at least three tools
-            (IgRepertoireConstructor by Safonova et al (2015),
-            MiXCR by Bolotin et al. (2015) and pRESTO by Vander Heiden et al. (2014))
-            were released for this problem.
-            Thus, the problem is widely addressed.
-            However, it cannot be said that it is completely solved due to the following reason:
-            there is no conventional quality assessment methodology for adaptive immune repertoire construction.
+            Construction of an antibody repertoire is a preliminary step of any immunological analysis based on Rep-seq reads.
+            In the last few years at least three tools were released to address this problem:
+            IgRepertoireConstructor by Safonova et al (2015),
+            MiXCR by Bolotin et al. (2015) and pRESTO by Vander Heiden et al. (2014).
+            However, no conventional quality assessment methodology was proposed yet.
             Without such methodology we cannot compare tools and determine their limitations.
         </p>
 
         <p align = "justify">
-            In order to fill this gap, we developed IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality
+            We developed IgQUAST (<b>I</b>mmuno<b>G</b>lobulin <b>QU</b>ality
             <b>AS</b>sesstment <b>T</b>ool), a tool for benchmarking of full-length adaptive immune
             repertoire construction tools and quality assessment of adaptive immune repertoires.
         </p>
 
         <p align = "justify">
-        IgQUAST has the following purposes:
+        IgQUAST has the following features (explained in details in further sections):
             <ol>
                 <li> <i>Reference-based</i> and <i>reference-free</i> repertoire quality assessment;</li>
                 <li> <i>Overcorrection/undercorrection</i> detection;</li>
@@ -55,53 +52,56 @@
 
         <h2 id = "quality_assessment_scenarios">Quality assessment scenarios</h2>
         <p align = "justify">
-            IgQUAST takes as an input:
+            IgQUAST input:
             <ul>
                 <li>Initial Rep-seq read library;</li>
                 <li>Analyzed adaptive immune repertoire constructed on this library;</li>
                 <li>For reference-based analysis, the reference repertoire constructed on the same library.</li>
             </ul>
 
-            Analyzed constructed and reference repertoires should be presented by two files each,
-            repertoire sequences along with their <i>abundances</i> (the number of reads formed the cluster)
-            and map from initial reads to the corresponding clusters (read-to-cluster map, RCM).
+            Both constructed and reference repertoires should be presented by two files:
+            <ul>
+                <li>Repertoire sequences along with their <i>abundances</i> (the number of reads formed the cluster);</li>
+                <li>Map from initial reads to the corresponding clusters (read-to-cluster map, RCM).</li>
+            </ul>
             Sequences file and RCM file should be consistent.
 
             See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
 
-            Please note, IgQUAST can benchmark repertoire construction stage itself only.
-            It is supposed that input reads are already merged, filtered from contaminations and cropped by V/J ends.
+            <p>
+            <i>Note:</i>  IgQUAST benchmarks only the repertoire construction stage.
+            Input reads should be already merged, filtered from contaminations and cropped by V/J ends.
         </p>
 
         <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
         <ul>
-            <li>During reference-based analysis the tool compares two input repertoires, the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
-                This analysis is separated into two scenarios:
+            <li>During reference-based analysis the tool compares two input repertoires: the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
+                The analysis is separated into two scenarios:
                 <ul>
-                    <li><b>Repertoire-to-repertoire matching</b> works with repertoire sequences only.
-                        It aligns each from two input repertoires against another one and computes metrics like <i>sensitivity</i> and <i>precision</i>,
+                    <li><b>Repertoire-to-repertoire matching</b> only uses repertoire sequences.
+                        Each of two repertoires is aligned against the other and computes <i>sensitivity</i> and <i>precision</i> metrics,
                         detects error positions in erroneously constructed sequences,
                         and compare reference and constructed abundances for ideally reconstructed sequences.
                     </li>
-                    <li><b>Partition-based analysis</b> works with initial reads partitions (RCMs, read-to-cluster maps) only.
+                    <li><b>Partition-based analysis</b> only uses initial reads partitions (RCMs, read-to-cluster maps).
                         It compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
                         Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
                     </li>
                 </ul>
             </li>
-            <li><b>Reference-free analysis</b> is performed to the constructed repertoire.
+            <li><b>Reference-free analysis</b> is performed on the constructed repertoire.
                 The tool detects overestimated clusters in the repertoire
                 using amplification-free Poisson model.
-                Also it estimates error rate and error profile of the initial read library.
-                In case of the reference repertoire is provided, the same analysis is performed for it.
+                It also estimates error rate and error profile of the initial read library.
+                The same analysis is performed on the reference repertoire if it is provided.
                 All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
             </li>
         </ul>
 
         <p align = "justify">
-            As an output IgQUAST reports a bunch of plots
-            along with numerical statistics.
-            Brief report is outputted to screen and saved to text file.
+            The Output IgQUAST is a collection of plots
+            along with numerical statistics that are described below.
+            Brief report is outputted to screen and saved to text log file.
             All computed metrics along with additional information (e.g. data to reproduce plots) are exported to JSON.
 
             Table below summarizes scenarios requirements and results.
@@ -200,22 +200,22 @@
         </p>
 
         <p align = "justify">
-            Some scenarios are disabled by default since they are time- and memory-consuming.
-            See <a href="igquast_manual.html#igquast_scenarios_options">IgQUAST manual</a> for options description.
+            Certain scenarios are disabled by default since they are time- and memory-consuming.
+            See <a href="igquast_manual.html#igquast_scenarios_options">IgQUAST manual</a> for command line options description.
         </p>
 
         <h2 id = "reference">Reference repertoire</h2>
         <p align = "justify">
-            To obtain reference repertoire we
-            have two options: simulate the repertoire or construct the repertoire using
-            barcoded data and run repertoire construction in
+            Reference repertoire is obtained either by
+            repertoire simulation or by construction of the repertoire using
+            the barcoding data and running repertoire construction in
             the <i>blind</i> (ignoring barcodes) mode.
         </p>
 
         <h3 id = "simulation">Simulation</h3>
         <p align = "justify">
-            There are no special requirements for simulation software or/and simulated repertoire,
-            but we suggest to use our <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator</a> tool,
+            There are no special requirements for simulation software or/and simulated repertoire.
+            However, we suggest using our <a href = 'http://yana-safonova.github.io/ig_simulator/'>IgSimulator</a> tool
             that was specially designed for benchmarking adaptive immune repertoire construction strategies.
         </p>
 
@@ -230,26 +230,25 @@
             Please note that currently available barcoding techniques are not perfect.
             Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
             The better option is to use a special tool designed for barcode-assisted antibody repertoire construction.
-            We suggest to use our <a href="barcodedIgReC.html">BarIgReC</a> tool for this.
+            We suggest using our <a href="barcodedIgReC.html">BarIgReC</a> tool for this.
         </p>
 
         <p align = "justify">
-            Another approach to deal with barcoding artifacts is to consider specially designed semi-artificial test datasets.
-            Such datasets could be obtained by aggressive input read and barcode filtering, when
-            all suspicious barcodes and all suspicious reads are omitted.
-            Such approach is definitely improper for real-life repertoire construction
-            (since it misses a significant part of repertoire diversity, i.e., it is biased),
-            but it is appropriate for test dataset preparation.
+            Another approach to consider barcoding artifacts is to use specially designed semi-artificial test datasets.
+            Such datasets are obtained by utmost aggressive input read and barcode filtering:
+            all suspicious barcodes and reads are omitted.
+            Such an approach is definitely improper for real-life repertoire construction
+            (a significant part of repertoire diversity is lost),
+            but is appropriate for test dataset preparation.
         </p>
 
         <h2>Cluster abundance threshold</h2>
         <p align = "justify">
             Distribution of antibody abundances is usually highly uneven.
             Most clusters in a repertoire have small size.
-            Note that consensus computed by a small cluster is unreliable.
-            we just cannot unambiguously construct a consensus by two reads in non-trivial case.
-            And due to non-independence of amplification errors and/or special sequencing errors pattern
-            even larger cluster may be unreliable too.
+            Note that consensus computed on a small cluster is unreliable.
+            Additionally due to the dependence of amplification errors and/or special sequencing errors pattern
+            even larger cluster could be unreliable.
         </p>
 
         <p align = "justify">
