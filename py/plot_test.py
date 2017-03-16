@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 
 from simulate import *
-from aimquast_impl import *
+from igquast_impl import *
 
 
 def get_plot_various_error_rate_data(dir,

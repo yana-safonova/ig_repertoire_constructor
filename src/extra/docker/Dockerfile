@@ -14,4 +14,4 @@ RUN ./prepare_cfg
 RUN make
 
 RUN ./igrec.py --test
-# RUN ./aimquast.py --test
+RUN ./igquast.py --test --reference-free

@@ -12,15 +12,15 @@ from ash_python_utils import CreateLogger, AttachFileLogger, mkdir_p
 
 sys.path.append(igrec_dir + "/py")
 
-from aimquast_impl import Report, reconstruct_rcm, write_rcm, run_consensus_constructor, Repertoire, RepertoireMatch, RcmVsRcm
-from aimquast_impl import splittering
+from igquast_impl import Report, reconstruct_rcm, write_rcm, run_consensus_constructor, Repertoire, RepertoireMatch, RcmVsRcm
+from igquast_impl import splittering
 
 
 def parse_command_line():
     import argparse
 
     def ActionTestFactory(name):
-        initial_reads = igrec_dir + "/aimquast_test_dataset/%s/input_reads.fa.gz" % name
+        initial_reads = igrec_dir + "/igquast_test_dataset/%s/input_reads.fa.gz" % name
         import os.path
         if not os.path.isfile(initial_reads):
             return None
@@ -32,11 +32,11 @@ def parse_command_line():
 
             def __call__(self, parser, namespace, values, option_string=None):
                 setattr(namespace, "initial_reads", initial_reads)
-                setattr(namespace, "output_dir", "aimquast_test_%s" % name)
-                setattr(namespace, "constructed_repertoire", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
-                setattr(namespace, "constructed_rcm", igrec_dir + "/aimquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
-                setattr(namespace, "reference_repertoire", igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name)
-                setattr(namespace, "reference_rcm", igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "output_dir", "igquast_test_%s" % name)
+                setattr(namespace, "constructed_repertoire", igrec_dir + "/igquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", igrec_dir + "/igquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", igrec_dir + "/igquast_test_dataset/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", igrec_dir + "/igquast_test_dataset/%s/repertoire.rcm" % name)
 
         return ActionTest
 
@@ -134,10 +134,10 @@ def parse_command_line():
 
     output.add_argument("--json",
                         type=str,
-                        help="file for JSON report output (default: <output_dir>/aimquast.json)")
+                        help="file for JSON report output (default: <output_dir>/igquast.json)")
     output.add_argument("--text",
                         type=str,
-                        help="file for text report output (default: <output_dir>/aimquast.txt)")
+                        help="file for text report output (default: <output_dir>/igquast.txt)")
 
     scenarios = parser.add_argument_group("Performed scenarios")
     add_selector(scenarios,
@@ -185,13 +185,13 @@ def parse_command_line():
         parser.print_help()
         sys.exit(1)
 
-    args.log = args.output_dir + "/aimquast.log"
+    args.log = args.output_dir + "/igquast.log"
 
     if args.json is None:
-        args.json = args.output_dir + "/aimquast.json"
+        args.json = args.output_dir + "/igquast.json"
 
     if args.text is None:
-        args.text = args.output_dir + "/aimquast.txt"
+        args.text = args.output_dir + "/igquast.txt"
 
     if args.export_bad_clusters:
         args.reference_free = True
@@ -364,7 +364,6 @@ def main(args):
                 rcm2rcm_large.plot_majority_secondary(out=args.reference_based_dir + "/reference_majority_secondary_large", format=args.figure_format, constructed=False)
                 rcm2rcm_large.plot_size_nomajority(out=args.reference_based_dir + "/reference_size_nomajority_large", format=args.figure_format, constructed=False)
 
-
     if args.constructed_rcm and args.reference_rcm and args.constructed_repertoire and args.reference_repertoire and args.experimental:
         splittering(rcm2rcm, rep, args, report)
 
@@ -378,23 +377,23 @@ def main(args):
 
 
 def SupportInfo(log):
-    log.info("\nIn case you have troubles running aimQUAST, "
+    log.info("\nIn case you have troubles running IgmQUAST, "
              "you can write to igtools_support@googlegroups.com.")
-    log.info("Please provide us with aimquast.log file from the output directory.")
+    log.info("Please provide us with iguast.log file from the output directory.")
 
 if __name__ == "__main__":
     args = parse_command_line()
     mkdir_p(args.output_dir)
-    log = CreateLogger("aimQUAST")
+    log = CreateLogger("IgQUAST")
     if args.log:
         AttachFileLogger(log, args.log)
 
     try:
         log.info("Command line: %s" % " ".join(sys.argv))
         main(args)
-        log.info("\nThank you for using aimQUAST!")
+        log.info("\nThank you for using IgQUAST!")
     except (KeyboardInterrupt):
-        log.info("\naimQUAST was interrupted!")
+        log.info("\nIgQUAST has been interrupted!")
     except Exception:
         exc_type, exc_value, _ = sys.exc_info()
         if exc_type == SystemExit:

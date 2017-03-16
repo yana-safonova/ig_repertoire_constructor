@@ -6,9 +6,9 @@ from joblib import Parallel, delayed
 
 
 def test_on_aq_data(name, out_dir, threads=16, do_not_run=False):
-    run_and_quast_all(igrec_dir + "/aimquast_test_dataset/%s/input_reads.fa.gz" % name,
-                      igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name,
-                      # igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name,
+    run_and_quast_all(igrec_dir + "/igquast_test_dataset/%s/input_reads.fa.gz" % name,
+                      igrec_dir + "/igquast_test_dataset/%s/repertoire.fa.gz" % name,
+                      # igrec_dir + "/igquast_test_dataset/%s/repertoire.rcm" % name,
                       "None",
                       out_dir=out_dir,
                       threads=threads,

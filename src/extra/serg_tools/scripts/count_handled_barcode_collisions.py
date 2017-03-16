@@ -9,7 +9,7 @@ sys.path.append(igrec_dir)
 sys.path.append(igrec_dir + "/py/")
 sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ig_compress_equal_clusters import parse_cluster_mult
-from aimquast_impl import parse_rcm
+from igquast_impl import parse_rcm
 from ash_python_utils import smart_open
 
 
