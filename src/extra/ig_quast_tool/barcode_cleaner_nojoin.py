@@ -21,8 +21,8 @@ sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
 from ash_python_utils import idFormatByFileName, smart_open
 
 sys.path.append(igrec_dir + "/py")
-from aimquast_impl import consensus
-from aimquast_impl import initialize_plot, save_plot
+from igquast_impl import consensus
+from igquast_impl import initialize_plot, save_plot
 
 
 def discard_rare_barcodes(barcodes, min_size, barcode2size, discarded):

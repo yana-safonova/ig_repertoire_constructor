@@ -94,14 +94,14 @@ def visualize_vj_heatmap(labeling_df, output_pdf, log):
     y = [i + .5 for i in range(0, len(j))]
     plt.xticks(x, v, rotation=60, fontsize=14)
     plt.yticks(y, j, rotation='horizontal', fontsize=14)
-    pp = PdfPages(output_pdf + ".pdf")
-    pp.savefig()
-    pp.close()
-    plt.savefig(output_pdf + ".png")
-    plt.clf()
-    log.info("VJ heatmap for the most abundant VJ combinations was written to " + output_pdf + ".pdf and .png")
+    utils.output_figure(output_pdf, "VJ heatmap for the most abundant VJ combinations", log)
 
 ############################################################################
+
+def checkout_output_dir_fatal(output_dir, log):
+    if not os.path.exists(output_dir):
+        log.info("ERROR: Directory " + output_dir + " was not found")
+        sys.exit(1)
 
 def checkout_output_dir(output_dir):
     if not os.path.exists(output_dir):
@@ -115,13 +115,15 @@ def main(argv):
         return
     vj_df = pd.read_table(argv[1], delim_whitespace = True)
     output_dir = argv[3]
+    plot_dir = os.path.join(output_dir, "plots")
     log = utils.get_logger_by_arg(argv[4], "diversity_analyzer_vis")
-    checkout_output_dir(output_dir)
+    checkout_output_dir_fatal(output_dir, log)
+    checkout_output_dir(plot_dir)
     log.info("== Output VJ statistics")
-    visualize_vj_heatmap(vj_df, os.path.join(output_dir, "vj_heatmap"), log)
+    visualize_vj_heatmap(vj_df, os.path.join(plot_dir, "vj_heatmap"), log)
     log.info("")
-    visualize_cdr_stats.main(argv[1], os.path.join(output_dir, "cdr_plots"), log)
-    visualize_shm_stats.main(argv[2], output_dir, log)
+    visualize_cdr_stats.main(argv[1], os.path.join(plot_dir, "cdr_plots"), log)
+    visualize_shm_stats.main(argv[2], plot_dir, output_dir, log)
 
 if __name__ == "__main__":
     main(sys.argv)

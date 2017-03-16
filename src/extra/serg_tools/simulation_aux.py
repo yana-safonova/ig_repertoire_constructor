@@ -102,22 +102,24 @@ def GetBarigrecSteps(params, run_params):
                       "-r %s/igrec_umi/final_repertoire/final_repertoire.rcm" % run_params.data_path,
                       "-R %s/igrec_umi/final_repertoire.rcm" % run_params.data_path,
                       ]),
-        ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
                       "-s %s/amplified/amplified.fasta" % run_params.data_path,
                       "-c %s/igrec_umi/final_repertoire.fa" % run_params.data_path,
                       "-C %s/igrec_umi/final_repertoire.rcm" % run_params.data_path,
                       "-r %s/vjf_reference/cleaned_reads.fa" % run_params.data_path,
                       "-o %s/quast_barigrec" % run_params.data_path,
+                      "--json %s/quast_barigrec/aimquast.json" % run_params.data_path,
                       "--reference-free",
                       "--rcm-based"
                       ])
 
-        # ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        # ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % simulation_params.data_path,
         #  "-c %s/igrec_umi/final_repertoire/final_repertoire.fa" % simulation_params.data_path,
         #  "-C %s/igrec_umi/final_repertoire/final_repertoire.rcm" % simulation_params.data_path,
         #  "-r %s/vjf_reference/cleaned_reads.fa" % simulation_params.data_path,
         #  "-o %s/quast_barigrec" % simulation_params.data_path,
+        #  "--json %s/quast_barigrec/aimquast.json" % simulation_params.data_path,
         #  "--reference-free",
         #  "--rcm-based"
         #  ]),
@@ -140,22 +142,24 @@ def GetIgrecSteps(params, run_params):
                       "-r %s/igrec/final_repertoire.rcm" % run_params.data_path,
                       "-R %s/igrec/final_repertoire_non.rcm" % run_params.data_path,
                       ]),
-        ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
                       "-s %s/amplified/amplified.fasta" % run_params.data_path,
                       "-c %s/igrec/final_repertoire_non.fa" % run_params.data_path,
                       "-C %s/igrec/final_repertoire_non.rcm" % run_params.data_path,
                       "-r %s/vjf_reference/cleaned_reads.fa" % run_params.data_path,
                       "-o %s/quast_igrec" % run_params.data_path,
+                      "--json %s/quast_igrec/aimquast.json" % run_params.data_path,
                       "--reference-free",
                       "--rcm-based"
                       ]),
 
-        # ShStep(None, ["python -u %s/aimquast.py" %igrec_dir,
+        # ShStep(None, ["python -u %s/igquast.py" %igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % simulation_params.data_path,
         #  "-c %s/igrec/final_repertoire.fa" % simulation_params.data_path,
         #  "-C %s/igrec/final_repertoire.rcm" % simulation_params.data_path,
         #  "-r %s/vjf_reference/cleaned_reads.fa" % simulation_params.data_path,
         #  "-o %s/quast_igrec" % simulation_params.data_path,
+        #  "--json %s/quast_igrec/aimquast.json" % simulation_params.data_path,
         #  "--reference-free",
         #  "--rcm-based"
         #  ]),
@@ -182,20 +186,22 @@ def GetPrestoSteps(params, run_params):
                       "-i %s/presto/presto.fasta" % run_params.data_path,
                       "-o %s/presto/presto_non.fasta" % run_params.data_path
                       ]),
-        ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
                       "-s %s/amplified/amplified.fasta" % run_params.data_path,
                       "-c %s/presto/presto_non.fasta" % run_params.data_path,
                       "-r %s/vjf_reference/cleaned_reads.fa" % run_params.data_path,
                       "-o %s/quast_presto" % run_params.data_path,
+                      "--json %s/quast_presto/aimquast.json" % run_params.data_path,
                       "--reference-free",
                       "--rcm-based"
                       ]),
 
-        # ShStep(None, ["python -u %s/aimquast.py" %igrec_dir,
+        # ShStep(None, ["python -u %s/igquast.py" %igrec_dir,
         #  "-s %s/amplified/amplified.fasta" % simulation_params.data_path,
         #  "-c %s/presto/presto.fasta" % simulation_params.data_path,
         #  "-r %s/vjf_reference/cleaned_reads.fa" % simulation_params.data_path,
         #  "-o %s/quast_presto" % simulation_params.data_path,
+        #  "--json %s/quast_presto/aimquast.json" % simulation_params.data_path,
         #  "--reference-free",
         #  "--rcm-based"
         #  ]),
@@ -286,20 +292,22 @@ def GetMigecSteps(params, run_params):
         #  "--barcode"
         #  ]),
 
-        # ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        # ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
         #         "-s %s/amplified/amplified.fasta" % simulation_params.data_path,
         #         "-c %s/migec/clones.fasta" % simulation_params.data_path,
         #         "-r %s/vjf_reference/cleaned_reads.fa" % simulation_params.data_path,
         #         "-o %s/quast_migec" % simulation_params.data_path,
+        #         "--json %s/quast_migec/aimquast.json" % simulation_params.data_path,
         #         "--reference-free",
         #         "--rcm-based"
         #         ]),
-        ShStep(None, ["python -u %s/aimquast.py" % igrec_dir,
+        ShStep(None, ["python -u %s/igquast.py" % igrec_dir,
                       "-s %s/amplified/amplified.fasta" % run_params.data_path,
                       "-c %s/migec/final_repertoire.fa" % run_params.data_path,
                       # "-C %s/migec/final_repertoire.rcm" % simulation_params.data_path,
                       "-r %s/vjf_reference/cleaned_reads.fa" % run_params.data_path,
                       "-o %s/quast_migec" % run_params.data_path,
+                      "--json %s/quast_migec/aimquast.json" % run_params.data_path,
                       "--reference-free",
                       "--rcm-based"
                       ])
