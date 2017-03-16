@@ -13,9 +13,9 @@
 <section class="page-header">
     <h1 class="project-name" align=center>BarcodedIgReC</h1>
     <h2 class="project-tagline" align=center>A modification of the <a href="index.html#ig_repertoire_constructor">IgReC</a> algorithm for barcoded Illumina MiSeq reads</h2>
-    <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub TBD</b></a>
-    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip TBD</b></a>
-    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz TBD</b></a>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor" class="btn"><b>View on GitHub</b></a>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/zipball/master" class="btn"><b>Download .zip</b></a>
+    <a href="https://github.com/yana-safonova/ig_repertoire_constructor/tarball/master" class="btn"><b>Download .tar.gz</b></a>
 </section>
 
 <section class="main-content">
@@ -40,10 +40,8 @@
 
     <h3 id = "umis">Molecular barcodes</h3>
     <p align = "justify">
-        As an alternative to computational error correction of Rep-seq datasets,
-        biologists use molecular barcoding, an experimental approach that allows one to correct most amplification and sequencing errors,
-        thus enabling analysis of low-abundance receptor sequences.
-        This approach is based on attaching a unique barcode to each RNA molecule so that all amplified copies of this molecule contain the same barcode.
+        Molecular barcodes are short genetic sequences attached to each RNA molecule
+        so that all amplified copies of this molecule contain the same barcode.
         Hence errors in reads can be corrected by constructing the consensus of all reads with the same barcode.
         However, there are three barcoded Rep-seq features which may damage the quality of the repertoire when not taken care of.
     </p>
@@ -60,11 +58,7 @@
         Some Rep-seq sample preparation protocols produce many chimeric reads (up to 8%).
         Failure to detect chimeric reads reduces the accuracy of the consensus sequences in the constructed repertoire
         and may lead to artificially inflated diversity (if chimeric reads form a separate cluster).
-        Most chimeric reads (resulting from “gluing” two distinct immunoglobulin molecules during amplification)
-        are filtered out by <a href = "index.html#vj_finder">VJ Finder</a> after alignment against the germline segments
-        since they contain only partial V or J segments.
-        However, some chimeric reads look like real antibody sequences.
-        Some of chimeric reads form larger clusters with hundreds of reads.
+        Also, some of chimeric reads form larger clusters with hundreds of reads.
         As the result, simply discarding small clusters does not address the problem of removing chimeric reads.
     </p>
 
@@ -72,10 +66,8 @@
         <b>Barcode collisions.</b>
         In an ideal experiment, barcodes are randomly and uniformly generated.
         Due to the birthday paradox we expect certain number of immunoglobulin molecules share a barcode (barcode collisions).
-        In a real experiment the expected number of barcode collisions increases even more.
-        If the barcode length is chosen appropriately, the number of collisions is typically less than 10 for a Rep-seq library consisting of a million reads
-        However, in some cases we can observe a significant number of them.
-        Also, we can observe a barcode collision on a read level.
+        But in most cases datasets of reasonable quality contain few barcode collisions.
+        However, we also observe barcode collisions on a read level.
         That is two molecules get close barcodes (which is much more likely than exact barcode collision),
         and amplicons of one of them get a barcode error leading to unrelated reads having same barcodes.
         Ignoring barcode collisions may lead to a loss of natural diversity and corruption of the consensus sequences.
@@ -113,7 +105,7 @@
 
     <h2 id = "algorithm">Algorithm</h2>
     <p align = justify>
-        BarcodedIgReC takes as an input paired-end or single reads with unique molecular identifiers (UMIs).
+        BarcodedIgReC takes as an input demultiplexed paired-end or single reads with unique molecular identifiers (UMIs).
         Reads should cover variable region of antibodies/TCRs.
         BarcodedIgReC corrects sequencing and amplification errors and constructs an antibody repertoire.
     </p>
@@ -188,11 +180,16 @@
 
     <h2 id = "references">Manual and citations</h2>
     <p align = "justify">
-        BarcodedIgReC manual can be found <a href = 'barcodedIgReC_manual.html'>here (TBD)</a>.
+        BarcodedIgReC manual can be found <a href = 'barcodedIgReC_manual.html'>here</a>.
     </p>
 
     <p align = "justify">
-        <b>Citation:</b> TBD
+        <b>Citation:</b>
+        Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
+        Dmitriy Chudakov,
+        Yana Safonova,
+        and Pavel A. Pevzner.
+        Reconstructing antibody repertoires from error-prone immunosequencing datasets <i>(submitted)</i>
     </p>
 
     <footer class="site-footer">
