@@ -25,12 +25,7 @@ def visualize_region_lengths(labeling_df, region, region_name, output_fname, log
     plt.xticks(fontsize = 14)
     plt.yticks(fontsize = 14)
     plt.xlim(0, 100)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " length distribution was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " length distribution", log)
 
 ############################################################################
 def visualize_length_abundance_dist(labeling_df, region, region_name, output_fname, log):
@@ -58,12 +53,7 @@ def visualize_length_abundance_dist(labeling_df, region, region_name, output_fna
     #plt.yticks(fontsize = 14)
     #plt.xlim(-1, abun.max() + 1)
     #plt.ylim(-1, lens.max() + 1)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " joint distribution of abundances & lengths was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " joint distribution of abundances & lengths", log)
 
 ############################################################################
 
@@ -127,21 +117,19 @@ def visualize_largest_region_nucls(labeling_df, region, region_name, output_fnam
     plt.ylabel('Nucleotide %', fontsize = 16)
     plt.xticks(x, x_l, fontsize = 14)
     plt.yticks(fontsize = 14)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " nucleotide distribution was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " nucleotide distribution", log)
 
 ############################################################################
 
-np.random.seed(1)
-cm = plt.get_cmap('gnuplot2')
-aa_colors = []
-for i in range(21):
-    aa_colors.append(cm(float(i + 1) / 21)) #(np.random.random_sample()))
 amino_acids = ['A', 'G', 'L', 'R', 'W', 'N', 'V', 'I', 'P', 'F', 'Y', 'C', 'T', 'S', 'M', 'Q', 'K', 'H', 'D', 'E', '*']
+
+def get_aa_colors():
+    aa_colors = []
+    for aa in amino_acids:
+        hydrophoby = utils.hydrophoby_dict[aa]
+        rel_value = float(hydrophoby - utils.hydro_min) / float(utils.hydro_max - utils.hydro_min)
+        aa_colors.append(plt.get_cmap('bwr')(rel_value))
+    return aa_colors
 
 def visualize_largest_group_aa_variability(labeling_df, region, region_name, output_fname, log):
     region_seq = list(labeling_df[region])
@@ -170,6 +158,7 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
         aa_large_abun.append(float(aa[0][1]) / float(sum) * 100)
         aa_large_acid.append(aa[0][0])
     aa_set = set()
+    aa_colors = get_aa_colors()
     for aa in aa_large_acid:
         aa_set.add(aa)
     for aa in aa_set:
@@ -181,17 +170,13 @@ def visualize_largest_group_aa_variability(labeling_df, region, region_name, out
                 abun_.append(aa_large_abun[i])
             else:
                 abun_.append(0)
-        sns.barplot(x_, abun_, color = aa_colors[amino_acids.index(aa)])
+        df = pd.DataFrame({'x': x_, 'y' : abun_})
+        sns.barplot(x = 'x', y = 'y', data = df, color = aa_colors[amino_acids.index(aa)])
     plt.xticks(range(0, len(aa_large_abun)), aa_large_acid, fontsize = 14)
     plt.yticks(fontsize = 14)
     plt.xlabel('The most abundant amino acid', fontsize = 16)
     plt.ylabel('% ' + region_name + 's', fontsize = 16)
-    pp = PdfPages(output_fname + ".pdf")
-    pp.savefig()
-    plt.savefig(output_fname + ".png")
-    pp.close()
-    plt.clf()
-    log.info(region_name + " aa variability was written to " + output_fname + ".pdf and .png")
+    utils.output_figure(output_fname, region_name + " aa variability", log)
 
 def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, output_dir, log):
     visualize_region_lengths(locus_df, column_name, locus_name + " " + region_name,
