@@ -247,7 +247,7 @@ def main(args):
 
             rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
                                                      format=args.figure_format)
-            rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_estimation_of_max_error_distribution" % name,
+            rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_max_error_scatter" % name,
                                                           format=args.figure_format)
             for i in range(5):
                 cluster = rep.largest(i)
@@ -313,11 +313,16 @@ def main(args):
                                                    format=args.figure_format, marginals=False)
 
             if args.experimental:
-                res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size_hexes",
+                res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/cluster_abundances_scatterplot_hexes",
                                                        points=False,
                                                        format=args.figure_format, marginals=False)
 
+            res.plot_multiplicity_distributions(out=args.reference_based_dir + "/abundance_distributions_log",
+                                                ylog=True,
+                                                format=args.figure_format)
+
             res.plot_multiplicity_distributions(out=args.reference_based_dir + "/abundance_distributions",
+                                                ylog=False,
                                                 format=args.figure_format)
 
     if args.constructed_rcm and args.reference_rcm and args.partition_based:
@@ -379,7 +384,7 @@ def main(args):
 def SupportInfo(log):
     log.info("\nIn case you have troubles running IgQUAST, "
              "you can write to igtools_support@googlegroups.com.")
-    log.info("Please provide us with iguast.log file from the output directory.")
+    log.info("Please provide us igquast.log file from the output directory.")
 
 if __name__ == "__main__":
     args = parse_command_line()

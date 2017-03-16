@@ -352,7 +352,7 @@ class Reperoire2RepertoireMatching:
     def plot_multiplicity_distributions(self,
                                         out,
                                         bins=25,
-                                        ylog=True,
+                                        ylog=False,
                                         format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -373,6 +373,11 @@ class Reperoire2RepertoireMatching:
 
         if ylog:
             plt.yscale("log", nonposy="clip")
+            bottom = np.ones_like(constructed_h)
+            constructed_h -= bottom
+            reference_h -= bottom
+        else:
+            bottom = None
 
         ax.bar(bins[:-1] - width + delta_outer,
                reference_h,
@@ -867,7 +872,7 @@ class RepertoireMatch:
         errors = self.__error_positions(reversed=False, relative=True)
         try:
             sns.distplot(errors, kde=False, bins=25, ax=ax)
-            ax.set_ylabel("# of errors")
+            ax.set_ylabel("#errors")
             ax.set_xlabel("Relative error positions")
             ax.set_xlim((0., 1.))
 
@@ -1178,12 +1183,13 @@ class RcmVsRcm:
 
         purity = self.purity(constructed)
         try:
-            sns.distplot(purity, kde=False, bins=25, ax=ax)
+            g = sns.distplot(purity, kde=False, bins=25, ax=ax)
             ax.set_xlabel("Purity")
-            ax.set_ylabel("# of clusters")
+            ax.set_ylabel("#clusters")
             ax.set_xlim((0, 1))
             if ylog:
-                plt.yscale("log", nonposy="clip")
+                # plt.yscale("log", nonposy="clip")
+                g.figure.get_axes()[0].set_yscale('log')
             else:
                 ax.set_ylim((0, len(purity)))
 
@@ -1199,12 +1205,13 @@ class RcmVsRcm:
 
         discordance = self.discordance(constructed)
         try:
-            sns.distplot(discordance, kde=False, bins=25, ax=ax)
+            g = sns.distplot(discordance, kde=False, bins=25, ax=ax)
             ax.set_xlabel("Discordance")
-            ax.set_ylabel("# of clusters")
+            ax.set_ylabel("#clusters")
             ax.set_xlim((0, xmax))
             if ylog:
-                plt.yscale("log", nonposy="clip")
+                # plt.yscale("log", nonposy="clip")
+                g.figure.get_axes()[0].set_yscale('log')
             else:
                 ax.set_ylim((0, len(discordance)))
 
@@ -1885,7 +1892,7 @@ class Repertoire:
                                                   annotate=False,
                                                   points=True,
                                                   format=None,
-                                                  cis=False):
+                                                  cis=True):
         import numpy as np
         import matplotlib.pyplot as plt
 
@@ -2178,7 +2185,7 @@ class Report:
                 s += "Reference-based quality measures (with size threshold = %d):\n" % min_size
                 s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
                 s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
-                s += "\tAbundances median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+                s += "\tAbundances median rate:\t\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
                 s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
                 s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
                 s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
