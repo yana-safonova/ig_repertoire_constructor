@@ -377,7 +377,7 @@ def main(args):
 
 
 def SupportInfo(log):
-    log.info("\nIn case you have troubles running IgmQUAST, "
+    log.info("\nIn case you have troubles running IgQUAST, "
              "you can write to igtools_support@googlegroups.com.")
     log.info("Please provide us with iguast.log file from the output directory.")
 
