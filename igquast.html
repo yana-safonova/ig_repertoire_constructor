@@ -537,36 +537,79 @@
         </table>
 
         <h2 id = "reference_free_analysis">Reference-free analysis</h2>
-		<h3 id = "error_discordance_profiles">Error and discordance profiles</h3>
-        <table align = center>
-            <tr>
-                <td align = center width = 50%>
-                    <img src = "docs/igquast/reference_free_bad/constructed_cluster_discordance_profile.svg"
-							width = 100%
-							alt="">
-                </td>
-                <td align = center width = 50%>
-                    <img src = "docs/igquast/reference_free_good/constructed_cluster_discordance_profile.svg"
-							width = 100%
-							alt="">
-                </td>
-            </tr>
-        </table>
+		TODO add some intro.
 
 		<h3 id = "distribution_of_errors_in_reads">Distribution of #errors in reads. Error-rate estimation</h3>
-        <table align = center>
+        <p align = "justify">
+			TODO add about large clusters
+
+			For given repertoire for each initial read IgQUAST computes the number of corrected errors as Hamming
+			distance from the corresponding repertoire sequence. Then it constructs histogram and estimates error rate
+			(average number of sequencings errors per read) in Poisson amplification-free model.
+			The histogram is plotted along with a histogram of Poisson distribution with parameter equal to the estimated
+			error rate.
+		</p>
+
+        <p align = "justify">
+		<table align = center>
             <tr>
-                <td align = center width = 50%>
-                    <img src = "docs/igquast/reference_free_bad/constructed_distribution_of_errors_in_reads.svg"
-							width = 100%
-							alt="">
-                </td>
                 <td align = center width = 50%>
                     <img src = "docs/igquast/reference_free_good/constructed_distribution_of_errors_in_reads.svg"
 							width = 100%
 							alt="">
                 </td>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/reference_free_good/reference_distribution_of_errors_in_reads.svg"
+							width = 100%
+							alt="">
+                </td>
             </tr>
+			<tr>
+				<td colspan=2>
+					Distribution of #errors in reads for the constructed (left) and the reference (right)
+					repertoire for simulated Rep-seq dataset. The actual error rate is 2.
+				</td>
+			</tr>
+        </table>
+		</p>
+
+        <p align = "justify">
+			Example above shows us that for the constructed repertoire the distribution is far from Poisson (the tail is cut).
+			The reason is that repertoire construction algorithm cannot fix highly corrupted reads, therefore, high
+			distances are improbable.
+
+			At the same time, error rate is estimated correctly (the actual value is 2).
+		</p>
+
+        <p align = "justify">
+			For the reference repertoire distance distribution is almost perfect Poisson since the data was simulated
+			according to Poisson model, i.e. we suppose that sequencing errors are (1) rare and (2) independent
+			(the conditions for Poisson theorem). Note that in case of intensive amplification (2) may be not fulfilled.
+		</p>
+
+
+		<h3 id = "error_discordance_profiles">Error and discordance profiles</h3>
+        <table align = center>
+            <tr>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/reference_free_bad/constructed_cluster_error_profile.svg"
+							width = 100%
+							alt="">
+                </td>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/reference_free_good/constructed_cluster_error_profile.svg"
+							width = 100%
+							alt="">
+                </td>
+            </tr>
+			<tr>
+				<td colspan=2>
+					Error profiles for repertoires constructed by IgReC in aggressive mode (left)
+					and default mode (right).
+					Peaks on the left plot correspond to positions with overcorrection. (TODO rewrite it)
+					<!-- (with <code>&#45;&#45;create&#45;triv&#45;dec</code>) -->
+				</td>
+			</tr>
         </table>
 
 		<h3 id = "constructed_max_error_scatter">Scatterplot of max error by position against cluster size</h3>
@@ -583,6 +626,15 @@
 							alt="">
                 </td>
             </tr>
+			<tr>
+				<td colspan=2>
+					Scatterplots of maximal error position along sequence against cluster size
+					for repertoires constructed by IgReC in aggressive (left) and default (right) mode.
+					Red points correspond to potentially overcorrected clusters with extremely high number
+					of errors in one position. Dashed lines show 95% confidence interval in Poisson amplification-free
+					model.
+				</td>
+			</tr>
         </table>
 
 
@@ -594,18 +646,19 @@
         <br><br> Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.
 
 
-        <h2 id = "manuals">Manuals</h2>
+        <h2 id = "manuals_and_citations">Manuals and citations</h2>
+        <h3>Manuals</h3>
         <p align = "center">
             <ul>
                 <li>IgQUAST <a href = "igquast_manual.html">manual</a></li>
                 <li>IgReC <a href = "ig_repertoire_constructor_manual.html">manual</a></li>
-                <li>barcodedIgReC <a href = "barcodedIgReC.html">manual</a></li>
+                <li>barcodedIgReC <a href = "barcodedIgReC_manual.html">manual</a></li>
             </ul>
         </p>
 
-        <h2 id = "citations">Citations</h2>
+
+        <h3 id = "citations">Citations</h3>
         <p align = "justify">
-            <!-- <b>Citation:</b> -->
             Alexander Shlemov, Sergey Bankevich, Andrey Bzikadze,
             Dmitriy M. Chudakov,
             Yana Safonova,
