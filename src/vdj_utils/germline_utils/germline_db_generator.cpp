@@ -2,9 +2,7 @@
 
 #include "germline_db_generator.hpp"
 
-#include <boost/algorithm/string.hpp>
-
-namespace vj_finder {
+namespace germline_utils {
     class LociParam {
     public:
         static bool LociIncludeIg(std::string loci) {
@@ -168,6 +166,11 @@ namespace vj_finder {
                                                         germline_files_config.GetFilenameByImmuneGeneType(
                                                                 ImmuneGeneType(*it, SegmentType::VariableSegment),
                                                                 germ_params_.pseudogenes)));
+            if (it->IsVDJ())
+                d_genes_fnames_.push_back(path::append_path(lymph_dir,
+                                                            germline_files_config.GetFilenameByImmuneGeneType(
+                                                                ImmuneGeneType(*it, SegmentType::DiversitySegment),
+                                                                germ_params_.pseudogenes)));
             j_genes_fnames_.push_back(path::append_path(lymph_dir,
                                                         germline_files_config.GetFilenameByImmuneGeneType(
                                                                 ImmuneGeneType(*it, SegmentType::JoinSegment),
@@ -176,6 +179,11 @@ namespace vj_finder {
         INFO(v_genes_fnames_.size() << " V gene segment files will be used for DB: ");
         for(size_t i = 0; i < v_genes_fnames_.size(); i++)
             INFO(chain_types_[i] << ": " << v_genes_fnames_[i]);
+
+        INFO(d_genes_fnames_.size() << " D gene segment files will be used for DB: ");
+        for(size_t i = 0; i < d_genes_fnames_.size(); i++)
+            INFO(chain_types_[i] << ": " << d_genes_fnames_[i]);
+
         INFO(j_genes_fnames_.size() << " J gene segment files will be used for DB: ");
         for(size_t i = 0; i < j_genes_fnames_.size(); i++)
             INFO(chain_types_[i] << ": " << j_genes_fnames_[i]);
@@ -188,6 +196,15 @@ namespace vj_finder {
                                                                    germline_utils::SegmentType::VariableSegment),
                                     v_genes_fnames_[i]);
         return v_custom_db;
+    }
+
+    germline_utils::CustomGeneDatabase GermlineDbGenerator::GenerateDiversityDb() {
+        germline_utils::CustomGeneDatabase d_custom_db(germline_utils::SegmentType::DiversitySegment);
+        for(size_t i = 0; i < d_genes_fnames_.size(); i++)
+            d_custom_db.AddDatabase(germline_utils::ImmuneGeneType(chain_types_[i],
+                                                                   germline_utils::SegmentType::DiversitySegment),
+                                    d_genes_fnames_[i]);
+        return d_custom_db;
     }
 
     germline_utils::CustomGeneDatabase GermlineDbGenerator::GenerateJoinDb() {

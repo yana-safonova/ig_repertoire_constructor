@@ -9,7 +9,7 @@ include_directories(${VJ_FINDER_DIR})
 add_executable(ig_simulator
         ig_simulator_config.cpp
         ig_simulator_launch.cpp
-               main.cpp )
+        main.cpp)
 
 target_link_libraries(ig_simulator
         vj_finder_library

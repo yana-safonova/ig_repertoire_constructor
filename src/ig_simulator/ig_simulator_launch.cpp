@@ -3,9 +3,9 @@
 //
 
 #include "ig_simulator_launch.hpp"
-#include "germline_db_generator.hpp"
+#include "germline_utils/germline_db_generator.hpp"
 
-using namespace vj_finder;
+using namespace germline_utils;
 
 namespace ig_simulator {
 
@@ -16,6 +16,8 @@ void IgSimulatorLaunch::Run() {
                                      config_.algorithm_params.germline_params);
     INFO("Generation of DB for variable segments...");
     germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
+    INFO("Generation of DB for diversity segments...");
+    germline_utils::CustomGeneDatabase d_db = db_generator.GenerateDiversityDb();
     INFO("Generation of DB for join segments...");
     germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
 }
