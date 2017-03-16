@@ -309,7 +309,7 @@ def main(args):
             res.plot_error_pos_dist(out=args.reference_based_dir + "/error_position_distribution",
                                     format=args.figure_format)
 
-            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/reference_vs_constructed_size",
+            res.plot_reference_vs_constructed_size(out=args.reference_based_dir + "/cluster_abundances_scatterplot",
                                                    format=args.figure_format, marginals=False)
 
             if args.experimental:
@@ -317,7 +317,7 @@ def main(args):
                                                        points=False,
                                                        format=args.figure_format, marginals=False)
 
-            res.plot_multiplicity_distributions(out=args.reference_based_dir + "/multiplicity_distribution",
+            res.plot_multiplicity_distributions(out=args.reference_based_dir + "/abundance_distributions",
                                                 format=args.figure_format)
 
     if args.constructed_rcm and args.reference_rcm and args.partition_based:

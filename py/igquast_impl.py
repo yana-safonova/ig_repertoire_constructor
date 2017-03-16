@@ -2178,7 +2178,7 @@ class Report:
                 s += "Reference-based quality measures (with size threshold = %d):\n" % min_size
                 s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
                 s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
-                s += "\tMultiplicity median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+                s += "\tAbundances median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
                 s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
                 s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
                 s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
