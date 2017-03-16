@@ -48,7 +48,7 @@
                 <li> <i>Reference-based</i> and <i>reference-free</i> repertoire quality assessment;</li>
                 <li> <i>Overcorrection/undercorrection</i> detection;</li>
                 <li> Analysis of antibody <i>abundances;</i></li>
-                <li> Detection of sequencing technology and repertoire construction strategy artifacts</li>
+                <li> Detection of sequencing technology and repertoire construction strategy artifacts.</li>
             </ol>
         </p>
 
@@ -70,7 +70,7 @@
             See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
 
             Please note, IgQUAST can benchmark repertoire construction stage itself only.
-            It supposes that input reads are already merged, filtered from contaminations and cropped by V/J ends.
+            It is supposed that input reads are already merged, filtered from contaminations and cropped by V/J ends.
         </p>
 
         <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
@@ -271,6 +271,9 @@
         <p align = "justify">
             For different repertoire construction strategies optimal (in any sense) threshold values can be different.
             Due to this reason, IgQUAST computes statistics for various threshold values.
+			However, for good repertoire construction tool that does not underestimate abundances
+			we can expect that optimal <i>constructed min_size</i> is equal or close to
+			the <i>reference min_size</i>. 
         </p>
 
         <h2 id = "repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</h2>
@@ -282,18 +285,18 @@
 
         <h3 id = "distance_distributions">Constructed-to-reference and reference-to-constructed distance distributions</h3>
         <p align = "justify">
-            For each sequence in the constructed repertoire IgQUAST finds the closest sequence in the reference repertoire
-            and plots histogram of the distances. Also IgQUAST plots the same histogram mapping the reference repertoire to
-            the constructed one. Thus, we obtain two kinds of plots: constructed-to-reference and reference-to-constructed
-            errors distribution.
+            For each sequence in the constructed repertoire let us find the closest sequence in the reference repertoire
+            and construct histogram of the distances. Also construct the same histogram mapping the reference repertoire to
+            the constructed one. Thus, we obtain two kinds of histograms: constructed-to-reference and reference-to-constructed
+            distance distribution.
         </p>
 
         <p align = "justify">
-            IgQUAST constructs these plots for different <i>constructed min-size</i> values (1, 3, 5, 10) and for fixed
+            IgQUAST these histograms for different <i>constructed min-size</i> values (1, 3, 5, 10) and for fixed
             <i>reference min-size</i> (5 by default).
         </p>
 
-        <p align = "justify">
+        <p align = "justify" id="distance_distributions_fig">
         <table align = center>
             <tr>
                 <td align = center>
@@ -319,9 +322,14 @@
         </p>
 
         <p align = "justify">
-            These plots show how close input repertoires are.
+            These plots show how close the input repertoires are.
             It is necessary to inspect plots for different <i>min-size</i> values,
             since small clusters are probably imperfect and should be excluded from the analysis.
+			However, the most important are two plots, where <i>constructed min-size</i> = <i>reference min_size</i>
+			(the third pair),
+			since for good repertoire construction tool
+			we expect optimal <i>constructed min_size</i> is close to
+			the <i>reference min_size</i>.
         </p>
 
         <p align = "justify">
@@ -331,8 +339,11 @@
 
         <h3 id = "error_position_distribution">Error position distribution</h3>
         <p align = "justify">
-            For "almost correct" (matched with only one error, i.e. corresponded to the second blue bar in the left figure above)
+			For &ldquo;almost correct&rdquo; (matched with only one error, i.e.
+			corresponded to the second blue bar in the left figure <a href="#distance_distributions_fig">above</a>)
             constructed clusters IgQUAST plots error-position distribution (error profile).
+			For this analysis IgQUAST uses <i>constructed min-size</i> equal to the <i>reference min-size,</i>
+			that is 5 by default.
         </p>
 
         <p align = "justify">
@@ -342,59 +353,118 @@
         <p align = "justify">
         <table align = center>
             <tr>
-                <td align = center>
+                <td align = center width = 50%>
                     <img src = "docs/igquast/error_pos_dist_FR4.svg"
                                      width = 100%
-									 alt = "">
+									 alt = "Error position distribution for &ldquo;almost correct&rdquo; constructed sequences. Errors are concentrated in FR4 region">
+                </td>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/error_pos_dist_after_corection.svg"
+                                     width = 100%
+					i				 alt = "After FR4 correction errors are evenly distributed">
                 </td>
             </tr>
             <tr>
                 <td align = center>
-                    TODO add caption
+					Error position distribution for &ldquo;almost correct&rdquo; constructed sequences.
+					Errors are concentrated in FR4 region.
+                </td>
+                <td align = center>
+					After FR4 correction errors are evenly distributed.
                 </td>
             </tr>
         </table>
         </p>
 
-        Plots above reveal that error are concentrated in FR4.
-        The key reason of this is extremely high error rate at the end of Rep-seq read.
-        Fortunately, it could be easily fixed using V/D/J gene germline
-        (e.g. <a href="http://www.imgt.org/genedb/">IMGT</a>) database.
-        FR4 is a conservative region and we do not miss many actual variations.
+        <p align = "justify">
+			Plot above reveals that errors are mostly concentrated in FR4.
+			Additional analysis shows the key reason of this is extremely high error rate at the end of reads
+			for the considered Rep-seq library.
+			Fortunately, it could be easily fixed using V/D/J gene germline
+			(e.g. <a href="http://www.imgt.org/genedb/">IMGT</a>) database.
+			FR4 is a conservative region and we probably do not miss actual variations.
+        </p>
 
-        Our alignment tool VJFinder <font class="sc">VJFinder</font> automatically fixes FR1 and FR4 during Ig reads alignment.
-        Thus, it is not an issue for IgReC.
+        <p align = "justify">
+			Our alignment tool <font class="sc">VJFinder</font> automatically fixes FR1 and FR4 during Rep-seq reads alignment.
+			Thus, such artifacts is not an issue for IgReC.
+        </p>
 
 
         <h3 id = "sensitivity_precision">Sensitivity and precision</h3>
-        IgQUAST computes clusters in the reference repertoire that were ideally recovered in the constructed repertoire.
-        As integral measures of quality IgQUAST reports two following metrics:
-        <ul>
-            <li> <b>Precision</b> The larger precision, the less number of false constructed clusters</li>
-            <li> <b>Sensitivity</b> The larger sensitivity, the more correct clusters were reconstructed</li>
-        </ul>
+        <p align = "justify">
+			For one predefined <i>reference min-size</i> value (5 by default)
+			and various <i>constructed min-size</i> values IgQUAST finds ideally reconstructed
+			(i.e. matched without errors) clusters and compute tho following metrics:
+			<ul>
+				<li><b>Precision</b> &mdash; rate of ideal clusters among constructed clusters.
+					This is a measure of repertoire <i>clearness.</i>
+					The larger precision, the less number of false constructed clusters.</li>
+				<li><b>Sensitivity</b> &mdash; rate of ideal clusters among reference clusters.
+					This is a measure of repertoire <i>representativity.</i>
+					The larger sensitivity, the more correct clusters were reconstructed.</li>
+			</ul>
+		</p>
 
+        <p align = "justify">
         <table align = center>
             <tr>
-                <td align = center>
+                <td align = center width = 50 %>
                     <img src = "docs/igquast/sensitivity_precision_definition.png"
 										  width = 100%
 										  alt = "Sensitivity and precision definition">
                 </td>
-                <td align = center>
+                <td align = center width = 50%>
                     <img src = "docs/igquast/sens_prec_plot.png"
 										  width = 100%
 										  alt = "Sensitivity-precision plot example">
                 </td>
             </tr>
+            <tr>
+                <td align = center>
+					Sensitivity and precision definition.
+                </td>
+                <td align = center>
+					Superposition of sensitivity-precision plots for three different repertoire construction tools.
+                </td>
+            </tr>
         </table>
+		</p>
 
-        These metrics are <i>antagonistic:</i> generally, the more sensitivity, the less precision and <i>vice versa.</i>
-        Thus, it is important to control both of them simultaneously.
+        <p align = "justify">
+			The larger <i>constructed min-size</i>, the less <i>sensitivity</i> (since constructed repertoire is shrinking), and
+			typically the more <i>precision</i> (since larger clusters are more reliable).
+			Therefore, selection of <i>constructed min-size</i> is a trade-off between sensitivity and precision.
+		</p>
+
+        <p align = "justify">
+			Sensitivity-precision curve (similar to ROC-curve) depicted above helps one to compare different tools.
+			For example above IgReC (blue curve) dominates for all reasonable threshold values.
+			That means for that particular case IgReC is the best option.
+		</p>
 
 
         <h3 id = "abundance_distributions">Abundance distributions</h3>
-		TBD
+        <p align = "justify">
+        <table align = center>
+            <tr>
+                <td align = center width = 50 %>
+					<img src = "docs/igquast/abundance_distributions.svg">
+                </td>
+                <td align = center width = 50%>
+					<img src = "docs/igquast/abundance_distributions_log.svg">
+                </td>
+            </tr>
+            <tr>
+                <td align = center>
+					Distributions of abundances for both input repertoires.
+                </td>
+                <td align = center>
+					The same plot in logarithmic scale.
+                </td>
+            </tr>
+        </table>
+		</p>
 
         <h3 id = "cluster_abundances_scatterplot">Cluster abundances scatterplot</h3>
         Repertoire clusters are also characterized by their abundances.
