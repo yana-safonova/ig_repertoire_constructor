@@ -49,7 +49,6 @@
     <p align = justify>
         <b>Barcode errors.</b>
         Some reads in barcoded Rep-seq datasets have amplification errors within barcodes.
-        In repertoires constructed from real datasets we observe up to 3% of the clusters contain erroneous barcodes.
         Ignoring barcoding errors leads to an explosion of small clusters that should be merged with larger ones.
     </p>
 
@@ -57,19 +56,14 @@
         <b>Chimeric reads.</b>
         Some Rep-seq sample preparation protocols produce many chimeric reads (up to 8%).
         Failure to detect chimeric reads reduces the accuracy of the consensus sequences in the constructed repertoire
-        and may lead to artificially inflated diversity (if chimeric reads form a separate cluster).
-        Also, some of chimeric reads form larger clusters with hundreds of reads.
-        As the result, simply discarding small clusters does not address the problem of removing chimeric reads.
+        and may lead to artificially inflated diversity.
     </p>
 
     <p align = justify>
         <b>Barcode collisions.</b>
-        In an ideal experiment, barcodes are randomly and uniformly generated.
-        Due to the birthday paradox we expect certain number of immunoglobulin molecules share a barcode (barcode collisions).
-        But in most cases datasets of reasonable quality contain few barcode collisions.
-        However, we also observe barcode collisions on a read level.
-        That is two molecules get close barcodes (which is much more likely than exact barcode collision),
-        and amplicons of one of them get a barcode error leading to unrelated reads having same barcodes.
+        Unrelated reads can have equal barcodes for two reasons.
+        Either two molecules initially got identical barcodes attached,
+        or barcodes got corrupted during amplification becoming equal afterwards.
         Ignoring barcode collisions may lead to a loss of natural diversity and corruption of the consensus sequences.
     </p>
     <table align = "center" width = "100%">
