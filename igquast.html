@@ -9,8 +9,16 @@
     <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
     <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
     <style type="text/css">
+        .code {
+            background-color: lightgray;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+        }
         .sc {
-            font-variant: small-caps;
+            /* font-variant: small-caps; */
         }
     </style>
   </head>
@@ -79,9 +87,11 @@
                 The analysis is separated into two scenarios:
                 <ul>
                     <li><b>Repertoire-to-repertoire matching</b> only uses repertoire sequences.
-                        Each of two repertoires is aligned against the other and computes <i>sensitivity</i> and <i>precision</i> metrics,
+                        The tool aligns each of two repertoires against the other one and computes
+                        <i>sensitivity</i> and <i>precision</i> metrics,
                         detects error positions in erroneously constructed sequences,
                         and compare reference and constructed abundances for ideally reconstructed sequences.
+                        <!-- TODO reformulate -->
                     </li>
                     <li><b>Partition-based analysis</b> only uses initial reads partitions (RCMs, read-to-cluster maps).
                         It compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
@@ -99,10 +109,10 @@
         </ul>
 
         <p align = "justify">
-            The Output IgQUAST is a collection of plots
+            The output IgQUAST is a collection of plots
             along with numerical statistics that are described below.
             Brief report is outputted to screen and saved to text log file.
-            All computed metrics along with additional information (e.g. data to reproduce plots) are exported to JSON.
+            All computed metrics along with additional information (e.g. the data to reproduce some of plots) are exported into JSON.
 
             Table below summarizes scenarios requirements and results.
         </p>
@@ -135,16 +145,16 @@
                     <li><a href="#error_position_distribution">error position distribution;</a></li>
                     <li><a href="#sensitivity_precision">sensitivity-precision (optimal <i>constructed min-size</i> selection);</a></li>
                     <li><a href="#abundance_distributions">abundance distributions;</a></li>
-                    <li><a href="#cluster_abundances_scatterplot">cluster abundances scatterplot</a></li>
+                    <li><a href="#cluster_abundances_scatterplot">cluster abundances scatterplot;</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
-                    <li>#extra clusters of different size;</li>
-                    <li>sensitivity/precision;</li>
-                    <li>area under sensitivity-precision curve (AUC);</li>
-                    <li>optimal sensitivity+precision, optimal constructed min-size;</li>
-                    <li>abundance median rate</li>
+                    <li><a href="#extra_clusters_stats">#extra clusters of different size;</a></li>
+                    <li><a href="#sensitivity_precision_stats">sensitivity/precision;</a></li>
+                    <li><a href="#sensitivity_precision_stats">optimal sensitivity+precision, optimal constructed min-size;</a></li>
+                    <li><a href="#sensitivity_precision_stats">area under sensitivity-precision curve (AUC);</a></li>
+                    <li><a href="#cluster_abundances_stats">abundance median rate;</a></li>
                 </ul>
             </td>
         </tr>
@@ -161,14 +171,14 @@
                 Plots:
                 <ul>
                     <li><a href="#cluster_purity_discordance_distributions">Constructed and reference purity distribution;</a></li>
-                    <li><a href="#cluster_purity_discordance_distributions">Constructed and reference discordance distribution</a></li>
+                    <li><a href="#cluster_purity_discordance_distributions">Constructed and reference discordance distribution;</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
-                    <li>Clustering similarity measures (Jaccard index, Fowlkes-Mallows index, Rand index, Adjusted Rand index);</li>
-                    <li>Overcorrection measures (#pure/impure constructed clusters, #constructed discordant reads);</li>
-                    <li>Undercorrection measures (#pure/impure reference clusters, #reference discordant reads)</li>
+                    <li><a href="#clustering_similarity_measures">Clustering similarity measures (Jaccard index, Fowlkes-Mallows index, Rand index, adjusted Rand index);</a></li>
+                    <li><a href="#partition_based_stats">Overcorrection measures (#pure/impure constructed clusters, #constructed discordant reads);</a></li>
+                    <li><a href="#partition_based_stats">Undercorrection measures (#pure/impure reference clusters, #reference discordant reads)</a></li>
                 </ul>
             </td>
         </tr>
@@ -185,15 +195,15 @@
                 <ul>
                     <li><a href="#error_discordance_profiles">error and discordance profiles (for entire repertoire and for 5 largets clusters);</a></li>
                     <li><a href="#distribution_of_errors_in_reads">distribution of #errors in reads;</a></li>
-                    <li><a href="#constructed_max_error_scatter">scatterplot of max error by position against cluster size</a></li>
+                    <li><a href="#constructed_max_error_scatter">scatterplot of max error over position against cluster size</a></li>
                 </ul>
 
                 Statistics:
                 <ul>
-                    <li> error rate estimation</li>
+                    <li><a href="#error_rate_stats">error rate estimation</a></li>
                 </ul>
 
-                Suspicious cluster IDs
+                <a href="#overcorrected_ids">Suspicious cluster IDs</a>
             </td>
         </tr>
         </table>
@@ -228,7 +238,7 @@
 
         <p align = "justify">
             Please note that currently available barcoding techniques are not perfect.
-            Thus, using naive barcode demultiplexing approach may lead to imprecise reference and biased analysis.
+            Thus, using naive barcode assembly approach may lead to imprecise reference and biased analysis.
             The better option is to use a special tool designed for barcode-assisted antibody repertoire construction.
             We suggest using our <a href="barcodedIgReC.html">BarIgReC</a> tool for this.
         </p>
@@ -242,12 +252,12 @@
             but is appropriate for test dataset preparation.
         </p>
 
-        <h2>Cluster abundance threshold</h2>
+        <h2 id="minsize_story">Cluster abundance threshold</h2>
         <p align = "justify">
             Distribution of antibody abundances is usually highly uneven.
             Most clusters in a repertoire have small size.
             Note that consensus computed on a small cluster is unreliable.
-            Additionally due to the dependence of amplification errors and/or special sequencing errors pattern
+            Additionally, due to the dependence of amplification errors and/or special sequencing errors pattern
             even larger cluster could be unreliable.
         </p>
 
@@ -261,7 +271,7 @@
             At the same time, during real-life repertoire construction one have to choose a threshold
             for constructed cluster size. Constructed cluster size threshold (<i>constructed min-size</i>)
             is a <b>parameter of repertoire construction procedure.</b>
-            The selection is tricky since the larger threshold, the less detailed but more precise result.
+            The selection is tricky since the larger threshold, the less detailed but more trustworthy result.
             One have to find the optimal (in some sense) threshold value, the concrete optimality criterion depends
             mostly on the final purpose of the research.
         </p>
@@ -271,8 +281,9 @@
             For different repertoire construction strategies optimal (in any sense) threshold values can be different.
             Due to this reason, IgQUAST computes statistics for various threshold values.
             However, for good repertoire construction tool that does not underestimate abundances
-            we can expect that optimal <i>constructed min_size</i> is equal or close to
-            the <i>reference min_size</i>.
+            (see the <a href="#cluster_abundances_scatterplot">corresponding section</a> for more information about abundance estimation)
+            we can expect that optimal <i>constructed min-size</i> is equal or close to
+            the <i>reference min-size</i>.
         </p>
 
         <h2 id = "repertoire_to_repertoire_matching">Repertoire-to-repertoire matching</h2>
@@ -297,9 +308,9 @@
         <table align = center>
             <tr>
                 <td align = center>
-                    <img src = "docs/igquast/reference_to_constructed_distance_distribution_size_5.svg"
+                    <img src = "docs/igquast/reference_based_bad/constructed_to_reference_distance_distribution_size_5.svg"
                                      width = 100%
-                                     alt = "Reference-to-constructed distance distribution, reference min-size = constructed min-size = 5">
+                                     alt = "Constructed-to-reference distance distribution, reference min-size = constructed min-size = 5">
                 </td>
                 <td align = center>
                     <img src = "docs/igquast/octoplot.svg"
@@ -308,10 +319,10 @@
                 </td>
             </tr>
             <tr>
-                <td align = center>
+                <td>
                     Reference-to-constructed distance distribution;<br> <i>reference min-size</i> = <i>constructed min-size</i> = 5.
                 </td>
-                <td align = center>
+                <td>
                     Reference-to-constructed (sensitivity) and constructed-to-reference (precision) distance distributions; <br>  <i>reference min-size</i> = 5 and various <i>constructed min-sizes</i>.
                 </td>
             </tr>
@@ -319,23 +330,50 @@
         </p>
 
         <p align = "justify">
-            Note: one should necessarily inspect plots for different <i>min-size</i> values,
+            <i>Note:</i> one should necessarily inspect plots for different <i>min-size</i> values,
             since small clusters are probably imperfect and should be excluded from the analysis.
             However, the paramount pair of plots is the third one where <i>constructed min-size</i> = <i>reference min_size</i>.
             For a good repertoire construction tool
-            we expect optimal <i>constructed min_size</i> to be close to
-            <i>reference min_size</i>.
+            we expect optimal <i>constructed min-size</i> to be close to
+            <i>reference min-size</i>.
         </p>
 
         <p align = "justify">
-            Plots above suggest that approx. 10% of repertoire sequences possess only one error.
-            We will investigate them in greater detail further.
+            Plots above suggest that approx. 20% of repertoire sequences possess one error.
+            We will investigate them in greater detail in the next section.
+            <!-- <a href="#error_position_distribution">further.</a> -->
         </p>
+
+
+        <h4 id="extra_clusters_stats">Reported statistics</h4>
+        <p align = "justify">
+            <i>Extra</i> cluster is a cluster from the constructed repertoire with size more or equal to <i>constructed min size</i>
+            having not enough abundance (less than <i>reference min-size</i> or not presented) in the reference repertoire.
+            IgQUAST group such extra clusters by their reference abundance (if cluster is not presented in the reference repertoire at all, define its reference abundance as zero)
+            and reports the frequencies.
+            This diagnostic allows one to estimate the impact of correctly reconstructed sequences with overestimated abundance.
+        </p>
+
+        <p align = "justify">
+            For the example above the frequencies are the following:
+            <pre class="code">
+<code>
+Extra clusters with size == 4:          57
+Extra clusters with size == 3:          63
+Extra clusters with size == 2:          36
+Extra clusters with size == 1:          75
+Extra clusters with size == 0:          4784</code>
+            </pre>
+            That means only a small part of extra clusters are real reference clusters with overestimated size.
+            Other are just erroneous.
+        </p>
+
+
 
         <h3 id = "error_position_distribution">Error position distribution</h3>
         <p align = "justify">
             For &ldquo;almost correct&rdquo; (matched with only one error, i.e.
-            corresponded to the second blue bar in the left figure <a href="#distance_distributions_fig">above</a>)
+            corresponded to the second red bar in the left figure <a href="#distance_distributions_fig">above</a>)
             constructed clusters IgQUAST plots error-position distribution (error profile).
             For this analysis IgQUAST uses <i>constructed min-size</i> equal to the <i>reference min-size,</i>
             that is 5 by default.
@@ -356,15 +394,15 @@
                 <td align = center width = 50%>
                     <img src = "docs/igquast/error_pos_dist_after_corection.svg"
                                      width = 100%
-                    i                 alt = "After FR4 correction errors are evenly distributed">
+                                     alt = "After FR4 correction errors are evenly distributed">
                 </td>
             </tr>
             <tr>
-                <td align = center>
+                <td>
                     Error position distribution for &ldquo;almost correct&rdquo; constructed sequences.<br>
                     Errors are concentrated in FR4 region.
                 </td>
-                <td align = center>
+                <td>
                     After FR4 correction errors are evenly distributed.
                 </td>
             </tr>
@@ -416,10 +454,10 @@
                 </td>
             </tr>
             <tr>
-                <td align = center>
+                <td>
                     Sensitivity and precision definition.
                 </td>
-                <td align = center>
+                <td>
                     Composition of sensitivity-precision plots for three different repertoire construction tools.
                 </td>
             </tr>
@@ -438,6 +476,14 @@
             Consequently, IgReC is the best option in this particular case.
         </p>
 
+        <h4 id="sensitivity_precision_stats">Reported statistics</h4>
+        IgQUAST reports:
+        <ul>
+            <li>sensitivity and precision for <i>constructed min-size</i> equal to <i>reference min-size</i> and
+                for <i>optimal</i> (in terms of sum of sensitivity and precision) <i>constructed min-size</i> value along with the value
+                itself;</li>
+            <li>area under sensitivity-precision curve that can be used is numeric one-value quality metric;</li>
+        </ul>
 
         <h3 id = "abundance_distributions">Abundance distributions</h3>
         <p align = "justify">
@@ -456,10 +502,10 @@
                 </td>
             </tr>
             <tr>
-                <td align = center>
+                <td>
                     Distributions of abundances for both input repertoires.
                 </td>
-                <td align = center>
+                <td>
                     The same plot in logarithmic scale.
                 </td>
             </tr>
@@ -474,7 +520,7 @@
         <p align = "justify">
             The plots above reveal that the constructed repertoire contains about 4 times more
             small clusters.
-            A repertoire construction tool often cannot fix highly corrupted reads and
+            A repertoire construction tool often fails to fix highly corrupted reads and
             such reads typically become singletons.
             Thus, the most part of small clusters have size 1.
             <!-- IDEA. Plot the hist only for large (>=5) clusters -->
@@ -488,8 +534,8 @@
         </p>
 
         <p align = "justify">
-            Error correction cannot fix all errors.
-            Therefore, cluster sizes are typically underestimated.
+            A repertoire construction tool often fails to fix highly corrupted reads and such reads typically become singletons.
+            Therefore, abundances of corresponding clusters are commonly underestimated.
         </p>
 
         <p align = "justify">
@@ -529,19 +575,42 @@
                 </td>
                 <td>
                     Cluster abundances scatterplot for poorly constructed repertoire.
-                    Abundances are highly underestimated: a lot of overcorrected (red) clusters.
+                    Abundances are highly underestimated; also a lot of overcorrected (red) clusters.
                 </td>
             </tr>
         </table>
         </p>
 
+        <h4 id="cluster_abundances_stats">Reported statistics</h4>
+        IgQUAST reports <i>median abundance rate</i> (the median of abundances rates) &mdash; an estimation of abundance underestimation coefficient.
+        This metric can be used for repertoire construction tools benchmarking.
 
         <h2 id = "partition_based_analysis">Partition-based analysis</h2>
+        <p align = "justify">
+            Let us describe the provided comparison between reference and constructed repertoire in terms of their clustering partitions.
+            That includes conventional clustering similarity measures and distributions of cluster purity and discordance.
+        </p>
+
+        <h3 id = "clustering_similarity_measures">Clustering similarity measures</h3>
+        <p align = "justify">
+            IgQUAST reports:
+            <ul>
+                <li>Jaccard index,</li>
+                <li>Fowlkes-Mallows index,</li>
+                <li>Rand index,</li>
+                <li>adjusted Rand index.</li>
+            </ul>
+
+            All those measures are computed using large (>=5 by default) clusters only,
+            since as already discussed <a href="#minsize_story">above,</a> small clusters should be excluded from analysis.
+        </p>
+
+
         <h3 id = "cluster_purity_discordance_distributions">Cluster purity and discordance distributions</h3>
 
         <p align = "justify">
-            For each constucted cluster <i>c</i>  IgQUAST computes <i>purity</i> and <i> discordance</i> &mdash;
-            the rate of the first and second most presented reference cluster in <i>c</i> respectively.
+            For each constucted cluster <i>C</i>  IgQUAST computes <i>purity</i> and <i> discordance</i> &mdash;
+            the rate of the first and second most presented reference cluster in <i>C</i> respectively (see the figure below).
             Symmetrically we define purity and discordance for reference clusters.
         </p>
 
@@ -566,31 +635,16 @@
             <tr>
                 <td>
                     Purity and discordance definition for reference and constructed clusters.
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    &nbsp;
-                    <!-- TODO Add discordance definition -->
+                    Reads 7 and 8 (red) are called <i>discordant</i> for the constructed repertoire,
+                    since they vote for the second popular cluster.
                 </td>
         </table>
+
+        <p align = "justify">
+            IgQUAST plots histograms of purity and discordance distributions for reference and constructed clusters.
+            As already discussed <a href="#minsize_story">above,</a> small clusters should be excluded from analysis.
+            Thus, IgQUAST also plots histograms considering large (>= 5 by default) clusters only.
+        </p>
 
         <p align = "justify">
             Plots below demonstrate the difference between poorly constructed and accurate repertoires.
@@ -621,7 +675,7 @@
         </p>
 
         <p align = "justify">
-            Note that even if a constucted cluster is pure it does not necessarily imply that the cluster is correct.
+            <i>Note:</i> even if a constructed cluster is pure it does not necessarily imply that the cluster is correct.
             A pure cluster may be an erroneously separated
             part of a bigger cluster. We have to control both reference and construction purity.
         </p>
@@ -651,14 +705,22 @@
         </table>
         </p>
 
+        <h4 id="partition_based_stats">Reported statistics</h4>
+        <p align = "justify">
+            IgQUAST exports the number of pure/impure reference and constructed clusters (purity threshold is 95%) along with
+            <i>the number of discordant reads</i> in for the reference and the constructed repertoires.
+        </p>
+
         <h2 id = "reference_free_analysis">Reference-free analysis</h2>
-        TODO add some intro.
+        <p align = "justify">
+            Reference-free analysis allows one to estimate quality of the constructed repertoire and the input library.
+            In case of reference repertoire is provided, the same analysis is performed to it.
+        </p>
 
         <h3 id = "distribution_of_errors_in_reads">Distribution of #errors in reads. Error-rate estimation</h3>
         <p align = "justify">
-            TODO add about large clusters
-
-            For each initial read IgQUAST computes the number of corrected errors as the Hamming
+            For each initial read corresponding to large cluster (>=5 by default)
+            IgQUAST computes the number of corrected errors as the Hamming
             distance from the corresponding repertoire sequence.
             Then it constructs histogram and estimates error rate
             (average number of sequencings errors per read) in Poisson amplification-free model.
@@ -691,7 +753,7 @@
 
         <p align = "justify">
             Example above suggests that for the constructed repertoire the distribution is far from Poisson (the tail is cut).
-            The reason is that repertoire construction algorithm cannot fix highly corrupted reads, therefore, high
+            The reason is that repertoire construction algorithm commonly fails to fix highly corrupted reads, therefore, high
             distances are improbable.
 
             At the same time, error rate is estimated correctly (the actual value is 2).
@@ -703,8 +765,23 @@
             Note that in case of intensive amplification (2) may be not fulfilled.
         </p>
 
+        <h4 id="error_rate_stats">Reported statistics</h4>
+        <p align = "justify">
+            IgQUAST reports the estimated error rate.
+            Note that the estimation is reliable only if the repertoire is constructed properly.
+            Therefore, using reference repertoire provides more adequate estimation.
+        </p>
 
         <h3 id = "error_discordance_profiles">Error and discordance profiles</h3>
+        <p align = "justify">
+            For each large cluster (>=5 by default) for each sequence position IgQUAST computes <i>consensus</i>
+            and finds quantity of the most popular letter and quantity of the second popular letter.
+            Then, for each position it computes <i>error rate</i> (one minus the rate of the most popular letters) and
+            <i>discordance</i> (the rate of second popular letter). IgQUAST plots error rate and discordance profiles, that help
+            to detect overcorrection. Erroneously joined similar clusters provide peaks at the plot on the positions, where cluster sequences are different (see the example below).
+        </p>
+
+        <p align = "justify">
         <table align = center>
             <tr>
                 <td align = center width = 50%>
@@ -722,13 +799,51 @@
                 <td colspan=2>
                     Error profiles for repertoires constructed by IgReC in aggressive mode (left)
                     and default mode (right).
-                    Peaks on the left plot correspond to positions with overcorrection. (TODO rewrite it)
+                    Left repertoire is overcorrected.
+                    Peaks on the left plot correspond to positions with differences.
                     <!-- (with <code>&#45;&#45;create&#45;triv&#45;dec</code>) -->
                 </td>
             </tr>
         </table>
+        </p>
 
-        <h3 id = "constructed_max_error_scatter">Scatterplot of max error by position against cluster size</h3>
+        <p align = "justify">
+        <table align = center>
+            <tr>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/reference_free_bad/constructed_cluster_discordance_profile.svg"
+                            width = 100%
+                            alt="">
+                </td>
+                <td align = center width = 50%>
+                    <img src = "docs/igquast/reference_free_good/constructed_cluster_discordance_profile.svg"
+                            width = 100%
+                            alt="">
+                </td>
+            </tr>
+            <tr>
+                <td colspan=2>
+                    Discordance profiles for the same repertoires.
+                    Discordance profiles demonstrates the same behavior as error profiles.
+                    At the time, discordance may be more informative in case if one wants two separate TWO close clusters.
+                </td>
+            </tr>
+        </table>
+        </p>
+
+        <p align = "justify">
+            IgQUAST also constructs profiles for 5 largest clusters separately, since in overcorrected repertoire largest clusters
+            are often a union of several reference clusters.
+        </p>
+
+        <p align = "justify">
+            <i>Note:</i> for highly accurate (or reference) repertoire error profile is an estimation of sequencing error profile of the Rep-seq library.
+        </p>
+
+        <h3 id = "constructed_max_error_scatter">Scatterplot of max error over position against cluster size</h3>
+        For each cluster IgQUAST constructs error profile (as described in the previous section) and finds the position with maximal error.
+        Then IgQUAST constructs scatterplot of the maximal number of errors over position against cluster size.
+        Clusters with relatively large maximal number of errors are untrustworthy (shown by red points).
         <table align = center>
             <tr>
                 <td align = center width = 50%>
@@ -753,8 +868,11 @@
             </tr>
         </table>
 
-
-        <!-- Note that it is simple model -->
+        <p id = "overcorrected_ids" align = "justify">
+            IDs of potentially overcorrected clusters are exported into JSON report file.
+            Note that Poisson model may be imprecise in case of intensive amplification.
+            The proper model taking amplification into account is being developed now.
+        </p>
 
         <h2 id="feedback">Feedback and bug reports</h2>
         Your comments, bug reports, and suggestions are very welcome. They will help us to further improve IgQUAST.
