@@ -72,13 +72,13 @@
                 <li>Repertoire sequences along with their <i>abundances</i> (the number of reads formed the cluster);</li>
                 <li>Map from initial reads to the corresponding clusters (read-to-cluster map, RCM).</li>
             </ul>
-            Sequences file and RCM file should be consistent.
+            Input reads file, Repertoire sequences file, and RCM file should be consistent.
 
             See detailed input requirements in <a href="igquast_manual.html#igquast_input">IgQUAST manual.</a>
 
             <p>
             <i>Note:</i>  IgQUAST benchmarks only the repertoire construction stage.
-            Input reads should be already merged, filtered from contaminations and cropped by V/J ends.
+            Input reads should be already merged, filtered from contaminations, and cropped by V/J ends.
         </p>
 
         <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
@@ -93,9 +93,10 @@
                         and compare reference and constructed abundances for ideally reconstructed sequences.
                         <!-- TODO reformulate -->
                     </li>
-                    <li><b>Partition-based analysis</b> only uses initial reads partitions (RCMs, read-to-cluster maps).
-                        It compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
+                    <li><b>Partition-based analysis</b> only uses partitions induced by the RCMs (read-to-cluster maps).
+                        The tool compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
                         Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
+                        <!-- TODO reformulate -->
                     </li>
                 </ul>
             </li>
