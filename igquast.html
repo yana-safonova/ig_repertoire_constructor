@@ -540,24 +540,23 @@
         <h3 id = "cluster_purity_discordance_distributions">Cluster purity and discordance distributions</h3>
 
         <p align = "justify">
-            For each constructed cluster compute its <i>purity</i> &mdash; the rate of reference cluster that is
-            the most presented in it. Also compute <i>discordance</i> &mdash; the rate of reference cluster that is
-            the second most presented in it. Symmetrically define purity and discordance for reference clusters.
+            For each constucted cluster <i>c</i>  IgQUAST computes <i>purity</i> and <i> discordance</i> &mdash;
+            the rate of the first and second most presented reference cluster in <i>c</i> respectively.
+            Symmetrically we define purity and discordance for reference clusters.
         </p>
 
         <p align = "justify">
-            Constructed purity and discordance are measure of cluster <i>overcorrection.</i>
-            If constructed cluster is impure then it is probably combined from several erroneously
+            Constructed purity and discordance are the measures of the cluster <i>overcorrection.</i>
+            If the constructed cluster is impure then it is probably combined from several erroneously
             joined reference clusters.
         </p>
 
         <p align = "justify">
-            Reference purity and discordance are measures of cluster <i>undercorrection.</i>
-            If reference cluster is impure then it is probably erroneously split into several constructed clusters.
+            Reference purity and discordance are measures of the cluster <i>undercorrection.</i>
+            If the reference cluster is impure then it is probably erroneously split into several constructed clusters.
         </p>
 
-        <p align = "justify">
-        <table align = center>
+        <table align ="center">
             <tr>
                 <td align = center>
                     <img src = "docs/igquast/purity.png" width = 100% alt = "Sensitivity and precision definition">
@@ -569,7 +568,6 @@
                     <!-- TODO Add discordance definition -->
                 </td>
         </table>
-        </p>
 
         <p align = "justify">
             Plots below demonstrate the difference between poorly constructed and accurate repertoires.
@@ -591,7 +589,7 @@
             </tr>
             <tr>
                 <td colspan=2>
-                    Distribution of purity of large (>= 5) reference clusters for
+                    Distribution of purity for large (>= 5) reference clusters for
                     poorly constructed (left) and accurate (right) repertoire.
                     Left repertoire contain more pure clusters, but also more impure ones.
                 </td>
@@ -600,8 +598,8 @@
         </p>
 
         <p align = "justify">
-            Note that pure constructed cluster does not mean correct constructed cluster.
-            Pure cluster may be an erroneously separated
+            Note that even if a constucted cluster is pure it does not necessarily imply that the cluster is correct.
+            A pure cluster may be an erroneously separated
             part of a bigger cluster. We have to control both reference and construction purity.
         </p>
 
@@ -637,8 +635,9 @@
         <p align = "justify">
             TODO add about large clusters
 
-            For given repertoire for each initial read IgQUAST computes the number of corrected errors as Hamming
-            distance from the corresponding repertoire sequence. Then it constructs histogram and estimates error rate
+            For each initial read IgQUAST computes the number of corrected errors as the Hamming
+            distance from the corresponding repertoire sequence.
+            Then it constructs histogram and estimates error rate
             (average number of sequencings errors per read) in Poisson amplification-free model.
             The histogram is plotted along with a histogram of Poisson distribution with parameter equal to the estimated
             error rate.
@@ -668,7 +667,7 @@
         </p>
 
         <p align = "justify">
-            Example above shows us that for the constructed repertoire the distribution is far from Poisson (the tail is cut).
+            Example above suggests that for the constructed repertoire the distribution is far from Poisson (the tail is cut).
             The reason is that repertoire construction algorithm cannot fix highly corrupted reads, therefore, high
             distances are improbable.
 
@@ -677,8 +676,8 @@
 
         <p align = "justify">
             For the reference repertoire distance distribution is almost perfect Poisson since the data was simulated
-            according to Poisson model, i.e. we suppose that sequencing errors are (1) rare and (2) independent
-            (the conditions for Poisson theorem). Note that in case of intensive amplification (2) may be not fulfilled.
+            according to Poisson model, i.e. we suppose that sequencing errors are (1) rare and (2) independent.
+            Note that in case of intensive amplification (2) may be not fulfilled.
         </p>
 
 
