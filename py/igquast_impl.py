@@ -2148,9 +2148,7 @@ class Repertoire:
 
         if additional_space_for_legend:
             ylim = plt.ylim()
-            print plt.ylim()
-            plt.ylim((ylim[0], 1.5*ylim[1]))
-            print plt.ylim()
+            plt.ylim((ylim[0], 1.2*ylim[1]))
 
         if title:
             plt.title(title)
