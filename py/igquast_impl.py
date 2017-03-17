@@ -1179,7 +1179,7 @@ class RcmVsRcm:
             print ex
 
     def plot_purity_distribution(self, out, **kwargs):
-		self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+        self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
 
     #     f, ax = initialize_plot()
     #
@@ -1198,8 +1198,8 @@ class RcmVsRcm:
     #     except BaseException as ex:
     #         print ex
     #
-	def plot_discordance_distribution(self, out, **kwargs):
-		self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+    def plot_discordance_distribution(self, out, **kwargs):
+        self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
     #     import seaborn as sns
     #
     #     f, ax = initialize_plot()
@@ -1220,16 +1220,16 @@ class RcmVsRcm:
     #         print ex
     #
     def plot_purity_discordance_distribution(self, out,
-											 format=None, constructed=True, ylog=False, what=None,
-		                                     xmax=None, ymax=0):
-		import seaborn as sns
+                                             format=None, constructed=True, ylog=False, what=None,
+                                             xmax=None, ymax=0):
+        import seaborn as sns
 
-		assert what in ["purity", "discordance"]
+        assert what in ["purity", "discordance"]
 
         f, ax = initialize_plot()
 
-		if xmax in None:
-			xmax = 0 if what == "purity" else 0.5
+        if xmax in None:
+            xmax = 0 if what == "purity" else 0.5
 
 
         data = self.discordance(constructed) if what == "discordance" else self.purity(constructed)
@@ -1241,7 +1241,7 @@ class RcmVsRcm:
             if ylog:
                 plt.yscale("log", nonposy="clip")
             else:
-				ymax = max(ymax, len(data))
+                ymax = max(ymax, len(data))
                 ax.set_ylim((0, ymax))
 
             save_plot(out, format=format)
@@ -2092,7 +2092,7 @@ class Repertoire:
                                              min_size=None,
                                              lam=None,
                                              combine_tail=True,
-											 additional_space_for_legend=True,
+                                             additional_space_for_legend=True,
                                              format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -2376,7 +2376,7 @@ def splittering(rcm2rcm, rep, args, report):
     map(F, [1, 5, 10, 15, 50])
 
     os.system(igrec_dir + "/build/release/bin/ig_component_splitter \
-			  -i %s -o %s -R %s -M %s -V 1 \
+              -i %s -o %s -R %s -M %s -V 1 \
               --allow-unassigned=true \
               --recursive=false --flu=false" % (args.initial_reads,
                                                 args.output_dir + "/splitted.fa.gz",
