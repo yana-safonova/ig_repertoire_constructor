@@ -1181,44 +1181,9 @@ class RcmVsRcm:
     def plot_purity_distribution(self, out, **kwargs):
         self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
 
-    #     f, ax = initialize_plot()
-    #
-    #     purity = self.purity(constructed)
-    #     try:
-    #         sns.distplot(purity, kde=False, bins=25, ax=ax)
-    #         ax.set_xlabel("Purity")
-    #         ax.set_ylabel("# of clusters")
-    #         ax.set_xlim((0, 1))
-    #         if ylog:
-    #             plt.yscale("log", nonposy="clip")
-    #         else:
-    #             ax.set_ylim((0, len(purity)))
-    #
-    #         save_plot(out, format=format)
-    #     except BaseException as ex:
-    #         print ex
-    #
     def plot_discordance_distribution(self, out, **kwargs):
         self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
-    #     import seaborn as sns
-    #
-    #     f, ax = initialize_plot()
-    #
-    #     discordance = self.discordance(constructed)
-    #     try:
-    #         sns.distplot(discordance, kde=False, bins=25, ax=ax)
-    #         ax.set_xlabel("Discordance")
-    #         ax.set_ylabel("# of clusters")
-    #         ax.set_xlim((0, xmax))
-    #         if ylog:
-    #             plt.yscale("log", nonposy="clip")
-    #         else:
-    #             ax.set_ylim((0, len(discordance)))
-    #
-    #         save_plot(out, format=format)
-    #     except BaseException as ex:
-    #         print ex
-    #
+
     def plot_purity_discordance_distribution(self, out,
                                              format=None, constructed=True, ylog=False, what=None,
                                              xmax=None, ymax=0):
@@ -1998,7 +1963,8 @@ class Repertoire:
                      discordance=True,
                      min_size=None,
                      legend=False,
-                     format=None):
+                     format=None,
+                     ymax=0):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -2068,6 +2034,7 @@ class Repertoire:
                color='cornflowerblue')
 
         max_value = ax.get_ylim()[1]
+        max_value = max(max_value, ymax)
         plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, max_value, facecolor=cdr_color, lw=0))
         plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, max_value, facecolor=cdr_color, lw=0))
         plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, max_value, facecolor=cdr_color, lw=0))
