@@ -352,7 +352,7 @@ class Reperoire2RepertoireMatching:
     def plot_multiplicity_distributions(self,
                                         out,
                                         bins=25,
-                                        ylog=False,
+                                        ylog=True,
                                         format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -383,13 +383,13 @@ class Reperoire2RepertoireMatching:
                reference_h,
                width=width - delta_outer - delta_inner,
                facecolor='cornflowerblue',
-               label="Reference abundancies")
+               label="Reference abundances")
 
         ax.bar(bins[:-1] + delta_inner,
                constructed_h,
                width=width - delta_outer - delta_inner,
                facecolor='seagreen',
-               label="Constructed abundancies")
+               label="Constructed abundances")
 
         # plt.xticks(range(max_val + 1), labels)
         xlim = ax.get_xlim()
@@ -398,6 +398,8 @@ class Reperoire2RepertoireMatching:
         ylim = (0, ylim[1])
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
+        ax.set_xlabel("Cluszer size")
+        ax.set_ylabel("#clusters")
 
         handles, labels = ax.get_legend_handles_labels()
         plt.legend(handles, labels)
@@ -872,7 +874,7 @@ class RepertoireMatch:
         errors = self.__error_positions(reversed=False, relative=True)
         try:
             sns.distplot(errors, kde=False, bins=25, ax=ax)
-            ax.set_ylabel("#errors")
+            ax.set_ylabel("# of errors")
             ax.set_xlabel("Relative error positions")
             ax.set_xlim((0., 1.))
 
@@ -1176,44 +1178,71 @@ class RcmVsRcm:
         except BaseException as ex:
             print ex
 
-    def plot_purity_distribution(self, out, format=None, constructed=True, ylog=False):
-        import seaborn as sns
+    def plot_purity_distribution(self, out, **kwargs):
+		self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+
+    #     f, ax = initialize_plot()
+    #
+    #     purity = self.purity(constructed)
+    #     try:
+    #         sns.distplot(purity, kde=False, bins=25, ax=ax)
+    #         ax.set_xlabel("Purity")
+    #         ax.set_ylabel("# of clusters")
+    #         ax.set_xlim((0, 1))
+    #         if ylog:
+    #             plt.yscale("log", nonposy="clip")
+    #         else:
+    #             ax.set_ylim((0, len(purity)))
+    #
+    #         save_plot(out, format=format)
+    #     except BaseException as ex:
+    #         print ex
+    #
+	def plot_discordance_distribution(self, out, **kwargs):
+		self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+    #     import seaborn as sns
+    #
+    #     f, ax = initialize_plot()
+    #
+    #     discordance = self.discordance(constructed)
+    #     try:
+    #         sns.distplot(discordance, kde=False, bins=25, ax=ax)
+    #         ax.set_xlabel("Discordance")
+    #         ax.set_ylabel("# of clusters")
+    #         ax.set_xlim((0, xmax))
+    #         if ylog:
+    #             plt.yscale("log", nonposy="clip")
+    #         else:
+    #             ax.set_ylim((0, len(discordance)))
+    #
+    #         save_plot(out, format=format)
+    #     except BaseException as ex:
+    #         print ex
+    #
+    def plot_purity_discordance_distribution(self, out,
+											 format=None, constructed=True, ylog=False, what=None,
+		                                     xmax=None, ymax=0):
+		import seaborn as sns
+
+		assert what in ["purity", "discordance"]
 
         f, ax = initialize_plot()
 
-        purity = self.purity(constructed)
+		if xmax in None:
+			xmax = 0 if what == "purity" else 0.5
+
+
+        data = self.discordance(constructed) if what == "discordance" else self.purity(constructed)
         try:
-            g = sns.distplot(purity, kde=False, bins=25, ax=ax)
-            ax.set_xlabel("Purity")
-            ax.set_ylabel("#clusters")
-            ax.set_xlim((0, 1))
-            if ylog:
-                # plt.yscale("log", nonposy="clip")
-                g.figure.get_axes()[0].set_yscale('log')
-            else:
-                ax.set_ylim((0, len(purity)))
-
-            save_plot(out, format=format)
-        except BaseException as ex:
-            print ex
-
-    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False,
-                                      xmax=0.5):
-        import seaborn as sns
-
-        f, ax = initialize_plot()
-
-        discordance = self.discordance(constructed)
-        try:
-            g = sns.distplot(discordance, kde=False, bins=25, ax=ax)
-            ax.set_xlabel("Discordance")
+            sns.distplot(data, kde=False, bins=25, ax=ax)
+            ax.set_xlabel("Discordance" if what == "discordance" else "Purity")
             ax.set_ylabel("#clusters")
             ax.set_xlim((0, xmax))
             if ylog:
-                # plt.yscale("log", nonposy="clip")
-                g.figure.get_axes()[0].set_yscale('log')
+                plt.yscale("log", nonposy="clip")
             else:
-                ax.set_ylim((0, len(discordance)))
+				ymax = max(ymax, len(data))
+                ax.set_ylim((0, ymax))
 
             save_plot(out, format=format)
         except BaseException as ex:
@@ -2063,6 +2092,7 @@ class Repertoire:
                                              min_size=None,
                                              lam=None,
                                              combine_tail=True,
+											 additional_space_for_legend=True,
                                              format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -2113,8 +2143,14 @@ class Repertoire:
         plt.xticks(range(max_val + 1), labels)
 
         handles, labels = ax.get_legend_handles_labels()
-        plt.legend(handles, labels)
+        plt.legend(handles, labels, loc="upper right")
         plt.xlim(-width - 2 * max([0, -delta_outer]), max_val + width + 2 * max([0. - delta_outer]))
+
+        if additional_space_for_legend:
+            ylim = plt.ylim()
+            print plt.ylim()
+            plt.ylim((ylim[0], 1.5*ylim[1]))
+            print plt.ylim()
 
         if title:
             plt.title(title)
