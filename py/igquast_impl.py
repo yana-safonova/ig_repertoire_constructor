@@ -1228,7 +1228,7 @@ class RcmVsRcm:
 
         f, ax = initialize_plot()
 
-        if xmax in None:
+        if xmax is None:
             xmax = 0 if what == "purity" else 0.5
 
 
