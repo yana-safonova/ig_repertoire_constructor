@@ -85,9 +85,9 @@
         repertoire sequences in FASTA format and read-to-cluster map (RCM)
         file in a special format.
         See <a href="manual.html#repertoire_files"><font class="sc">IgRepertoireConstructor</font> manual</a>
-        for the comprehensive repertoire format description. One of these two
-        files could be missing, in this case the tool optionally tries to reconstruct it using
-        available information.
+        for the comprehensive repertoire format description.
+        If you have only one of these files,
+        the tool can reconstruct it using available information (use <code>--reconstruct</code> option).
 
 
     <h3 id="igquast_output">1.2. Output</h3> <font class="sc">IgQUAST</font> reports:
@@ -120,16 +120,16 @@
     <br>
     <br>
     Please verify your <font class="sc">IgQUAST</font> installation
-    prior to initiate the <font class="sc">IgQUAST</font>:
+    before the first run of <font class="sc">IgQUAST</font>:
     <pre class="code">
 <code>
     ./igquast.py --test
 </code>
-</pre> If the installation is successful, you will find the following information at the end of the log:
+</pre> If the installation is succeeded, you will find the following information at the end of the log:
 
     <pre class="code">
 <code>
-  Thank you for using <font class="sc">IgQUAST</font>!
+  Thank you for using IgQUAST!
   Log was written to igquast_test/igquast.log
 </code>
 </pre>
@@ -144,19 +144,19 @@
 
     <h3 id="igquast_input_options">3.1. Input options</h3>
 
-    <code>-c / --constructed-repertoire &lt;constructed repertoire FASTA&gt;</code><br> FASTA file with constructed repertoire sequences. Could be gzipped.
+    <code>-c / --constructed-repertoire &lt;constructed repertoire FASTA&gt;</code><br> FASTA file with constructed repertoire sequences. Can be gzipped.
     <br><br>
 
-    <code>-C / --constructed-rcm &lt;constructed repertoire RCM&gt;</code><br> RCM file with constructed repertoire read-cluster map. Could be gzipped.
+    <code>-C / --constructed-rcm &lt;constructed repertoire RCM&gt;</code><br> RCM file with constructed repertoire read-cluster map. Can be gzipped.
     <br><br>
 
-    <code>-r / --reference-repertoire &lt;reference repertoire FASTA&gt;</code><br> FASTA file with reference repertoire sequences. Could be gzipped.
+    <code>-r / --reference-repertoire &lt;reference repertoire FASTA&gt;</code><br> FASTA file with reference repertoire sequences. Can be gzipped.
     <br><br>
 
-    <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Could be gzipped.
+    <code>-R / --reference-rcm &lt;reference repertoire RCM&gt;</code><br> RCM file with reference repertoire read-cluster map. Can be gzipped.
     <br><br>
 
-    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-seq reads in FASTA or FASTQ format. Could be gzipped.
+    <code>-s / --initial-reads &lt;initial reads&gt;</code><br> Initial Rep-seq reads in FASTA or FASTQ format. Can be gzipped.
     <br><br>
 
     <code>--reconstruct | --no-reconstruct</code><br> Whether to reconstruct missing repertoire files if it is possible. Disabled by default.
@@ -175,7 +175,7 @@
     <br><br>
 
     <code>-F / --figure-format &lt;figure formats(s)&gt;</code><br> Figure
-    format(s) for outputted plots. Allowed values are <code>png</code>,
+    format(s) for plots. Allowed values are <code>png</code>,
     <code>pdf</code> and <code>svg</code>.
     One can pass several values separated by commas.
     Empty string means do not produce plots.
@@ -191,15 +191,13 @@
     <br><br>
     <code>--export-bad-clusters | --no-export-bad-clusters</code><br> Whether to export untrustworthy clusters during reference-free analysis. Disabled by default.
     <br><br>
-    <code>--experimental | --no-experimental</code><br> Enable/disable experimental features. Disabled by default.
-    <br><br>
 
     <h3 id="igquast_additional_options">3.4. Algorithm parameters</h3>
     <code>--tau &lt;positive integer&gt;</code><br>Maximal distance for repertoire-to-repertoire matching. Default value is <code>6</code>.
     <br><br>
 
     <code>--reference-size-cutoff &lt;positive integer&gt;</code><br> Cutoff
-    for reference cluster size. Lesser reference clusters are discarded during
+    for reference cluster size. Smaller reference clusters are discarded during
     repertoire-to-repertoire comparison. Default value is <code>5</code>.
     <br><br>
 
@@ -227,8 +225,8 @@
     </code>
 </pre>
 
-    <h3 id="igquast_output_files">3.6. Output files</h3> <font class="sc">IgQUAST</font> creates working directory
-    (which name is specified using option <code>-o</code>) and outputs the following files there:
+    <h3 id="igquast_output_files">3.6. Output files</h3> <font class="sc">IgQUAST</font> creates output directory
+    (its name is specified using option <code>-o</code>) and outputs the following files there:
 
     <ul>
         <li>
@@ -297,7 +295,6 @@
     Files for the reports (in text and JSON formats) are specified by the corresponding options.
     Some files can be absent depending on provided input. Note that reference-free analysis is disabled by default since it is very time- and memory-consuming.
     One should use the option <code>--reference-free</code> to enable it.
-    Experimental plots are not described here.
 
 
     <h2 id = "references">4. Citations</h2>
