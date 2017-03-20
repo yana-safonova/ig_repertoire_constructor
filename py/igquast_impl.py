@@ -757,7 +757,7 @@ class RepertoireMatch:
         import numpy as np
         import matplotlib.pyplot as plt
 
-        f, ax = initialize_plot(font_scale=1)
+        f, ax = initialize_plot(font_scale=1.5)
 
         if max_tau is None:
             max_tau = self.max_tau
@@ -768,8 +768,14 @@ class RepertoireMatch:
         labels = data[2]
 
         width = 0.9
+
+        if what in ["sensitivity", "ref2cons"]:
+            color = "cornflowerblue"
+        elif what in ["precision", "cons2ref"]:
+            color = "orangered"
+
         ax.bar(taus + 0.5 - width / 2, measures, width=width,
-               facecolor='cornflowerblue',
+               facecolor=color,
                label="Actual frequencies")
         plt.xticks(taus + 0.5,
                    labels)
@@ -778,9 +784,11 @@ class RepertoireMatch:
         plt.ylim(0, sum(measures))
 
         if what in ["sensitivity", "ref2cons"]:
-            plt.title("Distribution of distance from reference to constructed sequences")
+            # plt.title("Distribution of distance from reference to constructed sequences")
+            plt.title("Distance from reference to constructed")
         elif what in ["precision", "cons2ref"]:
-            plt.title("Distribution of distance from constructed to reference sequences")
+            # plt.title("Distribution of distance from constructed to reference sequences")
+            plt.title("Distance from constructed to reference")
 
         ax.set_xlabel("distance")
         ax.set_ylabel("#clusters")
@@ -1194,7 +1202,7 @@ class RcmVsRcm:
         f, ax = initialize_plot()
 
         if xmax is None:
-            xmax = 0 if what == "purity" else 0.5
+            xmax = 1 if what == "purity" else 0.5
 
 
         data = self.discordance(constructed) if what == "discordance" else self.purity(constructed)
@@ -2045,7 +2053,7 @@ class Repertoire:
                align="edge",
                # edgecolor='cornflowerblue',
                color='cornflowerblue')
-        plt.ylim(0, max_value)
+        plt.ylim((0, max_value))
 
         if title:
             plt.title(title)

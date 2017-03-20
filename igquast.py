@@ -167,6 +167,11 @@ def parse_command_line():
                  default=False,
                  help="experimental features")
 
+    scenarios.add_argument("--page-mode",
+                           action="store_true",
+                           default=False,
+                           help=argparse.SUPPRESS)
+
     params = parser.add_argument_group("Additional algorithm parameters")
     params.add_argument("--reference-size-cutoff",
                         default=5,
@@ -249,19 +254,28 @@ def main(args):
                                                      format=args.figure_format)
             rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_max_error_scatter" % name,
                                                           format=args.figure_format)
+            if args.page_mode:
+                ymax = 0.041
+            else:
+                ymax = 0
+
             for i in range(5):
                 cluster = rep.largest(i)
                 cluster.plot_profile(out=dir + "/%s_cluster_discordance_profile_largest_%d" % (name, i + 1),
-                                     format=args.figure_format)
+                                     format=args.figure_format,
+                                     ymax=ymax)
                 cluster.plot_profile(out=dir + "/%s_cluster_error_profile_largest_%d" % (name, i + 1),
                                      discordance=False,
-                                     format=args.figure_format)
+                                     format=args.figure_format,
+                                     ymax=ymax)
 
             rep.plot_profile(out=dir + "/%s_cluster_discordance_profile" % name,
-                             format=args.figure_format)
+                             format=args.figure_format,
+                             ymax=ymax)
             rep.plot_profile(out=dir + "/%s_cluster_error_profile" % name,
                              discordance=False,
-                             format=args.figure_format)
+                             format=args.figure_format,
+                             ymax=ymax)
 
         if args.export_bad_clusters:
             mkdir_p(dir)
@@ -339,25 +353,34 @@ def main(args):
 
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
-            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format)
-            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_ylog", format=args.figure_format, ylog=True)
-            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution", format=args.figure_format)
-            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_ylog", format=args.figure_format, ylog=True)
+            if args.page_mode:
+                ymax = 17000
+            else:
+                ymax = 0
 
-            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False)
-            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_ylog", format=args.figure_format, constructed=False, ylog=True)
-            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution", format=args.figure_format, constructed=False)
-            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_ylog", format=args.figure_format, constructed=False, ylog=True)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution", format=args.figure_format, ymax=ymax)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution", format=args.figure_format, ymax=ymax)
+            if args.experimental:
+                rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_ylog", format=args.figure_format, ylog=True, ymax=ymax)
+                rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_ylog", format=args.figure_format, ylog=True, ymax=ymax)
 
-            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large", format=args.figure_format)
-            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large_ylog", format=args.figure_format, ylog=True)
-            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large", format=args.figure_format)
-            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large_ylog", format=args.figure_format, ylog=True)
+            rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution", format=args.figure_format, constructed=False, ymax=ymax)
+            rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution", format=args.figure_format, constructed=False, ymax=ymax)
+            if args.experimental:
+                rcm2rcm.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_ylog", format=args.figure_format, constructed=False, ylog=True, ymax=ymax)
+                rcm2rcm.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_ylog", format=args.figure_format, constructed=False, ylog=True, ymax=ymax)
 
-            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False)
-            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
-            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large", format=args.figure_format, constructed=False)
-            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True)
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large", format=args.figure_format, ymax=ymax)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large", format=args.figure_format, ymax=ymax)
+            if args.experimental:
+                rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/constructed_purity_distribution_large_ylog", format=args.figure_format, ylog=True, ymax=ymax)
+                rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/constructed_discordance_distribution_large_ylog", format=args.figure_format, ylog=True, ymax=ymax)
+
+            rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large", format=args.figure_format, constructed=False, ymax=ymax)
+            rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large", format=args.figure_format, constructed=False, ymax=ymax)
+            if args.experimental:
+                rcm2rcm_large.plot_discordance_distribution(out=args.reference_based_dir + "/reference_discordance_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True, ymax=ymax)
+                rcm2rcm_large.plot_purity_distribution(out=args.reference_based_dir + "/reference_purity_distribution_large_ylog", format=args.figure_format, constructed=False, ylog=True, ymax=ymax)
 
             if args.experimental:
                 rcm2rcm.plot_majority_secondary(out=args.reference_based_dir + "/constructed_majority_secondary", format=args.figure_format)
