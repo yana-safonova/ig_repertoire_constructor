@@ -41,26 +41,29 @@
     <font class="sc">IgQUAST</font> can be used for benchmarking of adaptive immune repertoire construction tools and for quality estimation of constructed repertoires.
     <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
     <ul>
-        <li>During reference-based analysis the tool compares two input repertoires, the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
-            This analysis is separated into two scenarios:
+        <li>During reference-based analysis the tool compares two input repertoires: the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
+            The analysis is separated into two scenarios:
             <ul>
-                <li><b>Repertoire-to-repertoire matching</b> works with repertoire sequences only.
-                    It aligns each from two input repertoires against another one and computes metrics like <i>sensitivity</i> and <i>precision</i>,
+                <li><b>Repertoire-to-repertoire matching</b> only uses repertoire sequences.
+                    The tool aligns each of two repertoires against the other one and computes
+                    <i>sensitivity</i> and <i>precision</i> metrics,
                     detects error positions in erroneously constructed sequences,
-                    and compare reference and constructed abundances for ideally reconstructed sequences.
+                    and compares reference and constructed abundances for ideally reconstructed sequences.
+                    <!-- TODO reformulate -->
                 </li>
-                <li><b>Partition-based analysis</b> works with initial reads partitions (RCMs, read-to-cluster maps) only.
-                    It compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
+                <li><b>Partition-based analysis</b> only uses partitions induced by the RCMs (read-to-cluster maps).
+                    The tool compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
                     Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
+                    <!-- TODO reformulate -->
                 </li>
             </ul>
         </li>
-		<li><b>Reference-free analysis</b> is performed to the constructed repertoire.
+        <li><b>Reference-free analysis</b> is performed on the constructed repertoire.
             The tool detects overestimated clusters in the repertoire
             using amplification-free Poisson model.
-            Also it estimates error rate and error profile of the initial read library.
-            In case of the reference repertoire is provided, the same analysis is performed for it.
-            All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
+            It also estimates error rate and error profile of the initial read library.
+            The same analysis is performed on the reference repertoire if it is provided.
+            All reference-free analysis requires both repertoire sequences and read-to-cluster map (RCM).
         </li>
     </ul>
 
@@ -242,23 +245,23 @@
 
                 <li><b>constructed_purity_distribution</b> &mdash; distribution of cluster purity in the constructed repertoire. This plot helps to detect overcorrection</li>
                 <li><b>constructed_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
-                <li><b>constructed_purity_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+                <!-- <li><b>constructed_purity_distribution_large_ylog</b> &#38;mdash; the same plot with logarithmic Y&#45;scale</li> -->
 
                 <li><b>reference_discordance_distribution</b> &mdash; distribution of constructed cluster discordance
                     (relative contribution of the second popular reference cluster into the particular constructed cluster).
                     This plot helps to detect overcorrection</li>
                 <li><b>reference_discordance_distribution_large</b> &mdash; the same plot for large clusters only</li>
-                <li><b>reference_discordance_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+                <!-- <li><b>reference_discordance_distribution_large_ylog</b> &#38;mdash; the same plot with logarithmic Y&#45;scale</li> -->
 
                 <li><b>reference_purity_distribution</b> &mdash; distribution of cluster purity in the reference repertoire. This plot helps to detect undercorrection</li>
                 <li><b>reference_purity_distribution_large</b> &mdash; the same plot for large clusters only</li>
-                <li><b>reference_purity_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+                <!-- <li><b>reference_purity_distribution_large_ylog</b> &#38;mdash; the same plot with logarithmic Y&#45;scale</li> -->
 
                 <li><b>constructed_discordance_distribution</b> &mdash; distribution of reference cluster discordance
                     (relative contribution of the second popular constructed cluster into the particular reference cluster).
                     This plot helps to detect overcorrection</li>
                 <li><b>constructed_discordance_distribution_large</b> &mdash; the same plot for large clusters only</li>
-                <li><b>constructed_discordance_distribution_large_ylog</b> &mdash; the same plot with logarithmic Y-scale</li>
+                <!-- <li><b>constructed_discordance_distribution_large_ylog</b> &#38;mdash; the same plot with logarithmic Y&#45;scale</li> -->
             </ul>
         </li>
         <li>

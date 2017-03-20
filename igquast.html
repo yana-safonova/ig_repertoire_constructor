@@ -81,33 +81,35 @@
             Input reads should be already merged, filtered from contaminations, and cropped by V/J ends.
         </p>
 
-        <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
-        <ul>
-            <li>During reference-based analysis the tool compares two input repertoires: the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
-                The analysis is separated into two scenarios:
-                <ul>
-                    <li><b>Repertoire-to-repertoire matching</b> only uses repertoire sequences.
-                        The tool aligns each of two repertoires against the other one and computes
-                        <i>sensitivity</i> and <i>precision</i> metrics,
-                        detects error positions in erroneously constructed sequences,
-                        and compare reference and constructed abundances for ideally reconstructed sequences.
-                        <!-- TODO reformulate -->
-                    </li>
-                    <li><b>Partition-based analysis</b> only uses partitions induced by the RCMs (read-to-cluster maps).
-                        The tool compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
-                        Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
-                        <!-- TODO reformulate -->
-                    </li>
-                </ul>
-            </li>
-            <li><b>Reference-free analysis</b> is performed on the constructed repertoire.
-                The tool detects overestimated clusters in the repertoire
-                using amplification-free Poisson model.
-                It also estimates error rate and error profile of the initial read library.
-                The same analysis is performed on the reference repertoire if it is provided.
-                All reference-free analysis presented in the corresponding scenario requiring both repertoire sequences and read-to-cluster map (RCM).
-            </li>
-        </ul>
+        <p align = "justify">
+            <font class="sc">IgQUAST</font> performs reference-based and reference-free analysis:
+            <ul>
+                <li>During reference-based analysis the tool compares two input repertoires: the <i>reference repertoire</i> and the <i>constructed repertoire.</i>
+                    The analysis is separated into two scenarios:
+                    <ul>
+                        <li><b>Repertoire-to-repertoire matching</b> only uses repertoire sequences.
+                            The tool aligns each of two repertoires against the other one and computes
+                            <i>sensitivity</i> and <i>precision</i> metrics,
+                            detects error positions in erroneously constructed sequences,
+                            and compares reference and constructed abundances for ideally reconstructed sequences.
+                            <!-- TODO reformulate -->
+                        </li>
+                        <li><b>Partition-based analysis</b> only uses partitions induced by the RCMs (read-to-cluster maps).
+                            The tool compares two partitions and computes partition similarity metrics (like <i>Rand index</i>).
+                            Also it computes cluster quality measures (like <i>purity</i> and <i>discordance</i>) and plots their distributions for both input repertoires.
+                            <!-- TODO reformulate -->
+                        </li>
+                    </ul>
+                </li>
+                <li><b>Reference-free analysis</b> is performed on the constructed repertoire.
+                    The tool detects overestimated clusters in the repertoire
+                    using amplification-free Poisson model.
+                    It also estimates error rate and error profile of the initial read library.
+                    The same analysis is performed on the reference repertoire if it is provided.
+                    All reference-free analysis requires both repertoire sequences and read-to-cluster map (RCM).
+                </li>
+            </ul>
+        </p>
 
         <p align = "justify">
             The output IgQUAST is a collection of plots
