@@ -162,10 +162,10 @@ def parse_command_line():
                  default=False,
                  help="reference-free metrics")
 
-    add_selector(scenarios,
-                 "--experimental",
-                 default=False,
-                 help="experimental features")
+    scenarios.add_argument("--experimental",
+                           default=False,
+                           action="store_true",
+                           help=argparse.SUPPRESS)
 
     scenarios.add_argument("--page-mode",
                            action="store_true",
