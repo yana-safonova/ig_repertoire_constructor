@@ -34,14 +34,14 @@ namespace antevolo {
         std::stringstream ss;
         size_t key = *decomposition_class.begin();
         ss << "CDR3_sequences_key_" << key << ".fasta";
-        return path::append_path(output_params_.cdr_graph_dir, ss.str());
+        return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
     std::string VJClassProcessor::GetGraphFname(core::DecompositionClass decomposition_class) {
         std::stringstream ss;
         size_t key = *decomposition_class.begin();
         ss << "CDR3_sequences_key_" << key << ".graph";
-        return path::append_path(output_params_.cdr_graph_dir, ss.str());
+        return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
     std::string VJClassProcessor::WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) {
@@ -55,11 +55,11 @@ namespace antevolo {
     // return connected components of Hamming graph on CDR3s
     std::vector<SparseGraphPtr> VJClassProcessor::ComputeCDR3HammingGraphs(std::string cdr_fasta,
                                                                            std::string graph_fname) {
-        std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
+//        std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
         std::stringstream ss;
-        ss << run_graph_constructor << " -i " << cdr_fasta <<
+        ss << config_.cdr_labeler_config.input_params.run_hg_constructor << " -i " << cdr_fasta <<
                 " -o " << graph_fname << " --tau " << num_mismatches_ << " -S " << " 0 " <<
-                " -T " << " 0 " << " -k 10 > " << output_params_.trash_output;
+                " -T " << " 0 " << " -k 10 > " << config_.output_params.trash_output;
         int err_code = system(ss.str().c_str());
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
         auto sparse_cdr_graph_ = GraphReader(graph_fname).CreateGraph();
@@ -82,7 +82,7 @@ namespace antevolo {
                                                 component_id);
         auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
                 new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
-                                                 config_,
+                                                 config_.algorithm_params,
                                                  clone_by_read_constructor_,
                                                  hamming_graph_info,
                                                  current_fake_clone_index_,

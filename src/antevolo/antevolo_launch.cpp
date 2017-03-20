@@ -24,8 +24,7 @@
 using namespace shm_kmer_matrix_estimator;
 
 namespace antevolo {
-    void
-    AntEvoloLaunch::ShmModelPosteriorCalculation(
+    void AntEvoloLaunch::ShmModelPosteriorCalculation(
             const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>& clone_set)
     {
         ShmModel model(config_.input_params.shm_kmer_model_igh);

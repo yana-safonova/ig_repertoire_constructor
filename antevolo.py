@@ -13,6 +13,7 @@ py_src = os.path.join(home_directory, "src/python_pipeline/")
 antevolo_config_dir = os.path.join(home_directory, "configs/antevolo/")
 cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
+shm_kmer_matrix_estimator_config_dir = os.path.join(home_directory, "configs/shm_kmer_matrix_estimator")
 
 antevolo_bin = os.path.join(home_directory, "build/release/bin/antevolo")
 run_antevolo = os.path.join(home_directory, "build/release/bin/./antevolo")
@@ -88,10 +89,14 @@ def CopyConfigs(params, log):
     # copying vj finder config
     params.vj_finder_config_dir = os.path.abspath(os.path.join(params.config_dir, "vj_finder"))
     shutil.copytree(vj_finder_config_dir, params.vj_finder_config_dir)
+    # copying shm kmer matrix estimator config
+    params.shm_kmer_matrix_estimator_config_dir = os.path.abspath(os.path.join(params.config_dir, "shm_kmer_matrix_estimator"))
+    shutil.copytree(shm_kmer_matrix_estimator_config_dir, params.shm_kmer_matrix_estimator_config_dir)
     # checking config files
     params.antevolo_config_file = os.path.join(params.antevolo_config_dir, "config.info")
     params.cdr_labeler_config_file = os.path.join(params.cdr_labeler_config_dir, "config.info")
     params.vj_finder_config_file = os.path.join(params.vj_finder_config_dir, "config.info")
+    params.shm_kmer_matrix_estimator_config_file = os.path.join(params.shm_kmer_matrix_estimator_config_dir, "configs.info") # s?? wtf?
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
 
     if not os.path.exists(params.antevolo_config_dir):
@@ -102,6 +107,9 @@ def CopyConfigs(params, log):
         sys.exit(1)
     if not os.path.exists(params.cdr_labeler_config_file):
         log.info("ERROR: Config file " + params.cdr_labeler_config_file + " was not found")
+        sys.exit(1)
+    if not os.path.exists(params.shm_kmer_matrix_estimator_config_file):
+        log.info("ERROR: Config file " + params.shm_kmer_matrix_estimator_config_file + " was not found")
         sys.exit(1)
 
 def UpdateGermlineConfigFile(params, log):
@@ -118,6 +126,10 @@ def ModifyAntEvoloConfigFile(params, log):
     param_dict['input_reads'] = params.input_reads
     param_dict['output_dir'] = params.output_dir
     param_dict['cdr_labeler_config_fname'] = params.cdr_labeler_config_file
+    param_dict['shm_kmer_matrix_estimator_config_fname'] = params.shm_kmer_matrix_estimator_config_file
+    param_dict['shm_kmer_model_igh'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGH.csv")
+    param_dict['shm_kmer_model_igk'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGK.csv")
+    param_dict['shm_kmer_model_igl'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGL.csv")
     param_dict['num_threads'] = params.num_threads
     process_cfg.substitute_params(params.antevolo_config_file, param_dict, log)
 
@@ -130,6 +142,7 @@ def ModifyCDRLabelerConfigFile(params, log):
     param_dict['kabat_v_annotation'] = os.path.join(home_directory, 'data/annotation/human_v_kabat.txt')
     param_dict['imgt_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_imgt.txt')
     param_dict['kabat_j_annotation'] = os.path.join(home_directory, 'data/annotation/human_j_kabat.txt')
+    param_dict['run_hg_constructor'] = os.path.join(home_directory, './build/release/bin/ig_swgraph_construct')
     process_cfg.substitute_params(params.cdr_labeler_config_file, param_dict, log)
 
 def ModifyVjFinderConfigFile(params, log):

@@ -37,8 +37,7 @@ namespace antevolo {
             auto vj_class = vj_decomposition.GetClass(i);
             CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
             auto vj_class_processor = VJClassProcessor(fakes_clone_set_ptr,
-                                                       config_.output_params,
-                                                       config_.algorithm_params,
+                                                       config_,
                                                        clone_by_read_constructor_,
                                                        fake_clone_indices[thread_id],
                                                        reconstructed[thread_id],
