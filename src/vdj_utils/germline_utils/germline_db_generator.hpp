@@ -29,4 +29,19 @@ namespace germline_utils {
 
         germline_utils::CustomGeneDatabase GenerateJoinDb();
     };
+
+    class LociParam {
+    public:
+        static bool LociIncludeIg(std::string loci);
+        static bool LociIncludeTr(std::string loci);
+        static bool LociIncludeIgh(std::string loci);
+        static bool LociIncludeIgk(std::string loci);
+        static bool LociIncludeIgl(std::string loci);
+        static bool LociIncludeTra(std::string loci);
+        static bool LociIncludeTrb(std::string loci);
+        static bool LociIncludeTrg(std::string loci);
+        static bool LociIncludeTrd(std::string loci);
+
+        static std::vector<germline_utils::ChainType> ConvertIntoChainTypes(std::string loci);
+    };
 }

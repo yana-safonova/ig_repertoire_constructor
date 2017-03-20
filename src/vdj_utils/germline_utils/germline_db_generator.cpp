@@ -3,69 +3,66 @@
 #include "germline_db_generator.hpp"
 
 namespace germline_utils {
-    class LociParam {
-    public:
-        static bool LociIncludeIg(std::string loci) {
-            if(loci.size() < 2)
-                return false;
-            return loci == "all" or loci.substr(0, 2) == "IG";
-        }
+    bool LociParam::LociIncludeIg(std::string loci) {
+        if(loci.size() < 2)
+            return false;
+        return loci == "all" or loci.substr(0, 2) == "IG";
+    }
 
-        static bool LociIncludeTr(std::string loci) {
-            if(loci.size() < 2)
-                return false;
-            return loci == "all" or loci.substr(0, 2) == "TR";
-        }
+    bool LociParam::LociIncludeTr(std::string loci) {
+        if(loci.size() < 2)
+            return false;
+        return loci == "all" or loci.substr(0, 2) == "TR";
+    }
 
-        static bool LociIncludeIgh(std::string loci) {
-            return loci == "all" or loci == "IGH" or loci == "IG";
-        }
+    bool LociParam::LociIncludeIgh(std::string loci) {
+        return loci == "all" or loci == "IGH" or loci == "IG";
+    }
 
-        static bool LociIncludeIgk(std::string loci) {
-            return loci == "all" or loci == "IGK" or loci == "IG";
-        }
+    bool LociParam::LociIncludeIgk(std::string loci) {
+        return loci == "all" or loci == "IGK" or loci == "IG";
+    }
 
-        static bool LociIncludeIgl(std::string loci) {
-            return loci == "all" or loci == "IGL" or loci == "IG";
-        }
+    bool LociParam::LociIncludeIgl(std::string loci) {
+        return loci == "all" or loci == "IGL" or loci == "IG";
+    }
 
-        static bool LociIncludeTra(std::string loci) {
-            return loci == "all" or loci == "TRA" or loci == "TR";
-        }
+    bool LociParam::LociIncludeTra(std::string loci) {
+        return loci == "all" or loci == "TRA" or loci == "TR";
+    }
 
-        static bool LociIncludeTrb(std::string loci) {
-            return loci == "all" or loci == "TRB" or loci == "TR";
-        }
+    bool LociParam::LociIncludeTrb(std::string loci) {
+        return loci == "all" or loci == "TRB" or loci == "TR";
+    }
 
-        static bool LociIncludeTrg(std::string loci) {
-            return loci == "all" or loci == "TRG" or loci == "TR";
-        }
+    bool LociParam::LociIncludeTrg(std::string loci) {
+        return loci == "all" or loci == "TRG" or loci == "TR";
+    }
 
-        static bool LociIncludeTrd(std::string loci) {
-            return loci == "all" or loci == "TRD" or loci == "TR";
-        }
+    bool LociParam::LociIncludeTrd(std::string loci) {
+        return loci == "all" or loci == "TRD" or loci == "TR";
+    }
 
-        static std::vector<germline_utils::ChainType> ConvertIntoChainTypes(std::string loci) {
-            std::vector<germline_utils::ChainType> chain_types;
-            if(loci.size() < 2)
-                return chain_types;
-            if(LociIncludeIgh(loci))
-                chain_types.push_back(germline_utils::ChainType("IGH"));
-            if(LociIncludeIgk(loci))
-                chain_types.push_back(germline_utils::ChainType("IGK"));
-            if(LociIncludeIgl(loci))
-                chain_types.push_back(germline_utils::ChainType("IGL"));
-            if(LociIncludeTra(loci))
-                chain_types.push_back(germline_utils::ChainType("TRA"));
-            if(LociIncludeTrb(loci))
-                chain_types.push_back(germline_utils::ChainType("TRB"));
-            if(LociIncludeTrg(loci))
-                chain_types.push_back(germline_utils::ChainType("TRG"));
-            if(LociIncludeTrd(loci))
-                chain_types.push_back(germline_utils::ChainType("TRD"));
+    std::vector<germline_utils::ChainType> LociParam::ConvertIntoChainTypes(std::string loci) {
+        std::vector<germline_utils::ChainType> chain_types;
+        if (loci.size() < 2)
             return chain_types;
-        }
-    };
+        if (LociIncludeIgh(loci))
+            chain_types.push_back(germline_utils::ChainType("IGH"));
+        if (LociIncludeIgk(loci))
+            chain_types.push_back(germline_utils::ChainType("IGK"));
+        if (LociIncludeIgl(loci))
+            chain_types.push_back(germline_utils::ChainType("IGL"));
+        if (LociIncludeTra(loci))
+            chain_types.push_back(germline_utils::ChainType("TRA"));
+        if (LociIncludeTrb(loci))
+            chain_types.push_back(germline_utils::ChainType("TRB"));
+        if (LociIncludeTrg(loci))
+            chain_types.push_back(germline_utils::ChainType("TRG"));
+        if (LociIncludeTrd(loci))
+            chain_types.push_back(germline_utils::ChainType("TRD"));
+        return chain_types;
+    }
 
     class GermlineFilesConfig {
         struct ExtendedImmuneGeneType {
