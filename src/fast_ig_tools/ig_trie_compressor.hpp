@@ -22,6 +22,7 @@ class Compressor {
 public:
     enum class Type {HashCompressor, TrieCompressor};
     virtual std::vector<size_t> checkout() = 0;
+    virtual ~Compressor() = default;
 
     template <typename TValue, typename... Args>
     static std::unique_ptr<Compressor> factor(Compressor::Type type, Args&&... args);
@@ -67,7 +68,7 @@ public:
     HashCompressor &operator=(const HashCompressor &) = delete;
     HashCompressor(HashCompressor &&) = default;
     HashCompressor &operator=(HashCompressor &&) = default;
-    ~HashCompressor() = default;
+    virtual ~HashCompressor() = default;
 
     size_t size() const {
         return size_;
@@ -118,7 +119,7 @@ public:
     TrieCompressor &operator=(const TrieCompressor &) = delete;
     TrieCompressor(TrieCompressor &&) = default;
     TrieCompressor &operator=(TrieCompressor &&) = default;
-    ~TrieCompressor() = default;
+    virtual ~TrieCompressor() = default;
 
 
     size_t size() const {
