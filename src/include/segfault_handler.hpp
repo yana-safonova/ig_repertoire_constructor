@@ -10,6 +10,7 @@
 #include "stacktrace.hpp"
 
 #include <boost/function.hpp>
+#include <boost/noncopyable.hpp>
 #include <signal.h>
 
 struct segfault_handler : boost::noncopyable {

@@ -1,0 +1,398 @@
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Diversity Analyzer 1.0 Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <style>
+    </style>
+</head>
+<body>
+
+<h1>Diversity Analyzer 1.0 manual</h1>
+
+1. <a href="#intro">What is Diversity Analyzer?</a><br>
+
+2. <a href="#install">Installation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
+
+3. <a href="#usage">Diversity Analyzer usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#basic_options">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#advanced_options">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#output">Output files</a><br>
+
+4. <a href="#files_format">Output file formats</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href="#cdr_details">CDR details file</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href="#shm_details">SHM details file</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.3. <a href="#v_alignments">V alignments file</a><br>
+
+<!--- 5. <a href = "#plot_descr">Plot description</a><br> --->
+
+5. <a href="#feedback">Feedback and bug reports</a><br>
+<!--- &nbsp;&nbsp;&nbsp;&nbsp;5.1. <a href="#citation">Citation</a><br> --->
+
+<!-- -------- --->
+<h2 id = "intro">1. What is Diversity Analyzer?</h2>
+<p>
+    Diversity Analyzer is a tool for diversity analysis of adaptive immune repertoires.
+    It takes full-length immunosequencing reads or constructed repertoire as an input and performs the following steps:
+    <ul>
+        <li>Alignment of input sequences against germline V and J segments.
+            <b>Please note</b> that reads with low quality alignment will be filtered at this step and will not be analyzed further. </li>
+        <li>CDR labeling of aligned reads</li>
+        <li>Computation of SHM positions</li>
+        <li>Computation of diversity indices for computed CDRs</li>
+        <li>Visualization of computed diversity statistics</li>
+    </ul>
+</p>
+
+<!-- -------- --->
+<a id="install"></a>
+<h2>2. Installation</h2>
+
+Diversity Analyzer has the following dependencies:
+<ul>
+    <li>64-bit Linux or MacOS system</li>
+    <li>g++ (version 4.7 or higher) or clang compiler</li>
+    <li>cmake (version 2.8.8 or higher)</li>
+    <li>Python 2 (version 2.7 or higher), including:</li>
+    <ul>
+        <li><a href = "http://biopython.org/wiki/Download">BioPython</a></li>
+        <li><a href = "http://matplotlib.org/users/installing.html">Matplotlib</a></li>
+        <li><a href = "http://www.numpy.org/">NumPy</a></li>
+        <li><a href = "http://www.scipy.org/install.html">SciPy</a></li>
+        <li><a href = "https://stanford.edu/~mwaskom/software/seaborn/">Seaborn</a></li>
+        <li><a href = "http://pandas.pydata.org/">pandas</a></li>
+    </ul>
+</ul>
+
+To install DiversityAnalyzer, type:
+<pre class="code">
+    <code>
+    ./prepare_cfg
+    </code>
+</pre>
+and:
+<pre class="code">
+    <code>
+    make
+    </code>
+</pre>
+
+<a id="test_datasets"></a>
+<h3>2.1. Verifying your installation</h3>
+For testing purposes, Diversity Analyzer comes with toy data sets. <br><br>
+
+&#9658; To try Diversity Analyzer on the test data set, run:
+<pre class="code"><code>
+    ./diversity_analyzer.py --test
+</code>
+</pre>
+
+If the installation of Diversity Analyzer is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+    <code>
+    Thank you for using Diversity Analyzer!
+    Log was written to &lt;your_installation_dir>/divan_test/ig_repertoire_constructor.log
+    </code>
+</pre>
+
+<!-- -------- --->
+<h2 id = "usage">3. Diversity Analyzer usage</h2>
+<p>
+    Diversity Analyzer takes full-length immunosequencing reads or constructed repertoire in FASTQ/FASTA as an input and
+    analyzes diversity characteristics: VJ combinations, CDRs, SHMs.
+</p>
+
+To run Diversity Analyzer, type:
+<pre class="code">
+    <code>
+    ./diversity_analyzer.py [options] -i &lt;input_sequences&gt; -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+<!-- --->
+<h3 id = "basic_options">3.1. Basic options</h3>
+
+<code>-i &lt;input_sequences&gt;</code><br>
+input sequences in FASTA/FASTQ format (required).
+
+<br><br>
+
+<code>-o / --output &lt;output_dir&gt;</code><br>
+output directory (required).
+
+<br><br>
+
+<code>-t / --threads &lt;int&gt;</code><br>
+The number of parallel threads. The default value is <code>16</code>.
+
+<br><br>
+
+<code>--test</code><br>
+Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./diversity_analyzer.py -i test_dataset/merged_reads.fastq -o divan_test
+    </code>
+</pre>
+
+<code>--help</code><br>
+Printing help.
+
+<br><br>
+
+<!-- --->
+<h3 id = "advanced_options">3.2. Advanced options</h3>
+
+<code>--domain &lt;str&gt;</code><br>
+Domain system that will be used for CDR computation: <code>imgt</code> or <code>kabat</code>.
+Default value is <code>imgt</code>.
+
+<br><br>
+
+<code>-l / --loci &lt;str&gt;</code><br>
+Immunological loci to align input reads and discard reads with low score. <br>
+Available values are <code>IGH</code> / <code>IGL</code> / <code>IGK</code> / <code>IG</code> (for all BCRs) /
+<code>TRA</code> / <code>TRB</code> / <code>TRG</code> / <code>TRD</code> / <code>TR</code> (for all TCRs) or <code>all</code>.
+Default value is <code>IG</code>.
+
+<br><br>
+
+<code>--organism &lt;str&gt;</code><br>
+Organism. Available value is <code>human</code>.
+Further Diversity Analyzer usage will be extended for <code>mouse</code>, <code>pig</code>,
+<code>rabbit</code>, <code>rat</code> and <code>rhesus_monkey</code>.
+Default value is <code>human</code>.
+
+<br><br>
+
+<code>--skip-plots</code><br>
+Skipping plot drawing.
+
+<!-- --->
+
+<h3 id = "examples">3.3. Examples</h3>
+To perform diversity analysis of full-length immunosequencing reads <code>input_reads.fastq</code>,
+type:
+<pre class="code">
+    <code>
+    ./diversity_analyzer.py -i input_reads.fastq -o divan_test
+    </code>
+</pre>
+
+<!-- --->
+
+<h3 id = "dsf_output">3.4. Output files</h3>
+Diversity Analyzer creates working directory (which name was specified using option <code>-o</code>)
+and outputs the following files there:
+
+<ul>
+    <li><b>cleaned_sequences.fasta</b> &mdash; input sequences that have good alignment against V and J germline database.
+        Diversity Analyzer also crops input sequences by the start of V segment and inverts them in V(D)J direction.
+    </li>
+    <li>
+        <b>cdr_details.txt</b> &mdash; detailed information about CDR labeling of sequences from <b>cleaned_sequences.fasta</b>.
+        Description of <b>cdr_details.txt</b> file format can be found <a href = "#cdr_details">here</a>.
+    </li>
+    <li>
+        <b>shm_details.txt</b> &mdash; detailed information about SHM labeling of sequences from <b>cleaned_sequences.fasta</b>.
+        Description of <b>shm_details.txt</b> file format can be found <a href = "#shm_details">here</a>.
+    </li>
+    <li>
+        <b>v_alignment.fasta</b> &mdash; alignment of sequences from <b>cleaned_sequences.fasta</b> against V segments in FASTA format.
+        Description of <b>v_alignment.fasta</b> file format can be found <a href = "#v_alignments">here</a>.
+    </li>
+</ul>
+
+<ul>
+    <li>
+        <b>cdr1s.fasta</b> &mdash; FASTA file with all computed CDR1 sequences.
+    </li>
+    <li>
+        <b>cdr2s.fasta</b> &mdash; FASTA file with all computed CDR2 sequences.
+    </li>
+    <li>
+        <b>cdr3s.fasta</b> &mdash; FASTA file with all computed CDR3 sequences.
+    </li>
+    <li>
+        <b>compressed_cdr3s.fasta</b> &mdash; FASTA file with unique CDR3 sequences.
+        Abundances of unique CDR3 sequences are specified in header lines.
+    </li>
+</ul>
+
+<ul>
+    <li>
+        <b>annotation_report.html</b> &mdash; summary report in HTML format.
+        Example of <b>annotation_report.html</b> file can be found <a href = "docs/divan_docs/annotation_report.html">here</a>.
+    </li>
+    <li>
+        <b>plots</b> &mdash; directory containing plots with diversity statistics.
+        Please note that <b>plots</b> directory will not be created in case of option <code>--skip-plots</code>.
+    </li>
+</ul>
+
+<ul>
+    <li>
+        <b>diversity_analyzer.log</b> &mdash; a full log of Diversity Analyzer tool.
+    </li>
+</ul>
+
+<!--- -->
+<h2 id = "output_files">4. Output file formats</h2>
+
+<h3 id = "cdr_details">4.1. CDR details file</h3>
+<b>cdr_details.txt</b> presents a tab-separated data-frame containing the following fields:
+<ul>
+    <li><code>Read_name</code> &mdash; names of reads from <b>cleaned_sequences.fasta</b> file.
+        Rows in <b>cdr_details.txt</b> and sequences in <b>cleaned_sequences.fasta</b> are consistently ordered.</li>
+    <li><code>Chain_type</code> &mdash; type of chain of a sequence: IGH / IGK / IGL / TRA / TRB / TRD or TRG.</li>
+    <li><code>V_hit</code>, <code>J_hit</code> &mdash; names of V and J gene segments that provide the best alignments.</li>
+    <li><code>AA_seq</code> &mdash; amino acid sequence. </li>
+    <li><code>Has_stop_codon</code> &mdash; indicator of presence of stop codon in a sequence:
+        <code>1</code> - sequence contains stop codon, <code>0</code> - sequence does not contain stop codon.</li>
+    <li><code>In-frame</code> &mdash; indicator showing whether a sequence is in-frame or not. </li>
+    <li>
+        <code>Productive</code> &mdash; indicator of sequence productiveness.
+        We consider that sequence is productive if it is in-frame and does not contain stop codons.
+    </li>
+    <li>
+        <code>CDR1_nucls</code>, <code>CDR1_start</code>, <code>CDR1_end</code> &mdash;
+        nucleotide sequence, start and end positions of CDR1.
+    </li>
+    <li>
+        <code>CDR2_nucls</code>, <code>CDR2_start</code>, <code>CDR2_end</code> &mdash;
+        nucleotide sequence, start and end positions of CDR2.
+    </li>
+    <li>
+        <code>CDR3_nucls</code>, <code>CDR3_start</code>, <code>CDR3_end</code> &mdash;
+        nucleotide sequence, start and end positions of CDR3.
+    </li>
+</ul>
+
+<h3 id = "shm_details">4.2. SHM details file</h3>
+<p>
+    <b>shm_details.txt</b> contains a list of SHMs that are consecutively written for each sequences from <b>cleaned_sequences.fasta</b>.
+Records in <b>shm_details.txt</b> are consistently ordered with respect to <b>cleaned_sequences.fasta</b>.
+</p>
+
+<p>
+SHMs are reported separately for each sequence and V / J hit.
+SHMs in different hits are separated by a line containing information about name and length of sequence,
+name and length of gene, type of segment (V / J) and chain (IGH / IGK / IGL / TRA / TRB / TRG / TRD):
+<pre class="code">
+    <code>
+  Read_name:1_merged_read     Read_length:354     Gene_name:IGHV3-20*01   Gene_length:296     Segment:V   Chain_type:IGH
+    </code>
+</pre>
+</p>
+
+<p>
+For a given hit, SHMs are written in order of position increasing.
+Each line corresponds to a single SHM and contains the following fields:
+<ul>
+    <li><code>SHM_type</code> &mdash; type of SHM.
+        Diversity Analyzer distinguishes three possible types of SHMs: substitution (<code>S</code>),
+        insertion (<code>I</code>) and deletion (<code>D</code>).
+        Please note that Diversity Analyzer does not join consecutive deletions and insertions and reports each of them as a single SHM.
+        E.g., in case of <code>ACGTATC</code> & <code>AC---TC</code> alignment, three SHMs will be reported.
+    </li>
+    <li>
+        <code>Read_pos</code>, <code>Gene_pos</code> &mdash; position of SHM on read and gene, respectively.
+        Please note that indexation is 1-based.
+    </li>
+    <li>
+        <code>Read_nucl</code>, <code>Gene_nucl</code> &mdash; nucleotide corresponding to SHM on read and gene, respectively.
+        If SHM corresponds to deletion, value of <code>Read_nucl</code> field will be '<code>-</code>'.
+        If SHM corresponds to insertion, value of <code>Gene_nucl</code> field will be '<code>-</code>'.
+    </li>
+    <li>
+        <code>Read_aa</code>, <code>Gene_aa</code> &mdash; amino acid corresponding to SHM on read and gene, respectively.
+    </li>
+    <li>
+        <code>Is_synonymous</code> &mdash; indicator showing whether SHM does not change amino acid.
+    </li>
+    <li>
+        <code>To_stop_codon</code> &mdash; indicator showing whether SHM changes amino acid into stop codon.
+    </li>
+</ul>
+If a hit does not contain any SHM, it will be skipped in <b>shm_details.txt</b>.
+</p>
+
+Example of the top of <b>shm_details.txt</b> file:
+<pre class="code">
+<code>
+  SHM_type    Read_pos    Gene_pos    Read_nucl   Gene_nucl   Read_aa     Gene_aa     Is_synonymous   To_stop_codon
+  Read_name:1_merged_read     Read_length:354     Gene_name:IGHV3-20*01   Gene_length:296     Segment:V   Chain_type:IGH
+  S       20      20      C       T       S       S       1       0
+  S       29      29      C       T       G       G       1       0
+  S       35      35      C       A       V       V       1       0
+  S       37      37      A       G       Q       R       0       0
+  S       45      45      A       G       R       G       0       0
+  Read_name:1_merged_read     Read_length:354     Gene_name:IGHJ3*02      Gene_length:50      Segment:J   Chain_type:IGH
+  S       30      335     C       A       T       T       1       0
+  S       32      337     C       T       T       M       0       0
+</code>
+</pre>
+
+<h3 id = "v_alignments">4.3. V alignments file</h3>
+<b>v_alignment.fasta</b> present a pairs of aligned sequences: input sequence and corresponding V hit.
+Both sequences in a pair have equal length and may contain gaps.
+Headers contain alignment details.
+An example of <b>v_alignment.fasta</b> is given below:
+<pre class="code">
+<code>
+  >INDEX:1|READ:1_merged_read|START_POS:0|END_POS:49
+  CAGGTGCAGCTGGTGGAGTCTGGGGGAGGTGTGGTACGGCCTG-GGGGTC
+  >INDEX:1|GENE:IGHV3-20*01|START_POS:0|END_POS:50|CHAIN_TYPE:IGH
+  CAGGTGCAGCTGGTGGAGTCTGGGGGAGGTGTGGTACGGCCTGGGGGGTC
+</code>
+</pre>
+Please not that start position (<code>START_POS</code> field in a header) and end position (<code>END_POS</code> field) are inclusive.
+
+<!--- -------------------------------------------------------------------- --->
+<!---
+<h2 id = "plot_descr">5. Plot description</h2>
+Diversity Analyzer reports plots in PNG and PDF formats.
+All plots can be found in <b>plots</b> directory.
+
+<h3 id = "vj_usage_plots">5.1. VJ usage</h3>
+
+<h3 id = "shm_plots">5.2. SHM plots</h3>
+<ul>
+    <li>
+        Matrices for acid acid and nucleotide substitution are reported in <b>plots/aa_substitutions</b> and
+        <b>plots/nucl_substitutions</b> files.
+    </li>
+    <li>
+        Histogram showing distribution of relative positions of synonymous SHM in V gene segments is
+        reported in <b>plots/synonymous_shms_positions</b>
+    </li>
+    <li>
+        Histogram showing distribution of relative positions of SHMs of special types: deletions, insertions, and stop codons.
+        Histogram showing distribution of relative positions is written in <b>plots/special_shms_positions</b>.
+    </li>
+</ul>
+
+<h3 id = "cdr_plots">5.3. CDR plots</h3>
+If a chain type (IGH / IGK / IGL / TRA / TRB / TRG / TRD) is presented in <b>input_sequences.fasta</b>,
+Diversity Analyzer reports the following plots for CDR1, CDR2 and CDR3 for sequences of this chain type:
+<ul>
+    <li>CDR length distribution.</li>
+    <li>Nucleotide and amino acid variability.
+        To output variability plots, Diversity Analyzer selects length value that is presented by the largest number of CDRs.</li>
+</ul>
+All CDR plots can be found in <b>plots/cdr_plots</b> directory.
+--->
+<!--- -------------------------------------------------------------------- --->
+<a id="feedback"></a>
+<h2>5. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcome.
+They will help us to further improve Diversity Analyzer.
+<br><br>
+If you have any trouble running Diversity Analyzer, please send us the log file from the output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.

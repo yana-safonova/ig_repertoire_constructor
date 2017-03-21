@@ -22,7 +22,7 @@ IGDATA_DIR="${CUR_DIR}/igblast"
 IGBLASTDIR="${CUR_DIR}/igblast"
 #directory of IMGT files
 
-VJFINDER_GERMLINE_DB=${IGREC_DIR}/data/germline/human
+VJFINDER_GERMLINE_DB=${IGREC_DIR}/data/germline/human/IG
 GERMLINE_DB=${IGDATA_DIR}/database
 
 mkdir -p ${GERMLINE_DB}
@@ -55,11 +55,20 @@ OUTPUT_FILE=$2
 
 export IGDATA=${IGDATA_DIR}
 
+# ${IGBLASTDIR}/bin/igblastn \
+# -auxiliary_data "${IGBLASTDIR}/auxiliary_file" \
+# -germline_db_V "${GERMLINE_DB}/IGHV-allP.fa" \
+# -germline_db_J "${GERMLINE_DB}/IGHJ-allP.fa" \
+# -germline_db_D "${GERMLINE_DB}/IGHD-allP.fa" \
+# -domain_system imgt -query ${INPUT_FILE} \
+# -outfmt 7 -num_threads 1 -num_alignments_V 1  -num_alignments_D 0 -num_alignments_J 1 -organism human \
+# -ig_seqtype Ig \
+# -out ${OUTPUT_FILE}
 ${IGBLASTDIR}/bin/igblastn \
 -auxiliary_data "${IGBLASTDIR}/auxiliary_file" \
--germline_db_V "${GERMLINE_DB}/IGHV-allP.fa" \
--germline_db_J "${GERMLINE_DB}/IGHJ-allP.fa" \
--germline_db_D "${GERMLINE_DB}/IGHD-allP.fa" \
+-germline_db_V "${GERMLINE_DB}/IGHV.fa" \
+-germline_db_J "${GERMLINE_DB}/IGHJ.fa" \
+-germline_db_D "${GERMLINE_DB}/IGHD.fa" \
 -domain_system imgt -query ${INPUT_FILE} \
 -outfmt 7 -num_threads 1 -num_alignments_V 1  -num_alignments_D 0 -num_alignments_J 1 -organism human \
 -ig_seqtype Ig \

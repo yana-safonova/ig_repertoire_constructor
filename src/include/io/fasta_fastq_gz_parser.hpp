@@ -27,7 +27,7 @@
 
 #include <zlib.h>
 #include <string>
-#include "kseq/kseq.h"
+#include <kseq/kseq.h>
 #include "verify.hpp"
 #include "io/single_read.hpp"
 #include "io/parser.hpp"

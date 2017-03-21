@@ -1,0 +1,9 @@
+default=INFO
+#EmptyHitsFilter=TRACE
+#LeftCoverageFilter=TRACE
+#RightCoverageFilter=TRACE
+#VSegmentLengthFilter=TRACE
+#JSegmentLengthFilter=TRACE
+#AlignedSegmentLengthFilter=TRACE
+#VJFinderLaunch=TRACE
+#VJQueryAligner=TRACE

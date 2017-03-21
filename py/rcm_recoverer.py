@@ -3,45 +3,21 @@
 from Bio import SeqIO
 from argparse import ArgumentParser
 
-
-import contextlib
-@contextlib.contextmanager
-def smart_open(filename, mode="r"):
-    """
-    From http://stackoverflow.com/questions/17602878/how-to-handle-both-with-open-and-sys-stdout-nicely
-    """
-    import gzip
-    import re
-    from sys import stdout, stdin
-
-    if "w" in mode:
-        MODE = "w"
-    elif "a" in mode:
-        MODE= "a"
-    else:
-        MODE = "r"
-
-    if filename != '-':
-        if re.match(r"^.*\.gz$", filename):
-            assert(MODE != "a")
-            fh = gzip.open(filename, mode=MODE)
-        else:
-            fh = open(filename, mode=mode)
-    else:
-        assert(MODE != "a")
-        fh = stdout if MODE == "w" else stdin
-    try:
-        yield fh
-    finally:
-        if fh is not stdout and fh is not stdin:
-            fh.close()
+import os
+import sys
+current_dir = os.path.dirname(os.path.realpath(__file__))
+igrec_dir = current_dir + "/../"
+sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
+sys.path.append(igrec_dir + "/src/python_pipeline/")
+import support
+sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+from ash_python_utils import idFormatByFileName, smart_open
 
 
-def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name,
-                 out_file):
+def generate_rcm(reads_file_name, compressed_file_name, cliques_ids_file_name, out_file):
     # Obtain read ids
     with smart_open(reads_file_name, "r") as fh:
-        ids = [str(record.id) for record in SeqIO.parse(fh, "fasta")]
+        ids = [str(record.id) for record in SeqIO.parse(fh, idFormatByFileName(reads_file_name))]
 
     # Obtain compread2clique
     with smart_open(cliques_ids_file_name, "r") as fh:
@@ -60,7 +36,7 @@ if __name__ == "__main__":
     parser.add_argument("--ids-file", "-i",
                         type=str,
                         required=True,
-                        help="FASTA file with ids")
+                        help="FASTA/FASTQ file with ids")
     parser.add_argument("--output", "-o",
                         type=str,
                         required=True,

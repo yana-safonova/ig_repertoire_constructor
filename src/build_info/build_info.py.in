@@ -1,19 +1,39 @@
-version = "@BUILD_INFO_VERSION@"
-git_hash = "@BUILD_INFO_GIT_HASH@"
-git_hash7 = "@BUILD_INFO_GIT_HASH7@"
-git_refspec = "@BUILD_INFO_GIT_REFSPEC@"
-git_describe = "@BUILD_INFO_GIT_DESCRIBE@"
-git_tag = "@BUILD_INFO_GIT_TAG@"
+class BuildInfo:
+    def __init__(self):
+        self.version = "@BUILD_INFO_VERSION@"
+        self.git_hash = "@BUILD_INFO_GIT_HASH@"
+        self.git_hash7 = "@BUILD_INFO_GIT_HASH7@"
+        self.git_refspec = "@BUILD_INFO_GIT_REFSPEC@"
+        self.git_describe = "@BUILD_INFO_GIT_DESCRIBE@"
+        self.git_tag = "@BUILD_INFO_GIT_TAG@"
 
-cmake = "@BUILD_INFO_CMAKE@"
-system = "@BUILD_INFO_SYSTEM@"
-cpu = "@BUILD_INFO_CPU@"
+        self.cmake = "@BUILD_INFO_CMAKE@"
+        self.system = "@BUILD_INFO_SYSTEM@"
+        self.cpu = "@BUILD_INFO_CPU@"
 
-c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@"
-cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@"
-c_compiler = "@BUILD_INFO_C_COMPILER@"
-cxx_compiler = "@BUILD_INFO_CXX_COMPILER@"
+        self.c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@"
+        self.cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@"
+        self.c_compiler = "@BUILD_INFO_C_COMPILER@"
+        self.cxx_compiler = "@BUILD_INFO_CXX_COMPILER@"
 
-build_type = "@BUILD_INFO_BUILD_TYPE@"
-c_flags = "@BUILD_INFO_C_FLAGS@"
-cxx_flags = "@BUILD_INFO_CXX_FLAGS@"
+        self.build_type = "@BUILD_INFO_BUILD_TYPE@"
+        self.c_flags = "@BUILD_INFO_C_FLAGS@"
+        self.cxx_flags = "@BUILD_INFO_CXX_FLAGS@"
+
+    def Log(self, log):
+        log.info("version: " + self.version)
+        log.info("git hash: " + self.git_hash)
+        log.info("git hash7: " + self.git_hash7)
+        log.info("git refspec: " + self.git_refspec)
+        log.info("git describe: " + self.git_describe)
+        log.info("git tag: " + self.git_tag)
+        log.info("cmake version: " + self.cmake)
+        log.info("OS version: " + self.system)
+        log.info("CPU: " + self.cpu)
+        log.info("C compiler id: " + self.c_compiler_id)
+        log.info("CXX compiler id: " + self.cxx_compiler_id)
+        log.info("C compiler: " + self.c_compiler)
+        log.info("CXX compiler: " + self.cxx_compiler)
+        log.info("Build type: " + self.build_type)
+        log.info("C flags: " + self.c_flags)
+        log.info("CXX flags: " + self.cxx_flags)

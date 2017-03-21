@@ -97,7 +97,7 @@ public:
     class EdgesIterator {
         const SparseGraph& graph_;
 
-        const size_t vertex_;
+        size_t vertex_;
 
         size_t current_;
 
@@ -113,6 +113,8 @@ public:
         bool operator ==(EdgesIterator other) const;
 
         bool operator !=(EdgesIterator other) const;
+
+        EdgesIterator& operator =(const EdgesIterator& other);
 
         size_t operator *() const;
     };
