@@ -179,7 +179,8 @@ def parse_command_line():
     params.add_argument("--tau",
                         type=int,
                         default=6,
-                        help="maximal distance for repertoire-to-repertoire matching (default: %(default)d)")
+                        # help="maximal distance for repertoire-to-repertoire matching (default: %(default)d)")
+                        help=argparse.SUPPRESS)
 
     args = parser.parse_args()
 
