@@ -32,7 +32,7 @@ TEST_F(GermlineDBTest, TestImmuneGeneDbCorrectness) {
                                                     SegmentType::VariableSegment));
     INFO("Creating database for immune gene " << ighv_database.GeneType());
     ighv_database.AddGenesFromFile(human_ighv_file);
-    ASSERT_EQ(ighv_database.size(), 351);
+    ASSERT_EQ(ighv_database.size(), 315);
     INFO("DB contains " << ighv_database.size() << " records");
     std::stringstream chain_str;
     chain_str << ighv_database.Chain();
@@ -56,10 +56,10 @@ TEST_F(GermlineDBTest, TestIghChainDbCorrectness) {
     igh_database.AddGenesFromFile(SegmentType::VariableSegment, human_ighv_file);
     igh_database.AddGenesFromFile(SegmentType::DiversitySegment, human_ighd_file);
     igh_database.AddGenesFromFile(SegmentType::JoinSegment, human_ighj_file);
-    ASSERT_EQ(igh_database.GenesNumber(SegmentType::VariableSegment), 351);
+    ASSERT_EQ(igh_database.GenesNumber(SegmentType::VariableSegment), 315);
     INFO("Database contains " << igh_database.GenesNumber(SegmentType::VariableSegment) <<
                  " genes of type " << igh_database.GetDb(SegmentType::VariableSegment).GeneType());
-    ASSERT_EQ(igh_database.GenesNumber(SegmentType::DiversitySegment), 44);
+    ASSERT_EQ(igh_database.GenesNumber(SegmentType::DiversitySegment), 34);
     INFO("Database contains " << igh_database.GenesNumber(SegmentType::DiversitySegment) <<
          " genes of type " << igh_database.GetDb(SegmentType::DiversitySegment).GeneType());
     ASSERT_EQ(igh_database.GenesNumber(SegmentType::JoinSegment), 13);
