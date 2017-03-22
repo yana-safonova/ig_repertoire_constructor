@@ -10,11 +10,11 @@ link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core inpu
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
-# make_test(test_dsf test_dsf.cpp
-#           ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
-#           ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
-#           ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
-#           ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
+make_test(test_dsf test_dsf.cpp
+          ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
+          ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
+          ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
+          ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
 
 make_test(test_germline_database test_germline_database.cpp)
