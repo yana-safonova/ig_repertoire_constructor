@@ -87,7 +87,8 @@ void CheckSecondAnnotatedClone(const annotation_utils::CDRAnnotatedCloneSet &clo
     std::string cdr3 = core::seqan_string_to_string(clone_set[1].CDR3());
     ASSERT_EQ(cdr3, std::string("GCGAGGAGATTTTCAGAAGGAGCTTTTGATATC"));
     ASSERT_EQ(clone_set[1].VSHMs().size(), 16);
-    ASSERT_EQ(clone_set[1].JSHMs().size(), 2);
+    // ASSERT_EQ(clone_set[1].JSHMs().size(), 2);
+    ASSERT_EQ(clone_set[1].JSHMs().size(), 0);
 }
 
 TEST_F(CDRLabelerTest, ReadCDRsAreIgBlastConsistent) {

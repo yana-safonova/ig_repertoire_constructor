@@ -19,7 +19,7 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
 make_test(test_germline_database test_germline_database.cpp)
 
-add_executable(test_cdr_labeling test_cdr_labeler.cpp
+make_test(test_cdr_labeling test_cdr_labeler.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
         ../vj_finder/vj_alignment_structs.cpp
