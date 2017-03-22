@@ -127,7 +127,7 @@ TEST_F(VJFinderTest, BaseVJFinderTest) {
     TestVSegmentIgBlastConsistent();
     TestJSegmentIgBlastConsistent();
     TestStartAndEndAlignmentPositions();
-    // TestReadInversion();
-    // TestReadLeftRightCropping();
-    // TestReadLeftRightFilling();
+    TestReadInversion();
+    TestReadLeftRightCropping();
+    TestReadLeftRightFilling();
 }
