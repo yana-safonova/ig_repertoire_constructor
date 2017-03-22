@@ -19,14 +19,39 @@ def HelpAndReturn(log, parser, exit_code=0):
     sys.exit(exit_code)
 
 
+def EnsureRequiredParametersSet(params, parser, log):
+    if not params.output:
+        log.error("Please specify the output directory (-o/--output parameter)")
+        HelpAndReturn(log, parser)
+    if not params.loci:
+        log.error("Please specify loci (-l/--loci parameter)")
+        HelpAndReturn(log, parser)
+
+
 def ParseCommandLineParams(log):
-    from argparse import ArgumentParser
-    parser = ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
+    import argparse
+
+    class ActionTest(argparse.Action):
+        def __init__(self, option_strings, dest, nargs=None, **kwargs):
+            super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            setattr(namespace, "single_reads", "test_dataset/barcodedIgReC_test.fasta")
+            setattr(namespace, "output", "barigrec_test")
+            setattr(namespace, "loci", "all")
+            setattr(namespace, "no_compilation", True)
+            setattr(namespace, "ignore_code_changes", True)
+
+    parser = argparse.ArgumentParser(description="IgReC: an algorithm for construction of antibody repertoire from immunosequencing data",
                             epilog="""
     In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.
     Please provide us with ig_repertoire_constructor.log file from the output directory.
                             """,
                             add_help=False)
+
+    parser.add_argument("--test",
+                        action=ActionTest,
+                        help="Run on test dataset")
 
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=False)
@@ -52,6 +77,19 @@ def ParseCommandLineParams(log):
                           default="",
                           help="Output directory. Required")
 
+    vj_align_args = parser.add_argument_group("Algorithm arguments")
+    vj_align_args.add_argument("-l", "--loci",
+                               type=str,
+                               dest="loci",
+                               # required=True,
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
+
+    vj_align_args.add_argument("--organism",
+                               type=str,
+                               default="human",
+                               dest="organism",
+                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
+
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
                                type=int,
@@ -70,57 +108,65 @@ def ParseCommandLineParams(log):
                                dest="igrec_tau",
                                help="Maximum allowed mismatches between UMI clusters"
                                     "[default: %(default)d]")
-    optional_args.add_argument("-n", "--min-super-read-size",
-                               type=int,
-                               default=1000000,
-                               dest="min_super_read_size",
-                               help="Minimum super read size [default: %(default)d]")
     optional_args.add_argument("-f", '--min-fillin',
                                type=float,
                                default=0.6,
                                dest="min_fillin",
                                help='Minimum fill-in of dense subgraphs [default: %(default)f]')
-    optional_args.set_defaults(compile=True)
-    optional_args.add_argument("-p", "--no-compilation",
-                               dest="no_compilation",
-                               action="store_true",
-                               help="Exclude c++ code compilation from the pipeline")
-    optional_args.add_argument("-c", "--ignore-code",
-                               dest="ignore_code_changes",
-                               action="store_true",
-                               help="Ignore code changes when checking stages depensences")
     optional_args.add_argument("-k", "--detect-chimeras",
                                dest="detect_chimeras",
                                action="store_true",
-                               help="Detect chimeras after clustering, may take significant amount of time")
+                               help="Detect chimeras after clustering, may take significant amount of time, default behavior")
+    optional_args.add_argument("-K", "--no-detect-chimeras",
+                               dest="detect_chimeras",
+                               action="store_false",
+                               help="Do not detect chimeras after clustering")
     optional_args.add_argument("--clustering-thr",
                                type=int,
                                default=20,
                                dest="clustering_threshold",
                                help="Threshold distance to unite clusters")
-    # TODO: hide parameter
-    optional_args.add_argument("--debug-stages",
+
+    dev_args = parser.add_argument_group("Developer arguments")
+    dev_args.add_argument("-n", "--min-super-read-size",
+                               type=int,
+                               default=1000000,
+                               dest="min_super_read_size",
+                               # help="Minimum super read size [default: %(default)d]")
+                               help=argparse.SUPPRESS)
+    dev_args.add_argument("-p", "--no-compilation",
+                               dest="no_compilation",
+                               action="store_true",
+                               help=argparse.SUPPRESS)
+                               # help="Exclude C++ code compilation from the pipeline")
+    dev_args.add_argument("-P", "--do-compilation",
+                               dest="no_compilation",
+                               action="store_false",
+                               help=argparse.SUPPRESS)
+                               # help="Exclude C++ code compilation from the pipeline")
+    dev_args.add_argument("-c", "--ignore-code",
+                               dest="ignore_code_changes",
+                               action="store_true",
+                               help=argparse.SUPPRESS)
+                               # help="Ignore code changes when checking stages dependencies")
+    dev_args.add_argument("-C", "--no-ignore-code",
+                               dest="ignore_code_changes",
+                               action="store_false",
+                               help=argparse.SUPPRESS)
+                               # help="Ignore code changes when checking stages dependencies")
+    dev_args.add_argument("--debug-stages",
                                dest="output_intermediate",
                                action="store_true",
-                               help="Output repertoire after each step")
-    optional_args.add_argument("--umi-cleavage-length",
+                               help=argparse.SUPPRESS)
+                               # help="Output repertoire after each step")
+    dev_args.add_argument("--umi-cleavage-length",
                                type=int,
                                default=0,
                                dest="umi_cleavage_length",
-                               help="Cleave UMIs by the specified length (testing purposes only) [default: %(default)d]")
+                               help=argparse.SUPPRESS)
+                               # help="Cleave UMIs by the specified length (testing purposes only) [default: %(default)d]")
 
-    vj_align_args = parser.add_argument_group("Algorithm arguments")
-    vj_align_args.add_argument("-l", "--loci",
-                               type=str,
-                               dest="loci",
-                               required=True,
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. Required")
 
-    vj_align_args.add_argument("--organism",
-                               type=str,
-                               default="human",
-                               dest="organism",
-                               help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
     params = parser.parse_args()
 
@@ -128,12 +174,7 @@ def ParseCommandLineParams(log):
     if len(sys.argv) == 1:
         HelpAndReturn(log, parser)
 
-    # Process pair reads
-    if params.left_reads or params.right_reads:
-        if not params.left_reads or not params.right_reads:
-            log.info("ERROR: Both left (-1) and right (-2) paired-end reads should be specified\n")
-            sys.exit(-1)
-        params.single_reads = "%s/merged_reads.fastq" % params.output
+    EnsureRequiredParametersSet(params, parser, log)
 
     return parser, params
 
@@ -203,7 +244,7 @@ class _StagePrepare:
                 line = line.replace("%CLUSTERING_THRESHOLD", str(params.clustering_threshold))
                 line = line.replace("%DEBUG_STAGES", str(params.output_intermediate))
                 if '%' in line:
-                    log.error("Not all template variables substituted in the makefile, update igrec_umi.py script, line #%d: '%s'" % (idx, line))
+                    log.error("Not all template variables substituted in the makefile, update barcoded_igrec.py script, line #%d: '%s'" % (idx, line))
                     exit(1)
                 file.write(line)
 
@@ -249,23 +290,64 @@ def InitMakeFiles(params, log):
     return os.path.join(params.output, "final_repertoire")
 
 
+def PrintOutputFiles(params, log):
+    log.info("\nBarcodedIgReC output:")
+    log.info("  * Cleaned Ig-Seq reads were written to %s" % os.path.join(params.output, "vj_finder", "cleaned_reads.fa"))
+    log.info("  * Contaminated (not Ig-Seq) reads were written to %s" % os.path.join(params.output, "vj_finder", "filtered_reads.fa"))
+    log.info("  * VJ alignment output was written to %s" % os.path.join(params.output, "vj_finder", "v_alignments.fa"))
+    log.info("  * Antibody clusters of final repertoire with read multiplicities were written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire.fa"))
+    log.info("  * Antibody clusters of final repertoire with molecule multiplicities were written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire_umi.fa.gz"))
+    log.info("  * Read-cluster map of final repertoire was written to %s" % os.path.join(params.output, "final_repertoire", "final_repertoire.rcm"))
+
+
+def SupportInfo(log):
+    log.info("\nIn case you have troubles running BarcodedIgReC, "
+             "you can write to igtools_support@googlegroups.com.")
+    log.info("Please provide us with igrc.log file from the output directory.")
+
+
 def main():
     log = igrec.CreateLogger()
     parser, params = ParseCommandLineParams(log)
     CheckParamsCorrectness(parser, params, log)
-    if not os.path.exists(params.output):
-        os.makedirs(params.output)
-    igrec.CreateFileLogger(params, log)
-    igrec.PrintCommandLine(log)
-    final_dir = InitMakeFiles(params, log)
-    # We need freshly compiled version to get actual build info
-    if not params.no_compilation:
-        support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
-    from src.build_info.build_info import BuildInfo
-    print "===================Build info==================="
-    BuildInfo().Log(log)
-    print "================================================"
-    support.sys_call("make -C " + final_dir, log)
+    try:
+        if not os.path.exists(params.output):
+            os.makedirs(params.output)
+        igrec.CreateFileLogger(params, log)
+        igrec.PrintCommandLine(log)
+        final_dir = InitMakeFiles(params, log)
+        # We need freshly compiled version to get actual build info
+        if not params.no_compilation:
+            support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
+        from src.build_info.build_info import BuildInfo
+        print "===================Build info==================="
+        BuildInfo().Log(log)
+        print "================================================"
+        support.sys_call("make -C " + final_dir, log)
+        PrintOutputFiles(params, log)
+        log.info("\nThank you for using BarcodedIgReC!")
+    except KeyboardInterrupt:
+        log.info("\nBarcodedIgReC was interrupted!")
+    except Exception:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+    except BaseException:
+        exc_type, exc_value, _ = sys.exc_info()
+        if exc_type == SystemExit:
+            sys.exit(exc_value)
+        else:
+            log.exception(exc_value)
+            log.info("\nERROR: Exception caught.")
+            SupportInfo(log)
+            sys.exit(exc_value)
+
+    log.info("Log was written to " + params.log_filename)
 
 
 if __name__ == '__main__':

@@ -10,13 +10,13 @@ link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core inpu
 
 make_test(test_sparse_graph test_sparse_graph.cpp)
 
-# make_test(test_dsf test_dsf.cpp)
-# target_link_libraries(test_dsf dense_sgraph_finder_library)
+make_test(test_dsf test_dsf.cpp)
+target_link_libraries(test_dsf dense_sgraph_finder_library)
 
-# make_test(test_germline_database test_germline_database.cpp)
-# 
-# make_test(test_cdr_labeling test_cdr_labeler.cpp)
-# target_link_libraries(test_cdr_labeling cdr_labeler_library)
-# 
-# make_test(test_vj_finder test_vj_finder.cpp)
-# target_link_libraries(test_vj_finder vj_finder_library)
+make_test(test_germline_database test_germline_database.cpp)
+
+make_test(test_cdr_labeling test_cdr_labeler.cpp)
+target_link_libraries(test_cdr_labeling cdr_labeler_library)
+
+make_test(test_vj_finder test_vj_finder.cpp)
+target_link_libraries(test_vj_finder vj_finder_library)

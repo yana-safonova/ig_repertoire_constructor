@@ -27,7 +27,7 @@ def ErrorMessagePrepareCfg(log):
 def SupportInfo(log):
     log.info("\nIn case you have troubles running IgReC, "
              "you can write to igtools_support@googlegroups.com.")
-    log.info("Please provide us with ig_repertoire_constructor.log file from the output directory.")
+    log.info("Please provide us with igrc.log file from the output directory.")
 
 #######################################################################################
 #           Binary routines

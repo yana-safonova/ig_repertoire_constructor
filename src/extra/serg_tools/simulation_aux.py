@@ -85,7 +85,7 @@ def GetSimulateSteps(params, run_params):
 
 def GetBarigrecSteps(params, run_params):
     barigrec_steps = [
-        ShStep(None, ["python -u %s/igrec_umi.py" % igrec_dir,
+        ShStep(None, ["python -u %s/barcoded_igrec.py" % igrec_dir,
                       "-s %s/amplified/amplified.fasta" % run_params.data_path,
                       "--output %s/igrec_umi" % run_params.data_path,
                       "--loci IG",

@@ -373,18 +373,23 @@ class Reperoire2RepertoireMatching:
 
         if ylog:
             plt.yscale("log", nonposy="clip")
+            bottom = np.ones_like(constructed_h)
+            constructed_h -= bottom
+            reference_h -= bottom
+        else:
+            bottom = None
 
         ax.bar(bins[:-1] - width + delta_outer,
                reference_h,
                width=width - delta_outer - delta_inner,
                facecolor='cornflowerblue',
-               label="Reference abundancies")
+               label="Reference abundances")
 
         ax.bar(bins[:-1] + delta_inner,
                constructed_h,
                width=width - delta_outer - delta_inner,
                facecolor='seagreen',
-               label="Constructed abundancies")
+               label="Constructed abundances")
 
         # plt.xticks(range(max_val + 1), labels)
         xlim = ax.get_xlim()
@@ -393,6 +398,8 @@ class Reperoire2RepertoireMatching:
         ylim = (0, ylim[1])
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
+        ax.set_xlabel("Cluszer size")
+        ax.set_ylabel("#clusters")
 
         handles, labels = ax.get_legend_handles_labels()
         plt.legend(handles, labels)
@@ -750,7 +757,7 @@ class RepertoireMatch:
         import numpy as np
         import matplotlib.pyplot as plt
 
-        f, ax = initialize_plot(font_scale=1)
+        f, ax = initialize_plot(font_scale=1.5)
 
         if max_tau is None:
             max_tau = self.max_tau
@@ -761,8 +768,14 @@ class RepertoireMatch:
         labels = data[2]
 
         width = 0.9
+
+        if what in ["sensitivity", "ref2cons"]:
+            color = "cornflowerblue"
+        elif what in ["precision", "cons2ref"]:
+            color = "orangered"
+
         ax.bar(taus + 0.5 - width / 2, measures, width=width,
-               facecolor='cornflowerblue',
+               facecolor=color,
                label="Actual frequencies")
         plt.xticks(taus + 0.5,
                    labels)
@@ -771,9 +784,11 @@ class RepertoireMatch:
         plt.ylim(0, sum(measures))
 
         if what in ["sensitivity", "ref2cons"]:
-            plt.title("Distribution of distance from reference to constructed sequences")
+            # plt.title("Distribution of distance from reference to constructed sequences")
+            plt.title("Distance from reference to constructed")
         elif what in ["precision", "cons2ref"]:
-            plt.title("Distribution of distance from constructed to reference sequences")
+            # plt.title("Distribution of distance from constructed to reference sequences")
+            plt.title("Distance from constructed to reference")
 
         ax.set_xlabel("distance")
         ax.set_ylabel("#clusters")
@@ -1171,42 +1186,36 @@ class RcmVsRcm:
         except BaseException as ex:
             print ex
 
-    def plot_purity_distribution(self, out, format=None, constructed=True, ylog=False):
+    def plot_purity_distribution(self, out, **kwargs):
+        self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+
+    def plot_discordance_distribution(self, out, **kwargs):
+        self.plot_purity_discordance_distribution(out, what="purity", **kwargs)
+
+    def plot_purity_discordance_distribution(self, out,
+                                             format=None, constructed=True, ylog=False, what=None,
+                                             xmax=None, ymax=0):
         import seaborn as sns
+
+        assert what in ["purity", "discordance"]
 
         f, ax = initialize_plot()
 
-        purity = self.purity(constructed)
+        if xmax is None:
+            xmax = 1 if what == "purity" else 0.5
+
+
+        data = self.discordance(constructed) if what == "discordance" else self.purity(constructed)
         try:
-            sns.distplot(purity, kde=False, bins=25, ax=ax)
-            ax.set_xlabel("Purity")
-            ax.set_ylabel("# of clusters")
-            ax.set_xlim((0, 1))
-            if ylog:
-                plt.yscale("log", nonposy="clip")
-            else:
-                ax.set_ylim((0, len(purity)))
-
-            save_plot(out, format=format)
-        except BaseException as ex:
-            print ex
-
-    def plot_discordance_distribution(self, out, format=None, constructed=True, ylog=False,
-                                      xmax=0.5):
-        import seaborn as sns
-
-        f, ax = initialize_plot()
-
-        discordance = self.discordance(constructed)
-        try:
-            sns.distplot(discordance, kde=False, bins=25, ax=ax)
-            ax.set_xlabel("Discordance")
-            ax.set_ylabel("# of clusters")
+            sns.distplot(data, kde=False, bins=25, ax=ax)
+            ax.set_xlabel("Discordance" if what == "discordance" else "Purity")
+            ax.set_ylabel("#clusters")
             ax.set_xlim((0, xmax))
             if ylog:
                 plt.yscale("log", nonposy="clip")
             else:
-                ax.set_ylim((0, len(discordance)))
+                ymax = max(ymax, len(data))
+                ax.set_ylim((0, ymax))
 
             save_plot(out, format=format)
         except BaseException as ex:
@@ -1885,7 +1894,7 @@ class Repertoire:
                                                   annotate=False,
                                                   points=True,
                                                   format=None,
-                                                  cis=False):
+                                                  cis=True):
         import numpy as np
         import matplotlib.pyplot as plt
 
@@ -1962,7 +1971,8 @@ class Repertoire:
                      discordance=True,
                      min_size=None,
                      legend=False,
-                     format=None):
+                     format=None,
+                     ymax=0):
         import matplotlib.pyplot as plt
         # import seaborn as sns
         import numpy as np
@@ -2032,6 +2042,7 @@ class Repertoire:
                color='cornflowerblue')
 
         max_value = ax.get_ylim()[1]
+        max_value = max(max_value, ymax)
         plt.gca().add_patch(patches.Rectangle((cdr1_start, 0), cdr1_end - cdr1_start, max_value, facecolor=cdr_color, lw=0))
         plt.gca().add_patch(patches.Rectangle((cdr2_start, 0), cdr2_end - cdr2_start, max_value, facecolor=cdr_color, lw=0))
         plt.gca().add_patch(patches.Rectangle((cdr3_start, 0), cdr3_end - cdr3_start, max_value, facecolor=cdr_color, lw=0))
@@ -2042,7 +2053,7 @@ class Repertoire:
                align="edge",
                # edgecolor='cornflowerblue',
                color='cornflowerblue')
-        plt.ylim(0, max_value)
+        plt.ylim((0, max_value))
 
         if title:
             plt.title(title)
@@ -2056,6 +2067,7 @@ class Repertoire:
                                              min_size=None,
                                              lam=None,
                                              combine_tail=True,
+                                             additional_space_for_legend=True,
                                              format=None):
         import numpy as np
         import matplotlib.pyplot as plt
@@ -2106,8 +2118,12 @@ class Repertoire:
         plt.xticks(range(max_val + 1), labels)
 
         handles, labels = ax.get_legend_handles_labels()
-        plt.legend(handles, labels)
+        plt.legend(handles, labels, loc="upper right")
         plt.xlim(-width - 2 * max([0, -delta_outer]), max_val + width + 2 * max([0. - delta_outer]))
+
+        if additional_space_for_legend:
+            ylim = plt.ylim()
+            plt.ylim((ylim[0], 1.2*ylim[1]))
 
         if title:
             plt.title(title)
@@ -2178,7 +2194,7 @@ class Report:
                 s += "Reference-based quality measures (with size threshold = %d):\n" % min_size
                 s += "\tSensitivity:\t\t\t\t%(sensitivity)0.4f (%(ref2cons)d / %(reference_size)d)\n" % rb
                 s += "\tPrecision:\t\t\t\t%(precision)0.4f (%(cons2ref)d / %(constructed_size)d)\n" % rb
-                s += "\tAbundances median rate:\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
+                s += "\tAbundances median rate:\t\t\t%(reference_vs_constructed_size_median_rate)0.4f\n" % rb
                 s += "\tArea under curve:\t\t\t%(AUC)0.4f\n" % rb
                 s += "\tMaximal S + P:\t\t\t\t%(opt_sum_sensitivity)0.4f + %(opt_sum_precision)0.4f = %(opt_sum)0.4f\n" % rb
                 s += "\tMaxizing S + P constructed min size:\t%(opt_sum_size)d\n" % rb
@@ -2333,7 +2349,7 @@ def splittering(rcm2rcm, rep, args, report):
     map(F, [1, 5, 10, 15, 50])
 
     os.system(igrec_dir + "/build/release/bin/ig_component_splitter \
-			  -i %s -o %s -R %s -M %s -V 1 \
+              -i %s -o %s -R %s -M %s -V 1 \
               --allow-unassigned=true \
               --recursive=false --flu=false" % (args.initial_reads,
                                                 args.output_dir + "/splitted.fa.gz",
