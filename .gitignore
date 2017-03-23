@@ -1,6 +1,8 @@
 *.pyc
 igrec_test
 dsf_test
+divan_test
+barigrec_test
 .idea
 src/.idea/
 build/
@@ -18,4 +20,3 @@ CTestTestfile.cmake
 *.la
 *.a
 *.so
-divan_test

@@ -8,7 +8,7 @@ current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir, os.pardir)
 sys.path.append(igrec_dir)
 sys.path.append(igrec_dir + "/py/")
-from aimquast_impl import parse_rcm
+from igquast_impl import parse_rcm
 from ig_compress_equal_clusters import parse_cluster_mult
 
 reference_path = sys.argv[1]

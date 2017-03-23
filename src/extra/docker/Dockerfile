@@ -11,7 +11,12 @@ WORKDIR /opt/ig_repertoire_constructor
 
 
 RUN ./prepare_cfg
-RUN make
+RUN make -j16
+RUN make check -j16
 
 RUN ./igrec.py --test
-# RUN ./aimquast.py --test
+RUN ./igquast.py --test --reference-free
+RUN ./barcoded_igrec.py --test
+RUN ./dense_subgraph_finder.py --test
+RUN ./diversity_analyzer.py --test
+RUN ./mass_spectra_analyzer.py --test

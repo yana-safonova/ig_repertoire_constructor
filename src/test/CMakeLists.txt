@@ -8,17 +8,7 @@ include_directories(${CDR_LABELER_DIR})
 include_directories(${SHM_DIR})
 include_directories(${ANTEVOLO_DIR})
 
-link_libraries(
-        gtest
-        gmock_main
-        gmock
-        graph_utils
-        vdj_utils
-        algorithms
-        core
-        input
-        shm_kmer_matrix_estimator_library
-        ${COMMON_LIBRARIES})
+link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input shm_kmer_matrix_estimator_library ${COMMON_LIBRARIES})
 
 make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 
@@ -28,21 +18,10 @@ make_essential_test(test_sparse_graph test_sparse_graph.cpp)
 #           ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
 #           ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
-# add_executable(test_dsf test_dsf.cpp
-#                ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
-#                ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
-#                ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
-#                ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
 
 make_test(test_shm_kmer_model test_shm_kmer_model.cpp)
 
-add_executable(test_dsf test_dsf.cpp
-               ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
-               ../dense_sgraph_finder/graph_decomposer/greedy_joining_decomposition_constructor.cpp
-               ../dense_sgraph_finder/graph_decomposer/simple_decomposition_constructor.cpp
-               ../dense_sgraph_finder/graph_decomposer/dense_subgraph_constructor.cpp)
-
-add_executable(test_germline_database test_germline_database.cpp)
+make_test(test_germline_database test_germline_database.cpp)
 
 add_executable(test_cdr_labeling test_cdr_labeler.cpp
         ../vj_finder/vj_finder_config.cpp
@@ -96,7 +75,7 @@ make_test(test_antevolo test_antevolo.cpp
         ../cdr_labeler/germline_db_labeling.cpp
         ../cdr_labeler/read_labeler.cpp)
 
-add_executable(test_vj_finder test_vj_finder.cpp
+make_test(test_vj_finder test_vj_finder.cpp
         ../vj_finder/vj_finder_config.cpp
         ../vj_finder/germline_db_generator.cpp
         ../vj_finder/vj_alignment_structs.cpp

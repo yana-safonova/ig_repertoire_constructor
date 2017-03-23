@@ -6,9 +6,10 @@ from joblib import Parallel, delayed
 
 
 def test_on_aq_data(name, out_dir, threads=16, do_not_run=False):
-    run_and_quast_all(igrec_dir + "/aimquast_test_dataset/%s/input_reads.fa.gz" % name,
-                      igrec_dir + "/aimquast_test_dataset/%s/repertoire.fa.gz" % name,
-                      igrec_dir + "/aimquast_test_dataset/%s/repertoire.rcm" % name,
+    run_and_quast_all(igrec_dir + "/igquast_test_dataset/%s/input_reads.fa.gz" % name,
+                      igrec_dir + "/igquast_test_dataset/%s/repertoire.fa.gz" % name,
+                      # igrec_dir + "/igquast_test_dataset/%s/repertoire.rcm" % name,
+                      "None",
                       out_dir=out_dir,
                       threads=threads,
                       do_not_run=do_not_run,
@@ -23,16 +24,17 @@ if __name__ == "__main__":
     # test_on_aq_data("flu", "flu_all")
 
     queue = []
-    queue.append(("test", "test"))
-    queue.append(("age3", "REAL"))
-    queue.append(("flu", "FLU"))
-    queue.append(("SIMULATED_0.5", "SIMULATED_0.5"))
-    queue.append(("SIMULATED_1", "SIMULATED_1"))
-    queue.append(("SIMULATED_2", "SIMULATED_2"))
-    queue.append(("SYNTHETIC_0.5", "SYNTHETIC_0.5"))
-    queue.append(("SYNTHETIC_1", "SYNTHETIC_1"))
-    queue.append(("SYNTHETIC_2", "SYNTHETIC_2"))
+    # queue.append(("test", "test"))
+    # queue.append(("age3", "REAL"))
+    # queue.append(("flu", "FLU"))
+    # queue.append(("SIMULATED_0.5", "SIMULATED_0.5"))
+    # queue.append(("SIMULATED_1", "SIMULATED_1"))
+    # queue.append(("SIMULATED_2", "SIMULATED_2"))
+    # queue.append(("SYNTHETIC_0.5", "SYNTHETIC_0.5"))
+    # queue.append(("SYNTHETIC_1", "SYNTHETIC_1"))
+    # queue.append(("SYNTHETIC_2", "SYNTHETIC_2"))
 
+    queue.append(("age3_chu", "REAL_CHU"))
     def JOB(a):
         test_on_aq_data(*a)
 
