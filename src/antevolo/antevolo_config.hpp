@@ -7,6 +7,7 @@ namespace antevolo {
     struct AntEvoloConfig {
         struct InputParams {
             std::string input_reads;
+            std::string decomposition_rcm;
             std::string cdr_labeler_config_fname;
             std::string shm_kmer_matrix_estimator_config_fname;
 
@@ -31,6 +32,9 @@ namespace antevolo {
         };
 
         struct AlgorithmParams {
+            bool compare;
+            bool model;
+
             struct SimilarCDR3Params {
                 size_t num_mismatches;
                 size_t num_indels;

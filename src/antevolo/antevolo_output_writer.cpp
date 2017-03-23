@@ -1,4 +1,5 @@
 #include "antevolo_output_writer.hpp"
+#include "evolutionary_tree_storage.hpp"
 
 namespace antevolo {
     void AntEvoloOutputWriter::OutputSHMForTrees() const {
@@ -94,6 +95,37 @@ namespace antevolo {
                 << left_CDR3_anchor_AA << "\t" << right_CDR3_anchor_AA << "\t" << clone.Size()
                 << "\t" << tree.GetCloneSet().IsFake(*it) << "\n";
 
+        }
+        out.close();
+    }
+
+    void AntEvoloOutputWriter::WriteRcmFromStorageInFile(std::string output_dir,
+                                                         const EvolutionaryTreeStorage& storage) {
+
+        if (storage.size() == 0) {
+            return;
+        }
+        const auto& clone_set = storage[0].GetCloneSet().GetOriginalCloneSet();
+        std::vector<bool> written_down(clone_set.size());
+        std::string output_fname = path::append_path(output_dir, "clonal_lineage_decomposition.rcm");
+        std::ofstream out(output_fname);
+        size_t current_cluster;
+        for (current_cluster = 0; current_cluster < storage.size(); ++current_cluster) {
+            const auto& tree = storage[current_cluster];
+            for (auto it = tree.c_vertex_begin(); it != tree.c_vertex_end(); ++it) {
+                if (tree.GetCloneSet().IsFake(*it)) {
+                    continue;
+                }
+                out << tree.GetCloneSet()[*it].Read().name << "\t" << current_cluster << "\n";
+                written_down[*it] = true;
+            }
+        }
+        for (size_t i = 0; i < clone_set.size(); ++i) {
+            if (!written_down[i]) {
+                out << clone_set[i].Read().name << "\t" << current_cluster << "\n";
+                ++current_cluster;
+                written_down[i] = true;
+            }
         }
         out.close();
     }

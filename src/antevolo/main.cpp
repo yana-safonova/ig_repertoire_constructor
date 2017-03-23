@@ -73,6 +73,5 @@ int main(int argc, char **argv) {
     antevolo::AntEvoloConfig config = load_config(argc, argv);
     antevolo::AntEvoloLaunch(config).Launch();
 
-    //cdr_labeler::CDRLabelerLaunch(config).Launch();
     return 0;
 }

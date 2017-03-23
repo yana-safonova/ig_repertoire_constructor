@@ -5,9 +5,10 @@
 namespace antevolo {
     void load(AntEvoloConfig::InputParams &input_params, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
+        load(input_params.input_reads, pt, "input_reads");
+        load(input_params.decomposition_rcm, pt, "decomposition_rcm");
         load(input_params.cdr_labeler_config_fname, pt, "cdr_labeler_config_fname");
         load(input_params.shm_kmer_matrix_estimator_config_fname, pt, "shm_kmer_matrix_estimator_config_fname");
-        load(input_params.input_reads, pt, "input_reads");
 
         load(input_params.shm_kmer_model_igh, pt, "shm_kmer_model_igh");
         load(input_params.shm_kmer_model_igk, pt, "shm_kmer_model_igk");
@@ -56,6 +57,8 @@ namespace antevolo {
 
     void load(AntEvoloConfig::AlgorithmParams &algorithm_params, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
+        load(algorithm_params.compare, pt, "compare");
+        load(algorithm_params.model, pt, "model");
         load(algorithm_params.similar_cdr3s_params, pt, "similar_cdr3s_params");
         load(algorithm_params.edge_construction_params, pt, "edge_construction_params");
     }

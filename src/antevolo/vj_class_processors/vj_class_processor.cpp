@@ -80,14 +80,19 @@ namespace antevolo {
                                                 unique_cdr3s_,
                                                 hg_component,
                                                 component_id);
-        auto forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
-                new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
-                                                 config_.algorithm_params,
-                                                 clone_by_read_constructor_,
-                                                 hamming_graph_info,
-                                                 current_fake_clone_index_,
-                                                 reconstructed_,
-                                                 rejected_));
+        std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(nullptr);
+        if (config_.algorithm_params.model) {
+            ERROR("no edmonds class yet");
+        } else {
+            forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
+                    new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
+                                                     config_.algorithm_params,
+                                                     clone_by_read_constructor_,
+                                                     hamming_graph_info,
+                                                     current_fake_clone_index_,
+                                                     reconstructed_,
+                                                     rejected_));
+        }
         auto tree = forest_calculator->ConstructForest();
         return tree;
     }

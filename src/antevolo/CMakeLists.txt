@@ -75,7 +75,7 @@ add_executable(antevolo
         related_clones_iterator.cpp
         shm_model_utils/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
-        shm_model_utils/shm_model_edge_weight_calculator.cpp)
+        shm_model_utils/shm_model_edge_weight_calculator.cpp cluster_fillin_calculator.cpp cluster_fillin_calculator.hpp)
 
 target_link_libraries(
         antevolo

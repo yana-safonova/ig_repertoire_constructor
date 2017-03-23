@@ -29,6 +29,7 @@ test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
 test_dir = os.path.join(home_directory, "antevolo_test")
 
 tool_name = "AntEvolo"
+comparing_mode_name = "EvoQuast"
 
 def CheckBinariesExistance(params, log):
     if not os.path.exists(antevolo_bin):
@@ -46,6 +47,9 @@ def CheckParamsCorrectness(params, log):
         sys.exit(1)
     if not LociParamCorrect(params.loci):
         log.info("Loci " + params.loci + " is not recognized")
+        sys.exit(1)
+    if params.compare and not os.path.exists(params.rcm):
+        log.info("No RCM in " + comparing_mode_name + " mode: RCM file " + params.rcm + " was not found")
         sys.exit(1)
 
 def SetOutputParams(params, log):
@@ -67,12 +71,17 @@ def PrepareOutputDir(params):
 
 def PrintParams(params, log):
     log.info(tool_name + " parameters:")
+    log.info("  Mode:\t" + (comparing_mode_name if params.compare else "default"))
     log.info("  Input reads:\t\t\t" + params.input_reads)
+    if params.compare:
+        log.info("  Input decomposition:\t\t" + params.rcm)
     log.info("  Output directory:\t\t" + params.output_dir)
     log.info("  Number of threads:\t\t" + str(params.num_threads) + "\n")
     log.info("  Loci:\t\t\t\t" + params.loci)
     log.info("  Max distance between CDR3:\t" + str(params.cdr3_tau))
     log.info("  Min number of shared SHMs:\t" + str(params.min_shared_shms))
+    log.info("  Use SHM model:\t\t" + str(params.model))
+
 
 ########################################################################################################################
 
@@ -124,8 +133,11 @@ def UpdateGermlineConfigFile(params, log):
 def ModifyAntEvoloConfigFile(params, log):
     param_dict = dict()
     param_dict['input_reads'] = params.input_reads
+    param_dict['decomposition_rcm'] = params.rcm
     param_dict['output_dir'] = params.output_dir
     param_dict['cdr_labeler_config_fname'] = params.cdr_labeler_config_file
+    param_dict['compare'] = int(params.compare)
+    param_dict['model'] = int(params.model)
     param_dict['shm_kmer_matrix_estimator_config_fname'] = params.shm_kmer_matrix_estimator_config_file
     param_dict['shm_kmer_model_igh'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGH.csv")
     param_dict['shm_kmer_model_igk'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGK.csv")
@@ -204,6 +216,17 @@ def main(argv):
                                dest="loci",
                                help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
+    optional_args.add_argument("--compare",
+                               action="store_true",
+                               dest="compare",
+                               help="Run " + comparing_mode_name + " to assess the quality of clonal lineages decomposition " +
+                                    "instead of reconstructing the trees. Is this case, " +
+                                    "RCM file with the decomposition have to be provided")
+    optional_args.add_argument("--rcm", "-R",
+                               type=str,
+                               default="",
+                               help="RCM file with the decomposition")
+    optional_args.set_defaults(compare=False)
 
     algorithm_args = parser.add_argument_group("Algorithm arguments")
     algorithm_args.add_argument("--tau",
@@ -216,6 +239,11 @@ def main(argv):
                                 default=3,
                                 dest="min_shared_shms",
                                 help="Minimal number of SHMs for considering two antibodies clonally related")
+    algorithm_args.add_argument("--model",
+                                action="store_true",
+                                dest="model",
+                                help="Use SHM statistical model to improve trees reconstruction")
+    algorithm_args.set_defaults(model=False)
 
     optional_args.add_argument("-h", "--help",
                                action="help",
