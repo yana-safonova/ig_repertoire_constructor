@@ -11,10 +11,10 @@ namespace ig_simulator {
 
 class AbstractNucleotidesRemover {
 public:
-    virtual size_t RemoveInVGene() const = 0;
-    virtual size_t RemoveInDGeneLeft() const = 0;
+    virtual size_t RemoveInVGene()      const = 0;
+    virtual size_t RemoveInDGeneLeft()  const = 0;
     virtual size_t RemoveInDGeneRight() const = 0;
-    virtual size_t RemoveInJGene() const = 0;
+    virtual size_t RemoveInJGene()      const = 0;
 
     virtual ~AbstractNucleotidesRemover() { }
 };

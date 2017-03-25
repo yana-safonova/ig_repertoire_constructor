@@ -8,6 +8,7 @@
 #include <logger/logger.hpp>
 #include "config_singl.hpp"
 #include "germline_utils/germline_config.hpp"
+#include "cdr_config.hpp"
 
 namespace ig_simulator {
 
@@ -32,6 +33,7 @@ struct IgSimulatorConfig {
 
     IOParams io_params;
     AlgorithmParams algorithm_params;
+    cdr_labeler::CDRLabelerConfig::CDRsParams::AnnotatedSearchParams cdr_annotated_search_params;
 };
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);

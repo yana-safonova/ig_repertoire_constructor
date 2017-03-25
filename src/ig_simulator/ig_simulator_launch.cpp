@@ -16,6 +16,7 @@ using namespace germline_utils;
 namespace ig_simulator {
 
 void IgSimulatorLaunch::Run() {
+    MTSingleton::SetSeed(1);
     INFO("== IgSimulator starts ==");
 
     GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
@@ -36,12 +37,15 @@ void IgSimulatorLaunch::Run() {
     AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
     AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
 
-    MetarootCreator metaroot_creator(std::move(gene_chooser),
-                                     std::move(nucl_remover),
-                                     std::move(nucl_creator),
-                                     std::move(nucl_inserter),
-                                     locus);
-    metaroot_creator.CreateRoot();
+    // VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
+    //                                     std::move(gene_chooser),
+    //                                     std::move(nucl_remover),
+    //                                     std::move(nucl_creator),
+    //                                     std::move(nucl_inserter),
+    //                                     locus);
+    // auto root = metaroot_creator.CreateRoot();
+    // std::cout << root << std::endl;
+    // std::cout << root.Sequence() << std::endl;
 
     // MTSingleton::SetSeed(1);
     // auto& g = MTSingleton::GetInstance();

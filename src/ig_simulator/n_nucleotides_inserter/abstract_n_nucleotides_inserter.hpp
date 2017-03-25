@@ -6,14 +6,15 @@
 
 #include <cstdlib>
 #include <memory>
+#include <seqan/seq_io.h>
 
 namespace ig_simulator {
 
 class AbstractNNucleotidesInserter {
 public:
-    virtual size_t GetVJInsertion() const = 0;
-    virtual size_t GetVDInsertion() const = 0;
-    virtual size_t GetDJInsertion() const = 0;
+    virtual seqan::Dna5String GetVJInsertion() const = 0;
+    virtual seqan::Dna5String GetVDInsertion() const = 0;
+    virtual seqan::Dna5String GetDJInsertion() const = 0;
 
     virtual ~AbstractNNucleotidesInserter() { }
 };

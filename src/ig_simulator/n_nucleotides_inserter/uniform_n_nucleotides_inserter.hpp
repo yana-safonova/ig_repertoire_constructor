@@ -14,10 +14,12 @@ private:
     const size_t max_vd_insertion = 10;
     const size_t max_dj_insertion = 10;
 
+    seqan::Dna5String RandDna5Str(size_t size) const;
+
 public:
-    virtual size_t GetVJInsertion() const override;
-    virtual size_t GetVDInsertion() const override;
-    virtual size_t GetDJInsertion() const override;
+    virtual seqan::Dna5String GetVJInsertion() const override;
+    virtual seqan::Dna5String GetVDInsertion() const override;
+    virtual seqan::Dna5String GetDJInsertion() const override;
 
     UniformNNucleotidesInserter() { }
 };
