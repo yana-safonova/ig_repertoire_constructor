@@ -10,13 +10,20 @@
 #include "p_nucleotides_creator/abstract_nucleotides_creator.hpp"
 #include "n_nucleotides_inserter/abstract_n_nucleotides_inserter.hpp"
 #include "metaroot/metaroot.hpp"
+#include "germline_db_labeler.hpp"
+#include "germline_db_labeling.hpp"
+#include "cdr_config.hpp"
 
 namespace ig_simulator {
 
 class AbstractMetarootCreator {
 protected:
-    const germline_utils::CustomGeneDatabase * v_db_p;
-    const germline_utils::CustomGeneDatabase * j_db_p;
+    // TODO
+    // Databases are not declared `const` since cdr_labeler requires: see germline_db_labeler.hpp
+    // @code: DbCDRLabeling GermlineDbLabeler::ComputeLabeling();
+    // is not declared const
+    germline_utils::CustomGeneDatabase * v_db_p;
+    germline_utils::CustomGeneDatabase * j_db_p;
 
     const double prob_cleavage_v;
     const double prob_cleavage_j;
@@ -26,15 +33,28 @@ protected:
     const AbstractPNucleotidesCreatorPtr nucl_creator_p;
     const AbstractNNucleotidesInserterPtr nucl_inserter_p;
 
+    const cdr_labeler::DbCDRLabeling v_cdr_db;
+    const cdr_labeler::DbCDRLabeling j_cdr_db;
+
 public:
-    AbstractMetarootCreator(const germline_utils::CustomGeneDatabase *v_db_p,
-                            const germline_utils::CustomGeneDatabase *j_db_p,
+    AbstractMetarootCreator(nullptr_t, nullptr_t,
                             const double prob_cleavage_v,
                             const double prob_cleavage_j,
                             AbstractVDJGeneChooserPtr&& gene_chooser_p_,
                             AbstractNucleotidesRemoverPtr&& nucl_remover_p_,
                             AbstractPNucleotidesCreatorPtr&& nucl_creator_p_,
-                            AbstractNNucleotidesInserterPtr&& nucl_inserter_p_) :
+                            AbstractNNucleotidesInserterPtr&& nucl_inserter_p_,
+                            const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) = delete;
+
+    AbstractMetarootCreator(germline_utils::CustomGeneDatabase *v_db_p,
+                            germline_utils::CustomGeneDatabase *j_db_p,
+                            const double prob_cleavage_v,
+                            const double prob_cleavage_j,
+                            AbstractVDJGeneChooserPtr&& gene_chooser_p_,
+                            AbstractNucleotidesRemoverPtr&& nucl_remover_p_,
+                            AbstractPNucleotidesCreatorPtr&& nucl_creator_p_,
+                            AbstractNNucleotidesInserterPtr&& nucl_inserter_p_,
+                            const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
         v_db_p(v_db_p),
         j_db_p(j_db_p),
         prob_cleavage_v(prob_cleavage_v),
@@ -42,7 +62,9 @@ public:
         gene_chooser_p(std::move(gene_chooser_p_)),
         nucl_remover_p(std::move(nucl_remover_p_)),
         nucl_creator_p(std::move(nucl_creator_p_)),
-        nucl_inserter_p(std::move(nucl_inserter_p_))
+        nucl_inserter_p(std::move(nucl_inserter_p_)),
+        v_cdr_db(cdr_labeler::GermlineDbLabeler(*v_db_p, cdr_params_).ComputeLabeling()),
+        j_cdr_db(cdr_labeler::GermlineDbLabeler(*j_db_p, cdr_params_).ComputeLabeling())
     {
         VERIFY(v_db_p != nullptr);
         VERIFY(j_db_p != nullptr);
@@ -61,34 +83,46 @@ public:
 
 class VJMetarootCreator : public AbstractMetarootCreator {
 public:
-    VJMetarootCreator(const germline_utils::CustomGeneDatabase *v_db_p,
-                      const germline_utils::CustomGeneDatabase *j_db_p,
+    VJMetarootCreator(nullptr_t, nullptr_t,
                       const double prob_cleavage_v,
                       const double prob_cleavage_j,
                       AbstractVDJGeneChooserPtr&& gene_chooser_p,
                       AbstractNucleotidesRemoverPtr&& nucl_remover_p,
                       AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
-                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p) :
+                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                      const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) = delete;
+
+    VJMetarootCreator(germline_utils::CustomGeneDatabase *v_db_p,
+                      germline_utils::CustomGeneDatabase *j_db_p,
+                      const double prob_cleavage_v,
+                      const double prob_cleavage_j,
+                      AbstractVDJGeneChooserPtr&& gene_chooser_p,
+                      AbstractNucleotidesRemoverPtr&& nucl_remover_p,
+                      AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
+                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                      const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
         AbstractMetarootCreator(v_db_p, j_db_p,
                                 prob_cleavage_v, prob_cleavage_j,
                                 std::move(gene_chooser_p), std::move(nucl_remover_p),
-                                std::move(nucl_creator_p), std::move(nucl_inserter_p))
+                                std::move(nucl_creator_p), std::move(nucl_inserter_p),
+                                cdr_params_)
     { }
 
-    VJMetarootCreator(const germline_utils::CustomGeneDatabase &v_db,
-                      const germline_utils::CustomGeneDatabase &j_db,
+    VJMetarootCreator(germline_utils::CustomGeneDatabase &v_db,
+                      germline_utils::CustomGeneDatabase &j_db,
                       const double prob_cleavage_v,
                       const double prob_cleavage_j,
                       AbstractVDJGeneChooserPtr&& gene_chooser_p,
                       AbstractNucleotidesRemoverPtr&& nucl_remover_p,
                       AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
-                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p) :
+                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                      const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
         VJMetarootCreator(&v_db, &j_db,
                           prob_cleavage_v, prob_cleavage_j,
                           std::move(gene_chooser_p), std::move(nucl_remover_p),
-                          std::move(nucl_creator_p), std::move(nucl_inserter_p)) {
-
-    }
+                          std::move(nucl_creator_p), std::move(nucl_inserter_p),
+                          cdr_params_)
+    { }
 
     // TODO virtual (need to return ptr)
     VJMetaRoot CreateRoot() const;
@@ -96,15 +130,13 @@ public:
 
 class VDJMetarootCreator : public AbstractMetarootCreator {
 private:
-    const germline_utils::CustomGeneDatabase * d_db_p;
+    germline_utils::CustomGeneDatabase * d_db_p;
 
     const double prob_cleavage_d_left = 0.5;
     const double prob_cleavage_d_right = 0.5;
 
 public:
-    VDJMetarootCreator(const germline_utils::CustomGeneDatabase * v_db_p,
-                       const germline_utils::CustomGeneDatabase * d_db_p,
-                       const germline_utils::CustomGeneDatabase * j_db_p,
+    VDJMetarootCreator(nullptr_t, nullptr_t, nullptr_t,
                        const double prob_cleavage_v,
                        const double prob_cleavage_d_left,
                        const double prob_cleavage_d_right,
@@ -112,11 +144,26 @@ public:
                        AbstractVDJGeneChooserPtr&& gene_chooser_p_,
                        AbstractNucleotidesRemoverPtr&& nucl_remover_p_,
                        AbstractPNucleotidesCreatorPtr&& nucl_creator_p_,
-                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p_):
+                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p_,
+                       const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) = delete;
+
+    VDJMetarootCreator(germline_utils::CustomGeneDatabase * v_db_p,
+                       germline_utils::CustomGeneDatabase * d_db_p,
+                       germline_utils::CustomGeneDatabase * j_db_p,
+                       const double prob_cleavage_v,
+                       const double prob_cleavage_d_left,
+                       const double prob_cleavage_d_right,
+                       const double prob_cleavage_j,
+                       AbstractVDJGeneChooserPtr&& gene_chooser_p_,
+                       AbstractNucleotidesRemoverPtr&& nucl_remover_p_,
+                       AbstractPNucleotidesCreatorPtr&& nucl_creator_p_,
+                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p_,
+                       const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
             AbstractMetarootCreator(v_db_p, j_db_p,
                                     prob_cleavage_v, prob_cleavage_j,
                                     std::move(gene_chooser_p_), std::move(nucl_remover_p_),
-                                    std::move(nucl_creator_p_), std::move(nucl_inserter_p_)),
+                                    std::move(nucl_creator_p_), std::move(nucl_inserter_p_),
+                                    cdr_params_),
             d_db_p(d_db_p),
             prob_cleavage_d_left(prob_cleavage_d_left),
             prob_cleavage_d_right(prob_cleavage_d_right)
@@ -127,9 +174,9 @@ public:
         VERIFY(prob_cleavage_d_right >= 0 and prob_cleavage_d_right <= 1);
     }
 
-    VDJMetarootCreator(const germline_utils::CustomGeneDatabase &v_db,
-                       const germline_utils::CustomGeneDatabase &d_db,
-                       const germline_utils::CustomGeneDatabase &j_db,
+    VDJMetarootCreator(germline_utils::CustomGeneDatabase &v_db,
+                       germline_utils::CustomGeneDatabase &d_db,
+                       germline_utils::CustomGeneDatabase &j_db,
                        const double prob_cleavage_v,
                        const double prob_cleavage_d_left,
                        const double prob_cleavage_d_right,
@@ -137,12 +184,14 @@ public:
                        AbstractVDJGeneChooserPtr&& gene_chooser_p,
                        AbstractNucleotidesRemoverPtr&& nucl_remover_p,
                        AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
-                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p):
+                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                       const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
             VDJMetarootCreator(&v_db, &d_db, &j_db,
                                prob_cleavage_v, prob_cleavage_j,
                                prob_cleavage_d_left, prob_cleavage_d_right,
                                std::move(gene_chooser_p), std::move(nucl_remover_p),
-                               std::move(nucl_creator_p), std::move(nucl_inserter_p))
+                               std::move(nucl_creator_p), std::move(nucl_inserter_p),
+                               cdr_params_)
     { }
 
     // TODO virtual (need to return ptr)

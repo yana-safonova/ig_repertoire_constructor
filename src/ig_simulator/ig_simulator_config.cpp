@@ -11,6 +11,7 @@ namespace ig_simulator {
 void load(IgSimulatorConfig::IOParams::InputParams &input_params, boost::property_tree::ptree const &pt, bool) {
     using config_common::load;
     load(input_params.germline_input, pt, "germline_input");
+    load(input_params.cdr_labeler_config_filename, pt, "cdr_labeler_config_filename");
 }
 
 void load(IgSimulatorConfig::IOParams::OutputParams &output_params, boost::property_tree::ptree const &pt, bool) {
@@ -36,6 +37,7 @@ void load(IgSimulatorConfig &cfg, boost::property_tree::ptree const &pt, bool co
     using config_common::load;
     load(cfg.io_params, pt, "io_params", complete);
     load(cfg.algorithm_params, pt, "algorithm_params", complete);
+    cfg.cdr_labeler_config.load(cfg.io_params.input_params.cdr_labeler_config_filename);
 }
 
 void load(IgSimulatorConfig &cfg, std::string const &filename) {

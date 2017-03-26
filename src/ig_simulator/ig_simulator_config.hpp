@@ -16,6 +16,7 @@ struct IgSimulatorConfig {
     struct IOParams {
         struct InputParams {
             germline_utils::GermlineInput germline_input;
+            std::string cdr_labeler_config_filename;
         };
 
         struct OutputParams {
@@ -33,7 +34,8 @@ struct IgSimulatorConfig {
 
     IOParams io_params;
     AlgorithmParams algorithm_params;
-    cdr_labeler::CDRLabelerConfig::CDRsParams::AnnotatedSearchParams cdr_annotated_search_params;
+
+    cdr_labeler::CDRLabelerConfig cdr_labeler_config;
 };
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);

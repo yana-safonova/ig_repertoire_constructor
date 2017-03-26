@@ -90,7 +90,12 @@ std::ostream& operator<<(std::ostream& out, const VJMetaRoot& root) {
         "Cleavage in V gene: " << root.CleavageV() << "\n" <<
         "Cleavage in J gene: " << root.CleavageJ() << "\n\n" <<
 
-        "Insertion in VJ junction: " << root.InsertionVJ();
+        "Insertion in VJ junction: " << root.InsertionVJ() << "\n\n" <<
+
+        "CDR1: " << root.CDRLabeling().cdr1.start_pos << " " << root.CDRLabeling().cdr1.end_pos << "\n" <<
+        "CDR2: " << root.CDRLabeling().cdr2.start_pos << " " << root.CDRLabeling().cdr2.end_pos << "\n" <<
+        "CDR3: " << root.CDRLabeling().cdr3.start_pos << " " << root.CDRLabeling().cdr3.end_pos << "\n";
+
     return out;
 }
 
@@ -111,7 +116,11 @@ std::ostream& operator<<(std::ostream& out, const VDJMetaRoot& root) {
         "Cleavage in J gene: " << root.CleavageJ() << "\n\n" <<
 
         "Insertion in VD junction: " << root.InsertionVD() << "\n" <<
-        "Insertion in DJ junction: " << root.InsertionDJ();
+        "Insertion in DJ junction: " << root.InsertionDJ() << "\n\n" <<
+
+        "CDR1: " << root.CDRLabeling().cdr1.start_pos << " " << root.CDRLabeling().cdr1.end_pos << "\n" <<
+        "CDR2: " << root.CDRLabeling().cdr2.start_pos << " " << root.CDRLabeling().cdr2.end_pos << "\n" <<
+        "CDR3: " << root.CDRLabeling().cdr3.start_pos << " " << root.CDRLabeling().cdr3.end_pos << "\n";
     return out;
 }
 

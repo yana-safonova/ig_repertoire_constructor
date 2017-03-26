@@ -5,6 +5,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 include_directories(${CORE_DIR})
 include_directories(${VDJ_UTILS_DIR})
 include_directories(${VJ_FINDER_DIR})
+include_directories(${CDR_LABELER_DIR})
 
 add_library(ig_simulator_library STATIC
         ig_simulator_config.cpp
@@ -23,6 +24,7 @@ add_library(ig_simulator_library STATIC
 
 target_link_libraries(ig_simulator_library
         vj_finder_library
+        cdr_labeler_library
         input
         ${COMMON_LIBRARIES}
         )

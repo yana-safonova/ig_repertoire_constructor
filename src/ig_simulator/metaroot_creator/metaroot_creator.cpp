@@ -8,6 +8,7 @@
 
 #include <gene_chooser/abstract_gene_chooser.hpp>
 #include "random_generator.hpp"
+#include "annotation_utils/cdr_labeling_primitives.hpp"
 
 #include <iostream>
 
@@ -28,9 +29,29 @@ VJMetaRoot VJMetarootCreator::CreateRoot() const {
                      -static_cast<int>(nucl_remover_p->RemoveInJGene()) :
                      static_cast<int>(nucl_creator_p->CreateInJGene());
 
+    seqan::Dna5String vj_insertion(nucl_inserter_p->GetVJInsertion());
+
+    const auto& v_gene = (*v_db_p)[std::get<0>(genes_ind)];
+    const auto& j_gene = (*j_db_p)[std::get<2>(genes_ind)];
+
+    annotation_utils::CDRLabeling cdr_labeling(v_cdr_db.GetLabelingByGene(v_gene));
+    annotation_utils::CDRLabeling j_gene_cdr_labeling(j_cdr_db.GetLabelingByGene(j_gene));
+
+    if (not v_cdr_db.CDRLabelingIsEmpty(v_gene) and not j_cdr_db.CDRLabelingIsEmpty(j_gene)) {
+        long long cdr3_end = static_cast<long long>(v_gene.length()) +
+            -cleavage_v +
+            static_cast<long long>(seqan::length(vj_insertion)) +
+            -cleavage_j +
+            static_cast<long long>(j_gene_cdr_labeling.cdr3.end_pos);
+        VERIFY(cdr3_end >= 0);
+        cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
+    }
+
     return VJMetaRoot(v_db_p, j_db_p,
                       std::get<0>(genes_ind), std::get<2>(genes_ind),
-                      cleavage_v, cleavage_j);
+                      cdr_labeling,
+                      cleavage_v, cleavage_j,
+                      vj_insertion);
 }
 
 VDJMetaRoot VDJMetarootCreator::CreateRoot() const {
@@ -57,10 +78,36 @@ VDJMetaRoot VDJMetarootCreator::CreateRoot() const {
                      -static_cast<int>(nucl_remover_p->RemoveInJGene()) :
                      static_cast<int>(nucl_creator_p->CreateInJGene());
 
+    seqan::Dna5String vd_insertion(nucl_inserter_p->GetVDInsertion());
+    seqan::Dna5String dj_insertion(nucl_inserter_p->GetDJInsertion());
+
+    const auto& v_gene = (*v_db_p)[std::get<0>(genes_ind)];
+    const auto& d_gene = (*d_db_p)[std::get<1>(genes_ind)];
+    const auto& j_gene = (*j_db_p)[std::get<2>(genes_ind)];
+
+    annotation_utils::CDRLabeling cdr_labeling(v_cdr_db.GetLabelingByGene(v_gene));
+    annotation_utils::CDRLabeling j_gene_cdr_labeling(j_cdr_db.GetLabelingByGene(j_gene));
+
+    if (not v_cdr_db.CDRLabelingIsEmpty(v_gene) and not j_cdr_db.CDRLabelingIsEmpty(j_gene)) {
+        long long cdr3_end = static_cast<long long>(v_gene.length()) +
+            -cleavage_v +
+            static_cast<long long>(seqan::length(vd_insertion)) +
+            -cleavage_d_left +
+            static_cast<long long>(d_gene.length()) +
+            -cleavage_d_right +
+            static_cast<long long>(seqan::length(dj_insertion)) +
+            -cleavage_j +
+            static_cast<long long>(j_gene_cdr_labeling.cdr3.end_pos);
+
+        VERIFY(cdr3_end >= 0);
+        cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
+    }
+
     return VDJMetaRoot(v_db_p, d_db_p, j_db_p,
                        std::get<0>(genes_ind), std::get<1>(genes_ind), std::get<2>(genes_ind),
+                       cdr_labeling,
                        cleavage_v, cleavage_d_left, cleavage_d_right, cleavage_j,
-                       nucl_inserter_p->GetVDInsertion(), nucl_inserter_p->GetDJInsertion());
+                       vd_insertion, dj_insertion);
 
 }
 
