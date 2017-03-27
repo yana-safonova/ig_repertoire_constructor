@@ -176,6 +176,10 @@ def parse_command_line():
     params.add_argument("--reference-size-cutoff",
                         default=5,
                         help="reference size cutoff (default: %(default)d)")
+    params.add_argument("--threads", "-t",
+                        type=int,
+                        default=16,
+                        help="the number of parallel threads used for repertoire-to-reprtoire matching (default: %(default)d)")
     params.add_argument("--tau",
                         type=int,
                         default=6,
@@ -217,7 +221,7 @@ def main(args):
     if args.reconstruct:
         if args.initial_reads and args.constructed_repertoire and not args.constructed_rcm:
             log.info("Try to reconstruct repertoire RCM file...")
-            rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire)
+            rcm = reconstruct_rcm(args.initial_reads, args.constructed_repertoire, threads=args.threads)
             args.constructed_rcm = args.output_dir + "/constructed.rcm"
             write_rcm(rcm, args.constructed_rcm)
 
@@ -226,11 +230,12 @@ def main(args):
             args.constructed_repertoire = args.output_dir + "/constructed.fa.gz"
             run_consensus_constructor(rcm_file=args.constructed_rcm,
                                       initial_reads=args.initial_reads,
-                                      output_file=args.constructed_repertoire)
+                                      output_file=args.constructed_repertoire,
+                                      threads=args.threads)
 
         if args.initial_reads and args.reference_repertoire and not args.reference_rcm and args.rcm_based:
             log.info("Try to reconstruct reference RCM file...")
-            rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire)
+            rcm = reconstruct_rcm(args.initial_reads, args.reference_repertoire, threads=args.threads)
             args.reference_rcm = args.output_dir + "/reference.rcm"
             write_rcm(rcm, args.reference_rcm)
 
@@ -239,7 +244,8 @@ def main(args):
             args.reference_repertoire = args.output_dir + "/reference.fa.gz"
             run_consensus_constructor(rcm_file=args.reference_rcm,
                                       initial_reads=args.initial_reads,
-                                      output_file=args.reference_repertoire)
+                                      output_file=args.reference_repertoire,
+                                      threads=args.threads)
 
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.rcm_based:
         rep = Repertoire(args.constructed_rcm, args.initial_reads, args.constructed_repertoire)
@@ -297,7 +303,8 @@ def main(args):
                               max_tau=args.tau,
                               reference_trash_cutoff=args.reference_trash_cutoff,
                               reference_trust_cutoff=args.reference_trust_cutoff,
-                              log=log)
+                              log=log,
+                              threads=args.threads)
 
         res.report(report)
 

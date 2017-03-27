@@ -8,7 +8,7 @@ include_directories(${CDR_LABELER_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
 
-make_essential_test(test_sparse_graph test_sparse_graph.cpp)
+make_test(test_sparse_graph test_sparse_graph.cpp)
 
 make_test(test_dsf test_dsf.cpp
           ../dense_sgraph_finder/graph_decomposer/metis_permutation_constructor.cpp
