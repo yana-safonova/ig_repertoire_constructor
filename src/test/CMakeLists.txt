@@ -12,6 +12,8 @@ link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core inpu
 
 make_test(test_shm_kmer_model test_shm_kmer_model.cpp)
 
+make_test(test_sparse_graph test_sparse_graph.cpp)
+
 make_test(test_antevolo test_antevolo.cpp
         ../antevolo/antevolo_config.cpp
         ../antevolo/shm_model_utils/shm_model.cpp

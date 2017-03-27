@@ -19,9 +19,6 @@ shm_kmer_matrix:
 check: all
 	$(MAKE) -C build/release check
 
-check_essential: all
-	$(MAKE) -C build/release check_essential
-
 vjf:
 	$(MAKE) -C build/release/vj_finder
 
