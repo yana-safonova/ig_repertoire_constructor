@@ -23,4 +23,6 @@ namespace annotation_utils {
         AminoAcidAnnotation<core::Read> ComputeAminoAcidAnnotation(const core::Read& read,
                                                                    const CDRLabeling &cdr_labeling);
     };
+
+    using BaseAACalculatorPtr = std::unique_ptr<BaseAACalculator>;
 }

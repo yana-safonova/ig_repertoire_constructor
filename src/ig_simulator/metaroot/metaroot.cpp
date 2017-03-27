@@ -29,12 +29,9 @@ void AbstractMetaRoot::PrepareGene(seqan::Dna5String& gene, int left_cleavage, i
     }
 }
 
-const seqan::Dna5String& VJMetaRoot::Sequence() {
-    if (sequence_calculated)
-        return sequence;
+const seqan::Dna5String& VJMetaRoot::Sequence() const { return sequence; }
 
-    sequence_calculated = true;
-
+void VJMetaRoot::CalculateSequence() {
     VERIFY(v_db_p != nullptr);
     VERIFY(j_db_p != nullptr);
 
@@ -47,16 +44,12 @@ const seqan::Dna5String& VJMetaRoot::Sequence() {
     sequence = v_gene;
     sequence += insertion_vj;
     sequence += j_gene;
-
-    return sequence;
 }
 
-const seqan::Dna5String& VDJMetaRoot::Sequence() {
-    if (sequence_calculated)
-        return sequence;
+const seqan::Dna5String& VDJMetaRoot::Sequence() const { return sequence; }
 
-    sequence_calculated = true;
 
+void VDJMetaRoot::CalculateSequence() {
     VERIFY(v_db_p != nullptr);
     VERIFY(d_db_p != nullptr);
     VERIFY(j_db_p != nullptr);
@@ -74,8 +67,6 @@ const seqan::Dna5String& VDJMetaRoot::Sequence() {
     sequence += d_gene;
     sequence += insertion_dj;
     sequence += j_gene;
-
-    return sequence;
 }
 
 std::ostream& operator<<(std::ostream& out, const VJMetaRoot& root) {

@@ -27,10 +27,10 @@ protected:
 
     annotation_utils::CDRLabeling cdr_labeling;
 
-    bool sequence_calculated;
     seqan::Dna5String sequence;
 
     static void PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage);
+    virtual void CalculateSequence() = 0;
 
 public:
     AbstractMetaRoot(nullptr_t, nullptr_t,
@@ -53,8 +53,7 @@ public:
             j_ind(j_ind),
             cleavage_v(cleavage_v),
             cleavage_j(cleavage_j),
-            cdr_labeling(cdr_labeling),
-            sequence_calculated(false)
+            cdr_labeling(cdr_labeling)
     {
         VERIFY(v_db_p != nullptr);
         VERIFY(v_ind < v_db_p->size());
@@ -73,7 +72,7 @@ public:
 
     const annotation_utils::CDRLabeling CDRLabeling() const { return cdr_labeling; }
 
-    virtual const seqan::Dna5String& Sequence() = 0;
+    virtual const seqan::Dna5String& Sequence() const = 0;
     virtual ~AbstractMetaRoot() { }
 };
 
@@ -81,6 +80,7 @@ public:
 class VJMetaRoot : public AbstractMetaRoot {
 private:
     const seqan::Dna5String insertion_vj;
+    virtual void CalculateSequence() override;
 
 public:
     VJMetaRoot(nullptr_t, nullptr_t,
@@ -101,11 +101,13 @@ public:
                seqan::Dna5String insertion_vj = "") :
         AbstractMetaRoot(v_db_p, j_db_p, v_ind, j_ind, cdr_labeling, cleavage_v, cleavage_j),
         insertion_vj(insertion_vj)
-    { }
+    {
+        CalculateSequence();
+    }
 
     const seqan::Dna5String& InsertionVJ() const { return insertion_vj; }
 
-    virtual const seqan::Dna5String& Sequence() override;
+    virtual const seqan::Dna5String& Sequence() const override;
 };
 
 class VDJMetaRoot : public AbstractMetaRoot {
@@ -120,6 +122,9 @@ private:
 
     const seqan::Dna5String insertion_vd;
     const seqan::Dna5String insertion_dj;
+
+private:
+    virtual void CalculateSequence() override;
 
 public:
     VDJMetaRoot(nullptr_t, nullptr_t, nullptr_t,
@@ -156,6 +161,7 @@ public:
             insertion_dj(insertion_dj)
     {
         VERIFY(d_ind < d_db_p->size());
+        CalculateSequence();
     }
 
     const germline_utils::CustomGeneDatabase *D_DB_P() const { return d_db_p; }
@@ -166,7 +172,7 @@ public:
     const seqan::Dna5String& InsertionVD() const { return insertion_vd; }
     const seqan::Dna5String& InsertionDJ() const { return insertion_dj; }
 
-    virtual const seqan::Dna5String& Sequence() override;
+    virtual const seqan::Dna5String& Sequence() const override;
 };
 
 std::ostream& operator<<(std::ostream& out, const VJMetaRoot& root);

@@ -21,6 +21,8 @@
 #include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
 #include "metaroot_creator/metaroot_creator.hpp"
 #include "annotation_utils/cdr_labeling_primitives.hpp"
+#include "productivity_checker/productivity_checker.hpp"
+#include "annotation_utils/aa_annotation/aa_calculator.hpp"
 
 #include <chrono>
 #include <random_generator.hpp>
@@ -281,4 +283,47 @@ TEST_F(IgSimulatorTest, MetaRootCreaterCDRTest) {
         ASSERT_EQ(root.CDRLabeling().cdr3.end_pos, 389);
     }
 }
+
+TEST_F(IgSimulatorTest, ProductiveChecker) {
+    {
+        config.algorithm_params.germline_params.loci = "IGH";
+
+        germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
+                                                         config.algorithm_params.germline_params);
+        v_db = db_generator.GenerateVariableDb();
+        d_db = db_generator.GenerateDiversityDb();
+        j_db = db_generator.GenerateJoinDb();
+
+        AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
+        AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
+        AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
+        AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
+
+        ProductivityChecker productivity_checker(std::unique_ptr<annotation_utils::BaseAACalculator>
+                                                (new annotation_utils::SimpleAACalculator));
+
+        VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
+                                            0.5, 0.5, 0.5, 0.5,
+                                            std::move(gene_chooser),
+                                            std::move(nucl_remover),
+                                            std::move(nucl_creator),
+                                            std::move(nucl_inserter),
+                                            config.cdr_labeler_config.cdrs_params);
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+        size_t N((int) 1e6);
+        size_t prod = 0;
+        for (size_t i = 0; i < N; ++i) {
+            auto root = metaroot_creator.CreateRoot();
+            if (productivity_checker.IsProductive(root)) {
+                prod++;
+            }
+        }
+        std::cout << prod << " / " << N << std::endl;
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> fp = t2 - t1;
+        std::cout << "Simulation of " << N << " VDJ metaroots took " << fp.count() << "ms" << std::endl;
+    }
+}
+
 } // End namespace ig_simulator

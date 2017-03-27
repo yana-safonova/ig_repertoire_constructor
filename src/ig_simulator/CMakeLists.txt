@@ -20,7 +20,8 @@ add_library(ig_simulator_library STATIC
         metaroot_creator/metaroot_creator.cpp
         n_nucleotides_inserter/abstract_n_nucleotides_inserter.cpp
         n_nucleotides_inserter/uniform_n_nucleotides_inserter.cpp
-        metaroot/metaroot.cpp)
+        metaroot/metaroot.cpp
+        productivity_checker/productivity_checker.cpp)
 
 target_link_libraries(ig_simulator_library
         vj_finder_library
