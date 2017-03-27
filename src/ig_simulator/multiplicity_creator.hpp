@@ -33,7 +33,7 @@ public:
         return distribution(MTSingleton::GetInstance()) + 1;
     }
 
-    double Mean() const { return 1. / lambda; }
+    double Mean() const { return 1. / lambda + 1; }
 
 };
 
