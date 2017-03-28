@@ -13,7 +13,7 @@ igrec_dir = current_dir + "/../"
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import idFormatByFileName, smart_open
 
 from ig_report_supernodes import parse_size

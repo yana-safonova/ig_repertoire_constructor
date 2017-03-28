@@ -16,7 +16,7 @@ sys.path.append(igrec_dir + "/src/python_pipeline/")
 sys.path.append(igrec_dir + "/py")
 from igblast_utils import ParseIgBlastOutput
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import CreateLogger, AttachFileLogger, linear_search, idFormatByFileName, smart_open, md5_file, fq2fa
 
 from simulate import run_vjfinder
