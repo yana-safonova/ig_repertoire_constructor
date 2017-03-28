@@ -38,7 +38,7 @@ def ParseCommandLineParams(log):
             super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
         def __call__(self, parser, namespace, values, option_string=None):
-            setattr(namespace, "single_reads", "test_dataset/barcodedIgReC_test.fasta")
+            setattr(namespace, "single_reads", os.path.join(home_directory, "test_dataset/barcodedIgReC_test.fasta"))
             setattr(namespace, "output", "barigrec_test")
             setattr(namespace, "loci", "all")
             setattr(namespace, "no_compilation", True)
