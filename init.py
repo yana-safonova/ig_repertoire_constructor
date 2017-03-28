@@ -18,7 +18,7 @@ python_src_directory = os.path.join(home_directory, "py/utils/")
 config_directory = os.path.join(home_directory, "configs/ig_tools/")
 spades_py_scripts_directory = os.path.join(home_directory, "py/pipeline/")
 igblast_directory = os.path.join(home_directory, "src/tools/igblast/")
-ms_utils_directory = os.path.join(home_directory, "src/mass_spectra_analysis/")
+ms_utils_directory = os.path.join(home_directory, "py/mass_spectra_analysis/")
 
 path_to_config_template = os.path.join(config_directory, "config.info.template")
 
