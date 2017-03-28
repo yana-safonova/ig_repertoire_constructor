@@ -158,11 +158,11 @@ def Cleanup(params, log):
 ########################################################################################################################
 
 def main(argv):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== " + tool_name + ": a tool for diversity analysis of full-length immunosequencing reads ==",
-                                  epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
-                                  "Please provide us with diversity_analyzer.log file from the output directory.",
-                                  add_help=False)
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== " + tool_name + ": a tool for diversity analysis of full-length immunosequencing reads ==",
+                            epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
+                            "Please provide us with diversity_analyzer.log file from the output directory.",
+                            add_help=False)
     req_args = parser.add_argument_group("Required params")
     input_args = req_args.add_mutually_exclusive_group(required=True)
     input_args.add_argument("-i", "--input",
