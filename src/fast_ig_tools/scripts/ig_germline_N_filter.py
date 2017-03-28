@@ -5,11 +5,8 @@ import sys
 
 
 def no_Ns(read):
-    read = str(read.seq)
-    for l in read:
-        if l == "N":
-            return False
-    return True
+    return "N" not in read.seq
+
 
 if __name__ == "__main__":
     input = sys.argv[1]
