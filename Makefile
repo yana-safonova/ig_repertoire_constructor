@@ -16,10 +16,10 @@ metis:
 shm_kmer_matrix:
 	$(MAKE) -C build/release/shm_kmer_matrix_estimator
 
-check: all
+check:
 	$(MAKE) -C build/release check
 
-memcheck: all
+memcheck:
 	$(MAKE) -C build/release memcheck
 
 vjf:
