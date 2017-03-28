@@ -10,6 +10,8 @@ include_directories(${ANTEVOLO_DIR})
 
 link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input shm_kmer_matrix_estimator_library ${COMMON_LIBRARIES})
 
+make_test(test_find_simple_gap test_find_simple_gap.cpp)
+
 make_test(test_shm_kmer_model test_shm_kmer_model.cpp)
 
 make_test(test_sparse_graph test_sparse_graph.cpp)
