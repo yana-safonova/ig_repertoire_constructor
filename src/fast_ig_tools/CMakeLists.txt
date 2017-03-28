@@ -24,5 +24,12 @@ target_link_libraries(ig_component_splitter build_info)
 make_test(test_ig_trie_compressor test_ig_trie_compressor.cpp)
 
 # RnD tools
+add_custom_target(rnd)
+
 add_executable(ig_kmer_counter ig_kmer_counter.cpp fast_ig_tools.cpp utils.cpp)
+add_dependencies(rnd ig_kmer_counter)
+set_target_properties(ig_kmer_counter PROPERTIES EXCLUDE_FROM_ALL 1)
+
 add_executable(ig_hgc_complexity_estimator ig_hgc_complexity_estimator.cpp fast_ig_tools.cpp utils.cpp)
+add_dependencies(rnd ig_hgc_complexity_estimator)
+set_target_properties(ig_hgc_complexity_estimator PROPERTIES EXCLUDE_FROM_ALL 1)

@@ -22,6 +22,9 @@ check:
 memcheck:
 	$(MAKE) -C build/release memcheck
 
+rnd:
+	$(MAKE) -C build/release memcheck
+
 vjf:
 	$(MAKE) -C build/release/vj_finder
 
