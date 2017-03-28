@@ -6,7 +6,7 @@ igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir, os.pardir
 sys.path.append(igrec_dir)
 sys.path.append(igrec_dir + "/py/")
 from ig_compress_equal_clusters import parse_cluster_mult
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import smart_open
 import matplotlib
 matplotlib.use('Agg')

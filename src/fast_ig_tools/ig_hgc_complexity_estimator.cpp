@@ -255,7 +255,7 @@ int main(int argc, char **argv) {
                 opt_kmers_out << std::endl;
             }
         }
-        out << K << "\t" << complexity << "\t" << static_cast<double>(complexity) / input_reads.size() << std::endl;
+        out << K << "\t" << complexity << "\t" << static_cast<double>(complexity) / static_cast<double>(input_reads.size()) << std::endl;
     }
 
     INFO("Stats was written to " << output_file);

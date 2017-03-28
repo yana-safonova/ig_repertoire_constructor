@@ -14,7 +14,7 @@ igrec_dir = current_dir + "/../"
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
 sys.path.append(igrec_dir + "/src/python_pipeline/")
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, FakeLog, memoize, memoize_invalidate
 
 sys.path.append(igrec_dir + "/py")
@@ -126,13 +126,13 @@ def run_consensus_constructor(initial_reads, rcm_file, output_file, log=None, th
         log = FakeLog()
 
     args = {"path": path_to_igrec,
-            "cc_cmd": path_to_igrec + '/build/release/bin/ig_consensus_finder',
+            "cc_cmd": path_to_igrec + '/build/release/bin/ig_component_splitter',
             "initial_reads": initial_reads,
             "output_file": output_file,
             "rcm_file": rcm_file,
             "threads": threads}
 
-    support.sys_call("%(cc_cmd)s -i %(initial_reads)s -R %(rcm_file)s -o %(output_file)s -H \
+    support.sys_call("%(cc_cmd)s -i %(initial_reads)s -R %(rcm_file)s -o %(output_file)s \
                      --threads=%(threads)%d" % args,
                      log=log)
 

@@ -13,10 +13,10 @@ dsf:
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
 
-check: all
+check:
 	$(MAKE) -C build/release check
 
-memcheck: all
+memcheck:
 	$(MAKE) -C build/release memcheck
 
 vjf:

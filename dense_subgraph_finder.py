@@ -105,13 +105,13 @@ def Cleanup(params, log):
             shutil.rmtree(params.decomposition_dir)
 
 def main(argv, external_logger = ""):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== DSF: an algorithm for corrupted cliques search ==",
-                                  epilog="""
-                                  In case you have troubles running DSF, you can write to igtools_support@googlegroups.com.
-                                  Please provide us with dense_subgraph_finder.log file from the output directory.
-                                  """,
-                                  add_help=False)
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== DSF: an algorithm for corrupted cliques search ==",
+                            epilog="""
+                            In case you have troubles running DSF, you can write to igtools_support@googlegroups.com.
+                            Please provide us with dense_subgraph_finder.log file from the output directory.
+                            """,
+                            add_help=False)
     req_args = parser.add_argument_group("Input")
     input_args = req_args.add_mutually_exclusive_group(required=True)
     input_args.add_argument("-g", "--graph",

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "ig_block_alignment.hpp"
+#include "../algorithms/block_alignment/block_alignment_utils.hpp"
 
-using namespace fast_ig_tools;
+using namespace algorithms;
 
 TEST(block_chain_alignment_test, find_simple_gap_test) {
     EXPECT_EQ(1, find_simple_gap("A", "AC"));
