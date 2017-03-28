@@ -17,22 +17,3 @@ cxx_compiler = "@BUILD_INFO_CXX_COMPILER@"
 build_type = "@BUILD_INFO_BUILD_TYPE@"
 c_flags = "@BUILD_INFO_C_FLAGS@"
 cxx_flags = "@BUILD_INFO_CXX_FLAGS@"
-
-
-def Log(log):
-    log.info("version: " + version)
-    log.info("git hash: " + git_hash)
-    log.info("git hash7: " + git_hash7)
-    log.info("git refspec: " + git_refspec)
-    log.info("git describe: " + git_describe)
-    log.info("git tag: " + git_tag)
-    log.info("cmake version: " + cmake)
-    log.info("OS version: " + system)
-    log.info("CPU: " + cpu)
-    log.info("C compiler id: " + c_compiler_id)
-    log.info("CXX compiler id: " + cxx_compiler_id)
-    log.info("C compiler: " + c_compiler)
-    log.info("CXX compiler: " + cxx_compiler)
-    log.info("Build type: " + build_type)
-    log.info("C flags: " + c_flags)
-    log.info("CXX flags: " + cxx_flags)
