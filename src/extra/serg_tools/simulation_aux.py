@@ -11,7 +11,7 @@ mixcr_path = "/Marx/serg/soft/mixcr-2.0"
 
 home_directory = os.path.abspath(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-spades_src = os.path.join(home_directory, "src/python_pipeline/")
+spades_src = os.path.join(home_directory, "py/pipeline/")
 sys.path.append(spades_src)
 import support
 

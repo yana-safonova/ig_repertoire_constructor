@@ -8,7 +8,7 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) #+ '/'
-py_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "py/pipeline/")
 vjf_config_dir = os.path.join(home_directory, "configs/vj_finder")
 vj_finder_bin = os.path.join(home_directory, "build/release/bin/vj_finder")
 run_vj_finder = os.path.join(home_directory, "build/release/bin/./vj_finder")

@@ -12,7 +12,7 @@ import tempfile
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../../../"
 sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
-sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py/pipeline/")
 sys.path.append(igrec_dir + "/py")
 from igblast_utils import ParseIgBlastOutput
 import support
