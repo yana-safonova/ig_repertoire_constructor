@@ -32,7 +32,7 @@ def main():
     for root, dirs, files in walk:
         for file in [file for file in files if file.endswith((".py", ".jar", ".sh"))]:
             copy_file(dest, file, igrec_dir, root)
-    for file in ["test_dataset/merged_reads.fastq"]:
+    for file in ["test_dataset/merged_reads.fastq", "test_dataset/barcodedIgReC_test.fasta"]:
         copy_file(dest, os.path.split(file)[-1], igrec_dir, os.path.join(igrec_dir, os.path.dirname(file)))
     for dir in ["build", "pipeline_makefiles", "configs", "data"]:
         shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir))
