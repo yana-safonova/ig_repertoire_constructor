@@ -95,7 +95,7 @@ def main(argv):
                             type=str,
                             default="",
                             dest="input_reads",
-                            help="Input reads in FASTQ/FATSA format")
+                            help="Input reads in FASTQ/FASTA format")
     input_args.add_argument("--test",
                             action="store_const",
                             const=test_reads,
