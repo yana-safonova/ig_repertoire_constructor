@@ -8,7 +8,7 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-py_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "py/pipeline/")
 cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler/")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
 cdr_labeler_bin = os.path.join(home_directory, "build/release/bin/cdr_labeler")
