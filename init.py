@@ -14,7 +14,7 @@ from time import gmtime, strftime
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 ig_bin_directory = os.path.join(home_directory, "build/release/bin/")
-python_src_directory = os.path.join(home_directory, "src/ig_tools/python_utils/")
+python_src_directory = os.path.join(home_directory, "py/utils/")
 config_directory = os.path.join(home_directory, "configs/ig_tools/")
 spades_py_scripts_directory = os.path.join(home_directory, "py/pipeline/")
 igblast_directory = os.path.join(home_directory, "src/tools/igblast/")

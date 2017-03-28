@@ -6,7 +6,7 @@ from Bio import SeqIO
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../"
-sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
+sys.path.append(igrec_dir + "/py/utils")
 sys.path.append(igrec_dir + "/py/pipeline/")
 import support
 sys.path.append(igrec_dir + "/py/")
