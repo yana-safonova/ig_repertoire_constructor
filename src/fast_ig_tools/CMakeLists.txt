@@ -22,8 +22,6 @@ target_link_libraries(ig_trie_compressor boost_system)
 add_executable(ig_swgraph_construct ig_swgraph_construct.cpp fast_ig_tools.cpp utils.cpp)
 target_link_libraries(ig_swgraph_construct build_info)
 
-add_executable(ig_consensus_finder ig_consensus_finder.cpp fast_ig_tools.cpp utils.cpp)
-
 add_executable(ig_component_splitter ig_component_splitter.cpp utils.cpp)
 target_link_libraries(ig_component_splitter build_info)
 
