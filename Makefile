@@ -4,22 +4,24 @@ build_type?="RelWithAsserts"
 # Default install prefix
 prefix?="/opt/"
 
+.PHONY: clean cleanup cmake
+
 all: igrec
 
-igrec: build/release/Makefile
-	$(MAKE) -C build/release all
-
-build/release/Makefile:
+cmake: build/release/Makefile
 	mkdir -p build/release
 	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -Wno-dev
+
+igrec: cmake
+	$(MAKE) -C build/release all
 
 install: igrec
 	cd build/release && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -P cmake_install.cmake
 
-rig:
+rig: cmake
 	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
 
-dsf:
+dsf: cmake
 	$(MAKE) -C build/release/dense_sgraph_finder dense_sgraph_finder
 
 metis:
@@ -28,25 +30,25 @@ metis:
 shm_kmer_matrix:
 	$(MAKE) -C build/release/shm_kmer_matrix_estimator
 
-check:
+check: cmake
 	$(MAKE) -C build/release check
 
-memcheck:
+memcheck: cmake
 	$(MAKE) -C build/release memcheck
 
-rnd:
+rnd: cmake
 	$(MAKE) -C build/release memcheck
 
-vjf:
+vjf: cmake
 	$(MAKE) -C build/release/vj_finder
 
-cdr:
+cdr: cmake
 	$(MAKE) -C build/release/cdr_labeler
 
 ant:
 	$(MAKE) -C build/release/antevolo
 
-umi:
+umi: cmake
 	$(MAKE) -C build/release/umi_experiments
 
 clean:
