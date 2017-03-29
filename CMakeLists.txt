@@ -1,5 +1,6 @@
 project(ig_repertoire_constructor)
 cmake_minimum_required(VERSION 2.8)
+include(CPack)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithAsserts" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
