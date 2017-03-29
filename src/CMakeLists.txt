@@ -23,12 +23,12 @@ set(CMAKE_MODULE_PATH
 # Define various dirs
 set(SPADES_MAIN_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SPADES_MAIN_INCLUDE_DIR ${SPADES_MAIN_SRC_DIR}/include)
-set(SPADES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(SPADES_BINARY_DIR ${CMAKE_BINARY_DIR})
 set(SPADES_TOOLS_BINARY_DIR ${SPADES_BINARY_DIR}/bin)
 set(SPADES_BUILT_INCLUDE_DIR ${SPADES_BINARY_DIR}/include)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SPADES_TOOLS_BINARY_DIR})
-set(EXT_DIR "${CMAKE_SOURCE_DIR}/../ext")
-set(SPADES_CFG_DIR "${CMAKE_SOURCE_DIR}/../configs")
+set(EXT_DIR "${SPADES_MAIN_SRC_DIR}/../ext")
+set(SPADES_CFG_DIR "${SPADES_MAIN_SRC_DIR}/../configs")
 
 set(CORE_DIR "${SPADES_MAIN_SRC_DIR}/core")
 set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
@@ -71,8 +71,8 @@ configure_file("${SPADES_MAIN_INCLUDE_DIR}/config.hpp.in"
                "${SPADES_BUILT_INCLUDE_DIR}/config.hpp")
 
 # Build external dependencies (if any)
-add_subdirectory("${EXT_DIR}/src" "${Project_BINARY_DIR}/ext")
-add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
+add_subdirectory("${EXT_DIR}/src" "${CMAKE_BINARY_DIR}/ext")
+add_subdirectory("${EXT_DIR}/tools" "${CMAKE_BINARY_DIR}/ext_tools")
 
 add_subdirectory(build_info)
 
