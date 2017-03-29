@@ -3,8 +3,9 @@ all: igrec
 igrec: build/release/Makefile
 	$(MAKE) -C build/release all
 
-build/release/Makefile: prepare_cfg
-	./prepare_cfg
+build/release/Makefile:
+	mkdir -p build/release
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="RelWithAsserts" -Wno-dev
 
 # Default install prefix
 prefix?="/opt/"
