@@ -1,0 +1,24 @@
+io_params {
+    input_params {
+        germline_input {
+            ig_dir                    IG
+            tcr_dir                   TCR
+            germline_filenames_config ./configs/vj_finder/germline_files_config.txt
+        }
+        cdr_labeler_config_filename ./configs/cdr_labeler/config.info
+    }
+
+    output_params {
+        output_dir                      ig_simulator_test
+        log_filename                    log.properties
+    }
+}
+
+algorithm_params {
+    germline_params {
+        organism        human
+        loci            IGH
+        pseudogenes     false
+        germline_dir              ./data/germline
+    }
+}
