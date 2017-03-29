@@ -21,7 +21,7 @@ add_library(ig_simulator_library STATIC
         n_nucleotides_inserter/abstract_n_nucleotides_inserter.cpp
         n_nucleotides_inserter/uniform_n_nucleotides_inserter.cpp
         metaroot/metaroot.cpp
-        productivity_checker/productivity_checker.cpp multiplicity_creator.hpp multiplicity_creator.cpp)
+        productivity_checker/productivity_checker.cpp multiplicity_creator/multiplicity_creator.hpp multiplicity_creator/multiplicity_creator.cpp)
 
 target_link_libraries(ig_simulator_library
         vj_finder_library
@@ -31,6 +31,6 @@ target_link_libraries(ig_simulator_library
         )
 
 
-add_executable(ig_simulator main.cpp)
+add_executable(ig_simulator main.cpp base_repertoire_simulator/base_repertoire_simulator.cpp base_repertoire_simulator/base_repertoire_simulator.hpp)
 
 target_link_libraries(ig_simulator ig_simulator_library)

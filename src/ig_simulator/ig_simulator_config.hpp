@@ -32,8 +32,64 @@ struct IgSimulatorConfig {
         germline_utils::GermlineParams germline_params;
     };
 
+    struct SimulationParams {
+        struct BaseRepertoireParams {
+            struct MetarootSimulationParams {
+                struct GeneChooserParams {
+                    enum class GeneChooserMethod { Uniform };
+                    GeneChooserMethod method;
+                };
+
+                struct NucleotidesRemoverParams {
+                    enum class NucleotidesRemoverMethod { Uniform };
+                    struct UniformRemoverParams {
+                        size_t max_remove_v_gene;
+                        size_t max_remove_d_gene_left;
+                        size_t max_remove_d_gene_right;
+                        size_t max_remove_j_gene;
+                    };
+                    NucleotidesRemoverMethod method;
+                    UniformRemoverParams uniform_remover_params;
+                };
+
+                struct PNucleotidesCreatorParams {
+                    enum class PNucleotidesCreatorMethod { Uniform };
+                    struct UniformCreatorParams {
+                        size_t max_create_v_gene;
+                        size_t max_create_d_gene_left;
+                        size_t max_create_d_gene_right;
+                        size_t max_create_j_gene;
+                    };
+                    PNucleotidesCreatorMethod method;
+                    UniformCreatorParams uniform_creator_params;
+                };
+
+                struct NNucleotidesInserterParams {
+                    enum class NNucleotidesInserterMethod { Uniform };
+                    struct UniformInserterParams {
+                        size_t max_vj_insertion;
+                        size_t max_vd_insertion;
+                        size_t max_dj_insertion;
+                    };
+                    NNucleotidesInserterMethod method;
+                    UniformInserterParams uniform_inserter_params;
+                };
+
+                GeneChooserParams gene_chooser_params;
+                NucleotidesRemoverParams nucleotides_remover_params;
+                PNucleotidesCreatorParams p_nucleotides_creator_params;
+                NNucleotidesInserterParams n_nucleotides_inserter_params;
+            };
+
+            MetarootSimulationParams metaroot_simulation_params;
+        };
+
+        BaseRepertoireParams base_repertoire_params;
+    };
+
     IOParams io_params;
     AlgorithmParams algorithm_params;
+    SimulationParams simulation_params;
 
     cdr_labeler::CDRLabelerConfig cdr_labeler_config;
 };

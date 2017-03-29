@@ -22,3 +22,42 @@ algorithm_params {
         germline_dir              ./data/germline
     }
 }
+
+simulation_params {
+    base_repertoire_params {
+        metaroot_simulation_params {
+            gene_chooser_params {
+                gene_chooser_method     uniform
+            }
+
+            nucleotides_remover_params {
+                nucleotides_remover_method      uniform
+                uniform_remover_params {
+                    max_remove_v_gene           20
+                    max_remove_d_gene_left      4
+                    max_remove_d_gene_right     4
+                    max_remove_j_gene           5
+                }
+            }
+
+            p_nucleotides_creator_params {
+                p_nucleotides_creator_method    uniform
+                uniform_creator_params {
+                    max_create_v_gene           5
+                    max_create_d_gene_left      3
+                    max_create_d_gene_right     3
+                    max_create_j_gene           3
+                }
+            }
+
+            n_nucleotides_inserter_params {
+                n_nucleotides_method    uniform
+                uniform_inserter_params {
+                    max_vj_insertion    10
+                    max_vd_insertion    10
+                    max_dj_insertion    10
+                }
+            }
+        }
+    }
+}

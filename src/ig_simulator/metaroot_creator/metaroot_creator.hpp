@@ -124,6 +124,24 @@ public:
                           cdr_params_)
     { }
 
+
+    VJMetarootCreator(const std::vector<germline_utils::CustomGeneDatabase *>& db,
+                      const std::vector<double> prob_cleavages,
+                      AbstractVDJGeneChooserPtr&& gene_chooser_p,
+                      AbstractNucleotidesRemoverPtr&& nucl_remover_p,
+                      AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
+                      AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                      const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
+        VJMetarootCreator(db.at(0), db.at(1),
+                          std::move(prob_cleavages.at(0)), std::move(prob_cleavages.at(1)),
+                          std::move(gene_chooser_p), std::move(nucl_remover_p),
+                          std::move(nucl_creator_p), std::move(nucl_inserter_p),
+                          cdr_params_)
+    {
+        VERIFY(db.size() == 2);
+        VERIFY(prob_cleavages.size() == 2);
+    }
+
     // TODO virtual (need to return ptr)
     VJMetaRoot CreateRoot() const;
 };
@@ -193,6 +211,25 @@ public:
                                std::move(nucl_creator_p), std::move(nucl_inserter_p),
                                cdr_params_)
     { }
+
+
+    VDJMetarootCreator(const std::vector<germline_utils::CustomGeneDatabase *>& db,
+                       std::vector<double> &&prob_cleavages,
+                       AbstractVDJGeneChooserPtr&& gene_chooser_p,
+                       AbstractNucleotidesRemoverPtr&& nucl_remover_p,
+                       AbstractPNucleotidesCreatorPtr&& nucl_creator_p,
+                       AbstractNNucleotidesInserterPtr&& nucl_inserter_p,
+                       const cdr_labeler::CDRLabelerConfig::CDRsParams &cdr_params_) :
+        VDJMetarootCreator(db.at(0), db.at(1), db.at(2),
+                           std::move(prob_cleavages.at(0)), std::move(prob_cleavages.at(1)),
+                           std::move(prob_cleavages.at(2)), std::move(prob_cleavages.at(3)),
+                           std::move(gene_chooser_p), std::move(nucl_remover_p),
+                           std::move(nucl_creator_p), std::move(nucl_inserter_p),
+                           cdr_params_)
+    {
+        VERIFY(db.size() == 3);
+        VERIFY(prob_cleavages.size() == 4);
+    }
 
     // TODO virtual (need to return ptr)
     VDJMetaRoot CreateRoot() const;
