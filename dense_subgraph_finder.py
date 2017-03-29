@@ -8,7 +8,7 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-spades_src = os.path.join(home_directory, "src/python_pipeline/")
+spades_src = os.path.join(home_directory, "py/pipeline/")
 config_dir = os.path.join(home_directory, "configs/dense_sgraph_finder/")
 ig_binary = os.path.join(home_directory, "build/release/bin/ig_repertoire_constructor")
 

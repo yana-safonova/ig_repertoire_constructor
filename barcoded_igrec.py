@@ -7,8 +7,10 @@ import sys
 import igrec
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-spades_src = os.path.join(home_directory, "src/python_pipeline/")
+spades_src = os.path.join(home_directory, "py/pipeline/")
+py_src = os.path.join(home_directory, "py")
 
+sys.path.append(py_src)
 sys.path.append(spades_src)
 import support
 
@@ -36,7 +38,7 @@ def ParseCommandLineParams(log):
             super(ActionTest, self).__init__(option_strings, dest, nargs=0, **kwargs)
 
         def __call__(self, parser, namespace, values, option_string=None):
-            setattr(namespace, "single_reads", "test_dataset/barcodedIgReC_test.fasta")
+            setattr(namespace, "single_reads", os.path.join(home_directory, "test_dataset/barcodedIgReC_test.fasta"))
             setattr(namespace, "output", "barigrec_test")
             setattr(namespace, "loci", "all")
             setattr(namespace, "no_compilation", True)
@@ -319,9 +321,9 @@ def main():
         # We need freshly compiled version to get actual build info
         if not params.no_compilation:
             support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
-        from src.build_info.build_info import BuildInfo
+        import build_info
         print "===================Build info==================="
-        BuildInfo().Log(log)
+        build_info.Log(log)
         print "================================================"
         support.sys_call("make -C " + final_dir, log)
         PrintOutputFiles(params, log)
