@@ -31,24 +31,18 @@ void TestVSegmentIgBlastConsistent() {
               "IGHV3-7*01");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(1).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV4-34*01");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(2).GetVHitByIndex(0).ImmuneGene().name()),
-    //           "IGHV1-2*04");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(2).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV1-2*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(3).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV3-49*04");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(4).GetVHitByIndex(0).ImmuneGene().name()),
-    //           "IGHV3-30*18");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(4).GetVHitByIndex(0).ImmuneGene().name()),
-              "IGHV3-30-5*01");
+              "IGHV3-30*18");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(5).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV1-69*01");
 }
 
 void TestJSegmentIgBlastConsistent() {
     INFO("Checking consistency of J hits with IgBlast");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(0).GetJHitByIndex(0).ImmuneGene().name()),
-    //           "IGHJ5*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(0).GetJHitByIndex(0).ImmuneGene().name()),
               "IGHJ4*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(1).GetJHitByIndex(0).ImmuneGene().name()),

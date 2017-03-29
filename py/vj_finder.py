@@ -8,7 +8,7 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) #+ '/'
-py_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "py/pipeline/")
 vjf_config_dir = os.path.join(home_directory, "configs/vj_finder")
 vj_finder_bin = os.path.join(home_directory, "build/release/bin/vj_finder")
 run_vj_finder = os.path.join(home_directory, "build/release/bin/./vj_finder")
@@ -84,18 +84,18 @@ def PrintParams(params, log):
 
 ################################################################################
 def main(argv):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== " + tool_name + ": a tool for VJ alignment of full-length Rep-seq reads ==",
-                                  epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
-                                  "Please provide us with vj_finder.log file from the output directory.",
-                                  add_help=False)
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== " + tool_name + ": a tool for VJ alignment of full-length Rep-seq reads ==",
+                            epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
+                            "Please provide us with vj_finder.log file from the output directory.",
+                            add_help=False)
     req_args = parser.add_argument_group("Required params")
     input_args = req_args.add_mutually_exclusive_group(required=True)
     input_args.add_argument("-i", "--input",
                             type=str,
                             default="",
                             dest="input_reads",
-                            help="Input reads in FASTQ/FATSA format")
+                            help="Input reads in FASTQ/FASTA format")
     input_args.add_argument("--test",
                             action="store_const",
                             const=test_reads,

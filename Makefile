@@ -16,11 +16,14 @@ metis:
 ig_simulator:
 	$(MAKE) -C build/release/ig_simulator ig_simulator
 
-check: all
+check:
 	$(MAKE) -C build/release check
 
-check_essential: all
-	$(MAKE) -C build/release check_essential
+memcheck:
+	$(MAKE) -C build/release memcheck
+
+rnd:
+	$(MAKE) -C build/release memcheck
 
 vjf:
 	$(MAKE) -C build/release/vj_finder

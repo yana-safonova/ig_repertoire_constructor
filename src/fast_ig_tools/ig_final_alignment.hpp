@@ -109,7 +109,7 @@ seqan::String<T> consensus_hamming_limited_coverage(const std::vector<seqan::Str
     for (size_t i : indices) {
         const auto &read = reads[i];
         for (size_t j = 0; j < length(read); ++j) {
-            profile[j].count[ordValue(read[j])] += abundances[i];
+            profile[j].count[ordValue(read[j])] += static_cast<unsigned int>(abundances[i]);
             coverage[j] += abundances[i];
         }
     }

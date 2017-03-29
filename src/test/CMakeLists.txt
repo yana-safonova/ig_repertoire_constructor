@@ -7,7 +7,9 @@ include_directories(${VJ_FINDER_DIR})
 include_directories(${CDR_LABELER_DIR})
 include_directories(${IG_SIMULATOR_DIR})
 
-link_libraries(gtest gmock_main gmock graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
+link_libraries(graph_utils vdj_utils algorithms core input ${COMMON_LIBRARIES})
+
+make_test(test_find_simple_gap test_find_simple_gap.cpp)
 
 make_test(test_sparse_graph test_sparse_graph.cpp)
 

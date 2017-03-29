@@ -235,11 +235,11 @@ int main(int argc, char **argv) {
                                        num_of_dist_computations);
 
         INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
-             static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
+             static_cast<double>(num_of_dist_computations) / static_cast<double>(input_reads.size()) << " per read");
 
         size_t num_of_edges = numEdges(dist_graph);
         INFO("Edges found: " << num_of_edges);
-        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
+        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / static_cast<double>(num_of_dist_computations));
 
         // Output
         if (args.export_abundances) {
@@ -272,11 +272,11 @@ int main(int argc, char **argv) {
                                         num_of_dist_computations);
 
         INFO("Simularity computations: " << num_of_dist_computations << ", average " << \
-             static_cast<double>(num_of_dist_computations) / input_reads.size() << " per read");
+             static_cast<double>(num_of_dist_computations) / static_cast<double>(input_reads.size()) << " per read");
 
         size_t num_of_edges = numEdges(dist_graph, false);
         INFO("Edges found: " << num_of_edges);
-        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / num_of_dist_computations);
+        INFO("Strategy efficiency: " << static_cast<double> (num_of_edges) / static_cast<double>(num_of_dist_computations));
 
         // Output
         if (args.export_abundances) {
