@@ -1,3 +1,9 @@
+# Default build type
+build_type?="RelWithAsserts"
+
+# Default install prefix
+prefix?="/opt/"
+
 all: igrec
 
 igrec: build/release/Makefile
@@ -5,19 +11,13 @@ igrec: build/release/Makefile
 
 build/release/Makefile:
 	mkdir -p build/release
-	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="RelWithAsserts" -Wno-dev
-
-# Default install prefix
-prefix?="/opt/"
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -Wno-dev
 
 install: igrec
 	cd build/release && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -P cmake_install.cmake
 
 rig:
 	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
-
-dig:
-	$(MAKE) -C build/debug/ig_repertoire_constructor ig_repertoire_constructor
 
 dsf:
 	$(MAKE) -C build/release/dense_sgraph_finder dense_sgraph_finder
