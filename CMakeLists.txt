@@ -44,12 +44,10 @@ install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/igrec.py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime)
 
-# install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_compress_equal_clusters.py"
-#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_remove_low_abundance_reads.py"
-#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_report_supernodes.py"
-#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/rcm_recoverer.py"
-#         DESTINATION "${INSTALL_DIR}/py"
-#         COMPONENT runtime)
+install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/src/umi_experiments/stats/print_umi_graph_stats.py"
+        DESTINATION "${INSTALL_DIR}/src/umi_experiments/stats/"
+        COMPONENT runtime)
+
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime
