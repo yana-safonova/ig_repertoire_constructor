@@ -49,5 +49,5 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         COMPONENT runtime
 		USE_SOURCE_PERMISSIONS)
 
-# Make symlink if possible (return 0 in any case)
-install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/igrec.py\" \"/usr/bin/igrec.py\")")
+# # Make symlink if possible (return 0 in any case)
+# install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/igrec.py\" \"/usr/bin/igrec.py\")")
