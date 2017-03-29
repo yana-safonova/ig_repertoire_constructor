@@ -93,24 +93,3 @@ add_subdirectory(antevolo)
 add_subdirectory(test)
 add_subdirectory(umi_experiments)
 add_subdirectory(pcr_simulator)
-
-# FIXME: Should we just configure spades_init instead?
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
-        DESTINATION share/spades
-        COMPONENT runtime)
-# Test dataset
-#install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../test_dataset"
-#        DESTINATION share/spades)
-# manual, LICENSE, and GPLv2
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../manual.html"
-#        DESTINATION share/spades
-#        COMPONENT runtime)
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../dipspades_manual.html"
-#        DESTINATION share/spades
-#        COMPONENT runtime)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-        DESTINATION share/spades
-        COMPONENT runtime)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../GPLv2.txt"
-        DESTINATION share/spades
-        COMPONENT runtime)
