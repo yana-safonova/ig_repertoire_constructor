@@ -202,7 +202,7 @@
     <code>--test</code><br> Running on the toy test dataset. Command line corresponding to the test run is equivalent to the following:
     <pre class="code">
     <code>
-    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/igrec/final_repertoire.fa.gz -C igquast_test_dataset/igrec/final_repertoire.rcm -r igquast_test_dataset/test/repertoire.fa.gz -R igquast_test_dataset/test/repertoire.rcm -o igquast_test_test
+    ./igquast.py -s test_dataset/igquast/test/input_reads.fa.gz -c test_dataset/igquast/igrec/final_repertoire.fa.gz -C test_dataset/igquast/igrec/final_repertoire.rcm -r test_dataset/igquast/test/repertoire.fa.gz -R test_dataset/igquast/test/repertoire.rcm -o igquast_test_test
     </code>
 </pre>
 
@@ -213,12 +213,12 @@
     Perform reference-free analysis only:
     <pre class="code">
     <code>
-    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec_bad/final_repertoire.fa.gz -C igquast_test_dataset/test/igrec_bad/final_repertoire.rcm -o igquast_test --reference-free
+    ./igquast.py -s test_dataset/igquast/test/input_reads.fa.gz -c test_dataset/igquast/test/igrec_bad/final_repertoire.fa.gz -C test_dataset/igquast/test/igrec_bad/final_repertoire.rcm -o igquast_test --reference-free
     </code>
 </pre> Do not plot figures, make reports only:
     <pre class="code">
     <code>
-    ./igquast.py -s igquast_test_dataset/test/input_reads.fa.gz -c igquast_test_dataset/test/igrec/final_repertoire.fa.gz -C igquast_test_dataset/test/igrec/final_repertoire.rcm -r igquast_test_dataset/test/repertoire.fa.gz -R igquast_test_dataset/test/repertoire.rcm --figure-format= -o igquast_test
+    ./igquast.py -s test_dataset/igquast/test/input_reads.fa.gz -c test_dataset/igquast/test/igrec/final_repertoire.fa.gz -C test_dataset/igquast/test/igrec/final_repertoire.rcm -r test_dataset/igquast/test/repertoire.fa.gz -R test_dataset/igquast/test/repertoire.rcm --figure-format= -o igquast_test
     </code>
 </pre>
 

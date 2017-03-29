@@ -20,7 +20,7 @@ def parse_command_line():
     import argparse
 
     def ActionTestFactory(name):
-        initial_reads = igrec_dir + "/igquast_test_dataset/%s/input_reads.fa.gz" % name
+        initial_reads = igrec_dir + "/test_dataset/igquast/%s/input_reads.fa.gz" % name
         import os.path
         if not os.path.isfile(initial_reads):
             return None
@@ -33,10 +33,10 @@ def parse_command_line():
             def __call__(self, parser, namespace, values, option_string=None):
                 setattr(namespace, "initial_reads", initial_reads)
                 setattr(namespace, "output_dir", "igquast_test_%s" % name)
-                setattr(namespace, "constructed_repertoire", igrec_dir + "/igquast_test_dataset/%s/igrec/final_repertoire.fa.gz" % name)
-                setattr(namespace, "constructed_rcm", igrec_dir + "/igquast_test_dataset/%s/igrec/final_repertoire.rcm" % name)
-                setattr(namespace, "reference_repertoire", igrec_dir + "/igquast_test_dataset/%s/repertoire.fa.gz" % name)
-                setattr(namespace, "reference_rcm", igrec_dir + "/igquast_test_dataset/%s/repertoire.rcm" % name)
+                setattr(namespace, "constructed_repertoire", igrec_dir + "/test_dataset/igquast/%s/igrec/final_repertoire.fa.gz" % name)
+                setattr(namespace, "constructed_rcm", igrec_dir + "/test_dataset/igquast/%s/igrec/final_repertoire.rcm" % name)
+                setattr(namespace, "reference_repertoire", igrec_dir + "/test_dataset/igquast/%s/repertoire.fa.gz" % name)
+                setattr(namespace, "reference_rcm", igrec_dir + "/test_dataset/igquast/%s/repertoire.rcm" % name)
 
         return ActionTest
 

@@ -51,15 +51,15 @@ if __name__ == "__main__":
     #
     # datas += ["/Nancy/data/input/ImmunoSeq/roche_datasets/%d_SAM133069%d/merged_reads/%d_SAM133069%d.cleaned.fastq" % (n + 1, n + 69, n + 1, n + 69) for n in xrange(8)]
     # names += ["ROCHE_%d" % (n + 1) for n in xrange(8)]
-    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/age3/input_reads.fa.gz"]
+    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/age3/input_reads.fa.gz"]
     # names += ["REAL"]
-    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/SIMULATED_1/input_reads.fa.gz"]
+    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SIMULATED_1/input_reads.fa.gz"]
     # names += ["SIMULATED_1"]
-    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/SYNTHETIC_1/input_reads.fa.gz"]
+    # datas += ["/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SYNTHETIC_1/input_reads.fa.gz"]
     # names += ["SYNTHETIC_1"]
-    datas += ["/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/SIMULATED_0.5/input_reads.fa.gz"]
+    datas += ["/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SIMULATED_0.5/input_reads.fa.gz"]
     names += ["SIMULATED_0.5"]
-    datas += ["/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/SYNTHETIC_0.5/input_reads.fa.gz"]
+    datas += ["/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SYNTHETIC_0.5/input_reads.fa.gz"]
     names += ["SYNTHETIC_0.5"]
     queue = zip(datas, names)
 
@@ -69,6 +69,6 @@ if __name__ == "__main__":
 
     n_jobs = 1 if multiprocessing.cpu_count() <= 16 else 3
     Parallel(n_jobs=n_jobs)(delayed(JOB)(q) for q in queue)
-    data = "/home/ashlemov/Git/ig_repertoire_constructor/igquast_test_dataset/age3/input_reads.fa.gz"
+    data = "/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/age3/input_reads.fa.gz"
     name = "REAL_ALL"
     # hgc_estimator_all(data, name)
