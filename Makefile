@@ -8,7 +8,7 @@ prefix?="/usr/local"
 
 all: igrec
 
-cmake: build/release/Makefile
+cmake:
 	mkdir -p build/release
 	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -Wno-dev
 
