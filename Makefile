@@ -42,3 +42,12 @@ cdr:
 
 umi:
 	$(MAKE) -C build/release/umi_experiments
+
+clean:
+	cd build/release && cmake -C
+
+cleanup:
+	rm *.pyc
+	rm -rf igrec_test
+	rm -rf ms_analyzer_test
+	rm *~
