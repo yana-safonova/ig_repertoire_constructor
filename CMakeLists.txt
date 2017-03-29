@@ -24,7 +24,7 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/VERSION"
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test_dataset"
                   "${CMAKE_CURRENT_SOURCE_DIR}/data"
-                  "${CMAKE_CURRENT_SOURCE_DIR}/py"
+                  "${CMAKE_CURRENT_SOURCE_DIR}/pipeline_makefiles"
                   "${CMAKE_CURRENT_SOURCE_DIR}/docs"
                   "${CMAKE_CURRENT_SOURCE_DIR}/configs"
         DESTINATION "${INSTALL_DIR}"
@@ -33,21 +33,27 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test_dataset"
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         DESTINATION "${INSTALL_DIR}/build/release"
         COMPONENT runtime
-        PATTERN *
-        PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+		USE_SOURCE_PERMISSIONS)
 
 install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/igrec.py"
                  "${CMAKE_CURRENT_SOURCE_DIR}/mass_spectra_analyzer.py"
                  "${CMAKE_CURRENT_SOURCE_DIR}/dense_subgraph_finder.py"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/igquast.py"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/barcoded_igrec.py"
+                 "${CMAKE_CURRENT_SOURCE_DIR}/diversity_analyzer.py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime)
 
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_compress_equal_clusters.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_remove_low_abundance_reads.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_report_supernodes.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/py/rcm_recoverer.py"
-        DESTINATION "${INSTALL_DIR}/py"
-        COMPONENT runtime)
+# install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_compress_equal_clusters.py"
+#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_remove_low_abundance_reads.py"
+#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/ig_report_supernodes.py"
+#                  "${CMAKE_CURRENT_SOURCE_DIR}/py/rcm_recoverer.py"
+#         DESTINATION "${INSTALL_DIR}/py"
+#         COMPONENT runtime)
+install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
+        DESTINATION "${INSTALL_DIR}"
+        COMPONENT runtime
+		USE_SOURCE_PERMISSIONS)
 
 # Make symlink if possible (return 0 in any case)
 install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/igrec.py\" \"/usr/bin/igrec.py\")")
