@@ -9,9 +9,9 @@ add_subdirectory(configs)
 add_subdirectory(src)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "/opt" CACHE PATH "default install path" FORCE)
+  set(CMAKE_INSTALL_PREFIX "/usr/local" CACHE PATH "default install path" FORCE)
 endif()
-set(INSTALL_DIR "igrec")
+set(INSTALL_DIR "share/igrec")
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/VERSION"
               "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
@@ -35,19 +35,20 @@ install(DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         COMPONENT runtime
 		USE_SOURCE_PERMISSIONS)
 
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/igrec.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/mass_spectra_analyzer.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/dense_subgraph_finder.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/igquast.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/barcoded_igrec.py"
-                 "${CMAKE_CURRENT_SOURCE_DIR}/diversity_analyzer.py"
-        DESTINATION "${INSTALL_DIR}"
-        COMPONENT runtime)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime
 		USE_SOURCE_PERMISSIONS)
 
-# # Make symlink if possible (return 0 in any case)
-# install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"\${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/igrec.py\" \"/usr/bin/igrec.py\")")
+set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py")
+foreach(tool ${tools})
+    install(PROGRAMS ${tool}
+            DESTINATION "${INSTALL_DIR}"
+            COMPONENT runtime)
+endforeach()
+
+# Make symlinks
+foreach(tool ${tools})
+    install(CODE "EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E create_symlink \"${CMAKE_INSTALL_PREFIX}/${INSTALL_DIR}/${tool}\" \"${CMAKE_INSTALL_PREFIX}/bin/${tool}\")")
+endforeach()

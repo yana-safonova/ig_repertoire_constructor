@@ -2,7 +2,7 @@
 build_type?="RelWithAsserts"
 
 # Default install prefix
-prefix?="/opt/"
+prefix?="/usr/local"
 
 .PHONY: clean cleanup cmake
 
