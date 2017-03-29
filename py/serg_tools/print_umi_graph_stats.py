@@ -41,7 +41,7 @@ def ParseCommandLineParams(log):
 
 class BinaryPaths:
     def __init__(self):
-        run_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))) + '/'
+        run_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))) + '/'
         self.bin_dir = os.path.join(run_directory, "build/release/bin/")
         self.paired_read_merger = os.path.join(self.bin_dir, "paired_read_merger")
         self.vj_finder = os.path.join(self.bin_dir, "ig_kplus_vj_finder")

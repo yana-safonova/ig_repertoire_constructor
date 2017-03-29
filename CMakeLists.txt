@@ -44,10 +44,6 @@ install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/igrec.py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime)
 
-install(PROGRAMS "${CMAKE_CURRENT_SOURCE_DIR}/src/umi_experiments/stats/print_umi_graph_stats.py"
-        DESTINATION "${INSTALL_DIR}/src/umi_experiments/stats/"
-        COMPONENT runtime)
-
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime
