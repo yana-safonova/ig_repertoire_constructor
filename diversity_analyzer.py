@@ -27,7 +27,7 @@ import visualize_vj_stats
 import html_report_writer
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
-test_dir = os.path.join(home_directory, "divan_test")
+test_dir = "divan_test"
 
 tool_name = "Diversity Analyzer"
 

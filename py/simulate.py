@@ -665,7 +665,7 @@ def run_presto(input_file, output_dir,
 
 if __name__ == "__main__":
     ig_simulator_output_dir = "/tmp/ig_simulator"
-    output_dir = igrec_dir + "/igquast_test_dataset"
+    output_dir = igrec_dir + "/test_dataset/igquast"
     run_ig_simulator(ig_simulator_output_dir)
     simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta", output_dir)
 

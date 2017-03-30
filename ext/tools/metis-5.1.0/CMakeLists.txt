@@ -1,4 +1,4 @@
-project(metis CXX)
+project(metis C)
 
 include_directories(GKlib)
 include_directories(include)
@@ -74,10 +74,6 @@ endif()
 
 target_link_libraries(metis ${COMMON_LIBRARIES} m)
 
-install(TARGETS metis
-        RUNTIME DESTINATION bin)
-
 # Try to find subversion revision.
 set(SVNREV "")
 add_definitions(-DSVNINFO="${SVNREV}")
-

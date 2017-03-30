@@ -37,10 +37,3 @@ target_link_libraries(dense_sgraph_finder dense_sgraph_finder_library)
 if (SPADES_STATIC_BUILD)
   set_target_properties(dense_sgraph_finder PROPERTIES LINK_SEARCH_END_STATIC 1)
 endif()
-
-install(TARGETS dense_sgraph_finder
-        DESTINATION bin
-        COMPONENT runtime)
-install(DIRECTORY "${SPADES_CFG_DIR}/dense_sgraph_finder"
-        DESTINATION share/spades/configs
-        FILES_MATCHING PATTERN "*.info.template")

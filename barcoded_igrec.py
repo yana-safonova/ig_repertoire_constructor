@@ -305,7 +305,7 @@ def PrintOutputFiles(params, log):
 def SupportInfo(log):
     log.info("\nIn case you have troubles running BarcodedIgReC, "
              "you can write to igtools_support@googlegroups.com.")
-    log.info("Please provide us with igrc.log file from the output directory.")
+    log.info("Please provide us with igrec.log file from the output directory.")
 
 
 def main():

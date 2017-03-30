@@ -8,7 +8,7 @@ include_directories(${SPADES_MAIN_INCLUDE_DIR})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
-link_libraries(input yaml-cpp ${COMMON_LIBRARIES})
+link_libraries(input ${COMMON_LIBRARIES})
 link_libraries(boost_program_options)
 
 add_executable(ig_trie_compressor ig_trie_compressor.cpp fast_ig_tools.cpp utils.cpp)
