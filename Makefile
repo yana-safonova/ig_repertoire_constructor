@@ -15,8 +15,8 @@ cmake:
 igrec: cmake
 	$(MAKE) -C build/release all
 
-pack: igrec
-	cd build/release && cpack
+rpm: igrec
+	cd build/release && cpack -G RPM
 
 deb: igrec
 	cd build/release && cpack -G DEB
