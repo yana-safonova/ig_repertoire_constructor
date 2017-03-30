@@ -4,7 +4,7 @@ build_type?="RelWithAsserts"
 # Default install prefix
 prefix?="/usr/local"
 
-.PHONY: clean cleanup cmake
+.PHONY: clean clean_tests cmake all pack
 
 all: igrec
 
@@ -20,6 +20,9 @@ pack: igrec
 
 deb: igrec
 	cd build/release && cpack -G DEB
+
+tgz: igrec
+	cd build/release && cpack -G TGZ
 
 install: igrec
 	cd build/release && cmake -P cmake_install.cmake
@@ -49,10 +52,10 @@ umi: cmake
 	$(MAKE) -C build/release/umi_experiments
 
 clean:
-	-rm -fr build/release
+	-rm -r build
 
-cleanup:
-	rm *.pyc
-	rm -rf igrec_test
-	rm -rf ms_analyzer_test
-	rm *~
+clean_tests:
+	-rm *.pyc
+	-rm -r igrec_test
+	-rm -r ms_analyzer_test
+	-rm *~
