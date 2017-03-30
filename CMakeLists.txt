@@ -98,7 +98,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Y-tools: tools for construction of full-l
 # TODO: Add full description
 set(CPACK_PACKAGE_DESCRIPTION "Y-tools: tools for construction of full-length adaptive immune repertoires and immunoinformatics analysis")
 
-set(CPACK_PACKAGE_VENDOR "Ablab")  # TODO set
+set(CPACK_PACKAGE_VENDOR "Center for Algorithmic Biotechnology, Saint Petersburg University, Russia")
 
 # trace debug information during CPackDeb run
 set(CPACK_DEBIAN_PACKAGE_DEBUG TRUE) 
