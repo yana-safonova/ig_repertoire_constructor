@@ -10,13 +10,13 @@ all: igrec
 
 cmake:
 	mkdir -p build/release
-	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -Wno-dev
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
 
 igrec: cmake
 	$(MAKE) -C build/release all
 
 install: igrec
-	cd build/release && cmake -DCMAKE_INSTALL_PREFIX=${prefix} -P cmake_install.cmake
+	cd build/release && cmake -P cmake_install.cmake
 
 rig: cmake
 	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
