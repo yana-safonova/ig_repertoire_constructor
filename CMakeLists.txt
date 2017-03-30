@@ -35,24 +35,31 @@ install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/manual.html"
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/docs"
         DESTINATION "${INSTALL_DIR}"
-        COMPONENT manual)
+        COMPONENT manual
+        PATTERN "*.pdf" EXCLUDE)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/test_dataset"
                   "${CMAKE_CURRENT_SOURCE_DIR}/data"
                   "${CMAKE_CURRENT_SOURCE_DIR}/pipeline_makefiles"
                   "${CMAKE_CURRENT_SOURCE_DIR}/configs"
         DESTINATION "${INSTALL_DIR}"
-        COMPONENT runtime)
+        COMPONENT runtime
+        PATTERN "*.template" EXCLUDE
+        PATTERN "CMakeLists.txt" EXCLUDE
+        PATTERN ".gitignore" EXCLUDE)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         DESTINATION "${INSTALL_DIR}/build/release"
         COMPONENT runtime
-		USE_SOURCE_PERMISSIONS)
+        USE_SOURCE_PERMISSIONS
+        PATTERN "test_*" EXCLUDE)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         DESTINATION "${INSTALL_DIR}"
         COMPONENT runtime
-		USE_SOURCE_PERMISSIONS)
+        USE_SOURCE_PERMISSIONS
+        PATTERN "*.pyc" EXCLUDE
+        PATTERN ".gitignore" EXCLUDE)
 
 set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py")
 foreach(tool ${tools})
