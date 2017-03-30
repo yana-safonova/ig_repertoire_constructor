@@ -15,10 +15,10 @@ cmake:
 igrec: cmake
 	$(MAKE) -C build/release all
 
-pack: cmake
+pack: igrec
 	cd build/release && cpack
 
-deb: cmake
+deb: igrec
 	cd build/release && cpack -G DEB
 
 install: igrec
