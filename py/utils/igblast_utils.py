@@ -270,14 +270,14 @@ class HitTable:
         return len(self.rows)
 
     def __iter__(self):
-    	return self
+        return self
 
     def next(self):
-    	if self.index + 1 < len(self):
-    		self.index += 1
-    		return self.rows[self.index]
-    	else:
-    		raise StopIteration
+        if self.index + 1 < len(self):
+            self.index += 1
+            return self.rows[self.index]
+        else:
+            raise StopIteration
 
     def InitializeFromBlockLines(self, block_lines, block_aux_stats):
         if block_aux_stats.hit_table_start_ind == -1 or block_aux_stats.hit_table_end_ind == -1:
