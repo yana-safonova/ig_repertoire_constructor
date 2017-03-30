@@ -1,4 +1,0 @@
-rm *.pyc
-rm -rf igrec_test
-rm -rf ms_analyzer_test
-rm *~
