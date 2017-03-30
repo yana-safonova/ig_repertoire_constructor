@@ -58,7 +58,7 @@ umi: cmake
 	$(MAKE) -C build/release/umi_experiments
 
 clean:
-	cd build/release && cmake -C
+	-rm -fr build/release
 
 cleanup:
 	rm *.pyc
