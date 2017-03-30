@@ -52,7 +52,11 @@ ShmKmerMatrixEstimator::calculate_mutation_statistics(
 {
     VectorEvolutionaryEdgeAlignments alignments;
     for (const auto& clone : clone_set) {
-        alignments.emplace_back(clone);
+        if (not clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR1) and
+            not clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR2))
+        {
+            alignments.emplace_back(clone);
+        }
     }
     return calculate_mutation_statistics(alignments);
 }
@@ -64,9 +68,11 @@ ShmKmerMatrixEstimator::calculate_mutation_statistics(VectorEvolutionaryEdgeAlig
     KmerMatrix mutations_statistics_fr(kmer_matrix_size);
     KmerMatrix mutations_statistics_cdr(kmer_matrix_size);
     for (auto alignment : alignments) {
-        if (alignment_checker_->check(alignment)) {
-            alignment_cropper_->crop(alignment);
-        }
+        if (not alignment_checker_->check(alignment))
+            continue;
+
+        alignment_cropper_->crop(alignment);
+
         std::vector<size_t> relevant_positions = mutation_strategy_->calculate_relevant_positions(alignment);
         size_t i = 0;
 
