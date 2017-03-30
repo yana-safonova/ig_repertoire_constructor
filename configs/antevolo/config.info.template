@@ -1,5 +1,6 @@
 input_params {
     input_reads test7_compressed.fq; test_dataset/test7.fastq ;test_dataset/merged_reads.fastq
+    decomposition_rcm None
     cdr_labeler_config_fname configs/cdr_labeler/config.info  
     shm_kmer_matrix_estimator_config_fname configs/shm_kmer_matrix_estimator/default_config_antevolo.info
     shm_kmer_model_igh data/shm_model/NoKNeighbours_IGH.csv
@@ -22,6 +23,9 @@ run_params {
 }
 
 algorithm_params {
+    compare 0
+    model 0
+
     similar_cdr3s_params {
         num_mismatches   3
         num_indels       0
