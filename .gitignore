@@ -16,6 +16,9 @@ cmake_install.cmake
 install_manifest.txt
 CTestTestfile.cmake
 
+# Built packages
+packages
+
 # object files and libs
 *.o
 *.la
