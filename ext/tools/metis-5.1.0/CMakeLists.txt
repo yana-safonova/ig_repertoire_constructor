@@ -1,4 +1,4 @@
-project(metis CXX)
+project(metis C)
 
 include_directories(GKlib)
 include_directories(include)
