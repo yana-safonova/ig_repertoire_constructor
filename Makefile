@@ -27,11 +27,8 @@ tgz: igrec
 install: igrec
 	cd build/release && cmake -P cmake_install.cmake
 
-rig: cmake
-	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
-
 dsf: cmake
-	$(MAKE) -C build/release/dense_sgraph_finder dense_sgraph_finder
+	$(MAKE) -C build/release dense_sgraph_finder
 
 metis:
 	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
@@ -49,16 +46,16 @@ rnd: cmake
 	$(MAKE) -C build/release memcheck
 
 vjf: cmake
-	$(MAKE) -C build/release/vj_finder
+	$(MAKE) -C build/release vj_finder
 
 cdr: cmake
-	$(MAKE) -C build/release/cdr_labeler
+	$(MAKE) -C build/release cdr_labeler
 
 ant:
 	$(MAKE) -C build/release/antevolo
 
 umi: cmake
-	$(MAKE) -C build/release/umi_experiments
+	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
 clean:
 	-rm -r build
