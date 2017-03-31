@@ -24,3 +24,6 @@ packages
 *.la
 *.a
 *.so
+
+# Clion
+cmake-build-*/
