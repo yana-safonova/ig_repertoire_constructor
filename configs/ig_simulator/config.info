@@ -58,6 +58,13 @@ simulation_params {
                     max_dj_insertion    10
                 }
             }
+
+            cleavage_params {
+                prob_cleavage_v        0.5
+                prob_cleavage_d_left   0.5
+                prob_cleavage_d_right  0.5
+                prob_cleavage_j        0.5
+            }
         }
     }
 }

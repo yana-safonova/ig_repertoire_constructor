@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "germline_utils/germline_databases/custom_gene_database.hpp"
+#include "ig_simulator_utils.hpp"
 
 namespace ig_simulator {
 
@@ -20,33 +21,22 @@ protected:
     const germline_utils::CustomGeneDatabase *j_db_p_;
 
     // This variable defines whether D segment is generated
+    // d_dp_p_ MUST be nullptr if is_vdj == false
     bool is_vdj;
 
-private:
-    AbstractVDJGeneChooser(const germline_utils::CustomGeneDatabase *v_db_p,
-                           const germline_utils::CustomGeneDatabase *d_db_p,
-                           const germline_utils::CustomGeneDatabase *j_db_p,
-                           bool is_vdj) :
-        v_db_p_(v_db_p), d_db_p_(d_db_p), j_db_p_(j_db_p), is_vdj(is_vdj)
-    { }
-
 public:
-    AbstractVDJGeneChooser(const germline_utils::CustomGeneDatabase &v_db,
-                           const germline_utils::CustomGeneDatabase &d_db,
-                           const germline_utils::CustomGeneDatabase &j_db) :
-        AbstractVDJGeneChooser(&v_db, &d_db, &j_db, true)
+    AbstractVDJGeneChooser(const std::vector<const germline_utils::CustomGeneDatabase *>& db):
+            v_db_p_(check_pointer(db.front())),
+            d_db_p_(nullptr),
+            j_db_p_(check_pointer(db.back())),
+            is_vdj(false)
     {
-        VERIFY(v_db.size() > 0);
-        VERIFY(d_db.size() > 0);
-        VERIFY(j_db.size() > 0);
-    }
+        VERIFY(db.size() >= 2 and db.size() <= 3);
 
-    AbstractVDJGeneChooser(const germline_utils::CustomGeneDatabase &v_db,
-                           const germline_utils::CustomGeneDatabase &j_db) :
-        AbstractVDJGeneChooser(&v_db, nullptr, &j_db, false)
-    {
-        VERIFY(v_db.size() > 0);
-        VERIFY(j_db.size() > 0);
+        if (db.size() == 3) {
+            d_db_p_ = check_pointer(db[1]);
+            is_vdj = true;
+        }
     }
 
     virtual VDJ_GenesIndexTuple ChooseGenes() const = 0;
@@ -56,7 +46,12 @@ public:
      * If `false` then second component of `VDJ_GenesIndexTuple`
      * returned by `ChooseGenes()` will be size_t(-1).
      */
-    bool IsVDJ() const { return is_vdj; }
+    bool IsVDJ() const {
+        if (not is_vdj) {
+            VERIFY(d_db_p_ != nullptr);
+        }
+        return is_vdj;
+    }
 
     virtual ~AbstractVDJGeneChooser() { };
 };

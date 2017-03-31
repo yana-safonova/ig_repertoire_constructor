@@ -20,4 +20,5 @@ public:
 };
 
 using AbstractNNucleotidesInserterPtr = std::unique_ptr<AbstractNNucleotidesInserter>;
+
 } // End namespace ig_simulator

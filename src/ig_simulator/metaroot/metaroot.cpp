@@ -9,7 +9,7 @@
 
 namespace ig_simulator {
 
-void AbstractMetaRoot::PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage) {
+void AbstractMetaroot::PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage) {
     VERIFY(static_cast<unsigned long>(abs(left_cleavage)) <= seqan::length(gene));
     if (left_cleavage > 0) {
         gene = seqan::suffix(gene, left_cleavage);
@@ -29,9 +29,9 @@ void AbstractMetaRoot::PrepareGene(seqan::Dna5String& gene, int left_cleavage, i
     }
 }
 
-const seqan::Dna5String& VJMetaRoot::Sequence() const { return sequence; }
+const seqan::Dna5String& VJMetaroot::Sequence() const { return sequence; }
 
-void VJMetaRoot::CalculateSequence() {
+void VJMetaroot::CalculateSequence() {
     VERIFY(v_db_p != nullptr);
     VERIFY(j_db_p != nullptr);
 
@@ -46,10 +46,10 @@ void VJMetaRoot::CalculateSequence() {
     sequence += j_gene;
 }
 
-const seqan::Dna5String& VDJMetaRoot::Sequence() const { return sequence; }
+const seqan::Dna5String& VDJMetaroot::Sequence() const { return sequence; }
 
 
-void VDJMetaRoot::CalculateSequence() {
+void VDJMetaroot::CalculateSequence() {
     VERIFY(v_db_p != nullptr);
     VERIFY(d_db_p != nullptr);
     VERIFY(j_db_p != nullptr);
@@ -69,7 +69,7 @@ void VDJMetaRoot::CalculateSequence() {
     sequence += j_gene;
 }
 
-std::ostream& operator<<(std::ostream& out, const VJMetaRoot& root) {
+std::ostream& operator<<(std::ostream& out, const VJMetaroot& root) {
     out << "VJMetaroot:\n\n" <<
 
         "Index (from 1) of V in database " << root.V_Ind() + 1 << " / " << root.V_DB_P()->size() << "\n" <<
@@ -90,7 +90,7 @@ std::ostream& operator<<(std::ostream& out, const VJMetaRoot& root) {
     return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const VDJMetaRoot& root) {
+std::ostream& operator<<(std::ostream& out, const VDJMetaroot& root) {
     out << "VDJMetaroot:\n\n" <<
 
         "Index (from 1) of V in database " << root.V_Ind() + 1 << " / " << root.V_DB_P()->size() << "\n" <<

@@ -134,6 +134,16 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
     }
 }
 
+void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams
+          ::CleavageParams &cleavage_params,
+          boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    load(cleavage_params.prob_cleavage_v, pt, "prob_cleavage_v");
+    load(cleavage_params.prob_cleavage_d_left, pt, "prob_cleavage_d_left");
+    load(cleavage_params.prob_cleavage_d_right, pt, "prob_cleavage_d_right");
+    load(cleavage_params.prob_cleavage_j, pt, "prob_cleavage_j");
+}
+
 void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams
           ::MetarootSimulationParams &metaroot_simulation_params,
           boost::property_tree::ptree const &pt, bool)
@@ -143,6 +153,7 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams
     load(metaroot_simulation_params.nucleotides_remover_params, pt, "nucleotides_remover_params");
     load(metaroot_simulation_params.p_nucleotides_creator_params, pt, "p_nucleotides_creator_params");
     load(metaroot_simulation_params.n_nucleotides_inserter_params, pt, "n_nucleotides_inserter_params");
+    load(metaroot_simulation_params.cleavage_params, pt, "cleavage_params");
 }
 
 void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams &base_repertoire_params,
@@ -166,7 +177,9 @@ void load(IgSimulatorConfig &cfg, boost::property_tree::ptree const &pt, bool co
     load(cfg.io_params, pt, "io_params", complete);
     load(cfg.algorithm_params, pt, "algorithm_params", complete);
     load(cfg.simulation_params, pt, "simulation_params", complete);
-    cfg.cdr_labeler_config.load(cfg.io_params.input_params.cdr_labeler_config_filename);
+    // TODO remove this hack
+    cfg.simulation_params.base_repertoire_params.
+        metaroot_simulation_params.cdr_labeler_config.load(cfg.io_params.input_params.cdr_labeler_config_filename);
 }
 
 void load(IgSimulatorConfig &cfg, std::string const &filename) {

@@ -4,12 +4,16 @@
 
 #include "ig_simulator_launch.hpp"
 #include "germline_utils/germline_db_generator.hpp"
-#include "random_generator.hpp"
-#include "gene_chooser/uniform_gene_chooser.hpp"
-#include "nucleotides_remover/uniform_nucleotides_remover.hpp"
-#include "p_nucleotides_creator/uniform_nucleotides_creator.hpp"
-#include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
-#include "metaroot_creator/metaroot_creator.hpp"
+// #include "random_generator.hpp"
+// #include "gene_chooser/uniform_gene_chooser.hpp"
+// #include "nucleotides_remover/uniform_nucleotides_remover.hpp"
+// #include "p_nucleotides_creator/uniform_nucleotides_creator.hpp"
+// #include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
+// #include "metaroot_creator/metaroot_creator.hpp"
+#include "gene_chooser/config_based_getter.hpp"
+#include "n_nucleotides_inserter/config_based_getter.hpp"
+#include "nucleotides_remover/config_based_getter.hpp"
+#include "p_nucleotides_creator/config_based_getter.hpp"
 
 using namespace germline_utils;
 
@@ -19,17 +23,25 @@ void IgSimulatorLaunch::Run() {
     std::cout << config_.simulation_params.base_repertoire_params.
         metaroot_simulation_params.nucleotides_remover_params.
         uniform_remover_params.max_remove_v_gene << std::endl;
-    // MTSingleton::SetSeed(1);
-    // INFO("== IgSimulator starts ==");
 
-    // GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
-    //                                  config_.algorithm_params.germline_params);
-    // INFO("Generation of DB for variable segments...");
-    // germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
-    // INFO("Generation of DB for diversity segments...");
-    // germline_utils::CustomGeneDatabase d_db = db_generator.GenerateDiversityDb();
-    // INFO("Generation of DB for join segments...");
-    // germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
+    // MTSingleton::SetSeed(1);
+    INFO("== IgSimulator starts ==");
+
+    GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
+                                     config_.algorithm_params.germline_params);
+    INFO("Generation of DB for variable segments...");
+    germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
+    INFO("Generation of DB for diversity segments...");
+    germline_utils::CustomGeneDatabase d_db = db_generator.GenerateDiversityDb();
+    INFO("Generation of DB for join segments...");
+    germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
+
+    std::vector<const germline_utils::CustomGeneDatabase *> db{&v_db, &d_db, &j_db};
+    get_gene_chooser(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.gene_chooser_params, db);
+    get_nucleotides_inserter(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.n_nucleotides_inserter_params);
+    get_nucleotides_remover(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.nucleotides_remover_params);
+    get_nucleotides_creator(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.p_nucleotides_creator_params);
+
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
     // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");

@@ -52,7 +52,7 @@ umi: cmake
 	$(MAKE) -C build/release/umi_experiments
 
 igs:
-	$(MAKE) -C build/release/ig_simulator ig_simulator
+	$(MAKE) -C build/release/ig_simulator
 
 clean:
 	-rm -r build

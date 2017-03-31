@@ -75,10 +75,19 @@ struct IgSimulatorConfig {
                     UniformInserterParams uniform_inserter_params;
                 };
 
+                struct CleavageParams {
+                    double prob_cleavage_v;
+                    double prob_cleavage_d_left;
+                    double prob_cleavage_d_right;
+                    double prob_cleavage_j;
+                };
+
                 GeneChooserParams gene_chooser_params;
                 NucleotidesRemoverParams nucleotides_remover_params;
                 PNucleotidesCreatorParams p_nucleotides_creator_params;
                 NNucleotidesInserterParams n_nucleotides_inserter_params;
+                CleavageParams cleavage_params;
+                cdr_labeler::CDRLabelerConfig cdr_labeler_config;
             };
 
             MetarootSimulationParams metaroot_simulation_params;
@@ -90,9 +99,24 @@ struct IgSimulatorConfig {
     IOParams io_params;
     AlgorithmParams algorithm_params;
     SimulationParams simulation_params;
-
-    cdr_labeler::CDRLabelerConfig cdr_labeler_config;
 };
+
+using MetarootSimulationParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams;
+
+using GeneChooserParams = MetarootSimulationParams::GeneChooserParams;
+using GeneChooserMethod = GeneChooserParams::GeneChooserMethod;
+
+using NucleotidesRemoverParams = MetarootSimulationParams::NucleotidesRemoverParams;
+using NucleotidesRemoverMethod = NucleotidesRemoverParams::NucleotidesRemoverMethod;
+
+using PNucleotidesCreatorParams = MetarootSimulationParams::PNucleotidesCreatorParams;
+using PNucleotidesCreatorMethod = PNucleotidesCreatorParams::PNucleotidesCreatorMethod;
+
+using NNucleotidesInserterParams = MetarootSimulationParams::NNucleotidesInserterParams;
+using NNucleotidesInserterMethod = NNucleotidesInserterParams::NNucleotidesInserterMethod;
+
+using CleavageParams = MetarootSimulationParams::CleavageParams;
+
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);
 
