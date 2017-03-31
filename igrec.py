@@ -25,7 +25,7 @@ def ErrorMessagePrepareCfg(log):
 def SupportInfo(log):
     log.info("\nIn case you have troubles running IgReC, "
              "you can write to igtools_support@googlegroups.com.")
-    log.info("Please provide us with igrc.log file from the output directory.")
+    log.info("Please provide us with igrec.log file from the output directory.")
 
 #######################################################################################
 #           Binary routines
@@ -935,7 +935,7 @@ def PrintParams(params, log):
     log.info("  Entry point:\t\t\t" + params.entry_point)
 
 def CreateFileLogger(params, log):
-    params.log_filename = os.path.join(params.output, "igrc.log")
+    params.log_filename = os.path.join(params.output, "igrec.log")
     if os.path.exists(params.log_filename):
         os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')

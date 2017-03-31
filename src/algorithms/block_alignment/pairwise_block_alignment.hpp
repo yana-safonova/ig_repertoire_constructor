@@ -151,7 +151,7 @@ namespace algorithms {
             auto score_function = [](const ctuple_type &a) { return a.first.int_score; };
             auto key_function = [&score_function](const ctuple_type &a) { return std::make_pair(-static_cast<int>(score_function(a)), a.second); };
             auto comp = [&key_function](const ctuple_type &a,
-										const ctuple_type &b) -> bool { return key_function(a) < key_function(b); };
+                                        const ctuple_type &b) -> bool { return key_function(a) < key_function(b); };
             // Return top <limit> positions
             std::nth_element(alignment_indices_.begin(), alignment_indices_.begin() + limit, alignment_indices_.end(), comp);
             alignment_indices_.resize(std::min(alignment_indices_.size(), limit));

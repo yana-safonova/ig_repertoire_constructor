@@ -72,5 +72,5 @@ if input_graph.num_vertices < 100:
     sys.exit(1)
 else:
     WriteOutputWeightedGraph(input_graph, output_file)
-	#WriteOutputSimpleGraph(input_graph, output_file)
-	print "Hamming graph was written to " + output_file
+    #WriteOutputSimpleGraph(input_graph, output_file)
+    print "Hamming graph was written to " + output_file

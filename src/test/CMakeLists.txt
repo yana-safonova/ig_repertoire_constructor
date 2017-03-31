@@ -14,6 +14,7 @@ make_test(test_find_simple_gap test_find_simple_gap.cpp)
 make_test(test_sparse_graph test_sparse_graph.cpp)
 
 make_test(test_dsf test_dsf.cpp)
+add_dependencies(test_dsf metis)
 target_link_libraries(test_dsf dense_sgraph_finder_library)
 
 make_test(test_germline_database test_germline_database.cpp)

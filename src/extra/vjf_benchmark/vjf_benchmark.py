@@ -42,7 +42,7 @@ def parse_vjf_output(filename, readfile):
         reader = csv.reader(csv_file, delimiter="\t")
         headers = reader.next()
 
-# Read_name	Chain_type	V_hit	V_start_pos	V_end_pos	V_score	J_hit	J_start_pos	J_end_pos	J_score
+# Read_name    Chain_type    V_hit    V_start_pos    V_end_pos    V_score    J_hit    J_start_pos    J_end_pos    J_score
         id_col = linear_search(headers, "Read_name")
         Vstart_col = linear_search(headers, "V_start_pos")
         Vend_col = linear_search(headers, "V_end_pos")
