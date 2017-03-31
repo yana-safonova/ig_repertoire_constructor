@@ -27,11 +27,8 @@ tgz: igrec
 install: igrec
 	cd build/release && cmake -P cmake_install.cmake
 
-rig: cmake
-	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
-
 dsf: cmake
-	$(MAKE) -C build/release/dense_sgraph_finder dense_sgraph_finder
+	$(MAKE) -C build/release dense_sgraph_finder
 
 check: cmake
 	$(MAKE) -C build/release check
@@ -43,13 +40,13 @@ rnd: cmake
 	$(MAKE) -C build/release memcheck
 
 vjf: cmake
-	$(MAKE) -C build/release/vj_finder
+	$(MAKE) -C build/release vj_finder
 
 cdr: cmake
-	$(MAKE) -C build/release/cdr_labeler
+	$(MAKE) -C build/release cdr_labeler
 
 umi: cmake
-	$(MAKE) -C build/release/umi_experiments
+	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
 igs:
 	$(MAKE) -C build/release/ig_simulator
