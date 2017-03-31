@@ -30,6 +30,7 @@ target_link_libraries(dense_sgraph_finder_library
 add_executable(dense_sgraph_finder
                launch.cpp
                main.cpp)
+add_dependencies(dense_sgraph_finder metis)
 
 target_link_libraries(dense_sgraph_finder dense_sgraph_finder_library)
 
