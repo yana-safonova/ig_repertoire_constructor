@@ -48,8 +48,8 @@ cdr: cmake
 umi: cmake
 	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
-igs:
-	$(MAKE) -C build/release/ig_simulator
+igs: cmake
+	$(MAKE) -C build/release ig_simulator
 
 clean:
 	-rm -r build
