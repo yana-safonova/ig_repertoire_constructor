@@ -12,5 +12,4 @@ add_library(input STATIC
             copy_file.cpp
             library.cpp)
 
-target_link_libraries(input BamTools yaml-cpp)
-
+target_link_libraries(input yaml-cpp)
