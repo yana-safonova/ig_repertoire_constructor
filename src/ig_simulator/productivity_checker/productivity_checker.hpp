@@ -18,7 +18,7 @@ public:
         aa_calculator(std::move(aa_calculator))
     { }
 
-    bool IsProductive(const AbstractMetaRoot& root) {
+    bool IsProductive(const AbstractMetaroot& root) {
         if (root.CDRLabeling().Empty())
             return false;
         core::Read read("", root.Sequence(), 0);

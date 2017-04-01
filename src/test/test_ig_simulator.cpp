@@ -60,24 +60,24 @@ public:
 TEST_F(IgSimulatorTest, PrepareGeneTest) {
     {
         seqan::Dna5String gene("GTACAACTGGAACG");
-        AbstractMetaRoot::PrepareGene(gene, 0, 1);
+        AbstractMetaroot::PrepareGene(gene, 0, 1);
         ASSERT_EQ(core::seqan_string_to_string(gene), "GTACAACTGGAAC");
-        AbstractMetaRoot::PrepareGene(gene, 2, 1);
+        AbstractMetaroot::PrepareGene(gene, 2, 1);
         ASSERT_EQ(core::seqan_string_to_string(gene), "ACAACTGGAA");
-        AbstractMetaRoot::PrepareGene(gene, 5, 3);
+        AbstractMetaroot::PrepareGene(gene, 5, 3);
         ASSERT_EQ(core::seqan_string_to_string(gene), "TG");
-        AbstractMetaRoot::PrepareGene(gene, -2, -2);
+        AbstractMetaroot::PrepareGene(gene, -2, -2);
         ASSERT_EQ(core::seqan_string_to_string(gene), "CATGCA");
-        AbstractMetaRoot::PrepareGene(gene, -3, 2);
+        AbstractMetaroot::PrepareGene(gene, -3, 2);
         ASSERT_EQ(core::seqan_string_to_string(gene), "ATGCATG");
     }
 }
 
-TEST_F(IgSimulatorTest, VDJMetaRootSequenceCorrect) {
+TEST_F(IgSimulatorTest, VDJMetarootSequenceCorrect) {
     {
         std::string vd_ins("ACCGT");
         std::string dj_ins("TTTT");
-        VDJMetaRoot root(&v_db, &d_db, &j_db,
+        VDJMetaroot root(&v_db, &d_db, &j_db,
                          0, 0, 0,
                          annotation_utils::CDRLabeling(),
                          5, 1, 2, 3,
@@ -98,7 +98,7 @@ TEST_F(IgSimulatorTest, VDJMetaRootSequenceCorrect) {
     {
         std::string vd_ins("ACCGT");
         std::string dj_ins("TTTT");
-        VDJMetaRoot root(&v_db, &d_db, &j_db,
+        VDJMetaroot root(&v_db, &d_db, &j_db,
                          0, 0, 0,
                          annotation_utils::CDRLabeling(),
                          -5, -2, -2, -3,
@@ -122,7 +122,7 @@ TEST_F(IgSimulatorTest, VDJMetaRootSequenceCorrect) {
     {
         std::string vd_ins("ACCGT");
         std::string dj_ins("TTTT");
-        VDJMetaRoot root(&v_db, &d_db, &j_db,
+        VDJMetaroot root(&v_db, &d_db, &j_db,
                          0, 0, 0,
                          annotation_utils::CDRLabeling(),
                          -5, 0, -3, -3,
@@ -146,7 +146,7 @@ TEST_F(IgSimulatorTest, VDJMetaRootSequenceCorrect) {
     {
         std::string vd_ins("ACCGT");
         std::string dj_ins("TTTT");
-        VDJMetaRoot root(&v_db, &d_db, &j_db,
+        VDJMetaroot root(&v_db, &d_db, &j_db,
                          0, 0, 0,
                          annotation_utils::CDRLabeling(),
                          0, 0, 0, 0,
@@ -165,10 +165,10 @@ TEST_F(IgSimulatorTest, VDJMetaRootSequenceCorrect) {
     }
 }
 
-TEST_F(IgSimulatorTest, VJMetaRootSequenceCorrect) {
+TEST_F(IgSimulatorTest, VJMetarootSequenceCorrect) {
     {
         std::string vj_ins("ACCGT");
-        VJMetaRoot root(&v_db, &j_db,
+        VJMetaroot root(&v_db, &j_db,
                         0, 0,
                         annotation_utils::CDRLabeling(),
                         5, 3, vj_ins);
@@ -184,7 +184,53 @@ TEST_F(IgSimulatorTest, VJMetaRootSequenceCorrect) {
     }
 }
 
-TEST_F(IgSimulatorTest, MetaRootCreaterSpeedTest) {
+//TEST_F(IgSimulatorTest, MetarootCreaterSpeedTest) {
+//    {
+//        config.algorithm_params.germline_params.loci = "IGH";
+//
+//        germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
+//                                                         config.algorithm_params.germline_params);
+//        v_db = db_generator.GenerateVariableDb();
+//        d_db = db_generator.GenerateDiversityDb();
+//        j_db = db_generator.GenerateJoinDb();
+//
+//        VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
+//                                            &v_db, &d_db, &j_db);
+//
+//        auto t1 = std::chrono::high_resolution_clock::now();
+//        size_t N((int) 1e5);
+//        for (size_t i = 0; i < N; ++i) {
+//            auto root = metaroot_creator.Createroot();
+//        }
+//        auto t2 = std::chrono::high_resolution_clock::now();
+//        std::chrono::duration<double, std::milli> fp = t2 - t1;
+//        std::cout << "Simulation of " << N << " VDJ metaroots took " << fp.count() << "ms" << std::endl;
+//    }
+//
+//    {
+//        config.algorithm_params.germline_params.loci = "IGL";
+//
+//        germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
+//                                                         config.algorithm_params.germline_params);
+//        v_db = db_generator.GenerateVariableDb();
+//        INFO("Generation of DB for join segments...");
+//        j_db = db_generator.GenerateJoinDb();
+//
+//        VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
+//                                            &v_db, &d_db, &j_db);
+//
+//        auto t1 = std::chrono::high_resolution_clock::now();
+//        size_t N((int) 1e5);
+//        for (size_t i = 0; i < N; ++i) {
+//            metaroot_creator.Createroot()->Sequence();
+//        }
+//        auto t2 = std::chrono::high_resolution_clock::now();
+//        std::chrono::duration<double, std::milli> fp = t2 - t1;
+//        std::cout << "Simulation of " << N << " VJ metaroots took " << fp.count() << "ms" << std::endl;
+//    }
+//}
+
+TEST_F(IgSimulatorTest, MetarootCreaterCDRTest) {
     {
         config.algorithm_params.germline_params.loci = "IGH";
 
@@ -194,93 +240,17 @@ TEST_F(IgSimulatorTest, MetaRootCreaterSpeedTest) {
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
 
-        AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
-        AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
-        AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
-        AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
-
-        VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
-                                            0.5, 0.5, 0.5, 0.5,
-                                            std::move(gene_chooser),
-                                            std::move(nucl_remover),
-                                            std::move(nucl_creator),
-                                            std::move(nucl_inserter),
-                                            config.cdr_labeler_config.cdrs_params);
-
-        auto t1 = std::chrono::high_resolution_clock::now();
-        size_t N((int) 1e6);
-        for (size_t i = 0; i < N; ++i) {
-            auto root = metaroot_creator.CreateRoot();
-        }
-        auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> fp = t2 - t1;
-        std::cout << "Simulation of " << N << " VDJ metaroots took " << fp.count() << "ms" << std::endl;
-    }
-
-    {
-        config.algorithm_params.germline_params.loci = "IGL";
-
-        germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
-                                                         config.algorithm_params.germline_params);
-        v_db = db_generator.GenerateVariableDb();
-        INFO("Generation of DB for join segments...");
-        j_db = db_generator.GenerateJoinDb();
-
-        AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, j_db));
-        AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
-        AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
-        AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
-
-        VJMetarootCreator metaroot_creator(v_db, j_db,
-                                           0.5, 0.5,
-                                           std::move(gene_chooser),
-                                           std::move(nucl_remover),
-                                           std::move(nucl_creator),
-                                           std::move(nucl_inserter),
-                                           config.cdr_labeler_config.cdrs_params);
-
-        auto t1 = std::chrono::high_resolution_clock::now();
-        size_t N((int) 1e6);
-        for (size_t i = 0; i < N; ++i) {
-            metaroot_creator.CreateRoot().Sequence();
-        }
-        auto t2 = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> fp = t2 - t1;
-        std::cout << "Simulation of " << N << " VJ metaroots took " << fp.count() << "ms" << std::endl;
-    }
-}
-
-TEST_F(IgSimulatorTest, MetaRootCreaterCDRTest) {
-    {
-        config.algorithm_params.germline_params.loci = "IGH";
-
-        germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
-                                                         config.algorithm_params.germline_params);
-        v_db = db_generator.GenerateVariableDb();
-        d_db = db_generator.GenerateDiversityDb();
-        j_db = db_generator.GenerateJoinDb();
-
-        AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
-        AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
-        AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
-        AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
-
-        VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
-                                            0.5, 0.5, 0.5, 0.5,
-                                            std::move(gene_chooser),
-                                            std::move(nucl_remover),
-                                            std::move(nucl_creator),
-                                            std::move(nucl_inserter),
-                                            config.cdr_labeler_config.cdrs_params);
+        VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
+                                            &v_db, &d_db, &j_db);
 
         MTSingleton::SetSeed(5);
-        auto root = metaroot_creator.CreateRoot();
-        ASSERT_EQ(root.CDRLabeling().cdr1.start_pos, 75);
-        ASSERT_EQ(root.CDRLabeling().cdr1.end_pos, 98);
-        ASSERT_EQ(root.CDRLabeling().cdr2.start_pos, 150);
-        ASSERT_EQ(root.CDRLabeling().cdr2.end_pos, 173);
-        ASSERT_EQ(root.CDRLabeling().cdr3.start_pos, 288);
-        ASSERT_EQ(root.CDRLabeling().cdr3.end_pos, 389);
+        auto root = metaroot_creator.Createroot();
+        ASSERT_EQ(root->CDRLabeling().cdr1.start_pos, 75);
+        ASSERT_EQ(root->CDRLabeling().cdr1.end_pos, 98);
+        ASSERT_EQ(root->CDRLabeling().cdr2.start_pos, 150);
+        ASSERT_EQ(root->CDRLabeling().cdr2.end_pos, 173);
+        ASSERT_EQ(root->CDRLabeling().cdr3.start_pos, 288);
+        ASSERT_EQ(root->CDRLabeling().cdr3.end_pos, 389);
     }
 }
 
@@ -294,28 +264,18 @@ TEST_F(IgSimulatorTest, ProductiveChecker) {
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
 
-        AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
-        AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
-        AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
-        AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
-
         ProductivityChecker productivity_checker(std::unique_ptr<annotation_utils::BaseAACalculator>
                                                 (new annotation_utils::SimpleAACalculator));
 
-        VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
-                                            0.5, 0.5, 0.5, 0.5,
-                                            std::move(gene_chooser),
-                                            std::move(nucl_remover),
-                                            std::move(nucl_creator),
-                                            std::move(nucl_inserter),
-                                            config.cdr_labeler_config.cdrs_params);
+        VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
+                                            &v_db, &d_db, &j_db);
 
         auto t1 = std::chrono::high_resolution_clock::now();
         size_t N((int) 1e6);
         size_t prod = 0;
         for (size_t i = 0; i < N; ++i) {
-            auto root = metaroot_creator.CreateRoot();
-            if (productivity_checker.IsProductive(root)) {
+            auto root = metaroot_creator.Createroot();
+            if (productivity_checker.IsProductive(*root)) {
                 prod++;
             }
         }

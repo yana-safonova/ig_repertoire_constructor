@@ -88,9 +88,9 @@ private:
 public:
     VDJMetarootCreator(const MetarootSimulationParams& config,
                        germline_utils::CustomGeneDatabase *v_db_p,
-                       germline_utils::CustomGeneDatabase *j_db_p,
-                       germline_utils::CustomGeneDatabase *d_db_p):
-        AbstractMetarootCreator(config, v_db_p, j_db_p, get_gene_chooser(config, {v_db_p, d_db_p, j_db_p})),
+                       germline_utils::CustomGeneDatabase *d_db_p,
+                       germline_utils::CustomGeneDatabase *j_db_p):
+        AbstractMetarootCreator(config, v_db_p, j_db_p, get_gene_chooser(config.gene_chooser_params, {v_db_p, d_db_p, j_db_p})),
         d_db_p(check_pointer(d_db_p)),
         prob_cleavage_d_left(config.cleavage_params.prob_cleavage_d_left),
         prob_cleavage_d_right(config.cleavage_params.prob_cleavage_d_right)

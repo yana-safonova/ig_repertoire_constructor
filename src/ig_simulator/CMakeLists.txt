@@ -20,12 +20,12 @@ add_library(ig_simulator_library STATIC
         p_nucleotides_creator/abstract_nucleotides_creator.cpp
         p_nucleotides_creator/uniform_nucleotides_creator.cpp
         p_nucleotides_creator/config_based_getter.cpp
-        # metaroot_creator/metaroot_creator.cpp
+        metaroot_creator/metaroot_creator.cpp
         n_nucleotides_inserter/abstract_n_nucleotides_inserter.cpp
         n_nucleotides_inserter/uniform_n_nucleotides_inserter.cpp
         n_nucleotides_inserter/config_based_getter.cpp
         metaroot/metaroot.cpp
-        # productivity_checker/productivity_checker.cpp
+        productivity_checker/productivity_checker.cpp
         # multiplicity_creator/multiplicity_creator.cpp
         )
 
