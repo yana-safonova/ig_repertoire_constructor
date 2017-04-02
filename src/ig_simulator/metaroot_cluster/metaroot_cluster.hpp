@@ -22,6 +22,9 @@ public:
 
     MetarootCluster(const MetarootCluster&) = delete;
     MetarootCluster(MetarootCluster&&) = default;
+
+    const AbstractMetarootCPtr& MetarootPtr() const { return metaroot_p; }
+    size_t Multiplicity() const { return multiplicity; }
 };
 
 } // End namespace ig_simulator

@@ -99,8 +99,14 @@ struct IgSimulatorConfig {
                 MultiplicityCreatorMethod method;
                 GeometricParams geometric_params;
             };
+
+            struct ProductiveParams {
+                double productive_part;
+            };
+
             MetarootSimulationParams metaroot_simulation_params;
             MultiplicityCreatorParams multiplicity_creator_params;
+            ProductiveParams productive_params;
         };
 
         BaseRepertoireParams base_repertoire_params;
@@ -113,6 +119,7 @@ struct IgSimulatorConfig {
 
 using MetarootSimulationParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams;
 using MultiplicityCreatorParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MultiplicityCreatorParams;
+using ProductiveParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::ProductiveParams;
 
 using MultiplicityCreatorMethod = MultiplicityCreatorParams::MultiplicityCreatorMethod;
 

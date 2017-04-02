@@ -10,11 +10,21 @@ BaseRepertoire BaseRepertoireSimulator::Simulate(size_t size) {
     BaseRepertoire repertoire;
     repertoire.reserve(size);
 
-    for (size_t i = 0; i < size; ++i) {
+    size_t productive_size = static_cast<size_t> (size * productive_part);
+    size_t i = 0;
+    while(i < productive_size) {
+        MetarootCluster cluster{metaroot_creator_p->Createroot(),
+                                multiplicity_creator_p->RandomMultiplicity()};
+        if (productivity_checker.IsProductive(cluster.MetarootPtr())) {
+            repertoire.emplace_back(std::move(cluster));
+            i++;
+        }
+    }
+
+    for(; i < size; ++i) {
         repertoire.emplace_back(metaroot_creator_p->Createroot(),
                                 multiplicity_creator_p->RandomMultiplicity());
     }
-
     return repertoire;
 }
 

@@ -14,7 +14,8 @@ private:
     const annotation_utils::BaseAACalculatorPtr aa_calculator;
 
 public:
-    ProductivityChecker(annotation_utils::BaseAACalculatorPtr aa_calculator):
+    ProductivityChecker(annotation_utils::BaseAACalculatorPtr aa_calculator =
+                        annotation_utils::BaseAACalculatorPtr(new annotation_utils::SimpleAACalculator())):
         aa_calculator(std::move(aa_calculator))
     { }
 

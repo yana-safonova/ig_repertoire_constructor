@@ -1,7 +1,6 @@
 //
 // Created by Andrew Bzikadze on 3/15/17.
 //
-
 #include "ig_simulator_launch.hpp"
 #include "germline_utils/germline_db_generator.hpp"
 // #include "random_generator.hpp"
@@ -51,10 +50,15 @@ void IgSimulatorLaunch::Run() {
         db.push_back(&d_db);
     db.push_back(&j_db);
 
-    auto base_repertoire_simulator = BaseRepertoireSimulator(config_.simulation_params.base_repertoire_params,
-                                                             chain_type,
-                                                             db);
-    // base_repertoire_simulator.Simulate(10);
+    BaseRepertoireSimulator base_repertoire_simulator{config_.simulation_params.base_repertoire_params,
+                                                      chain_type,
+                                                      db};
+    auto base_repertoire = base_repertoire_simulator.Simulate(100000);
+    std::ofstream base_repertoire_out;
+    base_repertoire_out.open(config_.io_params.output_params.output_dir + "/test.fa");
+    base_repertoire_out << base_repertoire;
+    base_repertoire_out.close();
+    std::cout << config_.io_params.output_params.output_dir + "/test.fa\n";
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
     // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");

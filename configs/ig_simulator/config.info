@@ -73,5 +73,9 @@ simulation_params {
                 lambda              0.1
             }
         }
+
+        productive_params {
+            productive_part     1
+        }
     }
 }

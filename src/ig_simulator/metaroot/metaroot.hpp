@@ -95,6 +95,7 @@ public:
     virtual const seqan::Dna5String& Sequence() const override;
 };
 
+
 class VDJMetaroot : public AbstractMetaroot {
 private:
     const germline_utils::CustomGeneDatabase * d_db_p;

@@ -179,12 +179,20 @@ void load(MultiplicityCreatorParams &multiplicity_creator_params,
     }
 }
 
+void load(ProductiveParams &base_repertoire_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(base_repertoire_params.productive_part, pt, "productive_part");
+}
+
 void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams &base_repertoire_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
     load(base_repertoire_params.metaroot_simulation_params, pt, "metaroot_simulation_params");
     load(base_repertoire_params.multiplicity_creator_params, pt, "multiplicity_creator_params");
+    load(base_repertoire_params.productive_params, pt, "productive_params");
 }
 
 void load(IgSimulatorConfig::SimulationParams &simulation_params,

@@ -39,7 +39,7 @@ target_link_libraries(ig_simulator_library
         )
 
 
-add_executable(ig_simulator main.cpp metaroot_cluster/metaroot_cluster.cpp metaroot_cluster/metaroot_cluster.hpp)
+add_executable(ig_simulator main.cpp metaroot_cluster/metaroot_cluster.cpp metaroot_cluster/metaroot_cluster.hpp base_repertoire/base_repertoire.cpp base_repertoire/base_repertoire.hpp)
         #base_repertoire_simulator/base_repertoire_simulator.cpp base_repertoire_simulator/base_repertoire_simulator.hpp)
 
 target_link_libraries(ig_simulator ig_simulator_library)
