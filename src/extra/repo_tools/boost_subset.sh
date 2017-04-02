@@ -9,7 +9,7 @@ REQUIRED_BOOST_LIBRARIES+=" multi_array "
 
 EXCLUDED_BINARIES=" config serialization thread date_time exception smart_ptr test timer "
 
-BOOST_VERSION="1_61"
+BOOST_VERSION="1_63"
 # BOOST_VERSION="1_59"
 
 OUTPUT_DIR="out_${BOOST_VERSION}_0"
