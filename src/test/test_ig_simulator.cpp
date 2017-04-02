@@ -241,7 +241,7 @@ TEST_F(IgSimulatorTest, MetarootCreaterCDRTest) {
         j_db = db_generator.GenerateJoinDb();
 
         VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
-                                            &v_db, &d_db, &j_db);
+                                            {&v_db, &d_db, &j_db});
 
         MTSingleton::SetSeed(5);
         auto root = metaroot_creator.Createroot();
@@ -268,14 +268,14 @@ TEST_F(IgSimulatorTest, ProductiveChecker) {
                                                 (new annotation_utils::SimpleAACalculator));
 
         VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
-                                            &v_db, &d_db, &j_db);
+                                            {&v_db, &d_db, &j_db});
 
         auto t1 = std::chrono::high_resolution_clock::now();
         size_t N((int) 1e6);
         size_t prod = 0;
         for (size_t i = 0; i < N; ++i) {
             auto root = metaroot_creator.Createroot();
-            if (productivity_checker.IsProductive(*root)) {
+            if (productivity_checker.IsProductive(root)) {
                 prod++;
             }
         }

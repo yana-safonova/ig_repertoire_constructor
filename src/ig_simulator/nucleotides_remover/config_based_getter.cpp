@@ -8,10 +8,10 @@
 
 namespace ig_simulator {
 
-AbstractNucleotidesRemoverPtr get_nucleotides_remover(const NucleotidesRemoverParams & config)
+AbstractNucleotidesRemoverCPtr get_nucleotides_remover(const NucleotidesRemoverParams & config)
 {
     if (config.method == NucleotidesRemoverMethod::Uniform)
-        return AbstractNucleotidesRemoverPtr(new UniformNucleotidesRemover(config.uniform_remover_params));
+        return AbstractNucleotidesRemoverCPtr(new UniformNucleotidesRemover(config.uniform_remover_params));
     VERIFY(false);
 }
 

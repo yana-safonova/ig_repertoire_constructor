@@ -90,7 +90,17 @@ struct IgSimulatorConfig {
                 cdr_labeler::CDRLabelerConfig cdr_labeler_config;
             };
 
+            struct MultiplicityCreatorParams {
+                struct GeometricParams {
+                    double lambda;
+                };
+
+                enum class MultiplicityCreatorMethod { Geometric };
+                MultiplicityCreatorMethod method;
+                GeometricParams geometric_params;
+            };
             MetarootSimulationParams metaroot_simulation_params;
+            MultiplicityCreatorParams multiplicity_creator_params;
         };
 
         BaseRepertoireParams base_repertoire_params;
@@ -102,6 +112,9 @@ struct IgSimulatorConfig {
 };
 
 using MetarootSimulationParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams;
+using MultiplicityCreatorParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MultiplicityCreatorParams;
+
+using MultiplicityCreatorMethod = MultiplicityCreatorParams::MultiplicityCreatorMethod;
 
 using GeneChooserParams = MetarootSimulationParams::GeneChooserParams;
 using GeneChooserMethod = GeneChooserParams::GeneChooserMethod;

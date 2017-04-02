@@ -9,6 +9,6 @@
 
 namespace ig_simulator {
 
-AbstractNNucleotidesInserterPtr get_nucleotides_inserter(const NNucleotidesInserterParams & config);
+AbstractNNucleotidesInserterCPtr get_nucleotides_inserter(const NNucleotidesInserterParams & config);
 
 } // End namespace ig_simulator

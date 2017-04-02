@@ -9,10 +9,10 @@
 
 namespace ig_simulator {
 
-AbstractNNucleotidesInserterPtr get_nucleotides_inserter(const NNucleotidesInserterParams & config)
+AbstractNNucleotidesInserterCPtr get_nucleotides_inserter(const NNucleotidesInserterParams & config)
 {
     if (config.method == NNucleotidesInserterMethod::Uniform)
-        return AbstractNNucleotidesInserterPtr(new UniformNNucleotidesInserter(config.uniform_inserter_params));
+        return AbstractNNucleotidesInserterCPtr(new UniformNNucleotidesInserter(config.uniform_inserter_params));
     VERIFY(false);
 }
 

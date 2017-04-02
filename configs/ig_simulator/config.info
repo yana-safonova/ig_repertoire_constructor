@@ -66,5 +66,12 @@ simulation_params {
                 prob_cleavage_j        0.5
             }
         }
+
+        multiplicity_creator_params {
+            multiplicity_method     geometric
+            geometric_params {
+                lambda              0.1
+            }
+        }
     }
 }

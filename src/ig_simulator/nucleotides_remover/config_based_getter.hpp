@@ -9,6 +9,6 @@
 
 namespace ig_simulator {
 
-AbstractNucleotidesRemoverPtr get_nucleotides_remover(const NucleotidesRemoverParams & config);
+AbstractNucleotidesRemoverCPtr get_nucleotides_remover(const NucleotidesRemoverParams & config);
 
 } // End namespace ig_simulator

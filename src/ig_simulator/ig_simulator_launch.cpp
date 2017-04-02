@@ -14,10 +14,17 @@
 #include "n_nucleotides_inserter/config_based_getter.hpp"
 #include "nucleotides_remover/config_based_getter.hpp"
 #include "p_nucleotides_creator/config_based_getter.hpp"
+#include "base_repertoire_simulator/base_repertoire_simulator.hpp"
 
 using namespace germline_utils;
 
 namespace ig_simulator {
+
+germline_utils::ChainType IgSimulatorLaunch::GetLaunchChainType() const {
+    auto v_chain_type = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
+    VERIFY_MSG(v_chain_type.size() == 1, "Only specific chain type is allowed");
+    return v_chain_type[0];
+}
 
 void IgSimulatorLaunch::Run() {
     std::cout << config_.simulation_params.base_repertoire_params.
@@ -26,6 +33,8 @@ void IgSimulatorLaunch::Run() {
 
     // MTSingleton::SetSeed(1);
     INFO("== IgSimulator starts ==");
+
+    germline_utils::ChainType chain_type = GetLaunchChainType();
 
     GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
                                      config_.algorithm_params.germline_params);
@@ -36,21 +45,25 @@ void IgSimulatorLaunch::Run() {
     INFO("Generation of DB for join segments...");
     germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
 
-    std::vector<const germline_utils::CustomGeneDatabase *> db{&v_db, &d_db, &j_db};
-    get_gene_chooser(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.gene_chooser_params, db);
-    get_nucleotides_inserter(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.n_nucleotides_inserter_params);
-    get_nucleotides_remover(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.nucleotides_remover_params);
-    get_nucleotides_creator(config_.simulation_params.base_repertoire_params.metaroot_simulation_params.p_nucleotides_creator_params);
+    std::vector<germline_utils::CustomGeneDatabase*> db;
+    db.push_back(&v_db);
+    if (chain_type.IsVDJ())
+        db.push_back(&d_db);
+    db.push_back(&j_db);
 
+    auto base_repertoire_simulator = BaseRepertoireSimulator(config_.simulation_params.base_repertoire_params,
+                                                             chain_type,
+                                                             db);
+    // base_repertoire_simulator.Simulate(10);
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
     // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");
     // auto locus = loci[0];
 
-    // AbstractVDJGeneChooserPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
-    // AbstractNucleotidesRemoverPtr nucl_remover(new UniformNucleotidesRemover());
-    // AbstractPNucleotidesCreatorPtr nucl_creator(new UniformPNucleotidesCreator());
-    // AbstractNNucleotidesInserterPtr nucl_inserter(new UniformNNucleotidesInserter());
+    // AbstractVDJGeneChooserCPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
+    // AbstractNucleotidesRemoverCPtr nucl_remover(new UniformNucleotidesRemover());
+    // AbstractPNucleotidesCreatorCPtr nucl_creator(new UniformPNucleotidesCreator());
+    // AbstractNNucleotidesInserterCPtr nucl_inserter(new UniformNNucleotidesInserter());
 
     // VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
     //                                     std::move(gene_chooser),

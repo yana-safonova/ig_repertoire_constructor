@@ -25,7 +25,7 @@ protected:
     bool is_vdj;
 
 public:
-    AbstractVDJGeneChooser(const std::vector<const germline_utils::CustomGeneDatabase *>& db):
+    AbstractVDJGeneChooser(const std::vector<germline_utils::CustomGeneDatabase *>& db):
             v_db_p_(check_pointer(db.front())),
             d_db_p_(nullptr),
             j_db_p_(check_pointer(db.back())),
@@ -56,5 +56,6 @@ public:
     virtual ~AbstractVDJGeneChooser() { };
 };
 
-using AbstractVDJGeneChooserPtr = std::unique_ptr<AbstractVDJGeneChooser>;
+using AbstractVDJGeneChooserCPtr = std::unique_ptr<const AbstractVDJGeneChooser>;
+
 } // End namespace ig_simulator

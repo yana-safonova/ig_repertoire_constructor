@@ -19,6 +19,6 @@ public:
     virtual ~AbstractNucleotidesRemover() { }
 };
 
-using AbstractNucleotidesRemoverPtr = std::unique_ptr<AbstractNucleotidesRemover>;
+using AbstractNucleotidesRemoverCPtr = std::unique_ptr<const AbstractNucleotidesRemover>;
 
 } // End namespace ig_simulator

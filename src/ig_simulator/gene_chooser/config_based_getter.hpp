@@ -9,8 +9,8 @@
 
 namespace ig_simulator {
 
-AbstractVDJGeneChooserPtr
+AbstractVDJGeneChooserCPtr
 get_gene_chooser(const GeneChooserParams& config,
-                 const std::vector<const germline_utils::CustomGeneDatabase *>& db);
+                 const std::vector<germline_utils::CustomGeneDatabase *>& db);
 
 } // End namespace ig_simulator

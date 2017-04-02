@@ -9,6 +9,6 @@
 
 namespace ig_simulator {
 
-AbstractPNucleotidesCreatorPtr get_nucleotides_creator(const PNucleotidesCreatorParams &config);
+AbstractPNucleotidesCreatorCPtr get_nucleotides_creator(const PNucleotidesCreatorParams &config);
 
 } // End namespace ig_simulator

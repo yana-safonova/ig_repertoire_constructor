@@ -19,6 +19,6 @@ public:
     virtual ~AbstractNNucleotidesInserter() { }
 };
 
-using AbstractNNucleotidesInserterPtr = std::unique_ptr<AbstractNNucleotidesInserter>;
+using AbstractNNucleotidesInserterCPtr = std::unique_ptr<const AbstractNNucleotidesInserter>;
 
 } // End namespace ig_simulator

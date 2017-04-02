@@ -32,50 +32,52 @@ protected:
     double prob_cleavage_v;
     double prob_cleavage_j;
 
-    AbstractVDJGeneChooserPtr gene_chooser_p;
-    AbstractNucleotidesRemoverPtr nucl_remover_p;
-    AbstractPNucleotidesCreatorPtr nucl_creator_p;
-    AbstractNNucleotidesInserterPtr nucl_inserter_p;
+    AbstractVDJGeneChooserCPtr gene_chooser_p;
+    AbstractNucleotidesRemoverCPtr nucl_remover_p;
+    AbstractPNucleotidesCreatorCPtr nucl_creator_p;
+    AbstractNNucleotidesInserterCPtr nucl_inserter_p;
 
     cdr_labeler::DbCDRLabeling v_cdr_db;
     cdr_labeler::DbCDRLabeling j_cdr_db;
 
 public:
     AbstractMetarootCreator(const MetarootSimulationParams& config,
-                            germline_utils::CustomGeneDatabase *v_db_p,
-                            germline_utils::CustomGeneDatabase *j_db_p,
-                            AbstractVDJGeneChooserPtr&& gene_chooser):
-        v_db_p(check_pointer(v_db_p)),
-        j_db_p(check_pointer(j_db_p)),
+                            const std::vector<germline_utils::CustomGeneDatabase *>& db,
+                            AbstractVDJGeneChooserCPtr&& gene_chooser):
+        v_db_p(check_pointer(db.front())),
+        j_db_p(check_pointer(db.back())),
         prob_cleavage_v(config.cleavage_params.prob_cleavage_v),
         prob_cleavage_j(config.cleavage_params.prob_cleavage_j),
         gene_chooser_p(std::move(gene_chooser)),
         nucl_remover_p(get_nucleotides_remover(config.nucleotides_remover_params)),
         nucl_creator_p(get_nucleotides_creator(config.p_nucleotides_creator_params)),
         nucl_inserter_p(get_nucleotides_inserter(config.n_nucleotides_inserter_params)),
-        v_cdr_db(cdr_labeler::GermlineDbLabeler(*check_pointer(v_db_p), config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
-        j_cdr_db(cdr_labeler::GermlineDbLabeler(*check_pointer(j_db_p), config.cdr_labeler_config.cdrs_params).ComputeLabeling())
+        v_cdr_db(cdr_labeler::GermlineDbLabeler(*check_pointer(db.front()), config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
+        j_cdr_db(cdr_labeler::GermlineDbLabeler(*check_pointer(db.back()),  config.cdr_labeler_config.cdrs_params).ComputeLabeling())
     {
+        VERIFY(db.size() >= 2);
         VERIFY(v_db_p->size() > 0);
         VERIFY(j_db_p->size() > 0);
         VERIFY(prob_cleavage_v >= 0 and prob_cleavage_v <= 1);
         VERIFY(prob_cleavage_j >= 0 and prob_cleavage_j <= 1);
     }
 
-    virtual AbstractMetarootPtr Createroot() const = 0;
+    virtual AbstractMetarootCPtr Createroot() const = 0;
     virtual ~AbstractMetarootCreator() { }
 };
+using AbstractMetarootCreatorCPtr = std::unique_ptr<const AbstractMetarootCreator>;
 
 class VJMetarootCreator : public AbstractMetarootCreator {
 public:
 
     VJMetarootCreator(const MetarootSimulationParams& config,
-                      germline_utils::CustomGeneDatabase *v_db_p,
-                      germline_utils::CustomGeneDatabase *j_db_p):
-        AbstractMetarootCreator(config, v_db_p, j_db_p, get_gene_chooser(config.gene_chooser_params, {v_db_p, j_db_p}))
-    { }
+                      const std::vector<germline_utils::CustomGeneDatabase *>& db):
+        AbstractMetarootCreator(config, db, get_gene_chooser(config.gene_chooser_params, db))
+    {
+        VERIFY(db.size() == 2);
+    }
 
-    virtual AbstractMetarootPtr Createroot() const override;
+    virtual AbstractMetarootCPtr Createroot() const override;
 };
 
 class VDJMetarootCreator : public AbstractMetarootCreator {
@@ -87,20 +89,19 @@ private:
 
 public:
     VDJMetarootCreator(const MetarootSimulationParams& config,
-                       germline_utils::CustomGeneDatabase *v_db_p,
-                       germline_utils::CustomGeneDatabase *d_db_p,
-                       germline_utils::CustomGeneDatabase *j_db_p):
-        AbstractMetarootCreator(config, v_db_p, j_db_p, get_gene_chooser(config.gene_chooser_params, {v_db_p, d_db_p, j_db_p})),
-        d_db_p(check_pointer(d_db_p)),
+                       const std::vector<germline_utils::CustomGeneDatabase *>& db):
+        AbstractMetarootCreator(config, db, get_gene_chooser(config.gene_chooser_params, db)),
+        d_db_p(check_pointer(db.at(1))),
         prob_cleavage_d_left(config.cleavage_params.prob_cleavage_d_left),
         prob_cleavage_d_right(config.cleavage_params.prob_cleavage_d_right)
     {
+        VERIFY(db.size() == 3);
         VERIFY(d_db_p->size() > 0);
         VERIFY(prob_cleavage_d_left >= 0 and prob_cleavage_d_left <= 1);
         VERIFY(prob_cleavage_d_right >= 0 and prob_cleavage_d_right <= 1);
     }
 
-    virtual AbstractMetarootPtr Createroot() const override;
+    virtual AbstractMetarootCPtr Createroot() const override;
 };
 
 } // End namespace ig_simulator

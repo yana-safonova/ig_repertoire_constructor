@@ -25,6 +25,10 @@ public:
         auto aa = aa_calculator->ComputeAminoAcidAnnotation(read, root.CDRLabeling());
         return not aa.HasStopCodon() and aa.InFrame();
     }
+
+    bool IsProductive(const AbstractMetarootCPtr& root) {
+        return IsProductive(*check_pointer(root));
+    }
 };
 
 } // End namespace ig_simulator

@@ -156,11 +156,35 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams
     load(metaroot_simulation_params.cleavage_params, pt, "cleavage_params");
 }
 
+void load(MultiplicityCreatorParams::GeometricParams &geometric_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(geometric_params.lambda, pt, "lambda");
+}
+
+void load(MultiplicityCreatorParams &multiplicity_creator_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    using MultiplicityCreatorMethod = MultiplicityCreatorParams::MultiplicityCreatorMethod;
+
+    std::string method_str(pt.get<std::string>("multiplicity_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str == "geometric") {
+        multiplicity_creator_params.method = MultiplicityCreatorMethod::Geometric;
+        load(multiplicity_creator_params.geometric_params, pt, "geometric_params");
+    }
+}
+
 void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams &base_repertoire_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
     load(base_repertoire_params.metaroot_simulation_params, pt, "metaroot_simulation_params");
+    load(base_repertoire_params.multiplicity_creator_params, pt, "multiplicity_creator_params");
 }
 
 void load(IgSimulatorConfig::SimulationParams &simulation_params,

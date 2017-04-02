@@ -67,7 +67,7 @@ public:
     virtual ~AbstractMetaroot() { }
 };
 
-using AbstractMetarootPtr = std::unique_ptr<AbstractMetaroot>;
+using AbstractMetarootCPtr = std::unique_ptr<const AbstractMetaroot>;
 
 
 class VJMetaroot : public AbstractMetaroot {

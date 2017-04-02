@@ -8,10 +8,10 @@
 
 namespace ig_simulator {
 
-AbstractPNucleotidesCreatorPtr get_nucleotides_creator(const PNucleotidesCreatorParams &config)
+AbstractPNucleotidesCreatorCPtr get_nucleotides_creator(const PNucleotidesCreatorParams &config)
 {
     if (config.method == PNucleotidesCreatorMethod::Uniform)
-        return AbstractPNucleotidesCreatorPtr(new UniformPNucleotidesCreator(config.uniform_creator_params));
+        return AbstractPNucleotidesCreatorCPtr(new UniformPNucleotidesCreator(config.uniform_creator_params));
     VERIFY(false);
 }
 

@@ -14,7 +14,7 @@
 
 namespace ig_simulator {
 
-AbstractMetarootPtr VJMetarootCreator::Createroot() const {
+AbstractMetarootCPtr VJMetarootCreator::Createroot() const {
     auto genes_ind = gene_chooser_p->ChooseGenes();
     VERIFY(std::get<1>(genes_ind) == size_t(-1));
 
@@ -47,14 +47,14 @@ AbstractMetarootPtr VJMetarootCreator::Createroot() const {
         cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
     }
 
-    return AbstractMetarootPtr(new VJMetaroot(v_db_p, j_db_p,
+    return AbstractMetarootCPtr(new VJMetaroot(v_db_p, j_db_p,
                                std::get<0>(genes_ind), std::get<2>(genes_ind),
                                cdr_labeling,
                                cleavage_v, cleavage_j,
                                vj_insertion));
 }
 
-AbstractMetarootPtr VDJMetarootCreator::Createroot() const {
+AbstractMetarootCPtr VDJMetarootCreator::Createroot() const {
     auto genes_ind = gene_chooser_p->ChooseGenes();
 
     bool is_cleavage_v       = std::bernoulli_distribution(prob_cleavage_v)(MTSingleton::GetInstance());
@@ -103,7 +103,7 @@ AbstractMetarootPtr VDJMetarootCreator::Createroot() const {
         cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
     }
 
-    return AbstractMetarootPtr(new VDJMetaroot(v_db_p, d_db_p, j_db_p,
+    return AbstractMetarootCPtr(new VDJMetaroot(v_db_p, d_db_p, j_db_p,
                                std::get<0>(genes_ind), std::get<1>(genes_ind), std::get<2>(genes_ind),
                                cdr_labeling,
                                cleavage_v, cleavage_d_left, cleavage_d_right, cleavage_j,

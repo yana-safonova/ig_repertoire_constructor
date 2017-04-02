@@ -5,12 +5,16 @@
 #pragma once
 
 #include "ig_simulator_config.hpp"
+#include "germline_utils/chain_type.hpp"
 
 namespace ig_simulator {
 
 class IgSimulatorLaunch {
 private:
     IgSimulatorConfig config_;
+
+private:
+    germline_utils::ChainType GetLaunchChainType() const;
 
 public:
     IgSimulatorLaunch(const IgSimulatorConfig &config) :

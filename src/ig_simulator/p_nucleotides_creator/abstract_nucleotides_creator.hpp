@@ -19,6 +19,6 @@ public:
     virtual ~AbstractPNucleotidesCreator() { }
 };
 
-using AbstractPNucleotidesCreatorPtr = std::unique_ptr<AbstractPNucleotidesCreator>;
+using AbstractPNucleotidesCreatorCPtr = std::unique_ptr<const AbstractPNucleotidesCreator>;
 
 } // End namespace ig_simulator

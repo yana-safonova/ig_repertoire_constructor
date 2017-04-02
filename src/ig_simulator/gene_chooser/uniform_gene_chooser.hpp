@@ -12,7 +12,7 @@ namespace ig_simulator {
 
 class UniformVDJGeneChooser : public AbstractVDJGeneChooser {
 public:
-    UniformVDJGeneChooser(const std::vector<const germline_utils::CustomGeneDatabase *>& db):
+    UniformVDJGeneChooser(const std::vector<germline_utils::CustomGeneDatabase *>& db):
         AbstractVDJGeneChooser(db)
     { }
 
