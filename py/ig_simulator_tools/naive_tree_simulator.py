@@ -145,8 +145,16 @@ def ParseCommandLineParams():
     return parser.parse_args()
 
 
+def dump_params(params):
+    import json
+    smart_makedirs(params.outdir)
+    with open(os.path.join(params.outdir, "params.txt"), 'w') as f:
+        json.dump(vars(params), f, sort_keys=True, indent=4)
+
+
 def main():
     params = ParseCommandLineParams()
+    dump_params(params)
     np.random.seed(params.seed)
     with open(params.input, "r") as f:
         records = list(SeqIO.parse(f, "fasta"))
