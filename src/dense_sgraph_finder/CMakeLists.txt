@@ -7,7 +7,7 @@
 project(dense_sgraph_finder CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${IGREC_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
 
 
@@ -35,6 +35,6 @@ add_dependencies(dense_sgraph_finder metis)
 target_link_libraries(dense_sgraph_finder dense_sgraph_finder_library)
 
 
-if (SPADES_STATIC_BUILD)
+if (IGREC_STATIC_BUILD)
   set_target_properties(dense_sgraph_finder PROPERTIES LINK_SEARCH_END_STATIC 1)
 endif()

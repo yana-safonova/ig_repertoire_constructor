@@ -16,7 +16,7 @@
 
 #include "config.hpp"
 
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
 # include <jemalloc/jemalloc.h>
 #endif
 
@@ -108,7 +108,7 @@ inline bool logger::need_log(level desired_level, const char* source) const
     return desired_level >= source_level;
 }
 
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
 
 inline void logger::log(level desired_level, const char* file, size_t line_num, const char* source, const char* msg) {
   double time = timer_.time();

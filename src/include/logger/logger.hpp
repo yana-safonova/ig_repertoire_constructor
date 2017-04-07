@@ -44,7 +44,7 @@ inline std::string level_name(level l)
 /////////////////////////////////////////////////////
 struct writer
 {
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
   virtual void write_msg(double time_in_sec, size_t cmem, size_t max_rss, level l, const char* file, size_t line_num, const char* source, const char* msg) = 0;
 #else
 	virtual void write_msg(double time_in_sec, size_t max_rss, level l, const char* file, size_t line_num, const char* source, const char* msg) = 0;
@@ -127,7 +127,7 @@ inline const char* __scope_source_name() {
     }                                                                   \
   } while(0);
 
-#ifdef SPADES_DEBUG_LOGGING
+#ifdef IGREC_DEBUG_LOGGING
 # define DEBUG(message)                      LOG_MSG(logging::L_DEBUG, message)
 # define TRACE(message)                      LOG_MSG(logging::L_TRACE, message)
 #else

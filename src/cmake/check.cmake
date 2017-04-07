@@ -6,7 +6,7 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} -V)
 add_dependencies(check __alltests__)
 
 set(TEST_LIBRARIES pthread gmock_main gtest gmock)
-set(TEST_WORKING_DIRECTORY ${SPADES_MAIN_SRC_DIR}/..)
+set(TEST_WORKING_DIRECTORY ${IGREC_MAIN_SRC_DIR}/..)
 set(TEST_COMMAND_ARGS --gtest_color=yes)
 
 find_program(MEMORYCHECK_COMMAND valgrind)
