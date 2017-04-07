@@ -25,6 +25,7 @@ namespace antevolo {
 
             std::string tree_details;
             std::string tree_shms;
+            std::string output_parallel_shms_dist;
         };
 
         struct RunParams {
@@ -45,8 +46,13 @@ namespace antevolo {
                 size_t min_num_intersected_v_shms;
             };
 
+            struct ParallelEvolutionParams {
+                bool enable_parallel_shms_finder;
+            };
+
             SimilarCDR3Params similar_cdr3s_params;
             EdgeConstructionParams edge_construction_params;
+            ParallelEvolutionParams parallel_evolution_params;
         };
 
         InputParams input_params;

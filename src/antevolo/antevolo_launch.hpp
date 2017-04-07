@@ -5,6 +5,7 @@
 #include "antevolo_config.hpp"
 #include "annotation_utils/annotated_clone_set.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
+#include "evolutionary_tree_storage.hpp"
 
 namespace antevolo {
     class AntEvoloLaunch {
@@ -17,7 +18,11 @@ namespace antevolo {
         void LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                            const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                            size_t total_number_of_reads);
+
         void LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set);
+
+        void AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                      const EvolutionaryTreeStorage& trees);
 
     public:
         AntEvoloLaunch(const AntEvoloConfig& config) : config_(config) { }

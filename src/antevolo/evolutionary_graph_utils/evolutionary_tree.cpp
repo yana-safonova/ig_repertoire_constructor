@@ -203,6 +203,20 @@ namespace antevolo {
         return path::append_path(output_dir, ss.str());
     }
 
+    bool EvolutionaryTree::IsIsolated(size_t clone_id) const {
+        return IsRoot(clone_id) and IsLeaf(clone_id);
+    }
+
+    size_t EvolutionaryTree::GetRootByVertex(size_t clone_id) const {
+        if(IsRoot(clone_id))
+            return clone_id;
+        size_t cur_parent = clone_id;
+        do {
+            cur_parent = GetParentEdge(cur_parent)->SrcNum();
+        }
+        while(!IsRoot(cur_parent));
+        return cur_parent;
+    }
 
     std::ostream& operator<<(std::ostream& out, const EvolutionaryTree &tree) {
         for(auto it = tree.cbegin(); it != tree.cend(); it++)

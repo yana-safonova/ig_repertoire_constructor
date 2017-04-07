@@ -21,6 +21,8 @@
 #include "kmer_matrix_exporter/kmer_matrix_exporter.hpp"
 #include "cluster_fillin_calculator.hpp"
 
+#include "parallel_evolution/parallel_evolution_finder.hpp"
+
 using namespace shm_kmer_matrix_estimator;
 
 namespace antevolo {
@@ -44,7 +46,7 @@ namespace antevolo {
 
 
         std::ofstream out_prior_model;
-        out_prior_model.open("prior.csv");
+        out_prior_model.open("prior.csv"); // todo: move to config
         out_prior_model << model;
         out_prior_model.close();
 
@@ -150,6 +152,25 @@ namespace antevolo {
         INFO("AntEvolo ends");
     }
 
+    void AntEvoloLaunch::AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                  const EvolutionaryTreeStorage& trees) {
+        if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
+            return;
+        INFO("Parallel evolution finder starts");
+        ParallelEvolutionStats parallel_stats;
+        for(auto it = trees.cbegin(); it != trees.cend(); it++) {
+            auto cur_stats = ParallelEvolutionFinder(clone_set, *it).ComputeParallelSHMs();
+            parallel_stats.ConcatenateStats(cur_stats);
+        }
+        INFO("Total number of parallel rhombs: " << parallel_stats.num_parallel_rhombs);
+        INFO("Total number of parallel SHMs: " << parallel_stats.total_num_parallel_shms);
+        std::ofstream out(config_.output_params.output_parallel_shms_dist);
+        for(auto it = parallel_stats.begin(); it != parallel_stats.end(); it++)
+            out << *it << std::endl;
+        out.close();
+        INFO("Distribution of parallel SHMs number was written to " << config_.output_params.output_parallel_shms_dist);
+    }
+
     void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                        const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                                        size_t total_number_of_reads) {
@@ -176,6 +197,8 @@ namespace antevolo {
         INFO(annotated_storage.size() << " annotations were computed");
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
+
+        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
 
         for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);

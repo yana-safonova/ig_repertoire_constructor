@@ -22,6 +22,8 @@ namespace antevolo {
         output_params.trash_output = path::append_path(output_params.output_dir, output_params.trash_output);
         output_params.tree_details = path::append_path(output_params.output_dir, output_params.tree_details);
         output_params.tree_shms = path::append_path(output_params.output_dir, output_params.tree_shms);
+        output_params.output_parallel_shms_dist = path::append_path(output_params.output_dir,
+                                                                    output_params.output_parallel_shms_dist);
     }
 
     void load(AntEvoloConfig::OutputParams &output_params, boost::property_tree::ptree const &pt, bool) {
@@ -33,6 +35,7 @@ namespace antevolo {
         load(output_params.vertex_dir, pt, "vertex_dir");
         load(output_params.tree_details, pt, "tree_details");
         load(output_params.tree_shms, pt, "tree_shms");
+        load(output_params.output_parallel_shms_dist, pt, "output_parallel_shms_dist");
         update_paths(output_params);
     }
 
@@ -55,12 +58,19 @@ namespace antevolo {
         load(edge_construction_params.intersected_edge_coeff, pt, "intersected_edge_coeff");
     }
 
+    void load(AntEvoloConfig::AlgorithmParams::ParallelEvolutionParams &parallel_params,
+              boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(parallel_params.enable_parallel_shms_finder, pt, "enable_parallel_shms_finder");
+    }
+
     void load(AntEvoloConfig::AlgorithmParams &algorithm_params, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(algorithm_params.compare, pt, "compare");
         load(algorithm_params.model, pt, "model");
         load(algorithm_params.similar_cdr3s_params, pt, "similar_cdr3s_params");
         load(algorithm_params.edge_construction_params, pt, "edge_construction_params");
+        load(algorithm_params.parallel_evolution_params, pt, "parallel_evolution_params");
     }
 
     void AntEvoloConfig::load(std::string antevolo_config_fname) {

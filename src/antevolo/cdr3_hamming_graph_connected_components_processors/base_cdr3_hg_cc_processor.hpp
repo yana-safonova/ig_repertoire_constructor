@@ -14,7 +14,6 @@ namespace antevolo {
     class Base_CDR3_HG_CC_Processor {
 
     public:
-
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
@@ -33,18 +32,20 @@ namespace antevolo {
         boost::unordered_map<size_t, bool> parent_edge_handled_;
         boost::unordered_map<size_t, EvolutionaryEdgePtr> undirected_components_edges_;
 
-        static const size_t EVO_EDGE_MAX_LENGTH = 400;
-
+        static const size_t EVO_EDGE_MAX_LENGTH = 400; // todo: move to config
 
         void AddUndirectedPair(size_t src_num, size_t dst_num);
 
         void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,
                                  const boost::unordered_set<size_t>& vertices_nums);
+
         virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                                         const boost::unordered_set<size_t>& vertices_nums) = 0;
+
         virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                    const boost::unordered_set<size_t> &vertices_nums,
                                    EvolutionaryTree &tree) = 0;
+
         void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
                                                 EvolutionaryTree& tree);
 
@@ -75,7 +76,6 @@ namespace antevolo {
         const EvolutionaryEdgePtr& GetUndirectedComponentParentEdge(size_t root_num) {
             return undirected_components_edges_[root_num];
         }
-
 
     public:
 
