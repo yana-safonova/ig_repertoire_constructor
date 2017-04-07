@@ -890,7 +890,7 @@ def CheckGeneralParamsCorrectness(parser, params, log):
         log.info("ERROR: Output directory (-o) was not specified\n")
         HelpString()
         sys.exit(-1)
-    if not "loci" in params or params.loci == "":
+    if not params.no_alignment and ("loci" not in params or params.loci == ""):
         log.info("ERROR: Immunological loci (-l) was not specified\n")
         HelpString()
         sys.exit(1)
