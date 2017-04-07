@@ -17,17 +17,23 @@ def smart_makedirs(dirname):
             raise exc
 
 
-def random_mutations(antibody, pois_lamb=3):
+def random_mutations(antibody, pois_p=1):
     antibody = list(antibody)
-    n_mut = np.random.poisson(pois_lamb, 1)[0]
+    n_mut = np.random.poisson(pois_p, 1)[0] + 1 # at least one mutation
     mut_ind = np.random.choice(range(len(antibody)), size=n_mut, replace=False)
-    for i in mut_ind:
-        if antibody[i] == "N":
-            continue
+    mut_ind = [i for i in mut_ind if antibody[i] != 'N']
+
+    def rand_nucl(nucl):
         bases = list("ACGT")
-        bases.remove(antibody[i])
-        antibody[i] = bases[np.random.randint(3)]
-    return "".join(antibody)
+        bases.remove(nucl)
+        return bases[np.random.randint(3)]
+
+    mut_ind = [(i, rand_nucl(antibody[i])) for i in mut_ind]
+
+    for i, nucl in mut_ind:
+        antibody[i] = nucl
+
+    return "".join(antibody), mut_ind
 
 
 class ParsedRecord(object):
@@ -45,7 +51,7 @@ class Node(object):
         self.included = True
 
 
-def generate_tree(seq, n, ret_prob):
+def generate_tree(seq, n, ret_prob, pois_p):
     pool = []
     root = Node(seq, 0)
     pool.append(root)
@@ -58,8 +64,9 @@ def generate_tree(seq, n, ret_prob):
                                  p=np.array(weights) / sum(weights))[0]
         weights[index] += 1
         e = pool[index]
-        mut_e = Node(random_mutations(e.seq), i + 1)
-        e.children.append(mut_e)
+        mut_seq, mutations = random_mutations(e.seq, pois_p)
+        mut_e = Node(mut_seq, i + 1)
+        e.children.append((mut_e, mutations))
         bern = np.random.binomial(1, ret_prob, 1)[0]
         if not bern:
             e.included = False
@@ -73,20 +80,21 @@ def generate_tree(seq, n, ret_prob):
 
 
 def edge_list(root):
-    elist = [(root.numb, x.numb) for x in root.children]
-    for x in root.children:
+    elist = [(root.numb, x.numb, mut) for x, mut in root.children]
+    for x, mut in root.children:
         elist += edge_list(x)
     return elist
 
 
-def go(records, lamb, ret_prob):
+def go(records, lamb, ret_prob, pois_p):
     records = [ParsedRecord(record) for record in records]
     results = []
     for i, record in enumerate(records):
         print(i + 1, len(records))
         results.append([generate_tree(record.metaroot_seq,
                                       np.random.geometric(lamb, size=1)[0],
-                                      ret_prob=ret_prob)
+                                      ret_prob=ret_prob,
+                                      pois_p=pois_p)
                         for _ in xrange(record.multiplicity)])
     return results
 
@@ -115,7 +123,7 @@ def output_forests(forests, output_folder = ""):
         for m, tree in enumerate(forest):
             with open(os.path.join(edge_lists_dir, "antibody_%d_tree_%d.txt" %(i, m)), "w") as f:
                 for tup in tree['edge_list']:
-                    f.write("%d %d\n" % tup)
+                    f.write("%d %d %s\n" % tup)
 
 
 def ParseCommandLineParams():
@@ -138,10 +146,14 @@ def ParseCommandLineParams():
                         type=float,
                         default=0.01,
                         help="Mean tree size")
-    parser.add_argument("-p", "--ret_prob",
+    parser.add_argument("-r", "--ret_prob",
                         type=float,
                         default=0.5,
                         help="Probability to return chosen antibody to the pool")
+    parser.add_argument("-p", "--pois_p",
+                        type=float,
+                        default=1.,
+                        help="Pois parameter for number of mut")
     return parser.parse_args()
 
 
@@ -159,7 +171,7 @@ def main():
     with open(params.input, "r") as f:
         records = list(SeqIO.parse(f, "fasta"))
 
-    results = go(records, lamb=params.exp_tree_size, ret_prob=params.ret_prob)
+    results = go(records, lamb=params.exp_tree_size, ret_prob=params.ret_prob, pois_p=params.pois_p)
     output_forests(results, params.outdir)
 
 

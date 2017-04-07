@@ -53,7 +53,7 @@ void IgSimulatorLaunch::Run() {
     BaseRepertoireSimulator base_repertoire_simulator{config_.simulation_params.base_repertoire_params,
                                                       chain_type,
                                                       db};
-    auto base_repertoire = base_repertoire_simulator.Simulate(100000);
+    auto base_repertoire = base_repertoire_simulator.Simulate(100);
     std::ofstream base_repertoire_out;
     base_repertoire_out.open(config_.io_params.output_params.output_dir + "/test.fa");
     base_repertoire_out << base_repertoire;
