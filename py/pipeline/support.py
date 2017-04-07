@@ -34,7 +34,7 @@ def error(err_str, log=None, dipspades=False, prefix=IGREC_PY_ERROR_MESSAGE):
     if log:
         log.info("\n\n" + prefix + " " + err_str)
         log_warnings(log)
-        log.info("\nIn case you have troubles running " + binary_name + ", you can write to spades.support@bioinf.spbau.ru")
+        log.info("\nIn case you have troubles running " + binary_name + ", you can write to igtools_support@googlegroups.com")
         log.info("Please provide us with .log files from the output directory.")
     else:
         sys.stderr.write("\n\n" + prefix + " " + err_str + "\n\n")
