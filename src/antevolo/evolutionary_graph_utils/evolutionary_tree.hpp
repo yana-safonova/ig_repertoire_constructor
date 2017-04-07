@@ -71,6 +71,8 @@ namespace antevolo {
 
         size_t GetRoot() const;
 
+        bool IsIsolated(size_t clone_id) const;
+
         bool ContainsClone(size_t clone_id) const {
             return vertices_.find(clone_id) != vertices_.end();
         }
@@ -79,6 +81,8 @@ namespace antevolo {
 
         size_t GetRootNumber() const;
 
+        size_t GetRootByVertex(size_t clone_id) const;
+
         std::vector<size_t> GetRoots() const;
 
         size_t EdgeDepth() const;
@@ -86,6 +90,7 @@ namespace antevolo {
         void SetTreeIndices(size_t VJ_class_index,
                             size_t connected_component_index,
                             size_t tree_index);
+
         std::string GetTreeOutputFname(std::string output_dir) const;
 
         size_t GetVJClassIndex() const { return VJ_class_index_;}

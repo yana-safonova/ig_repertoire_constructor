@@ -3,7 +3,6 @@
 #include "parent_read_reconstructor.hpp"
 
 namespace antevolo {
-
     Base_CDR3_HG_CC_Processor::Base_CDR3_HG_CC_Processor(
               CloneSetWithFakesPtr clone_set_ptr,
               const AntEvoloConfig::AlgorithmParams &config,
@@ -29,7 +28,6 @@ namespace antevolo {
         for (size_t clone_num : vertices_nums) {
             VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
         }
-
 
         std::map<size_t, size_t> rank;
         std::map<size_t, size_t> parent;

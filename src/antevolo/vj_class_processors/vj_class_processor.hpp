@@ -26,8 +26,6 @@ namespace antevolo {
         SparseGraphPtr sparse_cdr_graph_;
         GraphComponentMap graph_component_map_;
 
-
-
         void Clear();
 
         std::string GetFastaFname(core::DecompositionClass decomposition_class);
