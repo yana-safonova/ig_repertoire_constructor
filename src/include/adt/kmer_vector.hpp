@@ -10,7 +10,7 @@
 #include "array_vector.hpp"
 #include "config.hpp"
 
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
 # include <jemalloc/jemalloc.h>
 #endif
 
@@ -20,7 +20,7 @@ class KMerVector {
   typedef typename Seq::DataType ElTy;
 
   ElTy *realloc() {
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
     // First, try to expand in-place
     if (storage_ && sizeof(ElTy) * capacity_ * el_sz_ > 4096 &&
         je_rallocm((void**)&storage_, NULL, sizeof(ElTy) * capacity_ * el_sz_, 0, ALLOCM_NO_MOVE) == ALLOCM_SUCCESS)
@@ -69,7 +69,7 @@ class KMerVector {
   }
   
   ~KMerVector() {
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
     je_free(storage_);
 #else
     delete[] storage_;

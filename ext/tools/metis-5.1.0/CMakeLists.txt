@@ -68,7 +68,7 @@ add_executable(metis programs/ndmetis.c programs/cmdline_ndmetis.c programs/io.c
     libmetis/util.c
     libmetis/wspace.c)
 
-if (SPADES_STATIC_BUILD)
+if (IGREC_STATIC_BUILD)
   set_target_properties(metis PROPERTIES LINK_SEARCH_START_STATIC 1)
 endif()
 
