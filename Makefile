@@ -51,14 +51,14 @@ vjf: cmake
 cdr: cmake
 	$(MAKE) -C build/release cdr_labeler
 
-ant:
-	$(MAKE) -C build/release/antevolo
-
 umi: cmake
 	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
 clean:
 	-rm -r build
+
+ant:
+	$(MAKE) -C build/release antevolo
 
 clean_tests:
 	-rm *.pyc

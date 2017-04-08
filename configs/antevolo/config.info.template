@@ -16,6 +16,7 @@ output_params {
     trash_output   trash_output.out
     tree_details   tree_details.txt
     tree_shms      tree_shms.txt
+    output_parallel_shms_dist parallel_shms_stats.txt
 }
 
 run_params {
@@ -34,5 +35,9 @@ algorithm_params {
     edge_construction_params {
         min_num_intersected_v_shms   3
         intersected_edge_coeff       1.0
+    }
+
+    parallel_evolution_params {
+        enable_parallel_shms_finder false
     }
 }
