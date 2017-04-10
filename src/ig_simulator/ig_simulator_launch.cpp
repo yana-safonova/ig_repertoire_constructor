@@ -9,11 +9,11 @@
 // #include "p_nucleotides_creator/uniform_nucleotides_creator.hpp"
 // #include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
 // #include "metaroot_creator/metaroot_creator.hpp"
-#include "gene_chooser/config_based_getter.hpp"
-#include "n_nucleotides_inserter/config_based_getter.hpp"
-#include "nucleotides_remover/config_based_getter.hpp"
-#include "p_nucleotides_creator/config_based_getter.hpp"
-#include "base_repertoire_simulator/base_repertoire_simulator.hpp"
+#include "base_repertoire/gene_chooser/config_based_getter.hpp"
+#include "base_repertoire/n_nucleotides_inserter/config_based_getter.hpp"
+#include "base_repertoire/nucleotides_remover/config_based_getter.hpp"
+#include "base_repertoire/p_nucleotides_creator/config_based_getter.hpp"
+#include "base_repertoire/base_repertoire_simulator.hpp"
 
 using namespace germline_utils;
 

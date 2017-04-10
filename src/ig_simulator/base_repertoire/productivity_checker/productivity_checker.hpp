@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "metaroot/metaroot.hpp"
+#include "base_repertoire/metaroot/metaroot.hpp"
 #include "annotation_utils/aa_annotation/aa_calculator.hpp"
 
 namespace ig_simulator {

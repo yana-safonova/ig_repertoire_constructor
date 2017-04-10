@@ -6,7 +6,7 @@
 
 #include <random>
 
-#include <gene_chooser/abstract_gene_chooser.hpp>
+#include <base_repertoire/gene_chooser/abstract_gene_chooser.hpp>
 #include "random_generator.hpp"
 #include "annotation_utils/cdr_labeling_primitives.hpp"
 
