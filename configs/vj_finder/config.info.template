@@ -37,6 +37,7 @@ io_params {
 
 algorithm_params {
     aligner_params {
+        aligner_algorithm           quadratic_dag
         word_size_v                 7
         word_size_j                 5
         min_k_coverage_v            50
