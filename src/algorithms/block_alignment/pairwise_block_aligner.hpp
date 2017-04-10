@@ -1,6 +1,7 @@
 #pragma once
 
 #include "pairwise_block_alignment.hpp"
+#include "germline_utils/germline_gene_type.hpp"
 #include "../hashes/subject_query_kmer_index.hpp"
 
 namespace algorithms {
@@ -29,6 +30,16 @@ namespace algorithms {
 
     template<typename SubjectDatabase, typename StringType>
     class PairwiseBlockAligner {
+    public:
+        PairwiseBlockAligner() {}
+        
+        virtual BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) = 0;
+
+        virtual ~PairwiseBlockAligner() {}
+    };
+    
+    template<typename SubjectDatabase, typename StringType>
+    class QuadraticDAGPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
         const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
         KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper_;
         const BlockAlignmentScoringScheme scoring_;
@@ -98,7 +109,7 @@ namespace algorithms {
         }
 
     public:
-        PairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+        QuadraticDAGPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
                              KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
                              BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
                 kmer_index_(kmer_index),
