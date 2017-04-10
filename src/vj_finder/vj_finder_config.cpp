@@ -74,8 +74,18 @@ namespace vj_finder {
         load(iop.output_params, pt, "output_params");
     }
 
+    VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm get_aligner_algorithm(std::string str) {
+        if (str == "quadratic_dag")
+            return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDAGAlignerAlgorithm;
+        VERIFY_MSG(false, "Pairwise block alignment algorithm was not recognized");
+        return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::UnknownAlignerAlgorithm;
+    }
+    
     void load(VJFinderConfig::AlgorithmParams::AlignerParams &ap, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
+        std::string tmp;
+        load(tmp, pt, "aligner_algorithm");
+        ap.aligner_algorithm = get_aligner_algorithm(tmp);
         load(ap.word_size_v, pt, "word_size_v");
         load(ap.word_size_j, pt, "word_size_j");
         load(ap.min_k_coverage_v, pt, "min_k_coverage_v");

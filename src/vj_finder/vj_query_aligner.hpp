@@ -50,6 +50,12 @@ namespace vj_finder {
         seqan::Dna5String DefineReadJSuffix(const CustomDbBlockAlignmentHits& v_alignments,
                                             seqan::Dna5String read) const;
 
+        template<typename SubjectDatabase, typename StringType>
+        std::shared_ptr<algorithms::PairwiseBlockAligner<SubjectDatabase, StringType> > get_aligner(const algorithms::SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+                                                                                                    algorithms::KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
+                                                                                                    algorithms::BlockAlignmentScoringScheme scoring,
+                                                                                                    algorithms::BlockAlignerParams params);
+        
     public:
         VJQueryAligner(const VJFinderConfig::AlgorithmParams &algorithm_params,
                        core::ReadArchive &read_archive,
