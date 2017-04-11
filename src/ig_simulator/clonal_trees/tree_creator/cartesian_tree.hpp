@@ -16,7 +16,8 @@ class Treap {
 private:
     struct TreapNode;
     // TODO change to unique_ptr
-    using TreapNodePtr = std::shared_ptr<TreapNode>;
+    // using TreapNodePtr = std::shared_ptr<TreapNode>;
+    using TreapNodePtr = TreapNode*;
 
     struct TreapNode {
         // @field key -- index in Tree (unique)
@@ -37,6 +38,11 @@ private:
             left(left), right(right)
         { }
 
+        ~TreapNode() {
+            delete left;
+            delete right;
+        }
+
         static FreqType Sum(const TreapNodePtr &t) {
             if (t != nullptr)
                 return t->sum;
@@ -53,7 +59,6 @@ private:
 
 private:
     static void Merge(TreapNodePtr *pt, TreapNodePtr &l, TreapNodePtr &r) {
-        VERIFY(pt != nullptr);
         if (l == nullptr)
             *pt = r;
         else if (r == nullptr)
@@ -86,6 +91,7 @@ private:
 
 public:
     Treap(): root(nullptr) { }
+    ~Treap() { delete root; }
 
     void Insert(KeyType key, FreqType freq, PriorType prior = random_index()) {
         TreapNodePtr * pt = &root;
@@ -111,15 +117,15 @@ public:
             else
                 pt = &(*pt)->right;
         }
-        VERIFY((*pt) != nullptr);
-        VERIFY((*pt)->freq == freq);
         TreapNodePtr p;
         Merge(&p, (*pt)->left, (*pt)->right);
+        (*pt)->left = nullptr;
+        (*pt)->right = nullptr;
+        delete *pt;
         *pt = (p);
     }
 
-    std::pair<KeyType, FreqType> Find(FreqType sum) {
-        VERIFY(root != nullptr);
+    KeyType Find(FreqType sum) {
         TreapNodePtr t = root;
         FreqType temp;
         while((temp = TreapNode::Sum(t->right) + 1) != sum) {
@@ -130,9 +136,8 @@ public:
                 sum -= temp;
             }
         }
-        return { t->key, t->freq };
+        return t->key;
     }
 };
-
 
 } // End namespace ig_simulator
