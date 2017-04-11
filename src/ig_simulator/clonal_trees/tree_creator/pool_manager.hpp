@@ -18,8 +18,6 @@ public:
     AbstractPoolManager(AbstractPoolManager&&) = delete;
     AbstractPoolManager& operator=(const AbstractPoolManager&) = delete;
     AbstractPoolManager& operator=(AbstractPoolManager&&) = delete;
-
-
 };
 
 } // End namespace ig_simulator

@@ -109,7 +109,22 @@ struct IgSimulatorConfig {
             ProductiveParams productive_params;
         };
 
+        struct ClonalTreeSimulatorParams {
+            struct TreeSizeGeneratorParams {
+                struct GeometricParams {
+                    double lambda;
+                };
+
+                enum class TreeSizeGeneratorMethod { Geometric };
+                TreeSizeGeneratorMethod method;
+                GeometricParams geometric_params;
+            };
+
+            TreeSizeGeneratorParams tree_size_generator_params;
+        };
+
         BaseRepertoireParams base_repertoire_params;
+        ClonalTreeSimulatorParams clonal_tree_simulator_params;
     };
 
     IOParams io_params;
@@ -117,9 +132,12 @@ struct IgSimulatorConfig {
     SimulationParams simulation_params;
 };
 
-using MetarootSimulationParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams;
-using MultiplicityCreatorParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MultiplicityCreatorParams;
-using ProductiveParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams::ProductiveParams;
+using BaseRepertoireParams = IgSimulatorConfig::SimulationParams::BaseRepertoireParams;
+using ClonalTreeSimulatorParams = IgSimulatorConfig::SimulationParams::ClonalTreeSimulatorParams;
+
+using MetarootSimulationParams = BaseRepertoireParams::MetarootSimulationParams;
+using MultiplicityCreatorParams = BaseRepertoireParams::MultiplicityCreatorParams;
+using ProductiveParams = BaseRepertoireParams::ProductiveParams;
 
 using MultiplicityCreatorMethod = MultiplicityCreatorParams::MultiplicityCreatorMethod;
 
@@ -137,6 +155,7 @@ using NNucleotidesInserterMethod = NNucleotidesInserterParams::NNucleotidesInser
 
 using CleavageParams = MetarootSimulationParams::CleavageParams;
 
+using TreeSizeGeneratorParams = ClonalTreeSimulatorParams::TreeSizeGeneratorParams;
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);
 

@@ -9,6 +9,7 @@
 
 #include "verify.hpp"
 
+#include "ig_simulator_utils.hpp"
 #include "random_generator.hpp"
 #include "ig_simulator_config.hpp"
 
@@ -26,15 +27,10 @@ private:
     double lambda;
     std::geometric_distribution<size_t> distribution;
 
-    static double check_lambda(double lambda) {
-        VERIFY(lambda > 0);
-        return lambda;
-    }
-
 public:
     GeometricMultiplicityCreator(double lambda):
         lambda(lambda),
-        distribution(check_lambda(lambda))
+        distribution(check_numeric_positive(lambda))
     { }
 
     GeometricMultiplicityCreator(const MultiplicityCreatorParams::GeometricParams &config):

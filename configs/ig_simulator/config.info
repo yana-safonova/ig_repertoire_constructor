@@ -78,4 +78,13 @@ simulation_params {
             productive_part     1
         }
     }
+
+    clonal_tree_simulator_params {
+        tree_size_generator_params {
+            tree_size_generator_method      geometric
+            geometric_params {
+                lambda              0.01
+            }
+        }
+    }
 }

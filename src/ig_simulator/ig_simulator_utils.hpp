@@ -14,4 +14,16 @@ const Pointer& check_pointer(const Pointer& p) {
     return p;
 }
 
+template <class T>
+T check_numeric_nonnegative(const T x) {
+    VERIFY(x >= 0);
+    return x;
+}
+
+template <class T>
+T check_numeric_positive(const T x) {
+    VERIFY(x > 0);
+    return x;
+}
+
 } // End namespace ig_simulator

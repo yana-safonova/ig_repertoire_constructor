@@ -195,11 +195,42 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams &base_repert
     load(base_repertoire_params.productive_params, pt, "productive_params");
 }
 
+void load(TreeSizeGeneratorParams::GeometricParams &geometric_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(geometric_params.lambda, pt, "lambda");
+}
+
+void load(TreeSizeGeneratorParams &tree_size_generator_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    using TreeSizeGeneratorMethod = TreeSizeGeneratorParams::TreeSizeGeneratorMethod;
+
+    std::string method_str(pt.get<std::string>("tree_size_generator_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str == "geometric") {
+        tree_size_generator_params.method = TreeSizeGeneratorMethod::Geometric;
+        load(tree_size_generator_params.geometric_params, pt, "geometric_params");
+    }
+}
+
+void load(ClonalTreeSimulatorParams &clonal_tree_simulator_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(clonal_tree_simulator_params.tree_size_generator_params, pt, "tree_size_generator_params");
+}
+
 void load(IgSimulatorConfig::SimulationParams &simulation_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
     load(simulation_params.base_repertoire_params, pt, "base_repertoire_params");
+    load(simulation_params.clonal_tree_simulator_params, pt, "clonal_tree_simulator_params");
 }
 // SimulationParams end
 

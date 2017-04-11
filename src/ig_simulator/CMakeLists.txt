@@ -37,7 +37,7 @@ add_library(ig_simulator_library STATIC
         # clonal_trees/tree/tree.cpp
         # clonal_trees/forest/forest.cpp
         # clonal_trees/tree_creator/tree_creator.cpp)
-        )
+        clonal_trees/tree_creator/tree_size_generator.cpp clonal_trees/tree_creator/tree_size_generator.hpp)
 
 target_link_libraries(ig_simulator_library
         vj_finder_library
