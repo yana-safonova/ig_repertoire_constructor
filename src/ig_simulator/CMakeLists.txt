@@ -32,7 +32,7 @@ add_library(ig_simulator_library STATIC
         base_repertoire/metaroot_cluster/metaroot_cluster.cpp
         base_repertoire/base_repertoire.cpp
         # clonal_trees/tree/node.cpp
-        # clonal_trees/tree_creator/pool_manager.cpp
+        clonal_trees/tree_creator/pool_manager.cpp
         clonal_trees/tree_creator/cartesian_tree.cpp
         # clonal_trees/tree/tree.cpp
         # clonal_trees/forest/forest.cpp

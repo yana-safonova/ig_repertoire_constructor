@@ -14,6 +14,7 @@
 #include "base_repertoire/nucleotides_remover/config_based_getter.hpp"
 #include "base_repertoire/p_nucleotides_creator/config_based_getter.hpp"
 #include "base_repertoire/base_repertoire_simulator.hpp"
+#include "clonal_trees/tree_creator/pool_manager.hpp"
 
 using namespace germline_utils;
 
@@ -59,6 +60,11 @@ void IgSimulatorLaunch::Run() {
     base_repertoire_out << base_repertoire;
     base_repertoire_out.close();
     std::cout << config_.io_params.output_params.output_dir + "/test.fa\n";
+
+    UniformPoolManager manager;
+    for (size_t i = 0; i < 1000; i++) {
+        std::cout << manager.GetIndex() << std::endl;
+    }
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
     // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");

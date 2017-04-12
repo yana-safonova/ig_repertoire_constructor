@@ -56,6 +56,7 @@ private:
     };
 
     TreapNodePtr root;
+    size_t treap_size;
 
 private:
     static void Merge(TreapNodePtr *pt, TreapNodePtr &l, TreapNodePtr &r) {
@@ -90,7 +91,7 @@ private:
     }
 
 public:
-    Treap(): root(nullptr) { }
+    Treap(): root(nullptr), treap_size(0) { }
     ~Treap() { delete root; }
 
     void Insert(KeyType key, FreqType freq, PriorType prior = random_index()) {
@@ -106,6 +107,7 @@ public:
         Split(*pt, key, &l, &r);
         *pt = TreapNodePtr(new TreapNode(key, freq, prior, l, r));
         TreapNode::Upd(*pt);
+        treap_size++;
     }
 
     void Erase(KeyType key, FreqType freq) {
@@ -123,9 +125,10 @@ public:
         (*pt)->right = nullptr;
         delete *pt;
         *pt = (p);
+        treap_size--;
     }
 
-    KeyType Find(FreqType sum) {
+    KeyType Find(FreqType sum) const {
         TreapNodePtr t = root;
         FreqType temp;
         while((temp = TreapNode::Sum(t->right) + 1) != sum) {
@@ -138,6 +141,12 @@ public:
         }
         return t->key;
     }
+
+    FreqType Sum() const {
+        return TreapNode::Sum(root);
+    }
+
+size_t Size() const { return treap_size; }
 };
 
 } // End namespace ig_simulator
