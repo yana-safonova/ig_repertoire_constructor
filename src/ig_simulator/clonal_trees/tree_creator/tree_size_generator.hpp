@@ -8,7 +8,7 @@
 #include <random>
 
 #include "ig_simulator_utils.hpp"
-#include "random_index.hpp"
+#include "simulation_routines.hpp"
 #include "ig_simulator_config.hpp"
 
 namespace ig_simulator {

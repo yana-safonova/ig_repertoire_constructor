@@ -2,7 +2,7 @@
 // Created by Andrew Bzikadze on 3/17/17.
 //
 
-#include "random_index.hpp"
+#include "simulation_routines.hpp"
 #include "uniform_gene_chooser.hpp"
 
 namespace ig_simulator {

@@ -31,7 +31,7 @@ void IgSimulatorLaunch::Run() {
         metaroot_simulation_params.nucleotides_remover_params.
         uniform_remover_params.max_remove_v_gene << std::endl;
 
-    // MTSingleton::SetSeed(1);
+    MTSingleton::SetSeed(1);
     INFO("== IgSimulator starts ==");
 
     germline_utils::ChainType chain_type = GetLaunchChainType();
@@ -61,9 +61,10 @@ void IgSimulatorLaunch::Run() {
     base_repertoire_out.close();
     std::cout << config_.io_params.output_params.output_dir + "/test.fa\n";
 
-    UniformPoolManager manager;
-    for (size_t i = 0; i < 1000; i++) {
-        std::cout << manager.GetIndex() << std::endl;
+    UniformPoolManager manager(0.5);
+    // manager.GetIndex();
+    for (size_t i = 0; i < 10000000; i++) {
+        std::cout << i << " " << manager.GetIndex().second << std::endl;
     }
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);

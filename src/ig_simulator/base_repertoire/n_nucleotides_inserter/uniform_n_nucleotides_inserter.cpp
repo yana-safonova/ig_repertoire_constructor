@@ -4,7 +4,7 @@
 
 #include <seqan/file.h>
 #include "uniform_n_nucleotides_inserter.hpp"
-#include "random_index.hpp"
+#include "simulation_routines.hpp"
 
 using seqan::Dna5String;
 

@@ -7,7 +7,7 @@
 #include <cstddef>
 #include <memory>
 #include "verify.hpp"
-#include "random_index.hpp"
+#include "simulation_routines.hpp"
 
 namespace ig_simulator {
 
@@ -81,11 +81,11 @@ private:
         }
         else if (t->key < key) {
             Split(t->right, key, &t->right, r);
-            *l = (t);
+            *l = t;
             TreapNode::Upd(*l);
         } else {
             Split(t->left, key, l, &t->left);
-            *r = (t);
+            *r = t;
             TreapNode::Upd(*r);
         }
     }
@@ -124,7 +124,7 @@ public:
         (*pt)->left = nullptr;
         (*pt)->right = nullptr;
         delete *pt;
-        *pt = (p);
+        *pt = p;
         treap_size--;
     }
 
@@ -140,6 +140,44 @@ public:
             }
         }
         return t->key;
+    }
+
+    void SetFreq(KeyType key, FreqType old_freq, FreqType new_freq) {
+        TreapNodePtr t = root;
+        while(t->key != key) {
+            // if FreqType is unsigned `new_freq - old_freq` is dangerous
+            // std::cout << t->sum << " " << old_freq << "\n";
+            VERIFY(t->sum >= old_freq);
+            t->sum = t->sum - old_freq + new_freq;
+            if (t->key > key)
+                t = t->left;
+            else
+                t = t->right;
+        }
+        t->freq = new_freq;
+        t->sum = t->sum - old_freq + new_freq;
+        // TreapNode::Upd(t);
+    }
+
+    std::pair<KeyType, FreqType> LowerBound(double sum) const {
+        TreapNodePtr t = root;
+        FreqType sum_left, sum_right;
+
+        while(true) {
+            sum_left = TreapNode::Sum(t->left);
+            sum_right = TreapNode::Sum(t->right);
+
+            if (sum_left + sum_right < sum)
+                break;
+
+            if (sum_left > sum )
+                t = t->left;
+            else {
+                t = t->right;
+                sum -= sum_left;
+            }
+        }
+        return { t->key, t->freq };
     }
 
     FreqType Sum() const {

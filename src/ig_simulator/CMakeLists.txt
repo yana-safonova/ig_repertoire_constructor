@@ -16,7 +16,7 @@ add_library(ig_simulator_library STATIC
         base_repertoire/nucleotides_remover/abstract_nucleotides_remover.cpp
         base_repertoire/nucleotides_remover/uniform_nucleotides_remover.cpp
         base_repertoire/nucleotides_remover/config_based_getter.cpp
-        random_index.cpp
+        simulation_routines.cpp
         base_repertoire/p_nucleotides_creator/abstract_nucleotides_creator.cpp
         base_repertoire/p_nucleotides_creator/uniform_nucleotides_creator.cpp
         base_repertoire/p_nucleotides_creator/config_based_getter.cpp

@@ -3,7 +3,7 @@
 //
 
 #include "uniform_nucleotides_remover.hpp"
-#include "random_index.hpp"
+#include "simulation_routines.hpp"
 
 namespace ig_simulator {
 
