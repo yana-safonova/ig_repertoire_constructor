@@ -5,15 +5,19 @@
 #pragma once
 
 #include "clonal_trees/tree/tree.hpp"
+#include "base_repertoire/metaroot_cluster/metaroot_cluster.hpp"
 
 namespace ig_simulator {
 
 class Forest {
 private:
+    const MetarootCluster* metaroot_cluster;
     std::vector<Tree> trees;
 
 public:
-    Forest(std::vector<Tree>&& trees = {}) noexcept:
+    Forest(const MetarootCluster* const metaroot_cluster,
+           std::vector<Tree>&& trees = {}) noexcept:
+        metaroot_cluster(metaroot_cluster),
         trees(trees)
     { }
 
@@ -22,6 +26,13 @@ public:
 
     Forest& operator=(const Forest&) = default;
     Forest& operator=(Forest&&) = default;
+
+    const MetarootCluster* MetarootCluster() const { return metaroot_cluster; }
+    const std::vector<Tree>& Trees() const { return trees; }
+
+    friend std::ostream& operator<<(std::ostream&, const Forest&);
 };
+
+std::ostream& operator<<(std::ostream& out, const Forest&);
 
 } // End namespace ig_simulator

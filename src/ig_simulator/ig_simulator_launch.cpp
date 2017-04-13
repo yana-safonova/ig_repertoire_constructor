@@ -1,6 +1,10 @@
 //
 // Created by Andrew Bzikadze on 3/15/17.
 //
+
+#include <chrono>
+
+#include <clonal_trees/tree_creator/tree_creator.hpp>
 #include "ig_simulator_launch.hpp"
 #include "germline_utils/germline_db_generator.hpp"
 // #include "random_generator.hpp"
@@ -14,6 +18,11 @@
 #include "base_repertoire/nucleotides_remover/config_based_getter.hpp"
 #include "base_repertoire/p_nucleotides_creator/config_based_getter.hpp"
 #include "base_repertoire/base_repertoire_simulator.hpp"
+#include "clonal_trees/tree_creator/pool_manager.hpp"
+#include "clonal_trees/tree_creator/shm_creator.hpp"
+#include "clonal_trees/tree_creator/tree_size_generator.hpp"
+#include "clonal_trees/tree_creator/tree_creator.hpp"
+#include "clonal_trees/tree_creator/forest_creator.hpp"
 #include "clonal_trees/tree_creator/pool_manager.hpp"
 
 using namespace germline_utils;
@@ -63,9 +72,26 @@ void IgSimulatorLaunch::Run() {
 
     UniformPoolManager manager(0.5);
     // manager.GetIndex();
-    for (size_t i = 0; i < 10000000; i++) {
-        std::cout << i << " " << manager.GetIndex().second << std::endl;
-    }
+    // for (size_t i = 0; i < 10000000; i++) {
+    //     std::cout << i << " " << manager.GetIndex().second << std::endl;
+    // }
+
+    AbstractShmCreatorCPtr shm_creator(new PoissonShmCreator(1));
+    AbstractTreeSizeGeneratorCPtr tree_size_generator(new GeometricTreeSizeGenerator(0.001));
+    // TreeCreator tree_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
+    ForestCreator forest_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
+    //std::cout << tree;
+
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    start = std::chrono::system_clock::now();
+    // auto tree = tree_creator.GenerateTree<DeepTreePoolManager>(base_repertoire[0].MetarootPtr().get());
+    auto forest = forest_creator.GenerateForest<DeepTreePoolManager>(base_repertoire[1]);
+    end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-start;
+
+    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+    // std::cout << forest << "\n";
 
     // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
     // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");

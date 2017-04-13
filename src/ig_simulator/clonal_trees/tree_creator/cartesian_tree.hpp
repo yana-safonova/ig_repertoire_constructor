@@ -123,6 +123,7 @@ public:
         Merge(&p, (*pt)->left, (*pt)->right);
         (*pt)->left = nullptr;
         (*pt)->right = nullptr;
+        // TODO Fix bug with not setting to nullptr pointer of parent of *pt if *pt has no children
         delete *pt;
         *pt = p;
         treap_size--;

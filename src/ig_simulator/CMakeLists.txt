@@ -31,13 +31,14 @@ add_library(ig_simulator_library STATIC
         base_repertoire/base_repertoire_simulator.cpp
         base_repertoire/metaroot_cluster/metaroot_cluster.cpp
         base_repertoire/base_repertoire.cpp
-        # clonal_trees/tree/node.cpp
+        clonal_trees/tree/node.cpp
         clonal_trees/tree_creator/pool_manager.cpp
         clonal_trees/tree_creator/cartesian_tree.cpp
-        # clonal_trees/tree/tree.cpp
-        # clonal_trees/forest/forest.cpp
-        # clonal_trees/tree_creator/tree_creator.cpp)
-        clonal_trees/tree_creator/tree_size_generator.cpp clonal_trees/tree_creator/tree_size_generator.hpp)
+        clonal_trees/tree/tree.cpp
+        clonal_trees/forest/forest.cpp
+        clonal_trees/tree_creator/tree_creator.cpp
+        clonal_trees/tree_creator/tree_size_generator.cpp
+        clonal_trees/tree_creator/shm_creator.cpp clonal_trees/tree_creator/forest_creator.cpp clonal_trees/tree_creator/forest_creator.hpp)
 
 target_link_libraries(ig_simulator_library
         vj_finder_library

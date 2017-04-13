@@ -21,7 +21,7 @@ public:
     AbstractTreeSizeGenerator& operator=(const AbstractTreeSizeGenerator&) = delete;
     AbstractTreeSizeGenerator& operator=(AbstractTreeSizeGenerator&&) = delete;
 
-    virtual size_t Generate() = 0;
+    virtual size_t Generate() const = 0;
 
     virtual ~AbstractTreeSizeGenerator() { }
 };
@@ -30,7 +30,7 @@ using AbstractTreeSizeGeneratorCPtr = std::unique_ptr<const AbstractTreeSizeGene
 
 class GeometricTreeSizeGenerator final : public AbstractTreeSizeGenerator {
 private:
-    std::geometric_distribution<size_t> distribution;
+    mutable std::geometric_distribution<size_t> distribution;
 
 public:
     GeometricTreeSizeGenerator(double lambda):
@@ -42,8 +42,8 @@ public:
         GeometricTreeSizeGenerator(params.lambda)
     { }
 
-    size_t Generate() override {
-        return distribution(MTSingleton::GetInstance());
+    size_t Generate() const override {
+        return distribution(MTSingleton::GetInstance()) + 1;
     }
 };
 

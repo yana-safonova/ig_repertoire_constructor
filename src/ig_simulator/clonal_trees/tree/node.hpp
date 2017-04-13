@@ -6,50 +6,39 @@
 
 #include <vector>
 #include <utility>
-#include <seqan/basic.h>
 
 namespace ig_simulator {
 
 class Node {
 public:
-    using SHM_Vector = std::vector<std::pair<size_t, seqan::Dna>>;
+    using SHM_Vector = std::vector<std::pair<size_t, size_t>>;
 
 private:
-    const Node* parent;
+    size_t parent_ind;
 
     // We store only SHMs "on the edge" from the parent
     SHM_Vector shms;
 
+    bool included;
 
 public:
-    Node(const Node* parent = nullptr, SHM_Vector&& shms = {}):
-        parent(parent),
-        shms(shms)
+    Node(size_t parent_ind = size_t(-1), SHM_Vector&& shms = {}, bool included = true):
+        parent_ind(parent_ind),
+        shms(shms),
+        included(included)
     { }
 
     Node(const Node&) = default;
+    Node(Node&&) = default;
+    Node& operator=(const Node&) = default;
+    Node& operator=(Node&&) = default;
 
-    // I redefine move-constructor as I want node.parent to be nullptr afterwards.
-    Node(Node&& node) noexcept:
-        parent(std::move(node.parent)),
-        shms(std::move(node.shms))
-    {
-        node.parent = nullptr;
-    }
+    size_t ParentInd() const { return parent_ind; }
+    const SHM_Vector& SHMs() const { return shms; }
 
-    Node& operator=(const Node& node) = default;
+    void Exclude() { included = false; }
 
-    // I redefine move-assignment operator as I want node.parent to be nullptr afterwards.
-    Node& operator=(Node&& node) {
-        swap(node);
-        node.parent = nullptr;
-        return *this;
-    }
-
-    void swap(Node& node) {
-        std::swap(parent, node.parent);
-        std::swap(shms, node.shms);
-    }
+    bool IsIncluded() const { return included; }
 };
 
 } // End namespace ig_simulator

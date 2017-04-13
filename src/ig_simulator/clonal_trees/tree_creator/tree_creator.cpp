@@ -3,3 +3,7 @@
 //
 
 #include "tree_creator.hpp"
+
+namespace ig_simulator {
+
+} // End namespace ig_simulator

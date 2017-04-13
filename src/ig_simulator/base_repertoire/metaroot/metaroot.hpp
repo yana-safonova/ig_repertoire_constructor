@@ -63,6 +63,8 @@ public:
 
     const annotation_utils::CDRLabeling CDRLabeling() const { return cdr_labeling; }
 
+    size_t Length() const { return seqan::length(sequence); }
+
     virtual const seqan::Dna5String& Sequence() const = 0;
     virtual ~AbstractMetaroot() { }
 };
