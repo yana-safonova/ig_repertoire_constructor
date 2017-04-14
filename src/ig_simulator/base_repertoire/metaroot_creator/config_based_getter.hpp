@@ -9,7 +9,7 @@
 namespace ig_simulator {
 
 AbstractMetarootCreatorCPtr get_metarootcreator(const germline_utils::ChainType chain_type,
-                                               const MetarootSimulationParams& config,
-                                               const std::vector<germline_utils::CustomGeneDatabase*> db);
+                                                const MetarootSimulationParams& config,
+                                                std::vector<germline_utils::CustomGeneDatabase>& db);
 
 } // End namespace ig_simulator

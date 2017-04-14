@@ -28,7 +28,7 @@ private:
 public:
     BaseRepertoireSimulator(const IgSimulatorConfig::SimulationParams::BaseRepertoireParams& config,
                             const germline_utils::ChainType& chain_type,
-                            const std::vector<germline_utils::CustomGeneDatabase *> &db):
+                            std::vector<germline_utils::CustomGeneDatabase> &db):
         metaroot_creator_p(get_metarootcreator(chain_type, config.metaroot_simulation_params, db)),
         multiplicity_creator_p(get_multiplicity_creator(config.multiplicity_creator_params)),
         productive_part(config.productive_params.productive_part),

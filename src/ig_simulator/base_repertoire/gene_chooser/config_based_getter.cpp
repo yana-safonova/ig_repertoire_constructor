@@ -9,7 +9,7 @@
 namespace ig_simulator {
 
 AbstractVDJGeneChooserCPtr get_gene_chooser(const GeneChooserParams& config,
-                                           const std::vector<germline_utils::CustomGeneDatabase *>& db)
+                                           const std::vector<germline_utils::CustomGeneDatabase>& db)
 {
     if (config.method == GeneChooserMethod::Uniform)
         return AbstractVDJGeneChooserCPtr(new UniformVDJGeneChooser(db));

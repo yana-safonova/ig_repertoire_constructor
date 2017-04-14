@@ -38,16 +38,9 @@ germline_utils::ChainType IgSimulatorLaunch::GetLaunchChainType() const {
     return v_chain_type[0];
 }
 
-void IgSimulatorLaunch::Run() {
-    std::cout << config_.simulation_params.base_repertoire_params.
-        metaroot_simulation_params.nucleotides_remover_params.
-        uniform_remover_params.max_remove_v_gene << std::endl;
-
-    MTSingleton::SetSeed(1);
-    INFO("== IgSimulator starts ==");
-
-    germline_utils::ChainType chain_type = GetLaunchChainType();
-
+std::vector<germline_utils::CustomGeneDatabase>
+IgSimulatorLaunch::GetDB(const germline_utils::ChainType chain_type) const
+{
     GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
                                      config_.algorithm_params.germline_params);
     INFO("Generation of DB for variable segments...");
@@ -57,40 +50,62 @@ void IgSimulatorLaunch::Run() {
     INFO("Generation of DB for join segments...");
     germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
 
-    std::vector<germline_utils::CustomGeneDatabase*> db;
-    db.push_back(&v_db);
+    std::vector<germline_utils::CustomGeneDatabase> db;
+    db.emplace_back(std::move(v_db));
     if (chain_type.IsVDJ())
-        db.push_back(&d_db);
-    db.push_back(&j_db);
+        db.emplace_back(std::move(d_db));
+    db.emplace_back(std::move(j_db));
+    return db;
+}
 
+BaseRepertoire
+IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
+                                     std::vector<germline_utils::CustomGeneDatabase>& db) const
+{
+    INFO("== Base Repertoire starts ==");
     BaseRepertoireSimulator base_repertoire_simulator{config_.simulation_params.base_repertoire_params,
                                                       chain_type,
                                                       db};
-    auto base_repertoire = base_repertoire_simulator.Simulate(100);
+    // TODO add number to config
+    auto base_repertoire = base_repertoire_simulator.Simulate(1000);
     std::ofstream base_repertoire_out;
-    base_repertoire_out.open(config_.io_params.output_params.output_dir + "/test.fa");
+    base_repertoire_out.open(path::append_path(config_.io_params.output_params.output_dir,
+                                               config_.io_params.output_params.base_repertoire_filename));
     base_repertoire_out << base_repertoire;
     base_repertoire_out.close();
-    std::cout << config_.io_params.output_params.output_dir + "/test.fa\n";
+    INFO("== Base Repertoire ends ==");
+    return base_repertoire;
+}
 
+ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_repertoire) const
+{
+    INFO("== Forest Storage starts ==");
     ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
-
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    start = std::chrono::system_clock::now();
     auto forest_storage = forest_storage_creator.GenerateForest<DeepTreePoolManager>(base_repertoire);
-    end = std::chrono::system_clock::now();
-
-    std::chrono::duration<double> elapsed_seconds = end-start;
-
-    std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
     std::ofstream full, included;
-    full.open("full.fa");
-    included.open("included.fa");
+    full.open(path::append_path(config_.io_params.output_params.output_dir,
+                                config_.io_params.output_params.full_pool));
+    included.open(path::append_path(config_.io_params.output_params.output_dir,
+                                    config_.io_params.output_params.filtered_pool));
     ForestStorageExporter(forest_storage, full, included);
     full.close();
     included.close();
+    INFO("== Forest Storage ends ==");
+    return forest_storage;
+}
 
+void IgSimulatorLaunch::Run() {
+    MTSingleton::SetSeed(1);
+    INFO("== IgSimulator starts ==");
+
+    germline_utils::ChainType chain_type = GetLaunchChainType();
+    auto db { GetDB(chain_type) };
+
+    const BaseRepertoire base_repertoire = GetBaseRepertoire(chain_type, db);
+    const ForestStorage forest_storage = GetForestStorage(base_repertoire);
+
+    INFO("== IgSimulator ends ==");
 }
 
 } // End namespace ig_simulator

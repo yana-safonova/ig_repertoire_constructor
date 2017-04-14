@@ -6,6 +6,8 @@
 
 #include "ig_simulator_config.hpp"
 #include "germline_utils/chain_type.hpp"
+#include "base_repertoire/base_repertoire.hpp"
+#include "clonal_trees/forest/forest.hpp"
 
 namespace ig_simulator {
 
@@ -15,6 +17,15 @@ private:
 
 private:
     germline_utils::ChainType GetLaunchChainType() const;
+
+    std::vector<germline_utils::CustomGeneDatabase>
+    GetDB(const germline_utils::ChainType chain_type) const;
+
+    BaseRepertoire
+    GetBaseRepertoire(const germline_utils::ChainType chain_type,
+                      std::vector<germline_utils::CustomGeneDatabase>& db) const;
+
+    ForestStorage GetForestStorage(const BaseRepertoire& base_repertoire) const;
 
 public:
     IgSimulatorLaunch(const IgSimulatorConfig &config) :
