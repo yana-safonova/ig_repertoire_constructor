@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include <clonal_trees/tree_creator/tree_creator.hpp>
+#include <clonal_trees/tree_creator/exporters.hpp>
 #include "ig_simulator_launch.hpp"
 #include "germline_utils/germline_db_generator.hpp"
 // #include "random_generator.hpp"
@@ -25,6 +26,7 @@
 #include "clonal_trees/tree_creator/forest_creator.hpp"
 #include "clonal_trees/tree_creator/pool_manager.hpp"
 #include "clonal_trees/tree_creator/forest_storage_creator.hpp"
+#include "clonal_trees/tree_creator/tree_exporter.hpp"
 
 using namespace germline_utils;
 
@@ -91,6 +93,13 @@ void IgSimulatorLaunch::Run() {
     std::chrono::duration<double> elapsed_seconds = end-start;
 
     std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+    std::ofstream full, included;
+    full.open("full.fa");
+    included.open("included.fa");
+    ForestStorageExporter(forest_storage, full, included);
+    full.close();
+    included.close();
 
 }
 

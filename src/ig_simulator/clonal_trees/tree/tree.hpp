@@ -29,6 +29,28 @@ public:
     size_t Size() const { return nodes.size(); }
     const AbstractMetaroot* Metaroot() const { return metaroot; }
 
+    std::vector<seqan::Dna5String> Sequences() const {
+        std::vector<seqan::Dna5String> sequences;
+        sequences.reserve(Size());
+        sequences.emplace_back(metaroot->Sequence());
+        for(size_t i = 1; i < Size(); ++i) {
+            const auto& node = nodes[i];
+            sequences.emplace_back(sequences[node.ParentInd()]);
+
+            seqan::Dna5String& seq = sequences.back();
+            for(const auto& shm : node.SHMs()) {
+                size_t value = seqan::Dna5(seq[shm.first]).value;
+                seq[shm.first] = seqan::Dna(value > shm.second ? shm.second : ((shm.second + 1) & 3));
+            }
+        }
+
+        return sequences;
+    }
+
+    bool IsNodeIncluded(size_t node_ind) const {
+        return nodes[node_ind].IsIncluded();
+    }
+
     friend std::ostream& operator<<(std::ostream& out, const Tree& tree);
 };
 
