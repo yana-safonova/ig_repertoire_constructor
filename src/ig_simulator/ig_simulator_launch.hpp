@@ -25,6 +25,9 @@ private:
     GetBaseRepertoire(const germline_utils::ChainType chain_type,
                       std::vector<germline_utils::CustomGeneDatabase>& db) const;
 
+    template<class PoolManager>
+    ForestStorage __GetForestStorage(const BaseRepertoire& base_repertoire) const;
+
     ForestStorage GetForestStorage(const BaseRepertoire& base_repertoire) const;
 
 public:

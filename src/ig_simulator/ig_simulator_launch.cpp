@@ -7,26 +7,8 @@
 #include <clonal_trees/tree_creator/tree_creator.hpp>
 #include <clonal_trees/tree_creator/exporters.hpp>
 #include "ig_simulator_launch.hpp"
-#include "germline_utils/germline_db_generator.hpp"
-// #include "random_generator.hpp"
-// #include "gene_chooser/uniform_gene_chooser.hpp"
-// #include "nucleotides_remover/uniform_nucleotides_remover.hpp"
-// #include "p_nucleotides_creator/uniform_nucleotides_creator.hpp"
-// #include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
-// #include "metaroot_creator/metaroot_creator.hpp"
-#include "base_repertoire/gene_chooser/config_based_getter.hpp"
-#include "base_repertoire/n_nucleotides_inserter/config_based_getter.hpp"
-#include "base_repertoire/nucleotides_remover/config_based_getter.hpp"
-#include "base_repertoire/p_nucleotides_creator/config_based_getter.hpp"
 #include "base_repertoire/base_repertoire_simulator.hpp"
-#include "clonal_trees/tree_creator/pool_manager.hpp"
-#include "clonal_trees/tree_creator/shm_creator.hpp"
-#include "clonal_trees/tree_creator/tree_size_generator.hpp"
-#include "clonal_trees/tree_creator/tree_creator.hpp"
-#include "clonal_trees/tree_creator/forest_creator.hpp"
-#include "clonal_trees/tree_creator/pool_manager.hpp"
 #include "clonal_trees/tree_creator/forest_storage_creator.hpp"
-#include "clonal_trees/tree_creator/tree_exporter.hpp"
 
 using namespace germline_utils;
 
@@ -66,8 +48,8 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
     BaseRepertoireSimulator base_repertoire_simulator{config_.simulation_params.base_repertoire_params,
                                                       chain_type,
                                                       db};
-    // TODO add number to config
-    auto base_repertoire = base_repertoire_simulator.Simulate(100);
+    auto base_repertoire =
+        base_repertoire_simulator.Simulate(config_.simulation_params.base_repertoire_params.number_of_metaroots);
     std::ofstream base_repertoire_out;
     base_repertoire_out.open(path::append_path(config_.io_params.output_params.output_dir,
                                                config_.io_params.output_params.base_repertoire_filename));
@@ -77,11 +59,12 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
     return base_repertoire;
 }
 
-ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_repertoire) const
+template<class PoolManager>
+ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_repertoire) const
 {
     INFO("== Forest Storage starts ==");
     ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
-    auto forest_storage = forest_storage_creator.GenerateForest<DeepTreePoolManager>(base_repertoire);
+    auto forest_storage = forest_storage_creator.GenerateForest<PoolManager>(base_repertoire);
 
     std::ofstream full, included;
     full.open(path::append_path(config_.io_params.output_params.output_dir,
@@ -97,8 +80,21 @@ ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_rep
     return forest_storage;
 }
 
+ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_repertoire) const
+{
+    const auto& pool_manager_strategy = config_.simulation_params.clonal_tree_simulator_params.pool_manager_strategy;
+    if (pool_manager_strategy == PoolManagerStrategy::UniformPoolManager) {
+        return __GetForestStorage<UniformPoolManager>(base_repertoire);
+    } else if (pool_manager_strategy == PoolManagerStrategy::DeepTreePoolManager) {
+        return __GetForestStorage<DeepTreePoolManager>(base_repertoire);
+    } else if (pool_manager_strategy == PoolManagerStrategy::WideTreePoolManager) {
+        return __GetForestStorage<WideTreePoolManager>(base_repertoire);
+    }
+    VERIFY(false);
+}
+
 void IgSimulatorLaunch::Run() {
-    MTSingleton::SetSeed(1);
+    // MTSingleton::SetSeed(1);
     INFO("== IgSimulator starts ==");
 
     germline_utils::ChainType chain_type = GetLaunchChainType();

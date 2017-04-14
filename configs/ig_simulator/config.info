@@ -82,7 +82,7 @@ simulation_params {
             productive_part     1
         }
 
-        number_of_metaroots 100
+        number_of_metaroots 1000
     }
 
     clonal_tree_simulator_params {
@@ -100,6 +100,7 @@ simulation_params {
             }
         }
 
+        pool_manager_strategy   uniform_pool_manager
         prob_ret_to_pool        0.5
 
     }

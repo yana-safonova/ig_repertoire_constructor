@@ -55,6 +55,8 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
                    method_str_lowercase.begin(), ::tolower);
     if (method_str == "uniform") {
         gene_chooser_params.method = GeneChooserMethod::Uniform;
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -82,6 +84,8 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
     if (method_str == "uniform") {
         nucleotides_remover_params.method = NucleotidesRemoverMethod::Uniform;
         load(nucleotides_remover_params.uniform_remover_params, pt, "uniform_remover_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -109,6 +113,8 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
     if (method_str == "uniform") {
         p_nucleptides_creator_params.method = PNucleotidesCreatorParams::Uniform;
         load(p_nucleptides_creator_params.uniform_creator_params, pt, "uniform_creator_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -135,6 +141,8 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
     if (method_str == "uniform") {
         n_nucleotides_inserter_params.method = NNucleotidesInserterParams::Uniform;
         load(n_nucleotides_inserter_params.uniform_inserter_params, pt, "uniform_inserter_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -180,6 +188,8 @@ void load(MultiplicityCreatorParams &multiplicity_creator_params,
     if (method_str == "geometric") {
         multiplicity_creator_params.method = MultiplicityCreatorMethod::Geometric;
         load(multiplicity_creator_params.geometric_params, pt, "geometric_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -220,6 +230,8 @@ void load(TreeSizeGeneratorParams &tree_size_generator_params,
     if (method_str == "geometric") {
         tree_size_generator_params.method = TreeSizeGeneratorMethod::Geometric;
         load(tree_size_generator_params.geometric_params, pt, "geometric_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -242,6 +254,8 @@ void load(SHM_CreatorParams &shm_creator_params,
     if (method_str == "poisson") {
         shm_creator_params.method = SHM_CreatorMethod::Poisson;
         load(shm_creator_params.poisson_params, pt, "poisson_params");
+    } else {
+        VERIFY(false);
     }
 }
 
@@ -249,6 +263,22 @@ void load(ClonalTreeSimulatorParams &clonal_tree_simulator_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
+    using PoolManagerStrategy = ClonalTreeSimulatorParams::PoolManagerStrategy;
+
+    std::string method_str(pt.get<std::string>("pool_manager_strategy"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str == "uniform_pool_manager") {
+        clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::UniformPoolManager;
+    } else if (method_str == "wide_tree_pool_manager") {
+        clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::WideTreePoolManager;
+    } else if (method_str == "deep_tree_pool_manager") {
+        clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::DeepTreePoolManager;
+    } else {
+        VERIFY(false);
+    }
+
     load(clonal_tree_simulator_params.prob_ret_to_pool, pt, "prob_ret_to_pool");
     load(clonal_tree_simulator_params.tree_size_generator_params, pt, "tree_size_generator_params");
     load(clonal_tree_simulator_params.shm_creator_params, pt, "shm_creator_params");

@@ -136,6 +136,9 @@ struct IgSimulatorConfig {
                 PoissonCreatorParams poisson_params;
             };
 
+            enum class PoolManagerStrategy { UniformPoolManager, WideTreePoolManager, DeepTreePoolManager };
+            PoolManagerStrategy pool_manager_strategy;
+
             double prob_ret_to_pool;
             TreeSizeGeneratorParams tree_size_generator_params;
             SHM_CreatorParams shm_creator_params;
@@ -175,6 +178,7 @@ using CleavageParams = MetarootSimulationParams::CleavageParams;
 
 using TreeSizeGeneratorParams = ClonalTreeSimulatorParams::TreeSizeGeneratorParams;
 using SHM_CreatorParams = ClonalTreeSimulatorParams::SHM_CreatorParams;
+using PoolManagerStrategy = ClonalTreeSimulatorParams::PoolManagerStrategy;
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);
 
