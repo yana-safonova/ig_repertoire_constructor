@@ -8,6 +8,7 @@
 #include "ig_simulator_utils.hpp"
 #include "clonal_trees/tree/node.hpp"
 #include <random>
+#include "ig_simulator_config.hpp"
 
 namespace ig_simulator {
 
@@ -37,8 +38,14 @@ public:
         distribution(check_numeric_positive(lambda))
     { }
 
+    PoissonShmCreator(const SHM_CreatorParams::PoissonCreatorParams& config):
+        PoissonShmCreator(config.lambda)
+    { }
+
 
     Node::SHM_Vector GenerateSHM_Vector(size_t length) const override;
 };
+
+AbstractShmCreatorCPtr get_shm_creator(const SHM_CreatorParams&);
 
 } // End namespace ig_simulator

@@ -27,6 +27,12 @@ public:
         ret_prob(check_numeric_positive(ret_prob))
     { }
 
+    TreeCreator(const ClonalTreeSimulatorParams& config):
+        shm_creator(get_shm_creator(config.shm_creator_params)),
+        tree_size_generator(get_tree_size_generator(config.tree_size_generator_params)),
+        ret_prob(config.prob_ret_to_pool)
+    { }
+
     TreeCreator(const TreeCreator&) = delete;
     TreeCreator(TreeCreator&&) = delete;
     TreeCreator& operator=(const TreeCreator&) = delete;

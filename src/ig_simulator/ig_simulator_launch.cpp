@@ -73,17 +73,7 @@ void IgSimulatorLaunch::Run() {
     base_repertoire_out.close();
     std::cout << config_.io_params.output_params.output_dir + "/test.fa\n";
 
-    UniformPoolManager manager(0.5);
-    // manager.GetIndex();
-    // for (size_t i = 0; i < 10000000; i++) {
-    //     std::cout << i << " " << manager.GetIndex().second << std::endl;
-    // }
-
-    AbstractShmCreatorCPtr shm_creator(new PoissonShmCreator(1));
-    AbstractTreeSizeGeneratorCPtr tree_size_generator(new GeometricTreeSizeGenerator(0.01));
-    // TreeCreator tree_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
-    ForestStorageCreator forest_storage_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
-    //std::cout << tree;
+    ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();

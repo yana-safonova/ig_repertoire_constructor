@@ -218,11 +218,35 @@ void load(TreeSizeGeneratorParams &tree_size_generator_params,
     }
 }
 
+void load(SHM_CreatorParams::PoissonCreatorParams &params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(params.lambda, pt, "lambda");
+}
+
+void load(SHM_CreatorParams &shm_creator_params,
+          boost::property_tree::ptree const &pt, bool) {
+    using config_common::load;
+    using SHM_CreatorMethod = SHM_CreatorParams::SHM_CreatorMethod;
+
+    std::string method_str(pt.get<std::string>("shm_creator_method"));
+    std::string method_str_lowercase(method_str);
+    std::transform(method_str.begin(), method_str.end(),
+                   method_str_lowercase.begin(), ::tolower);
+    if (method_str == "poisson") {
+        shm_creator_params.method = SHM_CreatorMethod::Poisson;
+        load(shm_creator_params.poisson_params, pt, "poisson_params");
+    }
+}
+
 void load(ClonalTreeSimulatorParams &clonal_tree_simulator_params,
           boost::property_tree::ptree const &pt, bool)
 {
     using config_common::load;
+    load(clonal_tree_simulator_params.prob_ret_to_pool, pt, "prob_ret_to_pool");
     load(clonal_tree_simulator_params.tree_size_generator_params, pt, "tree_size_generator_params");
+    load(clonal_tree_simulator_params.shm_creator_params, pt, "shm_creator_params");
 }
 
 void load(IgSimulatorConfig::SimulationParams &simulation_params,

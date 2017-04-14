@@ -28,4 +28,12 @@ Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(size_t length) const {
     return shm_vector;
 }
 
+AbstractShmCreatorCPtr get_shm_creator(const SHM_CreatorParams& params) {
+    using SHM_CreatorMethod = SHM_CreatorParams::SHM_CreatorMethod;
+    if (params.method == SHM_CreatorMethod::Poisson) {
+        return std::unique_ptr<AbstractShmCreator>(new PoissonShmCreator(params.poisson_params));
+    }
+    VERIFY(false);
+}
+
 } // End namespace ig_simulator

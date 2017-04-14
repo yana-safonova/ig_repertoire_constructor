@@ -86,5 +86,15 @@ simulation_params {
                 lambda              0.01
             }
         }
+
+        shm_creator_params {
+            shm_creator_method      poisson
+            poisson_params {
+                lambda              2
+            }
+        }
+
+        prob_ret_to_pool        0.5
+
     }
 }

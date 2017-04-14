@@ -120,7 +120,19 @@ struct IgSimulatorConfig {
                 GeometricParams geometric_params;
             };
 
+            struct SHM_CreatorParams {
+                struct PoissonCreatorParams {
+                    double lambda;
+                };
+
+                enum class SHM_CreatorMethod { Poisson };
+                SHM_CreatorMethod method;
+                PoissonCreatorParams poisson_params;
+            };
+
+            double prob_ret_to_pool;
             TreeSizeGeneratorParams tree_size_generator_params;
+            SHM_CreatorParams shm_creator_params;
         };
 
         BaseRepertoireParams base_repertoire_params;
@@ -156,6 +168,7 @@ using NNucleotidesInserterMethod = NNucleotidesInserterParams::NNucleotidesInser
 using CleavageParams = MetarootSimulationParams::CleavageParams;
 
 using TreeSizeGeneratorParams = ClonalTreeSimulatorParams::TreeSizeGeneratorParams;
+using SHM_CreatorParams = ClonalTreeSimulatorParams::SHM_CreatorParams;
 
 void load(IgSimulatorConfig &cfg, std::string const &filename);
 

@@ -20,6 +20,10 @@ public:
         forest_creator(std::move(shm_creator), std::move(tree_size_generator), ret_prob)
     { }
 
+    ForestStorageCreator(const ClonalTreeSimulatorParams& config):
+        forest_creator(config)
+    { }
+
     ForestStorageCreator(const ForestStorageCreator&) = delete;
     ForestStorageCreator(ForestStorageCreator&&) = delete;
     ForestStorageCreator& operator=(const ForestStorageCreator&) = delete;
