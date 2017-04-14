@@ -30,9 +30,13 @@ public:
     const MetarootCluster* MetarootCluster() const { return metaroot_cluster; }
     const std::vector<Tree>& Trees() const { return trees; }
 
+    size_t Size() const { return trees.size(); }
+
     friend std::ostream& operator<<(std::ostream&, const Forest&);
 };
 
 std::ostream& operator<<(std::ostream& out, const Forest&);
+
+using ForestStorage = std::vector<Forest>;
 
 } // End namespace ig_simulator

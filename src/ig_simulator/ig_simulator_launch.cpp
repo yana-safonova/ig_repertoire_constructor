@@ -24,6 +24,7 @@
 #include "clonal_trees/tree_creator/tree_creator.hpp"
 #include "clonal_trees/tree_creator/forest_creator.hpp"
 #include "clonal_trees/tree_creator/pool_manager.hpp"
+#include "clonal_trees/tree_creator/forest_storage_creator.hpp"
 
 using namespace germline_utils;
 
@@ -77,50 +78,20 @@ void IgSimulatorLaunch::Run() {
     // }
 
     AbstractShmCreatorCPtr shm_creator(new PoissonShmCreator(1));
-    AbstractTreeSizeGeneratorCPtr tree_size_generator(new GeometricTreeSizeGenerator(0.001));
+    AbstractTreeSizeGeneratorCPtr tree_size_generator(new GeometricTreeSizeGenerator(0.01));
     // TreeCreator tree_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
-    ForestCreator forest_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
+    ForestStorageCreator forest_storage_creator(std::move(shm_creator), std::move(tree_size_generator), 0.5);
     //std::cout << tree;
 
     std::chrono::time_point<std::chrono::system_clock> start, end;
     start = std::chrono::system_clock::now();
-    // auto tree = tree_creator.GenerateTree<DeepTreePoolManager>(base_repertoire[0].MetarootPtr().get());
-    auto forest = forest_creator.GenerateForest<DeepTreePoolManager>(base_repertoire[1]);
+    auto forest_storage = forest_storage_creator.GenerateForest<DeepTreePoolManager>(base_repertoire);
     end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end-start;
 
     std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
-    // std::cout << forest << "\n";
 
-    // auto loci = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
-    // VERIFY_MSG(loci.size() == 1, "Simulation only one locus");
-    // auto locus = loci[0];
-
-    // AbstractVDJGeneChooserCPtr gene_chooser(new UniformVDJGeneChooser(v_db, d_db, j_db));
-    // AbstractNucleotidesRemoverCPtr nucl_remover(new UniformNucleotidesRemover());
-    // AbstractPNucleotidesCreatorCPtr nucl_creator(new UniformPNucleotidesCreator());
-    // AbstractNNucleotidesInserterCPtr nucl_inserter(new UniformNNucleotidesInserter());
-
-    // VDJMetarootCreator metaroot_creator(v_db, d_db, j_db,
-    //                                     std::move(gene_chooser),
-    //                                     std::move(nucl_remover),
-    //                                     std::move(nucl_creator),
-    //                                     std::move(nucl_inserter),
-    //                                     locus);
-    // auto root = metaroot_creator.CreateRoot();
-    // std::cout << root << std::endl;
-    // std::cout << root.Sequence() << std::endl;
-
-    // MTSingleton::SetSeed(1);
-    // auto& g = MTSingleton::GetInstance();
-    // auto distr = std::uniform_int_distribution<size_t>();
-    // std::cout << distr(g) << std::endl;
-    // MTSingleton::SetSeed(1);
-    // std::cout << distr(g) << std::endl;
-    // MTSingleton::SetSeed(1);
-    // auto& g1 = MTSingleton::GetInstance();
-    // std::cout << distr(g1) << std::endl;
 }
 
 } // End namespace ig_simulator
