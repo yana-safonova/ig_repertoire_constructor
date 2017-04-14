@@ -197,6 +197,7 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams &base_repert
     load(base_repertoire_params.metaroot_simulation_params, pt, "metaroot_simulation_params");
     load(base_repertoire_params.multiplicity_creator_params, pt, "multiplicity_creator_params");
     load(base_repertoire_params.productive_params, pt, "productive_params");
+    load(base_repertoire_params.number_of_metaroots, pt, "number_of_metaroots");
 }
 
 void load(TreeSizeGeneratorParams::GeometricParams &geometric_params,

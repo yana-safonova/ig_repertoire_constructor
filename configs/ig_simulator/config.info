@@ -81,6 +81,8 @@ simulation_params {
         productive_params {
             productive_part     1
         }
+
+        number_of_metaroots 100
     }
 
     clonal_tree_simulator_params {

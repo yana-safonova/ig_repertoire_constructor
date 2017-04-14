@@ -67,7 +67,7 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
                                                       chain_type,
                                                       db};
     // TODO add number to config
-    auto base_repertoire = base_repertoire_simulator.Simulate(1000);
+    auto base_repertoire = base_repertoire_simulator.Simulate(100);
     std::ofstream base_repertoire_out;
     base_repertoire_out.open(path::append_path(config_.io_params.output_params.output_dir,
                                                config_.io_params.output_params.base_repertoire_filename));
@@ -91,6 +91,8 @@ ForestStorage IgSimulatorLaunch::GetForestStorage(const BaseRepertoire& base_rep
     ForestStorageExporter(forest_storage, full, included);
     full.close();
     included.close();
+
+    EdgeListsExporters(forest_storage, config_.io_params.output_params);
     INFO("== Forest Storage ends ==");
     return forest_storage;
 }

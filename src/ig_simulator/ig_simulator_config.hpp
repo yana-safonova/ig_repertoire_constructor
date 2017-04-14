@@ -111,6 +111,8 @@ struct IgSimulatorConfig {
             MetarootSimulationParams metaroot_simulation_params;
             MultiplicityCreatorParams multiplicity_creator_params;
             ProductiveParams productive_params;
+
+            size_t number_of_metaroots;
         };
 
         struct ClonalTreeSimulatorParams {
