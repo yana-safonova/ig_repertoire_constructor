@@ -62,10 +62,12 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
 template<class PoolManager>
 ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_repertoire) const
 {
-    INFO("== Forest Storage starts ==");
+    INFO("== Forest Storage generation starts ==");
     ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
     auto forest_storage = forest_storage_creator.GenerateForest<PoolManager>(base_repertoire);
+    INFO("== Forest Storage generation ends ==");
 
+    INFO("== Forest Storage export starts ==");
     std::ofstream full, included;
     full.open(path::append_path(config_.io_params.output_params.output_dir,
                                 config_.io_params.output_params.full_pool));
@@ -76,7 +78,7 @@ ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_r
     included.close();
 
     EdgeListsExporters(forest_storage, config_.io_params.output_params);
-    INFO("== Forest Storage ends ==");
+    INFO("== Forest Storage export ends ==");
     return forest_storage;
 }
 

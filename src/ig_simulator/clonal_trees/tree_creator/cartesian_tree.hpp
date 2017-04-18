@@ -72,6 +72,7 @@ private:
             *pt = r;
         }
         TreapNode::Upd(*pt);
+        // Check(*pt);
     }
 
     static void Split(TreapNodePtr t, KeyType key, TreapNodePtr *l, TreapNodePtr *r) {
@@ -88,6 +89,15 @@ private:
             *r = t;
             TreapNode::Upd(*r);
         }
+        // Check(t);
+    }
+
+    static void Check(TreapNodePtr t) {
+        if (t == nullptr)
+            return;
+        VERIFY(t->sum == TreapNode::Sum(t->left) + TreapNode::Sum(t->right) + t->freq);
+        Check(t->left);
+        Check(t->right);
     }
 
 public:
@@ -95,6 +105,7 @@ public:
     ~Treap() { delete root; }
 
     void Insert(KeyType key, FreqType freq, PriorType prior = random_index()) {
+        VERIFY(not Contains(key));
         TreapNodePtr * pt = &root;
         while (*pt and (*pt)->prior < prior) {
             (*pt)->sum += freq;
@@ -108,6 +119,7 @@ public:
         *pt = TreapNodePtr(new TreapNode(key, freq, prior, l, r));
         TreapNode::Upd(*pt);
         treap_size++;
+        // Check();
     }
 
     void Erase(KeyType key, FreqType freq) {
@@ -119,6 +131,7 @@ public:
             else
                 pt = &(*pt)->right;
         }
+        VERIFY_MSG((*pt)->freq == freq, (*pt)->freq << " " << freq);
         TreapNodePtr p;
         Merge(&p, (*pt)->left, (*pt)->right);
         (*pt)->left = nullptr;
@@ -127,9 +140,10 @@ public:
         delete *pt;
         *pt = p;
         treap_size--;
+        // Check();
     }
 
-    KeyType Find(FreqType sum) const {
+    KeyType FindBySum(FreqType sum) const {
         TreapNodePtr t = root;
         FreqType temp;
         while((temp = TreapNode::Sum(t->right) + 1) != sum) {
@@ -141,6 +155,21 @@ public:
             }
         }
         return t->key;
+    }
+
+    bool Contains(KeyType key) const {
+        TreapNodePtr t = root;
+        while (t != nullptr) {
+            if (t->key == key) {
+                return true;
+            }
+            if (t->key > key) {
+                t = t->left;
+            } else {
+                t = t->right;
+            }
+        }
+        return false;
     }
 
     void SetFreq(KeyType key, FreqType old_freq, FreqType new_freq) {
@@ -156,8 +185,8 @@ public:
                 t = t->right;
         }
         t->freq = new_freq;
-        t->sum = t->sum - old_freq + new_freq;
-        // TreapNode::Upd(t);
+        // t->sum = t->sum - old_freq + new_freq;
+        TreapNode::Upd(t);
     }
 
     std::pair<KeyType, FreqType> LowerBound(double sum) const {
@@ -165,6 +194,7 @@ public:
         FreqType sum_left, sum_right;
 
         while(true) {
+            VERIFY(t != nullptr);
             sum_left = TreapNode::Sum(t->left);
             sum_right = TreapNode::Sum(t->right);
 
@@ -185,7 +215,11 @@ public:
         return TreapNode::Sum(root);
     }
 
-size_t Size() const { return treap_size; }
+    size_t Size() const { return treap_size; }
+
+    void Check() const {
+        Check(root);
+    }
 };
 
 } // End namespace ig_simulator

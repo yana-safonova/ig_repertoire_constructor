@@ -15,11 +15,13 @@ class AbstractPoolManager {
 protected:
     Treap<> pool;
     std::bernoulli_distribution ret_to_pool_distr;
+    size_t max_index;
 
 public:
     AbstractPoolManager(double ret_prob):
             pool(),
-            ret_to_pool_distr(check_numeric_positive(ret_prob))
+            ret_to_pool_distr(check_numeric_positive(ret_prob)),
+            max_index(1)
     {
         pool.Insert(0, 1);
         // pool.Insert(1, 1);

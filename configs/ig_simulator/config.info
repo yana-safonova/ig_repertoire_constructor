@@ -100,7 +100,7 @@ simulation_params {
             }
         }
 
-        pool_manager_strategy   uniform_pool_manager
+        pool_manager_strategy   uniform_pool_manager; uniform_pool_manager, wide_tree_pool_manager, deep_tree_pool_manager
         prob_ret_to_pool        0.5
 
     }
