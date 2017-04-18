@@ -29,7 +29,7 @@ void AbstractMetaroot::PrepareGene(seqan::Dna5String& gene, int left_cleavage, i
     }
 }
 
-const seqan::Dna5String& VJMetaroot::Sequence() const { return sequence; }
+const std::string& VJMetaroot::Sequence() const { return sequence; }
 
 void VJMetaroot::CalculateSequence() {
     VERIFY(v_db_p != nullptr);
@@ -41,12 +41,12 @@ void VJMetaroot::CalculateSequence() {
     PrepareGene(v_gene, 0, cleavage_v);
     PrepareGene(j_gene, cleavage_j, 0);
 
-    sequence = v_gene;
-    sequence += insertion_vj;
-    sequence += j_gene;
+    sequence = core::seqan_string_to_string(v_gene);
+    sequence += core::seqan_string_to_string(insertion_vj);
+    sequence += core::seqan_string_to_string(j_gene);
 }
 
-const seqan::Dna5String& VDJMetaroot::Sequence() const { return sequence; }
+const std::string& VDJMetaroot::Sequence() const { return sequence; }
 
 
 void VDJMetaroot::CalculateSequence() {
@@ -62,11 +62,11 @@ void VDJMetaroot::CalculateSequence() {
     PrepareGene(d_gene, cleavage_d_left, cleavage_d_right);
     PrepareGene(j_gene, cleavage_j, 0);
 
-    sequence = v_gene;
-    sequence += insertion_vd;
-    sequence += d_gene;
-    sequence += insertion_dj;
-    sequence += j_gene;
+    sequence = core::seqan_string_to_string(v_gene);
+    sequence += core::seqan_string_to_string(insertion_vd);
+    sequence += core::seqan_string_to_string(d_gene);
+    sequence += core::seqan_string_to_string(insertion_dj);
+    sequence += core::seqan_string_to_string(j_gene);
 }
 
 std::ostream& operator<<(std::ostream& out, const VJMetaroot& root) {

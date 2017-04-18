@@ -68,6 +68,7 @@ ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_r
     INFO("== Forest Storage generation ends ==");
 
     INFO("== Forest Storage export starts ==");
+    INFO("== Full and filtered pool export start");
     std::ofstream full, included;
     full.open(path::append_path(config_.io_params.output_params.output_dir,
                                 config_.io_params.output_params.full_pool));
@@ -76,8 +77,11 @@ ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_r
     ForestStorageExporter(forest_storage, full, included);
     full.close();
     included.close();
+    INFO("== Full and filtered pool export ends");
 
+    INFO("== Edge lists export starts");
     EdgeListsExporters(forest_storage, config_.io_params.output_params);
+    INFO("== Edge lists export ends");
     INFO("== Forest Storage export ends ==");
     return forest_storage;
 }

@@ -28,7 +28,7 @@ protected:
 
     annotation_utils::CDRLabeling cdr_labeling;
 
-    seqan::Dna5String sequence;
+    std::string sequence;
 
     static void PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage);
     virtual void CalculateSequence() = 0;
@@ -63,16 +63,16 @@ public:
 
     const annotation_utils::CDRLabeling CDRLabeling() const { return cdr_labeling; }
 
-    size_t Length() const { return seqan::length(sequence); }
+    size_t Length() const { return sequence.size(); }
 
-    virtual const seqan::Dna5String& Sequence() const = 0;
+    virtual const std::string& Sequence() const = 0;
     virtual ~AbstractMetaroot() { }
 };
 
 using AbstractMetarootCPtr = std::unique_ptr<const AbstractMetaroot>;
 
 
-class VJMetaroot : public AbstractMetaroot {
+class VJMetaroot final: public AbstractMetaroot {
 private:
     const seqan::Dna5String insertion_vj;
     virtual void CalculateSequence() override;
@@ -94,11 +94,11 @@ public:
 
     const seqan::Dna5String& InsertionVJ() const { return insertion_vj; }
 
-    virtual const seqan::Dna5String& Sequence() const override;
+    const std::string& Sequence() const override;
 };
 
 
-class VDJMetaroot : public AbstractMetaroot {
+class VDJMetaroot final: public AbstractMetaroot {
 private:
     const germline_utils::CustomGeneDatabase * d_db_p;
 
@@ -148,7 +148,7 @@ public:
     const seqan::Dna5String& InsertionVD() const { return insertion_vd; }
     const seqan::Dna5String& InsertionDJ() const { return insertion_dj; }
 
-    virtual const seqan::Dna5String& Sequence() const override;
+    const std::string& Sequence() const override;
 };
 
 std::ostream& operator<<(std::ostream& out, const VJMetaroot& root);

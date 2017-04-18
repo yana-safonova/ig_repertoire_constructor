@@ -6,15 +6,17 @@
 
 namespace ig_simulator {
 
-void TreeExporter(const Tree& tree, size_t forest_ind, size_t tree_ind, std::ostream& full, std::ostream& included) {
+void TreeExporter(const Tree& tree, size_t forest_ind, size_t tree_ind,
+                         std::ostream& full, std::ostream& included)
+{
     const auto sequences = tree.Sequences();
     for (size_t i = 0; i < sequences.size(); ++i) {
         std::stringstream id_ss;
-        id_ss << "forest_" << forest_ind << "_tree_" << tree_ind << "_antibody_" << i;
+        id_ss << ">forest_" << forest_ind << "_tree_" << tree_ind << "_antibody_" << i;
         std::string id { id_ss.str() };
-        seqan::writeRecord(full, id, sequences[i], seqan::Fasta());
+        full << id << '\n' << sequences[i] << '\n';
         if (tree.IsNodeIncluded(i)) {
-            seqan::writeRecord(included, id, sequences[i], seqan::Fasta());
+            included << id << '\n' << sequences[i] << '\n';
         }
     }
 }
