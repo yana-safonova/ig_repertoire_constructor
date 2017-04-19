@@ -21,7 +21,7 @@ io_params {
 algorithm_params {
     germline_params {
         organism        human
-        loci            IGH
+        loci            IGL
         pseudogenes     false
         germline_dir              ./data/germline
     }
@@ -100,7 +100,7 @@ simulation_params {
             }
         }
 
-        pool_manager_strategy   deep_tree_pool_manager; uniform_pool_manager, wide_tree_pool_manager, deep_tree_pool_manager
+        pool_manager_strategy   deep; uniform, wide, dee
         prob_ret_to_pool        0.9
 
     }

@@ -269,11 +269,11 @@ void load(ClonalTreeSimulatorParams &clonal_tree_simulator_params,
     std::string method_str_lowercase(method_str);
     std::transform(method_str.begin(), method_str.end(),
                    method_str_lowercase.begin(), ::tolower);
-    if (method_str == "uniform_pool_manager") {
+    if (method_str == "uniform") {
         clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::UniformPoolManager;
-    } else if (method_str == "wide_tree_pool_manager") {
+    } else if (method_str == "wide") {
         clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::WideTreePoolManager;
-    } else if (method_str == "deep_tree_pool_manager") {
+    } else if (method_str == "deep") {
         clonal_tree_simulator_params.pool_manager_strategy = PoolManagerStrategy::DeepTreePoolManager;
     } else {
         VERIFY(false);
