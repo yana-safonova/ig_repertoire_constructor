@@ -18,7 +18,7 @@
 
 #include "config.hpp"
 
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
 # include <jemalloc/jemalloc.h>
 #endif
 
@@ -73,7 +73,7 @@ inline size_t get_max_rss() {
 #endif
 
 inline size_t get_used_memory() {
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
     const size_t *cmem = 0;
     size_t clen = sizeof(cmem);
 

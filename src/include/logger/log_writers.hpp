@@ -17,7 +17,7 @@
 namespace logging {
 
 struct console_writer  : public writer {
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
   void write_msg(double time, size_t cmem, size_t max_rss, level l, const char* file, size_t line_num, const char* source, const char* msg) {
     std::cout
         << str(boost::format("%14s %5s / %5s %6s %-24.24s (%-26.26s:%4d)   %s")

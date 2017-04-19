@@ -37,7 +37,7 @@ memcheck: cmake
 	$(MAKE) -C build/release memcheck
 
 rnd: cmake
-	$(MAKE) -C build/release memcheck
+	$(MAKE) -C build/release rnd
 
 vjf: cmake
 	$(MAKE) -C build/release vj_finder

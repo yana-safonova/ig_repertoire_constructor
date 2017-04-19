@@ -1,12 +1,11 @@
-
 IgRepertoireConstructor: an algorithm for construction of antibody repertoire from NGS data and immunoproteogenomics analysis
 Copyright (c) 2015 Saint-Petersburg State University
 
-SPAdes is free software; you can redistribute it and/or modify
+IgRepertoireConstructor is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License, Version 2,
 dated June 1991, as published by the Free Software Foundation.
 
-SPAdes is distributed in the hope that it will be useful, but
+IgRepertoireConstructor is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.

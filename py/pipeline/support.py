@@ -18,23 +18,23 @@ import shutil
 import options_storage
 
 # constants to print and detect warnings and errors in logs
-SPADES_PY_ERROR_MESSAGE = "== Error == "
-SPADES_PY_WARN_MESSAGE = "== Warning == "
-SPADES_ERROR_MESSAGE = " ERROR "
-SPADES_WARN_MESSAGE = " WARN "
+IGREC_PY_ERROR_MESSAGE = "== Error == "
+IGREC_PY_WARN_MESSAGE = "== Warning == "
+IGREC_ERROR_MESSAGE = " ERROR "
+IGREC_WARN_MESSAGE = " WARN "
 # for correct warnings detection in case of continue_mode
 continue_logfile_offset = None
 # for removing tmp_dir even if error occurs
 current_tmp_dir = None
 
 
-def error(err_str, log=None, dipspades=False, prefix=SPADES_PY_ERROR_MESSAGE):
+def error(err_str, log=None, dipspades=False, prefix=IGREC_PY_ERROR_MESSAGE):
     binary_name = "IG Repertoire constructor"
 
     if log:
         log.info("\n\n" + prefix + " " + err_str)
         log_warnings(log)
-        log.info("\nIn case you have troubles running " + binary_name + ", you can write to spades.support@bioinf.spbau.ru")
+        log.info("\nIn case you have troubles running " + binary_name + ", you can write to igtools_support@googlegroups.com")
         log.info("Please provide us with .log files from the output directory.")
     else:
         sys.stderr.write("\n\n" + prefix + " " + err_str + "\n\n")
@@ -279,13 +279,13 @@ def get_warnings(log_filename):
     for line in lines_to_check:
         if line.startswith(WARN_SUMMARY_PREFIX):
             continue
-        if line.find(SPADES_PY_WARN_MESSAGE) != -1:
-            suffix = line[line.find(SPADES_PY_WARN_MESSAGE) + len(SPADES_PY_WARN_MESSAGE):].strip()
-            line = line.replace(SPADES_PY_WARN_MESSAGE, '').strip()
+        if line.find(IGREC_PY_WARN_MESSAGE) != -1:
+            suffix = line[line.find(IGREC_PY_WARN_MESSAGE) + len(IGREC_PY_WARN_MESSAGE):].strip()
+            line = line.replace(IGREC_PY_WARN_MESSAGE, '').strip()
             if not already_saved(spades_py_warns, suffix):
                 spades_py_warns.append(WARN_SUMMARY_PREFIX + line)
-        elif line.find(SPADES_WARN_MESSAGE) != -1:
-            suffix = line[line.find(SPADES_WARN_MESSAGE) + len(SPADES_WARN_MESSAGE):].strip()
+        elif line.find(IGREC_WARN_MESSAGE) != -1:
+            suffix = line[line.find(IGREC_WARN_MESSAGE) + len(IGREC_WARN_MESSAGE):].strip()
             line = line.strip()
             if not already_saved(spades_warns, suffix):
                 spades_warns.append(WARN_SUMMARY_PREFIX + line)
