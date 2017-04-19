@@ -100,8 +100,9 @@ simulation_params {
             }
         }
 
-        pool_manager_strategy   deep; uniform, wide, dee
+        pool_manager_strategy   wide; uniform, wide, deep
         prob_ret_to_pool        0.9
+        lambda_distr_n_children     0.3
 
     }
 }

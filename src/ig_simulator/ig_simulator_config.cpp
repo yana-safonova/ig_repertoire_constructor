@@ -280,6 +280,7 @@ void load(ClonalTreeSimulatorParams &clonal_tree_simulator_params,
     }
 
     load(clonal_tree_simulator_params.prob_ret_to_pool, pt, "prob_ret_to_pool");
+    load(clonal_tree_simulator_params.lambda_distr_n_children, pt, "lambda_distr_n_children");
     load(clonal_tree_simulator_params.tree_size_generator_params, pt, "tree_size_generator_params");
     load(clonal_tree_simulator_params.shm_creator_params, pt, "shm_creator_params");
 }

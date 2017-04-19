@@ -14,12 +14,6 @@ private:
     ForestCreator forest_creator;
 
 public:
-    ForestStorageCreator(AbstractShmCreatorCPtr&& shm_creator,
-                         AbstractTreeSizeGeneratorCPtr&& tree_size_generator,
-                         double ret_prob):
-        forest_creator(std::move(shm_creator), std::move(tree_size_generator), ret_prob)
-    { }
-
     ForestStorageCreator(const ClonalTreeSimulatorParams& config):
         forest_creator(config)
     { }

@@ -32,7 +32,7 @@ public:
     AbstractPoolManager& operator=(const AbstractPoolManager&) = delete;
     AbstractPoolManager& operator=(AbstractPoolManager&&) = delete;
 
-    virtual std::pair<size_t, bool> GetIndex() = 0;
+    virtual std::pair<size_t, bool> GetIndex(size_t n_insert) = 0;
 };
 
 using AbstractPoolManagerCPtr = std::unique_ptr<AbstractPoolManager>;
@@ -44,7 +44,7 @@ public:
         AbstractPoolManager(ret_prob)
     { }
 
-    std::pair<size_t, bool> GetIndex() override;
+    std::pair<size_t, bool> GetIndex(size_t n_insert) override;
 };
 
 class WideTreePoolManager final : public AbstractPoolManager {
@@ -53,7 +53,7 @@ public:
         AbstractPoolManager(ret_prob)
     { }
 
-    std::pair<size_t, bool> GetIndex() override;
+    std::pair<size_t, bool> GetIndex(size_t n_insert) override;
 };
 
 class DeepTreePoolManager final : public AbstractPoolManager {
@@ -62,7 +62,7 @@ public:
         AbstractPoolManager(ret_prob)
     { }
 
-    std::pair<size_t, bool> GetIndex() override;
+    std::pair<size_t, bool> GetIndex(size_t n_insert) override;
 };
 
 } // End namespace ig_simulator

@@ -17,20 +17,24 @@ protected:
     AbstractShmCreatorCPtr shm_creator;
     AbstractTreeSizeGeneratorCPtr tree_size_generator;
     double ret_prob;
+    mutable std::geometric_distribution<size_t> distr_n_children;
 
 public:
     TreeCreator(AbstractShmCreatorCPtr&& shm_creator,
                 AbstractTreeSizeGeneratorCPtr&& tree_size_generator,
-                double ret_prob):
+                double ret_prob,
+                double lambda_distr_n_children):
         shm_creator(std::move(shm_creator)),
         tree_size_generator(std::move(tree_size_generator)),
-        ret_prob(check_numeric_positive(ret_prob))
+        ret_prob(check_numeric_positive(ret_prob)),
+        distr_n_children(check_numeric_positive(lambda_distr_n_children))
     { }
 
     TreeCreator(const ClonalTreeSimulatorParams& config):
-        shm_creator(get_shm_creator(config.shm_creator_params)),
-        tree_size_generator(get_tree_size_generator(config.tree_size_generator_params)),
-        ret_prob(config.prob_ret_to_pool)
+        TreeCreator(get_shm_creator(config.shm_creator_params),
+                    get_tree_size_generator(config.tree_size_generator_params),
+                    config.prob_ret_to_pool,
+                    config.lambda_distr_n_children)
     { }
 
     TreeCreator(const TreeCreator&) = delete;
@@ -50,19 +54,23 @@ public:
         PoolManager pool_manager(ret_prob);
         nodes.emplace_back();
 
-        for(size_t i = 1; i < tree_size; ++i) {
+        while(nodes.size() < tree_size) {
+            size_t n_children = distr_n_children(MTSingleton::GetInstance()) + 1;
+            n_children = std::min(n_children, tree_size - nodes.size());
             size_t parent_ind;
             bool stay;
-            std::tie(parent_ind, stay) = pool_manager.GetIndex();
+            std::tie(parent_ind, stay) = pool_manager.GetIndex(n_children);
 
             if (not stay) {
                 nodes[parent_ind].Exclude();
             }
 
-            Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(root->Length())};
-            nodes.emplace_back(parent_ind, std::move(shm_vector));
+            for (size_t i = 0; i < n_children; ++i) {
+                Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(root->Length())};
+                nodes.emplace_back(parent_ind, std::move(shm_vector));
+            }
         }
-
+        VERIFY(nodes.size() == tree_size);
         return Tree(root, std::move(nodes));
     }
 };

@@ -140,6 +140,7 @@ struct IgSimulatorConfig {
             PoolManagerStrategy pool_manager_strategy;
 
             double prob_ret_to_pool;
+            double lambda_distr_n_children;
             TreeSizeGeneratorParams tree_size_generator_params;
             SHM_CreatorParams shm_creator_params;
         };
