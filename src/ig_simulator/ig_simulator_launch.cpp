@@ -104,7 +104,7 @@ void IgSimulatorLaunch::Run() {
     INFO("== IgSimulator starts ==");
 
     germline_utils::ChainType chain_type = GetLaunchChainType();
-    auto db { GetDB(chain_type) };
+    std::vector<germline_utils::CustomGeneDatabase> db { GetDB(chain_type) };
 
     const BaseRepertoire base_repertoire = GetBaseRepertoire(chain_type, db);
     const ForestStorage forest_storage = GetForestStorage(base_repertoire);
