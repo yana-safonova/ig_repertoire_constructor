@@ -27,7 +27,7 @@ public:
     Forest& operator=(const Forest&) = default;
     Forest& operator=(Forest&&) = default;
 
-    const MetarootCluster* MetarootCluster() const { return metaroot_cluster; }
+    const MetarootCluster* GetMetarootCluster() const { return metaroot_cluster; }
     const std::vector<Tree>& Trees() const { return trees; }
 
     size_t Size() const { return trees.size(); }
