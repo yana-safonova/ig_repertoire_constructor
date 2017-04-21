@@ -10,7 +10,7 @@ BaseRepertoire BaseRepertoireSimulator::Simulate(size_t size) {
     BaseRepertoire repertoire;
     repertoire.reserve(size);
 
-    size_t productive_size = static_cast<size_t> (size * productive_part);
+    size_t productive_size = static_cast<size_t> (static_cast<double>(size) * productive_part);
     size_t i = 0;
     while(i < productive_size) {
         MetarootCluster cluster{metaroot_creator_p->Createroot(),

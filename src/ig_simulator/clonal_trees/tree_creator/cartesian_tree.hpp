@@ -205,7 +205,7 @@ public:
                 t = t->left;
             else {
                 t = t->right;
-                sum -= sum_left;
+                sum -= static_cast<double>(sum_left);
             }
         }
         return { t->key, t->freq };

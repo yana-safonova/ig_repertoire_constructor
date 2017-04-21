@@ -7,7 +7,7 @@
 namespace ig_simulator {
 
 std::pair<size_t, bool> UniformPoolManager::GetIndex(size_t n_insert) {
-    double raw_index = uniform_double(0, pool.Sum());
+    double raw_index = uniform_double(0., static_cast<double>(pool.Sum()));
     size_t index, freq;
     std::tie(index, freq) = pool.LowerBound(raw_index);
     VERIFY(freq == 1);
@@ -24,7 +24,7 @@ std::pair<size_t, bool> UniformPoolManager::GetIndex(size_t n_insert) {
 }
 
 std::pair<size_t, bool> WideTreePoolManager::GetIndex(size_t n_insert) {
-    double raw_index = uniform_double(0, pool.Sum());
+    double raw_index = uniform_double(0., static_cast<double>(pool.Sum()));
     size_t index, freq;
     std::tie(index, freq) = pool.LowerBound(raw_index);
 
@@ -42,7 +42,7 @@ std::pair<size_t, bool> WideTreePoolManager::GetIndex(size_t n_insert) {
 }
 
 std::pair<size_t, bool> DeepTreePoolManager::GetIndex(size_t n_insert) {
-    double raw_index = uniform_double(0, pool.Sum());
+    double raw_index = uniform_double(0., static_cast<double>(pool.Sum()));
     size_t index, freq;
     std::tie(index, freq) = pool.LowerBound(raw_index);
 
