@@ -9,7 +9,7 @@ namespace ig_simulator {
 
 Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(const std::string& seq) const {
     size_t length = seq.length();
-    std::uniform_int_distribution<size_t> ind_distr(0, length - 1);
+    std::uniform_int_distribution<size_t> ind_distr(fix_left, length - 1 - fix_right);
     size_t mut_numb = distribution(MTSingleton::GetInstance()) + 1;
     std::vector<size_t> mut_inds;
     mut_inds.reserve(mut_numb);

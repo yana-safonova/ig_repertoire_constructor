@@ -13,6 +13,11 @@
 namespace ig_simulator {
 
 class AbstractShmCreator {
+protected:
+    // TODO read from vjf config
+    size_t fix_left = 5;
+    size_t fix_right = 21;
+
 public:
     AbstractShmCreator() = default;
     AbstractShmCreator(const AbstractShmCreator&) = delete;
