@@ -143,6 +143,11 @@ public:
         // Check();
     }
 
+    void Erase(KeyType key) {
+        FreqType freq = GetFreq(key);
+        Erase(key, freq);
+    }
+
     KeyType FindBySum(FreqType sum) const {
         TreapNodePtr t = root;
         FreqType temp;
@@ -172,6 +177,22 @@ public:
         return false;
     }
 
+    FreqType GetFreq(KeyType key) const {
+        VERIFY(Contains(key));
+        TreapNodePtr t = root;
+        while (t != nullptr) {
+            if (t->key == key) {
+                return t->freq;
+            }
+            if (t->key > key) {
+                t = t->left;
+            } else {
+                t = t->right;
+            }
+        }
+        VERIFY(false);
+    }
+
     void SetFreq(KeyType key, FreqType old_freq, FreqType new_freq) {
         TreapNodePtr t = root;
         while(t->key != key) {
@@ -194,7 +215,8 @@ public:
         FreqType sum_left, sum_right;
 
         while(true) {
-            VERIFY(t != nullptr);
+            VERIFY_MSG(t != nullptr, std::string("Asked Sum: ") + std::to_string(sum) +
+                                     " Full Sum: " + std::to_string(Sum()));
             sum_left = TreapNode::Sum(t->left);
             sum_right = TreapNode::Sum(t->right);
 

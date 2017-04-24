@@ -4,6 +4,7 @@
 
 #include "tree.hpp"
 #include "verify.hpp"
+#include "annotation_utils/aa_annotation/aa_calculator.hpp"
 
 namespace ig_simulator {
 
@@ -22,6 +23,10 @@ std::ostream& operator<<(std::ostream& out, const Tree& tree) {
                    ", to " << std::get<2>(shm) << ')' << ' ';
         }
         out << '\n';
+
+        // annotation_utils::SimpleAACalculator aa_calculator;
+        // core::Read read("", tree.Sequences()[node.ParentInd()], 0);
+        // VERIFY(not aa_calculator.ComputeAminoAcidAnnotation(read, tree.Metaroot()->CDRLabeling()).HasStopCodon());
     }
     return out;
 }

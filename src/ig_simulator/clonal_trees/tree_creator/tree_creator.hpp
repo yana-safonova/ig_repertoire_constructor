@@ -9,6 +9,7 @@
 #include "base_repertoire/metaroot/metaroot.hpp"
 #include "shm_creator.hpp"
 #include "tree_size_generator.hpp"
+#include "annotation_utils/aa_annotation/aa_calculator.hpp"
 
 namespace ig_simulator {
 
@@ -17,6 +18,8 @@ protected:
     AbstractShmCreatorCPtr shm_creator;
     AbstractTreeSizeGeneratorCPtr tree_size_generator;
     double ret_prob;
+    annotation_utils::SimpleAACalculator aa_calculator;
+
     mutable std::geometric_distribution<size_t> distr_n_children;
 
 private:
@@ -41,6 +44,7 @@ public:
         shm_creator(std::move(shm_creator)),
         tree_size_generator(std::move(tree_size_generator)),
         ret_prob(check_numeric_positive(ret_prob)),
+        aa_calculator(),
         distr_n_children(check_numeric_positive(lambda_distr_n_children))
     { }
 
@@ -91,9 +95,18 @@ public:
 
                 nodes.emplace_back(parent_ind, std::move(shm_vector));
                 sequences.emplace_back(std::move(sequence));
+
+                core::Read read("", sequences.back(), 0);
+                if (aa_calculator.ComputeAminoAcidAnnotation(read, root->CDRLabeling()).HasStopCodon()) {
+                    // nodes.back().Exclude();
+                    pool_manager.Erase(pool_manager.MaxIndex() - n_children + i);
+                }
             }
+            if (pool_manager.Size() == 0) { break; }
         }
-        VERIFY(nodes.size() == tree_size);
+        if (pool_manager.Size() != 0) {
+            VERIFY(nodes.size() == tree_size);
+        }
         return Tree(root, std::move(nodes), std::move(sequences));
     }
 };
