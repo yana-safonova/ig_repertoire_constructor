@@ -1,7 +1,7 @@
 io_params {
     input_params {
         germline_input {
-            ig_dir                    IG
+            ig_dir                    IG_antevolo
             tcr_dir                   TCR
             germline_filenames_config ./configs/vj_finder/germline_files_config.txt
         }
@@ -74,7 +74,7 @@ simulation_params {
         multiplicity_creator_params {
             multiplicity_method     geometric
             geometric_params {
-                lambda              0.1
+                lambda              1
             }
         }
 
@@ -82,14 +82,14 @@ simulation_params {
             productive_part     1
         }
 
-        number_of_metaroots 1000
+        number_of_metaroots 10
     }
 
     clonal_tree_simulator_params {
         tree_size_generator_params {
             tree_size_generator_method      geometric
             geometric_params {
-                lambda              0.01
+                lambda              0.001
             }
         }
 
