@@ -28,7 +28,12 @@ Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(const std::string& seq) c
         size_t ind_nucl_old = old_nucl.value;
         size_t ind_nucl_new = mut_distr(MTSingleton::GetInstance());
         seqan::Dna new_nucl { ind_nucl_new < ind_nucl_old ? ind_nucl_new : ((ind_nucl_new + 1) & 3) };
-        VERIFY(old_nucl != new_nucl);
+        VERIFY_MSG(old_nucl != 'N' ? old_nucl != new_nucl : true,
+                   std::string("Old nucl: ") << old_nucl
+                       << ", New nucl: " << new_nucl
+                       << " old nucl index: " << ind_nucl_old
+                       << " new nucl index: " << ind_nucl_new
+        );
         shm_vector.emplace_back(mut_ind, old_nucl, new_nucl);
     }
     return shm_vector;
