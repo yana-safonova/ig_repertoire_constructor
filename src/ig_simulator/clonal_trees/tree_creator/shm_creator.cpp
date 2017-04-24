@@ -7,8 +7,9 @@
 
 namespace ig_simulator {
 
-Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(size_t length) const {
-    std::uniform_int_distribution<size_t> ind_distr(0, length);
+Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(const std::string& seq) const {
+    size_t length = seq.length();
+    std::uniform_int_distribution<size_t> ind_distr(0, length - 1);
     size_t mut_numb = distribution(MTSingleton::GetInstance()) + 1;
     std::vector<size_t> mut_inds;
     mut_inds.reserve(mut_numb);
@@ -23,7 +24,12 @@ Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(size_t length) const {
     Node::SHM_Vector shm_vector;
     shm_vector.reserve(mut_numb);
     for(const auto& mut_ind : mut_inds) {
-        shm_vector.emplace_back(mut_ind, mut_distr(MTSingleton::GetInstance()));
+        seqan::Dna5 old_nucl { seq[mut_ind] };
+        size_t ind_nucl_old = old_nucl.value;
+        size_t ind_nucl_new = mut_distr(MTSingleton::GetInstance());
+        seqan::Dna new_nucl { ind_nucl_new < ind_nucl_old ? ind_nucl_new : ((ind_nucl_new + 1) & 3) };
+        VERIFY(old_nucl != new_nucl);
+        shm_vector.emplace_back(mut_ind, old_nucl, new_nucl);
     }
     return shm_vector;
 }

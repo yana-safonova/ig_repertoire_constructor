@@ -22,7 +22,7 @@ public:
 
     virtual ~AbstractShmCreator() { }
 
-    virtual Node::SHM_Vector GenerateSHM_Vector(size_t length) const = 0;
+    virtual Node::SHM_Vector GenerateSHM_Vector(const std::string&) const = 0;
 };
 
 using AbstractShmCreatorCPtr = std::unique_ptr<AbstractShmCreator>;
@@ -43,7 +43,7 @@ public:
     { }
 
 
-    Node::SHM_Vector GenerateSHM_Vector(size_t length) const override;
+    Node::SHM_Vector GenerateSHM_Vector(const std::string&) const override;
 };
 
 AbstractShmCreatorCPtr get_shm_creator(const SHM_CreatorParams&);

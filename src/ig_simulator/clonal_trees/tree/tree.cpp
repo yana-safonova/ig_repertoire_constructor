@@ -17,7 +17,9 @@ std::ostream& operator<<(std::ostream& out, const Tree& tree) {
         out << '(' << (node.IsIncluded() ? "included" : "excluded") << ')' << ' ';
         out << " shms: ";
         for(const auto& shm : shms) {
-            out << '(' << shm.first << ", " << shm.second << ')' << ' ';
+            out << "(at " << std::get<0>(shm) <<
+                   ", from " << std::get<1>(shm) <<
+                   ", to " << std::get<2>(shm) << ')' << ' ';
         }
         out << '\n';
     }

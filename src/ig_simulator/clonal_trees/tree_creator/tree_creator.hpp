@@ -19,6 +19,20 @@ protected:
     double ret_prob;
     mutable std::geometric_distribution<size_t> distr_n_children;
 
+private:
+    std::string CreateSequence(const std::string& base_seq, const Node::SHM_Vector& shms) const {
+        std::string seq = base_seq;
+
+        for(const auto& shm : shms) {
+            VERIFY_MSG(seq[std::get<0>(shm)] == std::get<1>(shm),
+                       std::string("real seq: ") << seq <<
+                       ", position: " << std::get<0>(shm) <<
+                       ", expected: " << std::get<1>(shm));
+            seq[std::get<0>(shm)] = std::get<2>(shm);
+        }
+        return seq;
+    }
+
 public:
     TreeCreator(AbstractShmCreatorCPtr&& shm_creator,
                 AbstractTreeSizeGeneratorCPtr&& tree_size_generator,
@@ -50,13 +64,18 @@ public:
         size_t tree_size = tree_size_generator->Generate();
         std::vector<Node> nodes;
         nodes.reserve(tree_size);
+        nodes.emplace_back();
+
+        std::vector<std::string> sequences;
+        sequences.reserve(tree_size);
+        sequences.emplace_back(root->Sequence());
 
         PoolManager pool_manager(ret_prob);
-        nodes.emplace_back();
 
         while(nodes.size() < tree_size) {
             size_t n_children = distr_n_children(MTSingleton::GetInstance()) + 1;
             n_children = std::min(n_children, tree_size - nodes.size());
+
             size_t parent_ind;
             bool stay;
             std::tie(parent_ind, stay) = pool_manager.GetIndex(n_children);
@@ -66,12 +85,16 @@ public:
             }
 
             for (size_t i = 0; i < n_children; ++i) {
-                Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(root->Length())};
+                const std::string& base_sequence = sequences[parent_ind];
+                Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(base_sequence)};
+                std::string sequence = CreateSequence(base_sequence, shm_vector);
+
                 nodes.emplace_back(parent_ind, std::move(shm_vector));
+                sequences.emplace_back(std::move(sequence));
             }
         }
         VERIFY(nodes.size() == tree_size);
-        return Tree(root, std::move(nodes));
+        return Tree(root, std::move(nodes), std::move(sequences));
     }
 };
 
