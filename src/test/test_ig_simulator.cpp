@@ -11,17 +11,17 @@
 #include <germline_utils/germline_db_generator.hpp>
 #include <germline_db_labeler.hpp>
 #include <read_labeler.hpp>
-#include "metaroot/metaroot.hpp"
+#include "base_repertoire/metaroot/metaroot.hpp"
 #include <seqan/seq_io.h>
 #include "convert.hpp"
 
-#include "gene_chooser/uniform_gene_chooser.hpp"
-#include "nucleotides_remover/uniform_nucleotides_remover.hpp"
-#include "p_nucleotides_creator/uniform_nucleotides_creator.hpp"
-#include "n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
-#include "metaroot_creator/metaroot_creator.hpp"
+#include "base_repertoire/gene_chooser/uniform_gene_chooser.hpp"
+#include "base_repertoire/nucleotides_remover/uniform_nucleotides_remover.hpp"
+#include "base_repertoire/p_nucleotides_creator/uniform_nucleotides_creator.hpp"
+#include "base_repertoire/n_nucleotides_inserter/uniform_n_nucleotides_inserter.hpp"
+#include "base_repertoire/metaroot_creator/metaroot_creator.hpp"
 #include "annotation_utils/cdr_labeling_primitives.hpp"
-#include "productivity_checker/productivity_checker.hpp"
+#include "base_repertoire/productivity_checker/productivity_checker.hpp"
 #include "annotation_utils/aa_annotation/aa_calculator.hpp"
 
 #include <chrono>
@@ -240,8 +240,13 @@ TEST_F(IgSimulatorTest, MetarootCreaterCDRTest) {
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
 
+        std::vector<germline_utils::CustomGeneDatabase> db;
+        db.emplace_back(std::move(v_db));
+        db.emplace_back(std::move(d_db));
+        db.emplace_back(std::move(j_db));
+
         VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
-                                            {&v_db, &d_db, &j_db});
+                                            db);
 
         MTSingleton::SetSeed(5);
         auto root = metaroot_creator.Createroot();
@@ -264,14 +269,19 @@ TEST_F(IgSimulatorTest, ProductiveChecker) {
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
 
+        std::vector<germline_utils::CustomGeneDatabase> db;
+        db.emplace_back(std::move(v_db));
+        db.emplace_back(std::move(d_db));
+        db.emplace_back(std::move(j_db));
+
         ProductivityChecker productivity_checker(std::unique_ptr<annotation_utils::BaseAACalculator>
                                                 (new annotation_utils::SimpleAACalculator));
 
         VDJMetarootCreator metaroot_creator(config.simulation_params.base_repertoire_params.metaroot_simulation_params,
-                                            {&v_db, &d_db, &j_db});
+                                            db);
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        size_t N((int) 1e6);
+        size_t N((int) 1e4);
         size_t prod = 0;
         for (size_t i = 0; i < N; ++i) {
             auto root = metaroot_creator.Createroot();

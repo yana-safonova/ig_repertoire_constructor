@@ -58,4 +58,5 @@ clean_tests:
 	-rm *.pyc
 	-rm -r igrec_test
 	-rm -r ms_analyzer_test
+	-rm -r ig_simulator_test
 	-rm *~
