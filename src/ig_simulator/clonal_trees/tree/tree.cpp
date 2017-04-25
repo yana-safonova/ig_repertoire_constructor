@@ -11,12 +11,13 @@ namespace ig_simulator {
 std::ostream& operator<<(std::ostream& out, const Tree& tree) {
     VERIFY(tree.nodes.size() >= 1);
 
-    out << "digraph G {\n"
+    out << "digraph G {\n";
     for (size_t i = 1; i < tree.nodes.size(); ++i) {
         const auto& node = tree.nodes[i];
         const auto& shms = node.SHMs();
         out << '\t' << node.ParentInd() << " -> " << i << ' ';
         out << '(' << (node.IsIncluded() ? "included" : "excluded") << ')' << ' ';
+        out << '(' << (node.IsProductive() ? "productive" : "non-productive") << ')' << ' ';
         out << " shms: ";
         for(const auto& shm : shms) {
             out << "(at " << std::get<0>(shm) <<

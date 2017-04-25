@@ -24,14 +24,17 @@ private:
     // We store only SHMs "on the edge" from the parent
     SHM_Vector shms;
     bool included;
+    bool productive;
 
 public:
     Node(size_t parent_ind = size_t(-1),
          SHM_Vector&& shms = {},
-         bool included = true):
+         bool included = true,
+         bool productive = true):
         parent_ind(parent_ind),
         shms(std::move(shms)),
-        included(included)
+        included(included),
+        productive(productive)
     { }
 
     Node(const Node&) = default;
@@ -43,8 +46,10 @@ public:
     const SHM_Vector& SHMs() const { return shms; }
 
     void Exclude() { included = false; }
+    void MakeNonProductive() { productive = false; }
 
     bool IsIncluded() const { return included; }
+    bool IsProductive() const { return productive; }
 };
 
 } // End namespace ig_simulator

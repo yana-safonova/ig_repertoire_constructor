@@ -100,6 +100,7 @@ public:
                 core::Read read("", sequences.back(), 0);
                 if (aa_calculator.ComputeAminoAcidAnnotation(read, root->CDRLabeling()).HasStopCodon()) {
                     // nodes.back().Exclude();
+                    nodes.back().MakeNonProductive();
                     pool_manager.Erase(pool_manager.MaxIndex() - n_children + i);
                 }
             }
