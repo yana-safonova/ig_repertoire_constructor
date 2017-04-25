@@ -10,6 +10,7 @@
 #include "shm_creator.hpp"
 #include "tree_size_generator.hpp"
 #include "annotation_utils/aa_annotation/aa_calculator.hpp"
+#include "clonal_trees/fast_stop_codon_checker/fast_stop_codon_checker.hpp"
 
 namespace ig_simulator {
 
@@ -102,15 +103,14 @@ public:
                 nodes.emplace_back(parent_ind, std::move(shm_vector));
                 sequences.emplace_back(std::move(sequence));
 
-                core::Read read("", sequences.back(), 0);
-                if (aa_calculator.ComputeAminoAcidAnnotation(read, root->CDRLabeling()).HasStopCodon()) {
+                if (FastStopCodonChecker::HasStopCodon(sequences.back(), root->CDRLabeling())) {
                     nodes.back().MakeNonProductive();
                     pool_manager.Erase(pool_manager.MaxIndex() - n_children + i);
                 }
             }
-            if (pool_manager.Size() == 0) { break; }
+            if (pool_manager.Size() == 0) { break; } // All leafs are non-productive
         }
-        if (pool_manager.Size() != 0) {
+        if (pool_manager.Size() != 0) { // Only when leafs all non-productive VERIFY should not be checked.
             VERIFY(nodes.size() == tree_size);
         }
         return Tree(root, std::move(nodes), std::move(sequences));

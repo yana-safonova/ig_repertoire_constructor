@@ -1,7 +1,7 @@
 io_params {
     input_params {
         germline_input {
-            ig_dir                    IG
+            ig_dir                    IG_antevolo
             tcr_dir                   TCR
             germline_filenames_config ./configs/vj_finder/germline_files_config.txt
         }
@@ -21,7 +21,7 @@ io_params {
 algorithm_params {
     germline_params {
         organism        human
-        loci            IGL
+        loci            IGH
         pseudogenes     false
         germline_dir              ./data/germline
     }
