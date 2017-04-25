@@ -38,6 +38,7 @@ namespace  antevolo {
                   cdr3_distance(0) {
 
             synonymous = true;
+            cdr3_distance = HammingDistance(this->src_clone->CDR3(), this->dst_clone->CDR3());
             auto src_AA_seq = this->src_clone->AA();
             auto dst_AA_seq = this->dst_clone->AA();
             size_t src_length = seqan::length(src_AA_seq);
