@@ -39,7 +39,7 @@ void EdgeListsExporters(const ForestStorage& forest_storage, const IgSimulatorCo
     for (size_t i = 0; i < forest_storage.size(); ++i) {
         for (size_t j = 0; j < forest_storage[i].Size(); ++j) {
             std::stringstream filename;
-            filename << "forest_" << i << "_tree_" << j << ".txt";
+            filename << "forest_" << i << "_tree_" << j << ".dot";
             std::string full_filename = path::append_path(path, filename.str());
             std::ofstream out;
             out.open(full_filename);

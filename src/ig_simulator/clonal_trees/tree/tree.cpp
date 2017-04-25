@@ -15,7 +15,10 @@ std::ostream& operator<<(std::ostream& out, const Tree& tree) {
     for (size_t i = 1; i < tree.nodes.size(); ++i) {
         const auto& node = tree.nodes[i];
         const auto& shms = node.SHMs();
-        out << '\t' << node.ParentInd() << " -> " << i << ' ';
+        out << '\t' << i << " [shape = "     << (node.IsProductive() ? "circle" : "box"    ) << "," <<
+                              "fillcolor = " << (node.IsIncluded()   ? "cyan"   : "magenta") << "," <<
+                              "style = filled]\n";
+        out << '\t' << node.ParentInd() << " -> " << i << "[minlen = " << std::to_string(shms.size()) << "] // ";
         out << '(' << (node.IsIncluded() ? "included" : "excluded") << ')' << ' ';
         out << '(' << (node.IsProductive() ? "productive" : "non-productive") << ')' << ' ';
         out << " shms: ";
