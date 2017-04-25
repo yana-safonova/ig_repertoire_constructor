@@ -47,11 +47,15 @@ AbstractMetarootCPtr VJMetarootCreator::Createroot() const {
         cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
     }
 
-    return AbstractMetarootCPtr(new VJMetaroot(v_db_p, j_db_p,
-                               std::get<0>(genes_ind), std::get<2>(genes_ind),
-                               cdr_labeling,
-                               cleavage_v, cleavage_j,
-                               vj_insertion));
+    VJMetaroot metaroot { v_db_p, j_db_p,
+                          std::get<0>(genes_ind), std::get<2>(genes_ind),
+                          cdr_labeling,
+                          cleavage_v, cleavage_j,
+                          vj_insertion };
+    if (not productivity_checker.IsProductive(metaroot)) {
+        metaroot.SetNonProductive();
+    }
+    return AbstractMetarootCPtr(new VJMetaroot(std::move(metaroot)));
 }
 
 AbstractMetarootCPtr VDJMetarootCreator::Createroot() const {
@@ -103,12 +107,16 @@ AbstractMetarootCPtr VDJMetarootCreator::Createroot() const {
         cdr_labeling.cdr3.end_pos = static_cast<size_t>(cdr3_end);
     }
 
-    return AbstractMetarootCPtr(new VDJMetaroot(v_db_p, d_db_p, j_db_p,
-                               std::get<0>(genes_ind), std::get<1>(genes_ind), std::get<2>(genes_ind),
-                               cdr_labeling,
-                               cleavage_v, cleavage_d_left, cleavage_d_right, cleavage_j,
-                               vd_insertion, dj_insertion));
+    VDJMetaroot metaroot { v_db_p, d_db_p, j_db_p,
+                           std::get<0>(genes_ind), std::get<1>(genes_ind), std::get<2>(genes_ind),
+                           cdr_labeling,
+                           cleavage_v, cleavage_d_left, cleavage_d_right, cleavage_j,
+                           vd_insertion, dj_insertion };
 
+    if (not productivity_checker.IsProductive(metaroot)) {
+        metaroot.SetNonProductive();
+    }
+    return AbstractMetarootCPtr(new VDJMetaroot(std::move(metaroot)));
 }
 
 } // End namespace ig_simulator

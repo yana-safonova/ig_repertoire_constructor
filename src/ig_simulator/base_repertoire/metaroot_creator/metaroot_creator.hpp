@@ -17,6 +17,7 @@
 #include "germline_db_labeler.hpp"
 #include "germline_db_labeling.hpp"
 #include "cdr_config.hpp"
+#include "base_repertoire/productivity_checker/productivity_checker.hpp"
 
 namespace ig_simulator {
 
@@ -40,6 +41,8 @@ protected:
     cdr_labeler::DbCDRLabeling v_cdr_db;
     cdr_labeler::DbCDRLabeling j_cdr_db;
 
+    const ProductivityChecker productivity_checker;
+
 public:
     AbstractMetarootCreator(const MetarootSimulationParams& config,
                             std::vector<germline_utils::CustomGeneDatabase>& db,
@@ -53,7 +56,8 @@ public:
         nucl_creator_p(get_nucleotides_creator(config.p_nucleotides_creator_params)),
         nucl_inserter_p(get_nucleotides_inserter(config.n_nucleotides_inserter_params)),
         v_cdr_db(cdr_labeler::GermlineDbLabeler(db.front(), config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
-        j_cdr_db(cdr_labeler::GermlineDbLabeler(db.back(),  config.cdr_labeler_config.cdrs_params).ComputeLabeling())
+        j_cdr_db(cdr_labeler::GermlineDbLabeler(db.back(),  config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
+        productivity_checker()
     {
         VERIFY(db.size() >= 2);
         VERIFY(v_db_p->size() > 0);

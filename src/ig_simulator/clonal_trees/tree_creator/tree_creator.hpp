@@ -75,6 +75,11 @@ public:
         sequences.reserve(tree_size);
         sequences.emplace_back(root->Sequence());
 
+        if (not root->IsProductive()) {
+            nodes.back().MakeNonProductive();
+            return Tree(root, std::move(nodes), std::move(sequences));
+        }
+
         PoolManager pool_manager(ret_prob);
 
         while(nodes.size() < tree_size) {

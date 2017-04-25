@@ -30,6 +30,9 @@ protected:
 
     std::string sequence;
 
+    bool productive = true;
+
+protected:
     static void PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage);
     virtual void CalculateSequence() = 0;
 
@@ -66,6 +69,10 @@ public:
     size_t Length() const { return sequence.size(); }
 
     virtual const std::string& Sequence() const = 0;
+
+    bool IsProductive() const { return productive; }
+    void SetNonProductive()   { productive = false; }
+
     virtual ~AbstractMetaroot() { }
 };
 
