@@ -14,16 +14,20 @@ namespace ig_simulator {
 
 class AbstractShmCreator {
 protected:
-    // TODO read from vjf config
-    size_t fix_left = 5;
-    size_t fix_right = 21;
+    size_t fix_left;
+    size_t fix_right;
 
 public:
-    AbstractShmCreator() = default;
+    AbstractShmCreator() = delete;
     AbstractShmCreator(const AbstractShmCreator&) = delete;
     AbstractShmCreator(AbstractShmCreator&&) = delete;
     AbstractShmCreator& operator=(const AbstractShmCreator&) = delete;
     AbstractShmCreator& operator=(AbstractShmCreator&&) = delete;
+
+    AbstractShmCreator(const vj_finder::VJFinderConfig& config):
+        fix_left(config.algorithm_params.fix_crop_fill_params.fix_left),
+        fix_right(config.algorithm_params.fix_crop_fill_params.fix_right)
+    { }
 
     virtual ~AbstractShmCreator() { }
 
@@ -38,19 +42,21 @@ private:
     mutable std::poisson_distribution<size_t> distribution;
 
 public:
-    PoissonShmCreator(double lambda):
-        AbstractShmCreator(),
+    PoissonShmCreator(const vj_finder::VJFinderConfig& vjf_config,
+                      double lambda):
+        AbstractShmCreator(vjf_config),
         distribution(check_numeric_positive(lambda))
     { }
 
-    PoissonShmCreator(const SHM_CreatorParams::PoissonCreatorParams& config):
-        PoissonShmCreator(config.lambda)
+    PoissonShmCreator(const vj_finder::VJFinderConfig& vjf_config,
+                      const SHM_CreatorParams::PoissonCreatorParams& config):
+        PoissonShmCreator(vjf_config, config.lambda)
     { }
 
 
     Node::SHM_Vector GenerateSHM_Vector(const std::string&) const override;
 };
 
-AbstractShmCreatorCPtr get_shm_creator(const SHM_CreatorParams&);
+AbstractShmCreatorCPtr get_shm_creator(const vj_finder::VJFinderConfig&, const SHM_CreatorParams&);
 
 } // End namespace ig_simulator

@@ -39,10 +39,12 @@ Node::SHM_Vector PoissonShmCreator::GenerateSHM_Vector(const std::string& seq) c
     return shm_vector;
 }
 
-AbstractShmCreatorCPtr get_shm_creator(const SHM_CreatorParams& params) {
+AbstractShmCreatorCPtr get_shm_creator(const vj_finder::VJFinderConfig& vjf_config,
+                                       const SHM_CreatorParams& config)
+{
     using SHM_CreatorMethod = SHM_CreatorParams::SHM_CreatorMethod;
-    if (params.method == SHM_CreatorMethod::Poisson) {
-        return std::unique_ptr<AbstractShmCreator>(new PoissonShmCreator(params.poisson_params));
+    if (config.method == SHM_CreatorMethod::Poisson) {
+        return std::unique_ptr<AbstractShmCreator>(new PoissonShmCreator(vjf_config, config.poisson_params));
     }
     VERIFY(false);
 }

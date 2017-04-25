@@ -63,7 +63,10 @@ template<class PoolManager>
 ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_repertoire) const
 {
     INFO("== Forest Storage generation starts ==");
-    ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
+    const auto& vjf_config = config_.simulation_params.base_repertoire_params.metaroot_simulation_params.
+                             cdr_labeler_config.vj_finder_config;
+    ForestStorageCreator forest_storage_creator(vjf_config,
+                                                config_.simulation_params.clonal_tree_simulator_params);
     auto forest_storage = forest_storage_creator.GenerateForest<PoolManager>(base_repertoire);
     INFO("== Forest Storage generation ends ==");
 

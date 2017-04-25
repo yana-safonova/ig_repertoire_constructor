@@ -48,8 +48,9 @@ public:
         distr_n_children(check_numeric_positive(lambda_distr_n_children))
     { }
 
-    TreeCreator(const ClonalTreeSimulatorParams& config):
-        TreeCreator(get_shm_creator(config.shm_creator_params),
+    TreeCreator(const vj_finder::VJFinderConfig& vjf_config,
+                const ClonalTreeSimulatorParams& config):
+        TreeCreator(get_shm_creator(vjf_config, config.shm_creator_params),
                     get_tree_size_generator(config.tree_size_generator_params),
                     config.prob_ret_to_pool,
                     config.lambda_distr_n_children)

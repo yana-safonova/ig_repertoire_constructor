@@ -11,10 +11,11 @@ namespace ig_simulator {
 std::ostream& operator<<(std::ostream& out, const Tree& tree) {
     VERIFY(tree.nodes.size() >= 1);
 
+    out << "digraph G {\n"
     for (size_t i = 1; i < tree.nodes.size(); ++i) {
         const auto& node = tree.nodes[i];
         const auto& shms = node.SHMs();
-        out << node.ParentInd() << " -> " << i << ' ';
+        out << '\t' << node.ParentInd() << " -> " << i << ' ';
         out << '(' << (node.IsIncluded() ? "included" : "excluded") << ')' << ' ';
         out << " shms: ";
         for(const auto& shm : shms) {
@@ -28,6 +29,7 @@ std::ostream& operator<<(std::ostream& out, const Tree& tree) {
         // core::Read read("", tree.Sequences()[node.ParentInd()], 0);
         // VERIFY(not aa_calculator.ComputeAminoAcidAnnotation(read, tree.Metaroot()->CDRLabeling()).HasStopCodon());
     }
+    out << "}\n";
     return out;
 }
 
