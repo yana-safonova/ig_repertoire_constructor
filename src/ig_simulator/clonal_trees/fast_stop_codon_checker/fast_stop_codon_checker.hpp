@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include <algorithm>
 #include <string>
 #include <annotation_utils/cdr_labeling_primitives.hpp>
 

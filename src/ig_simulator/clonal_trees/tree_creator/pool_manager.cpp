@@ -49,9 +49,9 @@ std::pair<size_t, bool> DeepTreePoolManager::GetIndex(size_t n_insert) {
 
     size_t new_freq = freq + 1;
     if (freq < std::numeric_limits<unsigned int>::max()) {
-        new_freq += static_cast<size_t>(new_freq * 0.5);
+        new_freq += static_cast<size_t>(static_cast<double>(new_freq) * 0.5);
     } else {
-        new_freq += static_cast<size_t>(sqrt(new_freq));
+        new_freq += static_cast<size_t>(sqrt(static_cast<double>(new_freq)));
     }
 
     for (size_t i = 0; i < n_insert; ++i) {
