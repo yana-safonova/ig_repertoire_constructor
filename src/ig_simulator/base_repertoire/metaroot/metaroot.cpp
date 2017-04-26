@@ -99,7 +99,7 @@ void VDJMetaroot::print(std::ostream& out) const {
     out << "VDJMetaroot:\n\n" <<
 
         "V gene name: " << (*V_DB_P())[V_Ind()].name() << "\n" <<
-        "V gene name: " << (*D_DB_P())[D_Ind()].name() << "\n" <<
+        "D gene name: " << (*D_DB_P())[D_Ind()].name() << "\n" <<
         "J gene name: " << (*J_DB_P())[J_Ind()].name() << "\n\n" <<
 
         "V gene: " << (*V_DB_P())[V_Ind()].seq() << "\n" <<
