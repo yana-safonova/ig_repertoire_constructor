@@ -14,8 +14,8 @@ namespace ig_simulator {
 
 class AbstractShmCreator {
 protected:
-    size_t fix_left;
-    size_t fix_right;
+    const size_t fix_left;
+    const size_t fix_right;
 
 public:
     AbstractShmCreator() = delete;
@@ -24,7 +24,7 @@ public:
     AbstractShmCreator& operator=(const AbstractShmCreator&) = delete;
     AbstractShmCreator& operator=(AbstractShmCreator&&) = delete;
 
-    AbstractShmCreator(const vj_finder::VJFinderConfig& config):
+    explicit AbstractShmCreator(const vj_finder::VJFinderConfig& config):
         fix_left(config.algorithm_params.fix_crop_fill_params.fix_left),
         fix_right(config.algorithm_params.fix_crop_fill_params.fix_right)
     { }

@@ -11,7 +11,7 @@ namespace ig_simulator {
 
 class ForestStorageCreator {
 private:
-    ForestCreator forest_creator;
+    const ForestCreator forest_creator;
 
 public:
     ForestStorageCreator(const vj_finder::VJFinderConfig& vjf_config,

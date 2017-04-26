@@ -11,8 +11,8 @@ namespace ig_simulator {
 
 class Tree {
     const AbstractMetaroot* metaroot;
-    std::vector<Node> nodes;
-    std::vector<std::string> sequences;
+    const std::vector<Node> nodes;
+    const std::vector<std::string> sequences;
 
 public:
     Tree(const AbstractMetaroot* const metaroot,
@@ -32,7 +32,7 @@ public:
     size_t Size() const { return nodes.size(); }
     const AbstractMetaroot* Metaroot() const { return metaroot; }
 
-    std::vector<std::string> Sequences() const { return sequences; }
+    const std::vector<std::string>& Sequences() const { return sequences; }
 
     bool IsNodeIncluded(size_t node_ind) const {
         return nodes[node_ind].IsIncluded();

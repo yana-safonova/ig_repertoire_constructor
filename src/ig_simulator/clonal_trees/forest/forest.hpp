@@ -12,7 +12,7 @@ namespace ig_simulator {
 class Forest {
 private:
     const MetarootCluster* metaroot_cluster;
-    std::vector<Tree> trees;
+    const std::vector<Tree> trees;
 
 public:
     Forest(const MetarootCluster* const metaroot_cluster,

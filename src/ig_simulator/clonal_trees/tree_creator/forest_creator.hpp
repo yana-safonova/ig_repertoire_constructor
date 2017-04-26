@@ -12,14 +12,13 @@ namespace ig_simulator {
 
 class ForestCreator {
 private:
-    TreeCreator tree_creator;
+    const TreeCreator tree_creator;
 
 public:
     ForestCreator(const vj_finder::VJFinderConfig& vjf_config,
                   const ClonalTreeSimulatorParams& config):
         tree_creator(vjf_config, config)
     { }
-
 
     ForestCreator(const ForestCreator&) = delete;
     ForestCreator(ForestCreator&&) = delete;

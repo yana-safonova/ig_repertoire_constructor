@@ -19,10 +19,10 @@ public:
     using SHM_Vector = std::vector<std::tuple<size_t, seqan::Dna5, seqan::Dna>>;
 
 private:
-    size_t parent_ind;
+    const size_t parent_ind;
 
     // We store only SHMs "on the edge" from the parent
-    SHM_Vector shms;
+    const SHM_Vector shms;
     bool included;
     bool productive;
 

@@ -9,17 +9,15 @@
 #include "base_repertoire/metaroot/metaroot.hpp"
 #include "shm_creator.hpp"
 #include "tree_size_generator.hpp"
-#include "annotation_utils/aa_annotation/aa_calculator.hpp"
 #include "clonal_trees/fast_stop_codon_checker/fast_stop_codon_checker.hpp"
 
 namespace ig_simulator {
 
 class TreeCreator {
 protected:
-    AbstractShmCreatorCPtr shm_creator;
-    AbstractTreeSizeGeneratorCPtr tree_size_generator;
-    double ret_prob;
-    annotation_utils::SimpleAACalculator aa_calculator;
+    const AbstractShmCreatorCPtr shm_creator;
+    const AbstractTreeSizeGeneratorCPtr tree_size_generator;
+    const double ret_prob;
 
     mutable std::geometric_distribution<size_t> distr_n_children;
 
@@ -45,7 +43,6 @@ public:
         shm_creator(std::move(shm_creator)),
         tree_size_generator(std::move(tree_size_generator)),
         ret_prob(check_numeric_positive(ret_prob)),
-        aa_calculator(),
         distr_n_children(check_numeric_positive(lambda_distr_n_children))
     { }
 
