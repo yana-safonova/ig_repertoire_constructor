@@ -19,11 +19,13 @@ io_params {
     }
 }
 
-germline_params {
-    organism        human
-    loci            IGH
-    pseudogenes     false
-    germline_dir              ./data/germline
+algorithm_params {
+    germline_params {
+        organism        human
+        loci            IGH
+        pseudogenes     false
+        germline_dir              ./data/germline
+    }
 }
 
 simulation_params {

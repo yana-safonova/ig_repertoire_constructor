@@ -13,6 +13,7 @@ size_t random_index(size_t low, size_t high) {
 
 template<typename FloatingPoint>
 double uniform_floating_point(FloatingPoint low, FloatingPoint high) {
+    static_assert(std::is_floating_point<FloatingPoint>::value, "Type has to be floating point");
     std::uniform_real_distribution<FloatingPoint> d(low, high);
     return d(MTSingleton::GetInstance());
 }
