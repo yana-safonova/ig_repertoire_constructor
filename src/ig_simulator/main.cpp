@@ -7,6 +7,8 @@
 #include "ig_simulator_config.hpp"
 #include "ig_simulator_launch.hpp"
 
+#include <omp.h>
+
 void create_console_logger(std::string cfg_filename) {
     using namespace logging;
     std::string log_props_file = ig_simulator::igs_cfg::get().io_params.output_params.log_filename;
@@ -60,6 +62,8 @@ std::string load_config(int argc, char **argv) {
 }
 
 int main(int argc, char **argv) {
+    omp_set_num_threads(1);
+
     segfault_handler sh;
     perf_counter pc;
     std::string cfg_filename = load_config(argc, argv);
