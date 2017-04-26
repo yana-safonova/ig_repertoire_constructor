@@ -48,10 +48,10 @@ public:
         create_console_logger();
         std::string config_fname = "configs/ig_simulator/config.info";
         ig_simulator::load(config, config_fname);
-        config.algorithm_params.germline_params.loci = "IGH";
+        config.germline_params.loci = "IGH";
 
         germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
-                                                         config.algorithm_params.germline_params);
+                                                         config.germline_params);
         v_db = db_generator.GenerateVariableDb();
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
@@ -264,10 +264,10 @@ TEST_F(IgSimulatorTest, VJMetarootSequenceCorrect) {
 
 TEST_F(IgSimulatorTest, ProductiveChecker) {
     {
-        config.algorithm_params.germline_params.loci = "IGH";
+        config.germline_params.loci = "IGH";
 
         germline_utils::GermlineDbGenerator db_generator(config.io_params.input_params.germline_input,
-                                                         config.algorithm_params.germline_params);
+                                                         config.germline_params);
         v_db = db_generator.GenerateVariableDb();
         d_db = db_generator.GenerateDiversityDb();
         j_db = db_generator.GenerateJoinDb();
