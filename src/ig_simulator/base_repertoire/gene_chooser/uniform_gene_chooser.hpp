@@ -16,7 +16,7 @@ public:
         AbstractVDJGeneChooser(db)
     { }
 
-    virtual VDJ_GenesIndexTuple ChooseGenes() const override;
+    VDJ_GenesIndexTuple ChooseGenes() const override;
 };
 
 } // End namespace ig_simulator

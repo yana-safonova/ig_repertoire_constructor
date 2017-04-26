@@ -41,8 +41,15 @@ struct IgSimulatorConfig {
         struct BaseRepertoireParams {
             struct MetarootSimulationParams {
                 struct GeneChooserParams {
-                    enum class GeneChooserMethod { Uniform };
+                    struct CustomGeneChooserParams {
+                        std::string v_genes_probs;
+                        std::string d_genes_probs;
+                        std::string j_genes_probs;
+                    };
+
+                    enum class GeneChooserMethod { Uniform, Custom };
                     GeneChooserMethod method;
+                    CustomGeneChooserParams custom_gene_chooser_params;
                 };
 
                 struct NucleotidesRemoverParams {

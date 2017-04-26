@@ -4,6 +4,7 @@
 
 #include "config_based_getter.hpp"
 #include "uniform_gene_chooser.hpp"
+#include "custom_gene_chooser.hpp"
 
 
 namespace ig_simulator {
@@ -13,6 +14,8 @@ AbstractVDJGeneChooserCPtr get_gene_chooser(const GeneChooserParams& config,
 {
     if (config.method == GeneChooserMethod::Uniform)
         return AbstractVDJGeneChooserCPtr(new UniformVDJGeneChooser(db));
+    else if (config.method == GeneChooserMethod::Custom)
+        return AbstractVDJGeneChooserCPtr(new CustomGeneChooser(db, config.custom_gene_chooser_params));
     VERIFY(false);
 }
 

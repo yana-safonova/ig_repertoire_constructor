@@ -43,6 +43,16 @@ void load(IgSimulatorConfig::AlgorithmParams &algorithm_params,
 // AlgorithmParams end
 
 // SimulationParams start
+void load(GeneChooserParams::CustomGeneChooserParams& custom_gene_chooser_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(custom_gene_chooser_params.v_genes_probs, pt, "v_genes_probs");
+    load(custom_gene_chooser_params.v_genes_probs, pt, "d_genes_probs");
+    load(custom_gene_chooser_params.v_genes_probs, pt, "j_genes_probs");
+}
+
+
 void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSimulationParams
           ::GeneChooserParams &gene_chooser_params,
           boost::property_tree::ptree const &pt, bool) {
@@ -56,6 +66,9 @@ void load(IgSimulatorConfig::SimulationParams::BaseRepertoireParams::MetarootSim
                    method_str_lowercase.begin(), ::tolower);
     if (method_str == "uniform") {
         gene_chooser_params.method = GeneChooserMethod::Uniform;
+    } else if (method_str == "custom") {
+        gene_chooser_params.method = GeneChooserMethod::Custom;
+        load(gene_chooser_params.custom_gene_chooser_params, pt, "custom_chooser_params");
     } else {
         VERIFY(false);
     }
