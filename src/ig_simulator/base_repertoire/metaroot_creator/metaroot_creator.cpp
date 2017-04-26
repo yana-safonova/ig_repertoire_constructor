@@ -22,12 +22,12 @@ AbstractMetarootCPtr VJMetarootCreator::Createroot() const {
     bool is_cleavage_j       = std::bernoulli_distribution(prob_cleavage_j)(MTSingleton::GetInstance());
 
     int cleavage_v = is_cleavage_v ?
-                     -static_cast<int>(nucl_remover_p->RemoveInVGene()) :
-                     static_cast<int>(nucl_creator_p->CreateInVGene());
+                     static_cast<int>(nucl_remover_p->RemoveInVGene()) :
+                     -static_cast<int>(nucl_creator_p->CreateInVGene());
 
     int cleavage_j = is_cleavage_j ?
-                     -static_cast<int>(nucl_remover_p->RemoveInJGene()) :
-                     static_cast<int>(nucl_creator_p->CreateInJGene());
+                     static_cast<int>(nucl_remover_p->RemoveInJGene()) :
+                     -static_cast<int>(nucl_creator_p->CreateInJGene());
 
     seqan::Dna5String vj_insertion(nucl_inserter_p->GetVJInsertion());
 
@@ -67,20 +67,20 @@ AbstractMetarootCPtr VDJMetarootCreator::Createroot() const {
     bool is_cleavage_j       = std::bernoulli_distribution(prob_cleavage_j)(MTSingleton::GetInstance());
 
     int cleavage_v = is_cleavage_v ?
-                     -static_cast<int>(nucl_remover_p->RemoveInVGene()) :
-                     static_cast<int>(nucl_creator_p->CreateInVGene());
+                     static_cast<int>(nucl_remover_p->RemoveInVGene()) :
+                     -static_cast<int>(nucl_creator_p->CreateInVGene());
 
     int cleavage_d_left = is_cleavage_d_left ?
-                          -static_cast<int>(nucl_remover_p->RemoveInDGeneLeft()) :
-                          static_cast<int>(nucl_creator_p->CreateInDGeneLeft());
+                          static_cast<int>(nucl_remover_p->RemoveInDGeneLeft()) :
+                          -static_cast<int>(nucl_creator_p->CreateInDGeneLeft());
 
     int cleavage_d_right = is_cleavage_d_right ?
-                          -static_cast<int>(nucl_remover_p->RemoveInDGeneRight()) :
-                          static_cast<int>(nucl_creator_p->CreateInDGeneRight());
+                          static_cast<int>(nucl_remover_p->RemoveInDGeneRight()) :
+                          -static_cast<int>(nucl_creator_p->CreateInDGeneRight());
 
     int cleavage_j = is_cleavage_j ?
-                     -static_cast<int>(nucl_remover_p->RemoveInJGene()) :
-                     static_cast<int>(nucl_creator_p->CreateInJGene());
+                     static_cast<int>(nucl_remover_p->RemoveInJGene()) :
+                     -static_cast<int>(nucl_creator_p->CreateInJGene());
 
     seqan::Dna5String vd_insertion(nucl_inserter_p->GetVDInsertion());
     seqan::Dna5String dj_insertion(nucl_inserter_p->GetDJInsertion());

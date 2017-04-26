@@ -39,9 +39,9 @@ simulation_params {
                 nucleotides_remover_method      uniform
                 uniform_remover_params {
                     max_remove_v_gene           20
-                    max_remove_d_gene_left      4
-                    max_remove_d_gene_right     4
-                    max_remove_j_gene           5
+                    max_remove_d_gene_left      5
+                    max_remove_d_gene_right     5
+                    max_remove_j_gene           10
                 }
             }
 
@@ -59,8 +59,8 @@ simulation_params {
                 n_nucleotides_method    uniform
                 uniform_inserter_params {
                     max_vj_insertion    10
-                    max_vd_insertion    10
-                    max_dj_insertion    10
+                    max_vd_insertion    21
+                    max_dj_insertion    23
                 }
             }
 
