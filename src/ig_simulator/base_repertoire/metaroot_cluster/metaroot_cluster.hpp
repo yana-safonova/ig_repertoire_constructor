@@ -22,6 +22,8 @@ public:
 
     MetarootCluster(const MetarootCluster&) = delete;
     MetarootCluster(MetarootCluster&&) = default;
+    MetarootCluster& operator=(const MetarootCluster&) = delete;
+    MetarootCluster& operator=(MetarootCluster&&) = delete;
 
     const AbstractMetarootCPtr& MetarootPtr() const { return metaroot_p; }
     size_t Multiplicity() const { return multiplicity; }

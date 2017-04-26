@@ -16,6 +16,12 @@ public:
     virtual size_t RemoveInDGeneRight() const = 0;
     virtual size_t RemoveInJGene()      const = 0;
 
+    AbstractNucleotidesRemover() = default;
+    AbstractNucleotidesRemover(const AbstractNucleotidesRemover&) = delete;
+    AbstractNucleotidesRemover(AbstractNucleotidesRemover&&) = delete;
+    AbstractNucleotidesRemover& operator=(const AbstractNucleotidesRemover&) = delete;
+    AbstractNucleotidesRemover& operator=(AbstractNucleotidesRemover&&) = delete;
+
     virtual ~AbstractNucleotidesRemover() { }
 };
 

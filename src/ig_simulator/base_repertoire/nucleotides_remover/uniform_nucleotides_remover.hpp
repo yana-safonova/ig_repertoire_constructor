@@ -10,15 +10,15 @@
 
 namespace ig_simulator {
 
-class UniformNucleotidesRemover : public AbstractNucleotidesRemover {
+class UniformNucleotidesRemover final : public AbstractNucleotidesRemover {
 private:
-    size_t max_remove_v_gene;
-    size_t max_remove_d_gene_left;
-    size_t max_remove_d_gene_right;
-    size_t max_remove_j_gene;
+    const size_t max_remove_v_gene;
+    const size_t max_remove_d_gene_left;
+    const size_t max_remove_d_gene_right;
+    const size_t max_remove_j_gene;
 
 public:
-    UniformNucleotidesRemover(
+    explicit UniformNucleotidesRemover(
         const NucleotidesRemoverParams::UniformRemoverParams config) :
             AbstractNucleotidesRemover(),
             max_remove_v_gene(config.max_remove_v_gene),

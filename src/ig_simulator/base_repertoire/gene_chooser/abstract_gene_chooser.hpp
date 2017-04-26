@@ -25,19 +25,7 @@ protected:
     bool is_vdj;
 
 public:
-    AbstractVDJGeneChooser(const std::vector<germline_utils::CustomGeneDatabase>& db):
-            v_db_p_(&db.front()),
-            d_db_p_(nullptr),
-            j_db_p_(&db.back()),
-            is_vdj(false)
-    {
-        VERIFY(db.size() >= 2 and db.size() <= 3);
-
-        if (db.size() == 3) {
-            d_db_p_ = &db[1];
-            is_vdj = true;
-        }
-    }
+    explicit AbstractVDJGeneChooser(const std::vector<germline_utils::CustomGeneDatabase>& db);
 
     virtual VDJ_GenesIndexTuple ChooseGenes() const = 0;
 
@@ -46,14 +34,15 @@ public:
      * If `false` then second component of `VDJ_GenesIndexTuple`
      * returned by `ChooseGenes()` will be size_t(-1).
      */
-    bool IsVDJ() const {
-        if (not is_vdj) {
-            VERIFY(d_db_p_ != nullptr);
-        }
-        return is_vdj;
-    }
+    bool IsVDJ() const;
 
-    virtual ~AbstractVDJGeneChooser() { };
+    AbstractVDJGeneChooser() = delete;
+    AbstractVDJGeneChooser(const AbstractVDJGeneChooser&) = delete;
+    AbstractVDJGeneChooser(AbstractVDJGeneChooser&&) = delete;
+    AbstractVDJGeneChooser& operator=(const AbstractVDJGeneChooser&) = delete;
+    AbstractVDJGeneChooser& operator=(AbstractVDJGeneChooser&&) = delete;
+
+    virtual ~AbstractVDJGeneChooser() { }
 };
 
 using AbstractVDJGeneChooserCPtr = std::unique_ptr<const AbstractVDJGeneChooser>;

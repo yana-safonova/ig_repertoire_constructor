@@ -16,6 +16,12 @@ public:
     virtual size_t CreateInDGeneRight() const = 0;
     virtual size_t CreateInJGene() const = 0;
 
+    AbstractPNucleotidesCreator() = default;
+    AbstractPNucleotidesCreator(const AbstractPNucleotidesCreator&) = delete;
+    AbstractPNucleotidesCreator(AbstractPNucleotidesCreator&&) = delete;
+    AbstractPNucleotidesCreator& operator=(const AbstractPNucleotidesCreator&) = delete;
+    AbstractPNucleotidesCreator& operator=(AbstractPNucleotidesCreator&&) = delete;
+
     virtual ~AbstractPNucleotidesCreator() { }
 };
 

@@ -9,7 +9,7 @@
 
 namespace ig_simulator {
 
-class UniformNNucleotidesInserter : public AbstractNNucleotidesInserter {
+class UniformNNucleotidesInserter final : public AbstractNNucleotidesInserter {
 private:
     const size_t max_vj_insertion;
     const size_t max_vd_insertion;
@@ -18,16 +18,16 @@ private:
     seqan::Dna5String RandDna5Str(size_t size) const;
 
 public:
-    UniformNNucleotidesInserter(
+    explicit UniformNNucleotidesInserter(
         const NNucleotidesInserterParams::UniformInserterParams config):
                 max_vj_insertion(config.max_vj_insertion),
                 max_vd_insertion(config.max_vd_insertion),
                 max_dj_insertion(config.max_dj_insertion)
     { }
 
-    virtual seqan::Dna5String GetVJInsertion() const override;
-    virtual seqan::Dna5String GetVDInsertion() const override;
-    virtual seqan::Dna5String GetDJInsertion() const override;
+    seqan::Dna5String GetVJInsertion() const override;
+    seqan::Dna5String GetVDInsertion() const override;
+    seqan::Dna5String GetDJInsertion() const override;
 };
 
 } // End namespace ig_simulator

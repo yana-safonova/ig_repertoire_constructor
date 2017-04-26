@@ -17,12 +17,18 @@ namespace ig_simulator {
 
 class AbstractMultiplicityCreator {
 public:
+    AbstractMultiplicityCreator() = default;
+    AbstractMultiplicityCreator(const AbstractMultiplicityCreator&) = delete;
+    AbstractMultiplicityCreator(AbstractMultiplicityCreator&&) = delete;
+    AbstractMultiplicityCreator& operator=(const AbstractMultiplicityCreator&) = delete;
+    AbstractMultiplicityCreator& operator=(AbstractMultiplicityCreator&&) = delete;
+
     virtual size_t RandomMultiplicity() = 0;
 };
 
 using AbstractMultiplicityCreatorPtr = std::unique_ptr<AbstractMultiplicityCreator>;
 
-class GeometricMultiplicityCreator : public AbstractMultiplicityCreator {
+class GeometricMultiplicityCreator final : public AbstractMultiplicityCreator {
 private:
     double lambda;
     std::geometric_distribution<size_t> distribution;
@@ -37,7 +43,7 @@ public:
         GeometricMultiplicityCreator(config.lambda)
     { }
 
-    virtual size_t RandomMultiplicity() override {
+    size_t RandomMultiplicity() override {
         return distribution(MTSingleton::GetInstance()) + 1;
     }
 

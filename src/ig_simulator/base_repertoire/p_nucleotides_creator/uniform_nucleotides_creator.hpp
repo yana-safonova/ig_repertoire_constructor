@@ -9,7 +9,7 @@
 
 namespace ig_simulator {
 
-class UniformPNucleotidesCreator : public AbstractPNucleotidesCreator {
+class UniformPNucleotidesCreator final : public AbstractPNucleotidesCreator {
 private:
     size_t max_create_v_gene;
     size_t max_create_d_gene_left;
@@ -17,9 +17,8 @@ private:
     size_t max_create_j_gene;
 
 public:
-    UniformPNucleotidesCreator(
-        const IgSimulatorConfig::SimulationParams::BaseRepertoireParams::
-        MetarootSimulationParams::PNucleotidesCreatorParams::UniformCreatorParams config) :
+    explicit UniformPNucleotidesCreator(
+        const PNucleotidesCreatorParams::UniformCreatorParams config) :
             max_create_v_gene(config.max_create_v_gene),
             max_create_d_gene_left(config.max_create_d_gene_left),
             max_create_d_gene_right(config.max_create_d_gene_right),

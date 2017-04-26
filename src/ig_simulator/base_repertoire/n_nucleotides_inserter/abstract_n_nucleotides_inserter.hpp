@@ -16,6 +16,12 @@ public:
     virtual seqan::Dna5String GetVDInsertion() const = 0;
     virtual seqan::Dna5String GetDJInsertion() const = 0;
 
+    AbstractNNucleotidesInserter() = default;
+    AbstractNNucleotidesInserter(const AbstractNNucleotidesInserter&) = delete;
+    AbstractNNucleotidesInserter(AbstractNNucleotidesInserter&&) = delete;
+    AbstractNNucleotidesInserter& operator=(const AbstractNNucleotidesInserter&) = delete;
+    AbstractNNucleotidesInserter& operator=(AbstractNNucleotidesInserter&&) = delete;
+
     virtual ~AbstractNNucleotidesInserter() { }
 };
 

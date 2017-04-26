@@ -14,22 +14,21 @@ private:
     const annotation_utils::BaseAACalculatorPtr aa_calculator;
 
 public:
-    ProductivityChecker(annotation_utils::BaseAACalculatorPtr aa_calculator =
+    explicit ProductivityChecker(annotation_utils::BaseAACalculatorPtr aa_calculator =
                         annotation_utils::BaseAACalculatorPtr(new annotation_utils::SimpleAACalculator())):
         aa_calculator(std::move(aa_calculator))
     { }
 
-    bool IsProductive(const AbstractMetaroot& root) const {
-        if (root.CDRLabeling().Empty())
-            return false;
-        core::Read read("", root.Sequence(), 0);
-        auto aa = aa_calculator->ComputeAminoAcidAnnotation(read, root.CDRLabeling());
-        return not aa.HasStopCodon() and aa.InFrame();
-    }
+    bool IsProductive(const AbstractMetaroot& root) const;
 
     bool IsProductive(const AbstractMetarootCPtr& root) const {
         return IsProductive(*check_pointer(root));
     }
+
+    ProductivityChecker(const ProductivityChecker&) = delete;
+    ProductivityChecker(ProductivityChecker&&) = delete;
+    ProductivityChecker& operator=(const ProductivityChecker&) = delete;
+    ProductivityChecker& operator=(ProductivityChecker&&) = delete;
 };
 
 } // End namespace ig_simulator

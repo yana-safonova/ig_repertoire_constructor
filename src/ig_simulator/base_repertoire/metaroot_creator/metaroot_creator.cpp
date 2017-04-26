@@ -14,6 +14,33 @@
 
 namespace ig_simulator {
 
+AbstractMetarootCreator::AbstractMetarootCreator(const MetarootSimulationParams& config,
+                                                 std::vector<germline_utils::CustomGeneDatabase>& db,
+                                                 AbstractVDJGeneChooserCPtr&& gene_chooser):
+    v_db_p(&db.front()),
+    j_db_p(&db.back()),
+    prob_cleavage_v(check_probability(config.cleavage_params.prob_cleavage_v)),
+    prob_cleavage_j(check_probability(config.cleavage_params.prob_cleavage_j)),
+    gene_chooser_p(std::move(gene_chooser)),
+    nucl_remover_p(get_nucleotides_remover(config.nucleotides_remover_params)),
+    nucl_creator_p(get_nucleotides_creator(config.p_nucleotides_creator_params)),
+    nucl_inserter_p(get_nucleotides_inserter(config.n_nucleotides_inserter_params)),
+    v_cdr_db(cdr_labeler::GermlineDbLabeler(db.front(), config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
+    j_cdr_db(cdr_labeler::GermlineDbLabeler(db.back(),  config.cdr_labeler_config.cdrs_params).ComputeLabeling()),
+    productivity_checker()
+{
+    VERIFY(db.size() >= 2);
+    VERIFY(v_db_p->size() > 0);
+    VERIFY(j_db_p->size() > 0);
+}
+
+VJMetarootCreator::VJMetarootCreator(const MetarootSimulationParams& config,
+                                     std::vector<germline_utils::CustomGeneDatabase>& db):
+    AbstractMetarootCreator(config, db, get_gene_chooser(config.gene_chooser_params, db))
+{
+    VERIFY(db.size() == 2);
+}
+
 AbstractMetarootCPtr VJMetarootCreator::Createroot() const {
     auto genes_ind = gene_chooser_p->ChooseGenes();
     VERIFY(std::get<1>(genes_ind) == size_t(-1));
@@ -56,6 +83,17 @@ AbstractMetarootCPtr VJMetarootCreator::Createroot() const {
         metaroot.SetNonProductive();
     }
     return AbstractMetarootCPtr(new VJMetaroot(std::move(metaroot)));
+}
+
+VDJMetarootCreator::VDJMetarootCreator(const MetarootSimulationParams& config,
+                                       std::vector<germline_utils::CustomGeneDatabase>& db):
+    AbstractMetarootCreator(config, db, get_gene_chooser(config.gene_chooser_params, db)),
+    d_db_p(&db.at(1)),
+    prob_cleavage_d_left(check_probability(config.cleavage_params.prob_cleavage_d_left)),
+    prob_cleavage_d_right(check_probability(config.cleavage_params.prob_cleavage_d_right))
+{
+    VERIFY(db.size() == 3);
+    VERIFY(d_db_p->size() > 0);
 }
 
 AbstractMetarootCPtr VDJMetarootCreator::Createroot() const {

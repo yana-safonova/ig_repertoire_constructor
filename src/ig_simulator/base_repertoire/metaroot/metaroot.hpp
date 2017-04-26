@@ -26,7 +26,7 @@ protected:
     const int cleavage_v;
     const int cleavage_j;
 
-    annotation_utils::CDRLabeling cdr_labeling;
+    const annotation_utils::CDRLabeling cdr_labeling;
 
     std::string sequence;
 
@@ -44,18 +44,7 @@ public:
                      const size_t j_ind,
                      const annotation_utils::CDRLabeling& cdr_labeling,
                      int cleavage_v,
-                     int cleavage_j) :
-            v_db_p(check_pointer(v_db_p)),
-            j_db_p(check_pointer(j_db_p)),
-            v_ind(v_ind),
-            j_ind(j_ind),
-            cleavage_v(cleavage_v),
-            cleavage_j(cleavage_j),
-            cdr_labeling(cdr_labeling)
-    {
-        VERIFY(v_ind < v_db_p->size());
-        VERIFY(j_ind < j_db_p->size());
-    }
+                     int cleavage_j);
 
     const germline_utils::CustomGeneDatabase *V_DB_P() const { return v_db_p; }
     const germline_utils::CustomGeneDatabase *J_DB_P() const { return j_db_p; }
@@ -79,6 +68,12 @@ public:
         return out;
     }
 
+    AbstractMetaroot() = delete;
+    AbstractMetaroot(const AbstractMetaroot&) = default;
+    AbstractMetaroot(AbstractMetaroot&&) = default;
+    AbstractMetaroot& operator=(const AbstractMetaroot&) = delete;
+    AbstractMetaroot& operator=(AbstractMetaroot&&) = delete;
+
     virtual ~AbstractMetaroot() { }
 };
 
@@ -99,12 +94,7 @@ public:
                const annotation_utils::CDRLabeling &cdr_labeling,
                int cleavage_v,
                int cleavage_j,
-               seqan::Dna5String insertion_vj = "") :
-        AbstractMetaroot(v_db_p, j_db_p, v_ind, j_ind, cdr_labeling, cleavage_v, cleavage_j),
-        insertion_vj(insertion_vj)
-    {
-        CalculateSequence();
-    }
+               seqan::Dna5String insertion_vj = "");
 
     const seqan::Dna5String& InsertionVJ() const { return insertion_vj; }
 
@@ -142,18 +132,7 @@ public:
                 int cleavage_d_right,
                 int cleavage_j,
                 const seqan::Dna5String& insertion_vd = "",
-                const seqan::Dna5String& insertion_dj = "") :
-            AbstractMetaroot(v_db_p, j_db_p, v_ind, j_ind, cdr_labeling, cleavage_v, cleavage_j),
-            d_db_p(check_pointer(d_db_p)),
-            d_ind(d_ind),
-            cleavage_d_left(cleavage_d_left),
-            cleavage_d_right(cleavage_d_right),
-            insertion_vd(insertion_vd),
-            insertion_dj(insertion_dj)
-    {
-        VERIFY(d_ind < d_db_p->size());
-        CalculateSequence();
-    }
+                const seqan::Dna5String& insertion_dj = "");
 
     const germline_utils::CustomGeneDatabase *D_DB_P() const { return d_db_p; }
 
@@ -165,8 +144,5 @@ public:
 
     const std::string& Sequence() const override;
 };
-
-std::ostream& operator<<(std::ostream& out, const VJMetaroot& root);
-std::ostream& operator<<(std::ostream& out, const VDJMetaroot& root);
 
 } // End namespace ig_simulator

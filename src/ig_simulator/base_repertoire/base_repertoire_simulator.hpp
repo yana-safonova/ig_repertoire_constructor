@@ -33,8 +33,11 @@ public:
         productive_part(config.productive_params.productive_part)
     { }
 
+    BaseRepertoireSimulator() = delete;
     BaseRepertoireSimulator(const BaseRepertoireSimulator&) = delete;
     BaseRepertoireSimulator(BaseRepertoireSimulator&&) = default;
+    BaseRepertoireSimulator& operator=(const BaseRepertoireSimulator&) = delete;
+    BaseRepertoireSimulator& operator=(BaseRepertoireSimulator&&) = delete;
 
     BaseRepertoire Simulate(size_t size);
 };
