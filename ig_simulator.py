@@ -9,6 +9,8 @@ import ntpath
 
 import process_cfg
 import support
+import argparse
+from argparse import ArgumentParser
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 cdr_labeler_config_dir = os.path.join(home_directory, "configs", "cdr_labeler")
@@ -56,8 +58,14 @@ def PrepareOutputDir(params):
     os.mkdir(params.output_dir)
 
 
+def check_positive(value):
+    ivalue = int(value)
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError("%s is an invalid positive int value" % value)
+    return ivalue
+
+
 def parse_args():
-    from argparse import ArgumentParser
     parser = ArgumentParser(description="== " + tool_name + ": a tool for simulating antibody repertoires, clonal lineages and trees ==",
                             epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
                             "Please provide us with igsimulator.log file from the output directory.",
@@ -92,7 +100,7 @@ def parse_args():
                                help="Tree strategy to use: uniform, wide, deep [default: %(default)s]")
 
     optional_args.add_argument("-n", "--n_metaroots",
-                               type=int,
+                               type=check_positive,
                                default=1000,
                                dest="number_of_metaroots")
 
