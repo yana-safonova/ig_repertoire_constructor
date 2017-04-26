@@ -5,8 +5,6 @@
 #include <gtest/gtest.h>
 #include <logger/log_writers.hpp>
 
-#include <omp.h>
-
 #include <sstream>
 
 #include <ig_simulator_config.hpp>

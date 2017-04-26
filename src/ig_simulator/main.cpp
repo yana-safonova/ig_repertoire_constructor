@@ -7,8 +7,6 @@
 #include "ig_simulator_config.hpp"
 #include "ig_simulator_launch.hpp"
 
-#include <omp.h>
-
 void create_console_logger(std::string cfg_filename) {
     using namespace logging;
     std::string log_props_file = ig_simulator::igs_cfg::get().io_params.output_params.log_filename;
