@@ -50,11 +50,15 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
                                                       db};
     auto base_repertoire =
         base_repertoire_simulator.Simulate(config_.simulation_params.base_repertoire_params.number_of_metaroots);
-    std::ofstream base_repertoire_out;
-    base_repertoire_out.open(path::append_path(config_.io_params.output_params.output_dir,
-                                               config_.io_params.output_params.base_repertoire_filename));
-    base_repertoire_out << base_repertoire;
-    base_repertoire_out.close();
+    std::ofstream base_repertoire_fasta;
+    std::ofstream base_repertoire_info;
+    base_repertoire_fasta.open(path::append_path(config_.io_params.output_params.output_dir,
+                                                 config_.io_params.output_params.base_repertoire_filename));
+    base_repertoire_info.open(path::append_path(config_.io_params.output_params.output_dir,
+                                                config_.io_params.output_params.base_repertoire_info));
+    print_base_repertoire(base_repertoire, base_repertoire_fasta, base_repertoire_info);
+    base_repertoire_fasta.close();
+    base_repertoire_info.close();
     INFO("== Base Repertoire ends ==");
     return base_repertoire;
 }

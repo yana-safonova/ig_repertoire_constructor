@@ -35,6 +35,7 @@ protected:
 protected:
     static void PrepareGene(seqan::Dna5String& gene, int left_cleavage, int right_cleavage);
     virtual void CalculateSequence() = 0;
+    virtual void print(std::ostream& out) const = 0;
 
 public:
     AbstractMetaroot(const germline_utils::CustomGeneDatabase *v_db_p,
@@ -73,6 +74,11 @@ public:
     bool IsProductive() const { return productive; }
     void SetNonProductive()   { productive = false; }
 
+    friend std::ostream& operator<<(std::ostream& out, const AbstractMetaroot& root) {
+        root.print(out);
+        return out;
+    }
+
     virtual ~AbstractMetaroot() { }
 };
 
@@ -82,7 +88,8 @@ using AbstractMetarootCPtr = std::unique_ptr<const AbstractMetaroot>;
 class VJMetaroot final: public AbstractMetaroot {
 private:
     const seqan::Dna5String insertion_vj;
-    virtual void CalculateSequence() override;
+    void CalculateSequence() override;
+    void print(std::ostream&) const override;
 
 public:
     VJMetaroot(const germline_utils::CustomGeneDatabase *v_db_p,
@@ -119,7 +126,8 @@ private:
     const seqan::Dna5String insertion_dj;
 
 private:
-    virtual void CalculateSequence() override;
+    void print(std::ostream&) const override;
+    void CalculateSequence() override;
 
 public:
     VDJMetaroot(const germline_utils::CustomGeneDatabase *v_db_p,

@@ -53,7 +53,7 @@ private:
              sc_checker_details::get_hash("TAG", hash_base, hash_base_sq),
              sc_checker_details::get_hash("TAA", hash_base, hash_base_sq),
              sc_checker_details::get_hash("TGA", hash_base, hash_base_sq)
-         }};
+        }};
 
 public:
     bool static HasStopCodon(const std::string& str, size_t orf) {

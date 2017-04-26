@@ -20,6 +20,7 @@ void load(IgSimulatorConfig::IOParams::OutputParams &output_params, boost::prope
     load(output_params.log_filename, pt, "log_filename");
     load(output_params.output_dir, pt, "output_dir");
     load(output_params.base_repertoire_filename, pt, "base_repertoire_filename");
+    load(output_params.base_repertoire_info, pt, "base_repertoire_info");
     load(output_params.filtered_pool, pt, "filtered_pool");
     load(output_params.full_pool, pt, "full_pool");
     load(output_params.trees_dir, pt, "trees_dir");

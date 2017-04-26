@@ -6,13 +6,19 @@
 
 namespace ig_simulator {
 
-std::ostream &operator<<(std::ostream &out, const BaseRepertoire &base_repertoire) {
+void print_base_repertoire(const BaseRepertoire& base_repertoire, std::ostream& fasta, std::ostream& info) {
     size_t id = 0;
     for (const auto& cluster : base_repertoire) {
-        out << ">forest_" << id++ << "_multiplicity_" << cluster.Multiplicity() << '\n';
-        out << cluster.MetarootPtr()->Sequence() << '\n';
+        fasta << ">forest_" << id << "_multiplicity_" << cluster.Multiplicity() << '\n';
+        fasta << cluster.MetarootPtr()->Sequence() << '\n';
+
+        info << "Index (zero-based): " << id << " / " << base_repertoire.size() - 1
+             << " (" << base_repertoire.size() << ") "
+             << '\n' << *(cluster.MetarootPtr())
+             <<"***************************************************************************\n\n";
+
+        id++;
     }
-    return out;
 }
 
 } // End namespapce ig_simulator

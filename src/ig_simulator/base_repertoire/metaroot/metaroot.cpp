@@ -69,50 +69,62 @@ void VDJMetaroot::CalculateSequence() {
     sequence += core::seqan_string_to_string(j_gene);
 }
 
-std::ostream& operator<<(std::ostream& out, const VJMetaroot& root) {
+void VJMetaroot::print(std::ostream& out) const {
     out << "VJMetaroot:\n\n" <<
 
-        "Index (from 1) of V in database " << root.V_Ind() + 1 << " / " << root.V_DB_P()->size() << "\n" <<
-        "Index (from 1) of J in database " << root.J_Ind() + 1 << " / " << root.J_DB_P()->size() << "\n\n" <<
+        "V gene name: " << (*V_DB_P())[V_Ind()].name() << "\n" <<
+        "J gene name: " << (*J_DB_P())[J_Ind()].name() << "\n\n" <<
 
-        "V gene: " << (*root.V_DB_P())[root.V_Ind()].seq() << "\n" <<
-        "J gene: " << (*root.J_DB_P())[root.J_Ind()].seq() << "\n\n" <<
+        "V gene: " << (*V_DB_P())[V_Ind()].seq() << "\n" <<
+        "J gene: " << (*J_DB_P())[J_Ind()].seq() << "\n\n" <<
 
-        "Cleavage in V gene: " << root.CleavageV() << "\n" <<
-        "Cleavage in J gene: " << root.CleavageJ() << "\n\n" <<
+        "Cleavage in V gene: " << CleavageV() << "\n" <<
+        "Cleavage in J gene: " << CleavageJ() << "\n\n" <<
 
-        "Insertion in VJ junction: " << root.InsertionVJ() << "\n\n" <<
+        "Insertion in VJ junction: " << InsertionVJ() << "\n\n" <<
 
-        "CDR1: " << root.CDRLabeling().cdr1.start_pos << " " << root.CDRLabeling().cdr1.end_pos << "\n" <<
-        "CDR2: " << root.CDRLabeling().cdr2.start_pos << " " << root.CDRLabeling().cdr2.end_pos << "\n" <<
-        "CDR3: " << root.CDRLabeling().cdr3.start_pos << " " << root.CDRLabeling().cdr3.end_pos << "\n";
+        "CDR1 positions: " << CDRLabeling().cdr1.start_pos << " " << CDRLabeling().cdr1.end_pos << "\n" <<
+        "CDR2 positions: " << CDRLabeling().cdr2.start_pos << " " << CDRLabeling().cdr2.end_pos << "\n" <<
+        "CDR3 positions: " << CDRLabeling().cdr3.start_pos << " " << CDRLabeling().cdr3.end_pos << "\n\n" <<
 
-    return out;
+        "CDR1: " << sequence.substr(CDRLabeling().cdr1.start_pos,
+                                    CDRLabeling().cdr1.end_pos - CDRLabeling().cdr1.start_pos + 1) << "\n" <<
+        "CDR2: " << sequence.substr(CDRLabeling().cdr2.start_pos,
+                                    CDRLabeling().cdr2.end_pos - CDRLabeling().cdr2.start_pos + 1) << "\n" <<
+        "CDR3: " << sequence.substr(CDRLabeling().cdr3.start_pos,
+                                    CDRLabeling().cdr3.end_pos - CDRLabeling().cdr3.start_pos + 1) << "\n";
 }
 
-std::ostream& operator<<(std::ostream& out, const VDJMetaroot& root) {
+void VDJMetaroot::print(std::ostream& out) const {
     out << "VDJMetaroot:\n\n" <<
 
-        "Index (from 1) of V in database " << root.V_Ind() + 1 << " / " << root.V_DB_P()->size() << "\n" <<
-        "Index (from 1) of D in database " << root.D_Ind() + 1 << " / " << root.D_DB_P()->size() << "\n" <<
-        "Index (from 1) of J in database " << root.J_Ind() + 1 << " / " << root.J_DB_P()->size() << "\n\n" <<
+        "V gene name: " << (*V_DB_P())[V_Ind()].name() << "\n" <<
+        "V gene name: " << (*D_DB_P())[D_Ind()].name() << "\n" <<
+        "J gene name: " << (*J_DB_P())[J_Ind()].name() << "\n\n" <<
 
-        "V gene: " << (*root.V_DB_P())[root.V_Ind()].seq() << "\n" <<
-        "D gene: " << (*root.D_DB_P())[root.D_Ind()].seq() << "\n" <<
-        "J gene: " << (*root.J_DB_P())[root.J_Ind()].seq() << "\n\n" <<
+        "V gene: " << (*V_DB_P())[V_Ind()].seq() << "\n" <<
+        "D gene: " << (*D_DB_P())[D_Ind()].seq() << "\n" <<
+        "J gene: " << (*J_DB_P())[J_Ind()].seq() << "\n\n" <<
 
-        "Cleavage in V gene: " << root.CleavageV() << "\n" <<
-        "Cleavage in D gene (left): " << root.CleavageDLeft() << "\n" <<
-        "Cleavage in D gene (right): " << root.CleavageDRight() << "\n" <<
-        "Cleavage in J gene: " << root.CleavageJ() << "\n\n" <<
+        "Cleavage in V gene: " << CleavageV() << "\n" <<
+        "Cleavage in D gene (left): " << CleavageDLeft() << "\n" <<
+        "Cleavage in D gene (right): " << CleavageDRight() << "\n" <<
+        "Cleavage in J gene: " << CleavageJ() << "\n\n" <<
 
-        "Insertion in VD junction: " << root.InsertionVD() << "\n" <<
-        "Insertion in DJ junction: " << root.InsertionDJ() << "\n\n" <<
+        "Insertion in VD junction: " << InsertionVD() << "\n" <<
+        "Insertion in DJ junction: " << InsertionDJ() << "\n\n" <<
 
-        "CDR1: " << root.CDRLabeling().cdr1.start_pos << " " << root.CDRLabeling().cdr1.end_pos << "\n" <<
-        "CDR2: " << root.CDRLabeling().cdr2.start_pos << " " << root.CDRLabeling().cdr2.end_pos << "\n" <<
-        "CDR3: " << root.CDRLabeling().cdr3.start_pos << " " << root.CDRLabeling().cdr3.end_pos << "\n";
-    return out;
+        "CDR1 positions: " << CDRLabeling().cdr1.start_pos << " " << CDRLabeling().cdr1.end_pos << "\n" <<
+        "CDR2 positions: " << CDRLabeling().cdr2.start_pos << " " << CDRLabeling().cdr2.end_pos << "\n" <<
+        "CDR3 positions: " << CDRLabeling().cdr3.start_pos << " " << CDRLabeling().cdr3.end_pos << "\n\n" <<
+
+
+        "CDR1: " << sequence.substr(CDRLabeling().cdr1.start_pos,
+                                    CDRLabeling().cdr1.end_pos - CDRLabeling().cdr1.start_pos + 1) << "\n" <<
+        "CDR2: " << sequence.substr(CDRLabeling().cdr2.start_pos,
+                                    CDRLabeling().cdr2.end_pos - CDRLabeling().cdr2.start_pos + 1) << "\n" <<
+        "CDR3: " << sequence.substr(CDRLabeling().cdr3.start_pos,
+                                    CDRLabeling().cdr3.end_pos - CDRLabeling().cdr3.start_pos + 1) << "\n";
 }
 
 } // End namespace ig_simulator
