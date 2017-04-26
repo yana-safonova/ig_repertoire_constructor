@@ -15,7 +15,7 @@ using namespace germline_utils;
 namespace ig_simulator {
 
 germline_utils::ChainType IgSimulatorLaunch::GetLaunchChainType() const {
-    auto v_chain_type = germline_utils::LociParam::ConvertIntoChainTypes(config_.algorithm_params.germline_params.loci);
+    auto v_chain_type = germline_utils::LociParam::ConvertIntoChainTypes(config_.germline_params.loci);
     VERIFY_MSG(v_chain_type.size() == 1, "Only specific chain type is allowed");
     return v_chain_type[0];
 }
@@ -24,7 +24,7 @@ std::vector<germline_utils::CustomGeneDatabase>
 IgSimulatorLaunch::GetDB(const germline_utils::ChainType chain_type) const
 {
     GermlineDbGenerator db_generator(config_.io_params.input_params.germline_input,
-                                     config_.algorithm_params.germline_params);
+                                     config_.germline_params);
     INFO("Generation of DB for variable segments...");
     germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
     INFO("Generation of DB for diversity segments...");

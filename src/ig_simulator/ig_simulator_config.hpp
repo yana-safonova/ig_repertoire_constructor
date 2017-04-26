@@ -33,9 +33,6 @@ struct IgSimulatorConfig {
         OutputParams output_params;
     };
 
-    struct AlgorithmParams {
-        germline_utils::GermlineParams germline_params;
-    };
 
     struct SimulationParams {
         struct BaseRepertoireParams {
@@ -158,7 +155,7 @@ struct IgSimulatorConfig {
     };
 
     IOParams io_params;
-    AlgorithmParams algorithm_params;
+    germline_utils::GermlineParams germline_params;
     SimulationParams simulation_params;
 };
 

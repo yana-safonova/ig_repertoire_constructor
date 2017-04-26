@@ -19,25 +19,18 @@ io_params {
     }
 }
 
-algorithm_params {
-    germline_params {
-        organism        human
-        loci            IGH
-        pseudogenes     false
-        germline_dir              ./data/germline
-    }
+germline_params {
+    organism        human
+    loci            IGH
+    pseudogenes     false
+    germline_dir              ./data/germline
 }
 
 simulation_params {
     base_repertoire_params {
         metaroot_simulation_params {
             gene_chooser_params {
-                custom_chooser_params {
-                    v_genes_probs       ./configs/ig_simulator/v_genes_probs.txt
-                    d_genes_probs       ./configs/ig_simulator/d_genes_probs.txt
-                    j_genes_probs       ./configs/ig_simulator/j_genes_probs.txt
-                }
-                gene_chooser_method     uniform; uniform, custom
+                gene_chooser_method     uniform
             }
 
             nucleotides_remover_params {

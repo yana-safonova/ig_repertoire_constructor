@@ -33,15 +33,6 @@ void load(IgSimulatorConfig::IOParams &io_params, boost::property_tree::ptree co
 }
 // IOParams end
 
-// AlgorithmParams start
-void load(IgSimulatorConfig::AlgorithmParams &algorithm_params,
-          boost::property_tree::ptree const &pt, bool)
-{
-    using config_common::load;
-    load(algorithm_params.germline_params, pt, "germline_params");
-}
-// AlgorithmParams end
-
 // SimulationParams start
 void load(GeneChooserParams::CustomGeneChooserParams& custom_gene_chooser_params,
           boost::property_tree::ptree const &pt, bool)
@@ -312,8 +303,8 @@ void load(IgSimulatorConfig::SimulationParams &simulation_params,
 void load(IgSimulatorConfig &cfg, boost::property_tree::ptree const &pt, bool complete) {
     using config_common::load;
     load(cfg.io_params, pt, "io_params", complete);
-    load(cfg.algorithm_params, pt, "algorithm_params", complete);
     load(cfg.simulation_params, pt, "simulation_params", complete);
+    load(cfg.germline_params, pt, "germline_params");
     // TODO remove this hack
     cfg.simulation_params.base_repertoire_params.
         metaroot_simulation_params.cdr_labeler_config.load(cfg.io_params.input_params.cdr_labeler_config_filename);

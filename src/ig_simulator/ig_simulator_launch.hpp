@@ -35,10 +35,13 @@ public:
         config_(config)
     { }
 
+    void Run();
+
+    IgSimulatorLaunch() = delete;
     IgSimulatorLaunch(const IgSimulatorLaunch&) = delete;
     IgSimulatorLaunch(IgSimulatorLaunch&&) = delete;
-
-    void Run();
+    IgSimulatorLaunch& operator=(const IgSimulatorLaunch&) = delete;
+    IgSimulatorLaunch& operator=(IgSimulatorLaunch&&) = delete;
 };
 
 } // End namespace ig_simulator
