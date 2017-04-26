@@ -12,6 +12,7 @@ io_params {
         output_dir                      ig_simulator_test
         log_filename                    log.properties
         base_repertoire_filename        base_repertoire.fasta
+        base_repertoire_info            base_repertoire.info
         filtered_pool                   filtered_pool.fasta
         full_pool                       full_pool.fasta
         trees_dir                       trees_dir
