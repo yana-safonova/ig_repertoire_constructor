@@ -12,12 +12,15 @@ namespace ig_simulator {
 class Tree {
     const AbstractMetaroot* metaroot;
     std::vector<Node> nodes;
+    std::vector<std::string> sequences;
 
 public:
     Tree(const AbstractMetaroot* const metaroot,
-         std::vector<Node>&& nodes = {}) noexcept:
+         std::vector<Node>&& nodes = {},
+         std::vector<std::string>&& sequences = {}) noexcept:
         metaroot(metaroot),
-        nodes(std::move(nodes))
+        nodes(std::move(nodes)),
+        sequences(std::move(sequences))
     { }
 
     Tree(const Tree&) = default;
@@ -29,23 +32,7 @@ public:
     size_t Size() const { return nodes.size(); }
     const AbstractMetaroot* Metaroot() const { return metaroot; }
 
-    std::vector<std::string> Sequences() const {
-        std::vector<std::string> sequences;
-        sequences.reserve(Size());
-        sequences.emplace_back(metaroot->Sequence());
-        for(size_t i = 1; i < Size(); ++i) {
-            const auto& node = nodes[i];
-            sequences.emplace_back(sequences[node.ParentInd()]);
-
-            std::string& seq = sequences.back();
-            for(const auto& shm : node.SHMs()) {
-                size_t value = seqan::Dna5(seq[shm.first]).value;
-                seq[shm.first] = seqan::Dna(value > shm.second ? shm.second : ((shm.second + 1) & 3));
-            }
-        }
-
-        return sequences;
-    }
+    std::vector<std::string> Sequences() const { return sequences; }
 
     bool IsNodeIncluded(size_t node_ind) const {
         return nodes[node_ind].IsIncluded();

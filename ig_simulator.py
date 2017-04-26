@@ -12,9 +12,12 @@ import support
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
 cdr_labeler_config_dir = os.path.join(home_directory, "configs", "cdr_labeler")
+vj_finder_config_dir = os.path.join(home_directory, "configs", "vj_finder")
 ig_simulator_config_dir = os.path.join(home_directory, "configs", "ig_simulator")
 ig_simulator_bin = os.path.join(home_directory, "build", "release", "bin", "ig_simulator")
-test_dir = "ig_simulator_test"
+data_annotation_dir = os.path.join(home_directory, "data/annotation")
+
+test_dir = os.path.join(home_directory, "ig_simulator_test")
 
 tool_name = "IgSimulator"
 
@@ -133,12 +136,28 @@ def CopyConfigs(params, log):
     if os.path.exists(params.output_config_dir):
         shutil.rmtree(params.output_config_dir)
     params.cdr_labeler_config_dir = os.path.abspath(os.path.join(params.output_config_dir, "cdr_labeler"))
+    params.cdr_labeler_config_filename = os.path.join(params.cdr_labeler_config_dir, "config.info")
+
+    params.vj_finder_config_dir = os.path.abspath(os.path.join(params.output_config_dir, "vj_finder"))
+    params.vj_finder_config_filename = os.path.join(params.vj_finder_config_dir, "config.info")
+
     shutil.copytree(ig_simulator_config_dir, params.output_config_dir)
-    shutil.copytree(cdr_labeler_config_dir, params.cdr_labeler_config_dir)
+    shutil.copytree(cdr_labeler_config_dir,  params.cdr_labeler_config_dir)
+    shutil.copytree(vj_finder_config_dir,    params.vj_finder_config_dir)
+
     params.output_config_file = os.path.join(params.output_config_dir, "config.info")
     if not os.path.exists(params.output_config_file):
         log.info("ERROR: Config file " + params.output_config_file + " was not found")
         sys.exit(1)
+
+
+def ModifyParamsWrtOrganism(params, cdr_param_dict):
+    params.organism = "human"
+    cdr_param_dict['imgt_v_annotation'] = os.path.join(data_annotation_dir, params.organism + "_v_imgt.txt")
+    cdr_param_dict['kabat_v_annotation'] = os.path.join(data_annotation_dir, params.organism + "_v_kabat.txt")
+    cdr_param_dict['imgt_j_annotation'] = os.path.join(data_annotation_dir, params.organism + "_j_imgt.txt")
+    cdr_param_dict['kabat_j_annotation'] = os.path.join(data_annotation_dir, params.organism + "_j_kabat.txt")
+    return cdr_param_dict
 
 
 def ModifyConfigFiles(params, log):
@@ -147,8 +166,22 @@ def ModifyConfigFiles(params, log):
     igs_params_dict['loci'] = params.loci
     igs_params_dict['number_of_metaroots'] = params.number_of_metaroots
     igs_params_dict['pool_manager_strategy'] = params.tree_strategy
+    igs_params_dict['germline_dir'] = os.path.join(home_directory, "data/germline")
+    igs_params_dict['cdr_labeler_config_filename'] = params.cdr_labeler_config_filename
 
+    cdr_params_dict = dict()
+    cdr_params_dict['vj_finder_config'] = params.vj_finder_config_filename
+
+    vjf_params_dict = dict()
+    params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
+    vjf_params_dict['germline_filenames_config'] = params.germline_config_file
+    vjf_params_dict['germline_dir'] = os.path.join(home_directory, "data/germline")
+    igs_params_dict['germline_filenames_config'] = params.germline_config_file
+
+    cdr_params_dict = ModifyParamsWrtOrganism(params, cdr_params_dict)
     process_cfg.substitute_params(params.output_config_file, igs_params_dict, log)
+    process_cfg.substitute_params(params.cdr_labeler_config_filename, cdr_params_dict, log)
+    process_cfg.substitute_params(params.vj_finder_config_filename, vjf_params_dict, log)
 
 
 def PrepareConfigs(params, log):

@@ -23,6 +23,7 @@ struct IgSimulatorConfig {
             std::string output_dir;
             std::string log_filename;
             std::string base_repertoire_filename;
+            std::string base_repertoire_info;
             std::string filtered_pool;
             std::string full_pool;
             std::string trees_dir;

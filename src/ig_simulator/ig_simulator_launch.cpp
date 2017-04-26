@@ -50,11 +50,15 @@ IgSimulatorLaunch::GetBaseRepertoire(const germline_utils::ChainType chain_type,
                                                       db};
     auto base_repertoire =
         base_repertoire_simulator.Simulate(config_.simulation_params.base_repertoire_params.number_of_metaroots);
-    std::ofstream base_repertoire_out;
-    base_repertoire_out.open(path::append_path(config_.io_params.output_params.output_dir,
-                                               config_.io_params.output_params.base_repertoire_filename));
-    base_repertoire_out << base_repertoire;
-    base_repertoire_out.close();
+    std::ofstream base_repertoire_fasta;
+    std::ofstream base_repertoire_info;
+    base_repertoire_fasta.open(path::append_path(config_.io_params.output_params.output_dir,
+                                                 config_.io_params.output_params.base_repertoire_filename));
+    base_repertoire_info.open(path::append_path(config_.io_params.output_params.output_dir,
+                                                config_.io_params.output_params.base_repertoire_info));
+    print_base_repertoire(base_repertoire, base_repertoire_fasta, base_repertoire_info);
+    base_repertoire_fasta.close();
+    base_repertoire_info.close();
     INFO("== Base Repertoire ends ==");
     return base_repertoire;
 }
@@ -63,7 +67,10 @@ template<class PoolManager>
 ForestStorage IgSimulatorLaunch::__GetForestStorage(const BaseRepertoire& base_repertoire) const
 {
     INFO("== Forest Storage generation starts ==");
-    ForestStorageCreator forest_storage_creator(config_.simulation_params.clonal_tree_simulator_params);
+    const auto& vjf_config = config_.simulation_params.base_repertoire_params.metaroot_simulation_params.
+                             cdr_labeler_config.vj_finder_config;
+    ForestStorageCreator forest_storage_creator(vjf_config,
+                                                config_.simulation_params.clonal_tree_simulator_params);
     auto forest_storage = forest_storage_creator.GenerateForest<PoolManager>(base_repertoire);
     INFO("== Forest Storage generation ends ==");
 

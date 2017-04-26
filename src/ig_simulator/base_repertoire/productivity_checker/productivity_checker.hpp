@@ -19,7 +19,7 @@ public:
         aa_calculator(std::move(aa_calculator))
     { }
 
-    bool IsProductive(const AbstractMetaroot& root) {
+    bool IsProductive(const AbstractMetaroot& root) const {
         if (root.CDRLabeling().Empty())
             return false;
         core::Read read("", root.Sequence(), 0);
@@ -27,7 +27,7 @@ public:
         return not aa.HasStopCodon() and aa.InFrame();
     }
 
-    bool IsProductive(const AbstractMetarootCPtr& root) {
+    bool IsProductive(const AbstractMetarootCPtr& root) const {
         return IsProductive(*check_pointer(root));
     }
 };

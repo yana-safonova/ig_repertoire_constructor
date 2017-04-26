@@ -32,6 +32,13 @@ public:
     AbstractPoolManager& operator=(const AbstractPoolManager&) = delete;
     AbstractPoolManager& operator=(AbstractPoolManager&&) = delete;
 
+    size_t MaxIndex() const { return max_index; }
+    void Erase(size_t index) {
+        VERIFY(index < max_index);
+        pool.Erase(index);
+    }
+
+    size_t Size() const { return pool.Size(); }
     virtual std::pair<size_t, bool> GetIndex(size_t n_insert) = 0;
 };
 

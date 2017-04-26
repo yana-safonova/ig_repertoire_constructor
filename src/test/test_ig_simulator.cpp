@@ -250,12 +250,14 @@ TEST_F(IgSimulatorTest, MetarootCreaterCDRTest) {
 
         MTSingleton::SetSeed(5);
         auto root = metaroot_creator.Createroot();
+        INFO(*root);
+        INFO(root->Sequence());
         ASSERT_EQ(root->CDRLabeling().cdr1.start_pos, 75);
         ASSERT_EQ(root->CDRLabeling().cdr1.end_pos, 98);
         ASSERT_EQ(root->CDRLabeling().cdr2.start_pos, 150);
         ASSERT_EQ(root->CDRLabeling().cdr2.end_pos, 173);
         ASSERT_EQ(root->CDRLabeling().cdr3.start_pos, 288);
-        ASSERT_EQ(root->CDRLabeling().cdr3.end_pos, 389);
+        ASSERT_EQ(root->CDRLabeling().cdr3.end_pos, 366);
     }
 }
 

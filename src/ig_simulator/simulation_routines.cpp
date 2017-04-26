@@ -11,8 +11,9 @@ size_t random_index(size_t low, size_t high) {
     return d(MTSingleton::GetInstance());
 }
 
-double uniform_double(double low, double high) {
-    std::uniform_real_distribution<double> d(low, high);
+template<typename FloatingPoint>
+double uniform_floating_point(FloatingPoint low, FloatingPoint high) {
+    std::uniform_real_distribution<FloatingPoint> d(low, high);
     return d(MTSingleton::GetInstance());
 }
 

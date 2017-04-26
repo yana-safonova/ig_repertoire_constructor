@@ -15,7 +15,7 @@ BaseRepertoire BaseRepertoireSimulator::Simulate(size_t size) {
     while(i < productive_size) {
         MetarootCluster cluster{metaroot_creator_p->Createroot(),
                                 multiplicity_creator_p->RandomMultiplicity()};
-        if (productivity_checker.IsProductive(cluster.MetarootPtr())) {
+        if (cluster.MetarootPtr()->IsProductive()) {
             repertoire.emplace_back(std::move(cluster));
             i++;
         }

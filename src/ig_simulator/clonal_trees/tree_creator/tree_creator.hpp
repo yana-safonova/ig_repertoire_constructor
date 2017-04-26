@@ -9,6 +9,8 @@
 #include "base_repertoire/metaroot/metaroot.hpp"
 #include "shm_creator.hpp"
 #include "tree_size_generator.hpp"
+#include "annotation_utils/aa_annotation/aa_calculator.hpp"
+#include "clonal_trees/fast_stop_codon_checker/fast_stop_codon_checker.hpp"
 
 namespace ig_simulator {
 
@@ -17,7 +19,23 @@ protected:
     AbstractShmCreatorCPtr shm_creator;
     AbstractTreeSizeGeneratorCPtr tree_size_generator;
     double ret_prob;
+    annotation_utils::SimpleAACalculator aa_calculator;
+
     mutable std::geometric_distribution<size_t> distr_n_children;
+
+private:
+    std::string CreateSequence(const std::string& base_seq, const Node::SHM_Vector& shms) const {
+        std::string seq = base_seq;
+
+        for(const auto& shm : shms) {
+            VERIFY_MSG(seq[std::get<0>(shm)] == std::get<1>(shm),
+                       std::string("real seq: ") << seq <<
+                       ", position: " << std::get<0>(shm) <<
+                       ", expected: " << std::get<1>(shm));
+            seq[std::get<0>(shm)] = std::get<2>(shm);
+        }
+        return seq;
+    }
 
 public:
     TreeCreator(AbstractShmCreatorCPtr&& shm_creator,
@@ -27,11 +45,13 @@ public:
         shm_creator(std::move(shm_creator)),
         tree_size_generator(std::move(tree_size_generator)),
         ret_prob(check_numeric_positive(ret_prob)),
+        aa_calculator(),
         distr_n_children(check_numeric_positive(lambda_distr_n_children))
     { }
 
-    TreeCreator(const ClonalTreeSimulatorParams& config):
-        TreeCreator(get_shm_creator(config.shm_creator_params),
+    TreeCreator(const vj_finder::VJFinderConfig& vjf_config,
+                const ClonalTreeSimulatorParams& config):
+        TreeCreator(get_shm_creator(vjf_config, config.shm_creator_params),
                     get_tree_size_generator(config.tree_size_generator_params),
                     config.prob_ret_to_pool,
                     config.lambda_distr_n_children)
@@ -50,13 +70,23 @@ public:
         size_t tree_size = tree_size_generator->Generate();
         std::vector<Node> nodes;
         nodes.reserve(tree_size);
+        nodes.emplace_back();
+
+        std::vector<std::string> sequences;
+        sequences.reserve(tree_size);
+        sequences.emplace_back(root->Sequence());
+
+        if (not root->IsProductive()) {
+            nodes.back().MakeNonProductive();
+            return Tree(root, std::move(nodes), std::move(sequences));
+        }
 
         PoolManager pool_manager(ret_prob);
-        nodes.emplace_back();
 
         while(nodes.size() < tree_size) {
             size_t n_children = distr_n_children(MTSingleton::GetInstance()) + 1;
             n_children = std::min(n_children, tree_size - nodes.size());
+
             size_t parent_ind;
             bool stay;
             std::tie(parent_ind, stay) = pool_manager.GetIndex(n_children);
@@ -66,12 +96,24 @@ public:
             }
 
             for (size_t i = 0; i < n_children; ++i) {
-                Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(root->Length())};
+                const std::string& base_sequence = sequences[parent_ind];
+                Node::SHM_Vector shm_vector { shm_creator->GenerateSHM_Vector(base_sequence)};
+                std::string sequence = CreateSequence(base_sequence, shm_vector);
+
                 nodes.emplace_back(parent_ind, std::move(shm_vector));
+                sequences.emplace_back(std::move(sequence));
+
+                if (FastStopCodonChecker::HasStopCodon(sequences.back(), root->CDRLabeling())) {
+                    nodes.back().MakeNonProductive();
+                    pool_manager.Erase(pool_manager.MaxIndex() - n_children + i);
+                }
             }
+            if (pool_manager.Size() == 0) { break; } // All leafs are non-productive
         }
-        VERIFY(nodes.size() == tree_size);
-        return Tree(root, std::move(nodes));
+        if (pool_manager.Size() != 0) { // Only when leafs all non-productive VERIFY should not be checked.
+            VERIFY(nodes.size() == tree_size);
+        }
+        return Tree(root, std::move(nodes), std::move(sequences));
     }
 };
 

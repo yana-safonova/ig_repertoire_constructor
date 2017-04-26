@@ -23,7 +23,6 @@ private:
     AbstractMetarootCreatorCPtr metaroot_creator_p;
     AbstractMultiplicityCreatorPtr multiplicity_creator_p;
     double productive_part;
-    ProductivityChecker productivity_checker;
 
 public:
     BaseRepertoireSimulator(const IgSimulatorConfig::SimulationParams::BaseRepertoireParams& config,
@@ -31,9 +30,8 @@ public:
                             std::vector<germline_utils::CustomGeneDatabase> &db):
         metaroot_creator_p(get_metarootcreator(chain_type, config.metaroot_simulation_params, db)),
         multiplicity_creator_p(get_multiplicity_creator(config.multiplicity_creator_params)),
-        productive_part(config.productive_params.productive_part),
-        productivity_checker()
-{ }
+        productive_part(config.productive_params.productive_part)
+    { }
 
     BaseRepertoireSimulator(const BaseRepertoireSimulator&) = delete;
     BaseRepertoireSimulator(BaseRepertoireSimulator&&) = default;

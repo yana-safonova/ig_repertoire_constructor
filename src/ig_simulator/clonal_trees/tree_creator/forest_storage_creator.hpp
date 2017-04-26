@@ -14,8 +14,9 @@ private:
     ForestCreator forest_creator;
 
 public:
-    ForestStorageCreator(const ClonalTreeSimulatorParams& config):
-        forest_creator(config)
+    ForestStorageCreator(const vj_finder::VJFinderConfig& vjf_config,
+                         const ClonalTreeSimulatorParams& config):
+        forest_creator(vjf_config, config)
     { }
 
     ForestStorageCreator(const ForestStorageCreator&) = delete;

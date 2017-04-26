@@ -10,7 +10,6 @@ namespace ig_simulator {
 
 using BaseRepertoire = std::vector<MetarootCluster>;
 
-std::ostream& operator<<(std::ostream&, const BaseRepertoire&);
-
+void print_base_repertoire(const BaseRepertoire& base_repertoire, std::ostream& fasta, std::ostream& info);
 
 } // End namespace ig_simulator
