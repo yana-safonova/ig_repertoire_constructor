@@ -95,7 +95,7 @@ simulation_params {
         shm_creator_params {
             shm_creator_method      poisson
             poisson_params {
-                lambda              2
+                lambda              0.5
             }
         }
 

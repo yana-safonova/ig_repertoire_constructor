@@ -55,7 +55,7 @@ def SetOutputParams(params, log):
 def PrepareOutputDir(params):
     if os.path.exists(params.output_dir):
         shutil.rmtree(params.output_dir)
-    os.mkdir(params.output_dir)
+    os.makedirs(params.output_dir)
 
 
 def check_positive(value):
