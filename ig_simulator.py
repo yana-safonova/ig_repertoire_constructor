@@ -101,7 +101,7 @@ def parse_args():
 
     optional_args.add_argument("-n", "--n_metaroots",
                                type=check_positive,
-                               default=1000,
+                               default=10,
                                dest="number_of_metaroots")
 
     optional_args.add_argument("-h", "--help",
