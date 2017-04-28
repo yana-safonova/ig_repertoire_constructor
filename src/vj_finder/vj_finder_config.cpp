@@ -3,19 +3,13 @@
 #include <config_common.hpp>
 #include <boost/program_options.hpp>
 #include <build_info.hpp>
+#include "germline_utils/germline_config.hpp"
 
 namespace vj_finder {
 
     void load(VJFinderConfig::RunParams &rp, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(rp.num_threads, pt, "num_threads");
-    }
-
-    void load(VJFinderConfig::IOParams::InputParams::GermlineInput &gi, boost::property_tree::ptree const &pt, bool) {
-        using config_common::load;
-        load(gi.germline_filenames_config, pt, "germline_filenames_config");
-        load(gi.ig_dir, pt, "ig_dir");
-        load(gi.tcr_dir, pt, "tcr_dir");
     }
 
     void update_input_config(VJFinderConfig::IOParams::InputParams & ip) {
@@ -83,14 +77,6 @@ namespace vj_finder {
         load(ap.max_candidates_v, pt, "max_candidates_v");
         load(ap.max_candidates_j, pt, "max_candidates_j");
         load(ap.fix_strand, pt, "fix_strand");
-    }
-
-    void load(VJFinderConfig::AlgorithmParams::GermlineParams &gp, boost::property_tree::ptree const &pt, bool) {
-        using config_common::load;
-        load(gp.germline_dir, pt, "germline_dir");
-        load(gp.loci, pt, "loci");
-        load(gp.organism, pt, "organism");
-        load(gp.pseudogenes, pt, "pseudogenes");
     }
 
     void load(VJFinderConfig::AlgorithmParams::FilteringParams &fp, boost::property_tree::ptree const &pt, bool) {

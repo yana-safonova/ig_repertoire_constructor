@@ -8,6 +8,7 @@ add_library(vdj_utils STATIC
         germline_utils/lymphocyte_type.cpp
         germline_utils/chain_type.cpp
         germline_utils/germline_gene_type.cpp
+        germline_utils/germline_db_generator.cpp
         germline_utils/germline_databases/immune_gene_database.cpp
         germline_utils/germline_databases/chain_database.cpp
         germline_utils/germline_databases/custom_gene_database.cpp
@@ -21,6 +22,6 @@ add_library(vdj_utils STATIC
         annotation_utils/annotated_clone.cpp
         annotation_utils/annotated_clone_calculator.cpp
         annotation_utils/annotated_clone_set.cpp
-        )
+        germline_utils/germline_config.cpp)
 
 target_link_libraries(vdj_utils core ${COMMON_LIBRARIES})

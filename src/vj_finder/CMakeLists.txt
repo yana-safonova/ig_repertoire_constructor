@@ -18,7 +18,6 @@ add_definitions(-DSEQAN_HAS_BZIP2=1)
 add_library(vj_finder_library STATIC
         vj_finder_config.cpp
         command_line_routines.cpp
-        germline_db_generator.cpp
         vj_alignment_structs.cpp
         vj_query_aligner.cpp
         vj_hits_filter.cpp
