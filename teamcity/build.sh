@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 echo "building"
 ./prepare_cfg
 make -j8
