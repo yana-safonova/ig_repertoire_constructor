@@ -21,6 +21,12 @@ target_link_libraries(ig_swgraph_construct build_info)
 add_executable(ig_component_splitter ig_component_splitter.cpp utils.cpp)
 target_link_libraries(ig_component_splitter build_info)
 
+add_executable(hgc hgc.cpp fast_ig_tools.cpp utils.cpp)
+target_link_libraries(hgc build_info)
+
+add_executable(hogc hogc.cpp fast_ig_tools.cpp utils.cpp)
+target_link_libraries(hogc build_info)
+
 make_test(test_ig_trie_compressor test_ig_trie_compressor.cpp)
 
 # RnD tools
