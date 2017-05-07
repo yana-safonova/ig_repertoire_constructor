@@ -123,4 +123,129 @@ namespace algorithms {
             return result;
         }
     };
+
+    template<typename SubjectDatabase, typename StringType>
+    class LisPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
+        const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
+        KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper_;
+        const BlockAlignmentScoringScheme scoring_;
+        const BlockAlignerParams params_;
+
+    public:
+        LisPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+                             KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
+                             BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
+                kmer_index_(kmer_index),
+                kmer_index_helper_(kmer_index_helper),
+                scoring_(scoring),
+                params_(params) { }
+
+        BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) {
+            auto result = QueryUnordered(query);
+            result.SelectTopRecords(params_.max_candidates);
+            return result;
+        }
+
+    private:
+        std::vector<KmerMatch> findLIS(const std::vector<KmerMatch> &matches) const {
+
+            std::vector<int> pos_before(matches.size() + 1, -1);
+            std::vector<int> pos(matches.size() + 1, -1);
+            std::vector<int> min_value(matches.size() + 1, std::numeric_limits<int>::max());
+            min_value[0] = std::numeric_limits<int>::min();
+            int max_len = 0;
+            for (size_t i = 0; i < matches.size(); i++) {
+                int new_value = matches[i].read_pos;
+                int cur_len = std::lower_bound(begin(min_value), end(min_value), new_value) - begin(min_value);
+                min_value[cur_len] = new_value;
+                pos[cur_len] = i;
+                pos_before[i] = pos[cur_len - 1];
+                max_len = std::max(cur_len, max_len);
+            }
+            std::vector<KmerMatch> res;
+            int i = pos[max_len];
+            while (i >= 0) {
+                res.push_back(matches[i]);
+                i = pos_before[i];
+            }
+            std::reverse(begin(res), end(res));
+            for (size_t i = 1; i < res.size(); i++) {
+                assert(res[i - 1].needle_pos < res[i].needle_pos);
+                assert(res[i - 1].read_pos < res[i].read_pos);
+            }
+            return res;
+        }
+
+        PairwiseBlockAlignment MakeAlignment(const std::vector<KmerMatch> &matches,
+                                          const StringType &query,
+                                          size_t subject_index) const {
+
+            std::vector<KmerMatch> lis = findLIS(matches);
+            std::vector<Match> combined = combine_sequential_kmer_matches(lis, kmer_index_.k());
+
+            for (size_t i = 1; i < combined.size(); i++) {
+                assert(combined[i - 1].subject_pos < combined[i].subject_pos);
+                assert(combined[i - 1].read_pos < combined[i].read_pos);
+            }
+
+            auto vertex_weight = [this](const Match &m) -> double { //TODO: remove copypaste
+                return double(m.length) * double(scoring_.match_reward);
+            };
+
+            auto edge_weight = [this](const Match &a, const Match &b) -> double { //TODO: remove copypaste
+                int read_gap = b.read_pos - a.read_pos;
+                int needle_gap = b.subject_pos - a.subject_pos;
+                int gap = read_gap - needle_gap;
+                int mmatch = std::min(b.read_pos - a.read_pos - int(a.length),
+                                      b.subject_pos - a.subject_pos - int(a.length));
+                mmatch = std::max(0, mmatch);
+                return - Match::overlap(a, b)
+                       - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
+                       - ((mmatch) ? scoring_.mismatch_opening_cost + mmatch * scoring_.mismatch_extention_cost : 0);
+            };
+
+            AlignmentPath path;
+            double score = 0;
+            for (size_t i = 0; i < combined.size(); i++) {
+                score += vertex_weight(combined[i]);
+                path.push_back(combined[i]);
+            }
+            for (size_t i = 0; i + 1 < path.size(); ++i) {
+                path[i].length -= Match::overlap(path[i], path[i + 1]);
+            }
+            for (size_t i = 1; i < combined.size(); i++) {
+                score += edge_weight(combined[i - 1], combined[i]);
+            }
+
+            return PairwiseBlockAlignment(path,
+                                          kmer_index_helper_.GetStringLength(
+                                                  kmer_index_helper_.GetDbRecordByIndex(subject_index)),
+                                          kmer_index_helper_.GetStringLength(query),
+                                          (int) score);
+        }
+
+        //TODO: remove copypaste
+        bool CheckAlignment(const PairwiseBlockAlignment &alignment) const {
+            if (std::abs(alignment.path.global_gap()) > scoring_.max_global_gap)
+                return false;
+            return alignment.path.kplus_length() >= params_.min_kmer_coverage;
+        }
+
+        BlockAlignmentHits<SubjectDatabase> QueryUnordered(const StringType &query) {
+            SubjectKmerMatches subj_matches = kmer_index_.GetSubjectKmerMatchesForQuery(query);
+            BlockAlignmentHits<SubjectDatabase> result(kmer_index_.Db());
+            for(size_t i = 0; i < subj_matches.size(); i++) {
+                auto &matches = subj_matches[i];
+                if(matches.empty())
+                    continue;
+                std::sort(matches.begin(), matches.end(),
+                          [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos < b.needle_pos; });
+                PairwiseBlockAlignment align = MakeAlignment(matches, query, i);
+                if (CheckAlignment(align)) {
+                    result.Add(std::move(align), i);
+                }
+            }
+            return result;
+        }
+    };
 }
