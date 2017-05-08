@@ -2,6 +2,7 @@
 
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
+#include <shm_model_utils/shm_model_edge_weight_calculator.hpp>
 #include "antevolo_config.hpp"
 #include "annotation_utils/annotated_clone_set.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
@@ -11,7 +12,8 @@ namespace antevolo {
     class AntEvoloLaunch {
         const AntEvoloConfig& config_;
 
-        void ShmModelPosteriorCalculation(const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>&);
+        ShmModelEdgeWeightCalculator ShmModelPosteriorCalculation(
+                const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>&);
         std::vector<boost::unordered_set<size_t>> ReadClusters(
                 const boost::unordered_map<std::string, size_t>& read_name_to_index);
 

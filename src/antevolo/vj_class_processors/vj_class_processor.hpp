@@ -4,6 +4,7 @@
 #include <antevolo_config.hpp>
 #include "base_vj_class_processor.hpp"
 #include "cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.hpp"
+#include <shm_model_utils/shm_model_edge_weight_calculator.hpp>
 
 namespace antevolo {
     class VJClassProcessor : public BaseCandidateCalculator {
@@ -45,21 +46,12 @@ namespace antevolo {
                 reconstructed_(reconstructed),
                 rejected_(rejected) { }
 
-        //EvolutionaryEdgeConstructor* GetEdgeConstructor();
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
         std::string GetGraphFname(core::DecompositionClass decomposition_class);
         std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
-        //void AddUndirectedForestToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree,
-        //                                  boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        //void AddComponentToTheTree(SparseGraphPtr hg_component, size_t component_id, EvolutionaryTree& tree);
-        //void SetUndirectedComponentsParentEdges(SparseGraphPtr hg_component,
-        //                                        size_t component_id,
-        //                                        EvolutionaryTree& tree,
-        //                                        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        //void SetDirections(boost::unordered_set<size_t> vertices_nums,
-        //                                        EvolutionaryTree& tree,
-        //                                        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges);
-        EvolutionaryTree AddComponent(SparseGraphPtr hg_component, size_t component_id);
+        EvolutionaryTree ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id);
+        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
+                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
     };
 }

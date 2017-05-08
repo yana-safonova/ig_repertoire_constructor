@@ -4,7 +4,7 @@
 #include "../../graph_utils/graph_splitter.hpp"
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
-
+#include <cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.hpp>
 
 
 namespace antevolo {
@@ -71,8 +71,7 @@ namespace antevolo {
     }
 
 
-    EvolutionaryTree VJClassProcessor::AddComponent(SparseGraphPtr hg_component,
-                                                     size_t component_id) {
+    EvolutionaryTree VJClassProcessor::ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id) {
 
         CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3s_map_,
@@ -80,19 +79,37 @@ namespace antevolo {
                                                 unique_cdr3s_,
                                                 hg_component,
                                                 component_id);
-        std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(nullptr);
-        if (config_.algorithm_params.model) {
-            ERROR("no edmonds class yet");
-        } else {
-            forest_calculator = std::shared_ptr<Base_CDR3_HG_CC_Processor>(
-                    new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
+        std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
+                new Kruskal_CDR3_HG_CC_Processor(clone_set_ptr_,
+                                                 config_.algorithm_params,
+                                                 clone_by_read_constructor_,
+                                                 hamming_graph_info,
+                                                 current_fake_clone_index_,
+                                                 reconstructed_,
+                                                 rejected_));
+        auto tree = forest_calculator->ConstructForest();
+        return tree;
+    }
+    EvolutionaryTree VJClassProcessor::ProcessComponentWithEdmonds(
+            SparseGraphPtr hg_component,
+            size_t component_id,
+            const ShmModelEdgeWeightCalculator& edge_weight_calculator) {
+
+        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+                                                unique_cdr3s_map_,
+                                                cdr3_to_old_index_map_,
+                                                unique_cdr3s_,
+                                                hg_component,
+                                                component_id);
+        std::shared_ptr<Base_CDR3_HG_CC_Processor> forest_calculator(
+                    new Edmonds_CDR3_HG_CC_Processor(clone_set_ptr_,
                                                      config_.algorithm_params,
                                                      clone_by_read_constructor_,
                                                      hamming_graph_info,
                                                      current_fake_clone_index_,
                                                      reconstructed_,
-                                                     rejected_));
-        }
+                                                     rejected_,
+                                                     edge_weight_calculator));
         auto tree = forest_calculator->ConstructForest();
         return tree;
     }

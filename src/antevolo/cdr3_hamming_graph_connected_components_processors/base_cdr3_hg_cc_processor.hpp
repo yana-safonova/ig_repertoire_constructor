@@ -88,7 +88,7 @@ namespace antevolo {
                                   size_t& reconstructed,
                                   size_t& rejected);
 
-        EvolutionaryTree ConstructForest();
+        virtual EvolutionaryTree ConstructForest();
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);

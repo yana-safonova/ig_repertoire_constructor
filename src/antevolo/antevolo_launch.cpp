@@ -7,6 +7,7 @@
 #include <read_labeler.hpp>
 #include <cdr_output.hpp>
 #include <evolutionary_graph_utils/evolutionary_tree_splitter.hpp>
+#include <mutation_strategies/no_k_neighbours.hpp>
 #include "antevolo_processor.hpp"
 
 #include "evolutionary_stats_calculator.hpp"
@@ -28,7 +29,7 @@
 using namespace shm_kmer_matrix_estimator;
 
 namespace antevolo {
-    void AntEvoloLaunch::ShmModelPosteriorCalculation(
+    ShmModelEdgeWeightCalculator AntEvoloLaunch::ShmModelPosteriorCalculation(
             const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>& clone_set)
     {
         ShmModel model(config_.input_params.shm_kmer_model_igh);
@@ -46,16 +47,19 @@ namespace antevolo {
         PosteriorDistributionCalculator posterior_distribution_calculator;
         ShmModel posterior_model(posterior_distribution_calculator.calculate(model, fr_matrix, cdr_matrix));
 
-
-        std::ofstream out_prior_model;
-        out_prior_model.open("prior.csv"); // todo: move to config
-        out_prior_model << model;
-        out_prior_model.close();
-
-        std::ofstream out_posterior_model;
-        out_posterior_model.open("posterior.csv");
-        out_posterior_model << posterior_model;
-        out_posterior_model.close();
+//        std::ofstream out_prior_model;
+//        out_prior_model.open("prior.csv"); // todo: move to config
+//        out_prior_model << model;
+//        out_prior_model.close();
+//
+//        std::ofstream out_posterior_model;
+//        out_posterior_model.open("posterior.csv");
+//        out_posterior_model << posterior_model;
+//        out_posterior_model.close();
+        AbstractMutationStrategyPtr
+                mut_strategy(new NoKNeighboursMutationStrategy(config_.shm_config.mfp));
+        ShmModelEdgeWeightCalculator edge_weight_calculator(posterior_model, std::move(mut_strategy));
+        return edge_weight_calculator;
     }
 
     void AntEvoloLaunch::Launch() {
@@ -129,8 +133,6 @@ namespace antevolo {
 
         //end trie_compressor
 
-        AntEvoloLaunch::ShmModelPosteriorCalculation(annotated_clone_set);
-
         writer.OutputCDRDetails();
         writer.OutputSHMs();
 
@@ -197,10 +199,33 @@ namespace antevolo {
                                        const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                                        size_t total_number_of_reads) {
         INFO("Tree construction starts");
+        auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
+
+
+
+
+
+
+//        EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.algorithm_params.edge_construction_params);
+//        auto edge_constructor = std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
+//        auto edge = edge_constructor->ConstructEdge(annotated_clone_set[6033],
+//                                                    annotated_clone_set[12587],
+//                                                    6033,
+//                                                    12587);
+//        std::cout << annotated_clone_set[6033].Read() << "\n" << annotated_clone_set[12587].Read() << std::endl;
+//        double  weight = edge_weight_calculator.calculate_weigth_edge(*edge);
+
+
+
+
+
+
+
         auto tree_storage = AntEvoloProcessor(config_,
                                               annotated_clone_set,
                                               clone_by_read_constructor,
-                                              total_number_of_reads).ConstructClonalTrees();
+                                              total_number_of_reads,
+                                              edge_weight_calculator).ConstructClonalTrees();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!

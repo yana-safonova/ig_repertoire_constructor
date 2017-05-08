@@ -101,6 +101,7 @@ double ShmModelEdgeWeightCalculator::calculate_weigth_edge_per_position(const Ev
 }
 
 double ShmModelEdgeWeightCalculator::calculate_weigth_edge(const BaseEvolutionaryEdge &edge) const {
+    std::cout << "start calculating weight of " << edge.SrcNum() << " -> " << edge.DstNum() << std::endl;
     auto src_dst_pair(get_prepared_strings(edge));
 
     size_t kmer_len_(model_.kmer_len());
@@ -114,6 +115,7 @@ double ShmModelEdgeWeightCalculator::calculate_weigth_edge(const BaseEvolutionar
             log_likelihood += add_llklh;
         }
     }
+    std::cout << "end calculating weight of" << std::endl;
     return log_likelihood;
 }
 
