@@ -39,7 +39,8 @@ DistDistributionStats DistDistributionStats::GetStats(const std::vector<seqan::D
                 auto& first = input_reads[reads[i]];
                 auto& second = input_reads[reads[j]];
                 size_t hamming_dist = get_hamming_dist(first, second);
-                size_t sw_dist = get_sw_dist(first, second);
+                size_t sw_dist = 0;//get_sw_dist(first, second);
+                FATAL_ERROR("Change to another edit dist if want to run this.")
                 current_hamming_distribution[hamming_dist] ++;
                 current_sw_distribution[sw_dist] ++;
                 min_hamming = hamming_dist > 0 && hamming_dist < min_hamming ? hamming_dist : min_hamming;

@@ -5,9 +5,7 @@
 #include <seqan/seq_io.h>
 #include "../ig_tools/utils/string_tools.hpp"
 
-void create_console_logger();
-
-size_t get_sw_dist(const seqan::Dna5String& first, const seqan::Dna5String& second);
+void create_console_logger(logging::level log_level = logging::L_DEBUG);
 
 template <typename From, typename To, typename FromHash, typename FromEquals, typename ToHash, typename ToEquals>
 class ManyToManyCorrespondence {

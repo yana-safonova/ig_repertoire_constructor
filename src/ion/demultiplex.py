@@ -61,6 +61,7 @@ def main():
     first = mask[:mask.find('N')]
     last = mask[mask.rfind('N') + 1:]
     assert first >= 0 and last >= 0
+    print "Searching for %s and %s bounding the barcode." % (first, last)
     # mask = mask.replace('N', '.')
     # barcode_pos = set([p for p in range(len(mask)) if mask[p] == '.'])
     # assert set(mask).issubset(set("ACGT."))
@@ -78,7 +79,7 @@ def main():
         f = s.find(first)
         l = s.find(last)
         # if len(groups) == 0:
-        if f < 0 or l < 0:
+        if f < 0 or l < 0 or f + len(first) >= l:
             failed += 1
             bad.append(read)
         else:
