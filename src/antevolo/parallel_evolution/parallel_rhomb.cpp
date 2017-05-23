@@ -95,9 +95,11 @@ namespace antevolo {
                                 GetNumParallelSHMsBySide(RhombSide::RhombSide2));
     }
 
-    void print_edge_and_shms(std::ostream &out, const EvolutionaryEdgePtr& edge,
-                                      const std::vector<annotation_utils::SHM>& shms) {
-        out << "Edge " << edge->SrcNum() << " -> " << edge->DstNum() << ": ";
+    void print_edge_and_shms(std::ostream &out, const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+                             const EvolutionaryEdgePtr& edge,
+                             const std::vector<annotation_utils::SHM>& shms) {
+        out << "Edge " << edge->SrcNum() << "(" << clone_set[edge->SrcNum()].VSHMs().size() << ") -> " <<
+            edge->DstNum() << "(" << clone_set[edge->DstNum()].VSHMs().size() << "): ";
         for(auto it = shms.cbegin(); it != shms.cend(); it++)
             out << *it << "; ";
     }
@@ -107,14 +109,14 @@ namespace antevolo {
         for(size_t i = 0; i < rhomb.Side1Length(); i++) {
             auto edge = rhomb.GetEdgeByIndex(RhombSide1, i);
             auto shms = rhomb.GetSHMsByIndex(RhombSide1, i);
-            print_edge_and_shms(out, edge, shms);
+            print_edge_and_shms(out, rhomb.CloneSet(), edge, shms);
         }
         out << std::endl;
         out << "Side 2: ";
         for(size_t i = 0; i < rhomb.Side2Length(); i++) {
             auto edge = rhomb.GetEdgeByIndex(RhombSide2, i);
             auto shms = rhomb.GetSHMsByIndex(RhombSide2, i);
-            print_edge_and_shms(out, edge, shms);
+            print_edge_and_shms(out, rhomb.CloneSet(), edge, shms);
         }
         out << std::endl;
         out << "Parallel SHMs: " << rhomb.GetNumParallelSHMsBySide(RhombSide1) << " vs " <<

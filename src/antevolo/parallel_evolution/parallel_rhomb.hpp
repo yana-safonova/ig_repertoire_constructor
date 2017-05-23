@@ -60,6 +60,9 @@ namespace antevolo {
         bool Ambiguous() const;
 
         size_t MinimalNumberParallelSHMs() const;
+
+
+        const annotation_utils::CDRAnnotatedCloneSet& CloneSet() const { return clone_set_; }
     };
 
     std::ostream& operator<<(std::ostream &out, const ParallelRhomb &rhomb);
