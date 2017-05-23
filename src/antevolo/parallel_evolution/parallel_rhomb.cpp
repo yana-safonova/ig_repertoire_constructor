@@ -73,14 +73,26 @@ namespace antevolo {
         return side2_shms_[index];
     }
 
-    size_t ParallelRhomb::MinimalNumberParallelSHMs() const {
-        size_t parallel_shms_1 = 0;
-        for(size_t i = 0; i < Side1Length() - 1; i++)
-            parallel_shms_1 += side1_shms_[i].size();
-        size_t parallel_shms_2 = 0;
+    size_t ParallelRhomb::GetNumParallelSHMsBySide(RhombSide side) const {
+        size_t parallel_shms = 0;
+        if(side == RhombSide::RhombSide1) {
+            for(size_t i = 0; i < Side1Length() - 1; i++)
+                parallel_shms += side1_shms_[i].size();
+            return parallel_shms;
+        }
         for(size_t i = 0; i < Side2Length() - 1; i++)
-            parallel_shms_2 += side2_shms_[i].size();
-        return std::min<size_t>(parallel_shms_1, parallel_shms_2);
+            parallel_shms += side2_shms_[i].size();
+        return parallel_shms;
+    }
+
+    bool ParallelRhomb::Ambiguous() const {
+        return GetNumParallelSHMsBySide(RhombSide::RhombSide1) ==
+                GetNumParallelSHMsBySide(RhombSide::RhombSide2);
+    }
+
+    size_t ParallelRhomb::MinimalNumberParallelSHMs() const {
+        return std::min<size_t>(GetNumParallelSHMsBySide(RhombSide::RhombSide1),
+                                GetNumParallelSHMsBySide(RhombSide::RhombSide2));
     }
 
     void print_edge_and_shms(std::ostream &out, const EvolutionaryEdgePtr& edge,
@@ -104,6 +116,9 @@ namespace antevolo {
             auto shms = rhomb.GetSHMsByIndex(RhombSide2, i);
             print_edge_and_shms(out, edge, shms);
         }
+        out << std::endl;
+        out << "Parallel SHMs: " << rhomb.GetNumParallelSHMsBySide(RhombSide1) << " vs " <<
+            rhomb.GetNumParallelSHMsBySide(RhombSide2);
         return out;
     }
 }

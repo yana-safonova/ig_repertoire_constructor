@@ -55,6 +55,10 @@ namespace antevolo {
         const std::vector<annotation_utils::SHM>& GetSHMsByIndex(RhombSide side, size_t index) const;
 
 
+        size_t GetNumParallelSHMsBySide(RhombSide side) const;
+
+        bool Ambiguous() const;
+
         size_t MinimalNumberParallelSHMs() const;
     };
 

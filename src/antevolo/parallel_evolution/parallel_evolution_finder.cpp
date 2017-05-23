@@ -175,7 +175,6 @@ namespace antevolo {
                 if(!RhombIsGood(rhomb))
                     continue;
                 std::cout << rhomb << std::endl;
-                std::cout << "# parallel SHMs: " << rhomb.MinimalNumberParallelSHMs() << std::endl;
                 std::cout << "------------" << std::endl;
                 rhombs.push_back(rhomb);
             }
@@ -183,14 +182,15 @@ namespace antevolo {
     }
 
     ParallelEvolutionStats ParallelEvolutionFinder::ComputeStats(const std::vector<ParallelRhomb> &rhombs) {
-        ParallelEvolutionStats stats(rhombs.size());
-        for(auto it = rhombs.begin(); it != rhombs.end(); it++)
-            stats.AddParallelSHM(it->MinimalNumberParallelSHMs());
+        ParallelEvolutionStats stats;
+        for(auto it = rhombs.begin(); it != rhombs.end(); it++) {
+            stats.Add(*it);
+        }
         return stats;
     }
 
     ParallelEvolutionStats ParallelEvolutionFinder::ComputeParallelSHMs() {
-        //INFO("== Processing tree " << tree_.GetTreeOutputFname(""));
+        INFO("== Processing tree " << tree_.GetTreeOutputFname(""));
         FillAddedDirectedEdges();
         if(added_directed_edges_map_.size() == 0)
             return ParallelEvolutionStats();

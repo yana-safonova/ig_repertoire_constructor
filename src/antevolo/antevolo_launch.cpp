@@ -162,7 +162,8 @@ namespace antevolo {
             auto cur_stats = ParallelEvolutionFinder(clone_set, *it).ComputeParallelSHMs();
             parallel_stats.ConcatenateStats(cur_stats);
         }
-        INFO("Total number of parallel rhombs: " << parallel_stats.num_parallel_rhombs);
+        INFO("# parallel rhombs: " << parallel_stats.num_parallel_rhombs);
+        INFO("# ambiguous rhombs: " << parallel_stats.num_ambiguous_rhombs);
         INFO("Total number of parallel SHMs: " << parallel_stats.total_num_parallel_shms);
         std::ofstream out(config_.output_params.output_parallel_shms_dist);
         for(auto it = parallel_stats.begin(); it != parallel_stats.end(); it++)

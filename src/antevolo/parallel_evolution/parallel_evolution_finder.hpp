@@ -6,19 +6,26 @@ namespace antevolo {
     struct ParallelEvolutionStats {
         size_t num_parallel_rhombs;
         size_t total_num_parallel_shms;
+        size_t num_ambiguous_rhombs;
         std::vector<size_t> parallel_shms_dist;
 
         ParallelEvolutionStats() : num_parallel_rhombs(0),
-                                   total_num_parallel_shms(0) { }
-
-        ParallelEvolutionStats(size_t num_parallel_rhombs) :
-                num_parallel_rhombs(num_parallel_rhombs),
-                total_num_parallel_shms(0) { }
+                                   total_num_parallel_shms(0),
+                                   num_ambiguous_rhombs(0) { }
 
         void ConcatenateStats(ParallelEvolutionStats stats) {
             num_parallel_rhombs += stats.num_parallel_rhombs;
+            num_ambiguous_rhombs += stats.num_ambiguous_rhombs;
             for(auto it = stats.begin(); it != stats.end(); it++)
                 AddParallelSHM(*it);
+        }
+
+        void Add(const ParallelRhomb &rhomb) {
+            num_parallel_rhombs++;
+            if(rhomb.Ambiguous()) {
+                num_ambiguous_rhombs++;
+            }
+            AddParallelSHM(rhomb.MinimalNumberParallelSHMs());
         }
 
         std::vector<size_t>::iterator begin() { return parallel_shms_dist.begin(); }
