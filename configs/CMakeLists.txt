@@ -5,7 +5,9 @@ file(GLOB config_templates "*/*.template")
 foreach(config_template ${config_templates})
   # Remove extention
   STRING(REGEX REPLACE "\\.template$" "" config ${config_template})
-  configure_file("${config_template}"
-                 "${config}"
-                 @ONLY)
+  if(NOT EXISTS "${config}")
+    configure_file("${config_template}"
+                    "${config}"
+                    @ONLY)
+  endif()
 endforeach()
