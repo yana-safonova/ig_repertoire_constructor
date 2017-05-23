@@ -8,6 +8,11 @@ prefix?="/usr/local"
 
 all: igrec
 
+cpcfg:
+	mkdir -p build/tmp
+	cd build/tmp && cmake ../../configs -DCMAKE_OVERWRITE_CONFIGS=true
+	rm -r build/tmp
+
 cmake:
 	mkdir -p build/release
 	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
