@@ -1,6 +1,7 @@
 #include <string>
 #include "../umi_experiments/utils.hpp"
 #include "../umi_experiments/umi_utils.hpp"
+#include "ion_utils.hpp"
 #include <segfault_handler.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/parsers.hpp>
@@ -66,19 +67,6 @@ namespace {
         for (const auto& entry : umi_len_to_cnt) {
             TRACE("Barcode length " << entry.first << " -> total " << entry.second);
         }
-    }
-
-    template<typename T>
-    T compress_string(const T& str) {
-        std::string compressed = "";
-        char prev = 0;
-        for (char cur : str) {
-            if (cur != prev) {
-                compressed += cur;
-            }
-            prev = cur;
-        }
-        return compressed;
     }
 }
 
