@@ -28,9 +28,7 @@ namespace vj_finder {
     void load(VJFinderConfig::IOParams::OutputParams::OutputDetails & od,
               boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
-        load(od.compress, pt, "compress");
         load(od.fix_spaces, pt, "fix_spaces");
-        load(od.separator, pt, "separator");
         load(od.num_aligned_candidates, pt, "num_aligned_candidates");
     }
 

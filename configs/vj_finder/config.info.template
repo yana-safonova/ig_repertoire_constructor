@@ -27,9 +27,7 @@ io_params {
         }
 
         output_details {
-            compress                 false
             fix_spaces               true
-            separator                comma
             num_aligned_candidates   1
         }
     }

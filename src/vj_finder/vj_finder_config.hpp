@@ -30,9 +30,7 @@ namespace vj_finder {
                 };
 
                 struct OutputDetails {
-                    bool compress;
                     bool fix_spaces;
-                    std::string separator;
                     size_t num_aligned_candidates;
                 };
 
