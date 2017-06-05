@@ -10,10 +10,10 @@ if(CMAKE_GOOGLE_PROFILER)
   ExternalProject_Add(${GPT_PREFIX}
                       PREFIX ${GPT_PREFIX}
                       URL ${GPT_URL}
-                      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/trirdparty-dist
-                      INSTALL_DIR ${CMAKE_BINARY_DIR}/trirdparty
+                      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
+                      INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
                       URL_MD5 b181436e9061363821a954ca64626f26
-                      CONFIGURE_COMMAND ./configure --enable-shared=no --enable-static=yes --prefix=<INSTALL_DIR>
+                      CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=yes --prefix=<INSTALL_DIR>
                       BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
                       BUILD_IN_SOURCE 1
                       INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
@@ -22,11 +22,29 @@ if(CMAKE_GOOGLE_PROFILER)
 
   # get the unpacked source directory path
   ExternalProject_Get_Property(${GPT_PREFIX} SOURCE_DIR)
-  link_directories(${CMAKE_BINARY_DIR}/thirdparty/libs)
+  # link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
   include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
-  add_definitions(-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free)
-  link_libraries("-Wl,--no-as-needed -lprofiler -Wl,--as-needed")
+
+  # add_library(profiler STATIC IMPORTED GLOBAL)  # GLOBAL means available in ALL CMakeLists included in this one
+
+  add_library(profiler_shared SHARED IMPORTED)  # If you want to automatically enable profiling, you need link against shared library. See https://github.com/gperftools/gperftools/issues/415
+  set_property(TARGET profiler_shared PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_SHARED_LIBRARY_PREFIX}profiler${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  add_dependencies(profiler_shared ${GPT_PREFIX})
+  link_libraries(profiler_shared)
+
+  # Static linking does not actually work(((
+  # add_library(profiler_static STATIC IMPORTED)
+  # set_property(TARGET profiler_static PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_STATIC_LIBRARY_PREFIX}profiler${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  # add_dependencies(profiler_static ${GPT_PREFIX})
+  # link_libraries(profiler_static)
+  # get_target_property(PROFILER_STATIC profiler_static LOCATION)
+  # # link_libraries("-Wl,--undefined=ProfilerStart")
+  # # https://stackoverflow.com/questions/14116420/how-to-force-gcc-to-link-an-unused-static-library
+  # link_libraries("-Wl,--whole-archive ${PROFILER_STATIC} -Wl,--no-whole-archive")
+  # link_libraries("-Wl,--allow-multiple-definition")
+
   # link_libraries(tcmalloc pthread)
+  # add_definitions(-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free)  # for TCMalloc
 endif()
 
 # http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2
