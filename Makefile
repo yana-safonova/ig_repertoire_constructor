@@ -4,6 +4,10 @@ build_type?="RelWithAsserts"
 # Default install prefix
 prefix?="/usr/local"
 
+
+# Default not verify (disabled)
+nverify?=""
+
 .PHONY: clean clean_tests cmake all pack
 
 all: igrec
@@ -15,7 +19,8 @@ cpcfg:
 
 cmake:
 	mkdir -p build/release
-	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} \
+		-Wno-dev -DCMAKE_NVERIFY=${nverify}
 
 igrec: cmake
 	$(MAKE) -C build/release all
