@@ -2,18 +2,18 @@
 
 import os
 import sys
-import init
 import logging
 import shutil
-import ntpath
 
-home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) #+ '/'
+home_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))  # + '/'
 py_src = os.path.join(home_directory, "py/pipeline/")
 vjf_config_dir = os.path.join(home_directory, "configs/vj_finder")
 vj_finder_bin = os.path.join(home_directory, "build/release/bin/vj_finder")
 run_vj_finder = os.path.join(home_directory, "build/release/bin/./vj_finder")
 
 sys.path.append(py_src)
+sys.path.append(home_directory)
+import init
 import process_cfg
 import support
 
