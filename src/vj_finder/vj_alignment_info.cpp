@@ -104,6 +104,7 @@ namespace vj_finder {
                             VERIFY_MSG(false, "Not implemented column type");
                     }
                 }
+                out << "\n";
             }
         }
         out.close();
