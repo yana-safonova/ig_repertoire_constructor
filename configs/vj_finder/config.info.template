@@ -29,6 +29,7 @@ io_params {
         output_details {
             fix_spaces               true
             num_aligned_candidates   1
+            alignment_columns        Read_name,Chain_type,V_hit,V_start_pos,V_end_pos,V_score,J_hit,J_start_pos,J_end_pos,J_score
         }
     }
 }

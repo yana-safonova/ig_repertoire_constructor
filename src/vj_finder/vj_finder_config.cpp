@@ -25,13 +25,6 @@ namespace vj_finder {
         //update_input_config(ip);
     }
 
-    void load(VJFinderConfig::IOParams::OutputParams::OutputDetails & od,
-              boost::property_tree::ptree const &pt, bool) {
-        using config_common::load;
-        load(od.fix_spaces, pt, "fix_spaces");
-        load(od.num_aligned_candidates, pt, "num_aligned_candidates");
-    }
-
     void update_output_files_config(VJFinderConfig::IOParams::OutputParams::OutputFiles & of) {
         of.log_filename = path::append_path(of.output_dir, of.log_filename);
         of.alignment_info_fname = path::append_path(of.output_dir, of.alignment_info_fname);
@@ -163,4 +156,47 @@ namespace vj_finder {
         boost::property_tree::read_info(filename, pt);
         load(cfg, pt, true);
     }
+
+    using OutputDetails = VJFinderConfig::IOParams::OutputParams::OutputDetails;
+
+    void load(OutputDetails & od, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(od.fix_spaces, pt, "fix_spaces");
+        load(od.num_aligned_candidates, pt, "num_aligned_candidates");
+        std::string columns_str;
+        load(columns_str, pt, "alignment_columns");
+        od.alignment_columns = OutputDetails::AlignmentColumns::CreateFromString(columns_str);
+    }
+
+    OutputDetails::AlignmentColumns OutputDetails::AlignmentColumns::CreateFromString(std::string columns_raw) {
+        std::vector<std::string> col_strings = split(columns_raw, ',');
+        std::vector<AlignmentInfoColumnType> columns;
+        std::stringstream header;
+        bool first = true;
+        for (auto& s : col_strings) {
+            boost::algorithm::trim(s);
+            VERIFY_MSG(string_to_column_type.find(s) != string_to_column_type.end(), s);
+            columns.push_back(AlignmentColumns::string_to_column_type.at(s));
+            if (!first) {
+                header << "\t";
+            }
+            first = false;
+            header << s;
+        }
+        return AlignmentColumns(columns, header.str());
+    }
+
+    const std::map<std::string, OutputDetails::AlignmentInfoColumnType> OutputDetails::AlignmentColumns::string_to_column_type =
+            std::map<std::string, AlignmentInfoColumnType> {
+                    {"Read_name", ReadName},
+                    {"Chain_type", ChainType},
+                    {"V_hit", VHit},
+                    {"V_start_pos", VStartPos},
+                    {"V_end_pos", VEndPos},
+                    {"V_score", VScore},
+                    {"J_hit", JHit},
+                    {"J_start_pos", JStartPos},
+                    {"J_end_pos", JEndPos},
+                    {"J_score", JScore},
+            };
 }
