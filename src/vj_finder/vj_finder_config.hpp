@@ -51,7 +51,7 @@ namespace vj_finder {
 
         struct AlgorithmParams {
             struct AlignerParams {
-                enum AlignerAlgorithm { LisAlignerAlgorithm, QuadraticDAGAlignerAlgorithm, UnknownAlignerAlgorithm };
+                enum AlignerAlgorithm { LisAlignerAlgorithm, QuadraticDpAlignerAlgorithm, QuadraticDAGAlignerAlgorithm, UnknownAlignerAlgorithm };
                 
                 AlignerAlgorithm aligner_algorithm;
                 size_t word_size_v;

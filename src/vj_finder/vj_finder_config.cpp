@@ -79,6 +79,8 @@ namespace vj_finder {
             return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDAGAlignerAlgorithm;
         if (str == "lis")
             return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::LisAlignerAlgorithm;
+        if (str == "quadratic_dp")
+            return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDpAlignerAlgorithm;
         VERIFY_MSG(false, "Pairwise block alignment algorithm was not recognized");
         return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::UnknownAlignerAlgorithm;
     }

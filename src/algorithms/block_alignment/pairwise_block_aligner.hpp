@@ -30,25 +30,14 @@ namespace algorithms {
 
     template<typename SubjectDatabase, typename StringType>
     class PairwiseBlockAligner {
-    public:
-        PairwiseBlockAligner() {}
-        
-        virtual BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) = 0;
-
-        virtual ~PairwiseBlockAligner() {}
-    };
-    
-    template<typename SubjectDatabase, typename StringType>
-    class QuadraticDAGPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
-        const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
+    protected:
+    	const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
         KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper_;
         const BlockAlignmentScoringScheme scoring_;
         const BlockAlignerParams params_;
 
-        PairwiseBlockAlignment MakeAlignment(const std::vector<Match> &combined,
-                                          const StringType &query,
-                                          size_t subject_index) const {
-            auto has_edge = [this](const Match &a, const Match &b) -> bool {
+    public:
+    	const std::function<bool(const Match &a, const Match &b)> has_edge = [this](const Match &a, const Match &b) -> bool {
                 int read_gap = b.read_pos - a.read_pos;
                 int needle_gap = b.subject_pos - a.subject_pos;
                 int gap = read_gap - needle_gap;
@@ -58,11 +47,7 @@ namespace algorithms {
                 return true;
             };
 
-            auto vertex_weight = [this](const Match &m) -> double {
-                return double(m.length) * double(scoring_.match_reward);
-            };
-
-            auto edge_weight = [this](const Match &a, const Match &b) -> double {
+        const std::function<int(const Match &a, const Match &b)> edge_weight = [this](const Match &a, const Match &b) -> double {
                 int read_gap = b.read_pos - a.read_pos;
                 int needle_gap = b.subject_pos - a.subject_pos;
                 int gap = read_gap - needle_gap;
@@ -74,13 +59,17 @@ namespace algorithms {
                        - ((mmatch) ? scoring_.mismatch_opening_cost + mmatch * scoring_.mismatch_extention_cost : 0);
             };
 
-            auto longest_path = weighted_longest_path_in_DAG(combined, has_edge, edge_weight, vertex_weight);
-            return PairwiseBlockAlignment(longest_path.first,
-                                          kmer_index_helper_.GetStringLength(
-                                                  kmer_index_helper_.GetDbRecordByIndex(subject_index)),
-                                          kmer_index_helper_.GetStringLength(query),
-                                          longest_path.second);
-        }
+        const std::function<double(const Match &m)> vertex_weight = [this](const Match &m) -> double {
+                return double(m.length) * double(scoring_.match_reward);
+            };
+
+        PairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+                             KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
+                             BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
+                kmer_index_(kmer_index),
+                kmer_index_helper_(kmer_index_helper),
+                scoring_(scoring),
+                params_(params) { }
 
         bool CheckAlignment(const PairwiseBlockAlignment &alignment) const {
             // TODO split into 2 args (ins/dels) positive gap is deletion here
@@ -89,64 +78,103 @@ namespace algorithms {
             return alignment.path.kplus_length() >= params_.min_kmer_coverage;
         }
 
+        PairwiseBlockAlignment pairwiseBlockAlignment(AlignmentPath &path,
+        									size_t subject_index,
+        									const StringType &query,
+                                            int score) const {
+            
+            return PairwiseBlockAlignment(path,
+                                          kmer_index_helper_.GetStringLength(
+                                                  kmer_index_helper_.GetDbRecordByIndex(subject_index)),
+                                          kmer_index_helper_.GetStringLength(query),
+                                          score);
+        }
+
+        virtual BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) = 0;
+
+        virtual ~PairwiseBlockAligner() {}
+    };
+    
+    template<typename SubjectDatabase, typename StringType>
+    class QuadraticDAGPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
+    public:
+        QuadraticDAGPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+                             KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
+                             BlockAlignmentScoringScheme scoring, 
+                             BlockAlignerParams params) :
+        		PairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params) {}
+
+        BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) {
+            auto result = QueryUnordered(query);
+            result.SelectTopRecords(this->params_.max_candidates);
+            return result;
+        }
+
+    private:
+        PairwiseBlockAlignment MakeAlignment(const std::vector<Match> &combined,
+                                          const StringType &query,
+                                          size_t subject_index) const {
+            
+            auto longest_path = weighted_longest_path_in_DAG(combined, this->has_edge, this->edge_weight, this->vertex_weight);
+            return this->pairwiseBlockAlignment(longest_path.first,
+            							subject_index,
+            							query,
+                                        longest_path.second);
+        }
+
         BlockAlignmentHits<SubjectDatabase> QueryUnordered(const StringType &query) {
-            SubjectKmerMatches subj_matches = kmer_index_.GetSubjectKmerMatchesForQuery(query);
-            BlockAlignmentHits<SubjectDatabase> result(kmer_index_.Db());
+            SubjectKmerMatches subj_matches = this->kmer_index_.GetSubjectKmerMatchesForQuery(query);
+            BlockAlignmentHits<SubjectDatabase> result(this->kmer_index_.Db());
             for(size_t i = 0; i < subj_matches.size(); i++) {
                 auto &matches = subj_matches[i];
                 if(matches.empty())
                     continue;
-                std::vector<Match> combined = combine_sequential_kmer_matches(matches, kmer_index_.k());
+                std::vector<Match> combined = combine_sequential_kmer_matches(matches, this->kmer_index_.k());
                 std::sort(combined.begin(), combined.end(),
                           [](const Match &a, const Match &b) -> bool { return a.subject_pos < b.subject_pos; });
                 assert(combined.size() > 0);
                 PairwiseBlockAlignment align = MakeAlignment(combined, query, i);
-                if (CheckAlignment(align)) {
+                if (this->CheckAlignment(align)) {
                     result.Add(std::move(align), i);
                 }
             }
-            return result;
-        }
-
-    public:
-        QuadraticDAGPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
-                             KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
-                             BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
-                kmer_index_(kmer_index),
-                kmer_index_helper_(kmer_index_helper),
-                scoring_(scoring),
-                params_(params) { }
-
-        BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) {
-            auto result = QueryUnordered(query);
-            result.SelectTopRecords(params_.max_candidates);
             return result;
         }
     };
 
     template<typename SubjectDatabase, typename StringType>
     class LisPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
-        const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index_;
-        KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper_;
-        const BlockAlignmentScoringScheme scoring_;
-        const BlockAlignerParams params_;
 
     public:
         LisPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
                              KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
                              BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
-                kmer_index_(kmer_index),
-                kmer_index_helper_(kmer_index_helper),
-                scoring_(scoring),
-                params_(params) { }
+                PairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params) {}
 
         BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) {
             auto result = QueryUnordered(query);
-            result.SelectTopRecords(params_.max_candidates);
+            result.SelectTopRecords(this->params_.max_candidates);
             return result;
         }
 
     private:
+    	BlockAlignmentHits<SubjectDatabase> QueryUnordered(const StringType &query) {
+            SubjectKmerMatches subj_matches = this->kmer_index_.GetSubjectKmerMatchesForQuery(query);
+            BlockAlignmentHits<SubjectDatabase> result(this->kmer_index_.Db());
+            for(size_t i = 0; i < subj_matches.size(); i++) {
+                auto &matches = subj_matches[i];
+                if(matches.empty())
+                    continue;
+                std::sort(matches.begin(), matches.end(),
+                          [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos < b.needle_pos; });
+                PairwiseBlockAlignment align = MakeAlignment(matches, query, i);
+                if (this->CheckAlignment(align)) {
+                    result.Add(std::move(align), i);
+                }
+            }
+            return result;
+        }
+
         std::vector<KmerMatch> findLIS(const std::vector<KmerMatch> &matches) const {
 
             std::vector<int> pos_before(matches.size() + 1, -1);
@@ -158,7 +186,7 @@ namespace algorithms {
                 int new_value = matches[i].read_pos;
                 int cur_len = std::lower_bound(begin(min_value), end(min_value), new_value) - begin(min_value);
                 min_value[cur_len] = new_value;
-                pos[cur_len] = i;
+                pos[cur_len] = (int) i;
                 pos_before[i] = pos[cur_len - 1];
                 max_len = std::max(cur_len, max_len);
             }
@@ -181,71 +209,155 @@ namespace algorithms {
                                           size_t subject_index) const {
 
             std::vector<KmerMatch> lis = findLIS(matches);
-            std::vector<Match> combined = combine_sequential_kmer_matches(lis, kmer_index_.k());
+            std::vector<Match> combined = combine_sequential_kmer_matches(lis, this->kmer_index_.k());
 
             for (size_t i = 1; i < combined.size(); i++) {
                 assert(combined[i - 1].subject_pos < combined[i].subject_pos);
                 assert(combined[i - 1].read_pos < combined[i].read_pos);
             }
 
-            auto vertex_weight = [this](const Match &m) -> double { //TODO: remove copypaste
-                return double(m.length) * double(scoring_.match_reward);
-            };
-
-            auto edge_weight = [this](const Match &a, const Match &b) -> double { //TODO: remove copypaste
-                int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.subject_pos - a.subject_pos;
-                int gap = read_gap - needle_gap;
-                int mmatch = std::min(b.read_pos - a.read_pos - int(a.length),
-                                      b.subject_pos - a.subject_pos - int(a.length));
-                mmatch = std::max(0, mmatch);
-                return - Match::overlap(a, b)
-                       - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
-                       - ((mmatch) ? scoring_.mismatch_opening_cost + mmatch * scoring_.mismatch_extention_cost : 0);
-            };
-
             AlignmentPath path;
-            double score = 0;
-            for (size_t i = 0; i < combined.size(); i++) {
-                score += vertex_weight(combined[i]);
+            for (size_t i = 0; i < combined.size(); i++) { 
                 path.push_back(combined[i]);
             }
             for (size_t i = 0; i + 1 < path.size(); ++i) {
                 path[i].length -= Match::overlap(path[i], path[i + 1]);
             }
+
+            double score = 0;
+            for (size_t i = 0; i < combined.size(); i++) { 
+                score += this->vertex_weight(combined[i]);
+            }
             for (size_t i = 1; i < combined.size(); i++) {
-                score += edge_weight(combined[i - 1], combined[i]);
+                score += this->edge_weight(combined[i - 1], combined[i]);
             }
 
-            return PairwiseBlockAlignment(path,
-                                          kmer_index_helper_.GetStringLength(
-                                                  kmer_index_helper_.GetDbRecordByIndex(subject_index)),
-                                          kmer_index_helper_.GetStringLength(query),
+            return this->pairwiseBlockAlignment(path,
+                                          subject_index,
+                                          query,
                                           (int) score);
         }
+    };
 
-        //TODO: remove copypaste
-        bool CheckAlignment(const PairwiseBlockAlignment &alignment) const {
-            if (std::abs(alignment.path.global_gap()) > scoring_.max_global_gap)
-                return false;
-            return alignment.path.kplus_length() >= params_.min_kmer_coverage;
+	template<typename SubjectDatabase, typename StringType>
+    class QuadraticDpPairwiseBlockAligner : public PairwiseBlockAligner<SubjectDatabase, StringType> {
+
+   	public:
+        QuadraticDpPairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
+                             KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
+                             BlockAlignmentScoringScheme scoring, BlockAlignerParams params) :
+                PairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params) {}
+
+        BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) {
+            auto result = QueryUnordered(query);
+            result.SelectTopRecords(this->params_.max_candidates);
+            return result;
         }
 
-        BlockAlignmentHits<SubjectDatabase> QueryUnordered(const StringType &query) {
-            SubjectKmerMatches subj_matches = kmer_index_.GetSubjectKmerMatchesForQuery(query);
-            BlockAlignmentHits<SubjectDatabase> result(kmer_index_.Db());
+    private:
+    	BlockAlignmentHits<SubjectDatabase> QueryUnordered(const StringType &query) {
+            SubjectKmerMatches subj_matches = this->kmer_index_.GetSubjectKmerMatchesForQuery(query);
+            BlockAlignmentHits<SubjectDatabase> result(this->kmer_index_.Db());
             for(size_t i = 0; i < subj_matches.size(); i++) {
                 auto &matches = subj_matches[i];
                 if(matches.empty())
                     continue;
-                std::sort(matches.begin(), matches.end(),
-                          [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos < b.needle_pos; });
-                PairwiseBlockAlignment align = MakeAlignment(matches, query, i);
-                if (CheckAlignment(align)) {
+                std::vector<Match> combined = combine_sequential_kmer_matches(matches, this->kmer_index_.k());
+                assert(combined.size() > 0);
+                PairwiseBlockAlignment align = MakeAlignment(combined, query, i);
+                if (this->CheckAlignment(align)) {
                     result.Add(std::move(align), i);
                 }
             }
             return result;
+        }
+
+        PairwiseBlockAlignment MakeAlignment(const std::vector<Match> &combined,
+                                          const StringType &query,
+                                          size_t subject_index) const {
+
+        	std::vector<int> dp_order(combined.size());
+        	for (size_t i = 0; i < dp_order.size(); i++) {
+        		dp_order[i] = (int)i;
+        	}
+
+        	std::sort(dp_order.begin(), dp_order.end(), [&combined](const int i1, const int i2) -> bool{
+        		return combined[i1].subject_pos < combined[i2].subject_pos;
+        	});
+
+            std::vector<int> dp(combined.size());
+        	std::vector<int> pos_before(combined.size());
+        	int mx_dp_pos = 0;
+
+        	for (size_t i = 0; i < combined.size(); i++) {
+        		int pos = dp_order[i];
+        		int mx = 0;
+        		int mx_pos = -1;
+        		const Match &b = combined[pos];
+
+        		for (size_t pos2 = pos + 1; pos2 < combined.size(); pos2++) {
+        			const Match &a = combined[pos2];
+        			int read_gap = b.read_pos - a.read_pos;
+		        	int needle_gap = b.subject_pos - a.subject_pos;
+		        	int gap = read_gap - needle_gap;
+		        	if (gap > this->scoring_.max_local_insertions || -gap > this->scoring_.max_local_deletions) {
+		        		break;
+		        	}
+		
+
+                	if (this->has_edge(a, b)) {
+                		int cost = this->edge_weight(a, b);
+                		if (cost > mx) {
+                			mx = cost;
+                			mx_pos = (int) pos2;
+                		}
+        			}
+        		}
+
+        		for (size_t pos2 = pos - 1; pos2 + 1 > 0; pos2--) {
+        			const Match &a = combined[pos2];
+        			int read_gap = b.read_pos - a.read_pos;
+		        	int needle_gap = b.subject_pos - a.subject_pos;
+		        	int gap = read_gap - needle_gap;
+		        	if (gap > this->scoring_.max_local_insertions || -gap > this->scoring_.max_local_deletions) {
+		        		break;
+		        	}
+
+                	if (this->has_edge(a, b)) {
+                		int cost = this->edge_weight(a, b) + dp[pos2];
+                		if (cost > mx) {
+                			mx = cost;
+                			mx_pos = (int) pos2;
+                		}
+        			}
+        		}
+
+        		dp[pos] = (int)this->vertex_weight(b) + mx;
+        		pos_before[pos] = mx_pos;
+
+        		if (dp[pos] > dp[mx_dp_pos]) {
+        			mx_dp_pos = pos;
+        		}
+        	}
+
+        	int pos = mx_dp_pos;
+        	int score = dp[mx_dp_pos];
+        	AlignmentPath path;
+        	while (pos != -1) {
+        		path.push_back(combined[pos]);
+        		pos = pos_before[pos];
+        	}
+            std::reverse(path.begin(), path.end());
+            for (size_t i = 0; i + 1 < path.size(); ++i) {
+                path[i].length -= Match::overlap(path[i], path[i + 1]);
+            }
+
+            VERIFY(std::is_sorted(path.cbegin(), path.cend(), this->has_edge));
+
+            return this->pairwiseBlockAlignment(path,
+                                          subject_index,
+                                          query,
+                                          score);
         }
     };
 }

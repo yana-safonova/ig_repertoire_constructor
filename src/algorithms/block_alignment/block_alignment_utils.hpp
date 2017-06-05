@@ -46,15 +46,6 @@ namespace algorithms {
 
     template<class T, typename Tf>
     bool is_topologically_sorted(const T &combined, const Tf &has_edge) {
-        for (size_t i = 0; i + 1 < combined.size(); i++) {
-            if (std::make_pair(combined[i].subject_pos, combined[i].read_pos) >
-                std::make_pair(combined[i + 1].subject_pos, combined[i + 1].read_pos))
-                if (has_edge(combined[i + 1], combined[i]))
-                    return false;
-        }
-
-        return true;
-        
         for (size_t i = 0; i < combined.size(); ++i) {
             for (size_t j = i; j < combined.size(); ++j) {
                 if (has_edge(combined[j], combined[i])) {
@@ -80,13 +71,14 @@ namespace algorithms {
         std::vector<size_t> next(combined.size());
         std::iota(next.begin(), next.end(), 0);
 
-        std::vector<size_t> sorted_by_read_pos_matches;
         for (size_t i = combined.size() - 1; i + 1 > 0; --i) {
             values[i] = vertex_weight(combined[i]);
 
-            size_t j_pos = sorted_by_read_pos_matches.size() - 1;
-            while (j_pos + 1 > 0 && combined[sorted_by_read_pos_matches[j_pos]].read_pos >= combined[i].read_pos) {
-                size_t j = sorted_by_read_pos_matches[j_pos];
+            for (size_t j = i + 1; j < combined.size(); ++j) {
+                // Check topologically order
+                // TODO remove one of these toposort checkings
+                assert(!has_edge(combined[j], combined[i]));
+
                 if (has_edge(combined[i], combined[j])) {
                     double new_val = vertex_weight(combined[i]) + values[j] + edge_weight(combined[i], combined[j]);
                     if (new_val > values[i]) {
@@ -94,15 +86,8 @@ namespace algorithms {
                         values[i] = new_val;
                     }
                 }
-                j_pos--;
             }
-            sorted_by_read_pos_matches.push_back(i);
-            std::rotate(sorted_by_read_pos_matches.begin() + j_pos + 1, sorted_by_read_pos_matches.end() - 1, sorted_by_read_pos_matches.end());
         }
-        VERIFY(std::is_sorted(sorted_by_read_pos_matches.cbegin(), sorted_by_read_pos_matches.cend(),
-                              [&combined](const size_t& i, const size_t& j) -> bool {
-                                  return combined[i].read_pos < combined[j].read_pos;
-                              }));
 
         AlignmentPath path;
         path.reserve(combined.size());
