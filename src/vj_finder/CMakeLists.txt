@@ -17,7 +17,9 @@ add_definitions(-DSEQAN_HAS_BZIP2=1)
 
 add_definitions(-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free)
 # link_libraries(tcmalloc pthread)
-link_libraries("-Wl,--no-as-needed -lprofiler -Wl,--as-needed")
+find_library(LIB_PROFILER profiler HINTS /home/ashlemov/Git/libs)
+MESSAGE(${LIB_PROFILER})
+link_libraries("-Wl,--no-as-needed ${LIB_PROFILER} -Wl,--as-needed")
 
 add_library(vj_finder_library STATIC
         vj_finder_config.cpp
