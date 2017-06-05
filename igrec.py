@@ -349,7 +349,8 @@ class PairReadMerger(Phase):
                                         self.__params.left_reads,
                                         self.__params.right_reads,
                                         self.__params.single_reads)
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/pair_read_merger_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -389,10 +390,12 @@ class VJAlignmentPhase(Phase):
                 command_line += " --pseudogenes=off"
             else:
                 command_line += " --pseudogenes=on"
-            cwd = os.getcwd()
-            os.chdir(home_directory)
-            support.sys_call(command_line, self._log)
-            os.chdir(cwd)
+            # cwd = os.getcwd()
+            # os.chdir(home_directory)
+
+            cpuprofile = self.__params.output + "/vjf_prof.out" if self.__params.profile else None
+            support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
+            # os.chdir(cwd)
         else:
             self._log.info("VJ Finder stage skipped")
             self.__params.io.cropped_reads = self.__params.single_reads
@@ -423,7 +426,8 @@ class TrieCompressionPhase(Phase):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
                     " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + " -Toff"
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/trie_compressor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
         command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
                        " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
@@ -464,7 +468,8 @@ class GraphConstructionPhase(Phase):
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
                        " --tau=" + str(self.__params.max_mismatches) + " -A" + " -Toff"
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/graph_constructor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -537,7 +542,8 @@ class ConsensusConstructionPhase(Phase):
                        " -t " + str(self.__params.num_threads) + \
                        " -D " + str(self.__params.discard) + \
                        " --max-votes " + str(self.__params.max_votes)
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/consensus_constructor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
 
     def PrintOutputFiles(self):
@@ -781,6 +787,10 @@ def ParseCommandLineParams(log):
                                dest="min_snode_size",
                                help="Minimum super read size [default: %(default)d]")
 
+    optional_args.add_argument("--profile",
+                               action="store_true",
+                               default=False,
+                               help="Enable CPU profiling")
     optional_args.add_argument("-h", "--help",
                                action="store_const",
                                const=True,
