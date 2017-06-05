@@ -147,8 +147,7 @@ def main(argv):
                                help="Organism: human, mouse, pig, rabbit, rat, rhesus_monkey are available. "
                                "[default: %(default)s]")
     germline_args.add_argument("--no-pseudogenes",
-                               action='store_const',
-                               const=True,
+                               action='store_true',
                                dest="no_pseudogenes",
                                help="Exclusion of pseudogenes for alignment of input reads")
 
