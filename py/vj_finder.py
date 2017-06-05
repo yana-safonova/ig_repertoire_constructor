@@ -18,7 +18,7 @@ import process_cfg
 import support
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
-test_dir = os.path.join(home_directory, "vjf_test")
+test_dir = "./vjf_test"
 
 tool_name = "VJ Finder"
 
@@ -181,7 +181,7 @@ def main(argv):
     PrepareOutputDir(params)
 
     # log file
-    params.log_filename = os.path.join(params.output_dir, "diversity_analyzer.log")
+    params.log_filename = os.path.join(params.output_dir, "vjfinder.log")
     if os.path.exists(params.log_filename):
          os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
@@ -194,6 +194,35 @@ def main(argv):
     PrintParams(params, log)
     log.info("Log will be written to " + params.log_filename + "\n")
 
+    if not os.path.exists(params.input_reads):
+        self._log.info("ERROR: Input reads " + params.input_reads + " were not found")
+        SupportInfo(log)
+        sys.exit(1)
+
+    # self.__CheckInputExistance()
+    command_line = vj_finder_bin + \
+        " -i " + os.path.abspath(params.input_reads) + \
+        " -o " + os.path.abspath(params.output_dir) + \
+        " --db-directory " + home_directory + "/data/germline" + \
+        " -t " + str(params.num_threads) + \
+        " --loci " + params.loci + \
+        " --organism " + params.organism
+    if params.no_pseudogenes:
+        command_line += " --pseudogenes=off"
+    else:
+        command_line += " --pseudogenes=on"
+    cwd = os.getcwd()
+    os.chdir(home_directory)
+    support.sys_call(command_line, log)
+    os.chdir(cwd)
+
+    # def PrintOutputFiles(self):
+    #     self.__CheckOutputExistance()
+    #     if not self.__params.no_alignment:
+    #         self._log.info("\nOutput files: ")
+    #         self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
+    #         self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
+    #         self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
     # PrepareConfigs(params, log)
     # try:
     #     cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
@@ -201,17 +230,17 @@ def main(argv):
     #     if not params.skip_plots:
     #         log.info("\n==== Visualization of diversity statistics ====")
     #         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
-    #                              os.path.join(params.output_dir, "shm_details.txt"),
-    #                              os.path.join(params.output_dir, "plots"), log])
+    #                                  os.path.join(params.output_dir, "shm_details.txt"),
+    #                                  os.path.join(params.output_dir, "plots"), log])
     #         log.info("\n==== Annotation report creation ====")
     #         html_report_writer.main(os.path.join(params.output_dir, "cdr_details.txt"),
-    #                             os.path.join(params.output_dir, "shm_details.txt"),
-    #                             os.path.join(params.output_dir, "plots"),
-    #                             os.path.join(params.output_dir, "annotation_report.html"), log)
-    #     Cleanup(params, log)
-    #     log.info("\nThank you for using " + tool_name + "!\n")
+    #                                 os.path.join(params.output_dir, "shm_details.txt"),
+    #                                 os.path.join(params.output_dir, "plots"),
+    #                                 os.path.join(params.output_dir, "annotation_report.html"), log)
+    #         Cleanup(params, log)
+    #         log.info("\nThank you for using " + tool_name + "!\n")
     # except (KeyboardInterrupt):
-    #      log.info("\n" + tool_name + " was interrupted!")
+    #     log.info("\n" + tool_name + " was interrupted!")
     # except Exception:
     #     exc_type, exc_value, _ = sys.exc_info()
     #     if exc_type == SystemExit:
@@ -219,7 +248,7 @@ def main(argv):
     #     else:
     #         log.exception(exc_value)
     #         log.info("\nERROR: Exception caught.")
-    #          #supportInfo(log)
+    #         #supportInfo(log)
     # except BaseException:
     #     exc_type, exc_value, _ = sys.exc_info()
     #     if exc_type == SystemExit:
@@ -228,8 +257,8 @@ def main(argv):
     #         log.exception(exc_value)
     #         log.info("\nERROR: Exception caught.")
     #         #supportInfo(log)
-    #
-    # log.info("Log was written to " + params.log_filename)
+
+    log.info("Log was written to " + params.log_filename)
 
 
 if __name__ == '__main__':
