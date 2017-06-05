@@ -1,6 +1,37 @@
 project(igrec)
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_GOOGLE_PROFILER)
+  set(GPT_PREFIX gperftools)
+  # set(GPT_URL ${CMAKE_CURRENT_SOURCE_DIR}/ext/thirdparty/gperftools-2.5.93.tar.gz)
+  set(GPT_URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.5.93/gperftools-2.5.93.tar.gz)
+
+  include(ExternalProject)
+  ExternalProject_Add(${GPT_PREFIX}
+                      PREFIX ${GPT_PREFIX}
+                      URL ${GPT_URL}
+                      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/trirdparty-dist
+                      INSTALL_DIR ${CMAKE_BINARY_DIR}/trirdparty
+                      URL_MD5 b181436e9061363821a954ca64626f26
+                      CONFIGURE_COMMAND ./configure --enable-shared=no --enable-static=yes --prefix=<INSTALL_DIR>
+                      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+                      BUILD_IN_SOURCE 1
+                      INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+                      LOG_DOWNLOAD 1
+                      LOG_BUILD 1)
+
+  # get the unpacked source directory path
+  ExternalProject_Get_Property(${GPT_PREFIX} SOURCE_DIR)
+  link_directories(${CMAKE_BINARY_DIR}/thirdparty/libs)
+  include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
+  add_definitions(-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free)
+  link_libraries("-Wl,--no-as-needed -lprofiler -Wl,--as-needed")
+  # link_libraries(tcmalloc pthread)
+endif()
+
+# http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2
+
+
 if(CMAKE_NVERIFY)
   MESSAGE("VERIFYs disabled")
   add_definitions(-DNVERIFY)
