@@ -1,6 +1,11 @@
 project(igrec)
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_NVERIFY)
+  MESSAGE("VERIFYs disabled")
+  add_definitions(-DNVERIFY)
+endif(CMAKE_NVERIFY)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithAsserts" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)

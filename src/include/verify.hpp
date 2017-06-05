@@ -12,6 +12,7 @@
 #include <iostream>
 #include <cstdio>
 
+#ifndef NVERIFY
 #define VERIFY(expr)                                                        \
     do {                                                                    \
         if (!(expr)) {                                                      \
@@ -46,3 +47,7 @@
             abort();                                                        \
         }                                                                   \
     } while(0);
+#else
+#define VERIFY(expr) ((void) 0);
+#define VERIFY_MSG(expr, msg) ((void) 0);
+#endif
