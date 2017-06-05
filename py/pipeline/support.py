@@ -190,6 +190,15 @@ def sys_call(cmd, log=None, cwd=None, **kwargs):
     return output
 
 
+def sys_call_ex(cmd, log=None, cwd=None, cpuprofile=None, valgring=False):
+    import os
+    env = os.environ.copy()
+    if cpuprofile is not None:
+        env["CPUPROFILE"] = cpuprofile
+
+    return sys_call(cmd=cmd, log=log, cwd=cwd, env=env)
+
+
 def universal_sys_call(cmd, log, out_filename=None, err_filename=None, cwd=None):
     '''
     Runs cmd and redirects stdout to out_filename (if specified), stderr to err_filename (if specified), or to log otherwise
