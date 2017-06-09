@@ -72,7 +72,7 @@ namespace antevolo {
 
         const annotation_utils::CDRAnnotatedCloneSet& CloneSet() const { return clone_set_; }
 
-        const ClonalGraph& ClonalGraph() const { return clonal_graph_; }
+        const ClonalGraph& GetClonalGraph() const { return clonal_graph_; }
 
 
         std::set<TreeSHM> GetUniqueOutgoingSHMs(size_t src) const;
