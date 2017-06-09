@@ -116,6 +116,7 @@ namespace annotation_utils {
 
         char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
 
+        StructuralRegion GetRegionBySHM(SHM shm) const;
 
     };
 

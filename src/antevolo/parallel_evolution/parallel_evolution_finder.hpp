@@ -8,6 +8,7 @@ namespace antevolo {
         size_t total_num_parallel_shms;
         size_t num_ambiguous_rhombs;
         std::vector<size_t> parallel_shms_dist;
+        std::vector<ParallelRhomb> rhombs;
 
         ParallelEvolutionStats() : num_parallel_rhombs(0),
                                    total_num_parallel_shms(0),
@@ -26,6 +27,7 @@ namespace antevolo {
                 num_ambiguous_rhombs++;
             }
             AddParallelSHM(rhomb.MinimalNumberParallelSHMs());
+            rhombs.push_back(rhomb);
         }
 
         std::vector<size_t>::iterator begin() { return parallel_shms_dist.begin(); }
@@ -36,6 +38,8 @@ namespace antevolo {
             parallel_shms_dist.push_back(num_parallel_shms);
             total_num_parallel_shms += num_parallel_shms;
         }
+
+        bool Empty() const { return rhombs.size() == 0; }
     };
 
     class ParallelEvolutionFinder {

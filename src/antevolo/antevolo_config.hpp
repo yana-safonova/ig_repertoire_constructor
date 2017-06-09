@@ -25,7 +25,13 @@ namespace antevolo {
 
             std::string tree_details;
             std::string tree_shms;
-            std::string output_parallel_shms_dist;
+
+            struct ParallelSHMOutput {
+                std::string parallel_bulges_dir;
+                std::string parallel_shm_dir;
+            };
+
+            ParallelSHMOutput parallel_shm_output;
         };
 
         struct RunParams {

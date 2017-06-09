@@ -29,11 +29,23 @@ namespace annotation_utils {
             return false;
         if(read_nucl != shm.read_nucl)
             return false;
+        if(read_aa != shm.read_aa)
+            return false;
         return shm_type == shm.shm_type;
     }
 
     bool SHM::operator!=(const SHM &shm) const {
         return !(*this == shm);
+    }
+
+    bool operator<(const SHM &left, const SHM &right) {
+        if(left.gene_nucl_pos != right.gene_nucl_pos)
+            return left.gene_nucl_pos < right.gene_nucl_pos;
+        if(left.read_aa != right.read_aa)
+            return left.read_aa < right.read_aa;
+        //if(left.read_aa != right.read_aa)
+        return left.read_nucl < right.read_nucl;
+        //return left.gene_nucl < right.gene_nucl;
     }
 
     bool TrivialSHMComparator::operator()(const SHM &shm1, const SHM &shm2) {

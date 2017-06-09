@@ -31,11 +31,15 @@ std::string running_time_format(const perf_counter &pc) {
     return bf.str();
 }
 
-void prepare_output_dir(const antevolo::AntEvoloConfig::OutputParams & op) {
-    path::make_dir(op.output_dir);
-    path::make_dir(op.tree_dir);
-    path::make_dir(op.vertex_dir);
-    path::make_dir(op.cdr_graph_dir);
+void prepare_output_dir(const antevolo::AntEvoloConfig &config) {
+    path::make_dir(config.output_params.output_dir);
+    path::make_dir(config.output_params.tree_dir);
+    path::make_dir(config.output_params.vertex_dir);
+    path::make_dir(config.output_params.cdr_graph_dir);
+    if(config.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder) {
+        path::make_dir(config.output_params.parallel_shm_output.parallel_bulges_dir);
+        path::make_dir(config.output_params.parallel_shm_output.parallel_shm_dir);
+    }
 }
 
 void copy_configs(std::string cfg_filename, std::string to) {
@@ -56,7 +60,7 @@ antevolo::AntEvoloConfig load_config(int argc, char **argv) {
     std::string cfg_filename = get_config_fname(argc, argv);
     antevolo::AntEvoloConfig antevolo_config;
     antevolo_config.load(cfg_filename);
-    prepare_output_dir(antevolo_config.output_params);
+    prepare_output_dir(antevolo_config);
     std::string path_to_copy = path::append_path(antevolo_config.output_params.output_dir, "configs");
     path::make_dir(path_to_copy);
     copy_configs(cfg_filename, path_to_copy);

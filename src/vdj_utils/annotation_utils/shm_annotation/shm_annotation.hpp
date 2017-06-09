@@ -54,6 +54,8 @@ namespace annotation_utils {
         bool operator!=(const SHM& shm) const;
     };
 
+    bool operator<(const SHM &left, const SHM &right);
+
     struct TrivialSHMComparator {
         bool operator()(const SHM& shm1, const SHM& shm2);
     };

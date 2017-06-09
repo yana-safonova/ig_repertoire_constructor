@@ -61,6 +61,8 @@ namespace antevolo {
 
         size_t MinimalNumberParallelSHMs() const;
 
+        //RhombSide GetParallelSide() const;
+
 
         const annotation_utils::CDRAnnotatedCloneSet& CloneSet() const { return clone_set_; }
     };

@@ -16,7 +16,11 @@ output_params {
     trash_output   trash_output.out
     tree_details   tree_details.txt
     tree_shms      tree_shms.txt
-    output_parallel_shms_dist parallel_shms_stats.txt
+
+    parallel_shm_output {
+        parallel_bulges_dir parallel_bulges
+        parallel_shm_dir    parallel_shms
+    }
 }
 
 run_params {

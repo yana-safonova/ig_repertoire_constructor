@@ -13,6 +13,14 @@ namespace annotation_utils {
             out << "CDR2";
         else if(region == StructuralRegion::CDR3)
             out << "CDR3";
+        else if(region == StructuralRegion::FR1)
+            out << "FR1";
+        else if(region == StructuralRegion::FR2)
+            out << "FR2";
+        else if(region == StructuralRegion::FR3)
+            out << "FR3";
+        else if(region == StructuralRegion::FR4)
+            out << "FR4";
         else
             out << "Unknown region";
         return out;
@@ -72,6 +80,22 @@ namespace annotation_utils {
     char AnnotatedClone::GetAminoAcidByNucleotidePos(size_t nucl_pos) const {
         VERIFY_MSG(nucl_pos < read_.length(), "Position " << nucl_pos << " exceeds sequence length");
         return aa_annotation_.AA()[(nucl_pos - ORF()) / 3];
+    }
+
+    StructuralRegion AnnotatedClone::GetRegionBySHM(SHM shm) const {
+        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR1).start_pos)
+            return StructuralRegion::FR1;
+        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR1).end_pos)
+            return StructuralRegion::CDR1;
+        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR2).start_pos)
+            return StructuralRegion::FR2;
+        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR2).end_pos)
+            return StructuralRegion::CDR2;
+        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR3).start_pos)
+            return StructuralRegion::FR3;
+        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR3).end_pos)
+            return StructuralRegion::CDR3;
+        return StructuralRegion::FR4;
     }
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj) {

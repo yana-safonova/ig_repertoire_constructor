@@ -77,7 +77,12 @@ add_executable(antevolo
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
         shm_model_utils/shm_model_edge_weight_calculator.cpp cluster_fillin_calculator.cpp cluster_fillin_calculator.hpp
         parallel_evolution/parallel_evolution_finder.cpp
-        parallel_evolution/parallel_rhomb.cpp)
+        parallel_evolution/parallel_rhomb.cpp
+        parallel_evolution/clonal_graph_writer.cpp
+        parallel_evolution/clonal_graph.cpp
+        parallel_evolution/tree_annotated_shm.cpp
+        parallel_evolution/mutation_map.cpp
+        parallel_evolution/mutation_map_writer.cpp)
 
 target_link_libraries(
         antevolo

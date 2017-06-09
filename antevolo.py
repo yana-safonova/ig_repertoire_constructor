@@ -130,6 +130,12 @@ def UpdateGermlineConfigFile(params, log):
         fhandler.write(splits[0] + "\t" + splits[1] + "\t" + os.path.join(home_directory, splits[2]) + "\n")
     fhandler.close()
 
+def ModifyParallelModeParams(params, param_dict):
+    if not params.parallel_survey:
+        return
+    param_dict['min_num_intersected_v_shms'] = 400
+    param_dict['enable_parallel_shms_finder'] = 'true'
+
 def ModifyAntEvoloConfigFile(params, log):
     param_dict = dict()
     param_dict['input_reads'] = params.input_reads
@@ -143,6 +149,7 @@ def ModifyAntEvoloConfigFile(params, log):
     param_dict['shm_kmer_model_igk'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGK.csv")
     param_dict['shm_kmer_model_igl'] = os.path.join(home_directory, "data/shm_model/NoKNeighbours_IGL.csv")
     param_dict['num_threads'] = params.num_threads
+    ModifyParallelModeParams(params, param_dict)
     process_cfg.substitute_params(params.antevolo_config_file, param_dict, log)
 
 def ModifyCDRLabelerConfigFile(params, log):
@@ -244,6 +251,10 @@ def main(argv):
                                 dest="model",
                                 help="Use SHM statistical model to improve trees reconstruction")
     algorithm_args.set_defaults(model=False)
+    algorithm_args.add_argument("--par-shms",
+                                action='store_true',
+                                dest='parallel_survey',
+                                help='Enables analysis of parallel SHMs, disables reconstruction of missing clones')
 
     optional_args.add_argument("-h", "--help",
                                action="help",
