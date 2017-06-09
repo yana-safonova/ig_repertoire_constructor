@@ -17,8 +17,8 @@ namespace antevolo {
 
     void MutationMapWriter::operator()(std::string output_fname) const {
         std::ofstream out(output_fname);
-        //out << "#V_gene_name:" << map_.VGeneName() << std::endl;
-        out << "vnPos\tvaPos\tAA\tREG\tMult\tHS\tSC\tSyn\tEdges\tTri" << std::endl;
+        out << "#V_gene_name:" << map_.VGeneName() << std::endl;
+        out << "#vnPos\tvaPos\tAA\tREG\tMult\tHS\tSC\tSyn\tEdges\tTri" << std::endl;
         for(auto it = map_.shm_mult_cbegin(); it != map_.shm_mult_cend(); it++) {
             //if(!map_.SHMIsNonTrivial(it->first))
             //    continue;

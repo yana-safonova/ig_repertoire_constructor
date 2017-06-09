@@ -74,6 +74,8 @@ namespace antevolo {
 
         const ClonalGraph& GetClonalGraph() const { return clonal_graph_; }
 
+        seqan::CharString VGeneName() const;
+
 
         std::set<TreeSHM> GetUniqueOutgoingSHMs(size_t src) const;
     };

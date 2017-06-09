@@ -138,4 +138,9 @@ namespace antevolo {
         VERIFY(shm_edge_map_.find(shm) != shm_edge_map_.end());
         return shm_edge_map_.at(shm);
     }
+
+    seqan::CharString MutationMap::VGeneName() const {
+        for(auto it = edge_shms_map_.cbegin(); it != edge_shms_map_.cend(); it++)
+            return clone_set_[it->first.first].VAlignment().subject().name();
+    }
 }
