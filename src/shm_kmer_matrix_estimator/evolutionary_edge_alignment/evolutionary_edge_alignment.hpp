@@ -30,10 +30,16 @@ private:
 
     // id of a gene each string belongs to.
     std::string gene_id_;
+
+    bool has_stop_codon_;
+    bool in_frame_;
+    bool productive_;
+
     size_t cdr1_start_;
     size_t cdr1_end_;
     size_t cdr2_start_;
     size_t cdr2_end_;
+
 
     bool cropped_;
     bool checked_;
@@ -43,6 +49,9 @@ public:
     EvolutionaryEdgeAlignment(const std::string &parent,
                               const std::string &son,
                               const std::string &gene_id,
+                              const bool has_stop_codon = false,
+                              const bool in_frame = true,
+                              const bool productive = true,
                               const size_t cdr1_start = size_t(),
                               const size_t cdr1_end = size_t(),
                               const size_t cdr2_start = size_t(),
@@ -50,6 +59,9 @@ public:
         parent_(parent),
         son_(son),
         gene_id_(gene_id),
+        has_stop_codon_(has_stop_codon),
+        in_frame_(in_frame),
+        productive_(productive),
         cdr1_start_(cdr1_start),
         cdr1_end_(cdr1_end),
         cdr2_start_(cdr2_start),
@@ -68,6 +80,9 @@ public:
         parent_(core::seqan_string_to_string(seqan::row(clone.VAlignment().Alignment(), 0))),
         son_   (core::seqan_string_to_string(seqan::row(clone.VAlignment().Alignment(), 1))),
         gene_id_(core::seqan_string_to_string(clone.VAlignment().subject().name())),
+        has_stop_codon_(clone.HasStopCodon()),
+        in_frame_(clone.InFrame()),
+        productive_(clone.Productive()),
         cdr1_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos),
         cdr1_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).end_pos),
         cdr2_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos),
@@ -113,6 +128,10 @@ public:
         cdr1_start_ -= x, cdr1_end_ -= x;
         cdr2_start_ -= x, cdr2_end_ -= x;
     }
+
+    bool HasStopCodon() const { return has_stop_codon_; }
+    bool InFrame() const { return in_frame_; }
+    bool Productive() const { return productive_; }
 
     bool IsCropped() const { return cropped_; }
     bool IsChecked() const { return checked_; }

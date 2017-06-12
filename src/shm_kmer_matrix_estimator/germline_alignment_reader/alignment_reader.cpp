@@ -64,15 +64,19 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
         std::getline(cdr_details, cdr_details_line);
         std::istringstream cdr_details_stream(cdr_details_line);
         std::string temp;
+        bool has_stop_codon, in_frame, productive;
         size_t cdr1_start, cdr1_end, cdr2_start, cdr2_end;
-        for (size_t i = 0; i < csv_cdr1_const; ++i) {
+        for (size_t i = 0; i < has_stop_codon_pos; ++i) {
             cdr_details_stream >> temp;
         }
-        if (not (cdr_details_stream >> cdr1_start >> cdr1_end >> temp >> cdr2_start >> cdr2_end))
-            continue;
+        cdr_details_stream >> has_stop_codon >> in_frame >> productive >> temp >>
+                 cdr1_start >> cdr1_end >> temp >> cdr2_start >> cdr2_end;
+        // if (not (cdr_details_stream))
+        //     continue;
 
         --cdr1_start, --cdr1_end, --cdr2_start, --cdr2_end;
         EvolutionaryEdgeAlignment alignment(std::move(germline_seq), std::move(read_seq), gene_id,
+                                            has_stop_codon, in_frame, productive,
                                             cdr1_start, cdr1_end, cdr2_start, cdr2_end);
 
         if (alignment_checker_ptr_->check(alignment)) {

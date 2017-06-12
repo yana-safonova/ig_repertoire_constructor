@@ -33,6 +33,10 @@ struct shm_kmer_matrix_estimator_config {
         enum class AlignmentCheckerMethod { NoGaps };
         const static std::vector<std::string> alignment_checker_method_names;
         AlignmentCheckerMethod alignment_checker_method;
+
+        enum class FunctionalityMethod { all, productive, nonproductive };
+        const static std::vector<std::string> functionality_methods_names;
+        FunctionalityMethod functionality_method;
     };
 
     struct alignment_cropper_params {
@@ -79,5 +83,7 @@ std::istream &operator>>(std::istream &in,
 void load(shm_kmer_matrix_estimator_config &cfg, std::string const &filename);
 
 typedef config_common::config<shm_kmer_matrix_estimator_config> shm_cfg;
+
+using FunctionalityMethod = shm_kmer_matrix_estimator_config::alignment_checker_params::FunctionalityMethod;
 
 } // End namespace shm_kmer_matrix_estimator

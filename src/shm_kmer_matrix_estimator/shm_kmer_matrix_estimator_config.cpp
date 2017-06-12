@@ -71,9 +71,24 @@ void load(shm_kmer_matrix_estimator_config::alignment_checker_params &achp,
     if (method_str_lowercase == "nogaps") {
         achp.alignment_checker_method = AlignmentCheckerMethod::NoGaps;
     } else {
-        std::string message = error_message_strategy("alignment checker",
+        std::string message = error_message_strategy("alignment checker strategy",
                                                      method_str,
                                                      achp.alignment_checker_method_names);
+        throw std::invalid_argument(message);
+    }
+
+    using FunctionalityMethod = shm_kmer_matrix_estimator_config::alignment_checker_params::FunctionalityMethod;
+    std::string functionality_method(pt.get<std::string>("functionality_method"));
+    if (functionality_method == "all") {
+        achp.functionality_method = FunctionalityMethod::all;
+    } else if (functionality_method == "productive") {
+        achp.functionality_method = FunctionalityMethod::productive;
+    } else if (functionality_method == "nonproductive") {
+        achp.functionality_method = FunctionalityMethod::nonproductive;
+    } else {
+        std::string message = error_message_strategy("alignment checker functionality checker",
+                                                     functionality_method,
+                                                     achp.functionality_methods_names);
         throw std::invalid_argument(message);
     }
 }
@@ -177,6 +192,8 @@ std::istream &operator>>(std::istream &in, shm_kmer_matrix_estimator_config::mut
 
 const std::vector<std::string> shm_kmer_matrix_estimator_config::alignment_checker_params::alignment_checker_method_names =
     {std::string("NoGaps")};
+const std::vector<std::string> shm_kmer_matrix_estimator_config::alignment_checker_params::functionality_methods_names =
+    {std::string("all"), std::string("productive"), std::string("nonproductive")};
 const std::vector<std::string> shm_kmer_matrix_estimator_config::alignment_cropper_params::alignment_cropper_method_names =
     {std::string("UptoLastReliableKMer")};
 const std::vector<std::string> shm_kmer_matrix_estimator_config::mutations_strategy_params::mutation_strategy_method_names =

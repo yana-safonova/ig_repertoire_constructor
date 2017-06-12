@@ -13,6 +13,7 @@ io_params {
 
 alignment_checker_params {
     alignment_checker_method NoGaps
+    functionality_method all
 }
 
 alignment_cropper_params {

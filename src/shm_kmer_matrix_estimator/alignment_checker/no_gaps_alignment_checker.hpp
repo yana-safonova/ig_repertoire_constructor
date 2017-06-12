@@ -11,7 +11,10 @@ namespace shm_kmer_matrix_estimator {
 
 class NoGapsAlignmentChecker: public AbstractAlignmentChecker {
 public:
-    explicit NoGapsAlignmentChecker(const shm_kmer_matrix_estimator_config::alignment_checker_params &) {}
+    explicit NoGapsAlignmentChecker(const shm_kmer_matrix_estimator_config::alignment_checker_params &config) :
+        AbstractAlignmentChecker(config)
+    {}
+
     virtual bool check(EvolutionaryEdgeAlignment &) const override;
     virtual ~NoGapsAlignmentChecker() { }
 };

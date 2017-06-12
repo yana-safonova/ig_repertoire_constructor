@@ -24,7 +24,7 @@ private:
     AbstractAlignmentCropperPtr alignment_cropper_ptr_;
 
 private:
-    const size_t csv_cdr1_const = 9;
+    const size_t has_stop_codon_pos = 5;
 
 public:
     AlignmentReader(const std::string &alignments_filename,

@@ -34,6 +34,7 @@ int SHMkmerMatrixEstimatorPipeline::Run() const {
                                               alignment_cropper_params_);
     VectorEvolutionaryEdgeAlignments alignments(germline_alignment_reader.read_alignments());
     INFO(boarder << " Reading alignments finishes " << boarder);
+    INFO(boarder << " Read " << alignments.size() << " sequences " << boarder);
 
     INFO(boarder << " Estimating statistics starts " << boarder);
     INFO(std::string("Strategy for mutations: ") <<
