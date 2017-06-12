@@ -37,10 +37,10 @@ def PrepareParams(params, log):
 
 
 def PrepareOutputDir(params, log):
-    if os.path.exists(params.output_dir):
-        log.info("Cleaning output dir")
-        shutil.rmtree(params.output_dir)
-    os.mkdir(params.output_dir)
+    if not os.path.exists(params.output_dir):
+        # log.info("Cleaning output dir")
+        # shutil.rmtree(params.output_dir)
+        os.mkdir(params.output_dir)
 
 
 def PrintParams(params, log):
@@ -98,6 +98,12 @@ def PrepareParser():
                                choices=["Trivial", "NoKNeighbours"],
                                help="Mutation Strategy for considering " +
                                     "close mutations: [default: %(default)s]")
+    optional_args.add_argument("-f", "--functionality",
+                               type=str,
+                               default="all",
+                               dest="functionality_method",
+                               choices=["all", "productive", "nonproductive"],
+                               help="Functionality Strategy : [default: %(default)]")
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
@@ -137,6 +143,7 @@ def ModifyConfigFiles(params, log):
     shm_param_dict["cdr_details"] = params.cdr_details
     shm_param_dict["output_dir"] = params.output_dir
     shm_param_dict["mutations_strategy_method"] = params.mutation_strategy
+    shm_param_dict["functionality_method"] = params.functionality_method
     process_cfg.substitute_params(params.output_config_file,
                                   shm_param_dict, log)
 
