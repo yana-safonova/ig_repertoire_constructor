@@ -55,8 +55,8 @@ def compare_fr_cdr(matrices, figures_dir):
             means_cdr.append(np.nanmean(mut_cdr))
 
         pvalues = np.array(pvalues)
-        pvalues = np.sort(pvalues)
-        pvalues *= np.arange(len(pvalues), 0, -1)
+        # pvalues = np.sort(pvalues)
+        # pvalues *= np.arange(len(pvalues), 0, -1)
         good_pv = pvalues < sign_lev
 
         means_fr, means_cdr = np.array(means_fr), np.array(means_cdr)
