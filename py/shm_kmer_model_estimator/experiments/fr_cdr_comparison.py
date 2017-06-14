@@ -55,7 +55,9 @@ def compare_fr_cdr(matrices, figures_dir):
             means_cdr.append(np.nanmean(mut_cdr))
 
         pvalues = np.array(pvalues)
-        good_pv = pvalues < (sign_lev / len(pvalues))
+        pvalues = np.sort(pvalues)
+        pvalues *= np.arange(len(pvalues), 0, -1)
+        good_pv = pvalues < sign_lev
 
         means_fr, means_cdr = np.array(means_fr), np.array(means_cdr)
         means = np.vstack([means_fr, means_cdr]).T
@@ -63,16 +65,18 @@ def compare_fr_cdr(matrices, figures_dir):
                              columns=["FR", "CDR"])
         means = pd.melt(means, var_name='region', value_name='mutability')
         means["all"] = ""
-        g = sns.violinplot(x="all", y="mutability", hue="region",
-                           data=means, inner="quartile", split=True)
-        plt.ylim([0, 0.55])
-        fig = g.get_figure()
-        fig.set_size_inches(4, 3)
-        fig.savefig(os.path.join(figures_dir, figure_file + "pdf"),
-                    format='pdf', dpi=150)
-        fig.savefig(os.path.join(figures_dir, figure_file + "png"),
-                    format='png', dpi=150)
-        plt.close()
+        if not means.empty:
+            g = sns.violinplot(x="all", y="mutability", hue="region",
+                               data=means, inner="quartile", split=True)
+            plt.ylim([0, 0.55])
+            fig = g.get_figure()
+            fig.set_size_inches(4, 3)
+            fig.savefig(os.path.join(figures_dir, figure_file + "pdf"),
+                        format='pdf', dpi=150)
+            fig.savefig(os.path.join(figures_dir, figure_file + "png"),
+                        format='png', dpi=150)
+            plt.close()
+
         return OrderedDict([
                    ("# well-covered kmers", len(matrices.kmer_names)),
                    ("% kmers with significant mut_FR < mut_CDR", np.mean(good_pv)),

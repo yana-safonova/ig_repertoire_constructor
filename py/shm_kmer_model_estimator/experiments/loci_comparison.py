@@ -49,13 +49,20 @@ def compare_loci(matrices, figures_dir):
             if len(mut_h) * len(mut_k) * len(mut_l) == 0:
                 continue
 
+            if np.all(mut_h == mut_h[0]) or \
+                np.all(mut_k == mut_k[0]) or \
+                np.all(mut_l == mut_l[0]):
+                continue
+
             pvalues.append(stat_crit(mut_h, mut_l, mut_k))
             means_h.append(np.nanmean(mut_h))
             means_l.append(np.nanmean(mut_l))
             means_k.append(np.nanmean(mut_k))
 
-        pvalues = np.array(pvalues)
-        good_pv = pvalues < (sign_lev / len(pvalues))
+        pvalues = np.array(list(pvalues))
+        pvalues = np.sort(pvalues)
+        pvalues *= np.arange(len(pvalues), 0, -1)
+        good_pv = pvalues < sign_lev
 
         means_h = np.array(means_h)
         means_l = np.array(means_l)

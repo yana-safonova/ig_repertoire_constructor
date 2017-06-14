@@ -54,15 +54,17 @@ def plot_mutability_boxplots(matrices, output_dir):
                     colors[i] = 'red'
                 elif kmer in cspots:
                     colors[i] = 'blue'
-            g = sns.boxplot(data=mut)
-            g.set_xticklabels(g.get_xticklabels(), rotation=90)
-            [t.set_color(i) for (i,t) in zip(colors, g.xaxis.get_ticklabels())]
-            [t.set_facecolor(i) for (i,t) in zip(colors, g.artists)]
-            g.set_ylim(0, 1)
-            fig = g.get_figure()
-            fig.set_size_inches(10, 7)
-            fig.savefig(fig_name, format='pdf', dpi=150)
-            plt.close()
+
+            if not mut.empty:
+                g = sns.boxplot(data=mut)
+                g.set_xticklabels(g.get_xticklabels(), rotation=90)
+                [t.set_color(i) for (i,t) in zip(colors, g.xaxis.get_ticklabels())]
+                [t.set_facecolor(i) for (i,t) in zip(colors, g.artists)]
+                g.set_ylim(0, 1)
+                fig = g.get_figure()
+                fig.set_size_inches(10, 7)
+                fig.savefig(fig_name, format='pdf', dpi=150)
+                plt.close()
 
         kmer_names = matrices.kmer_names
         fig_name_fr = "output_%s_%s_fr.pdf" % (strategy.name, chain.name)

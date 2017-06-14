@@ -20,7 +20,7 @@ def read_samples(dir_data, filename_data, read_func,
                  ignore_indiv_number=[]):
     working_dir = os.path.join(prefix_dir, root_dir, dir_data)
     # default directory structure: chain_type/indiv_number/strategy
-    pattern = os.path.join(working_dir, "*", "*", "*", filename_data)
+    pattern = os.path.join(working_dir, "*", "*", "productive", "*", filename_data)
 
     def rec_dd():
         return defaultdict(rec_dd)
@@ -28,7 +28,7 @@ def read_samples(dir_data, filename_data, read_func,
     samples = rec_dd()
     for sample_filename in glob.iglob(pattern):
         sample_filename_spitted = sample_filename.split(os.sep)
-        chain_type, indiv_number, strategy = sample_filename_spitted[-4:-1]
+        chain_type, indiv_number, _, strategy = sample_filename_spitted[-5:-1]
         chain_type, strategy = Chains[chain_type], MutationStrategies[strategy]
         if indiv_number in ignore_indiv_number:
             continue

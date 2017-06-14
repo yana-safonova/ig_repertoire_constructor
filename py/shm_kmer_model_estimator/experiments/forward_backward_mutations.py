@@ -86,16 +86,20 @@ def compare_forward_backward_mutations(matrices, figures_dir):
                     mutation_ratios.add(mutation_ratio)
 
         pvalues = np.array(list(pvalues))
-        mutation_ratios = np.array(list(mutation_ratios))
-        good_pv = pvalues < (sign_level / len(pvalues))
+        pvalues = np.sort(pvalues)
+        pvalues *= np.arange(len(pvalues), 0, -1)
+        good_pv = pvalues < sign_level
 
-        g = sns.distplot(mutation_ratios)
-        plt.xlim(xmin=0, xmax=50)
-        fig = g.get_figure()
-        fig.set_size_inches(4, 3)
-        fig.savefig(os.path.join(figures_dir, figure_file),
-                    format='pdf', dpi=150)
-        plt.close()
+        mutation_ratios = np.array(list(mutation_ratios))
+        if len(mutation_ratios):
+            g = sns.distplot(mutation_ratios)
+            plt.xlim(xmin=0, xmax=50)
+            fig = g.get_figure()
+            fig.set_size_inches(4, 3)
+            fig.savefig(os.path.join(figures_dir, figure_file),
+                        format='pdf', dpi=150)
+            plt.close()
+
         return OrderedDict([
                    ("# well-covered substitutions out of 3072", len(good_pv)),
                    ("% occ with significant difference in forward and backward", np.mean(good_pv)),
