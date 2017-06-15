@@ -49,13 +49,13 @@ public:
     EvolutionaryEdgeAlignment(const std::string &parent,
                               const std::string &son,
                               const std::string &gene_id,
-                              const bool has_stop_codon = false,
-                              const bool in_frame = true,
-                              const bool productive = true,
-                              const size_t cdr1_start = size_t(),
-                              const size_t cdr1_end = size_t(),
-                              const size_t cdr2_start = size_t(),
-                              const size_t cdr2_end = size_t()) :
+                              const bool has_stop_codon,
+                              const bool in_frame,
+                              const bool productive,
+                              const size_t cdr1_start,
+                              const size_t cdr1_end,
+                              const size_t cdr2_start,
+                              const size_t cdr2_end) :
         parent_(parent),
         son_(son),
         gene_id_(gene_id),
@@ -73,7 +73,11 @@ public:
         VERIFY_MSG(parent.size() == son.size(),
                    "Parent and son lengths are not equal\n" + parent + "\n" + son + "\n" + gene_id);
         VERIFY_MSG(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end,
-                   "Incorrect cdr initial values");
+                   std::string("Incorrect cdr initial values: ") +
+                   std::string("cdr1_start = ") + std::to_string(cdr1_start) +
+                   std::string("cdr1_end   = ") + std::to_string(cdr1_end) +
+                   std::string("cdr2_start = ") + std::to_string(cdr2_start) +
+                   std::string("cdr2_end   = ") + std::to_string(cdr2_end));
     }
 
     EvolutionaryEdgeAlignment(const annotation_utils::AnnotatedClone& clone) :

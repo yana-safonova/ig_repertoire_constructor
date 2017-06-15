@@ -34,11 +34,11 @@ TEST_F(AlignmentCheckerTest, CheckingIsCorrect) {
     load(shm_config_ach_nogaps, config_ach_nogaps);
     NoGapsAlignmentChecker alch(shm_config_ach_nogaps.achp);
 
-    EvolutionaryEdgeAlignment alignment1("AAA", "CCC", "id");
+    EvolutionaryEdgeAlignment alignment1("AAA", "CCC", "id", 0, 1, 1, 0, 0, 0, 0);
     ASSERT_TRUE(alch.check(alignment1));
-    EvolutionaryEdgeAlignment alignment2("AAA--", "CCCAA", "id");
+    EvolutionaryEdgeAlignment alignment2("AAA--", "CCCAA", "id", 0, 1, 1, 0, 0, 0, 0);
     ASSERT_FALSE(alch.check(alignment2));
-    EvolutionaryEdgeAlignment alignment3("AAA--", "-CCAA", "id");
+    EvolutionaryEdgeAlignment alignment3("AAA--", "-CCAA", "id", 0, 1, 1, 0, 0, 0, 0);
     ASSERT_FALSE(alch.check(alignment3));
 }
 
@@ -55,7 +55,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("AAAAAAAAAAAAAAA",
-                                            "AAAAAAAAAAAAAAA", "id");
+                                            "AAAAAAAAAAAAAAA", "id", 0, 1, 1, 0, 0, 0, 0);
         alcr.crop(alignment);
         ASSERT_EQ(alignment.son(),    "AAAAAAAAAAAAAAA");
         ASSERT_EQ(alignment.parent(), "AAAAAAAAAAAAAAA");
@@ -63,7 +63,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
-                                            "ABAAAAAAAAACAAA", "id");
+                                            "ABAAAAAAAAACAAA", "id", 0, 1, 1, 0, 0, 0, 0);
         alcr.crop(alignment);
         ASSERT_EQ(alignment.son(),    "ABAAAAAAAAACAAA");
         ASSERT_EQ(alignment.parent(), "ABAAAAAAAAACAAA");
@@ -71,7 +71,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("BBAAAAAAAAACAAA",
-                                            "ABAAAAAAAAACAAA", "id", 1, 1, 1, 1);
+                                            "ABAAAAAAAAACAAA", "id", 0, 1, 1, 1, 1, 1, 1);
         ASSERT_EQ(alignment.cdr1_start(), 1);
         ASSERT_EQ(alignment.cdr1_end(), 1);
         ASSERT_EQ(alignment.cdr2_start(), 1);
@@ -87,7 +87,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
-                                            "ABAAAAAAAAACAAB", "id");
+                                            "ABAAAAAAAAACAAB", "id", 0, 1, 1, 0, 0, 0, 0);
         alcr.crop(alignment);
         ASSERT_EQ(alignment.son(),    "ABAAAAAAAAACAA");
         ASSERT_EQ(alignment.parent(), "ABAAAAAAAAACAA");
@@ -95,7 +95,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("ABAAAAAAAAACAAA",
-                                            "CBAAAAAAAAACAAB", "id", 1, 1, 1, 1);
+                                            "CBAAAAAAAAACAAB", "id", 0, 1, 1, 1, 1, 1, 1);
         ASSERT_EQ(alignment.cdr1_start(), 1);
         ASSERT_EQ(alignment.cdr1_end(), 1);
         ASSERT_EQ(alignment.cdr2_start(), 1);
@@ -111,7 +111,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("ABAAACAAAAACAAA",
-                                            "CBAAADAAAAACAAB", "id", 6, 6, 6, 6);
+                                            "CBAAADAAAAACAAB", "id", 0, 1, 1, 6, 6, 6, 6);
         ASSERT_EQ(alignment.cdr1_start(), 6);
         ASSERT_EQ(alignment.cdr1_end(), 6);
         ASSERT_EQ(alignment.cdr2_start(), 6);
@@ -127,7 +127,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("CAGGTGCAGCTGFTGC",
-                                            "CAGCCGCAGCTGGTGC", "id", 5, 5, 5, 5);
+                                            "CAGCCGCAGCTGGTGC", "id", 0, 1, 1, 5, 5, 5, 5);
         ASSERT_EQ(alignment.cdr1_start(), 5);
         ASSERT_EQ(alignment.cdr1_end(), 5);
         ASSERT_EQ(alignment.cdr2_start(), 5);
@@ -143,7 +143,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("CCGFTGCAGCTGFTTC",
-                                            "CAGhCGCAGCTGGTGC", "id", 5, 5, 5, 5);
+                                            "CAGhCGCAGCTGGTGC", "id", 0, 1, 1, 5, 5, 5, 5);
         ASSERT_EQ(alignment.cdr1_start(), 5);
         ASSERT_EQ(alignment.cdr1_end(), 5);
         ASSERT_EQ(alignment.cdr2_start(), 5);
@@ -159,7 +159,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("AAAAAA",
-                                            "AAAAAC", "id");
+                                            "AAAAAC", "id", 0, 1, 1, 0, 0, 0, 0);
         ASSERT_EQ(alignment.cdr1_start(), 0);
         ASSERT_EQ(alignment.cdr1_end(), 0);
         ASSERT_EQ(alignment.cdr2_start(), 0);
@@ -175,7 +175,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("CAGACGCAGCTGGTGF",
-                                            "AAGACGDAGCTGGTGC", "id", 1, 1, 1, 1);
+                                            "AAGACGDAGCTGGTGC", "id", 0, 1, 1, 1, 1, 1, 1);
         ASSERT_EQ(alignment.cdr1_start(), 1);
         ASSERT_EQ(alignment.cdr1_end(), 1);
         ASSERT_EQ(alignment.cdr2_start(), 1);
@@ -191,7 +191,7 @@ TEST_F(AlignmentCropperTest, CheckingIsCorrect) {
 
     {
         EvolutionaryEdgeAlignment alignment("CAGGTGCAGZZGGTGCAGTCTGGGAGTGAACTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGCCGTCTATTACTGCACGAGACA",
-                                            "CAGGZGCAGCTGGTZCAGZCTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTGTGZGAGAGA", "id", 19, 19, 19, 19);
+                                            "CAGGZGCAGCTGGTZCAGZCTGGGGCTGAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCGGTCGTGTATTACTGTGZGAGAGA", "id", 0, 1, 1, 19, 19, 19, 19);
         ASSERT_EQ(alignment.cdr1_start(), 19);
         ASSERT_EQ(alignment.cdr1_end(), 19);
         ASSERT_EQ(alignment.cdr2_start(), 19);
@@ -247,7 +247,7 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     NoKNeighboursMutationStrategy ms_nkn(shm_config_ms.mfp);
 
     {
-        EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGTTAA", "id");
+        EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGTTAA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
         ASSERT_EQ(rel_pos.size(), 1);
@@ -255,7 +255,7 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     }
 
     {
-        EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGAAAA", "id");
+        EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGAAAA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
         ASSERT_EQ(rel_pos.size(), 4);
@@ -265,13 +265,13 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     }
 
     {
-        EvolutionaryEdgeAlignment alignment("CCTCCATCGGTTTCTG", "TCTCCAACGTTTTCTG", "id");
+        EvolutionaryEdgeAlignment alignment("CCTCCATCGGTTTCTG", "TCTCCAACGTTTTCTG", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         EXPECT_THAT(rel_pos, testing::ElementsAre(3, 6, 9, 12, 13));
     }
 
     {
-        EvolutionaryEdgeAlignment alignment("CCTCCATCGGTTTCTGTGCATGACGA", "TTTCCAACGTTTTCTGTGCACGAGGA", "id");
+        EvolutionaryEdgeAlignment alignment("CCTCCATCGGTTTCTGTGCATGACGA", "TTTCCAACGTTTTCTGTGCACGAGGA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         EXPECT_THAT(rel_pos, testing::ElementsAre(6, 9, 12, 13, 14, 15, 16, 17, 20, 23));
     }
