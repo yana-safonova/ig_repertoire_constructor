@@ -96,8 +96,9 @@ def wrapper_plot_distr(models, model_config):
 
 
 def main():
-    print("Reading input config from %s" % parse_args().input)
-    input_config = read_config(parse_args().input)
+    parsed_args = parse_args()
+    print("Reading input config from %s" % parsed_args.input)
+    input_config = read_config(parsed_args.input)
     model_config = input_config.kmer_model_estimating
     print("Reading kmer matrices started")
     matrices = concatenate_kmer_freq_matrices(
@@ -106,38 +107,41 @@ def main():
         dir_data=model_config.kmer_matrices_dir,
         filename_fr=model_config.filename_fr,
         filename_cdr=model_config.filename_cdr)
-
-    wrapper_compare_forward_backward_mutations(matrices, model_config)
     print("Reading kmer matrices ended")
-    print("Plotting mutability boxplots started")
-    wrapper_plot_mutability_boxplots(matrices, model_config)
-    print("Plotting mutability boxplots finished")
 
-    print("FR and CDR comparison started")
-    wrapper_compare_fr_cdr(matrices, model_config)
-    print("FR and CDR comparison finished")
-
-    print("Various loci comparison started")
-    wrapper_compare_loci(matrices, model_config)
-    print("Various loci comparison ended")
-
-    print("Comparison of forward and backward mutations started")
     wrapper_compare_forward_backward_mutations(matrices, model_config)
-    print("Comparison of forward and backward mutations finished")
-
     print("Estimating models started")
     models = ShmKmerModelEstimator().estimate_models(matrices)
     print("Estimating models finished")
+
+
     print("Outputing models to %s" % model_config.outdir)
     output_models(models, model_config.outdir)
 
     print("Analysis of models' convergence")
     wrapper_convergence_analysis(models, model_config)
 
-    models = read_models(model_config.outdir)
-    print("Model distribution plots are drawing...")
-    wrapper_plot_distr(models, model_config)
-    print("Finished drawing model distribution plots")
+    if not parsed_args.skip_analysis:
+        print("Plotting mutability boxplots started")
+        wrapper_plot_mutability_boxplots(matrices, model_config)
+        print("Plotting mutability boxplots finished")
+
+        print("FR and CDR comparison started")
+        wrapper_compare_fr_cdr(matrices, model_config)
+        print("FR and CDR comparison finished")
+
+        print("Various loci comparison started")
+        wrapper_compare_loci(matrices, model_config)
+        print("Various loci comparison ended")
+
+        print("Comparison of forward and backward mutations started")
+        wrapper_compare_forward_backward_mutations(matrices, model_config)
+        print("Comparison of forward and backward mutations finished")
+
+        models = read_models(model_config.outdir)
+        print("Model distribution plots are drawing...")
+        wrapper_plot_distr(models, model_config)
+        print("Finished drawing model distribution plots")
 
 if __name__ == "__main__":
     main()
