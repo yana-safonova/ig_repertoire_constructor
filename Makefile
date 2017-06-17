@@ -8,7 +8,7 @@ prefix?="/usr/local"
 nverify?=""
 
 # Build with gpertools profiler (disabled)
-gprofiler?=""
+gperf?=""
 
 .PHONY: clean clean_tests cmake all pack
 
@@ -24,7 +24,7 @@ cmake:
 	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} \
 		-Wno-dev \
 		-DCMAKE_NVERIFY=${nverify} \
-		-DCMAKE_GOOGLE_PROFILER=${gprofiler}
+		-DCMAKE_GOOGLE_PROFILER=${gperf}
 
 igrec: cmake
 	$(MAKE) -C build/release all
