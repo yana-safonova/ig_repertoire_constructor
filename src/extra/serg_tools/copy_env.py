@@ -20,6 +20,10 @@ def copy_file(dest, file, igrec_dir, root):
     shutil.copy2(os.path.join(root, file), dest_dir)
 
 
+def exclude_broken_links(dir, files):
+    return [file for file in files if os.path.splitext(file)[1] == 'py']
+
+
 def main():
     dest = sys.argv[1]
     clean = int(sys.argv[2]) > 0 if len(sys.argv) > 2 else True
@@ -30,12 +34,12 @@ def main():
     igrec_dir = os.path.join(current_dir, os.pardir, os.pardir, os.pardir)
     walk = list(os.walk(igrec_dir))
     for root, dirs, files in walk:
-        for file in [file for file in files if file.endswith((".py", ".jar", ".sh"))]:
+        for file in [file for file in files if file.endswith((".py", ".jar", ".sh")) and 'build' not in root]:
             copy_file(dest, file, igrec_dir, root)
     for file in ["test_dataset/merged_reads.fastq"]:
         copy_file(dest, os.path.split(file)[-1], igrec_dir, os.path.join(igrec_dir, os.path.dirname(file)))
     for dir in ["build", "pipeline_makefiles", "configs", "data"]:
-        shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir))
+        shutil.copytree(os.path.join(igrec_dir, dir), os.path.join(dest, dir), exclude_broken_links)
 
     os.system("git -C %s log | head > %s/GIT_REVISION" % (igrec_dir, dest))
 

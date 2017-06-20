@@ -1,6 +1,60 @@
 project(igrec)
 cmake_minimum_required(VERSION 2.8)
 
+if(CMAKE_GOOGLE_PROFILER)
+  set(GPT_PREFIX gperftools)
+  # set(GPT_URL ${CMAKE_CURRENT_SOURCE_DIR}/ext/thirdparty/gperftools-2.5.93.tar.gz)
+  set(GPT_URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.5.93/gperftools-2.5.93.tar.gz)
+
+  include(ExternalProject)
+  ExternalProject_Add(${GPT_PREFIX}
+                      PREFIX ${GPT_PREFIX}
+                      URL ${GPT_URL}
+                      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
+                      INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
+                      URL_MD5 b181436e9061363821a954ca64626f26
+                      CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=yes --prefix=<INSTALL_DIR>
+                      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+                      BUILD_IN_SOURCE 1
+                      INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+                      LOG_DOWNLOAD 1
+                      LOG_BUILD 1)
+
+  # get the unpacked source directory path
+  ExternalProject_Get_Property(${GPT_PREFIX} SOURCE_DIR)
+  # link_directories(${CMAKE_BINARY_DIR}/thirdparty/lib)
+  include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
+
+  # add_library(profiler STATIC IMPORTED GLOBAL)  # GLOBAL means available in ALL CMakeLists included in this one
+
+  add_library(profiler_shared SHARED IMPORTED)  # If you want to automatically enable profiling, you need link against shared library. See https://github.com/gperftools/gperftools/issues/415
+  set_property(TARGET profiler_shared PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_SHARED_LIBRARY_PREFIX}profiler${CMAKE_SHARED_LIBRARY_SUFFIX}")
+  add_dependencies(profiler_shared ${GPT_PREFIX})
+  link_libraries(profiler_shared)
+
+  # Static linking does not actually work(((
+  # add_library(profiler_static STATIC IMPORTED)
+  # set_property(TARGET profiler_static PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_STATIC_LIBRARY_PREFIX}profiler${CMAKE_STATIC_LIBRARY_SUFFIX}")
+  # add_dependencies(profiler_static ${GPT_PREFIX})
+  # link_libraries(profiler_static)
+  # get_target_property(PROFILER_STATIC profiler_static LOCATION)
+  # # link_libraries("-Wl,--undefined=ProfilerStart")
+  # # https://stackoverflow.com/questions/14116420/how-to-force-gcc-to-link-an-unused-static-library
+  # link_libraries("-Wl,--whole-archive ${PROFILER_STATIC} -Wl,--no-whole-archive")
+  # link_libraries("-Wl,--allow-multiple-definition")
+
+  # link_libraries(tcmalloc pthread)
+  # add_definitions(-fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free)  # for TCMalloc
+endif()
+
+# http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2
+
+
+if(CMAKE_NVERIFY)
+  MESSAGE("VERIFYs disabled")
+  add_definitions(-DNVERIFY)
+endif(CMAKE_NVERIFY)
+
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "RelWithAsserts" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
@@ -61,7 +115,7 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         PATTERN "*.pyc" EXCLUDE
         PATTERN ".gitignore" EXCLUDE)
 
-set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py")
+set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py;ig_simulator.py")
 foreach(tool ${tools})
     install(PROGRAMS ${tool}
             DESTINATION "${INSTALL_DIR}"

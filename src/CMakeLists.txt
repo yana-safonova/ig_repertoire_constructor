@@ -35,6 +35,7 @@ set(ALGORITHMS_DIR "${IGREC_MAIN_SRC_DIR}/algorithms")
 set(VDJ_UTILS_DIR "${IGREC_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${IGREC_MAIN_SRC_DIR}/vj_finder")
 set(CDR_LABELER_DIR "${IGREC_MAIN_SRC_DIR}/cdr_labeler")
+set(IG_SIMULATOR_DIR "${IGREC_MAIN_SRC_DIR}/ig_simulator")
 
 # Everything option-dependent
 include(options)
@@ -89,3 +90,4 @@ add_subdirectory(cdr_labeler)
 add_subdirectory(test)
 add_subdirectory(umi_experiments)
 add_subdirectory(pcr_simulator)
+add_subdirectory(ig_simulator)

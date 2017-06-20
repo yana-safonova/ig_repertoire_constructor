@@ -3,6 +3,7 @@
 #include "io/library.hpp"
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
+#include "germline_utils/germline_config.hpp"
 
 namespace vj_finder {
     struct VJFinderConfig {
@@ -12,15 +13,9 @@ namespace vj_finder {
 
         struct IOParams {
             struct InputParams {
-                struct GermlineInput {
-                    std::string ig_dir;
-                    std::string tcr_dir;
-                    std::string germline_filenames_config;
-                };
-
                 std::string input_reads;
                 std::string config_dir;
-                GermlineInput germline_input;
+                germline_utils::GermlineInput germline_input;
             };
 
             struct OutputParams {
@@ -72,13 +67,6 @@ namespace vj_finder {
                 size_t min_aligned_length;
             };
 
-            struct GermlineParams {
-                std::string germline_dir;
-                std::string organism;
-                std::string loci;
-                bool pseudogenes;
-            };
-
             struct FixCropFillParams {
                 enum FixCropFillAlgorithm { UnknowmFCFAlgorithm, AggressiveFCFAlgorithm };
 
@@ -122,7 +110,7 @@ namespace vj_finder {
             };
 
             AlignerParams aligner_params;
-            GermlineParams germline_params;
+            germline_utils::GermlineParams germline_params;
             FilteringParams filtering_params;
             FixCropFillParams fix_crop_fill_params;
             ScoringParams scoring_params;
