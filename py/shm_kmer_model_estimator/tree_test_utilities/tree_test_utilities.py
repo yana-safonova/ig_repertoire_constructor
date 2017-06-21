@@ -7,7 +7,18 @@ import pandas as pd
 
 import likelihood_calculator.likelihood_calculator as likelihood_calculator
 import mismatch_finder.mismatch_finder as mismatch_finder
-import shm_kmer_model.shm_kmer_model as shm_kmer_model
+
+from disk_memoize.disk_memoize import memoize_to_disk
+
+
+class TreeTestResults(object):
+    def get_accuracy__(self, res):
+        return np.mean([x[0] < x[1] for x in res])
+
+    def __init__(self, lklhs):
+        self.lklhs = lklhs
+        self.accuracies = np.array([self.get_accuracy__(lklh) for lklh in lklhs])
+        self.full_accuracy = self.get_accuracy__(np.concatenate(lklhs))
 
 
 class TreeTester(object):
@@ -38,25 +49,25 @@ class TreeTester(object):
         tree = tree.loc[mutated_indexes]
         return tree
 
-    def get_likelihood_statistics(self, model, tree_path=None, tree=None,
-                                  mismatch_strategy='NoKNeighbours',
-                                  model_mode=shm_kmer_model.ModelMode.Both):
-        if tree_path is None and tree is None:
-            raise ValueError('tree itself or tree_path must be supplied')
-        if tree is None:
-            tree = self.__read_tree(tree_path)
+    def get_likelihood_statistics_tree(self, model, tree_path=None,
+                                       mismatch_strategy='Trivial'):
+        tree = self.__read_tree(tree_path)
 
         tree = self.__filter_tree(tree, mismatch_strategy)
         if tree.shape[0] < self.minimal_size_filtered_tree:
             return np.array([], dtype=np.dtype('float, float'))
 
-        lkhd_calc = \
-            likelihood_calculator.LikelihoodCalculator(model,
-                                                       model_mode=model_mode)
+        lkhd_calc = likelihood_calculator.LikelihoodCalculator(model)
 
         results = []
         for source, dest in \
                 tree[['Src_CDR3', 'Dst_CDR3']].itertuples(False):
-            results.append((lkhd_calc.calculate_likelihood(source, dest),
-                            lkhd_calc.calculate_likelihood(dest, source)))
+            results.append((lkhd_calc.calculate_loglikelihood(source, dest),
+                            lkhd_calc.calculate_loglikelihood(dest, source)))
         return np.array(results, dtype=np.dtype('float, float'))
+
+    def get_likelihood_statistics_trees(self, model, tree_paths,
+                                        mismatch_strategy='Trivial'):
+        results = [self.get_likelihood_statistics_tree(model, tree_path, mismatch_strategy)
+                   for tree_path in tree_paths]
+        return TreeTestResults(results)
