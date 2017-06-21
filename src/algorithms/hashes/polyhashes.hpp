@@ -47,13 +47,13 @@ namespace algorithms {
         size_t first = 0;
         for (size_t i = 0; i < K; ++i) {
             first *= p;
-            first += seqan::Dna5(s[i]).value;
+            first += seqan::Dna(s[i]).value;
         }
 
-        result[0] = first;
+        result[0] = first & mask;
         for (size_t i = 1; i < result.size(); ++i) {
             first *= p;
-            first += unsigned(s[K + i - 1]);
+            first += seqan::Dna(s[K + i - 1]).value;
             result[i] = first & mask;
         }
         return result;
