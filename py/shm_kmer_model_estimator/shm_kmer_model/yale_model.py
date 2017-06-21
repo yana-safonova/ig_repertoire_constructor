@@ -12,8 +12,9 @@ class YaleMethod(Enum):
 
 class YaleSHM_Model(object):
     import os
-    mut_path = os.path.join('yale_model', 'Mutability.csv')
-    subst_path = os.path.join('yale_model', 'Substitution.csv')
+    curr_path = os.path.dirname(os.path.abspath(__file__))
+    mut_path = os.path.join(curr_path, '..', 'yale_model', 'Mutability.csv')
+    subst_path = os.path.join(curr_path, '..', 'yale_model', 'Substitution.csv')
 
     def __init__(self):
         self.kmer_len = 5

@@ -7,7 +7,7 @@ import gzip
 
 MEMO_WRITE_ENABLED = True
 MEMO_READ_ENABLED = True
-MEMO_DIR = "disk_memoize/memo"
+MEMO_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "memo")
 
 
 def memoize_to_disk(fcn):
