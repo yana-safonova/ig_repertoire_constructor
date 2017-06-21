@@ -8,6 +8,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from config.config import config, read_config
+from config.parse_input_args import parse_args
+
 from shm_kmer_model import cab_shm_model, yale_model
 from mutation_strategies import mutation_strategies
 from chains.chains import Chains
@@ -33,8 +36,11 @@ def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
 
     smart_mkdir(log_dir)
     with open(log_filename, 'w') as f:
-        f.write("Median for Yale: %lf\n" % np.median(yresults.accuracies))
-        f.write("Median for CAB: %lf\n" % np.median(cabresults.accuracies))
+        f.write("Median for Yale: %lf\n" % np.nanmedian(yresults.accuracies))
+        f.write("Median for CAB: %lf\n" % np.nanmedian(cabresults.accuracies))
+
+        f.write("Yale Accuracies: %s\n" % yresults.accuracies)
+        f.write("CAB Accuracies: %s\n" % cabresults.accuracies)
 
         f.write("Full accuracy for Yale: %lf\n" % yresults.full_accuracy)
         f.write("Full accuracy for CAB: %lf\n" % cabresults.full_accuracy)
@@ -63,12 +69,15 @@ def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
 
 
 def main():
+    parsed_args = parse_args()
+    input_config = read_config(parsed_args.input)
+    test_config = input_config.kmer_model_tree_test
     for strategy in mutation_strategies.MutationStrategies:
         for chain_type in Chains:
             if chain_type.name == 'IG':
                 continue
             print(chain_type.name)
-            run_tree_test_chain_strategy(strategy, chain_type, '.')
+            run_tree_test_chain_strategy(strategy, chain_type, test_config.outdir)
 
 
 

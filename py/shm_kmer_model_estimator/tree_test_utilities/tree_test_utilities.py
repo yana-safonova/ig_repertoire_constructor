@@ -13,7 +13,7 @@ from disk_memoize.disk_memoize import memoize_to_disk
 
 class TreeTestResults(object):
     def get_accuracy__(self, res):
-        return np.mean([x[0] < x[1] for x in res])
+        return np.nanmean([x[0] < x[1] for x in res])
 
     def __init__(self, lklhs):
         self.lklhs = lklhs
@@ -70,4 +70,5 @@ class TreeTester(object):
                                         mismatch_strategy='Trivial'):
         results = [self.get_likelihood_statistics_tree(model, tree_path, mismatch_strategy)
                    for tree_path in tree_paths]
+        results = [x for x in results if x.size]
         return TreeTestResults(results)
