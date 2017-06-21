@@ -47,7 +47,7 @@ def ProcessFile(fname):
     non_trivial_aa = 0
     for s in shms:
         if len(shms[s]) > 1:
-            #print s, shms[s]
+            print s, shms[s]
             non_trivial_aa += 1
             for r in shms[s]:
                 non_trivial_shms += mult[r]
@@ -104,6 +104,7 @@ def OutputSHMs(shms, output_fname):
     hs_shms = []
     sc_shms = []
     other_shms = []
+    max_mult = 0
     for s in shms:
         if s.Synonymous():
             syn_shms.append(s)
@@ -113,10 +114,14 @@ def OutputSHMs(shms, output_fname):
             sc_shms.append(s)
         else:
             other_shms.append(s)
+        max_mult = max(max_mult, s.mult)
     OutputSHMList(sc_shms, 'green', 'stop codons')
     OutputSHMList(syn_shms, "orange", 'synonymous')
     OutputSHMList(hs_shms, "blue", 'hot spots')
     OutputSHMList(other_shms, 'grey', 'other')
+    plt.ylim(0, max_mult + 1)
+    plt.xlabel('SHM position')
+    plt.ylabel('SHM frequency')
     plt.legend(loc='upper center')
     OutputPlotInPdf(output_fname)
 
@@ -144,12 +149,13 @@ def main(shm_dir):
         if FileTobeSkipped(f):
             continue
         print "== Processing " + f + "..."
-        ProcessFile(os.path.join(shm_dir, f))
         v_gene, shms = ProcessSHMFile(os.path.join(shm_dir, f))
         v_gene, v_dict = UpdateVgeneDict(v_gene, v_dict)
         output_base = GetOutputFname(v_gene, v_dict, shm_dir)
         OutputSHMs(shms, output_base + ".pdf")
-        OutputSHMPosPlot(shms, output_base + "_unique_shms.pdf")
+        ProcessFile(os.path.join(shm_dir, f))
+        print ""
+        #OutputSHMPosPlot(shms, output_base + "_unique_shms.pdf")
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
