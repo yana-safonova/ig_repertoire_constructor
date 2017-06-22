@@ -17,10 +17,11 @@ Items: numbers of datasets.
 """
 def read_samples(dir_data, filename_data, read_func,
                  prefix_dir, root_dir,
+                 functionality,
                  ignore_indiv_number=[]):
     working_dir = os.path.join(prefix_dir, root_dir, dir_data)
     # default directory structure: chain_type/indiv_number/strategy
-    pattern = os.path.join(working_dir, "*", "*", "all", "*", filename_data)
+    pattern = os.path.join(working_dir, "*", "*", functionality, "*", filename_data)
 
     def rec_dd():
         return defaultdict(rec_dd)

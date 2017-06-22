@@ -21,7 +21,6 @@ from chains.chains import Chains
 from mutation_strategies.mutation_strategies import MutationStrategies
 
 
-
 def output_models(models, output_directory):
     smart_makedirs(output_directory)
     for strategy in models:
@@ -105,6 +104,7 @@ def main():
         input_data=input_config.input_data,
         prefix_dir=input_config.prefix_dir,
         dir_data=model_config.kmer_matrices_dir,
+        functionality=model_config.functionality,
         filename_fr=model_config.filename_fr,
         filename_cdr=model_config.filename_cdr)
     print("Reading kmer matrices ended")

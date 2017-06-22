@@ -30,12 +30,13 @@ class KmerMatricesReader:
                 matrices[strategy][chain_type] = KmerMatrices(fr, cdr)
         return matrices
 
-    def read(self, root_dir, ignore_indiv_number=[]):
+    def read(self, root_dir, functionality, ignore_indiv_number=[]):
         def read_matrix(filename_data):
             return read_samples(filename_data=filename_data,
                                 prefix_dir=self.prefix_dir,
                                 dir_data=self.dir_data,
                                 read_func=self.read_func,
+                                functionality=functionality,
                                 root_dir=root_dir,
                                 ignore_indiv_number=ignore_indiv_number)
 

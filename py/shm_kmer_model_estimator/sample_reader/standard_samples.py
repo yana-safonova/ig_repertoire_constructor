@@ -12,7 +12,8 @@ from mutation_strategies.mutation_strategies import MutationStrategies
 def concatenate_kmer_freq_matrices(
         input_data,
         prefix_dir, dir_data,
-        filename_fr, filename_cdr):
+        filename_fr, filename_cdr,
+        functionality):
     kmer_matrices_reader = \
         KmerMatricesReader(prefix_dir=prefix_dir,
                            dir_data=dir_data,
@@ -22,6 +23,7 @@ def concatenate_kmer_freq_matrices(
     for x in input_data:
         matrix = kmer_matrices_reader.read(
             root_dir=x.prefix_dir,
+            functionality=functionality,
             ignore_indiv_number=x.bad_datasets)
         matrices.append(matrix)
     dict_matrices = dict.fromkeys(MutationStrategies)
