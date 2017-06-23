@@ -63,7 +63,15 @@ namespace vj_finder {
         using namespace algorithms;
         TRACE("VJ Aligner algorithm starts");
         // we can construct it once and use as a parameter of constructor
-        std::shared_ptr<PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > v_aligner = get_v_aligner();
+        CustomGermlineDbHelper v_kmer_index_helper(v_custom_db_);
+        SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String> v_kmer_index(
+                v_custom_db_, algorithm_params_.aligner_params.word_size_v, v_kmer_index_helper);
+        TRACE("Kmer index for V gene segment DB was constructed");
+
+        std::shared_ptr<PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > v_aligner = get_aligner(
+                v_kmer_index, v_kmer_index_helper,
+                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams>(algorithm_params_.scoring_params.v_scoring),
+                CreateVBlockAlignerParams());
         
         TRACE("Computation of V hits");
         CustomDbBlockAlignmentHits v_aligns = v_aligner->Align(read.seq);
@@ -93,8 +101,15 @@ namespace vj_finder {
         const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(
                 germline_utils::ImmuneGeneType(v_chain_type, germline_utils::SegmentType::JoinSegment));
         TRACE("J database for locus " << v_chain_type << " consists of " << j_gene_db.size() << " gene segments");
-        
-        std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > j_aligner = get_j_aligner(v_chain_type);
+
+        ImmuneGeneGermlineDbHelper j_kmer_index_helper(j_gene_db);
+        SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> j_kmer_index(
+                j_gene_db, algorithm_params_.aligner_params.word_size_j, j_kmer_index_helper);
+        std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > j_aligner = get_aligner(
+                j_kmer_index, j_kmer_index_helper,
+                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::JScoringParams>(
+                        algorithm_params_.scoring_params.j_scoring),
+                CreateJBlockAlignerParams());
         auto dj_read_suffix = DefineReadJSuffix(v_aligns, stranded_read.seq);
         if(seqan::length(dj_read_suffix) == 0)
             return VJHits(read);

@@ -4,7 +4,6 @@
 #include "vj_finder_config.hpp"
 #include "vj_alignment_structs.hpp"
 #include "vj_hits_filter.hpp"
-#include "vj_query_processing.hpp"
 
 namespace vj_finder {
     class VJAlignmentInfo {
@@ -13,17 +12,13 @@ namespace vj_finder {
 
         std::map<size_t, size_t> read_id_hit_index_map_;
         std::map<size_t, size_t> read_id_filtering_info_map_;
-        
+
         std::unordered_map<germline_utils::ChainType, size_t, germline_utils::ChainTypeHasher> chain_type_abundance_;
 
         void UpdateChainTypeMap(const VJHits &vj_hits);
 
     public:
-        VJQueryProcessor* vj_query_processor;
-
-        VJAlignmentInfo(VJQueryProcessor* vj_query_processor) : vj_query_processor(vj_query_processor) {}
-
-        VJAlignmentInfo() : vj_query_processor(nullptr) {}
+        VJAlignmentInfo() { }
 
         void UpdateHits(VJHits vj_hits);
 
