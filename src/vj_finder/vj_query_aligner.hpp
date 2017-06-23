@@ -5,6 +5,8 @@
 #include "vj_alignment_structs.hpp"
 #include "block_alignment/pairwise_block_aligner.hpp"
 
+using namespace algorithms;
+
 namespace vj_finder {
     class VJQueryAligner {
         const VJFinderConfig::AlgorithmParams & algorithm_params_;
@@ -12,6 +14,12 @@ namespace vj_finder {
         core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_custom_db_;
         const germline_utils::CustomGeneDatabase &j_custom_db_;
+
+
+        std::shared_ptr<PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > __v_aligner = nullptr;
+        
+        std::vector<germline_utils::ChainType> __j_chains;
+        std::vector<std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > > __j_aligners;
 
         void CheckDbConsistencyFatal();
 
@@ -55,6 +63,47 @@ namespace vj_finder {
                                                                                                     algorithms::KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
                                                                                                     algorithms::BlockAlignmentScoringScheme scoring,
                                                                                                     algorithms::BlockAlignerParams params);
+
+        std::shared_ptr<PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > get_v_aligner() {
+            if (!__v_aligner) {
+                CustomGermlineDbHelper& v_kmer_index_helper = *(new CustomGermlineDbHelper(v_custom_db_)); //memory leak
+                SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String>& v_kmer_index =  //memory leak
+                    *(new SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String>(
+                    v_custom_db_, algorithm_params_.aligner_params.word_size_v, v_kmer_index_helper));
+                TRACE("Kmer index for V gene segment DB was constructed");
+
+                __v_aligner = get_aligner(
+                    v_kmer_index, v_kmer_index_helper,
+                    CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams>(algorithm_params_.scoring_params.v_scoring),
+                    CreateVBlockAlignerParams());
+            }
+            return __v_aligner;
+        };
+        std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > get_j_aligner(germline_utils::ChainType v_chain_type) {
+            auto it = find(__j_chains.begin(), __j_chains.end(), v_chain_type);
+            if (it != __j_chains.end()) {
+                size_t i = it - __j_chains.begin();
+                return __j_aligners[i]; 
+            }
+            const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(
+                germline_utils::ImmuneGeneType(v_chain_type, germline_utils::SegmentType::JoinSegment));
+
+            ImmuneGeneGermlineDbHelper& j_kmer_index_helper = *(new ImmuneGeneGermlineDbHelper(j_gene_db)); //memory leak
+            SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String>& j_kmer_index = 
+                *(new SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String>( //memory leak
+                    j_gene_db, algorithm_params_.aligner_params.word_size_j, j_kmer_index_helper));
+            
+            std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > j_aligner = get_aligner(
+                j_kmer_index, j_kmer_index_helper,
+                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::JScoringParams>(
+                        algorithm_params_.scoring_params.j_scoring),
+                CreateJBlockAlignerParams());
+
+            __j_chains.push_back(v_chain_type);
+            __j_aligners.push_back(j_aligner);
+        
+            return j_aligner;
+        }
         
     public:
         VJQueryAligner(const VJFinderConfig::AlgorithmParams &algorithm_params,

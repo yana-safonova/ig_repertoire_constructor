@@ -24,6 +24,7 @@ namespace vj_finder {
         core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_db_;
         const germline_utils::CustomGeneDatabase &j_db_;
+        VJQueryAligner vj_query_aligner;
 
         ProcessedVJHits ComputeFilteringResults(const core::Read &read, VJHits vj_hits);
 
@@ -36,7 +37,8 @@ namespace vj_finder {
                          const germline_utils::CustomGeneDatabase &j_db) : params_(params),
                                                                            read_archive_(read_archive),
                                                                            v_db_(v_db),
-                                                                           j_db_(j_db) { }
+                                                                           j_db_(j_db),
+                                                                           vj_query_aligner(params_, read_archive_, v_db_, j_db_) { }
 
         ProcessedVJHits Process(const core::Read &read);
     };
