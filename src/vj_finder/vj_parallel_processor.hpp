@@ -15,6 +15,8 @@ namespace vj_finder {
         std::vector<size_t> thread_id_per_read_;
         // i-th element stores Alignment info created by i-th thread
         std::vector<VJAlignmentInfo> info_per_thread;
+        // i-th element stores Processor used by i-th thread
+        std::vector<VJQueryProcessor> processor_per_thread;
 
         void Initialize();
 
