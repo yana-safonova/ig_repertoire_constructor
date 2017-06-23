@@ -127,6 +127,16 @@ namespace antevolo {
         return p->second;
     }
 
+    size_t EvolutionaryTree::GetParentEdgeLength(size_t clone_num) const {
+        if (HasParentEdge(clone_num)) {
+            return GetParentEdge(clone_num)->Length();
+        }
+        else {
+            const auto& clone = clone_set_ptr_->operator[](clone_num);
+            return clone.VSHMs().size() + clone.JSHMs().size();
+        }
+    }
+
     bool EvolutionaryTree::IsRoot(size_t clone_id) const {
         VERIFY_MSG(vertices_.find(clone_id) != vertices_.end(), "Tree does not contain vertex " << clone_id);
         return edges_.find(clone_id) == edges_.end();

@@ -7,7 +7,7 @@
 #include <boost/unordered_set.hpp>
 #include <annotated_clone_by_read_constructor.hpp>
 #include "../clone_set_with_fakes.hpp"
-#include <related_clones_iterator.hpp>
+#include <evolutionary_graph_utils/related_clones_iterator.hpp>
 
 namespace antevolo {
 
@@ -49,6 +49,10 @@ namespace antevolo {
         void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
                                                 EvolutionaryTree& tree);
 
+        void Refine(boost::unordered_set<size_t>& vertices_nums,
+                    EvolutionaryTree& tree);
+
+        bool SecondCloneIsFirstsAncestor(EvolutionaryTree& tree, size_t first_clone, size_t second_clone);
 
 
         bool ReconstructAncestralLineageSimple(

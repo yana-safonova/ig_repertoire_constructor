@@ -26,6 +26,14 @@ namespace antevolo {
             const annotation_utils::AnnotatedClone &src_clone,
             const annotation_utils::AnnotatedClone &dst_clone,
             size_t src_num, size_t dst_num) const {
+        if (!(annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(src_clone.VSHMs(),
+                                                                           dst_clone.VSHMs()) &&
+              annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(src_clone.JSHMs(),
+                                                                           dst_clone.JSHMs())))
+            {
+            return std::shared_ptr<BaseEvolutionaryEdge>( new BaseEvolutionaryEdge(src_clone, dst_clone,
+                                                                                   src_num, dst_num) );
+        }
         // undirected
         if (annotation_utils::SHMComparator::SHMsAreEqual(src_clone.VSHMs(), dst_clone.VSHMs()) &&
             annotation_utils::SHMComparator::SHMsAreEqual(src_clone.JSHMs(), dst_clone.JSHMs()))
@@ -36,11 +44,13 @@ namespace antevolo {
             annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(src_clone.JSHMs(), dst_clone.JSHMs()))
             return std::shared_ptr<BaseEvolutionaryEdge>( new DirectedEvolutionaryEdge(src_clone, dst_clone,
                                                                                        src_num, dst_num) );
-        // reverse directed = unknown
+        // reverse directed
         if (annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(dst_clone.VSHMs(), src_clone.VSHMs()) &&
             annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(dst_clone.JSHMs(), src_clone.JSHMs()))
-            return std::shared_ptr<BaseEvolutionaryEdge>( new BaseEvolutionaryEdge(src_clone, dst_clone,
-                                                                                       src_num, dst_num) );
+            return std::shared_ptr<BaseEvolutionaryEdge>( new ReverseDirectedEvolutionaryEdge(src_clone,
+                                                                                              dst_clone,
+                                                                                              src_num,
+                                                                                              dst_num) );
         // intersected
         // V
         size_t num_intersected_v_shms = annotation_utils::SHMComparator::GetNumberOfIntersections(src_clone.VSHMs(),

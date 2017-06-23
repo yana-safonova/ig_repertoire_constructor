@@ -39,6 +39,7 @@ namespace antevolo {
         SetUndirectedComponentsParentEdges(ds_on_undirected_edges, vertices_nums);
         SetDirections(ds_on_undirected_edges, vertices_nums, tree);
         ReconstructMissingVertices(vertices_nums, tree);
+        Refine(vertices_nums, tree);
         tree.AddAllEdges();
         return tree;
     }
@@ -163,6 +164,161 @@ namespace antevolo {
             }
         }
     }
+
+    void Base_CDR3_HG_CC_Processor::Refine(boost::unordered_set<size_t>& vertices_nums,
+                                           EvolutionaryTree& tree) {
+        auto& clone_set = *clone_set_ptr_;
+        auto edge_constructor = GetEdgeConstructor();
+        boost::unordered_map<size_t, EvolutionaryEdgePtr> best_intersected_edges;
+        boost::unordered_map<size_t, EvolutionaryEdgePtr> best_reverse_edges;
+//        INFO("start refinement");
+        for (size_t clone_num : vertices_nums) {
+            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[clone_num]);
+            while (it.HasNext()) {
+                size_t src_num = it.Next();
+                VERIFY(vertices_nums.find(src_num) != vertices_nums.end());
+                if (src_num == clone_num) {
+                    continue;
+                }
+                auto edge = edge_constructor->ConstructEdge(
+                        clone_set[src_num],
+                        clone_set[clone_num],
+                        src_num,
+                        clone_num);
+                if (edge->IsIntersected()) {
+                    if (best_intersected_edges.find(clone_num) == best_intersected_edges.end() ||
+                        edge->Length() < best_intersected_edges[clone_num]->Length()) {
+                        best_intersected_edges[clone_num] = edge;
+                    }
+                }
+                if (edge->IsReverseDirected()) {
+                    if (best_reverse_edges.find(clone_num) == best_reverse_edges.end() ||
+                        edge->Length() < best_reverse_edges[clone_num]->Length()) {
+                        best_reverse_edges[clone_num] = edge;
+                    }
+                }
+            }
+        }
+//        INFO("calculated best edges");
+        std::vector<size_t> vertices_list;
+        for (size_t clone_num : vertices_nums) {
+            if (clone_set.IsFake(clone_num)) {
+                continue;
+            }
+            vertices_list.push_back(clone_num);
+        }
+        for (size_t clone_num : vertices_list) {
+//            INFO("here");
+            size_t reverse_cost = size_t(-1);
+            size_t intersected_cost = size_t(-1);
+            size_t default_cost= tree.GetParentEdgeLength(clone_num);
+//            INFO("here 2");
+            if (best_reverse_edges.find(clone_num) != best_reverse_edges.end()) {
+                reverse_cost = best_reverse_edges[clone_num]->Length();
+            }
+            if (best_intersected_edges.find(clone_num) != best_intersected_edges.end()) {
+//                INFO("here 3");
+                auto edge = best_intersected_edges[clone_num];
+                if (SecondCloneIsFirstsAncestor(tree,
+                                                edge->SrcNum(),
+                                                clone_num)) {
+                    continue;
+                }
+                if (edge->IsDoubleMutated()) {
+                    intersected_cost = edge->Length();
+                    if (intersected_cost < default_cost && intersected_cost < reverse_cost) {
+                        tree.ReplaceEdge(clone_num, edge);
+                        continue;
+                    }
+                }
+                else {
+//                    INFO("reconstruction case");
+                    const auto& left = *edge->SrcClone();
+                    const auto& right= *edge->DstClone();
+                    size_t left_num = edge->SrcNum();
+                    size_t right_num = clone_num;
+                    size_t parent_num = clone_set.size();
+
+
+                    auto cdr3_range = clone_by_read_constructor_.GetGeneCDR3Ranges(left.VGene(), left.JGene());
+                    ++current_fake_clone_index_;
+                    ++reconstructed_;
+                    auto tpl = ParentReadReconstructor::ReconstructParentRead(left,
+                                                                              right,
+                                                                              current_fake_clone_index_,
+                                                                              cdr3_range.first,
+                                                                              cdr3_range.second);
+                    auto parent_clone = clone_by_read_constructor_.GetCloneByReadAndAlignment(tpl,
+                                                                                              left.VGene(),
+                                                                                              left.JGene());
+                    auto left_parent_edge = edge_constructor->ConstructEdge(left,
+                                                                            parent_clone,
+                                                                            left_num,
+                                                                            parent_num);
+                    auto parent_right_edge = edge_constructor->ConstructEdge(parent_clone,
+                                                                             right,
+                                                                             parent_num,
+                                                                             right_num);
+                    VERIFY(left_parent_edge->IsReverseDirected() && parent_right_edge->IsDirected());
+                    intersected_cost = left_parent_edge->Length() + parent_right_edge->Length();
+//                    INFO("reconstructed");
+                    if (intersected_cost < default_cost && intersected_cost < reverse_cost) {
+//                        bool transitive = true;
+//                        clone_set.AddClone(parent_clone);
+////                        INFO("inserting: intersected case");
+//                        vertices_nums.insert(parent_num);
+//                        tree.ReplaceEdge(parent_num, left_parent_edge);
+//                        tree.ReplaceEdge(right_num, parent_right_edge);
+//
+//                        auto it = getRelatedClonesIterator(hamming_graph_info_, *edge->SrcClone());
+//                        while (it.HasNext()) {
+//                            size_t dst_num = it.Next();
+//                            auto edge_n = edge_constructor->ConstructEdge(parent_clone,
+//                                                                        clone_set[dst_num],
+//                                                                        parent_num,
+//                                                                        dst_num);
+//                            if (edge_n->IsDirected() &&
+//                                    (!tree.HasParentEdge(dst_num) ||
+//                                     tree.GetParentEdgeLength(dst_num) > edge_n->Length()) &&
+//                                    !SecondCloneIsFirstsAncestor(tree, parent_num, dst_num)) {
+//                                tree.ReplaceEdge(dst_num, edge_n);
+//                                INFO("replacing");
+//                                transitive = false;
+//                            }
+//                        }
+//                        continue;
+                        tree.ReplaceEdge(clone_num, edge);
+                    }
+                    --current_fake_clone_index_;
+                    --reconstructed_;
+                }
+            }
+            if (reverse_cost < default_cost && reverse_cost < intersected_cost &&
+                !SecondCloneIsFirstsAncestor(tree, best_reverse_edges[clone_num]->SrcNum(), clone_num)) {
+//                INFO("reverse case");
+                tree.ReplaceEdge(clone_num, best_reverse_edges[clone_num]);
+                continue;
+            }
+        }
+    }
+
+    bool Base_CDR3_HG_CC_Processor::SecondCloneIsFirstsAncestor(EvolutionaryTree& tree,
+                                                                size_t first_clone,
+                                                                size_t second_clone) {
+        size_t current_clone = first_clone;
+        while (tree.HasParentEdge(current_clone)) {
+            current_clone = tree.GetParentEdge(current_clone)->SrcNum();
+            if (current_clone == second_clone) {
+//                INFO("true");
+                return true;
+            }
+//            INFO("mid");
+        }
+//        INFO("false");
+        return false;
+    }
+
+
     /*
     *       o
     *     /  \
@@ -254,6 +410,8 @@ namespace antevolo {
         roots.push_back(parent_num);
         return true;
     }
+
+
 
     void Base_CDR3_HG_CC_Processor::HandleRootNeighbour(
             size_t root_num,

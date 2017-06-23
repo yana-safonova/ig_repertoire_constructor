@@ -72,7 +72,7 @@ add_executable(antevolo
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
-        related_clones_iterator.cpp
+        evolutionary_graph_utils/related_clones_iterator.cpp
         shm_model_utils/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
         shm_model_utils/shm_model_edge_weight_calculator.cpp cluster_fillin_calculator.cpp cluster_fillin_calculator.hpp

@@ -17,6 +17,10 @@ namespace annotation_utils {
 
         static bool AddedSHMsAreSynonimous(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
 
+        static bool AllAddedSHMs1HaveIdenticallyPositionedSHMs2(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
+
+        static bool IndividualSHMsAreIdenticallyPositioned(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
+
         static std::vector<SHM> GetAddedSHMs(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2);
     };
 }

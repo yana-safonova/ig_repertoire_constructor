@@ -35,7 +35,7 @@ namespace  antevolo {
             num_intersected_shms = num_intersected_v_shms + num_intersected_j_shms;
         }
         size_t Length() const override {
-            return num_added_shms+cdr3_distance;
+            return num_added_shms + cdr3_distance;
         }
 
         bool IsDirected() const override { return true; }
