@@ -11,4 +11,7 @@ def parse_args():
                         const=True,
                         dest="skip_analysis",
                         help="Only estimate model")
+    parser.add_argument("-f", "--functionality",
+                        default="all",
+                        help="all, productive, nonproductive [default: %(default)s]")
     return parser.parse_args()
