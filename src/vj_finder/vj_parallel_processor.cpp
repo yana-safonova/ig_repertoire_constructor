@@ -4,8 +4,10 @@ namespace vj_finder {
     void VJParallelProcessor::Initialize() {
         for(size_t i = 0; i < read_archive_.size(); i++)
             thread_id_per_read_.push_back(size_t(-1));
-        for(size_t i = 0; i < num_threads_; i++)
+        for(size_t i = 0; i < num_threads_; i++) {
             info_per_thread.push_back(VJAlignmentInfo());
+            processor_per_thread.push_back(VJQueryProcessor(algorithm_params_, read_archive_, v_db_, j_db_));
+        }
     }
 
     VJAlignmentInfo VJParallelProcessor::GatherAlignmentInfos() {
@@ -32,8 +34,7 @@ namespace vj_finder {
             TRACE("Processing read: " << read_archive_[i].name);
             size_t thread_id = omp_get_thread_num();
             thread_id_per_read_[i] = thread_id;
-            VJQueryProcessor vj_query_processor(algorithm_params_, read_archive_, v_db_, j_db_);
-            auto processed_read = vj_query_processor.Process(read_archive_[i]);
+            auto processed_read = processor_per_thread[thread_id].Process(read_archive_[i]);
             if(processed_read.ReadToBeFiltered()) {
 //                std::cout << "bad: " << processed_read.filtering_info.filtering_reason << std::endl;
                 info_per_thread[thread_id].UpdateFilteringInfo(processed_read.filtering_info);
