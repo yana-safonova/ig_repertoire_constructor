@@ -4,14 +4,22 @@ import os.path
 from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 from statsmodels.stats.proportion import proportion_confint
 
-from config.config import config, read_config
-from config.parse_input_args import parse_args
-from sample_reader.standard_samples import concatenate_kmer_freq_matrices
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
+plt.rcParams['figure.figsize'] = 15, 10
 
 from special_utils.os_utils import smart_makedirs
+from config.config import config, read_config
+from config.parse_input_args import parse_args
 
+from spots.spots import coldspots, hotspots
+from sample_reader.standard_samples import concatenate_kmer_freq_matrices
+from shm_kmer_model.cab_shm_model import Region
 from shm_kmer_model.cab_shm_nonproductive_model import CAB_SHM_Nonproductive_Model
 
 
@@ -39,7 +47,8 @@ def estimate_params(config, matrices):
 
         fr_mut_ci   = get_mut_ci(matrix[:, 0], matrix[:, 0] + matrix[:, 1])
         cdr_mut_ci  = get_mut_ci(matrix[:, 2], matrix[:, 2] + matrix[:, 3])
-        full_mut_ci = get_mut_ci(matrix[:, 2], matrix[:, 2] + matrix[:, 3])
+        full_mut_ci = get_mut_ci(matrix[:, 0] + matrix[:, 2],
+                                 np.sum(matrix[:, 0:4], axis=1))
         return fr_mut, fr_mut_ci, cdr_mut, cdr_mut_ci, full_mut, full_mut_ci, subst
 
     models = defaultdict(lambda: defaultdict(int))
@@ -58,8 +67,64 @@ def estimate_params(config, matrices):
                                                          chain=k2,
                                                          dataset=model_dataset,
                                                          export=True)
-            well_covered_kmer_ind, _ = models[k1][k2].get_well_covered_kmers()
     return models
+
+
+def draw_muts(models, config):
+    def draw_mut_strategy_chain(model, config, strategy, chain, mut_plots_dir):
+        def draw_mut_region(model, config, muts, cis, kmer_ind, kmers, figname):
+            muts = muts[kmer_ind]
+            cis = cis[kmer_ind]
+
+            order = np.argsort(muts)[::-1]
+            muts = muts[order]
+            kmer_ind = kmer_ind[order]
+            kmers = kmers[order]
+            cis = cis[order]
+            muts = np.concatenate((muts[:, np.newaxis], cis), axis=1)
+
+            muts = pd.DataFrame(muts.T, columns=kmers)
+            print(figname)
+
+            colors = np.array(['black'] * len(kmers))
+            hspots = set(hotspots())
+            cspots = set(coldspots())
+            for i, kmer in enumerate(kmers):
+                if kmer in hspots:
+                    colors[i] = 'red'
+                elif kmer in cspots:
+                    colors[i] = 'blue'
+
+            g = sns.pointplot(data=muts, markers='_', linestyles='None', scale=0.1, join=False)
+            g.set_xticklabels(g.get_xticklabels(), rotation=90)
+            [t.set_color(i) for (i,t) in zip(colors, g.xaxis.get_ticklabels())]
+            [t.set_facecolor(i) for (i,t) in zip(colors, g.artists)]
+            g.set_ylim(0, 1)
+            fig = g.get_figure()
+            fig.set_size_inches(10, 7)
+            fig.savefig(figname, format='pdf', dpi=150)
+            plt.close()
+
+        def call_draw(region):
+            kmer_ind, kmers = model.get_well_covered_kmers(region=region)
+            draw_mut_region(model, config,
+                            muts = model.all_expect_mut_prob(region=region),
+                            cis = model.all_expect_mut_ci(region=region),
+                            kmer_ind=kmer_ind,
+                            kmers=kmers,
+                            figname=os.path.join(mut_plots_dir, '%s_%s_%s.pdf' % (strategy.name, chain.name, region.name)))
+
+        call_draw(Region.FR)
+        call_draw(Region.CDR)
+        call_draw(Region.ANY)
+
+
+
+    mut_plots_dir = os.path.join(config.outdir, config.mut_plots)
+    smart_makedirs(mut_plots_dir)
+    for k1 in models:
+        for k2 in models[k1]:
+            draw_mut_strategy_chain(models[k1][k2], config, k1, k2, mut_plots_dir)
 
 
 def main():
@@ -86,7 +151,7 @@ def main():
                              matrices=matrices)
 
     print("Plotting Mutabilities with CIs")
-    #draw_muts(config=nonproductive_model_config, models=models)
+    draw_muts(config=nonproductive_model_config, models=models)
 
 if __name__ == "__main__":
     main()

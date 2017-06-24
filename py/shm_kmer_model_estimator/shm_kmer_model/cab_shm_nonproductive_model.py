@@ -66,7 +66,12 @@ class CAB_SHM_Nonproductive_Model(object):
         return (self.dataset.loc[kmer][col_name + "_ci_left"],
                 self.dataset.loc[kmer][col_name + "_ci_right"])
 
-    def get_well_covered_kmers(self, threshold=50, region=Region.ANY):
+    def all_expect_mut_ci(self, region=Region.ANY):
+        col_name = self.get_mut_column__(region) 
+        return np.concatenate((self.dataset[col_name + "_ci_left"][:, np.newaxis],
+            self.dataset[col_name + "_ci_right"][:, np.newaxis]), axis=1)
+
+    def get_well_covered_kmers(self, threshold=100, region=Region.ANY):
         if region == Region.FR:
             sel_cols = self.orig_matrix[:, [0, 1]]
         elif region == Region.CDR:
