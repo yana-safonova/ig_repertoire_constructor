@@ -11,7 +11,7 @@ import seaborn as sns
 from config.config import config, read_config
 from config.parse_input_args import parse_args
 
-from shm_kmer_model import cab_shm_model, yale_model, cab_shm_nonproductive_model
+from shm_kmer_model import cab_shm_model, yale_model, cab_shm_simple_frequency
 from mutation_strategies import mutation_strategies
 from chains.chains import Chains
 
@@ -26,7 +26,8 @@ from special_utils.os_utils import smart_mkdir
 def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
     ymodel                  = yale_model.YaleSHM_Model()
     cabmodel                = cab_shm_model.CAB_SHM_Model(strategy, chain_type)
-    cab_nonproductive_model = cab_shm_nonproductive_model.CAB_SHM_Nonproductive_Model(strategy, chain_type)
+    cab_sfreq_all_model = cab_shm_simple_frequency.CAB_SHM_SimpleFrequencyModel(strategy, chain_type, functionality='all')
+    cab_sfreq_non_model = cab_shm_simple_frequency.CAB_SHM_SimpleFrequencyModel(strategy, chain_type, functionality='nonproductive')
 
     flu_trees_paths = flu_trees_statistics_calculator.get_flu_trees_paths(chain_type=chain_type)
     tester = tree_test_utilities.TreeTester()
@@ -34,7 +35,9 @@ def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
                                                                        tree_paths=flu_trees_paths)
     cabresults                = tester.get_likelihood_statistics_trees(model=cabmodel,
                                                                        tree_paths=flu_trees_paths)
-    cab_nonproductive_results = tester.get_likelihood_statistics_trees(model=cab_nonproductive_model,
+    cab_sfreq_all_results = tester.get_likelihood_statistics_trees(model=cab_sfreq_all_model,
+                                                                       tree_paths=flu_trees_paths)
+    cab_sfreq_non_results = tester.get_likelihood_statistics_trees(model=cab_sfreq_non_model,
                                                                        tree_paths=flu_trees_paths)
 
     filename = '%s_%s.' % (strategy.name, chain_type.name)
@@ -44,46 +47,57 @@ def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
     with open(log_filename, 'w') as f:
         f.write("Median for Yale: %lf\n" % np.nanmedian(yresults.accuracies))
         f.write("Median for CAB: %lf\n" % np.nanmedian(cabresults.accuracies))
-        f.write("Median for CAB nonproductive: %lf\n" % np.nanmedian(cab_nonproductive_results.accuracies))
+        f.write("Median for CAB Simple Freq All: %lf\n" % np.nanmedian(cab_sfreq_all_results.accuracies))
+        f.write("Median for CAB Simple Freq NonProductive: %lf\n" % np.nanmedian(cab_sfreq_non_results.accuracies))
 
         f.write("Yale Accuracies: %s\n" % yresults.accuracies)
         f.write("CAB Accuracies: %s\n" % cabresults.accuracies)
-        f.write("CAB nonproductive Accuracies: %s\n" % cab_nonproductive_results.accuracies)
+        f.write("CAB Simple Freq All Accuracies: %s\n" % cab_sfreq_all_results.accuracies)
+        f.write("CAB Simple Freq NonProductive Accuracies: %s\n" % cab_sfreq_non_results.accuracies)
 
         f.write("Full accuracy for Yale: %lf\n" % yresults.full_accuracy)
         f.write("Full accuracy for CAB: %lf\n" % cabresults.full_accuracy)
-        f.write("Full accuracy for CAB nonproductive: %lf\n" % cab_nonproductive_results.full_accuracy)
+        f.write("Full accuracy for CAB All: %lf\n" % cab_sfreq_all_results.full_accuracy)
+        f.write("Full accuracy for CAB NonProductive: %lf\n" % cab_sfreq_non_results.full_accuracy)
 
         mw_ycab = mannwhitneyu(yresults.accuracies, cabresults.accuracies, use_continuity=True)
         f.write("Mann Whitney test for equality of means Yale vs CAB: %s\n" % str(mw_ycab))
 
-        mw_ycabn = mannwhitneyu(yresults.accuracies, cab_nonproductive_results.accuracies, use_continuity=True)
-        f.write("Mann Whitney test for equality of means Yale vs CAB nonprod: %s\n" % str(mw_ycabn))
+        mw_ycabsfa = mannwhitneyu(yresults.accuracies, cab_sfreq_all_results.accuracies, use_continuity=True)
+        f.write("Mann Whitney test for equality of means Yale vs CAB Simple Freq All: %s\n" % str(mw_ycabsfa))
 
-        mw_cabcabn = mannwhitneyu(cabresults.accuracies, cab_nonproductive_results.accuracies, use_continuity=True)
-        f.write("Mann Whitney test for equality of means CAB vs CAB nonprod: %s\n" % str(mw_cabcabn))
+        mw_ycabsfn = mannwhitneyu(yresults.accuracies, cab_sfreq_non_results.accuracies, use_continuity=True)
+        f.write("Mann Whitney test for equality of means Yale vs CAB Simple Freq NonProductive: %s\n" % str(mw_ycabsfn))
 
-    def draw(title, yale, cab, cabn, fig_filename, bins=10):
+        mw_cabcabsfa = mannwhitneyu(cabresults.accuracies, cab_sfreq_all_results.accuracies, use_continuity=True)
+        f.write("Mann Whitney test for equality of means CAB vs CAB Simple Freq All: %s\n" % str(mw_cabcabsfa))
+
+        mw_cabcabsfn = mannwhitneyu(cabresults.accuracies, cab_sfreq_non_results.accuracies, use_continuity=True)
+        f.write("Mann Whitney test for equality of means CAB vs CAB Simple Freq NonProductive: %s\n" % str(mw_cabcabsfn))
+
+    def draw(title, yale, cab, cabsfa, cabsfn, fig_filename, bins=10):
         def draw_distplot(x, color):
-            return sns.distplot(x[~np.isnan(x)], bins=bins, rug=True, kde=True)
+            return sns.distplot(x[~np.isnan(x)], color=color, bins=bins, rug=True, kde=True, hist=False)
         ypict = draw_distplot(yale.accuracies, color='blue')
         cabpict = draw_distplot(cab.accuracies, color='green')
-        cabnpict = draw_distplot(cabn.accuracies, color='red')
-        plt.legend(['Yale', 'CAB', 'CAB nonprod'])
+        cabnpict = draw_distplot(cab_sfreq_all_results.accuracies, color='red')
+        cabnpict = draw_distplot(cab_sfreq_non_results.accuracies, color='black')
+        plt.legend(['Yale', 'CAB', 'CAB Simple Freq All', 'CAB Simple Freq NonProd'])
         ax = plt.gca()
         leg = ax.get_legend()
         leg.legendHandles[0].set_color('blue')
         leg.legendHandles[1].set_color('green')
         leg.legendHandles[2].set_color('red')
+        leg.legendHandles[3].set_color('black')
         plt.title(title)
         plt.savefig(fig_filename, format='pdf')
         plt.clf()
 
     figures_dir = os.path.join(log_dir, 'figures')
     smart_mkdir(figures_dir)
-    draw('Accuracy', yresults, cabresults, cab_nonproductive_results,
+    draw('Accuracy', yresults, cabresults, cab_sfreq_all_model, cab_sfreq_non_results,
           os.path.join(figures_dir, filename) + "pdf")
-    return {'Yale': yresults, 'CAB': cabresults, 'CAB_nonprod': cab_nonproductive_results}
+    return {'Yale': yresults, 'CAB': cabresults, 'CAB_SF_all': cab_sfreq_all_model, 'CAB_SF_nonprod': cab_sfreq_non_results}
 
 
 def main():
