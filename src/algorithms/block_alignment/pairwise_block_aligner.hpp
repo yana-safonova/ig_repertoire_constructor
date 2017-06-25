@@ -167,6 +167,10 @@ namespace algorithms {
                     continue;
                 std::sort(matches.begin(), matches.end(),
                           [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos < b.needle_pos; });
+                matches.resize(std::unique(matches.begin(), matches.end(),
+                          [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos == b.needle_pos; }) - 
+                          matches.begin());
+
                 PairwiseBlockAlignment align = MakeAlignment(matches, query, i);
                 if (this->CheckAlignment(align)) {
                     result.Add(std::move(align), i);
@@ -196,10 +200,11 @@ namespace algorithms {
                 res.push_back(matches[i]);
                 i = pos_before[i];
             }
-            std::reverse(begin(res), end(res));
+
+            std::reverse(res.begin(), res.end());
             for (size_t i = 1; i < res.size(); i++) {
-                assert(res[i - 1].needle_pos < res[i].needle_pos);
-                assert(res[i - 1].read_pos < res[i].read_pos);
+                VERIFY(res[i - 1].needle_pos <= res[i].needle_pos);
+                VERIFY(res[i - 1].read_pos < res[i].read_pos);
             }
             return res;
         }
@@ -210,10 +215,12 @@ namespace algorithms {
 
             std::vector<KmerMatch> lis = findLIS(matches);
             std::vector<Match> combined = combine_sequential_kmer_matches(lis, this->kmer_index_.k());
-
+            std::sort(begin(combined), end(combined), [](const Match a, const Match b) -> bool {
+                return a.read_pos < b.read_pos;
+            });
             for (size_t i = 1; i < combined.size(); i++) {
-                assert(combined[i - 1].subject_pos < combined[i].subject_pos);
-                assert(combined[i - 1].read_pos < combined[i].read_pos);
+                VERIFY(combined[i - 1].subject_pos < combined[i].subject_pos);
+                VERIFY(combined[i - 1].read_pos < combined[i].read_pos);
             }
 
             AlignmentPath path;
