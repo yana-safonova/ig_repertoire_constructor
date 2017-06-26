@@ -26,7 +26,7 @@ namespace algorithms {
         KmerIndexHelper<SubjectDatabase, StringType>& kmer_index_helper_;
 
         // inner structure
-        std::unordered_map<size_t, std::vector<SubjectPosition>> kmer_query_pos_map_;
+        std::vector<std::vector<SubjectPosition>> kmer_query_pos_map_;
 
         void UpdateMap(const std::vector<size_t>& str_hashes, size_t str_length, size_t str_index) {
             for (size_t start = 0; start + k_ <= str_length; ++start) {
@@ -37,7 +37,7 @@ namespace algorithms {
         void Initialize() {
             for (size_t j = 0; j < kmer_index_helper_.GetDbSize(); ++j) {
                 auto s = kmer_index_helper_.GetDbRecordByIndex(j);
-                auto hashes = polyhashes(s, k_);
+                auto hashes = bitmaskhashes(s, k_);
                 UpdateMap(hashes, kmer_index_helper_.GetStringLength(s), j);
             }
         }
@@ -49,17 +49,18 @@ namespace algorithms {
                 db_(db),
                 k_(k),
                 kmer_index_helper_(kmer_index_helper) {
+            VERIFY(k <= 7);
+            kmer_query_pos_map_.resize(1 << (2 * k));
             Initialize();
         }
 
         const SubjectDatabase & Db() const { return db_; }
 
         bool SubjectsContainKmer(size_t kmer) const {
-            return kmer_query_pos_map_.find(kmer) != kmer_query_pos_map_.end();
+            return kmer_query_pos_map_[kmer] > 0;
         }
 
         const std::vector<SubjectPosition>& GetSubjectPositions(size_t kmer) const {
-            VERIFY_MSG(SubjectsContainKmer(kmer), "Subjects do not contain kmer " << kmer);
             return kmer_query_pos_map_.at(kmer);
         }
 
@@ -69,13 +70,11 @@ namespace algorithms {
 
         SubjectKmerMatches GetSubjectKmerMatchesForQuery(const StringType &query_str) const {
             SubjectKmerMatches subj_kmer_matches(NumSubjects());
-            auto query_hashes = polyhashes(query_str, k());
+            auto query_hashes = bitmaskhashes(query_str, k());
             size_t start = 0;
             size_t finish = kmer_index_helper_.GetStringLength(query_str);
             for(size_t j = start; j < finish - k() + 1; ++j) {
                 auto kmer = query_hashes[j];
-                if(!SubjectsContainKmer(kmer))
-                    continue;
                 auto subj_pos = GetSubjectPositions(kmer);
                 //for (const auto &p : subj_it.second) {
                 for(auto it = subj_pos.begin(); it != subj_pos.end(); it++) {
