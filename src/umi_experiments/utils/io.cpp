@@ -7,7 +7,7 @@
 #include <logger/logger.hpp>
 #include <verify.hpp>
 #include "../../ig_tools/utils/string_tools.hpp"
-#include <umi_utils.hpp>
+#include "../umi_experiments/umi_utils.hpp"
 
 bool create_new_directory(boost::filesystem::path path) {
     namespace fs = boost::filesystem;
@@ -29,6 +29,18 @@ void read_seqan_records(const std::string& input_file_name, std::vector<seqan::C
     INFO("Reading sequences from " << input_file_name);
     seqan::SeqFileIn reads_file(input_file_name.c_str());
     readRecords(ids, reads, reads_file);
+    INFO(reads.size() << " sequences read");
+}
+
+void read_seqan_records(const std::string& input_file_name, std::unordered_map<seqan::CharString, seqan::Dna5String>& id_to_read) {
+    INFO("Reading sequences from " << input_file_name);
+    seqan::SeqFileIn reads_file(input_file_name.c_str());
+    std::vector<seqan::CharString> ids;
+    std::vector<seqan::Dna5String> reads;
+    readRecords(ids, reads, reads_file);
+    for (size_t i = 0; i < ids.size(); i ++) {
+        id_to_read[ids[i]] = reads[i];
+    }
     INFO(reads.size() << " sequences read");
 }
 
