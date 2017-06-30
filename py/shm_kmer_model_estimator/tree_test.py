@@ -23,6 +23,23 @@ from tree_test_utilities import flu_trees_statistics_calculator, tree_test_utili
 from special_utils.os_utils import smart_mkdir
 
 
+def test_edges_info(config):
+    from tree_test_utilities.flu_trees_statistics_calculator import get_flu_trees_paths
+    from tree_test_utilities.tree_test_utilities import TreeTester
+
+    trees_paths = get_flu_trees_paths()
+    tester = TreeTester()
+    trees = tester.get_trees(trees_paths)
+    num_shms = []
+    for tree in trees:
+        num_shms += list(tree["Num_Src_SHMs"])
+
+    g = sns.distplot(num_shms)
+    fig = g.get_figure()
+    fig.savefig(os.path.join(config.outdir, config.shm_edges_dist),
+                format='pdf', dpi=150)
+
+
 def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
     ymodel                  = yale_model.YaleSHM_Model()
     cabmodel                = cab_shm_model.CAB_SHM_Model(strategy, chain_type)
@@ -104,6 +121,7 @@ def main():
     parsed_args = parse_args()
     input_config = read_config(parsed_args.input)
     test_config = input_config.kmer_model_tree_test
+    test_edges_info(test_config)
     for strategy in mutation_strategies.MutationStrategies:
         for chain_type in Chains:
             if chain_type.name == 'IG':

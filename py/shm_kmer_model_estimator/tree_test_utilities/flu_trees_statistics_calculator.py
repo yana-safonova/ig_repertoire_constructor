@@ -44,8 +44,6 @@ def get_flu_trees_paths__(chain_path, n_largest_trees, data_path_prefix):
     return paths
 
 
-
-
 class FluTreesStatisticsCalculator(object):
     def __init__(self, strategy, chain, n_largest_trees=5,
                  data_path_prefix='/Users/andrewbzikadze/chihua/home/' +
@@ -57,8 +55,6 @@ class FluTreesStatisticsCalculator(object):
         self.cab_model = cab_shm_model.CAB_SHM_Model(strategy, chain)
         self.flu_ind_names = ['IDO', 'FV', 'GMC']
         self.model_names = ['Yale', 'CAB_NoKNeighbours', 'CAB_Trivial']
-
-    # def get_flu_trees_paths(self, chain_type='IGH'):
 
     def get_flu_likelihood_statistics(self, tester, model_mode,
                                       chain_type='IGH'):

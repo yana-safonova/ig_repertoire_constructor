@@ -7,6 +7,7 @@
 #include <string>
 
 #include <cassert>
+#include <cmath>
 #include <boost/tokenizer.hpp>
 
 #include "verify.hpp"
@@ -114,10 +115,10 @@ double ShmModel::beta_expectation(const std::string& kmer,
     auto &success_full = beta_full_success_mle_[kmer];
 
     if ( success and
-         not isnan(param[0]) and not isnan(param[1]) ) {
+         not std::isnan(param[0]) and not std::isnan(param[1]) ) {
         return param[0] / (param[0] + param[1]);
     } else if ( success_full and
-                not isnan(param_full[0]) and not isnan(param_full[1]) ) {
+                not std::isnan(param_full[0]) and not std::isnan(param_full[1]) ) {
         return param_full[0] / (param_full[0] + param_full[1]);
     }
     return start[0] / (start[0] + start[1]);
@@ -142,7 +143,7 @@ double ShmModel::dirichlet_expectation(const std::string& kmer, const char nucl)
     auto &start = start_point_dirichlet_params_[kmer];
 
     if ( success and
-         not isnan(param[0]) and not isnan(param[1]) and not isnan(param[2]) ) {
+         not std::isnan(param[0]) and not std::isnan(param[1]) and not std::isnan(param[2]) ) {
         return param[mutation_index] / (param[0] + param[1] + param[2]);
     }
     return start[mutation_index] / (start[0] + start[1] + start[2]);

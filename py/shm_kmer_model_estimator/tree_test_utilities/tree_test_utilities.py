@@ -49,6 +49,12 @@ class TreeTester(object):
         tree = tree.loc[mutated_indexes]
         return tree
 
+    def get_trees(self, tree_paths, mismatch_strategy='Trivial'):
+        trees = [self.__read_tree(tree_path) for tree_path in tree_paths]
+        trees = [self.__filter_tree(tree, mismatch_strategy) for tree in trees]
+        trees = [tree for tree in trees if len(tree)]
+        return trees
+
     def get_likelihood_statistics_tree(self, model, tree_path=None,
                                        mismatch_strategy='Trivial'):
         tree = self.__read_tree(tree_path)

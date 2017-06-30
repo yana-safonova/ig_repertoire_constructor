@@ -110,7 +110,7 @@ double ShmModelEdgeWeightCalculator::calculate_weigth_edge(const BaseEvolutionar
     double log_likelihood = 0;
     for (const auto& center_nucl_pos : relevant_positions) {
         double add_llklh = calculate_weigth_edge_per_position(src_dst_pair, center_nucl_pos, kmer_len_);
-        if (not isnan(add_llklh)) {
+        if (not std::isnan(add_llklh)) {
             log_likelihood += add_llklh;
         }
     }
