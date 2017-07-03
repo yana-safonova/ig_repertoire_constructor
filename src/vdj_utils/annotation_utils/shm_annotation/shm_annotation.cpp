@@ -29,8 +29,8 @@ namespace annotation_utils {
             return false;
         if(read_nucl != shm.read_nucl)
             return false;
-        if(read_aa != shm.read_aa)
-            return false;
+//        if(read_aa != shm.read_aa)
+//            return false;
         return shm_type == shm.shm_type;
     }
 
