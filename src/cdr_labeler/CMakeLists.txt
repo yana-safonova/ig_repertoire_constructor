@@ -7,7 +7,7 @@
 project(cdr_labeler CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${IGREC_MAIN_INCLUDE_DIR})
 include_directories(${CORE_DIR})
 include_directories(${VDJ_UTILS_DIR})
 include_directories(${ALGORITHMS_DIR})
@@ -44,6 +44,7 @@ target_link_libraries(cdr_labeler_library
         boost_program_options
         ${COMMON_LIBRARIES}
         )
+
 
 add_executable(cdr_labeler
         cdr_launch.cpp

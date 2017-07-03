@@ -19,7 +19,7 @@ include_directories(${SHM_DIR})
 add_executable(antevolo
         ../cdr_labeler/cdr_config.cpp
         ../vj_finder/vj_finder_config.cpp
-        ../vj_finder/germline_db_generator.cpp
+        ../vdj_utils/germline_utils/germline_db_generator.cpp
         ../vj_finder/vj_alignment_structs.cpp
         ../vj_finder/vj_query_aligner.cpp
         ../vj_finder/vj_hits_filter.cpp
@@ -67,12 +67,13 @@ add_executable(antevolo
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp
+        cdr3_hamming_graph_connected_components_processors/edmonds_utils/edmonds_processor.cpp
         evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         annotated_clone_by_read_constructor.cpp
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
-        related_clones_iterator.cpp
+        evolutionary_graph_utils/related_clones_iterator.cpp
         shm_model_utils/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
         shm_model_utils/shm_model_edge_weight_calculator.cpp cluster_fillin_calculator.cpp cluster_fillin_calculator.hpp

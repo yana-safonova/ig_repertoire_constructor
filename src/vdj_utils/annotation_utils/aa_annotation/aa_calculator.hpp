@@ -8,19 +8,21 @@ namespace annotation_utils {
     class BaseAACalculator {
     public:
         virtual AminoAcidAnnotation<core::Read> ComputeAminoAcidAnnotation(const core::Read& read,
-                                                                           const CDRLabeling &cdr_labeling) = 0;
+                                                                           const CDRLabeling &cdr_labeling) const = 0;
 
         virtual ~BaseAACalculator() { }
     };
 
     class SimpleAACalculator : public BaseAACalculator {
     private:
-        bool ComputeInFrame(const CDRLabeling &cdr_labeling);
+        bool ComputeInFrame(const CDRLabeling &cdr_labeling) const;
 
-        bool FindStopCodon(const AAString &aa_str);
+        bool FindStopCodon(const AAString &aa_str) const;
 
     public:
         AminoAcidAnnotation<core::Read> ComputeAminoAcidAnnotation(const core::Read& read,
-                                                                   const CDRLabeling &cdr_labeling);
+                                                                   const CDRLabeling &cdr_labeling) const override;
     };
+
+    using BaseAACalculatorPtr = std::unique_ptr<BaseAACalculator>;
 }

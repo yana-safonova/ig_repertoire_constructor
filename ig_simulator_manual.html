@@ -1,0 +1,255 @@
+<head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>IgSimulator 2.0.alpha Manual</title>
+    <style type="text/css">
+        .code {
+            background-color: lightgray;
+        }
+    </style>
+    <style>
+    </style>
+</head>
+<body>
+
+<h1>IgSimulator 2.0.alpha manual</h1>
+
+1. <a href="#intro">What is IgSimulator?</a><br>
+
+2. <a href="#install">Installation</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.1. <a href="#test_datasets">Verifying your installation</a><br>
+
+3. <a href="#usage">IgSimulator usage</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.1. <a href="#basic_options">Basic options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.2. <a href="#advanced_options">Advanced options</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.3. <a href="#examples">Examples</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;3.4. <a href="#output">Output files</a><br>
+
+4. <a href="#output_files">Output file formats</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.1. <a href="#base_repertoire.fasta">Base repertoire fasta</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.2. <a href="#base_repertoire.info">Base repertoire info</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.3. <a href="#pools">Full and filtered pool fasta</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;4.4. <a href="#trees_dir">Clonal Trees files</a><br>
+
+<!--- 5. <a href = "#plot_descr">Plot description</a><br> --->
+
+5. <a href="#feedback">Feedback and bug reports</a><br>
+<!--- &nbsp;&nbsp;&nbsp;&nbsp;5.1. <a href="#citation">Citation</a><br> --->
+
+<!-- -------- --->
+<h2 id = "intro">1. What is IgSimulator?</h2>
+<p>
+    IgSimulator is a tool for simulation of antibody repertoires, clonal lineages and clonal trees.
+    It performs the following steps:
+    <ul>
+        <li>simulates <b>metaroots</b> &mdash; each as a result of certain V(D)J recombination,</li>
+        <li>for each metaroot simulates a <b>number of trees</b> that are simulated at the 3rd step with this metaroot as a tree root,</li>
+        <li>for each metaroot simulates <b>clonal trees</b> imitating evolutionary process and clonal selection.</li>
+    </ul>
+</p>
+
+Some vertices of a clonal tree are marked absent to imitate evolutionary process.
+
+<!-- -------- --->
+<a id="install"></a>
+<h2>2. Installation</h2>
+
+IgSimulator has the following dependencies:
+<ul>
+    <li>64-bit Linux or MacOS system,</li>
+    <li>g++ (version 4.7 or higher) or clang compiler,</li>
+    <li>Cmake (version 2.8.8 or higher),</li>
+    <li>Python 2.7.</li>
+</ul>
+
+To assemble IgSimulator, type
+<pre class="code">
+    <code>
+    make
+    </code>
+</pre>
+
+To install IgSimulator (after the previous step) type
+<pre class="code">
+    <code>
+    make install
+    </code>
+</pre>
+
+If you want to install IgSimulator to a particular path <code>$YOUR_PATH</code>, type
+<pre class="code">
+    <code>
+    make install prefix=$YOUR_PATH
+    </code>
+</pre>
+
+<a id="test_datasets"></a>
+<h3>2.1. Verifying your installation</h3>
+
+&#9658; To try IgSimulator, run:
+<pre class="code"><code>
+    ./ig_simulator.py --test
+</code>
+</pre>
+
+Test run should take not more than several seconds.
+If the installation of IgSimulator is successful, you will find the following information at the end of the log:
+
+<pre class="code">
+    <code>
+    Thank you for using IgSimulator!
+    Log was written to &lt;your_installation_dir>/ig_simulator_test/ig_simulator.log
+    </code>
+</pre>
+
+<!-- -------- --->
+<h2 id = "usage">3. IgSimulator usage</h2>
+
+To run IgSimulator, type:
+<pre class="code">
+    <code>
+    ./ig_simulator.py [options] -o &lt;output_dir&gt;
+    </code>
+</pre>
+
+<!-- --->
+<h3 id = "basic_options">3.1. Basic options</h3>
+
+<code>-o / --output &lt;output_dir&gt;</code><br>
+output directory (required).
+
+<br><br>
+
+<code>--test</code><br>
+Running at default parameters at a test directory.
+Command line corresponding to the test run is equivalent to the following:
+<pre class = "code">
+    <code>
+    ./ig_simulator.py -o ig_simulator_test
+    </code>
+</pre>
+
+<code>--help</code><br>
+Printing help.
+
+<br><br>
+
+<!-- --->
+<h3 id = "advanced_options">3.2. Advanced options</h3>
+
+<code>-l / --loci &lt;str&gt;</code><br>
+Immunological loci to simulate V(D)J-recombination. <br>
+Available values are <code>IGH</code> / <code>IGL</code> / <code>IGK</code>.
+Default value is <code>IGH</code>.
+
+<br><br>
+
+<code>-n / --n_metaroots &lt;int&gt;</code><br>
+Number of <b>metaroots</b> (results of V(D)J-recombinations) to simulate.
+Default value is <code>10</code>.
+
+<br><br>
+
+<code>-s / --tree_strategy &lt;str&gt;</code><br>
+Strategy to simulate <b>clonal trees</b>.
+Available values are <code>deep</code> / <code>wide</code> / <code>uniform</code>.
+Default value is <code>deep</code>.
+
+<!-- --->
+
+<h3 id = "examples">3.3. Examples</h3>
+To perform simulation of <code>50</code> <b>metaroots</b> with clonal tree simulation strategy <code>uniform</code>
+and output to <code>ig_simulator_test</code> directory, run
+<pre class="code">
+    <code>
+    ./ig_simulator.py -n 50 -s uniform -o ig_simulator_test
+    </code>
+</pre>
+
+<!-- --->
+
+<h3 id = "output">3.4. Output files</h3>
+IgSimulator creates working directory (which name was specified using option <code>-o</code>)
+and outputs the following files and directories there:
+
+<ul>
+    <li>
+        <b>base_repertoire.fasta</b> &mdash; simulated metaroots &mdash; results of V(D)J recombination
+        (<a href = "#base_repertoire.fasta">Description</a>).
+    </li>
+    <li>
+        <b>base_repertoire.info</b> &mdash; detailed information about V(D)J recombination for each metaroot
+        (<a href = "#base_repertoire.info">Description</a>).
+    </li>
+    <li>
+        <b>filtered_pool.fasta</b>, <b>full_pool.fasta</b> &mdash; simulated repertoire with certain clones filtered out (imitation of clonal selection)
+        and full repertoire without any filtration
+        (<a href = "#pools">Description</a>).
+    </li>
+</ul>
+
+<ul>
+    <li>
+        <b>trees_dir</b> &mdash; directory that containes ready-to-draw dot files for all simulated clonal trees
+        (<a href = "#trees_dir">Description</a>).
+    </li>
+</ul>
+
+<ul>
+    <li>
+        <b>ig_simulator.log</b> &mdash; a full log of IgSimulator tool.
+    </li>
+</ul>
+
+<!--- -->
+<h2 id = "output_files">4. Output file formats</h2>
+
+<h3 id = "base_repertoire.fasta">4.1. Base repertoire fasta</h3>
+<b>base_repertoire.fasta</b> presents all simulated metaroots in fasta format.
+Id of each metaroot matches the pattern <code>forest_X_multiplicity_Y</code> where <code>X</code> is a zero-based number of the metaroot (max is param <code>-n</code> minus one)
+and <code>Y</code> is the number of trees that are simulated with this metaroot as a root.
+
+<h3 id = "base_repertoire.info">4.2. Base repertoire info</h3>
+<b>base_repertoire.info</b> presents the following information about each simulated metaroot
+<ul>
+    <li><code>Index</code> corresponds to the index in the id of the metaroot in the <code>base_repertoire.fasta</code> (<a href = "#base_repertoire.fasta">here</a>).</li>
+    <li><code>V/D/J names and sequences</code> &mdash; names of gene segments and their sequences that form the metaroot.</li>
+    <li><code>Cleavage in V/D(left)/D(right)/J gene</code> &mdash; the lenght of the cleavage. Negative cleavage presents a palindrome insertion.</li>
+    <li><code>Insertion in VD/DJ junction</code> &mdash; non-genomic insertions. </li>
+    <li><code>CDR1/2/3 positions and sequences</code> &mdash; zero-based positions of CDRegions in the metaroot sequence and corresponding sequences themselves.</li>
+</ul>
+
+<h3 id = "pools">4.3. Full and filtered pool fasta</h3>
+<b>full_pool.fasta</b> presents the full pool of all sequences that are simulated.
+Id of each sequence matches the pattern <code>forest_X_tree_Y_antibody_Z</code> where
+<ul>
+    <li><code>X</code> is a zero-based number of the metaroot (max is param <code>-n</code> minus one),</li>
+    <li><code>Y</code> is a zero-based number of the clonal tree that the sequence is a vertex of,</li>
+    <li><code>Z</code> is a zero-based number of the sequence in the <code>Y</code>th clonal tree.</li>
+</ul>
+
+Due to clonal selection a certain number of sequences is absent from the real repertoire.
+<b>filtered_pool.fasta</b> presents sequences in the same format as of <b>full_pool.fasta</b>.
+However, the former is a subset of the latter.
+
+<h3 id = "trees_dir">4.4. Clonal trees files</h3>
+
+Each file in the directory <code>trees_dir</code> represents a certain simulated clonal tree in ready-to-draw <code>dot</code> format.
+The name of each file matches the pattern <code>forest_X_tree_Y.dot</code> where
+<ul>
+    <li><code>X</code> is a zero-based number of the metaroot (max is param <code>-n</code> minus one),</li>
+    <li><code>Y</code> is a zero-based number of the clonal tree among those possessing the metaroot as their root.</li>
+</ul>
+
+The id of each vertex is the <code>Z</code> defined <a href = "#pools">here</a>.
+Productive/non-productive sequences are shaped as circles/rectangulars.
+Absent seqs (that are present only in <b>full_pool.fasta</b> but not in the <b>filtered_pool.fasta</b>) are colored in magenta.
+Additionally dot file containes comments about simulated SHMs.
+
+
+<a id="feedback"></a>
+<h2>5. Feedback and bug reports</h2>
+Your comments, bug reports, and suggestions are very welcome.
+They will help us to further improve IgSimulator.
+<br><br>
+If you have any trouble running IgSimulator, please send us the log file from the output directory.
+<br><br>
+Address for communications: <a href="mailto:igtools_support@googlegroups.com">igtools_support@googlegroups.com</a>.

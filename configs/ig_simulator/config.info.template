@@ -1,0 +1,107 @@
+io_params {
+    input_params {
+        germline_input {
+            ig_dir                    IG_antevolo
+            tcr_dir                   TCR
+            germline_filenames_config ./configs/vj_finder/germline_files_config.txt
+        }
+        cdr_labeler_config_filename ./configs/cdr_labeler/config.info
+    }
+
+    output_params {
+        output_dir                      ig_simulator_test
+        log_filename                    log.properties
+        base_repertoire_filename        base_repertoire.fasta
+        base_repertoire_info            base_repertoire.info
+        filtered_pool                   filtered_pool.fasta
+        full_pool                       full_pool.fasta
+        trees_dir                       trees_dir
+    }
+}
+
+germline_params {
+    organism        human
+    loci            IGH
+    pseudogenes     false
+    germline_dir              ./data/germline
+}
+
+simulation_params {
+    base_repertoire_params {
+        metaroot_simulation_params {
+            gene_chooser_params {
+                gene_chooser_method     uniform
+            }
+
+            nucleotides_remover_params {
+                nucleotides_remover_method      uniform
+                uniform_remover_params {
+                    max_remove_v_gene           20
+                    max_remove_d_gene_left      5
+                    max_remove_d_gene_right     5
+                    max_remove_j_gene           10
+                }
+            }
+
+            p_nucleotides_creator_params {
+                p_nucleotides_creator_method    uniform
+                uniform_creator_params {
+                    max_create_v_gene           5
+                    max_create_d_gene_left      3
+                    max_create_d_gene_right     3
+                    max_create_j_gene           3
+                }
+            }
+
+            n_nucleotides_inserter_params {
+                n_nucleotides_method    uniform
+                uniform_inserter_params {
+                    max_vj_insertion    10
+                    max_vd_insertion    21
+                    max_dj_insertion    23
+                }
+            }
+
+            cleavage_params {
+                prob_cleavage_v        0.5
+                prob_cleavage_d_left   0.5
+                prob_cleavage_d_right  0.5
+                prob_cleavage_j        0.5
+            }
+        }
+
+        multiplicity_creator_params {
+            multiplicity_method     geometric
+            geometric_params {
+                lambda              0.1
+            }
+        }
+
+        productive_params {
+            productive_part     1
+        }
+
+        number_of_metaroots 10
+    }
+
+    clonal_tree_simulator_params {
+        tree_size_generator_params {
+            tree_size_generator_method      geometric
+            geometric_params {
+                lambda              0.001
+            }
+        }
+
+        shm_creator_params {
+            shm_creator_method      poisson
+            poisson_params {
+                lambda              2
+            }
+        }
+
+        pool_manager_strategy   wide; uniform, wide, deep
+        prob_ret_to_pool        0.9
+        lambda_distr_n_children     0.3
+
+    }
+}

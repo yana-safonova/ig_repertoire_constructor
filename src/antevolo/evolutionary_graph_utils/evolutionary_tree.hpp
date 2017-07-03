@@ -63,6 +63,9 @@ namespace antevolo {
 
         const EvolutionaryEdgePtr& GetParentEdge(size_t clone_num) const;
 
+        // could be parent edge length or distance to the germline
+        size_t GetParentEdgeLength(size_t clone_num) const;
+
         const std::vector<EvolutionaryEdgePtr>& OutgoingEdges(size_t clone_id) const;
 
         bool IsRoot(size_t clone_id) const;

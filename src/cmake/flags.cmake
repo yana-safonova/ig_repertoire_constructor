@@ -7,7 +7,7 @@ if (OPENMP_FOUND)
   add_definitions(-DUSE_GLIBCXX_PARALLEL=1)
 else ()
   # if (NOT "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
-  #   message(FATAL_ERROR "SPAdes requires OpenMP to be available")
+  #   message(FATAL_ERROR "IgReC requires OpenMP to be available")
   # endif()
 endif()
 
@@ -32,7 +32,7 @@ if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
 
   add_definitions(-g3)
   add_definitions(-D_GLIBCXX_DEBUG)
-  set(SPADES_DEBUG_LOGGING)
+  set(IGREC_DEBUG_LOGGING)
 else()
   message("Making Release Configuration...")
 
@@ -52,7 +52,7 @@ else()
 endif()
 
 # Make sure we're building with frame pointer if tcmalloc is in use
-if (SPADES_USE_TCMALLOC)
+if (IGREC_USE_TCMALLOC)
   add_definitions(-fno-omit-frame-pointer)
 endif()
 

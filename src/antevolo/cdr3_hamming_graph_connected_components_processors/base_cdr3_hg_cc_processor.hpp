@@ -7,7 +7,7 @@
 #include <boost/unordered_set.hpp>
 #include <annotated_clone_by_read_constructor.hpp>
 #include "../clone_set_with_fakes.hpp"
-#include <related_clones_iterator.hpp>
+#include <evolutionary_graph_utils/related_clones_iterator.hpp>
 
 namespace antevolo {
 
@@ -39,16 +39,20 @@ namespace antevolo {
         void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,
                                  const boost::unordered_set<size_t>& vertices_nums);
 
-        virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
-                                                        const boost::unordered_set<size_t>& vertices_nums) = 0;
-
-        virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
-                                   const boost::unordered_set<size_t> &vertices_nums,
-                                   EvolutionaryTree &tree) = 0;
+//        virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+//                                                        const boost::unordered_set<size_t>& vertices_nums) = 0;
+//
+//        virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+//                                   const boost::unordered_set<size_t> &vertices_nums,
+//                                   EvolutionaryTree &tree) = 0;
 
         void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
                                                 EvolutionaryTree& tree);
 
+        void Refine(boost::unordered_set<size_t>& vertices_nums,
+                    EvolutionaryTree& tree);
+
+        bool SecondCloneIsFirstsAncestor(EvolutionaryTree& tree, size_t first_clone, size_t second_clone);
 
 
         bool ReconstructAncestralLineageSimple(
@@ -88,7 +92,7 @@ namespace antevolo {
                                   size_t& reconstructed,
                                   size_t& rejected);
 
-        EvolutionaryTree ConstructForest();
+        virtual EvolutionaryTree ConstructForest() = 0;
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);

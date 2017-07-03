@@ -5,6 +5,31 @@
 
 namespace antevolo {
 
+    EvolutionaryTree Kruskal_CDR3_HG_CC_Processor::ConstructForest() {
+        EvolutionaryTree tree(clone_set_ptr_);
+        boost::unordered_set<size_t> vertices_nums(hamming_graph_info_.GetAllClones());
+
+
+        size_t cdr3_length = clone_set_ptr_->operator[](*vertices_nums.cbegin()).CDR3Range().length();
+        for (size_t clone_num : vertices_nums) {
+            VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
+        }
+
+        std::map<size_t, size_t> rank;
+        std::map<size_t, size_t> parent;
+        boost::disjoint_sets<AP_map, AP_map> ds_on_undirected_edges(rank, parent);
+        for (size_t i : vertices_nums) {
+            ds_on_undirected_edges.make_set(i);
+        }
+        AddUndirectedForest(ds_on_undirected_edges, vertices_nums);
+        SetUndirectedComponentsParentEdges(ds_on_undirected_edges, vertices_nums);
+        SetDirections(ds_on_undirected_edges, vertices_nums, tree);
+        ReconstructMissingVertices(vertices_nums, tree);
+        Refine(vertices_nums, tree);
+        tree.AddAllEdges();
+        return tree;
+    }
+
     void Kruskal_CDR3_HG_CC_Processor::SetUndirectedComponentsParentEdges(
             boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
             const boost::unordered_set<size_t>& vertices_nums) {

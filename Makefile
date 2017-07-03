@@ -8,6 +8,11 @@ prefix?="/usr/local"
 
 all: igrec
 
+cpcfg:
+	mkdir -p build/tmp
+	cd build/tmp && cmake ../../configs -DCMAKE_OVERWRITE_CONFIGS=true
+	rm -r build/tmp
+
 cmake:
 	mkdir -p build/release
 	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
@@ -30,9 +35,6 @@ install: igrec
 dsf: cmake
 	$(MAKE) -C build/release dense_sgraph_finder
 
-metis:
-	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
-
 shm_kmer_matrix:
 	$(MAKE) -C build/release/shm_kmer_matrix_estimator
 
@@ -43,7 +45,7 @@ memcheck: cmake
 	$(MAKE) -C build/release memcheck
 
 rnd: cmake
-	$(MAKE) -C build/release memcheck
+	$(MAKE) -C build/release rnd
 
 vjf: cmake
 	$(MAKE) -C build/release vj_finder
@@ -60,8 +62,12 @@ clean:
 ant:
 	$(MAKE) -C build/release antevolo
 
+igs: cmake
+	$(MAKE) -C build/release ig_simulator
+
 clean_tests:
 	-rm *.pyc
 	-rm -r igrec_test
 	-rm -r ms_analyzer_test
+	-rm -r ig_simulator_test
 	-rm *~

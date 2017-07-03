@@ -14,7 +14,13 @@ namespace  antevolo {
         return dist;
     }
 
-    enum EvolutionaryEdgeType { UnknownEdgeType, DirectedEdgeType, UndirectedEdgeType, IntersectedEdgeType };
+    enum EvolutionaryEdgeType {
+        UnknownEdgeType,
+        DirectedEdgeType,
+        UndirectedEdgeType,
+        IntersectedEdgeType,
+        ReverseDirectedEdgeType
+    };
 
     class BaseEvolutionaryEdge {
     protected:
@@ -81,6 +87,10 @@ namespace  antevolo {
         virtual bool IsUndirected() const { return false; }
 
         virtual bool IsIntersected() const { return false; }
+
+        virtual bool IsDoubleMutated() const { return false; }
+
+        virtual bool IsReverseDirected() const { return false; }
 
         virtual std::string TypeString() const { return "unknown"; }
 

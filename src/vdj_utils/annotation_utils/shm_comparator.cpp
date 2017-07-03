@@ -120,6 +120,30 @@ namespace annotation_utils {
         return true;
     }
 
+    bool SHMComparator::AllAddedSHMs1HaveIdenticallyPositionedSHMs2(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
+        size_t index1 = 0;
+        for(auto it2 = shms2.cbegin(); it2 != shms2.cend(); it2++) {
+            bool shm_found = false;
+            for(size_t i = index1; i < shms1.size(); i++)
+                if(it2->gene_nucl_pos == shms1[i].gene_nucl_pos &&
+                   it2->gene_nucl == shms1[i].gene_nucl &&
+                   it2->shm_type == shms1[i].shm_type) {
+                    index1 = i + 1;
+                    shm_found = true;
+                    break;
+                }
+            if(!shm_found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    bool SHMComparator::IndividualSHMsAreIdenticallyPositioned(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
+        return SHMsInsertionBlocksAreEqual(shms1, shms2) &&
+               AllAddedSHMs1HaveIdenticallyPositionedSHMs2(shms1, shms2);
+    }
+
     // return a vector of SHMs that appeared in SHM2, but not presented in SHM1
     std::vector<SHM> SHMComparator::GetAddedSHMs(GeneSegmentSHMs shms1, GeneSegmentSHMs shms2) {
         std::vector<SHM> added_shms;

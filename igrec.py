@@ -370,34 +370,40 @@ class VJAlignmentPhase(Phase):
 
     def __CheckOutputExistance(self):
         self.__params.io.CheckCroppedReadsExistance()
-        self.__params.io.CheckBadReadsExistance()
-        self.__params.io.CheckVJAlignmentInfoExistance()
+        if not self.__params.no_alignment:
+            self.__params.io.CheckBadReadsExistance()
+            self.__params.io.CheckVJAlignmentInfoExistance()
 
     def Run(self):
         self.__CheckInputExistance()
-        self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
-        command_line = os.path.abspath(IgRepConConfig().run_vj_aligner) + \
-                       " -i " + os.path.abspath(self.__params.single_reads) + \
-                       " -o " + os.path.abspath(self.__params.io.vj_finder_output) + \
-                       " --db-directory " + os.path.abspath(IgRepConConfig().path_to_germline) + \
-                       " -t " + str(self.__params.num_threads) + \
-                       " --loci " + self.__params.loci + \
-                       " --organism " + self.__params.organism
-        if self.__params.no_pseudogenes:
-            command_line += " --pseudogenes=off"
+        if not self.__params.no_alignment:
+            self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
+            command_line = os.path.abspath(IgRepConConfig().run_vj_aligner) + \
+                " -i " + os.path.abspath(self.__params.single_reads) + \
+                " -o " + os.path.abspath(self.__params.io.vj_finder_output) + \
+                " --db-directory " + os.path.abspath(IgRepConConfig().path_to_germline) + \
+                " -t " + str(self.__params.num_threads) + \
+                " --loci " + self.__params.loci + \
+                " --organism " + self.__params.organism
+            if self.__params.no_pseudogenes:
+                command_line += " --pseudogenes=off"
+            else:
+                command_line += " --pseudogenes=on"
+            cwd = os.getcwd()
+            os.chdir(home_directory)
+            support.sys_call(command_line, self._log)
+            os.chdir(cwd)
         else:
-            command_line += " --pseudogenes=on"
-        cwd = os.getcwd()
-        os.chdir(home_directory)
-        support.sys_call(command_line, self._log)
-        os.chdir(cwd)
+            self._log.info("VJ Finder stage skipped")
+            self.__params.io.cropped_reads = self.__params.single_reads
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
-        self._log.info("\nOutput files: ")
-        self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
-        self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
-        self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
+        if not self.__params.no_alignment:
+            self._log.info("\nOutput files: ")
+            self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
+            self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
+            self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
 
 ###########
 class TrieCompressionPhase(Phase):
@@ -884,7 +890,7 @@ def CheckGeneralParamsCorrectness(parser, params, log):
         log.info("ERROR: Output directory (-o) was not specified\n")
         HelpString()
         sys.exit(-1)
-    if not "loci" in params or params.loci == "":
+    if not params.no_alignment and ("loci" not in params or params.loci == ""):
         log.info("ERROR: Immunological loci (-l) was not specified\n")
         HelpString()
         sys.exit(1)
@@ -1005,11 +1011,7 @@ def main():
         if params.left_reads:
             ig_repertoire_constructor.Run(start_phase=0)
         else:
-            if params.no_alignment:
-                params.io.cropped_reads = params.single_reads
-                ig_repertoire_constructor.Run(start_phase=2)
-            else:
-                ig_repertoire_constructor.Run(start_phase=1)
+            ig_repertoire_constructor.Run(start_phase=1)
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
         log.info("\nThank you for using IgReC!")

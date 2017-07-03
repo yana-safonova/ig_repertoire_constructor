@@ -119,8 +119,12 @@ def draw_tree(antevolo_res_dir, tree_name, output_dir):
 			else:
 				edge_color = 'black'
 
+			dir_attr = ''
+			if edge_type == 'reverse_directed':
+				dir_attr = ', dir=both, arrowhead=none'
+				src_num, dst_num = dst_num, src_num
 			otp.write(''.join(["\t","\""+str(src_num)+"\"", " -> ", "\""+str(dst_num)+"\"",
-				 " [color=", edge_color, ", style=", edge_style, "];\n"]))
+				 " [color=", edge_color, ", style=", edge_style, dir_attr, "];\n"]))
 
 		otp.write("}\n")
 	subprocess.call(['dot', '-Tpdf', '-O', DOT_OUTPUT_FILE_NAME])

@@ -17,7 +17,7 @@ include(CheckTypeSize)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${EXT_DIR}/include)
-include_directories(${SPADES_BUILT_INCLUDE_DIR})
+include_directories(${IGREC_BUILT_INCLUDE_DIR})
 
 check_include_files(features.h HAVE_FEATURES_H)
 check_include_files(sys/cdefs.h HAVE_SYS_CDEFS_H)
@@ -175,10 +175,10 @@ try_run(JEMALLOC_CHECK_PAGE_SIZE JEMALLOC_HAVE_PAGE_SIZE
         RUN_OUTPUT_VARIABLE JEMALLOC_STATIC_PAGE_SHIFT)
 
 configure_file(${EXT_DIR}/include/jemalloc/jemalloc.h.in
-               ${SPADES_BUILT_INCLUDE_DIR}/jemalloc/jemalloc.h)
+               ${IGREC_BUILT_INCLUDE_DIR}/jemalloc/jemalloc.h)
 
 configure_file(${EXT_DIR}/include/jemalloc/jemalloc_defs.h.in
-               ${SPADES_BUILT_INCLUDE_DIR}/jemalloc/jemalloc_defs.h)
+               ${IGREC_BUILT_INCLUDE_DIR}/jemalloc/jemalloc_defs.h)
 
 
 set(JEMALLOC_SRC arena.c

@@ -5,6 +5,7 @@
 #include "evolutionary_graph_utils/evolutionary_edge/directed_evolutionary_edge.hpp"
 #include "evolutionary_graph_utils/evolutionary_edge/undirected_evolutionary_edge.hpp"
 #include "evolutionary_graph_utils/evolutionary_edge/intersected_evolutionary_edge.hpp"
+#include "evolutionary_graph_utils/evolutionary_edge/reverse_directed_evolutionary_edge.hpp"
 
 namespace antevolo {
     class EvolutionaryEdgeConstructor {

@@ -1,12 +1,13 @@
 #include "antevolo_launch.hpp"
 
 #include <read_archive.hpp>
-#include <germline_db_generator.hpp>
+#include <germline_utils/germline_db_generator.hpp>
 #include <germline_db_labeler.hpp>
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
 #include <cdr_output.hpp>
 #include <evolutionary_graph_utils/evolutionary_tree_splitter.hpp>
+#include <mutation_strategies/no_k_neighbours.hpp>
 #include "antevolo_processor.hpp"
 
 #include "evolutionary_stats_calculator.hpp"
@@ -28,7 +29,7 @@
 using namespace shm_kmer_matrix_estimator;
 
 namespace antevolo {
-    void AntEvoloLaunch::ShmModelPosteriorCalculation(
+    ShmModelEdgeWeightCalculator AntEvoloLaunch::ShmModelPosteriorCalculation(
             const annotation_utils::AnnotatedCloneSet<annotation_utils::AnnotatedClone>& clone_set)
     {
         ShmModel model(config_.input_params.shm_kmer_model_igh);
@@ -46,16 +47,19 @@ namespace antevolo {
         PosteriorDistributionCalculator posterior_distribution_calculator;
         ShmModel posterior_model(posterior_distribution_calculator.calculate(model, fr_matrix, cdr_matrix));
 
-
-        std::ofstream out_prior_model;
-        out_prior_model.open("prior.csv"); // todo: move to config
-        out_prior_model << model;
-        out_prior_model.close();
-
-        std::ofstream out_posterior_model;
-        out_posterior_model.open("posterior.csv");
-        out_posterior_model << posterior_model;
-        out_posterior_model.close();
+//        std::ofstream out_prior_model;
+//        out_prior_model.open("prior.csv"); // todo: move to config
+//        out_prior_model << model;
+//        out_prior_model.close();
+//
+//        std::ofstream out_posterior_model;
+//        out_posterior_model.open("posterior.csv");
+//        out_posterior_model << posterior_model;
+//        out_posterior_model.close();
+        AbstractMutationStrategyPtr
+                mut_strategy(new NoKNeighboursMutationStrategy(config_.shm_config.mfp));
+        ShmModelEdgeWeightCalculator edge_weight_calculator(posterior_model, std::move(mut_strategy));
+        return edge_weight_calculator;
     }
 
     void AntEvoloLaunch::Launch() {
@@ -67,8 +71,8 @@ namespace antevolo {
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.cdr_labeler_config.vj_finder_config.io_params.output_params.output_details.fix_spaces)
             read_archive.FixSpacesInHeaders();
-        vj_finder::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
-                                                    config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
+        germline_utils::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
+                                                         config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
         INFO("Generation of DB for variable segments...");
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");
@@ -129,8 +133,6 @@ namespace antevolo {
 
         //end trie_compressor
 
-        AntEvoloLaunch::ShmModelPosteriorCalculation(annotated_clone_set);
-
         writer.OutputCDRDetails();
         writer.OutputSHMs();
 
@@ -153,6 +155,52 @@ namespace antevolo {
         //output_writer.OutputSHMForTrees();
         INFO("AntEvolo ends");
     }
+
+    void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                                       const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
+                                       size_t total_number_of_reads) {
+        INFO("Tree construction starts");
+        auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
+        auto tree_storage = AntEvoloProcessor(config_,
+                                              annotated_clone_set,
+                                              clone_by_read_constructor,
+                                              total_number_of_reads,
+                                              edge_weight_calculator).ConstructClonalTrees();
+        INFO(tree_storage.size() << " evolutionary trees were created");
+        INFO("Computation of evolutionary statistics");
+        // todo: add refactoring!!!
+        EvolutionaryTreeStorage connected_tree_storage;
+        for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
+            ConnectedTreeSplitter tree_splitter;
+            auto connected_trees = tree_splitter.Split(*it);
+            for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
+                connected_tree_storage.Add(*it2);
+            }
+        }
+        INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
+                                 " connected trees");
+        EvolutionaryStatsCalculator stats_calculator;
+        auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
+        INFO(annotated_storage.size() << " annotations were computed");
+        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
+        output_writer.OutputTreeStats();
+
+        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
+
+        for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
+            output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
+            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
+            //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
+        }
+        output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
+
+        // delete
+        output_writer.WriteRcmFromStorageInFile("/home/aslabodkin/antevolo_project/tests/test_fakes/RCMs_for_test/",
+                                                tree_storage);
+        // /delete
+
+        INFO("Clonal trees were written to " << config_.output_params.tree_dir);
+    };
 
     void AntEvoloLaunch::AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
                                                   const EvolutionaryTreeStorage& trees) {
@@ -193,49 +241,7 @@ namespace antevolo {
         }
     }
 
-    void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                       const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
-                                       size_t total_number_of_reads) {
-        INFO("Tree construction starts");
-        auto tree_storage = AntEvoloProcessor(config_,
-                                              annotated_clone_set,
-                                              clone_by_read_constructor,
-                                              total_number_of_reads).ConstructClonalTrees();
-        INFO(tree_storage.size() << " evolutionary trees were created");
-        INFO("Computation of evolutionary statistics");
-        // todo: add refactoring!!!
-        EvolutionaryTreeStorage connected_tree_storage;
-        for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
-            ConnectedTreeSplitter tree_splitter;
-            auto connected_trees = tree_splitter.Split(*it);
-            for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
-                connected_tree_storage.Add(*it2);
-            }
-        }
-        INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
-                                 " connected trees");
-        EvolutionaryStatsCalculator stats_calculator;
-        auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
-        INFO(annotated_storage.size() << " annotations were computed");
-        AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
-        output_writer.OutputTreeStats();
 
-        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
-
-        for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
-            output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
-            output_writer.WriteTreeVerticesInFile(config_.output_params.vertex_dir, *it);
-            //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
-        }
-        output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
-
-        // delete
-        output_writer.WriteRcmFromStorageInFile("/home/aslabodkin/antevolo_project/tests/test_fakes/RCMs_for_test/",
-                                                tree_storage);
-        // /delete
-
-        INFO("Clonal trees were written to " << config_.output_params.tree_dir);
-    };
 
     void AntEvoloLaunch::LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
         INFO("EvoQuast starts");

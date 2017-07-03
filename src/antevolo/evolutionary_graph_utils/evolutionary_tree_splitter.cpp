@@ -14,8 +14,14 @@ namespace antevolo {
             vertex_queue.pop();
             if(!tree.IsRoot(cur_vertex)) {
                 EvolutionaryEdgePtr edge = tree.GetParentEdge(cur_vertex);
-                VERIFY_MSG(edge->IsDirected() || edge->IsUndirected(), "Edge from " << edge->DstNum() << " -> " << edge->SrcNum() <<
-                                               " is not directed or undirected");
+                VERIFY_MSG(edge->IsDirected() ||
+                           edge->IsUndirected() ||
+                           edge->IsReverseDirected() ||
+                           edge->IsDoubleMutated() ||
+                           edge->IsIntersected(),
+                            "Edge from " << edge->DstNum() << " -> " << edge->SrcNum() <<
+                              " is not directed, undirected, reverse directed, double mutated "
+                                         << "or even intersected");
                 connected_tree.AddEdge(edge->DstNum(), edge);
             }
             if(!tree.IsLeaf(cur_vertex)) {
