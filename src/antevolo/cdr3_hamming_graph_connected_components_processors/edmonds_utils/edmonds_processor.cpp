@@ -8,7 +8,7 @@ namespace antevolo {
         if (input_edges.size() == 0) {
             return std::vector<WeightedEdge>();
         }
-        std::cout << "here it begins" << std::endl;
+//        std::cout << "here it begins" << std::endl;
         size_t n = 0;
         boost::unordered_map<size_t, size_t> vertex_to_index;
         std::vector<size_t> index_to_vertex;
@@ -26,14 +26,14 @@ namespace antevolo {
         }
 
         Graph G(n);
-        for (auto v : index_to_vertex) {
-            std::cout << v << " ";
-        } std::cout << std::endl;
-
-        for (auto v : vertex_to_index) {
-            std::cout << v.first << ": " << v.second << " | ";
-        } std::cout << std::endl;
-        std::cout << "here it calculates maps" << std::endl;
+//        for (auto v : index_to_vertex) {
+//            std::cout << v << " ";
+//        } std::cout << std::endl;
+//
+//        for (auto v : vertex_to_index) {
+//            std::cout << v.first << ": " << v.second << " | ";
+//        } std::cout << std::endl;
+//        std::cout << "here it calculates maps" << std::endl;
         std::vector<Vertex> the_vertices;
         BOOST_FOREACH (Vertex v, vertices(G))
         {
@@ -46,7 +46,7 @@ namespace antevolo {
             add_edge(the_vertices[src_index], the_vertices[dst_index], e.weight_, G);
         }
 
-        std::cout << "here it adds edges" << std::endl;
+//        std::cout << "here it adds edges" << std::endl;
 
         boost::property_map<Graph, boost::edge_weight_t>::type weights =
                 get(boost::edge_weight_t(), G);
@@ -59,26 +59,26 @@ namespace antevolo {
         std::vector<Vertex> roots = {the_vertices[0]};
         std::vector<Edge> branching;
         edmonds_optimum_branching<true, true, false>(G,
-                                                      vertex_indices,
-                                                      weights,
-                                                      static_cast<Vertex *>(0),
-                                                      static_cast<Vertex *>(0),
-                                                      std::back_inserter(branching));
-        std::cout << "here it calculates branching" << std::endl;
+                                                     vertex_indices,
+                                                     weights,
+                                                     static_cast<Vertex *>(0),
+                                                     static_cast<Vertex *>(0),
+                                                     std::back_inserter(branching));
+//        std::cout << "here it calculates branching" << std::endl;
         std::vector<WeightedEdge> res;
-        INFO(n);
-        for (auto v : index_to_vertex) {
-            std::cout << v << " ";
-        } std::cout << std::endl;
+//        INFO(n);
+//        for (auto v : index_to_vertex) {
+//            std::cout << v << " ";
+//        } std::cout << std::endl;
         BOOST_FOREACH (Edge e, branching)
         {
-            INFO(boost::source(e, G) << " " << boost::target(e, G) << " " << boost::source(e, G));
+//            INFO(boost::source(e, G) << " " << boost::target(e, G) << " " << boost::source(e, G));
             size_t src = index_to_vertex[boost::source(e, G)];
             size_t dst = index_to_vertex[boost::target(e, G)];
-            double weight = get(weights, e);
+            int weight = get(weights, e);
             res.push_back(WeightedEdge(src, dst, weight));
         }
-        std::cout << "here it ends" << std::endl;
+//        std::cout << "here it ends" << std::endl;
         return res;
     }
 

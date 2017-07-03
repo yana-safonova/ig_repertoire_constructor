@@ -14,7 +14,7 @@ namespace antevolo {
         auto input_edges = PrepareEdgeVector();
         auto branching_edges = EdmondsProcessor::process_edge_list(input_edges);
         SetEdges(tree, branching_edges);
-        ReconstructMissingVertices(vertices_nums_, tree);
+//        ReconstructMissingVertices(vertices_nums_, tree);
         tree.AddAllEdges();
         return tree;
     }
@@ -40,7 +40,8 @@ namespace antevolo {
                     continue;
                 }
                 if (shorthest_directed_edge_.find(dst_num) == shorthest_directed_edge_.end() ||
-                    GetLength(edge) < GetLength(shorthest_directed_edge_[dst_num])) {
+//                    GetLength(edge) < GetLength(shorthest_directed_edge_[dst_num])) {
+                    edge->Length() < shorthest_directed_edge_[dst_num]->Length()) {
                     shorthest_directed_edge_[dst_num] = edge;
                 }
             }
@@ -67,13 +68,15 @@ namespace antevolo {
                                                             src_num,
                                                             dst_num);
                 if (edge->IsUndirected()) {
-                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, GetLength(edge)));
+//                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, GetLength(edge)));
+                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, edge->Length()));
                 }
             }
         }
         for (auto p : shorthest_directed_edge_) {
             auto edge = p.second;
-            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), GetLength(edge)));
+//            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), GetLength(edge)));
+            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), edge->Length()));
         }
         return res;
     }

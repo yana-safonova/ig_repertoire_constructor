@@ -14,7 +14,7 @@ namespace antevolo {
 
     class EdmondsProcessor {
     public:
-        typedef boost::property<boost::edge_weight_t, double>       EdgeProperty;
+        typedef boost::property<boost::edge_weight_t, int>       EdgeProperty;
         typedef boost::adjacency_list<boost::listS,
                 boost::vecS,
                 boost::directedS,
@@ -23,17 +23,19 @@ namespace antevolo {
         typedef boost::graph_traits<Graph>::vertex_descriptor       Vertex;
         typedef boost::graph_traits<Graph>::edge_descriptor         Edge;
 
+        const int MAX_WEIGHT = 400;
+
         struct WeightedEdge {
             size_t src_;
             size_t dst_;
-            double weight_;
+            int weight_;
 
             WeightedEdge() :
                     src_(size_t(-1)),
                     dst_(size_t(-1)),
                     weight_(400) { }
 
-            WeightedEdge(size_t src, size_t dst, double weight) :
+            WeightedEdge(size_t src, size_t dst, int weight) :
                     src_(src),
                     dst_(dst),
                     weight_(weight) { }
