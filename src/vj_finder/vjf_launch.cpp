@@ -3,8 +3,10 @@
 #include "vjf_launch.hpp"
 
 #include <read_archive.hpp>
-#include "germline_db_generator.hpp"
+#include "germline_utils/germline_db_generator.hpp"
 #include "vj_parallel_processor.hpp"
+
+using namespace germline_utils;
 
 namespace vj_finder {
     void CreateAlignmentOutput(std::ofstream& fhandler, const core::Read& read, const VJHits& vj_hits) {

@@ -1,7 +1,7 @@
 #include "antevolo_launch.hpp"
 
 #include <read_archive.hpp>
-#include <germline_db_generator.hpp>
+#include <germline_utils/germline_db_generator.hpp>
 #include <germline_db_labeler.hpp>
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
@@ -67,8 +67,8 @@ namespace antevolo {
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.cdr_labeler_config.vj_finder_config.io_params.output_params.output_details.fix_spaces)
             read_archive.FixSpacesInHeaders();
-        vj_finder::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
-                                                    config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
+        germline_utils::GermlineDbGenerator db_generator(config_.cdr_labeler_config.vj_finder_config.io_params.input_params.germline_input,
+                                                         config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
         INFO("Generation of DB for variable segments...");
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
         INFO("Generation of DB for join segments...");

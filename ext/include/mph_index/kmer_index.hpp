@@ -35,7 +35,7 @@
 
 #include "config.hpp"
 
-#ifdef SPADES_USE_JEMALLOC
+#ifdef IGREC_USE_JEMALLOC
 # include <jemalloc/jemalloc.h>
 #endif
 
@@ -481,7 +481,7 @@ size_t KMerIndexBuilder<Index>::BuildIndex(Index &index, KMerCounter<Seq> &count
 
   // Index building requires up to 40 bytes per k-mer. Limit number of threads depending on the memory limit.
   unsigned num_threads = num_threads_;
-# ifdef SPADES_USE_JEMALLOC
+# ifdef IGREC_USE_JEMALLOC
   const size_t *cmem = 0;
   size_t clen = sizeof(cmem);
 

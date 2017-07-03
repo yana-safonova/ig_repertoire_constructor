@@ -7,11 +7,11 @@ import sys
 import igrec
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-spades_src = os.path.join(home_directory, "py/pipeline/")
+pipeline_dir = os.path.join(home_directory, "py/pipeline/")
 py_src = os.path.join(home_directory, "py")
 
 sys.path.append(py_src)
-sys.path.append(spades_src)
+sys.path.append(pipeline_dir)
 import support
 
 

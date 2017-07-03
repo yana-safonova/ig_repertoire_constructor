@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 project(fast_ig_tools CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${IGREC_MAIN_INCLUDE_DIR})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")

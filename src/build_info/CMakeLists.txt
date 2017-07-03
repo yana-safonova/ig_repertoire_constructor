@@ -28,7 +28,7 @@ endif()
 
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/build_info.py.in"
-               "${SPADES_MAIN_SRC_DIR}/../py/build_info/build_info.py"
+               "${IGREC_MAIN_SRC_DIR}/../py/build_info/build_info.py"
                @ONLY)
 
 

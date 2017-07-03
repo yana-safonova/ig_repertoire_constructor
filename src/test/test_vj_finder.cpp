@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include <cdr_config.hpp>
-#include <germline_db_generator.hpp>
+#include <germline_utils/germline_db_generator.hpp>
 #include <vj_parallel_processor.hpp>
 #include <convert.hpp>
 
@@ -105,8 +105,8 @@ TEST_F(VJFinderTest, BaseVJFinderTest) {
     vj_finder_config.algorithm_params.fix_crop_fill_params.fill_right = true;
     vj_finder_config.algorithm_params.fix_crop_fill_params.fix_right = 3;
     read_archive.ExtractFromFile("test_dataset/vj_finder_test.fastq");
-    vj_finder::GermlineDbGenerator db_generator(vj_finder_config.io_params.input_params.germline_input,
-                                                vj_finder_config.algorithm_params.germline_params);
+    germline_utils::GermlineDbGenerator db_generator(vj_finder_config.io_params.input_params.germline_input,
+                                                     vj_finder_config.algorithm_params.germline_params);
     auto v_gene_database = db_generator.GenerateVariableDb();
     auto j_gene_database = db_generator.GenerateJoinDb();
     vj_finder::VJParallelProcessor processor(read_archive,

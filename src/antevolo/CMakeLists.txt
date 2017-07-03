@@ -19,7 +19,7 @@ include_directories(${SHM_DIR})
 add_executable(antevolo
         ../cdr_labeler/cdr_config.cpp
         ../vj_finder/vj_finder_config.cpp
-        ../vj_finder/germline_db_generator.cpp
+        ../vdj_utils/germline_utils/germline_db_generator.cpp
         ../vj_finder/vj_alignment_structs.cpp
         ../vj_finder/vj_query_aligner.cpp
         ../vj_finder/vj_hits_filter.cpp
