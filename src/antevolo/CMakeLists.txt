@@ -67,6 +67,7 @@ add_executable(antevolo
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.cpp
+        cdr3_hamming_graph_connected_components_processors/edmonds_utils/edmonds_processor.cpp
         evolutionary_graph_utils/evolutionary_edge_constructor.cpp
         annotated_clone_by_read_constructor.cpp
         clone_set_with_fakes.hpp

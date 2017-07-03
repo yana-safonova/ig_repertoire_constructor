@@ -13,9 +13,9 @@ namespace antevolo {
 
         void SetShortestDirectedParentEdges();
 
-        std::vector<EdmondsProcessor::WeightedEdge> PrepareEdgeVector();
+        std::vector<WeightedEdge<int>> PrepareEdgeVector();
 
-        void SetEdges(EvolutionaryTree& tree, const std::vector<EdmondsProcessor::WeightedEdge>& edge_vector);
+        void SetEdges(EvolutionaryTree& tree, const std::vector<WeightedEdge<int>>& edge_vector);
 
         void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
                                                const boost::unordered_set<size_t>& vertices_nums) override {}

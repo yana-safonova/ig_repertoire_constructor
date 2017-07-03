@@ -3,10 +3,11 @@
 
 namespace antevolo {
 
-    std::vector<EdmondsProcessor::WeightedEdge> EdmondsProcessor::process_edge_list(const std::vector<WeightedEdge>& input_edges)
+    std::vector<WeightedEdge<int>> EdmondsProcessor::process_edge_list(
+            const std::vector<WeightedEdge<int>>& input_edges)
     {
         if (input_edges.size() == 0) {
-            return std::vector<WeightedEdge>();
+            return std::vector<WeightedEdge<int>>();
         }
 //        std::cout << "here it begins" << std::endl;
         size_t n = 0;
@@ -58,14 +59,14 @@ namespace antevolo {
 
         std::vector<Vertex> roots = {the_vertices[0]};
         std::vector<Edge> branching;
-        edmonds_optimum_branching<true, true, false>(G,
+        edmonds_optimum_branching<false, true, false>(G,
                                                      vertex_indices,
                                                      weights,
                                                      static_cast<Vertex *>(0),
                                                      static_cast<Vertex *>(0),
                                                      std::back_inserter(branching));
 //        std::cout << "here it calculates branching" << std::endl;
-        std::vector<WeightedEdge> res;
+        std::vector<WeightedEdge<int>> res;
 //        INFO(n);
 //        for (auto v : index_to_vertex) {
 //            std::cout << v << " ";
@@ -76,7 +77,7 @@ namespace antevolo {
             size_t src = index_to_vertex[boost::source(e, G)];
             size_t dst = index_to_vertex[boost::target(e, G)];
             int weight = get(weights, e);
-            res.push_back(WeightedEdge(src, dst, weight));
+            res.push_back(WeightedEdge<int>(src, dst, weight));
         }
 //        std::cout << "here it ends" << std::endl;
         return res;

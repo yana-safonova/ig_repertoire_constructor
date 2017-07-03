@@ -12,9 +12,10 @@ namespace antevolo {
 
         SetShortestDirectedParentEdges();
         auto input_edges = PrepareEdgeVector();
-        auto branching_edges = EdmondsProcessor::process_edge_list(input_edges);
+        auto branching_edges = EdmondsProcessor().process_edge_list(input_edges);
         SetEdges(tree, branching_edges);
-//        ReconstructMissingVertices(vertices_nums_, tree);
+        ReconstructMissingVertices(vertices_nums_, tree);
+        Refine(vertices_nums_, tree);
         tree.AddAllEdges();
         return tree;
     }
@@ -48,13 +49,18 @@ namespace antevolo {
         }
     }
 
-    std::vector<EdmondsProcessor::WeightedEdge> Edmonds_CDR3_HG_CC_Processor::PrepareEdgeVector() {
+    std::vector<WeightedEdge<int>> Edmonds_CDR3_HG_CC_Processor::PrepareEdgeVector() {
         const auto& clone_set = *clone_set_ptr_;
         auto edge_constructor = GetEdgeConstructor();
 
-        std::vector<EdmondsProcessor::WeightedEdge> res;
+        size_t germline_vertex = size_t(-1);
+
+        std::vector<WeightedEdge<int>> res;
 
         for (auto src_num : vertices_nums_) {
+            const auto& src_clone = clone_set[src_num];
+            res.push_back(WeightedEdge<int>(germline_vertex, src_num,
+                                            src_clone.VSHMs().size() + src_clone.JSHMs().size()));
             size_t dst_num;
             auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
             while (it.HasNext()) {
@@ -69,30 +75,34 @@ namespace antevolo {
                                                             dst_num);
                 if (edge->IsUndirected()) {
 //                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, GetLength(edge)));
-                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, edge->Length()));
+                    res.push_back(WeightedEdge<int>(src_num, dst_num, edge->Length()));
                 }
             }
         }
         for (auto p : shorthest_directed_edge_) {
             auto edge = p.second;
 //            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), GetLength(edge)));
-            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), edge->Length()));
+            res.push_back(WeightedEdge<int>(edge->SrcNum(), edge->DstNum(), edge->Length()));
         }
         return res;
     }
 
     void Edmonds_CDR3_HG_CC_Processor::SetEdges(EvolutionaryTree& tree,
-                                                const std::vector<EdmondsProcessor::WeightedEdge>& edge_vector) {
+                                                const std::vector<WeightedEdge<int>>& edge_vector) {
         const auto& clone_set = *clone_set_ptr_;
         auto edge_constructor = GetEdgeConstructor();
 
         for (auto we : edge_vector) {
+//            std::cout << we.src_ << " " << we.dst_ << "\n";
+            if (we.src_== size_t(-1)) {
+                continue;
+            }
             auto edge = edge_constructor->ConstructEdge(clone_set[we.src_],
                                                         clone_set[we.dst_],
                                                         we.src_,
                                                         we.dst_);
             VERIFY(edge->IsDirected() || edge->IsUndirected());
-            tree.AddEdge(we.dst_, edge);
+            tree.ReplaceEdge(we.dst_, edge);
         }
     }
 }
