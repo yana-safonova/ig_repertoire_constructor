@@ -35,7 +35,7 @@ install: igrec
 dsf: cmake
 	$(MAKE) -C build/release dense_sgraph_finder
 
-shm_kmer_matrix:
+shm_kmer_matrix: cmake
 	$(MAKE) -C build/release/shm_kmer_matrix_estimator
 
 check: cmake
