@@ -59,7 +59,7 @@ umi: cmake
 clean:
 	-rm -r build
 
-ant:
+ant: cmake
 	$(MAKE) -C build/release antevolo
 
 igs: cmake
