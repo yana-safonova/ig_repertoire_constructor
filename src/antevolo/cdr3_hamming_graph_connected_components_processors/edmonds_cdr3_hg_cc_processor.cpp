@@ -60,7 +60,7 @@ namespace antevolo {
         for (auto src_num : vertices_nums_) {
             const auto& src_clone = clone_set[src_num];
             res.push_back(WeightedEdge<int>(germline_vertex, src_num,
-                                            src_clone.VSHMs().size() + src_clone.JSHMs().size()));
+                                            static_cast<int>(src_clone.VSHMs().size() + src_clone.JSHMs().size())));
             size_t dst_num;
             auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
             while (it.HasNext()) {
@@ -75,14 +75,14 @@ namespace antevolo {
                                                             dst_num);
                 if (edge->IsUndirected()) {
 //                    res.push_back(EdmondsProcessor::WeightedEdge(src_num, dst_num, GetLength(edge)));
-                    res.push_back(WeightedEdge<int>(src_num, dst_num, edge->Length()));
+                    res.push_back(WeightedEdge<int>(src_num, dst_num, static_cast<int>(edge->Length())));
                 }
             }
         }
         for (auto p : shorthest_directed_edge_) {
             auto edge = p.second;
 //            res.push_back(EdmondsProcessor::WeightedEdge(edge->SrcNum(), edge->DstNum(), GetLength(edge)));
-            res.push_back(WeightedEdge<int>(edge->SrcNum(), edge->DstNum(), edge->Length()));
+            res.push_back(WeightedEdge<int>(edge->SrcNum(), edge->DstNum(), static_cast<int>(edge->Length())));
         }
         return res;
     }

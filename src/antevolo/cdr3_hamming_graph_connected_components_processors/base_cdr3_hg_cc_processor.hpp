@@ -39,12 +39,12 @@ namespace antevolo {
         void AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,
                                  const boost::unordered_set<size_t>& vertices_nums);
 
-        virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
-                                                        const boost::unordered_set<size_t>& vertices_nums) = 0;
-
-        virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
-                                   const boost::unordered_set<size_t> &vertices_nums,
-                                   EvolutionaryTree &tree) = 0;
+//        virtual void SetUndirectedComponentsParentEdges(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+//                                                        const boost::unordered_set<size_t>& vertices_nums) = 0;
+//
+//        virtual void SetDirections(boost::disjoint_sets<AP_map, AP_map>& ds_on_undirected_edges,
+//                                   const boost::unordered_set<size_t> &vertices_nums,
+//                                   EvolutionaryTree &tree) = 0;
 
         void ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
                                                 EvolutionaryTree& tree);
@@ -92,7 +92,7 @@ namespace antevolo {
                                   size_t& reconstructed,
                                   size_t& rejected);
 
-        virtual EvolutionaryTree ConstructForest();
+        virtual EvolutionaryTree ConstructForest() = 0;
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);

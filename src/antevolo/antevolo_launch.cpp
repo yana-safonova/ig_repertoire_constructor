@@ -156,71 +156,11 @@ namespace antevolo {
         INFO("AntEvolo ends");
     }
 
-    void AntEvoloLaunch::AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
-                                                  const EvolutionaryTreeStorage& trees) {
-        if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
-            return;
-        INFO("Parallel evolution finder starts");
-        ParallelEvolutionStats parallel_stats;
-        for(auto it = trees.cbegin(); it != trees.cend(); it++) {
-            ParallelEvolutionFinder finder(clone_set, *it);
-            auto cur_stats = finder.ComputeParallelSHMs();
-            if(cur_stats.Empty())
-                continue;
-            ClonalGraph cgraph(clone_set, *it, cur_stats);
-            MutationMap mutation_map(clone_set, /*cur_stats,*/ cgraph);
-            //TrustedSHMFinder trusted_shm_finder(mutation_map, cgraph);
-            //trusted_shm_finder.FindTrustedSHMs();
-            INFO("== Processing " << it->GetTreeOutputFname("") << "...");
-            float non_trivial_shm_rate = roundf(float(mutation_map.NumNontrivialSHMs()) /
-                    float(mutation_map.NumUniqueSHMs()) * 100 * 100) / 100;
-            INFO("# non-trivial SHMs: " << mutation_map.NumNontrivialSHMs() << " (" <<
-                                        non_trivial_shm_rate << "%), max mult: " <<
-                                        mutation_map.MaxMultiplicity());
-            //float trusted_shm_rate = roundf(float(trusted_shm_finder.TrustedNonTrivialSHMNumber()) /
-            //                                float(mutation_map.NumNontrivialSHMs()) * 100 * 100) / 100;
-            //INFO("# trusted non-trivial SHMs: " << trusted_shm_finder.TrustedNonTrivialSHMNumber() << " (" <<
-            //                                    trusted_shm_rate << "%)");
-            INFO("# synonymous non-trivial SHMs: " << mutation_map.NumSynonymousNonTrivialSHMs());
-            //<< " (" << trusted_shm_finder.TrustedSynonymousNumber() << " trusted)");
-            INFO("# hot-spots non-trivial SHMs: " << mutation_map.NumNonTrivialHotSpotSHMs());
-            //<< " (" << trusted_shm_finder.TrustedHotSpotNumber() << " trusted)");
-            ClonalGraphWriter graph_writer(cgraph);
-            graph_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_bulges_dir,
-                                           it->GetTreeOutputFname("") + ".dot"));
-            MutationMapWriter map_writer(mutation_map/*, trusted_shm_finder*/);
-            map_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_shm_dir,
-                                         it->GetTreeOutputFname("") + ".txt"));
-            parallel_stats.ConcatenateStats(cur_stats);
-        }
-    }
-
     void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                        const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                                        size_t total_number_of_reads) {
         INFO("Tree construction starts");
         auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
-
-
-
-
-
-
-//        EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.algorithm_params.edge_construction_params);
-//        auto edge_constructor = std::shared_ptr<EvolutionaryEdgeConstructor>(ptr);
-//        auto edge = edge_constructor->ConstructEdge(annotated_clone_set[6033],
-//                                                    annotated_clone_set[12587],
-//                                                    6033,
-//                                                    12587);
-//        std::cout << annotated_clone_set[6033].Read() << "\n" << annotated_clone_set[12587].Read() << std::endl;
-//        double  weight = edge_weight_calculator.calculate_weigth_edge(*edge);
-
-
-
-
-
-
-
         auto tree_storage = AntEvoloProcessor(config_,
                                               annotated_clone_set,
                                               clone_by_read_constructor,
@@ -261,6 +201,47 @@ namespace antevolo {
 
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     };
+
+    void AntEvoloLaunch::AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                                                  const EvolutionaryTreeStorage& trees) {
+        if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
+            return;
+        INFO("Parallel evolution finder starts");
+        ParallelEvolutionStats parallel_stats;
+        for(auto it = trees.cbegin(); it != trees.cend(); it++) {
+            ParallelEvolutionFinder finder(clone_set, *it);
+            auto cur_stats = finder.ComputeParallelSHMs();
+            if(cur_stats.Empty())
+                continue;
+            ClonalGraph cgraph(clone_set, *it, cur_stats);
+            MutationMap mutation_map(clone_set, /*cur_stats,*/ cgraph);
+            //TrustedSHMFinder trusted_shm_finder(mutation_map, cgraph);
+            //trusted_shm_finder.FindTrustedSHMs();
+            INFO("== Processing " << it->GetTreeOutputFname("") << "...");
+            float non_trivial_shm_rate = roundf(float(mutation_map.NumNontrivialSHMs()) /
+                    float(mutation_map.NumUniqueSHMs()) * 100 * 100) / 100;
+            INFO("# non-trivial SHMs: " << mutation_map.NumNontrivialSHMs() << " (" <<
+                                        non_trivial_shm_rate << "%), max mult: " <<
+                                        mutation_map.MaxMultiplicity());
+            //float trusted_shm_rate = roundf(float(trusted_shm_finder.TrustedNonTrivialSHMNumber()) /
+            //                                float(mutation_map.NumNontrivialSHMs()) * 100 * 100) / 100;
+            //INFO("# trusted non-trivial SHMs: " << trusted_shm_finder.TrustedNonTrivialSHMNumber() << " (" <<
+            //                                    trusted_shm_rate << "%)");
+            INFO("# synonymous non-trivial SHMs: " << mutation_map.NumSynonymousNonTrivialSHMs());
+            //<< " (" << trusted_shm_finder.TrustedSynonymousNumber() << " trusted)");
+            INFO("# hot-spots non-trivial SHMs: " << mutation_map.NumNonTrivialHotSpotSHMs());
+            //<< " (" << trusted_shm_finder.TrustedHotSpotNumber() << " trusted)");
+            ClonalGraphWriter graph_writer(cgraph);
+            graph_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_bulges_dir,
+                                           it->GetTreeOutputFname("") + ".dot"));
+            MutationMapWriter map_writer(mutation_map/*, trusted_shm_finder*/);
+            map_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_shm_dir,
+                                         it->GetTreeOutputFname("") + ".txt"));
+            parallel_stats.ConcatenateStats(cur_stats);
+        }
+    }
+
+
 
     void AntEvoloLaunch::LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
         INFO("EvoQuast starts");

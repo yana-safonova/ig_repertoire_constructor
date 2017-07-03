@@ -516,8 +516,8 @@ edmonds_optimum_branching(TEdgeListGraph &g,
 
     typedef typename graph_traits<TEdgeListGraph>::edge_descriptor    Edge;
     typedef typename graph_traits<TEdgeListGraph>::vertex_descriptor  Vertex;
-    typedef typename graph_traits<TEdgeListGraph>::edge_iterator      EdgeIter;
-    typedef typename property_traits<TWeightMap>::value_type          weight_t;
+//    typedef typename graph_traits<TEdgeListGraph>::edge_iterator      EdgeIter;
+//    typedef typename property_traits<TWeightMap>::value_type          weight_t;
 
     function_requires< EdgeListGraphConcept<TEdgeListGraph> >();
     function_requires< ReadablePropertyMapConcept<TWeightMap, Edge> >();
