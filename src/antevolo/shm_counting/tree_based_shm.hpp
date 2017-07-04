@@ -1,4 +1,6 @@
-#include "clonal_graph.hpp"
+#pragma once
+
+#include "annotation_utils/annotated_clone_set.hpp"
 
 namespace antevolo {
     struct TreeSHM {
@@ -46,13 +48,5 @@ namespace antevolo {
 
     std::ostream& operator<<(std::ostream& out, const TreeSHM &tree_shm);
 
-    class TreeSHMCalculator {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
-
-    public:
-        TreeSHMCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set) :
-                clone_set_(clone_set) { }
-
-        TreeSHM ComputeTreeSHM(annotation_utils::SHM shm, size_t src, size_t dst) const;
-    };
+    std::string GetTripletByCentralPos(seqan::Dna5String str, size_t pos, size_t orf);
 }

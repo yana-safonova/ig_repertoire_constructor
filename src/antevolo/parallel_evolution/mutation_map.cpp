@@ -9,7 +9,7 @@ namespace antevolo {
         for(auto it = added_shms.begin(); it != added_shms.end(); it++) {
             if(it->shm_type != annotation_utils::SHMType::SubstitutionSHM)
                 continue;
-            subs_shms.push_back(tree_shm_calc.ComputeTreeSHM(*it, src, dst));
+            subs_shms.push_back(tree_shm_calc.ComputeTreeSHMByUsualSHM(*it, src, dst));
         }
         edge_shms_map_[std::make_pair(src, dst)] = subs_shms;
     }

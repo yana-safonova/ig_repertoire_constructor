@@ -1,7 +1,7 @@
 #pragma once
 
 #include "clonal_graph.hpp"
-#include "tree_annotated_shm.hpp"
+#include "../shm_counting/tree_shm_calculator.hpp"
 
 namespace antevolo {
     class MutationMap {
