@@ -55,9 +55,9 @@ def CheckParamsCorrectness(params, log):
     if not DomainParamCorrect(params.domain_system):
         log.info("Domain system " + params.domain_system + " is not recognized")
         sys.exit(1)
-    if not LociParamCorrect(params.loci):
-        log.info("Loci " + params.loci + " is not recognized")
-        sys.exit(1)
+#    if not LociParamCorrect(params.loci):
+#        log.info("Loci " + params.loci + " is not recognized")
+#        sys.exit(1)
     if not OrganismParamCorrect(params.organism):
         log.info("Organism " + params.organism + " is not recognized")
         sys.exit(1)
@@ -200,7 +200,7 @@ def main(argv):
                                type=str,
                                default="IG",
                                dest="loci",
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
     optional_args.add_argument("--org",
                                type=str,
