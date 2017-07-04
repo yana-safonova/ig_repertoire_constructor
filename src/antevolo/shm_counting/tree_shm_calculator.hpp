@@ -15,7 +15,7 @@ namespace antevolo {
 
     class UniqueSHMCalculator {
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
-        const const EvolutionaryTree &tree_;
+        const EvolutionaryTree &tree_;
 
         TreeSHMCalculator tree_shm_calc_;
         TreeSHMMap shm_map_;
