@@ -54,12 +54,10 @@ add_library(antevolo_library STATIC
         parallel_evolution/mutation_map.cpp
         parallel_evolution/mutation_map_writer.cpp
         #
-        ../fast_ig_tools/ig_trie_compressor.cpp
         annotated_clone_by_read_constructor.cpp
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
         cdr3_hamming_graph_info.cpp
-        related_clones_iterator.cpp
         antevolo_output_writer.cpp
         antevolo_config.cpp
         antevolo_processor.cpp
