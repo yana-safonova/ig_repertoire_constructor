@@ -185,8 +185,8 @@ def PrepareConfigs(params, log):
 ########################################################################################################################
 
 def main(argv):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== " + tool_name + ": clonal tree construction algorithm ==",
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== " + tool_name + ": clonal tree construction algorithm ==",
                                   epilog="In case you have troubles running " + tool_name +
                                          ", you can write to igtools_support@googlegroups.com. " +
                                          "Please provide us with antevolo.log file from the output directory.",
