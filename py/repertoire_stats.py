@@ -4,7 +4,7 @@ from igquast_impl import get_clusters_sizes
 from argparse import ArgumentParser
 
 if __name__ == "__main__":
-    parser = ArgumentParser(description="Rerort repertoire statistics")
+    parser = ArgumentParser(description="Report repertoire statistics")
     parser.add_argument("input",
                         type=str,
                         help="input repertoire file")
