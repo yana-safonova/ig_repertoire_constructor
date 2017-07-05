@@ -57,9 +57,12 @@ namespace antevolo {
                             component_index, edge_weight_calculator_);
                 }
                 else {
-                    tree = vj_class_processor.ProcessComponentWithKruskal(
+                    tree = vj_class_processor.ProcessComponentWithEdmonds(
                             connected_components[component_index],
-                            component_index);
+                            component_index, edge_weight_calculator_);
+//                    tree = vj_class_processor.ProcessComponentWithKruskal(
+//                            connected_components[component_index],
+//                            component_index);
                 }
                 tree.SetTreeIndices(i+1, component_index, 0);
                 if (tree.NumEdges() != 0) {
