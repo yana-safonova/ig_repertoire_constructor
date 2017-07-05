@@ -162,8 +162,9 @@ namespace antevolo {
                         src_num,
                         clone_num);
                 if (edge->IsIntersected()) {
-                    if (best_intersected_edges.find(clone_num) == best_intersected_edges.end() ||
-                        edge->Length() < best_intersected_edges[clone_num]->Length()) {
+                    if ((best_intersected_edges.find(clone_num) == best_intersected_edges.end() ||
+                         edge->Length() < best_intersected_edges[clone_num]->Length()) &&
+                            CheckClonesConsistencyForReconstruction(*edge->SrcClone(), *edge->DstClone())) {
                         best_intersected_edges[clone_num] = edge;
                     }
                 }
@@ -331,22 +332,11 @@ namespace antevolo {
         const auto& left = clone_set[left_num];
         const auto& right = clone_set[right_num];
         auto edge_n = edge_constructor->ConstructEdge(left, right, left_num, right_num);
-        VERIFY(left.CDR3Range().length() == right.CDR3Range().length());
         if (edge_n->IsDirected()) {
             tree.ReplaceEdge(right_num, edge_n);
             return false;
         }
-        if (!annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(left.VSHMs(),
-                                                                          right.VSHMs()) ||
-            !annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(left.JSHMs(),
-                                                                          right.JSHMs())) {
-            ++rejected_;
-            return false;
-        }
-        if (left.CDR3Range().end_pos < left.VAlignment().EndQueryPosition() ||
-            left.CDR3Range().start_pos > left.JAlignment().StartQueryPosition() ||
-            right.CDR3Range().end_pos < right.VAlignment().EndQueryPosition() ||
-            right.CDR3Range().start_pos > right.JAlignment().StartQueryPosition()) {
+        if (!CheckClonesConsistencyForReconstruction(left, right)) {
             return false;
         }
         size_t parent_num = clone_set.size();
@@ -427,5 +417,23 @@ namespace antevolo {
                 roots_nearest_neighbours[root_num] = edge;
             }
         }
+    }
+
+    bool Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction(
+            const annotation_utils::AnnotatedClone& left,
+            const annotation_utils::AnnotatedClone& right) {
+        if (left.CDR3Range().length() == right.CDR3Range().length()) {
+            return false;
+        }
+        if (!annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(left.VSHMs(),
+                                                                          right.VSHMs()) ||
+            !annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(left.JSHMs(),
+                                                                          right.JSHMs())) {
+            return false;
+        }
+        return (left.CDR3Range().end_pos >= left.VAlignment().EndQueryPosition() &&
+                left.CDR3Range().start_pos <= left.JAlignment().StartQueryPosition() &&
+                right.CDR3Range().end_pos >= right.VAlignment().EndQueryPosition() &&
+                right.CDR3Range().start_pos <= right.JAlignment().StartQueryPosition());
     }
 }

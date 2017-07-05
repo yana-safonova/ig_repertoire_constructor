@@ -81,6 +81,9 @@ namespace antevolo {
             return undirected_components_edges_[root_num];
         }
 
+        bool CheckClonesConsistencyForReconstruction(const annotation_utils::AnnotatedClone& left,
+                                                     const annotation_utils::AnnotatedClone& right);
+
     public:
 
 //        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet& clone_set,

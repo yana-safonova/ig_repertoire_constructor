@@ -13,6 +13,10 @@ namespace antevolo {
            size_t gene_cdr3_start_pos,
            size_t gene_cdr3_end_pos) {
 
+        // !!
+        // can be used only if
+        // Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction == true
+
         // read
         std::stringstream s;
         s << std::string("fake_read_") << id << ("___size___1");
