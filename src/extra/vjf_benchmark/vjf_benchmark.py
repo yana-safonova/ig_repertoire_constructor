@@ -11,12 +11,12 @@ import tempfile
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../../../"
-sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
-sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py/utils")
+sys.path.append(igrec_dir + "/py/pipeline/")
 sys.path.append(igrec_dir + "/py")
 from igblast_utils import ParseIgBlastOutput
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import CreateLogger, AttachFileLogger, linear_search, idFormatByFileName, smart_open, md5_file, fq2fa
 
 from simulate import run_vjfinder
@@ -42,7 +42,7 @@ def parse_vjf_output(filename, readfile):
         reader = csv.reader(csv_file, delimiter="\t")
         headers = reader.next()
 
-# Read_name	Chain_type	V_hit	V_start_pos	V_end_pos	V_score	J_hit	J_start_pos	J_end_pos	J_score
+# Read_name    Chain_type    V_hit    V_start_pos    V_end_pos    V_score    J_hit    J_start_pos    J_end_pos    J_score
         id_col = linear_search(headers, "Read_name")
         Vstart_col = linear_search(headers, "V_start_pos")
         Vend_col = linear_search(headers, "V_end_pos")

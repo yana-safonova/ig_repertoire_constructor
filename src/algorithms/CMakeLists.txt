@@ -1,7 +1,7 @@
 project(algorithms CXX)
 
 INCLUDE_DIRECTORIES(SYSTEM ${SEQAN_INCLUDE_DIR})
-include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${IGREC_MAIN_INCLUDE_DIR})
 include_directories(${CORE_DIR})
 include_directories(${VDJ_UTILS_DIR})
 

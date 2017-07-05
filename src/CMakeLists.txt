@@ -4,7 +4,7 @@
 # All Rights Reserved
 # See file LICENSE for details.
 ############################################################################
-
+project(src)
 # Hard prerequisites
 cmake_minimum_required(VERSION 2.8.8)
 
@@ -21,20 +21,21 @@ set(CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 # Define various dirs
-set(SPADES_MAIN_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(SPADES_MAIN_INCLUDE_DIR ${SPADES_MAIN_SRC_DIR}/include)
-set(SPADES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(SPADES_TOOLS_BINARY_DIR ${SPADES_BINARY_DIR}/bin)
-set(SPADES_BUILT_INCLUDE_DIR ${SPADES_BINARY_DIR}/include)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${SPADES_TOOLS_BINARY_DIR})
-set(EXT_DIR "${CMAKE_SOURCE_DIR}/../ext")
-set(SPADES_CFG_DIR "${CMAKE_SOURCE_DIR}/../configs")
+set(IGREC_MAIN_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(IGREC_MAIN_INCLUDE_DIR ${IGREC_MAIN_SRC_DIR}/include)
+set(IGREC_BINARY_DIR ${CMAKE_BINARY_DIR})
+set(IGREC_TOOLS_BINARY_DIR ${IGREC_BINARY_DIR}/bin)
+set(IGREC_BUILT_INCLUDE_DIR ${IGREC_BINARY_DIR}/include)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${IGREC_TOOLS_BINARY_DIR})
+set(EXT_DIR "${IGREC_MAIN_SRC_DIR}/../ext")
+set(IGREC_CFG_DIR "${IGREC_MAIN_SRC_DIR}/../configs")
 
-set(CORE_DIR "${SPADES_MAIN_SRC_DIR}/core")
-set(ALGORITHMS_DIR "${SPADES_MAIN_SRC_DIR}/algorithms")
-set(VDJ_UTILS_DIR "${SPADES_MAIN_SRC_DIR}/vdj_utils")
-set(VJ_FINDER_DIR "${SPADES_MAIN_SRC_DIR}/vj_finder")
-set(CDR_LABELER_DIR "${SPADES_MAIN_SRC_DIR}/cdr_labeler")
+set(CORE_DIR "${IGREC_MAIN_SRC_DIR}/core")
+set(ALGORITHMS_DIR "${IGREC_MAIN_SRC_DIR}/algorithms")
+set(VDJ_UTILS_DIR "${IGREC_MAIN_SRC_DIR}/vdj_utils")
+set(VJ_FINDER_DIR "${IGREC_MAIN_SRC_DIR}/vj_finder")
+set(CDR_LABELER_DIR "${IGREC_MAIN_SRC_DIR}/cdr_labeler")
+set(IG_SIMULATOR_DIR "${IGREC_MAIN_SRC_DIR}/ig_simulator")
 
 # Everything option-dependent
 include(options)
@@ -65,12 +66,12 @@ include(libs)
 # Enable testing (check & check_essential targets)
 include(check)
 
-configure_file("${SPADES_MAIN_INCLUDE_DIR}/config.hpp.in"
-               "${SPADES_BUILT_INCLUDE_DIR}/config.hpp")
+configure_file("${IGREC_MAIN_INCLUDE_DIR}/config.hpp.in"
+               "${IGREC_BUILT_INCLUDE_DIR}/config.hpp")
 
 # Build external dependencies (if any)
-add_subdirectory("${EXT_DIR}/src" "${Project_BINARY_DIR}/ext")
-add_subdirectory("${EXT_DIR}/tools" "${Project_BINARY_DIR}/ext_tools")
+add_subdirectory("${EXT_DIR}/src" "${CMAKE_BINARY_DIR}/ext")
+add_subdirectory("${EXT_DIR}/tools" "${CMAKE_BINARY_DIR}/ext_tools")
 
 add_subdirectory(build_info)
 
@@ -89,24 +90,4 @@ add_subdirectory(cdr_labeler)
 add_subdirectory(test)
 add_subdirectory(umi_experiments)
 add_subdirectory(pcr_simulator)
-
-# FIXME: Should we just configure spades_init instead?
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../VERSION"
-        DESTINATION share/spades
-        COMPONENT runtime)
-# Test dataset
-#install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../test_dataset"
-#        DESTINATION share/spades)
-# manual, LICENSE, and GPLv2
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../manual.html"
-#        DESTINATION share/spades
-#        COMPONENT runtime)
-#install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../dipspades_manual.html"
-#        DESTINATION share/spades
-#        COMPONENT runtime)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../LICENSE"
-        DESTINATION share/spades
-        COMPONENT runtime)
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/../GPLv2.txt"
-        DESTINATION share/spades
-        COMPONENT runtime)
+add_subdirectory(ig_simulator)

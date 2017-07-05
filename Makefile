@@ -1,29 +1,67 @@
-all:
+# Default build type
+build_type?="RelWithAsserts"
+
+# Default install prefix
+prefix?="/usr/local"
+
+.PHONY: clean clean_tests cmake all pack
+
+all: igrec
+
+cpcfg:
+	mkdir -p build/tmp
+	cd build/tmp && cmake ../../configs -DCMAKE_OVERWRITE_CONFIGS=true
+	rm -r build/tmp
+
+cmake:
+	mkdir -p build/release
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
+
+igrec: cmake
 	$(MAKE) -C build/release all
 
-rig:
-	$(MAKE) -C build/release/ig_repertoire_constructor ig_repertoire_constructor
+rpm: igrec
+	cd build/release && cpack -G RPM
 
-dig:
-	$(MAKE) -C build/debug/ig_repertoire_constructor ig_repertoire_constructor
+deb: igrec
+	cd build/release && cpack -G DEB
 
-dsf:
-	$(MAKE) -C build/release/dense_sgraph_finder dense_sgraph_finder
+tgz: igrec
+	cd build/release && cpack -G TGZ
 
-metis:
-	$(MAKE) -C build/release/ext_tools/metis-5.1.0/ metis
+install: igrec
+	cd build/release && cmake -P cmake_install.cmake
 
-check: all
+dsf: cmake
+	$(MAKE) -C build/release dense_sgraph_finder
+
+check: cmake
 	$(MAKE) -C build/release check
 
-check_essential: all
-	$(MAKE) -C build/release check_essential
+memcheck: cmake
+	$(MAKE) -C build/release memcheck
 
-vjf:
-	$(MAKE) -C build/release/vj_finder
+rnd: cmake
+	$(MAKE) -C build/release rnd
 
-cdr:
-	$(MAKE) -C build/release/cdr_labeler
+vjf: cmake
+	$(MAKE) -C build/release vj_finder
 
-umi:
-	$(MAKE) -C build/release/umi_experiments
+cdr: cmake
+	$(MAKE) -C build/release cdr_labeler
+
+umi: cmake
+	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
+
+igs: cmake
+	$(MAKE) -C build/release ig_simulator
+
+clean:
+	-rm -r build
+
+clean_tests:
+	-rm *.pyc
+	-rm -r igrec_test
+	-rm -r ms_analyzer_test
+	-rm -r ig_simulator_test
+	-rm *~

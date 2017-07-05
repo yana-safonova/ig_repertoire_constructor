@@ -14,15 +14,15 @@ from time import gmtime, strftime
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 ig_bin_directory = os.path.join(home_directory, "build/release/bin/")
-python_src_directory = os.path.join(home_directory, "src/ig_tools/python_utils/")
+python_src_directory = os.path.join(home_directory, "py/utils/")
 config_directory = os.path.join(home_directory, "configs/ig_tools/")
-spades_py_scripts_directory = os.path.join(home_directory, "src/python_pipeline/")
+pipeline_dir = os.path.join(home_directory, "py/pipeline/")
 igblast_directory = os.path.join(home_directory, "src/tools/igblast/")
-ms_utils_directory = os.path.join(home_directory, "src/mass_spectra_analysis/")
+ms_utils_directory = os.path.join(home_directory, "py/mass_spectra_analysis/")
 
 path_to_config_template = os.path.join(config_directory, "config.info.template")
 
-sys.path.append(spades_py_scripts_directory)
+sys.path.append(pipeline_dir)
 sys.path.append(python_src_directory)
 sys.path.append(ms_utils_directory)
 

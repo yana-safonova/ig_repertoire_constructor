@@ -7,10 +7,10 @@ import os
 import sys
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../"
-sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
-sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py/utils")
+sys.path.append(igrec_dir + "/py/pipeline/")
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import idFormatByFileName, smart_open
 
 

@@ -20,7 +20,7 @@ SET(BUILD_INFO_C_FLAGS ${CMAKE_C_FLAGS})
 SET(BUILD_INFO_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/../VERSION")
-  FILE(READ ${CMAKE_SOURCE_DIR}/../VERSION BUILD_INFO_VERSION)
+  FILE(READ "${CMAKE_SOURCE_DIR}/../VERSION" BUILD_INFO_VERSION)
   STRING(STRIP ${BUILD_INFO_VERSION} BUILD_INFO_VERSION)
 else()
   SET(BUILD_INFO_VERSION "<unknown>")
@@ -28,7 +28,7 @@ endif()
 
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/build_info.py.in"
-               "${CMAKE_CURRENT_SOURCE_DIR}/build_info.py"
+               "${IGREC_MAIN_SRC_DIR}/../py/build_info/build_info.py"
                @ONLY)
 
 

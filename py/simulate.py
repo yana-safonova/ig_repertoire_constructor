@@ -6,15 +6,16 @@ from Bio import SeqIO
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../"
-sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
-sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py/utils")
+sys.path.append(igrec_dir + "/py/pipeline/")
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, fastx2fastx, FakeLog
 from ig_compress_equal_clusters import parse_cluster_mult
 
 
 path_to_ig_simulator = igrec_dir + "/../ig_simulator/"
+path_to_ig_simulator_tcr = igrec_dir + "/../ig_simulator_tcr/"
 path_to_mixcr = igrec_dir + "/src/extra/tools/mixcr-1.7"
 path_to_mixcr2 = igrec_dir + "/src/extra/tools/mixcr-2.0"
 path_to_igrec = igrec_dir
@@ -119,7 +120,11 @@ def jit_fx_file(input_file, output_file, error_rate=2, random_errors=True,
 
     output_format = idFormatByFileName(output_file)
     input_format = idFormatByFileName(input_file)
+    print seed
     random.seed(seed)
+    np.random.seed(seed)
+
+    print np.random.ranf(1)
 
     with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
         for record in SeqIO.parse(fh, input_format):
@@ -240,13 +245,14 @@ def simulate_data(input_file, output_dir, log=None,
 
 
 def run_ig_simulator(output_dir, log=None,
-                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000):
+                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000,
+                     tcr=False):
     if log is None:
         log = FakeLog()
 
     assert chain in ["HC", "LC"]
 
-    args = {"path": path_to_ig_simulator,
+    args = {"path": path_to_ig_simulator if not tcr else path_to_ig_simulator_tcr,
             "output_dir": output_dir,
             "chain": chain,
             "num_bases": num_bases,
@@ -254,7 +260,13 @@ def run_ig_simulator(output_dir, log=None,
             "repertoire_size": repertoire_size}
 
     timer = Timer()
-    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args,
+    cmd = "%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args
+    if tcr:
+        vgenes = igrec_dir + "/data/germline/human/TCR/TRBV.fa"
+        jgenes = igrec_dir + "/data/germline/human/TCR/TRBJ.fa"
+        dgenes = igrec_dir + "/data/germline/human/TCR/TRBD.fa"
+        cmd += " --vgenes=" + vgenes + " --jgenes=" + jgenes + " --dgenes=" + dgenes
+    support.sys_call(cmd,
                      log=log)
     timer.stamp(output_dir + "/time.txt")
 
@@ -665,7 +677,7 @@ def run_presto(input_file, output_dir,
 
 if __name__ == "__main__":
     ig_simulator_output_dir = "/tmp/ig_simulator"
-    output_dir = igrec_dir + "/igquast_test_dataset"
+    output_dir = igrec_dir + "/test_dataset/igquast"
     run_ig_simulator(ig_simulator_output_dir)
     simulate_data(ig_simulator_output_dir + "/final_repertoire.fasta", output_dir)
 

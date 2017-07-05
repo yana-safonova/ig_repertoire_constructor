@@ -28,7 +28,6 @@
 #include "logger/logger.hpp"
 #include "io/parser.hpp"
 #include "io/fasta_fastq_gz_parser.hpp"
-#include "io/bam_parser.hpp"
 
 
 namespace io {
@@ -66,8 +65,7 @@ std::string GetExtension(const std::string& filename) {
 Parser* SelectParser(const std::string& filename,
                      OffsetType offset_type /*= PhredOffset*/) {
   std::string ext = GetExtension(filename);
-  if (ext == "bam")
-      return new BAMParser(filename, offset_type);
+  VERIFY_MSG(ext != "bam", "BAM format is not supported");
 
   return new FastaFastqGzParser(filename, offset_type);
   /*

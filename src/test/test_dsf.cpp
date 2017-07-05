@@ -65,8 +65,9 @@ void DsfTest::TearDown() {
 // check that each constructed dense subgraph contains at most one supernode
 TEST_F(DsfTest, TestSupernodesAreSeparated) {
     dsf_config::dense_sgraph_finder_params dsf_params = CreateStandardDsfParams();
+    auto metis_io_params = CreateStandardMetisParams(output_dir);
     dense_subgraph_finder::MetisDenseSubgraphConstructor dsf_constructor(dsf_params,
-                                                                         CreateStandardMetisParams(output_dir),
+                                                                         metis_io_params,
                                                                          path::append_path(output_dir,
                                                                                            "graph_copy.graph"));
     DecompositionPtr decomposition = dsf_constructor.CreateDecomposition(test_graph);

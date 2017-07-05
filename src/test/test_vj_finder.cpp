@@ -4,7 +4,7 @@
 #include <sstream>
 
 #include <cdr_config.hpp>
-#include <germline_db_generator.hpp>
+#include <germline_utils/germline_db_generator.hpp>
 #include <vj_parallel_processor.hpp>
 #include <convert.hpp>
 
@@ -31,24 +31,18 @@ void TestVSegmentIgBlastConsistent() {
               "IGHV3-7*01");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(1).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV4-34*01");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(2).GetVHitByIndex(0).ImmuneGene().name()),
-    //           "IGHV1-2*04");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(2).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV1-2*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(3).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV3-49*04");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(4).GetVHitByIndex(0).ImmuneGene().name()),
-    //           "IGHV3-30*18");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(4).GetVHitByIndex(0).ImmuneGene().name()),
-              "IGHV3-30-5*01");
+              "IGHV3-30*18");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(5).GetVHitByIndex(0).ImmuneGene().name()),
               "IGHV1-69*01");
 }
 
 void TestJSegmentIgBlastConsistent() {
     INFO("Checking consistency of J hits with IgBlast");
-    // ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(0).GetJHitByIndex(0).ImmuneGene().name()),
-    //           "IGHJ5*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(0).GetJHitByIndex(0).ImmuneGene().name()),
               "IGHJ4*02");
     ASSERT_EQ(core::seqan_string_to_string(alignment_info.GetVJHitsByIndex(1).GetJHitByIndex(0).ImmuneGene().name()),
@@ -111,8 +105,8 @@ TEST_F(VJFinderTest, BaseVJFinderTest) {
     vj_finder_config.algorithm_params.fix_crop_fill_params.fill_right = true;
     vj_finder_config.algorithm_params.fix_crop_fill_params.fix_right = 3;
     read_archive.ExtractFromFile("test_dataset/vj_finder_test.fastq");
-    vj_finder::GermlineDbGenerator db_generator(vj_finder_config.io_params.input_params.germline_input,
-                                                vj_finder_config.algorithm_params.germline_params);
+    germline_utils::GermlineDbGenerator db_generator(vj_finder_config.io_params.input_params.germline_input,
+                                                     vj_finder_config.algorithm_params.germline_params);
     auto v_gene_database = db_generator.GenerateVariableDb();
     auto j_gene_database = db_generator.GenerateJoinDb();
     vj_finder::VJParallelProcessor processor(read_archive,
@@ -127,7 +121,7 @@ TEST_F(VJFinderTest, BaseVJFinderTest) {
     TestVSegmentIgBlastConsistent();
     TestJSegmentIgBlastConsistent();
     TestStartAndEndAlignmentPositions();
-    // TestReadInversion();
-    // TestReadLeftRightCropping();
-    // TestReadLeftRightFilling();
+    TestReadInversion();
+    TestReadLeftRightCropping();
+    TestReadLeftRightFilling();
 }

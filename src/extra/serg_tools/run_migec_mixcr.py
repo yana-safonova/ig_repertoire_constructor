@@ -9,7 +9,7 @@ igrec_bin = os.path.join(igrec_dir, 'build/release/bin')
 
 from simulation_aux import ShStep, PyStep, migec_path
 
-sys.path.append(os.path.join(igrec_dir, "src/extra/ash_python_utils"))
+sys.path.append(os.path.join(igrec_dir, "py"))
 sys.path.append(os.path.join(igrec_dir, "py"))
 from ash_python_utils import fastx2fastx
 from simulate import run_mixcr2

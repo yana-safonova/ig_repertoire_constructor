@@ -11,10 +11,10 @@ import os
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../"
-sys.path.append(igrec_dir + "/src/ig_tools/python_utils")
-sys.path.append(igrec_dir + "/src/python_pipeline/")
+sys.path.append(igrec_dir + "/py/utils")
+sys.path.append(igrec_dir + "/py/pipeline/")
 import support
-sys.path.append(igrec_dir + "/src/extra/ash_python_utils/")
+sys.path.append(igrec_dir + "/py/")
 from ash_python_utils import idFormatByFileName, smart_open, mkdir_p, FakeLog, memoize, memoize_invalidate
 
 sys.path.append(igrec_dir + "/py")
@@ -95,7 +95,7 @@ def hexbinblue(ax, x, y, gridsize=25, xlim=None, ylim=None):
 
 
 def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", log=None,
-                    tau=4, k=10, strategy=3):
+                    tau=4, k=10, strategy=3, threads=16):
     if log is None:
         log = FakeLog()
 
@@ -111,23 +111,29 @@ def run_ig_matcher2(reference_file, constructed_file, output_file, prefix="", lo
             "prefix": prefix,
             "k": k,
             "tau": tau,
-            "strategy": strategy}
+            "strategy": strategy,
+            "threads": threads}
 
-    support.sys_call("%(swg_cmd)s -r %(reference_file)s -i %(constructed_file)s -o %(output_file)s -k %(k)d --tau %(tau)d -A --strategy=%(strategy)s" % args,
+    support.sys_call("%(swg_cmd)s -r %(reference_file)s \
+                     -i %(constructed_file)s -o %(output_file)s \
+                     -k %(k)d --tau %(tau)d -A --strategy=%(strategy)s \
+                     --threads=%(threads)d" % args,
                      log=log)
 
 
-def run_consensus_constructor(initial_reads, rcm_file, output_file, log=None):
+def run_consensus_constructor(initial_reads, rcm_file, output_file, log=None, threads=16):
     if log is None:
         log = FakeLog()
 
     args = {"path": path_to_igrec,
-            "cc_cmd": path_to_igrec + '/build/release/bin/ig_consensus_finder',
+            "cc_cmd": path_to_igrec + '/build/release/bin/ig_component_splitter',
             "initial_reads": initial_reads,
             "output_file": output_file,
-            "rcm_file": rcm_file}
+            "rcm_file": rcm_file,
+            "threads": threads}
 
-    support.sys_call("%(cc_cmd)s -i %(initial_reads)s -R %(rcm_file)s -o %(output_file)s -H " % args,
+    support.sys_call("%(cc_cmd)s -i %(initial_reads)s -R %(rcm_file)s -o %(output_file)s \
+                     --threads=%(threads)%d" % args,
                      log=log)
 
 
@@ -266,14 +272,15 @@ class Reperoire2RepertoireMatching:
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
-                 tmp_file=None, max_tau=4, log=None):
+                 tmp_file=None, max_tau=4, log=None, threads=16):
         if tmp_file is None:
             import tempfile
             tmp_file = tempfile.mkstemp(suffix=".graph", prefix="igquast_")[1]
 
         run_ig_matcher2(reference_repertoire, constructed_repertoire,
                         tau=max_tau,
-                        output_file=tmp_file, log=log, prefix="")
+                        output_file=tmp_file, log=log, prefix="",
+                        threads=threads)
         self.reference_abundances = get_clusters_sizes(reference_repertoire)
 
         ref_len = len(self.reference_abundances)
@@ -305,13 +312,15 @@ class Reperoire2RepertoireMatching:
 
     @staticmethod
     def bidirection(constructed_repertoire, reference_repertoire,
-                    tmp_file=None, max_tau=4, log=None):
+                    tmp_file=None, max_tau=4, log=None, threads=16):
         r2c = Reperoire2RepertoireMatching(constructed_repertoire=constructed_repertoire,
                                            reference_repertoire=reference_repertoire,
-                                           tmp_file=tmp_file, max_tau=max_tau, log=log)
+                                           tmp_file=tmp_file, max_tau=max_tau, log=log,
+                                           threads=threads)
         c2r = Reperoire2RepertoireMatching(constructed_repertoire=reference_repertoire,
                                            reference_repertoire=constructed_repertoire,
-                                           tmp_file=tmp_file, max_tau=max_tau, log=log)
+                                           tmp_file=tmp_file, max_tau=max_tau, log=log,
+                                           threads=threads)
 
         def merge(x, y):
             assert len(x) == len(y)
@@ -485,7 +494,8 @@ class RepertoireMatch:
                  tmp_file=None, max_tau=10,
                  reference_trash_cutoff=-float("inf"),
                  reference_trust_cutoff=float("inf"),
-                 log=None):
+                 log=None,
+                 threads=16):
         import numpy as np
 
         self.reference_ids = self.__read_fa_cluster_ids(reference_repertoire)
@@ -498,7 +508,8 @@ class RepertoireMatch:
                                                                 reference_repertoire=reference_repertoire,
                                                                 max_tau=max_tau,
                                                                 tmp_file=tmp_file,
-                                                                log=log)
+                                                                log=log,
+                                                                threads=threads)
 
         self.rep2rep.check(log=log,
                            reference_repertoire=self.reference_repertoire,
@@ -1226,7 +1237,8 @@ def reconstruct_rcm(initial_reads, repertoire,
                     tmp_file_matcher=None, tmp_file_reads=None,
                     taus=(1, 2, 4, 8, 12),
                     fallback_to_exhaustive_mode=False,
-                    log=None):
+                    log=None,
+                    threads=16):
     if log is None:
         log = FakeLog()
 
@@ -1270,7 +1282,8 @@ def reconstruct_rcm(initial_reads, repertoire,
         r2r = Reperoire2RepertoireMatching.bidirection(reference_repertoire=tmp_file_reads,
                                                        tmp_file=tmp_file_matcher,
                                                        constructed_repertoire=repertoire,
-                                                       log=log, max_tau=tau)
+                                                       log=log, max_tau=tau,
+                                                       threads=threads)
 
         for read_index, l in enumerate(r2r.reference2constructed):
             if l:

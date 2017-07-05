@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
 
     std::unordered_map<std::string, size_t> prefix_count;
     for (const auto read : input_reads) {
-        if (length(read) >= K) {
+        if (length(read) >= static_cast<size_t>(K)) {
             std::stringstream ss;
             ss << seqan::prefix(read, K);
             std::string s;

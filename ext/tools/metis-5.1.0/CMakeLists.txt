@@ -1,4 +1,4 @@
-project(metis CXX)
+project(metis C)
 
 include_directories(GKlib)
 include_directories(include)
@@ -68,16 +68,12 @@ add_executable(metis programs/ndmetis.c programs/cmdline_ndmetis.c programs/io.c
     libmetis/util.c
     libmetis/wspace.c)
 
-if (SPADES_STATIC_BUILD)
+if (IGREC_STATIC_BUILD)
   set_target_properties(metis PROPERTIES LINK_SEARCH_START_STATIC 1)
 endif()
 
 target_link_libraries(metis ${COMMON_LIBRARIES} m)
 
-install(TARGETS metis
-        RUNTIME DESTINATION bin)
-
 # Try to find subversion revision.
 set(SVNREV "")
 add_definitions(-DSVNINFO="${SVNREV}")
-

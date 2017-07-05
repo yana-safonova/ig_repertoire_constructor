@@ -8,7 +8,7 @@ import shutil
 import ntpath
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
-py_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "py/pipeline/")
 cdr_labeler_config_dir = os.path.join(home_directory, "configs/cdr_labeler/")
 vj_finder_config_dir = os.path.join(home_directory, "configs/vj_finder")
 cdr_labeler_bin = os.path.join(home_directory, "build/release/bin/cdr_labeler")
@@ -27,7 +27,7 @@ import visualize_vj_stats
 import html_report_writer
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
-test_dir = os.path.join(home_directory, "divan_test")
+test_dir = "divan_test"
 
 tool_name = "Diversity Analyzer"
 
@@ -39,7 +39,7 @@ def CheckBinariesExistance(params, log):
 def DomainParamCorrect(domain_str):
     return domain_str == "imgt" or domain_str == "kabat"
 
-def LociParamCorrect(loci_str):
+def LociParamIsIg(loci_str):
     return loci_str == "IG" or loci_str == "IGH" or loci_str == "IGK" or loci_str == "IGL"
 
 organism_dict = {'human' : 'human', 'mouse' : 'mouse', 'rat' : 'rat',
@@ -55,9 +55,9 @@ def CheckParamsCorrectness(params, log):
     if not DomainParamCorrect(params.domain_system):
         log.info("Domain system " + params.domain_system + " is not recognized")
         sys.exit(1)
-    if not LociParamCorrect(params.loci):
-        log.info("Loci " + params.loci + " is not recognized")
-        sys.exit(1)
+#    if not LociParamCorrect(params.loci):
+#        log.info("Loci " + params.loci + " is not recognized")
+#        sys.exit(1)
     if not OrganismParamCorrect(params.organism):
         log.info("Organism " + params.organism + " is not recognized")
         sys.exit(1)
@@ -70,6 +70,8 @@ def SetOutputParams(params, log):
     if params.input_reads != test_reads and params.output_dir == "":
         log.info("ERROR: Output dir (-o) was not specified")
         sys.exit(1)
+    if not LociParamIsIg(params.loci):
+        params.skip_plots = True
     params.output_dir = os.path.abspath(params.output_dir)
     params.config_dir = os.path.join(params.output_dir, "configs")
     params.cdr_config_file = os.path.join(cdr_labeler_config_dir, "config.info")
@@ -158,11 +160,11 @@ def Cleanup(params, log):
 ########################################################################################################################
 
 def main(argv):
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== " + tool_name + ": a tool for diversity analysis of full-length immunosequencing reads ==",
-                                  epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
-                                  "Please provide us with diversity_analyzer.log file from the output directory.",
-                                  add_help=False)
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== " + tool_name + ": a tool for diversity analysis of full-length immunosequencing reads ==",
+                            epilog="In case you have troubles running " + tool_name + ", you can write to igtools_support@googlegroups.com."
+                            "Please provide us with diversity_analyzer.log file from the output directory.",
+                            add_help=False)
     req_args = parser.add_argument_group("Required params")
     input_args = req_args.add_mutually_exclusive_group(required=True)
     input_args.add_argument("-i", "--input",
@@ -200,7 +202,7 @@ def main(argv):
                                type=str,
                                default="IG",
                                dest="loci",
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
     optional_args.add_argument("--org",
                                type=str,

@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('src/ig_tools/python_utils/')
+sys.path.append('py/utils/')
 import drawing_utils
 
 if len(sys.argv) != 2:

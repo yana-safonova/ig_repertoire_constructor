@@ -9,28 +9,35 @@ def get_plot_various_error_rate_data(dir,
                                      what="sensitivity",
                                      woans=False,
                                      size=5,
-                                     add_aimquast_to_path=True):
+                                     add_aimquast_to_path=True,
+                                     multiple=False):
     from glob import glob
 
     suff = "_woans" if woans else ""
-    dirnames = glob(dir + "/errate_?.????" + suff)
+    mul_suff = "_seed_*" if multiple else ""
+    dirnames = glob(dir + "/errate_?.????" + suff + mul_suff)
+
+    mul_suff = r"_seed_\d+" if multiple else ""
 
     def extract_lambda(dirname):
         import re
-        m = re.match(r".*/errate_([\d.]+)" + suff, dirname)
+        m = re.match(r".*/errate_([\d.]+)" + suff + mul_suff, dirname)
         if m:
             g = m.groups()
             return float(g[0].strip())
         else:
             return None
 
-    if not woans:
+    if not woans and not multiple:
         assert extract_lambda("fdsfsdfsd/errate_3.14") == 3.14
 
     def extract_data(dirname):
         jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
         json = json_from_file(dirname + "/" + kind + jfile)
         return json
+
+    def unique(x):
+        return sorted(list(set(x)))
 
     lambdas = map(extract_lambda, dirnames)
     data = map(extract_data, dirnames)
@@ -180,9 +187,10 @@ def plot_various_error_rate(dir,
                             format=("png", "pdf", "svg"),
                             legend=True,
                             which=None,
-                            prod_criterion=False):
-    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans)
-    datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans)[1] for kind in kinds]
+                            prod_criterion=False,
+                            multiple=False):
+    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kinds[0], woans=woans, multiple=multiple)
+    datas = [get_plot_various_error_rate_data(dir, kind=kind, woans=woans, multiple=multiple)[1] for kind in kinds]
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -225,8 +233,24 @@ def plot_various_error_rate(dir,
 
     print title, what
     for y, color, label in zipped:
-        plt.plot(lambdas, y,
-                 "b-", color=color, label=label)
+        min_lambda = min(lambdas)
+        nseeds = sum(1 for l in lambdas if l == min_lambda)
+        nlambdas = len(lambdas) / nseeds
+        if what == "minsize":
+            means = []
+            lms = []
+            for i in range(nlambdas):
+                _y = y[i*nseeds:(i+1)*nseeds]
+                means.append(float(sum(_y)) / len(_y))
+                lms.append(lambdas[i*nseeds])
+                plt.plot([lambdas[i*nseeds]] * 2, [min(_y), max(_y)],
+                         "--bo", color=color, label=label)
+            plt.plot(lms, means,
+                     "b-", color=color, label=label)
+        else:
+            for seed in range(nseeds):
+                plt.plot(lambdas[seed::nseeds], y[seed::nseeds],
+                         "b-", color=color, label=label)
         print label, y
 
     eps = 0.025
@@ -236,6 +260,8 @@ def plot_various_error_rate(dir,
         plt.ylim((1. - eps, 2. + eps))
     elif what == "prod":
         plt.ylim((0. - eps, 1. + eps))
+
+    plt.xlim(((0. - eps) * max(lambdas), (1. + eps) * max(lambdas)))
 
     if what in ["sensitivity", "precision"]:
         plt.ylabel(what)
@@ -253,7 +279,8 @@ def plot_various_error_rate(dir,
 
     if legend:
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles, labels, loc=3)
+        nlines = len(handles) / len(zipped)
+        ax.legend(handles[nlines-1::nlines], labels[nlines-1::nlines], loc=3)
 
     save_plot(out, format=format)
 
@@ -354,6 +381,89 @@ def tool2color(tool, secondary=False):
     return colors[tool2id(tool)]
 
 
+def plot_rocs_seed(jsons, labels,
+                   max_size_threshold=75,
+                   out="two_rocs",
+                   title="",
+                   format=None,
+                   show_coords=True,
+                   prod_criterion=False):
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    jsons = [json for json in jsons if json is not None]
+
+    f, ax = initialize_plot()
+
+    sns.set_style("darkgrid")
+
+    # skip = 2
+    skip = 0
+
+    how_many = len(jsons)
+    pat_jsons = jsons
+    for seed in range(10):
+        jsons = [json.replace("%%SEED%%", str(seed)) for json in pat_jsons]
+        try:
+            jsons = map(json_from_file, jsons)
+        except:
+            continue
+
+        sensitivities = [json["reference_based"]["__data_sensitivity"] for json in jsons]
+        precisions = [json["reference_based"]["__data_precision"] for json in jsons]
+
+        if prod_criterion:
+            def opt_size(sensitivity, precision):
+                return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] * precision[i])
+        else:
+            def opt_size(sensitivity, precision):
+                return 1 + max(xrange(len(sensitivity)), key=lambda i: sensitivity[i] + precision[i])
+
+        opt_sizes = [opt_size(sensitivity, precision) for sensitivity, precision in zip(sensitivities, precisions)]
+
+        def cut_to_threshold(x):
+            return x if len(x) <= max_size_threshold else x[:max_size_threshold]
+
+        sensitivities = map(cut_to_threshold, sensitivities)
+        precisions = map(cut_to_threshold, precisions)
+
+        colors = [tool2color(label) for label in labels]
+        point_colors = [tool2color(label, secondary=True) for label in labels]
+
+        for precision, sensitivity, color, label in zip(precisions, sensitivities, colors, labels):
+            plt.plot(precision[skip:], sensitivity[skip:], "b-", color=color, label=label)
+
+    eps = 0.025
+    plt.xlim((0 - eps, 1 + eps))
+    plt.ylim((0 - eps, 1 + eps))
+
+    plt.ylabel("sensitivity")
+    plt.xlabel("precision")
+
+    if title:
+        plt.title(title)
+
+    handles, labels = ax.get_legend_handles_labels()
+    handles = handles[:how_many]
+    labels = labels[:how_many]
+
+    ax.legend(handles, labels, loc=3)
+
+    save_plot(out, format=format)
+
+
+def remove_trailing_zeros(sensitivity, precision):
+    assert len(sensitivity) == len(precision)
+    # TODO add this to igQIUAST
+    while (sensitivity and precision and sensitivity[-1] == precision[-1] == 0):
+        # print "Trailing zero cropped"
+        sensitivity = sensitivity[:-1]
+        precision = precision[:-1]
+    # print "All zeros cropped"
+    assert len(sensitivity) == len(precision)
+    return sensitivity, precision
+
+
 def plot_rocs(jsons, labels,
               max_size_threshold=75,
               out="two_rocs",
@@ -384,15 +494,17 @@ def plot_rocs(jsons, labels,
     def cut_to_threshold(x):
         return x if len(x) <= max_size_threshold else x[:max_size_threshold]
 
-    sensitivities = map(cut_to_threshold, sensitivities)
-    precisions = map(cut_to_threshold, precisions)
-
     f, ax = initialize_plot()
 
     sns.set_style("darkgrid")
 
     # skip = 2
     skip = 0
+
+    sensitivities = map(cut_to_threshold, sensitivities)
+    precisions = map(cut_to_threshold, precisions)
+
+    sensitivities, precisions = zip(*map(lambda x: remove_trailing_zeros(*x), zip(sensitivities, precisions)))
 
     colors = [tool2color(label) for label in labels]
     point_colors = [tool2color(label, secondary=True) for label in labels]
@@ -411,6 +523,8 @@ def plot_rocs(jsons, labels,
 
     def annotation(size, x, y, color, text=None, xshift=0.01, yshift=-0.04,
                    add_text=False):
+        if (len(x) < size or len(y) < size):
+            return
         _x = x[size - 1]
         _y = y[size - 1]
 
@@ -427,7 +541,6 @@ def plot_rocs(jsons, labels,
     for i in [1, 3, 5, 10, 50]:
         if i <= skip:
             continue
-    # for i in []:
         annotation(i, precisions[0], sensitivities[0], color=point_colors[0])
         if len(jsons) > 1:
             annotation(i, precisions[1], sensitivities[1], color=point_colors[1], xshift=-0.04)
@@ -482,12 +595,16 @@ def rocs(dir, tools, out, labels=None, title="", add_aimquast_to_path=True, **kw
     assert len(labels) == len(tools)
 
     jfile = "/aimquast/aimquast.json" if add_aimquast_to_path else "/aimquast.json"
-    plot_rocs([dir + "/" + tool + jfile for tool in tools],
-              labels=labels,
-              title=title,
-              format=("png", "pdf"),
-              out=out,
-              **kwargs)
+    if "%%SEED%%" in dir:
+        f = plot_rocs_seed
+    else:
+        f = plot_rocs
+    f([dir + "/" + tool + jfile for tool in tools],
+      labels=labels,
+      title=title,
+      format=("png", "pdf"),
+      out=out,
+      **kwargs)
 
 
 def two_rocs(dir, tool1, tool2, out, label1=None, label2=None, title=""):
@@ -507,24 +624,33 @@ def plotplot(dir, out_dir, title, **kwargs):
          title=title,
          out=out_dir + "/sensitivity_precision_plot",
          **kwargs)
+
+    return
     rocs(dir,
          tools=["igrec", "mixcr2full", "supernode"],
          labels=["IgReC", "MiXCR_full", "pRESTO"],
          title=title,
          out=out_dir + "/sensitivity_precision_plot_full_mixcr",
          **kwargs)
-    rocs(dir,
-         tools=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"],
-         labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_all",
-         **kwargs)
-    rocs(dir,
-         tools=["igrec", "ig_repertoire_constructor", "igrec_tau3"],
-         labels=["IgReC", "IgRepertoireConstructor", "IgReC tau=3"],
-         title=title,
-         out=out_dir + "/sensitivity_precision_plot_old_vs_new",
-         **kwargs)
+    try:
+        rocs(dir,
+             tools=["igrec", "ig_repertoire_constructor", "igrec_tau3"],
+             labels=["IgReC", "IgRepertoireConstructor", "IgReC tau=3"],
+             title=title,
+             out=out_dir + "/sensitivity_precision_plot_old_vs_new",
+             **kwargs)
+    except:
+        pass
+
+    try:
+        rocs(dir,
+             tools=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"],
+             labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"],
+             title=title,
+             out=out_dir + "/sensitivity_precision_plot_all",
+             **kwargs)
+    except:
+        pass
     # rocs(dir,
     #      tools=["igrec", "mixcr", "supernode"],
     #      labels=["IgReC", "MiXCR", "pRESTO"],
@@ -574,6 +700,13 @@ def plotplot(dir, out_dir, title, **kwargs):
 
 
 if __name__ == "__main__":
+    plotplot(igrec_dir + "py/test_on_pd/SIMTCR_0.5/", "SIMTCR_0.5_figs", title="SIM TCR SIMPLE dataset, 0.5 errors per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMTCR_1/", "SIMTCR_1_figs", title="SIM TCR SIMPLE dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "py/test_on_pd/SIMTCR_2/", "SIMTCR_2_figs", title="SIM TCR SIMPLE dataset, 2 errors per read", show_coords=True)
+    plotplot(igrec_dir + "SIMULATED/errate_0.5000_seed_%%SEED%%", "MULT_SIMULATED_0.5_figs", title="SIMULATEDx10 SIMPLE dataset, 0.5 error per read", show_coords=True)
+    plotplot(igrec_dir + "SIMULATED/errate_1.0000_seed_%%SEED%%", "MULT_SIMULATED_1_figs", title="SIMULATEDx10 SIMPLE dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "SIMULATED/errate_2.0000_seed_%%SEED%%", "MULT_SIMULATED_2_figs", title="SIMULATEDx10 SIMPLE dataset, 2 error per read", show_coords=True)
+
     plotplot(igrec_dir + "py/test_on_pd/REAL/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/REAL_CHU/", "REAL_CHU_figs", title="Sensitivity-precision plot (REAL MiGEC dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/SIMULATED_1/", "SIMULATED_1_figs", title="SIMULATED SIMPLE dataset, 1 error per read", show_coords=True)
