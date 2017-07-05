@@ -1,5 +1,6 @@
 #include <logger/logger.hpp>
 #include <block_alignment/pairwise_block_alignment.hpp>
+#include <cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.hpp>
 #include "parent_read_reconstructor.hpp"
 
 namespace antevolo {
@@ -13,6 +14,10 @@ namespace antevolo {
            size_t gene_cdr3_start_pos,
            size_t gene_cdr3_end_pos) {
 
+
+        VERIFY_MSG(Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction(clone1, clone2),
+                   "this method can be used only if " <<
+                   "Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction returns true");
         // !!
         // can be used only if
         // Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction == true

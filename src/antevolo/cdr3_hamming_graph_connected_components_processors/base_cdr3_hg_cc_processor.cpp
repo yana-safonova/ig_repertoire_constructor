@@ -422,7 +422,7 @@ namespace antevolo {
     bool Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction(
             const annotation_utils::AnnotatedClone& left,
             const annotation_utils::AnnotatedClone& right) {
-        if (left.CDR3Range().length() == right.CDR3Range().length()) {
+        if (left.CDR3Range().length() != right.CDR3Range().length()) {
             return false;
         }
         if (!annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(left.VSHMs(),
