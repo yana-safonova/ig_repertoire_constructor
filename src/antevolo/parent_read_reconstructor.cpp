@@ -72,7 +72,9 @@ namespace antevolo {
                                               v_gene_cdr3_start_view_pos2,
                                               res_string);
         // [cdr3_start_pos, v_gene_end_pos]
-        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos); i < alignment_length; ++i) {
+//        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos); i < alignment_length; ++i) {
+        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos - 1) + 1; i < alignment_length; ++i) {
+
             if (v_alignment1[i] == '-') {
                 read_v_gaps.push_back(i);
             }
@@ -181,12 +183,14 @@ namespace antevolo {
             insertGap(j_read_row, i);
         }
 
+
         if (length(v_gene_row) != length(v_read_row)) {
             INFO(" V: " << length(v_gene_row) << "\t" << length(v_read_row));
         }
         if (length(j_gene_row) != length(j_read_row)) {
             INFO(" J: " << length(j_gene_row) << "\t" << length(j_read_row));
         }
+        VERIFY(length(v_gene_row) == length(v_read_row) && length(j_gene_row) == length(j_read_row));
 
         std::tuple<core::Read, Align<Dna5String, ArrayGaps>, Align<Dna5String, ArrayGaps>> res(
                 res_read,

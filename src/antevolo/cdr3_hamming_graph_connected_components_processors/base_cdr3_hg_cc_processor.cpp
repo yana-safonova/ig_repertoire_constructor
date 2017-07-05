@@ -431,9 +431,15 @@ namespace antevolo {
                                                                           right.JSHMs())) {
             return false;
         }
-        return (left.CDR3Range().end_pos >= left.VAlignment().EndQueryPosition() &&
+        return (left.CDR3Range().start_pos <= left.VAlignment().EndQueryPosition() + 1 &&
+                left.CDR3Range().end_pos > left.VAlignment().EndQueryPosition() &&
                 left.CDR3Range().start_pos <= left.JAlignment().StartQueryPosition() &&
-                right.CDR3Range().end_pos >= right.VAlignment().EndQueryPosition() &&
-                right.CDR3Range().start_pos <= right.JAlignment().StartQueryPosition());
+                left.CDR3Range().end_pos >= left.JAlignment().StartQueryPosition() - 1 &&
+                left.VAlignment().EndQueryPosition() < left.JAlignment().StartQueryPosition() &&
+                right.CDR3Range().start_pos <= right.VAlignment().EndQueryPosition() + 1 &&
+                right.CDR3Range().end_pos > right.VAlignment().EndQueryPosition() &&
+                right.CDR3Range().start_pos <= right.JAlignment().StartQueryPosition() &&
+                right.CDR3Range().end_pos >= right.JAlignment().StartQueryPosition() - 1 &&
+                right.VAlignment().EndQueryPosition() < right.JAlignment().StartQueryPosition());
     }
 }
