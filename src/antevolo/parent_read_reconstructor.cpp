@@ -73,7 +73,8 @@ namespace antevolo {
                                               res_string);
         // [cdr3_start_pos, v_gene_end_pos]
 //        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos); i < alignment_length; ++i) {
-        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos - 1) + 1; i < alignment_length; ++i) {
+//        for (size_t i = toViewPosition(v_alignment1, clone1.CDR3Range().start_pos - 1) + 1; i < alignment_length; ++i) {
+        for (size_t i = res_string.length() + read_v_gaps.size(); i < alignment_length; ++i) {
 
             if (v_alignment1[i] == '-') {
                 read_v_gaps.push_back(i);
