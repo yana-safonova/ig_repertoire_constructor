@@ -161,11 +161,13 @@ namespace antevolo {
                                        size_t total_number_of_reads) {
         INFO("Tree construction starts");
         auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
-        auto tree_storage = AntEvoloProcessor(config_,
-                                              annotated_clone_set,
-                                              clone_by_read_constructor,
-                                              total_number_of_reads,
-                                              edge_weight_calculator).ConstructClonalTrees();
+        AntEvoloProcessor antevolo_processor = AntEvoloProcessor(config_,
+                                                                 annotated_clone_set,
+                                                                 clone_by_read_constructor,
+                                                                 total_number_of_reads,
+                                                                 edge_weight_calculator);
+        auto tree_storage = antevolo_processor.ConstructClonalTrees();
+        auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
         INFO(tree_storage.size() << " evolutionary trees were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
@@ -185,6 +187,9 @@ namespace antevolo {
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
 
+        output_writer.OutputCleanedSequences(final_clone_set);
+        INFO("Cleaned sequences were written to " << config_.output_params.output_dir << "/cleaned_sequences.fa");
+
         AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
 
         for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
@@ -193,11 +198,6 @@ namespace antevolo {
             //TRACE(i + 1 << "-th clonal tree was written to " << tree.Get);
         }
         output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
-
-        // delete
-        output_writer.WriteRcmFromStorageInFile("/home/aslabodkin/antevolo_project/tests/test_fakes/RCMs_for_test/",
-                                                tree_storage);
-        // /delete
 
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     };

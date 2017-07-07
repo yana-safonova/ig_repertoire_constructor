@@ -27,6 +27,8 @@ namespace antevolo {
 
         void WriteTreeVerticesInFile(std::string output_dir, const EvolutionaryTree& tree) const;
 
+        void OutputCleanedSequences(CloneSetWithFakesPtr) const;
+
         void WriteRcmFromStorageInFile(std::string output_dir,
                                        const EvolutionaryTreeStorage& storage);
 

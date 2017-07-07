@@ -27,6 +27,10 @@ namespace antevolo {
         std::vector<size_t> fake_clone_indices(config_.run_params.num_threads);
         std::vector<size_t> reconstructed(config_.run_params.num_threads);
         std::vector<size_t> rejected(config_.run_params.num_threads);
+        std::vector<CloneSetWithFakesPtr> clone_sets(config_.run_params.num_threads);
+        for (auto& ptr : clone_sets) {
+            ptr = CloneSetWithFakesPtr(new CloneSetWithFakes(clone_set_));
+        }
         for (size_t i = 0; i < fake_clone_indices.size(); ++i) {
             fake_clone_indices[i] = (2 * i + 1) * total_number_of_reads_ ;
         }
@@ -35,8 +39,8 @@ namespace antevolo {
         for(size_t i = 0; i < vj_decomposition.Size(); i++) {
             size_t thread_id = omp_get_thread_num();
             auto vj_class = vj_decomposition.GetClass(i);
-            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
-            auto vj_class_processor = VJClassProcessor(fakes_clone_set_ptr,
+//            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
+            auto vj_class_processor = VJClassProcessor(clone_sets[thread_id],
                                                        config_,
                                                        clone_by_read_constructor_,
                                                        fake_clone_indices[thread_id],
@@ -50,7 +54,7 @@ namespace antevolo {
             auto connected_components = vj_class_processor.ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
             TRACE("# connected components: " << connected_components.size());
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
-                EvolutionaryTree tree(fakes_clone_set_ptr);
+                EvolutionaryTree tree(clone_sets[thread_id]);
                 if (config_.algorithm_params.model) {
                     tree = vj_class_processor.ProcessComponentWithEdmonds(
                             connected_components[component_index],
@@ -77,6 +81,14 @@ namespace antevolo {
             total_reconstructed += reconstructed[i];
             total_rejected += rejected[i];
         }
+        final_clone_set_with_fakes_ = CloneSetWithFakesPtr(new CloneSetWithFakes(clone_set_));
+        for (auto ptr : clone_sets) {
+            const auto& current_clone_set = *ptr;
+            for (size_t i = current_clone_set.GetOriginalCloneSet().size(); i < current_clone_set.size(); ++i) {
+                final_clone_set_with_fakes_->AddClone(current_clone_set[i]);
+            }
+        }
+
         INFO("Number of reconstructed clones: " << total_reconstructed
              << ", number of edges rejected due to inequality of insertion blocks: " << total_rejected);
         return JoinEvolutionaryStoragesFromThreads();

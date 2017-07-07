@@ -99,6 +99,18 @@ namespace antevolo {
         out.close();
     }
 
+    void AntEvoloOutputWriter::OutputCleanedSequences(CloneSetWithFakesPtr clone_set_ptr) const {
+        const auto& clone_set = *clone_set_ptr;
+        std::string output_fname = path::append_path(output_params_.output_dir, "cleaned_sequences.fa");
+        std::ofstream out(output_fname);
+        for (size_t i = 0; i < clone_set.size(); ++i) {
+            const auto& clone = clone_set[i];
+            out << ">" << clone.Read().name << "\n";
+            out << clone.Read().seq << "\n";
+        }
+        out.close();
+    }
+
     void AntEvoloOutputWriter::WriteRcmFromStorageInFile(std::string output_dir,
                                                          const EvolutionaryTreeStorage& storage) {
 
