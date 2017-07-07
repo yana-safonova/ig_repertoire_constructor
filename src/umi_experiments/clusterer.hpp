@@ -13,26 +13,23 @@
 
 namespace clusterer {
 
+    // ElementType need to be comparable
     template <typename ElementType>
     struct Cluster {
     public:
         Cluster(const ElementType& first_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_ = 1)
                 : members{first_}, center(center_), id(id_), weight(weight_) {}
-        Cluster(const std::unordered_set<ElementType>& members_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_)
+        Cluster(const std::vector<ElementType>& members_, const seqan::Dna5String& center_, const size_t id_, const size_t weight_)
                 : members(members_), center(center_), id(id_), weight(weight_) {}
 
         // Assumes merged clusters are never compared.
         bool operator==(const Cluster<ElementType>& other) const { return id == other.id; }
 
-        // TODO: needs recursion once multilevel clustering is needed
-        std::unordered_set<Read> GetAllReads() const { return members; }
         size_t size() const { return members.size(); }
-
-        // methods for using Cluster as an ElementType for another Cluster (should be same as Read)
-        // TODO: extract this to a trait
         const seqan::Dna5String& GetSequence() const { return center; }
 
-        const std::unordered_set<ElementType> members;
+        // Ordered list of members
+        const std::vector<ElementType> members;
         const seqan::Dna5String center;
         const size_t id;
         const size_t weight;
@@ -186,7 +183,7 @@ namespace clusterer {
         void report_length_differences(const std::string& output_dir);
 
         void report_non_major_umi_groups_sw(string file_name, string left_graph_file_name, string right_graph_file_name, string chimeras_info_file_name,
-                                            string umi_chimeras_info_file_name, size_t num_threads);
+                                            string umi_chimeras_info_file_name);
 
         const ManyToManyCorrespondenceUmiToCluster<Read>& getCurrentUmiToCluster() const {
             return current_umi_to_cluster_;
@@ -200,7 +197,7 @@ namespace clusterer {
         // It's supposed that the merged cluster is not considered in the partition together with either of parents.
         // In particular it inherits id from one of the parents and can be used by ManyToManyCorrespondence, which relies it's a good equality measure and hash value.
         static ClusterPtr<ElementType> merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
-        static seqan::Dna5String findNewCenter(std::unordered_set<ElementType>& members);
+        static seqan::Dna5String findNewCenter(const std::vector<ElementType>& members);
         static void print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
 
         ManyToManyCorrespondenceUmiToCluster<Read> current_umi_to_cluster_;
@@ -244,7 +241,7 @@ namespace clusterer {
                     bool same_cluster = dist_checker(first_cluster, second_cluster);
 //                    dist_distribution[dist] ++;
                     if (same_cluster) {
-//                    if (dist <= mode.threshold || (dist <= 1.5 * static_cast<double>(mode.threshold) && first_cluster->members.size() == 1 && second_cluster->members.size() == 1)) {
+//                    if (dist <= mode.threshold || (dist <= 1.5 * static_cast<double>(mode.threshold) && first_cluster->size() == 1 && second_cluster->size() == 1)) {
                         // TODO: avoid returning copied umi set by providing access to its begin() and end()
                         const auto& first_cluster_umis = result.back(first_cluster);
                         const auto& second_cluster_umis = result.back(second_cluster);
@@ -340,7 +337,7 @@ namespace clusterer {
                 max_len = max(max_len, len);
             }
             len_span_to_count[max_len - min_len] ++;
-            len_span_to_sizes[max_len - min_len][cluster->members.size()] ++;
+            len_span_to_sizes[max_len - min_len][cluster->size()] ++;
 
             if (max_len - min_len > 10) {
                 file_with_seqs << (max_len - min_len) << "\n";
@@ -365,8 +362,7 @@ namespace clusterer {
                                                    std::string left_graph_file_name,
                                                    std::string right_graph_file_name,
                                                    std::string chimeras_info_file_name,
-                                                   std::string umi_chimeras_info_file_name,
-                                                   size_t num_threads) {
+                                                   std::string umi_chimeras_info_file_name) {
         // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
         // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
         // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
@@ -387,7 +383,6 @@ namespace clusterer {
         const size_t k = IG_LEN / (tau + strategy) / 2;
         Graph left_graph;
         Graph right_graph;
-        omp_set_num_threads(static_cast<int>(num_threads));
         for (size_t i = 0; i < 2; i ++) {
             INFO("constructing graph " << i);
             const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
@@ -501,8 +496,8 @@ namespace clusterer {
 //                    }
                     if (!is_chimera) continue;
 
-                    chimeric_reads += cluster->members.size();
-                    chimera_size_to_count[cluster->members.size()] ++;
+                    chimeric_reads += cluster->size();
+                    chimera_size_to_count[cluster->size()] ++;
                     result.removeTo(cluster);
                     chimeric_clusters ++;
                     chimeras_file << "size: " << cluster->weight << " (max = " << max_size << ")" << std::endl;
@@ -557,8 +552,8 @@ namespace clusterer {
             for (const auto& cluster : current_umi_to_cluster_.toSet()) {
                 repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
                 repertoire_reads.push_back(cluster->center);
-                VERIFY(cluster->GetAllReads().size() > 0);
-                for (const auto& read : cluster->GetAllReads()) {
+                VERIFY(cluster->size() > 0);
+                for (const auto& read : cluster->members) {
                     read_id_to_cluster_id[read.GetId()] = cluster_id;
                 }
                 cluster_id++;
@@ -637,23 +632,24 @@ namespace clusterer {
 
     template <typename ElementType>
     ClusterPtr<ElementType> Clusterer<ElementType>::merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id) {
-        std::unordered_set<ElementType> members(first->members);
-        members.insert(second->members.begin(), second->members.end());
-        VERIFY_MSG(members.size() == first->members.size() + second->members.size(), "Clusters already intersect.");
-        const ClusterPtr<ElementType>& max_cluster = first->members.size() > second->members.size() ? first : second;
-        size_t max_size = max_cluster->members.size();
+        std::vector<ElementType> members;
+        members.reserve(first->size() + second->size());
+        std::merge(first->members.begin(), first->members.end(), second->members.begin(), second->members.end(), std::back_inserter(members));
+        VERIFY_MSG(members.size() == first->size() + second->size(), "Clusters already intersect.");
+        const ClusterPtr<ElementType>& max_cluster = first->size() > second->size() ? first : second;
+        size_t max_size = max_cluster->size();
         bool need_new_center = max_size <= 20 || __builtin_clzll(max_size) != __builtin_clzll(members.size());
         const seqan::Dna5String& center = need_new_center ? findNewCenter(members) : max_cluster->center;
         return std::make_shared<Cluster<ElementType>>(members, center, id, first->weight + second->weight);
     }
 
     template <typename ElementType>
-    seqan::Dna5String Clusterer<ElementType>::findNewCenter(std::unordered_set<ElementType>& members) {
+    seqan::Dna5String Clusterer<ElementType>::findNewCenter(const std::vector<ElementType>& members) {
         VERIFY_MSG(members.size() >= 2, "Too few elements to find new center.");
         std::vector<seqan::Dna5String> reads(members.size());
         std::vector<size_t> indices(members.size());
         size_t current = 0;
-        for (Read member : members) {
+        for (const Read& member : members) {
             reads[current] = member.GetSequence();
             indices[current] = current;
             current ++;
@@ -727,7 +723,7 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    void report_non_major_umi_groups(const ManyToManyCorrespondenceUmiToCluster<ElementType> umi_to_clusters, std::string file_name) {
+    void report_non_major_umi_groups(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umi_to_clusters, std::string file_name) {
         std::unordered_map<std::string, size_t> all_left_kmers;
         std::unordered_map<std::string, size_t> all_right_kmers;
         const size_t IG_LEN = 350;
