@@ -73,11 +73,6 @@ def main():
             del umi_to_cluster_shares[umi]
 
 
-    collisions = [(umi, shares) for umi, shares in umi_to_cluster_shares.iteritems()]
-    print "collisions: %d" % len(collisions)
-    print collisions
-
-
     vj_hits = get_vj_hits(sys.argv[2])
     cluster_v_hits = defaultdict(set)
     cluster_j_hits = defaultdict(set)
@@ -86,15 +81,26 @@ def main():
         cluster_v_hits[cluster_id].add(v_hit)
         cluster_j_hits[cluster_id].add(j_hit)
 
+    collisions = [(umi, shares) for umi, shares in umi_to_cluster_shares.iteritems()]
+    print "collisions: %d" % len(collisions)
+    for umi, shares in collisions:
+        print umi, shares
+        for cluster_id in shares.keys():
+            print cluster_id, cluster_v_hits[cluster_id], cluster_j_hits[cluster_id]
+    print collisions
+
 
     for umi in umi_to_cluster_shares.keys():
-        shares = sorted(umi_to_cluster_shares[umi].values())
+        shares = sorted(umi_to_cluster_shares[umi].keys(), key = umi_to_cluster_shares[umi].get)
         cluster1 = shares[-1]
         cluster2 = shares[-2]
-        if not cluster_v_hits[cluster1].isdisjoint(cluster_v_hits[cluster2]):
+        print cluster1, cluster_v_hits[cluster1], cluster_j_hits[cluster1]
+        print cluster2, cluster_v_hits[cluster2], cluster_j_hits[cluster2]
+        if cluster_v_hits[cluster1].isdisjoint(cluster_v_hits[cluster2]):
             continue
-        if not cluster_j_hits[cluster1].isdisjoint(cluster_j_hits[cluster2]):
+        if cluster_j_hits[cluster1].isdisjoint(cluster_j_hits[cluster2]):
             continue
+        print "removing %s since %s and %s intersect and %s and %s intersect" % (umi, cluster_v_hits[cluster1], cluster_v_hits[cluster2], cluster_j_hits[cluster1], cluster_j_hits[cluster2])
         del umi_to_cluster_shares[umi]
 
     strict_collisions = [(umi, shares) for umi, shares in umi_to_cluster_shares.iteritems()]
