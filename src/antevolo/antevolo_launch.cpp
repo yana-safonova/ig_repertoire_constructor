@@ -10,7 +10,6 @@
 #include <mutation_strategies/no_k_neighbours.hpp>
 #include "antevolo_processor.hpp"
 
-#include "stats_calculation/evolutionary_stats_calculator.hpp"
 #include "antevolo_output_writer.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
@@ -25,6 +24,8 @@
 #include "parallel_evolution/clonal_graph_writer.hpp"
 #include "parallel_evolution/mutation_map_writer.hpp"
 #include "parallel_evolution/trusted_shm_finder.hpp"
+
+#include "evolutionary_tree_annotation/annotated_tree_storage.hpp"
 
 using namespace shm_kmer_matrix_estimator;
 
@@ -168,7 +169,7 @@ namespace antevolo {
                                                                  edge_weight_calculator);
         auto tree_storage = antevolo_processor.ConstructClonalTrees();
         auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
-        INFO(tree_storage.size() << " evolutionary trees were created");
+        INFO("Evolutionary directions for " << tree_storage.size() << " clonal lineages were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
         EvolutionaryTreeStorage connected_tree_storage;
@@ -179,18 +180,20 @@ namespace antevolo {
                 connected_tree_storage.Add(*it2);
             }
         }
-        INFO(tree_storage.size() << " evolutionary trees were splitted into " << connected_tree_storage.size() <<
+        INFO(tree_storage.size() << " clonal lineages were splitted into " << connected_tree_storage.size() <<
                                  " connected trees");
-        EvolutionaryStatsCalculator stats_calculator;
-        auto annotated_storage = stats_calculator.ComputeStatsForStorage(connected_tree_storage);
-        INFO(annotated_storage.size() << " annotations were computed");
+
+        AnnotatedTreeStorage annotated_storage(annotated_clone_set);
+        for(auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
+            annotated_storage.AddAnnotatedTree(*it);
+        }
+        INFO("Annotation for " << annotated_storage.size() << " clonal trees was computed");
+
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
 
         output_writer.OutputCleanedSequences(final_clone_set);
         INFO("Cleaned sequences were written to " << config_.output_params.output_dir << "/cleaned_sequences.fa");
-
-        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
 
         for (auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             output_writer.WriteTreeInFile(config_.output_params.tree_dir, *it);
@@ -199,6 +202,7 @@ namespace antevolo {
         }
         output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
 
+        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     };
 

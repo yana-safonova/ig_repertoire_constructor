@@ -1,69 +1,53 @@
 #pragma once
 
 #include "evolutionary_graph_utils/evolutionary_tree.hpp"
-#include "evolutionary_annotated_shm.hpp"
-#include "tree_based_shm_annotator.hpp"
+#include "../shm_counting/tree_shm_map.hpp"
+#include "../shm_counting/tree_shm_calculator.hpp"
 
 namespace antevolo {
     class AnnotatedEvolutionaryTree {
-//        const annotation_utils::CDRAnnotatedCloneSet* clone_set_prt_;
-        const EvolutionaryTree *tree_ptr_;
-        TreeBasedSHMAnnotator shm_annotator_;
+        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const EvolutionaryTree &tree_;
 
-        // segment SHMs
-        std::map<size_t, std::vector<EvolutionaryAnnotatedSHM> > segment_shms_map_;
-        std::vector<EvolutionaryAnnotatedSHM> all_segment_shms_;
-        std::set<EvolutionaryAnnotatedSHM, EvolutionaryAnnotatedSHMComparator> unique_segment_shms_;
-
-        // CDR3 SHMs
-        std::map<size_t, std::vector<CDR3SHM> > cdr3_shms_map_;
-        std::vector<CDR3SHM> all_cdr3_shms_;
-        std::set<CDR3SHM, CDR3SHMComparator> unique_cdr3_shms_;
+        // statistics
+        UniqueSHMCalculator shm_calculator_;
+        TreeSHMMap shm_map_;
+        std::map<size_t, size_t> clone_added_shm_map_; // clone id -> number of added SHMs WRT parent clone
+        std::map<size_t, size_t> clone_added_from_root_map_; // clone id -> number of added SHMs WRT root
 
         void CheckConsistencyFatal(size_t clone_id) const;
 
+        void InitializeCloneSHMMap();
+
     public:
-        AnnotatedEvolutionaryTree(//const annotation_utils::CDRAnnotatedCloneSet &clone_set,
-                                  const EvolutionaryTree &tree) : //clone_set_prt_(&clone_set),
-                                                                  tree_ptr_(&tree),
-                                                                  shm_annotator_(tree) { }
+        AnnotatedEvolutionaryTree(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+                                  const EvolutionaryTree &tree) : clone_set_(clone_set),
+                                                                  tree_(tree),
+                                                                  shm_calculator_(clone_set_, tree_),
+                                                                  shm_map_(shm_calculator_.ComputeSHMMap()) {
+            InitializeCloneSHMMap();
+        }
 
-        void AddSegmentSHMForClone(size_t clone_id, annotation_utils::SHM shm);
+        const EvolutionaryTree& Tree() const { return tree_; }
 
-        // rel_src_pos and rel_dst_pos - positions wrt to start of CDR3
-        void AddCDR3SHMForClone(size_t src_id, size_t dst_id, size_t rel_src_pos, size_t rel_dst_pos);
+        size_t NumUniqueSHMs() const { return shm_map_.size(); }
 
-        const EvolutionaryTree& Tree() const { return *tree_ptr_; }
+        size_t NumSynonymousSHMs() const { return shm_map_.NumSynonymousSHMs(); }
 
-        size_t NumUniqueSHms() const { return /*all_segment_shms_.size() + all_cdr3_shms_.size();*/
-                    unique_segment_shms_.size() + unique_cdr3_shms_.size(); }
+        size_t NumSHMsInCDRs() const { return shm_map_.NumCDRSHMs(); }
 
-        size_t NumSynonymousWrtGermlineSHMs() const;
+        size_t NumSHMsInRegion(annotation_utils::StructuralRegion region) const {
+            return shm_map_.NumSHMsInRegion(region);
+        }
 
-        size_t NumCDR3SHMs() const { return unique_cdr3_shms_.size(); }
+        size_t NumSynonymousSHMsInRegion(annotation_utils::StructuralRegion region) const {
+            return shm_map_.NumSynSHMsInRegion(region);
+        }
 
-        size_t NumSynonymousSHMs() const { return NumSynonymousSegmentSHMs() + NumSynonymousCDR3SHMs(); }
-
-        size_t NumSynonymousSegmentSHMs() const;
-
-        size_t NumSynonymousCDR3SHMs() const;
+        size_t MaxSHMMultiplicity() const { return shm_map_.MaxMultiplicity(); }
 
         size_t RootDepth() const;
 
-        size_t SHMDepth() const;
-
-        size_t NumAddedSHMs() const; // return numner of SHMs that were added wrt to tree root
-
-        size_t GetNumCDR3SHMsForClone(size_t clone_id) const;
-
-        typedef std::vector<EvolutionaryAnnotatedSHM>::const_iterator SHMConstIterator;
-
-        SHMConstIterator cbegin() const { return all_segment_shms_.cbegin(); }
-
-        SHMConstIterator cend() const { return all_segment_shms_.cend(); }
-
-        size_t GetNumCDR3SHMsFromCloneToRoot(size_t clone_id) const;
-
-        const CloneSetWithFakes& GetCloneSet() const { return tree_ptr_->GetCloneSet(); }
+        size_t TreeDepth() const;
     };
 }

@@ -27,12 +27,12 @@ namespace annotation_utils {
         size_t size() const { return annotated_clones_.size(); }
 
         const AnnotatedClone& operator[](size_t index) const {
-            VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set");
+            VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set (" << size() << ")");
             return annotated_clones_[index];
         }
 
         AnnotatedClone& operator[](size_t index) {
-            VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set");
+            VERIFY_MSG(index < size(), "Index " << index << " exceeds size of clone set (" << size() << ")");
             return annotated_clones_[index];
         }
     };

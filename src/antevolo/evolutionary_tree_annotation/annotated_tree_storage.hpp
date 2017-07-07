@@ -4,14 +4,15 @@
 
 namespace antevolo {
     class AnnotatedTreeStorage {
-//        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
         std::vector<AnnotatedEvolutionaryTree> annotated_trees_;
 
     public:
-//        AnnotatedTreeStorage(const annotation_utils::CDRAnnotatedCloneSet &clone_set) : clone_set_(clone_set) { }
+        AnnotatedTreeStorage(const annotation_utils::CDRAnnotatedCloneSet &clone_set) :
+                clone_set_(clone_set) { }
 
-        void AddAnnotatedTree(AnnotatedEvolutionaryTree annotated_tree) {
-            annotated_trees_.push_back(annotated_tree);
+        void AddAnnotatedTree(const EvolutionaryTree &tree) {
+            annotated_trees_.push_back(AnnotatedEvolutionaryTree(clone_set_, tree));
         }
 
         const AnnotatedEvolutionaryTree& operator[](size_t index) const;

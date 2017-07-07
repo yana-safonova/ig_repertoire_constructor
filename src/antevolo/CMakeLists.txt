@@ -29,10 +29,7 @@ add_library(antevolo_library STATIC
         #
         evolutionary_tree_storage.cpp
         evolutionary_tree_annotation/annotated_evolutionary_tree.cpp
-        evolutionary_tree_annotation/tree_based_shm_annotator.cpp
-        evolutionary_tree_annotation/evolutionary_annotated_shm.cpp
         evolutionary_tree_annotation/annotated_tree_storage.cpp
-        stats_calculation/evolutionary_stats_calculator.cpp
         #
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp

@@ -34,8 +34,8 @@ namespace antevolo {
         UniqueSHMCalculator(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
                             const EvolutionaryTree &tree) : clone_set_(clone_set),
                                                             tree_(tree),
-                                                            shm_map_(clone_set_, tree),
-                                                            tree_shm_calc_(clone_set_) {
+                                                            tree_shm_calc_(clone_set_),
+                                                            shm_map_(clone_set_, tree) {
         }
 
         TreeSHMMap ComputeSHMMap();
