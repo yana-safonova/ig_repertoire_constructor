@@ -17,12 +17,25 @@ def dist(s, t):
     return d
 
 
+def get_vj_hits(alignment_path):
+    with open(alignment_path) as alignment:
+        columns = alignment.readline().strip().split("\t")
+        id_index = columns.index("Read_name")
+        v_index = columns.index("V_hit")
+        j_index = columns.index("J_hit")
+        vj_hits = dict()
+        for line in alignment:
+            items = line.strip().split("\t")
+            vj_hits[items[id_index]] = items[v_index], items[j_index]
+    return vj_hits
+
+
 def main():
     rcm = sys.argv[1]
     cluster_to_umi_with_size = dict()
     read_to_cluster = dict()
     for line in open(rcm):
-        parts = line[:-1].split('\t')
+        parts = line.strip().split('\t')
         if len(parts) != 2:
             continue
         read_id, cluster_id = parts
