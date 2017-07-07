@@ -10,7 +10,7 @@
 #include <mutation_strategies/no_k_neighbours.hpp>
 #include "antevolo_processor.hpp"
 
-#include "evolutionary_stats_calculator.hpp"
+#include "stats_calculation/evolutionary_stats_calculator.hpp"
 #include "antevolo_output_writer.hpp"
 #include "annotated_clone_by_read_constructor.hpp"
 #include "../fast_ig_tools/ig_trie_compressor.hpp"
@@ -20,7 +20,7 @@
 #include "shm_kmer_matrix_estimator/shm_kmer_matrix_estimator.hpp"
 #include "posterior_distribution_calculator/posterior_distribution_calculator.hpp"
 #include "kmer_matrix_exporter/kmer_matrix_exporter.hpp"
-#include "cluster_fillin_calculator.hpp"
+#include "stats_calculation/cluster_fillin_calculator.hpp"
 
 #include "parallel_evolution/clonal_graph_writer.hpp"
 #include "parallel_evolution/mutation_map_writer.hpp"

@@ -12,10 +12,8 @@ namespace antevolo {
         const AntEvoloConfig& config_;
         size_t num_mismatches_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
-        size_t& current_fake_clone_index_;
-        size_t& reconstructed_;
-        size_t& rejected_;
-
+        size_t current_fake_clone_index_;
+        size_t reconstructed_;
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
@@ -35,16 +33,13 @@ namespace antevolo {
         VJClassProcessor(CloneSetWithFakesPtr clone_set,
                          const AntEvoloConfig& config,
                          const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                         size_t& current_fake_clone_index,
-                         size_t& reconstructed,
-                         size_t& rejected) :
+                         size_t current_fake_clone_index) :
                 BaseCandidateCalculator(clone_set),
                 config_(config),
                 num_mismatches_(config.algorithm_params.similar_cdr3s_params.num_mismatches),
                 clone_by_read_constructor_(clone_by_read_constructor),
                 current_fake_clone_index_(current_fake_clone_index),
-                reconstructed_(reconstructed),
-                rejected_(rejected) { }
+                reconstructed_(0) { }
 
         void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
@@ -53,5 +48,8 @@ namespace antevolo {
         EvolutionaryTree ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id);
         EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
                                                      const ShmModelEdgeWeightCalculator &edge_weight_calculator);
+
+        size_t GetCurrentFakeCloneIndex() const { return current_fake_clone_index_; };
+        size_t GetNumberOfReconstructedClones() const { return reconstructed_; };
     };
 }

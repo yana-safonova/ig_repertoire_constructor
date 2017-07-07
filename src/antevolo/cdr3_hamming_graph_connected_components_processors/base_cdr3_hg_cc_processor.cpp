@@ -8,16 +8,13 @@ namespace antevolo {
               const AntEvoloConfig::AlgorithmParams &config,
               const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
               CDR3HammingGraphInfo& hamming_graph_info,
-              size_t& current_fake_clone_index,
-              size_t& reconstructed,
-              size_t& rejected) :
+              size_t current_fake_clone_index) :
             clone_set_ptr_(clone_set_ptr),
             config_(config),
             clone_by_read_constructor_(clone_by_read_constructor),
             hamming_graph_info_(hamming_graph_info),
             current_fake_clone_index_(current_fake_clone_index),
-            reconstructed_(reconstructed),
-            rejected_(rejected) { }
+            reconstructed_(0) { }
 
 
     void Base_CDR3_HG_CC_Processor::AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,

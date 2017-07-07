@@ -32,7 +32,7 @@ add_library(antevolo_library STATIC
         evolutionary_tree_annotation/tree_based_shm_annotator.cpp
         evolutionary_tree_annotation/evolutionary_annotated_shm.cpp
         evolutionary_tree_annotation/annotated_tree_storage.cpp
-        evolutionary_stats_calculator.cpp
+        stats_calculation/evolutionary_stats_calculator.cpp
         #
         cdr3_hamming_graph_connected_components_processors/base_cdr3_hg_cc_processor.cpp
         cdr3_hamming_graph_connected_components_processors/kruskal_cdr3_hg_cc_processor.cpp
@@ -41,7 +41,7 @@ add_library(antevolo_library STATIC
         #
         shm_model_utils/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
-        shm_model_utils/shm_model_edge_weight_calculator.cpp cluster_fillin_calculator.cpp cluster_fillin_calculator.hpp
+        shm_model_utils/shm_model_edge_weight_calculator.cpp stats_calculation/cluster_fillin_calculator.cpp stats_calculation/cluster_fillin_calculator.hpp
         #
         shm_counting/tree_based_shm.cpp
         shm_counting/tree_shm_map.cpp

@@ -24,9 +24,8 @@ namespace antevolo {
         const AntEvoloConfig::AlgorithmParams& config_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
         CDR3HammingGraphInfo& hamming_graph_info_;
-        size_t& current_fake_clone_index_;
-        size_t& reconstructed_;
-        size_t& rejected_;
+        size_t current_fake_clone_index_;
+        size_t reconstructed_;
 
         boost::unordered_map<size_t, std::set<size_t>> undirected_graph_;
         boost::unordered_map<size_t, bool> parent_edge_handled_;
@@ -83,14 +82,11 @@ namespace antevolo {
 
     public:
 
-//        Base_CDR3_HG_CC_Processor(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
         Base_CDR3_HG_CC_Processor(CloneSetWithFakesPtr clone_set_ptr,
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                   CDR3HammingGraphInfo& hamming_graph_info,
-                                  size_t& current_fake_clone_index,
-                                  size_t& reconstructed,
-                                  size_t& rejected);
+                                  size_t current_fake_clone_index);
 
         virtual EvolutionaryTree ConstructForest() = 0;
 
@@ -101,6 +97,10 @@ namespace antevolo {
 
         static bool CheckClonesConsistencyForReconstruction(const annotation_utils::AnnotatedClone& left,
                                                             const annotation_utils::AnnotatedClone& right);
+
+        size_t GetCurrentFakeCloneIndex() const { return current_fake_clone_index_; };
+
+        size_t GetNumberOfReconstructedClones() const { return reconstructed_; };
 
         virtual ~Base_CDR3_HG_CC_Processor() {};
     };

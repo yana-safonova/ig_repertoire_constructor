@@ -26,7 +26,6 @@ namespace antevolo {
         INFO("Construction of clonal trees starts");
         std::vector<size_t> fake_clone_indices(config_.run_params.num_threads);
         std::vector<size_t> reconstructed(config_.run_params.num_threads);
-        std::vector<size_t> rejected(config_.run_params.num_threads);
         std::vector<CloneSetWithFakesPtr> clone_sets(config_.run_params.num_threads);
         for (auto& ptr : clone_sets) {
             ptr = CloneSetWithFakesPtr(new CloneSetWithFakes(clone_set_));
@@ -43,9 +42,7 @@ namespace antevolo {
             auto vj_class_processor = VJClassProcessor(clone_sets[thread_id],
                                                        config_,
                                                        clone_by_read_constructor_,
-                                                       fake_clone_indices[thread_id],
-                                                       reconstructed[thread_id],
-                                                       rejected[thread_id]);
+                                                       fake_clone_indices[thread_id]);
             vj_class_processor.CreateUniqueCDR3Map(vj_class);
             std::string cdrs_fasta = vj_class_processor.WriteUniqueCDR3InFasta(vj_class);
             std::string graph_fname = vj_class_processor.GetGraphFname(vj_class);
@@ -59,8 +56,7 @@ namespace antevolo {
                     tree = vj_class_processor.ProcessComponentWithEdmonds(
                             connected_components[component_index],
                             component_index, edge_weight_calculator_);
-                }
-                else {
+                } else {
                     tree = vj_class_processor.ProcessComponentWithEdmonds(
                             connected_components[component_index],
                             component_index, edge_weight_calculator_);
@@ -68,18 +64,20 @@ namespace antevolo {
 //                            connected_components[component_index],
 //                            component_index);
                 }
-                tree.SetTreeIndices(i+1, component_index, 0);
+                tree.SetTreeIndices(i + 1, component_index, 0);
                 if (tree.NumEdges() != 0) {
                     thread_tree_storages_[thread_id].Add(tree);
                     //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
                 }
             }
+            fake_clone_indices[thread_id] = vj_class_processor.GetCurrentFakeCloneIndex();
+            reconstructed[thread_id] += vj_class_processor.GetNumberOfReconstructedClones();
+
         }
         size_t total_reconstructed = 0;
         size_t total_rejected = 0;
         for (size_t i = 0; i < reconstructed.size(); ++i) {
             total_reconstructed += reconstructed[i];
-            total_rejected += rejected[i];
         }
         final_clone_set_with_fakes_ = CloneSetWithFakesPtr(new CloneSetWithFakes(clone_set_));
         for (auto ptr : clone_sets) {

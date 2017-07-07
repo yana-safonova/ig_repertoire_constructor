@@ -29,16 +29,12 @@ namespace antevolo {
                                      const AntEvoloConfig::AlgorithmParams &config,
                                      const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                                      CDR3HammingGraphInfo& hamming_graph_info,
-                                     size_t& current_fake_clone_index,
-                                     size_t& reconstructed,
-                                     size_t& rejected)
+                                     size_t current_fake_clone_index)
                 : Base_CDR3_HG_CC_Processor(clone_set_ptr,
                                             config,
                                             clone_by_read_constructor,
                                             hamming_graph_info,
-                                            current_fake_clone_index,
-                                            reconstructed,
-                                            rejected) {}
+                                            current_fake_clone_index) {}
 
 
     };

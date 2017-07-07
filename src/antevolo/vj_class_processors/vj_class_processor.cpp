@@ -84,10 +84,10 @@ namespace antevolo {
                                                  config_.algorithm_params,
                                                  clone_by_read_constructor_,
                                                  hamming_graph_info,
-                                                 current_fake_clone_index_,
-                                                 reconstructed_,
-                                                 rejected_));
+                                                 current_fake_clone_index_));
         auto tree = forest_calculator->ConstructForest();
+        current_fake_clone_index_ = forest_calculator->GetCurrentFakeCloneIndex();
+        reconstructed_ += forest_calculator->GetNumberOfReconstructedClones();
         return tree;
     }
     EvolutionaryTree VJClassProcessor::ProcessComponentWithEdmonds(
@@ -107,10 +107,10 @@ namespace antevolo {
                                                      clone_by_read_constructor_,
                                                      hamming_graph_info,
                                                      current_fake_clone_index_,
-                                                     reconstructed_,
-                                                     rejected_,
                                                      edge_weight_calculator));
         auto tree = forest_calculator->ConstructForest();
+        current_fake_clone_index_ = forest_calculator->GetCurrentFakeCloneIndex();
+        reconstructed_ += forest_calculator->GetNumberOfReconstructedClones();
         return tree;
     }
 
