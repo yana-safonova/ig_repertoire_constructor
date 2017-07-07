@@ -128,6 +128,10 @@ def main(argv):
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
+    optional_args.add_argument("--profile",
+                               default=False,
+                               action="store_true",
+                               help="Enable CPU profiling")
 
     germline_args = parser.add_argument_group("Germline arguments")
     germline_args.add_argument("-l", "--loci",
@@ -221,52 +225,10 @@ def main(argv):
         command_line += " --pseudogenes=off"
     else:
         command_line += " --pseudogenes=on"
-    cwd = os.getcwd()
-    os.chdir(home_directory)
-    support.sys_call(command_line, log)
-    os.chdir(cwd)
 
-    # def PrintOutputFiles(self):
-    #     self.__CheckOutputExistance()
-    #     if not self.__params.no_alignment:
-    #         self._log.info("\nOutput files: ")
-    #         self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
-    #         self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
-    #         self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
-    # PrepareConfigs(params, log)
-    # try:
-    #     cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
-    #     support.sys_call(cdr_command_line, log)
-    #     if not params.skip_plots:
-    #         log.info("\n==== Visualization of diversity statistics ====")
-    #         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
-    #                                  os.path.join(params.output_dir, "shm_details.txt"),
-    #                                  os.path.join(params.output_dir, "plots"), log])
-    #         log.info("\n==== Annotation report creation ====")
-    #         html_report_writer.main(os.path.join(params.output_dir, "cdr_details.txt"),
-    #                                 os.path.join(params.output_dir, "shm_details.txt"),
-    #                                 os.path.join(params.output_dir, "plots"),
-    #                                 os.path.join(params.output_dir, "annotation_report.html"), log)
-    #         Cleanup(params, log)
-    #         log.info("\nThank you for using " + tool_name + "!\n")
-    # except (KeyboardInterrupt):
-    #     log.info("\n" + tool_name + " was interrupted!")
-    # except Exception:
-    #     exc_type, exc_value, _ = sys.exc_info()
-    #     if exc_type == SystemExit:
-    #         sys.exit(exc_value)
-    #     else:
-    #         log.exception(exc_value)
-    #         log.info("\nERROR: Exception caught.")
-    #         #supportInfo(log)
-    # except BaseException:
-    #     exc_type, exc_value, _ = sys.exc_info()
-    #     if exc_type == SystemExit:
-    #         sys.exit(exc_value)
-    #     else:
-    #         log.exception(exc_value)
-    #         log.info("\nERROR: Exception caught.")
-    #         #supportInfo(log)
+    cpuprofile = os.path.abspath(params.output_dir) + "/vjf_prof.out" if params.profile else None
+
+    support.sys_call_ex(command_line, log, cpuprofile=cpuprofile)
 
     log.info("Log was written to " + params.log_filename)
 
