@@ -182,8 +182,9 @@ namespace clusterer {
 
         void report_length_differences(const std::string& output_dir);
 
-        void report_non_major_umi_groups_sw(string file_name, string left_graph_file_name, string right_graph_file_name, string chimeras_info_file_name,
-                                            string umi_chimeras_info_file_name);
+        void report_non_major_umi_groups_sw(const std::string& file_name, const std::string& left_graph_file_name,
+                const std::string& right_graph_file_name, const std::string& chimeras_info_file_name,
+                const std::string& umi_chimeras_info_file_name, const size_t tau);
 
         const ManyToManyCorrespondenceUmiToCluster<Read>& getCurrentUmiToCluster() const {
             return current_umi_to_cluster_;
@@ -358,11 +359,9 @@ namespace clusterer {
     }
 
     template <typename ElementType>
-    void Clusterer<ElementType>::report_non_major_umi_groups_sw(std::string file_name,
-                                                   std::string left_graph_file_name,
-                                                   std::string right_graph_file_name,
-                                                   std::string chimeras_info_file_name,
-                                                   std::string umi_chimeras_info_file_name) {
+    void Clusterer<ElementType>::report_non_major_umi_groups_sw(const std::string& file_name,
+            const std::string& left_graph_file_name, const std::string& right_graph_file_name,
+            const std::string& chimeras_info_file_name, const std::string& umi_chimeras_info_file_name, const size_t tau) {
         // TODO: 1) 10 is ok to be close, but too few to be different; 20 should probably do.
         // TODO: 2) Too slow. First compute candidates inside UMI, even quadratically, then use repr k-mers for another half.
         // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
@@ -377,10 +376,12 @@ namespace clusterer {
             all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
         }
 
-        const size_t tau = 10;
         const size_t max_indels = 3;
         const size_t strategy = 2;
-        const size_t k = IG_LEN / (tau + strategy) / 2;
+        const size_t k = [=]() {
+            size_t half = IG_LEN / (tau + strategy) / 2;
+            return half > 10 ? half : IG_LEN / (tau + strategy);
+        }();
         Graph left_graph;
         Graph right_graph;
         for (size_t i = 0; i < 2; i ++) {

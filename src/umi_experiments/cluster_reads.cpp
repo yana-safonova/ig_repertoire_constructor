@@ -19,6 +19,7 @@ namespace {
         bool save_clusters;
         size_t num_threads;
         size_t clustering_threshold;
+        size_t chimera_tau;
         bool output_intermediate;
     };
 
@@ -36,6 +37,7 @@ namespace {
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(20), "threshold distance to unite clusters")
+                ("chimera-tau,m", po::value<size_t >(&params.chimera_tau)->default_value(10), "threshold distance between halves while detecting chimeras")
                 ("debug-stages,b", po::value<bool>(&params.output_intermediate)->default_value(false), "output repertoire after each step")
                 ;
         po::variables_map vm;
@@ -188,10 +190,8 @@ int main(int argc, const char* const* argv) {
 
     if (params.detect_chimeras) {
         clusterer.report_non_major_umi_groups_sw(params.output_dir + "/non_major.csv",
-                                                 params.output_dir + "/left_graph.graph",
-                                                 params.output_dir + "/right_graph.graph",
-                                                 params.output_dir + "/chimeras.txt",
-                                                 params.output_dir + "/umi_chimeras.txt");
+                params.output_dir + "/left_graph.graph", params.output_dir + "/right_graph.graph",
+                params.output_dir + "/chimeras.txt", params.output_dir + "/umi_chimeras.txt", params.chimera_tau);
 
         clusterer.write_clusters_and_correspondence(params.output_dir, "_5_chimeras", params.save_clusters, params.output_intermediate);
     }
