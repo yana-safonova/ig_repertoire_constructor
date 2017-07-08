@@ -27,17 +27,19 @@ def test_edges_info(config):
     from tree_test_utilities.flu_trees_statistics_calculator import get_flu_trees_paths
     from tree_test_utilities.tree_test_utilities import TreeTester
 
-    trees_paths = get_flu_trees_paths()
-    tester = TreeTester()
-    trees = tester.get_trees(trees_paths)
-    num_shms = []
-    for tree in trees:
-        num_shms += list(tree["Num_Src_SHMs"])
+    for chain_type in [Chains.IGH, Chains.IGK, Chains.IGL]:
+        trees_paths = get_flu_trees_paths(chain_type=chain_type)
+        tester = TreeTester()
+        trees = tester.get_trees(trees_paths)
+        num_shms = []
+        for tree in trees:
+            num_shms += list(tree["Num_Src_SHMs"])
 
-    g = sns.distplot(num_shms)
-    fig = g.get_figure()
-    fig.savefig(os.path.join(config.outdir, config.shm_edges_dist),
-                format='pdf', dpi=150)
+        g = sns.distplot(num_shms)
+        fig = g.get_figure()
+        fig.savefig(os.path.join(config.outdir, "%s_%s.pdf" % (config.shm_edges_dist, chain_type.name)),
+                    format='pdf', dpi=150)
+        plt.close()
 
 
 def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
