@@ -95,7 +95,7 @@ namespace antevolo {
                                 GetNumParallelSHMsBySide(RhombSide::RhombSide2));
     }
 
-    void print_edge_and_shms(std::ostream &out, const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+    void print_edge_and_shms(std::ostream &out, const CloneSetWithFakes &clone_set,
                              const EvolutionaryEdgePtr& edge,
                              const std::vector<annotation_utils::SHM>& shms) {
         out << "Edge " << edge->SrcNum() << "(" << clone_set[edge->SrcNum()].VSHMs().size() << ") -> " <<

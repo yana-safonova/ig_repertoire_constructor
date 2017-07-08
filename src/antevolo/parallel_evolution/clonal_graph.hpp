@@ -4,7 +4,7 @@
 
 namespace antevolo {
     class ClonalGraph {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
         const ParallelEvolutionStats &stats_;
 
@@ -30,7 +30,7 @@ namespace antevolo {
         void FillConflictingEdges();
 
     public:
-        ClonalGraph(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        ClonalGraph(const CloneSetWithFakes &clone_set,
                     const EvolutionaryTree &tree,
                     const ParallelEvolutionStats &stats) : clone_set_(clone_set),
                                                            tree_(tree),

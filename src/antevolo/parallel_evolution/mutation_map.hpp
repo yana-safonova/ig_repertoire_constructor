@@ -2,10 +2,11 @@
 
 #include "clonal_graph.hpp"
 #include "../shm_counting/tree_shm_calculator.hpp"
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
     class MutationMap {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         //const ParallelEvolutionStats &stats_;
         const ClonalGraph &clonal_graph_;
 
@@ -26,7 +27,7 @@ namespace antevolo {
         bool SHMIsHotspot(TreeSHM shm, std::pair<size_t, size_t> edge) const;
 
     public:
-        MutationMap(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        MutationMap(const CloneSetWithFakes &clone_set,
                     const ClonalGraph &clonal_graph) : clone_set_(clone_set),
                                                        clonal_graph_(clonal_graph) {
             FillMutationsFromGraph();
@@ -70,7 +71,7 @@ namespace antevolo {
         std::vector<std::pair<size_t, size_t> > GetEdgesBySHM(TreeSHM shm) const;
 
 
-        const annotation_utils::CDRAnnotatedCloneSet& CloneSet() const { return clone_set_; }
+        const CloneSetWithFakes& CloneSet() const { return clone_set_; }
 
         const ClonalGraph& GetClonalGraph() const { return clonal_graph_; }
 

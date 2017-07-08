@@ -1,14 +1,15 @@
 #pragma once
 
 #include "annotated_evolutionary_tree.hpp"
+#include "clone_set_with_fakes.hpp"
 
 namespace antevolo {
     class AnnotatedTreeStorage {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         std::vector<AnnotatedEvolutionaryTree> annotated_trees_;
 
     public:
-        AnnotatedTreeStorage(const annotation_utils::CDRAnnotatedCloneSet &clone_set) :
+        AnnotatedTreeStorage(const CloneSetWithFakes &clone_set) :
                 clone_set_(clone_set) { }
 
         void AddAnnotatedTree(const EvolutionaryTree &tree) {

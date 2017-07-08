@@ -35,9 +35,6 @@ namespace antevolo {
 
     size_t AnnotatedEvolutionaryTree::RootDepth() const {
         size_t root_id = tree_.GetRoot();
-        // this stub will be here until Andrey adds reconstructed clones in clone set
-        if(clone_set_.size() <= root_id)
-            return 0;
         return clone_set_[root_id].VSHMs().size() + clone_set_[root_id].JSHMs().size();
     }
 

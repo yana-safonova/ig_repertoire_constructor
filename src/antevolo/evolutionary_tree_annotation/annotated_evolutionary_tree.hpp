@@ -3,10 +3,11 @@
 #include "evolutionary_graph_utils/evolutionary_tree.hpp"
 #include "../shm_counting/tree_shm_map.hpp"
 #include "../shm_counting/tree_shm_calculator.hpp"
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
     class AnnotatedEvolutionaryTree {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
 
         // statistics
@@ -20,7 +21,7 @@ namespace antevolo {
         void InitializeCloneSHMMap();
 
     public:
-        AnnotatedEvolutionaryTree(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        AnnotatedEvolutionaryTree(const CloneSetWithFakes &clone_set,
                                   const EvolutionaryTree &tree) : clone_set_(clone_set),
                                                                   tree_(tree),
                                                                   shm_calculator_(clone_set_, tree_),

@@ -183,7 +183,7 @@ namespace antevolo {
         INFO(tree_storage.size() << " clonal lineages were splitted into " << connected_tree_storage.size() <<
                                  " connected trees");
 
-        AnnotatedTreeStorage annotated_storage(annotated_clone_set);
+        AnnotatedTreeStorage annotated_storage(*final_clone_set);
         for(auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             annotated_storage.AddAnnotatedTree(*it);
         }
@@ -202,11 +202,11 @@ namespace antevolo {
         }
         output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
 
-        AnalyzeParallelEvolution(annotated_clone_set, connected_tree_storage);
+        AnalyzeParallelEvolution(*final_clone_set, connected_tree_storage);
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     };
 
-    void AntEvoloLaunch::AnalyzeParallelEvolution(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+    void AntEvoloLaunch::AnalyzeParallelEvolution(const CloneSetWithFakes& clone_set,
                                                   const EvolutionaryTreeStorage& trees) {
         if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
             return;

@@ -5,14 +5,14 @@
 
 namespace antevolo {
     class TreeSHMMap {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
 
         std::map<TreeSHM, size_t> shm_mult_map_;
         std::map<TreeSHM, std::vector<size_t> > shm_clone_ids_;
 
     public:
-        TreeSHMMap(const annotation_utils::CDRAnnotatedCloneSet &clone_set,
+        TreeSHMMap(const CloneSetWithFakes &clone_set,
                    const EvolutionaryTree &tree) : clone_set_(clone_set), tree_(tree) { }
 
         void AddSHM(TreeSHM shm, size_t dst_id);

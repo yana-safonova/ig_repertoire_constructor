@@ -1,12 +1,13 @@
 #pragma once
 
 #include "../evolutionary_graph_utils/evolutionary_tree.hpp"
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
     enum RhombSide { RhombSide1, RhombSide2 };
 
     class ParallelRhomb {
-        const annotation_utils::CDRAnnotatedCloneSet& clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
 
         std::vector<EvolutionaryEdgePtr> side1_edges_;
@@ -21,7 +22,7 @@ namespace antevolo {
         std::vector<std::vector<annotation_utils::SHM>>& GetSHMsBySide(RhombSide side);
 
     public:
-        ParallelRhomb(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+        ParallelRhomb(const CloneSetWithFakes &clone_set,
                       const EvolutionaryTree &tree) : clone_set_(clone_set),
                                                       tree_(tree) { }
 
@@ -64,7 +65,7 @@ namespace antevolo {
         //RhombSide GetParallelSide() const;
 
 
-        const annotation_utils::CDRAnnotatedCloneSet& CloneSet() const { return clone_set_; }
+        const CloneSetWithFakes& CloneSet() const { return clone_set_; }
     };
 
     std::ostream& operator<<(std::ostream &out, const ParallelRhomb &rhomb);

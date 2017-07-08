@@ -1,6 +1,7 @@
 #pragma once
 
 #include "parallel_rhomb.hpp"
+#include "../clone_set_with_fakes.hpp"
 
 namespace antevolo {
     struct ParallelEvolutionStats {
@@ -43,7 +44,7 @@ namespace antevolo {
     };
 
     class ParallelEvolutionFinder {
-        const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
+        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
 
         std::map<size_t, std::set<size_t>> added_directed_edges_map_;
@@ -79,7 +80,7 @@ namespace antevolo {
         //bool VerticesPresentTrueParallelEvolution(size_t src_id, size_t dst_id);
 
     public:
-        ParallelEvolutionFinder(const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+        ParallelEvolutionFinder(const CloneSetWithFakes &clone_set,
                                 const EvolutionaryTree &tree) : clone_set_(clone_set),
                                                                 tree_(tree) { }
 
