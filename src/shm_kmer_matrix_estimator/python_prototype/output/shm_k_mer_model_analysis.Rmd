@@ -1,0 +1,42 @@
+---
+title: "SHM_model_analysis"
+author: "Andy"
+date: "March 3, 2016"
+output: html_document
+---
+
+```{r}
+shm.model <- read.csv("test_model.csv", sep=",", header=TRUE)
+shm.yale.model <- read.csv("yale_substitution.csv", sep = " ", header=TRUE)
+rownames(shm.model) <- shm.model$X
+shm.model$X <- NULL
+
+rownames(shm.yale.model) <- shm.yale.model$Fivemer
+shm.yale.model$Fivemer <- NULL
+```
+
+```{r}
+shm.model<- cbind(shm.model / rowSums(shm.model), N=rowSums(shm.model))
+```
+
+```{r}
+residuals <- abs(subset(shm.model, shm.yale.model$Source == "Measured", select=-N) - subset(shm.yale.model, shm.yale.model$Source == "Measured", select=-Source))
+```
+
+```{r}
+mean(as.vector(as.matrix(residuals)), na.rm = TRUE)
+hist(as.vector(as.matrix(residuals)))
+```
+
+
+```{r}
+N <- 1000000
+alpha <- runif(N)
+beta <- runif(N)
+gamma <- runif(N)
+delta <- runif(N)
+
+res <- abs(alpha - gamma) + abs(beta - delta) + abs(beta + delta - alpha - beta)
+plot(density(res))
+```
+
