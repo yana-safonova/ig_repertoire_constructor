@@ -9,7 +9,7 @@ from py.igquast_impl import save_plot, initialize_plot
 
 initialize_plot()
 
-plt.title("umi tau choice: age3")
+# plt.title("umi tau choice: age3")
 
 data = [45278, 40915, 40424, 40287]
 plt.plot(range(len(data)), data, "b-", color="blue", label="label")
@@ -23,7 +23,7 @@ save_plot("umi_tau_choice_age3", format="png")
 
 initialize_plot()
 
-plt.title("umi tau choice: simulation (2 errors per read)")
+# plt.title("umi tau choice: simulation (2 errors per read)")
 
 data = [26489, 19203, 19055, 18923]
 plt.plot(range(len(data)), data, "b-", color="blue", label="label")
