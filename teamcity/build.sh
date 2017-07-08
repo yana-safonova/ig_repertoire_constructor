@@ -2,7 +2,7 @@
 set -e
 
 echo "building"
-make -j8
+make $*
 
 echo "exporting artifacts"
 python ./src/extra/serg_tools/copy_env.py env 1
