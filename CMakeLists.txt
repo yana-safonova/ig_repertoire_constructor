@@ -13,8 +13,8 @@ if(CMAKE_GOOGLE_PROFILER)
                       DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
                       INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
                       URL_MD5 b181436e9061363821a954ca64626f26
-                      CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=yes --prefix=<INSTALL_DIR>
-                      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+                      CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=no --prefix=<INSTALL_DIR>
+                      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} libprofiler.la
                       BUILD_IN_SOURCE 1
                       INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
                       LOG_DOWNLOAD 1
