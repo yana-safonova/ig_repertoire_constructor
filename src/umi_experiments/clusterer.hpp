@@ -367,27 +367,31 @@ namespace clusterer {
         // TODO:    Another option is to check if actually 50-mer strategy is precise enough.
         std::vector<seqan::Dna5String> all_left_halves;
         std::vector<seqan::Dna5String> all_right_halves;
-        const size_t IG_LEN = 350;
+        const size_t HALF_IG_LEN = [&]() {
+            size_t min_len = std::numeric_limits<size_t>::max();
+            for (const auto& cluster : current_umi_to_cluster_.toSet()) {
+                min_len = std::min(min_len, length(cluster->GetSequence()));
+            }
+            return min_len;
+        }() / 2;
         std::unordered_map<seqan::Dna5String, size_t> cluster_to_idx;
         for (const auto& cluster : current_umi_to_cluster_.toSet()) {
             const auto& sequence = cluster->GetSequence();
             cluster_to_idx[cluster->GetSequence()] = all_left_halves.size();
-            all_left_halves.push_back(seqan::prefix(sequence, IG_LEN / 2));
-            all_right_halves.push_back(seqan::suffix(sequence, IG_LEN / 2));
+            all_left_halves.push_back(seqan::prefix(sequence, HALF_IG_LEN));
+            all_right_halves.push_back(seqan::suffix(sequence, HALF_IG_LEN));
         }
 
         const size_t max_indels = 3;
         const size_t strategy = 2;
-        const size_t k = [=]() {
-            size_t half = IG_LEN / (tau + strategy) / 2;
-            return half > 10 ? half : IG_LEN / (tau + strategy);
-        }();
+        const size_t k = HALF_IG_LEN / (tau + strategy);
         Graph left_graph;
         Graph right_graph;
         for (size_t i = 0; i < 2; i ++) {
             INFO("constructing graph " << i);
             const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
             auto kmer2reads = kmerIndexConstruction(all_halves, k);
+            INFO("Chosen k: " << k << ", total k-mers: " << kmer2reads.size());
             size_t num_of_dist_computations = 0;
             Graph& graph = (i == 0) ? left_graph : right_graph;
             graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::bounded_edit_dist(tau, max_indels),
@@ -482,12 +486,12 @@ namespace clusterer {
                     umi_chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         umi_chimeras_file << "cluster size: " << c->weight << ", ";
-                        umi_chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        umi_chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        umi_chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), HALF_IG_LEN), seqan::prefix(c->GetSequence(), HALF_IG_LEN)) << ", ";
+                        umi_chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), HALF_IG_LEN), seqan::suffix(c->GetSequence(), HALF_IG_LEN)) << std::endl;
                         umi_chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_umi > 0 || right_in_umi > 0) && left_in_all > 0 && right_in_all > 0) {
-                    bool is_chimera = true;
+//                    bool is_chimera = true;
 //                    for (const auto& c : clusters) {
 //                        // This is not a chimera, but a highly amplified sequence
 //                        if (sw_dist(cluster->GetSequence(), c->GetSequence()) <= 25) {
@@ -495,7 +499,7 @@ namespace clusterer {
 //                            break;
 //                        }
 //                    }
-                    if (!is_chimera) continue;
+//                    if (!is_chimera) continue;
 
                     chimeric_reads += cluster->size();
                     chimera_size_to_count[cluster->size()] ++;
@@ -508,8 +512,8 @@ namespace clusterer {
                     chimeras_file << "umi clusters with dists:" << std::endl;
                     for (const auto& c : clusters) {
                         chimeras_file << "cluster size: " << c->weight << ", ";
-                        chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), IG_LEN / 2), seqan::prefix(c->GetSequence(), IG_LEN / 2)) << ", ";
-                        chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), IG_LEN / 2), seqan::suffix(c->GetSequence(), IG_LEN / 2)) << std::endl;
+                        chimeras_file << "left dist: " << sw_dist(seqan::prefix(cluster->GetSequence(), HALF_IG_LEN), seqan::prefix(c->GetSequence(), HALF_IG_LEN)) << ", ";
+                        chimeras_file << "right dist: " << sw_dist(seqan::suffix(cluster->GetSequence(), HALF_IG_LEN), seqan::suffix(c->GetSequence(), HALF_IG_LEN)) << std::endl;
                         chimeras_file << c->GetSequence() << std::endl;
                     }
                 } else if ((left_in_all > 0) != (right_in_all > 0)) {
