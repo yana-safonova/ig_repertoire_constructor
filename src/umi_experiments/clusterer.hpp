@@ -364,35 +364,35 @@ namespace clusterer {
     void Clusterer<ElementType>::get_graph(const size_t tau, const size_t strategy, const size_t k,
             const std::vector<seqan::Dna5String>& sequences, const ReadDist& dist, Graph& graph,
             size_t& num_of_dist_computations) const {
-        if (k > 15) {
+//        if (k > 15) {
             INFO("Constructing graph using representative kmers strategy")
             num_of_dist_computations = 0;
             auto kmer2reads = kmerIndexConstruction(sequences, k);
             INFO("Chosen k: " << k << ", total k-mers: " << kmer2reads.size());
             graph = tauDistGraph(sequences, kmer2reads, dist, static_cast<unsigned>(tau), static_cast<unsigned>(k),
                     static_cast<unsigned>(strategy), num_of_dist_computations);
-        } else {
-            INFO("Constructing graph using naive strategy")
-            graph = Graph(sequences.size());
-            std::atomic<size_t> atomic_num_of_dist_computations;
-            atomic_num_of_dist_computations = 0;
-
-            SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
-            for (size_t i = 0; i < sequences.size(); i ++) {
-                for (size_t j = 0; j < i; j ++) {
-                    size_t d = dist(sequences[i], sequences[j]);
-                    atomic_num_of_dist_computations ++;
-                    if (d <= tau) {
-                        #pragma omp critical
-                        {
-                            graph[i].push_back({j, d});
-                            graph[j].push_back({i, d});
-                        }
-                    }
-                }
-            }
-            num_of_dist_computations = atomic_num_of_dist_computations;
-        }
+//        } else {
+//            INFO("Constructing graph using naive strategy")
+//            graph = Graph(sequences.size());
+//            std::atomic<size_t> atomic_num_of_dist_computations;
+//            atomic_num_of_dist_computations = 0;
+//
+//            SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+//            for (size_t i = 0; i < sequences.size(); i ++) {
+//                for (size_t j = 0; j < i; j ++) {
+//                    size_t d = dist(sequences[i], sequences[j]);
+//                    atomic_num_of_dist_computations ++;
+//                    if (d <= tau) {
+//                        #pragma omp critical
+//                        {
+//                            graph[i].push_back({j, d});
+//                            graph[j].push_back({i, d});
+//                        }
+//                    }
+//                }
+//            }
+//            num_of_dist_computations = atomic_num_of_dist_computations;
+//        }
     }
 
     template <typename ElementType>
