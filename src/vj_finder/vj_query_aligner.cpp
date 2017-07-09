@@ -40,7 +40,7 @@ namespace vj_finder {
         // we can construct it once and use as a parameter of constructor
 
         TRACE("Computation of V hits");
-        CustomDbBlockAlignmentHits v_aligns = v_helper->aligner->Align(read.seq);
+        CustomDbBlockAlignmentHits v_aligns = v_helper_->get_aligner()->Align(read.seq);
         TRACE(v_aligns.size() << " V hits were computed: ")
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++) {
             TRACE(v_custom_db_[it->second].name() << ", start: " << it->first.first_match_read_pos() <<
@@ -50,7 +50,7 @@ namespace vj_finder {
         bool strand = true;
         if(algorithm_params_.aligner_params.fix_strand) {
             core::Read read_rc = read.ReverseComplement();
-            CustomDbBlockAlignmentHits reverse_v_aligns = v_helper->aligner->Align(read_rc.seq);
+            CustomDbBlockAlignmentHits reverse_v_aligns = v_helper_->get_aligner()->Align(read_rc.seq);
             if(v_aligns.BestScore() < reverse_v_aligns.BestScore()) {
                 TRACE("Reverse complementary strand was selected");
                 stranded_read = read_rc;
@@ -74,12 +74,12 @@ namespace vj_finder {
             return VJHits(read);
 
         TRACE("Computation of J hits");
-        auto j_aligns = j_helper->aligner->Align(dj_read_suffix);
+        auto j_aligns = j_helper->get_aligner()->Align(dj_read_suffix);
         //for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
         //    it->first.add_read_shift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
         TRACE(j_aligns.size() << " J hits were computed: ")
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
-            TRACE(j_helper->j_gene_db[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<
+            TRACE(j_helper->get_j_gene_db()[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
@@ -88,7 +88,7 @@ namespace vj_finder {
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
             vj_hits.AddVHit(VGeneHit(read, v_custom_db_[it->second], it->first, strand));
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
-            JGeneHit j_hit(read, j_helper->j_gene_db[it->second], it->first, strand);
+            JGeneHit j_hit(read, j_helper->get_j_gene_db()[it->second], it->first, strand);
             j_hit.AddShift(int(read.length() - seqan::length(dj_read_suffix)));
             vj_hits.AddJHit(j_hit);
         }
