@@ -33,3 +33,16 @@ plt.ylabel("# clusters")
 
 save_plot("umi_tau_choice_sim", format="png")
 
+# ------------
+
+initialize_plot()
+
+data = [39.13532894, 67.98549154, 68.53164346, 68.10431085]
+plt.plot(range(len(data)), data, "b-", color="blue", label="label")
+# plt.ylim(0, 1)
+
+plt.xlabel("barcode tau")
+plt.ylabel("# reads with corrected UMIs")
+
+save_plot("umi_tau_choice_sim_reads", format="png")
+
