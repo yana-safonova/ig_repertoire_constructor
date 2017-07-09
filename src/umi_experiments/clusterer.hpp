@@ -200,6 +200,8 @@ namespace clusterer {
         static ClusterPtr<ElementType> merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
         static seqan::Dna5String findNewCenter(const std::vector<ElementType>& members);
         static void print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
+        void get_graph(const size_t tau, const size_t strategy, const size_t k, const vector<seqan::Dna5String> &sequences,
+                const ReadDist &dist, Graph &graph, size_t &num_of_dist_computations) const;
 
         ManyToManyCorrespondenceUmiToCluster<Read> current_umi_to_cluster_;
         const std::vector<Read> reads_;
@@ -359,6 +361,41 @@ namespace clusterer {
     }
 
     template <typename ElementType>
+    void Clusterer<ElementType>::get_graph(const size_t tau, const size_t strategy, const size_t k,
+            const std::vector<seqan::Dna5String>& sequences, const ReadDist& dist, Graph& graph,
+            size_t& num_of_dist_computations) const {
+        if (k > 15) {
+            INFO("Constructing graph using representative kmers strategy")
+            num_of_dist_computations = 0;
+            auto kmer2reads = kmerIndexConstruction(sequences, k);
+            INFO("Chosen k: " << k << ", total k-mers: " << kmer2reads.size());
+            graph = tauDistGraph(sequences, kmer2reads, dist, static_cast<unsigned>(tau), static_cast<unsigned>(k),
+                    static_cast<unsigned>(strategy), num_of_dist_computations);
+        } else {
+            INFO("Constructing graph using naive strategy")
+            graph = Graph(sequences.size());
+            std::atomic<size_t> atomic_num_of_dist_computations;
+            atomic_num_of_dist_computations = 0;
+
+            SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+            for (size_t i = 0; i < sequences.size(); i ++) {
+                for (size_t j = 0; j < i; j ++) {
+                    size_t d = dist(sequences[i], sequences[j]);
+                    atomic_num_of_dist_computations ++;
+                    if (d <= tau) {
+                        #pragma omp critical
+                        {
+                            graph[i].push_back({j, d});
+                            graph[j].push_back({i, d});
+                        }
+                    }
+                }
+            }
+            num_of_dist_computations = atomic_num_of_dist_computations;
+        }
+    }
+
+    template <typename ElementType>
     void Clusterer<ElementType>::report_non_major_umi_groups_sw(const std::string& file_name,
             const std::string& left_graph_file_name, const std::string& right_graph_file_name,
             const std::string& chimeras_info_file_name, const std::string& umi_chimeras_info_file_name, const size_t tau) {
@@ -382,7 +419,7 @@ namespace clusterer {
             all_right_halves.push_back(seqan::suffix(sequence, HALF_IG_LEN));
         }
 
-        const size_t max_indels = 3;
+        const size_t max_indels = tau;
         const size_t strategy = 2;
         const size_t k = HALF_IG_LEN / (tau + strategy);
         Graph left_graph;
@@ -390,13 +427,10 @@ namespace clusterer {
         for (size_t i = 0; i < 2; i ++) {
             INFO("constructing graph " << i);
             const std::vector<seqan::Dna5String>& all_halves = (i == 0) ? all_left_halves : all_right_halves;
-            auto kmer2reads = kmerIndexConstruction(all_halves, k);
-            INFO("Chosen k: " << k << ", total k-mers: " << kmer2reads.size());
-            size_t num_of_dist_computations = 0;
             Graph& graph = (i == 0) ? left_graph : right_graph;
-            graph = tauDistGraph(all_halves, kmer2reads, ClusteringMode::bounded_edit_dist(tau, max_indels),
-                                 static_cast<unsigned>(tau), static_cast<unsigned>(k), static_cast<unsigned>(strategy),
-                                 num_of_dist_computations);
+            const ReadDist dist = ClusteringMode::bounded_edit_dist(tau, max_indels);
+            size_t num_of_dist_computations;
+            get_graph(tau, strategy, k, all_halves, dist, graph, num_of_dist_computations);
             INFO("graph constructed: " << i << ", dist computed " << num_of_dist_computations << " times.");
             write_metis_graph(graph, i == 0 ? left_graph_file_name : right_graph_file_name);
             INFO("graph written: " << i);
