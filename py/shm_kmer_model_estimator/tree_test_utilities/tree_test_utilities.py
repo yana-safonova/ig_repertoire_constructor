@@ -18,7 +18,7 @@ class TreeTestResults(object):
     def __init__(self, lklhs):
         self.lklhs = lklhs
         self.accuracies = np.array([self.get_accuracy__(lklh) for lklh in lklhs])
-        self.full_accuracy = self.get_accuracy__(np.concatenate(lklhs))
+        self.full_accuracy = self.get_accuracy__(np.concatenate(lklhs)) if len(lklhs) else np.nan
 
 
 class TreeTester(object):

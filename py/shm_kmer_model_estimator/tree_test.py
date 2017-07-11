@@ -18,7 +18,7 @@ from chains.chains import Chains
 from shm_kmer_model.cab_shm_model import Region
 from likelihood_calculator.likelihood_calculator import LikelihoodCalculator
 
-from tree_test_utilities import flu_trees_statistics_calculator, hiv_trees, tree_test_utilities
+from tree_test_utilities import flu_trees_statistics_calculator, hiv_trees, cui_trees, tree_test_utilities
 
 from special_utils.os_utils import smart_mkdir
 
@@ -134,6 +134,9 @@ def main():
             print("Hiv")
             hiv_trees_paths = hiv_trees.get_hiv_trees_path(chain_type=chain_type)
             run_tree_test_chain_strategy(strategy, chain_type, test_config.hiv_outdir, hiv_trees_paths)
+            # print("CUI")
+            # cui_trees_paths = cui_trees.get_cui_trees_path(chain_type=chain_type)
+            # run_tree_test_chain_strategy(strategy, chain_type, test_config.cui_outdir, cui_trees_paths)
 
 
 
