@@ -18,7 +18,7 @@ from chains.chains import Chains
 from shm_kmer_model.cab_shm_model import Region
 from likelihood_calculator.likelihood_calculator import LikelihoodCalculator
 
-from tree_test_utilities import flu_trees_statistics_calculator, tree_test_utilities
+from tree_test_utilities import flu_trees_statistics_calculator, hiv_trees, tree_test_utilities
 
 from special_utils.os_utils import smart_mkdir
 
@@ -42,22 +42,21 @@ def test_edges_info(config):
         plt.close()
 
 
-def run_tree_test_chain_strategy(strategy, chain_type, log_dir):
+def run_tree_test_chain_strategy(strategy, chain_type, log_dir, trees_paths):
     ymodel                  = yale_model.YaleSHM_Model()
     cabmodel                = cab_shm_model.CAB_SHM_Model(strategy, chain_type)
     cab_sfreq_all_model = cab_shm_simple_frequency.CAB_SHM_SimpleFrequencyModel(strategy, chain_type, functionality='all')
     cab_sfreq_non_model = cab_shm_simple_frequency.CAB_SHM_SimpleFrequencyModel(strategy, chain_type, functionality='nonproductive')
 
-    flu_trees_paths = flu_trees_statistics_calculator.get_flu_trees_paths(chain_type=chain_type)
     tester = tree_test_utilities.TreeTester()
     yresults                  = tester.get_likelihood_statistics_trees(model=ymodel,
-                                                                       tree_paths=flu_trees_paths)
+                                                                       tree_paths=trees_paths)
     cabresults                = tester.get_likelihood_statistics_trees(model=cabmodel,
-                                                                       tree_paths=flu_trees_paths)
+                                                                       tree_paths=trees_paths)
     cab_sfreq_all_results = tester.get_likelihood_statistics_trees(model=cab_sfreq_all_model,
-                                                                       tree_paths=flu_trees_paths)
+                                                                       tree_paths=trees_paths)
     cab_sfreq_non_results = tester.get_likelihood_statistics_trees(model=cab_sfreq_non_model,
-                                                                       tree_paths=flu_trees_paths)
+                                                                       tree_paths=trees_paths)
 
     filename = '%s_%s.' % (strategy.name, chain_type.name)
     log_filename = os.path.join(log_dir, filename + 'log')
@@ -123,13 +122,18 @@ def main():
     parsed_args = parse_args()
     input_config = read_config(parsed_args.input)
     test_config = input_config.kmer_model_tree_test
-    test_edges_info(test_config)
+    # test_edges_info(test_config)
     for strategy in mutation_strategies.MutationStrategies:
         for chain_type in Chains:
             if chain_type.name == 'IG':
                 continue
             print(strategy, chain_type.name)
-            run_tree_test_chain_strategy(strategy, chain_type, test_config.outdir)
+            print("Flu")
+            flu_trees_paths = flu_trees_statistics_calculator.get_flu_trees_paths(chain_type=chain_type)
+            run_tree_test_chain_strategy(strategy, chain_type, test_config.flu_outdir, flu_trees_paths)
+            print("Hiv")
+            hiv_trees_paths = hiv_trees.get_hiv_trees_path(chain_type=chain_type)
+            run_tree_test_chain_strategy(strategy, chain_type, test_config.hiv_outdir, hiv_trees_paths)
 
 
 
