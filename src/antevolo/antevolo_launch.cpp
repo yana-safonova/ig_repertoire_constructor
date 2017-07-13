@@ -42,21 +42,9 @@ namespace antevolo {
         std::tie(fr_matrix, cdr_matrix) = statistics_estimator.calculate_mutation_statistics(clone_set);
 
         KmerMatrixExporter kmer_matrix_exporter;
-        kmer_matrix_exporter.export_statistics("fr_test.csv", fr_matrix);
-        kmer_matrix_exporter.export_statistics("cdr_test.csv", cdr_matrix);
-
         PosteriorDistributionCalculator posterior_distribution_calculator;
         ShmModel posterior_model(posterior_distribution_calculator.calculate(model, fr_matrix, cdr_matrix));
 
-//        std::ofstream out_prior_model;
-//        out_prior_model.open("prior.csv"); // todo: move to config
-//        out_prior_model << model;
-//        out_prior_model.close();
-//
-//        std::ofstream out_posterior_model;
-//        out_posterior_model.open("posterior.csv");
-//        out_posterior_model << posterior_model;
-//        out_posterior_model.close();
         AbstractMutationStrategyPtr
                 mut_strategy(new NoKNeighboursMutationStrategy(config_.shm_config.mfp));
         ShmModelEdgeWeightCalculator edge_weight_calculator(posterior_model, std::move(mut_strategy));
