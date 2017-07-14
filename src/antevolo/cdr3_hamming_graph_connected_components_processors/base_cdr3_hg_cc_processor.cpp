@@ -234,6 +234,8 @@ namespace antevolo {
                                                                              parent_num,
                                                                              right_num);
                     VERIFY(left_parent_edge->IsReverseDirected() && parent_right_edge->IsDirected());
+                    VERIFY(left.CDR3Range().length() == right.CDR3Range().length() &&
+                           left.CDR3Range().length() == parent_clone.CDR3Range().length());
                     intersected_cost = left_parent_edge->Length() + parent_right_edge->Length();
 //                    INFO("reconstructed");
                     if (intersected_cost < default_cost && intersected_cost < reverse_cost) {

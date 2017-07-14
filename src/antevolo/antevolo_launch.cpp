@@ -171,7 +171,8 @@ namespace antevolo {
         INFO(tree_storage.size() << " clonal lineages were splitted into " << connected_tree_storage.size() <<
                                  " connected trees");
 
-        AnnotatedTreeStorage annotated_storage(*final_clone_set);
+//        AnnotatedTreeStorage annotated_storage(*final_clone_set);
+        AnnotatedTreeStorage annotated_storage;
         for(auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             annotated_storage.AddAnnotatedTree(*it);
         }

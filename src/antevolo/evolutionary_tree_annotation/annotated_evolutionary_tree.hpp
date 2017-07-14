@@ -21,8 +21,10 @@ namespace antevolo {
         void InitializeCloneSHMMap();
 
     public:
-        AnnotatedEvolutionaryTree(const CloneSetWithFakes &clone_set,
-                                  const EvolutionaryTree &tree) : clone_set_(clone_set),
+//        AnnotatedEvolutionaryTree(const CloneSetWithFakes &clone_set,
+        AnnotatedEvolutionaryTree(
+//                                  const EvolutionaryTree &tree) : clone_set_(clone_set),
+                                  const EvolutionaryTree &tree) : clone_set_(tree.GetCloneSet()),
                                                                   tree_(tree),
                                                                   shm_calculator_(clone_set_, tree_),
                                                                   shm_map_(shm_calculator_.ComputeSHMMap()) {
