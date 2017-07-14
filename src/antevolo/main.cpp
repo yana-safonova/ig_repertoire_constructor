@@ -36,6 +36,7 @@ void prepare_output_dir(const antevolo::AntEvoloConfig &config) {
     path::make_dir(config.output_params.tree_dir);
     path::make_dir(config.output_params.vertex_dir);
     path::make_dir(config.output_params.cdr_graph_dir);
+    path::make_dir(config.output_params.tree_shm_dir);
     if(config.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder) {
         path::make_dir(config.output_params.parallel_shm_output.parallel_bulges_dir);
         path::make_dir(config.output_params.parallel_shm_output.parallel_shm_dir);

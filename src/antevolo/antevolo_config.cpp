@@ -21,7 +21,7 @@ namespace antevolo {
         output_params.vertex_dir = path::append_path(output_params.output_dir, output_params.vertex_dir);
         output_params.trash_output = path::append_path(output_params.output_dir, output_params.trash_output);
         output_params.tree_details = path::append_path(output_params.output_dir, output_params.tree_details);
-        output_params.tree_shms = path::append_path(output_params.output_dir, output_params.tree_shms);
+        output_params.tree_shm_dir = path::append_path(output_params.output_dir, output_params.tree_shm_dir);
         output_params.parallel_shm_output.parallel_bulges_dir = path::append_path(output_params.output_dir,
                                                                                   output_params.parallel_shm_output.parallel_bulges_dir);
         output_params.parallel_shm_output.parallel_shm_dir = path::append_path(output_params.output_dir,
@@ -43,7 +43,7 @@ namespace antevolo {
         load(output_params.tree_dir, pt, "tree_dir");
         load(output_params.vertex_dir, pt, "vertex_dir");
         load(output_params.tree_details, pt, "tree_details");
-        load(output_params.tree_shms, pt, "tree_shms");
+        load(output_params.tree_shm_dir, pt, "tree_shm_dir");
         load(output_params.parallel_shm_output, pt, "parallel_shm_output");
         update_paths(output_params);
     }

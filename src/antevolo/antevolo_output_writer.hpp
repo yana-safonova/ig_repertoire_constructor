@@ -37,5 +37,7 @@ namespace antevolo {
 
         void WriteEdge(const EvolutionaryEdgePtr& edge, std::ofstream& out) const;
 
+        void WriteTreeSHMs(const AnnotatedEvolutionaryTree &tree, std::ofstream& out) const;
+
     };
 }

@@ -3,9 +3,17 @@
 
 namespace antevolo {
     void AntEvoloOutputWriter::OutputSHMForTrees() const {
-        std::ofstream out(output_params_.tree_shms);
-        INFO("Tree SHMs were written to " << output_params_.tree_shms);
-        out.close();
+        INFO("Tree SHMs were written to " << output_params_.tree_shm_dir);
+        for(auto it = annotated_storage_.cbegin(); it != annotated_storage_.cend(); it++) {
+            std::string shm_fname = path::append_path(output_params_.tree_shm_dir, it->Tree().GetTreeOutputFname(""));
+            std::ofstream out(shm_fname);
+            WriteTreeSHMs(*it, out);
+            out.close();
+        }
+    }
+
+    void AntEvoloOutputWriter::WriteTreeSHMs(const AnnotatedEvolutionaryTree &tree, std::ofstream &out) const {
+        INFO("Implement me!");
     }
 
     void AntEvoloOutputWriter::OutputTreeStats() const {

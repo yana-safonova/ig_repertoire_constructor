@@ -183,6 +183,7 @@ namespace antevolo {
 
         AntEvoloOutputWriter output_writer(config_.output_params, annotated_storage);
         output_writer.OutputTreeStats();
+        output_writer.OutputSHMForTrees();
 
         output_writer.OutputCleanedSequences(final_clone_set);
         INFO("Cleaned sequences were written to " << config_.output_params.output_dir << "/cleaned_sequences.fa");
