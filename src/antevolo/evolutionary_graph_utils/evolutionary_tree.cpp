@@ -157,6 +157,11 @@ namespace antevolo {
         return outgoing_edges_.find(clone_id) == outgoing_edges_.end();
     }
 
+    bool EvolutionaryTree::IsFakeToFilter(size_t clone_id) const {
+        VERIFY_MSG(ContainsClone(clone_id), "Tree does not contain vertex " << clone_id);
+        return clone_set_ptr_->IsFake(clone_id) && (IsLeaf(clone_id) || OutgoingEdges(clone_id).size() < 2);
+    }
+
     bool EvolutionaryTree::IsForest() const {
         size_t num_roots = 0;
         for(auto it = vertices_.begin(); it != vertices_.end(); it++) {

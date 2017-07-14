@@ -58,7 +58,7 @@ add_library(antevolo_library STATIC
         antevolo_output_writer.cpp
         antevolo_config.cpp
         antevolo_processor.cpp
-        antevolo_launch.cpp)
+        antevolo_launch.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.hpp)
 
 target_link_libraries(antevolo_library
         vj_finder_library

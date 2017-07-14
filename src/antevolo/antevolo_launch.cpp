@@ -8,6 +8,7 @@
 #include <cdr_output.hpp>
 #include <evolutionary_graph_utils/evolutionary_tree_splitter.hpp>
 #include <mutation_strategies/no_k_neighbours.hpp>
+#include <evolutionary_graph_utils/one_child_fake_clones_filterer.hpp>
 #include "antevolo_processor.hpp"
 
 #include "antevolo_output_writer.hpp"
@@ -161,11 +162,13 @@ namespace antevolo {
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
         EvolutionaryTreeStorage connected_tree_storage;
+        OneChildFakeClonesFilterer fakes_filterer(config_.algorithm_params.edge_construction_params);
         for(auto it = tree_storage.cbegin(); it != tree_storage.cend(); it++) {
             ConnectedTreeSplitter tree_splitter;
             auto connected_trees = tree_splitter.Split(*it);
             for(auto it2 = connected_trees.begin(); it2!= connected_trees.end(); it2++) {
-                connected_tree_storage.Add(*it2);
+                auto filtered_tree = fakes_filterer.FilterOneChildFakes(*it2);
+                connected_tree_storage.Add(filtered_tree);
             }
         }
         INFO(tree_storage.size() << " clonal lineages were splitted into " << connected_tree_storage.size() <<

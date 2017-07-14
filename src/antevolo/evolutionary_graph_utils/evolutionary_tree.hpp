@@ -72,6 +72,8 @@ namespace antevolo {
 
         bool IsLeaf(size_t clone_id) const;
 
+        bool IsFakeToFilter(size_t clone_id) const;
+
         size_t GetRoot() const;
 
         bool IsIsolated(size_t clone_id) const;
