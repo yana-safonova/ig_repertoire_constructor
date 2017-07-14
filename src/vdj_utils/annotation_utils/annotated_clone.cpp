@@ -43,9 +43,15 @@ namespace annotation_utils {
     }
 
     void AnnotatedClone::Initialize(CDRLabeling cdr_labeling) {
+        UpdateStructuralRegion(StructuralRegion::FR1, CDRRange(0, cdr_labeling.cdr1.start_pos - 1));
         UpdateStructuralRegion(StructuralRegion::CDR1, cdr_labeling.cdr1);
+        UpdateStructuralRegion(StructuralRegion::FR2, CDRRange(cdr_labeling.cdr1.end_pos + 1,
+                                                               cdr_labeling.cdr2.start_pos - 1));
         UpdateStructuralRegion(StructuralRegion::CDR2, cdr_labeling.cdr2);
+        UpdateStructuralRegion(StructuralRegion::FR3, CDRRange(cdr_labeling.cdr2.end_pos + 1,
+                                                               cdr_labeling.cdr3.start_pos - 1));
         UpdateStructuralRegion(StructuralRegion::CDR3, cdr_labeling.cdr3);
+        UpdateStructuralRegion(StructuralRegion::FR4, CDRRange(cdr_labeling.cdr3.end_pos + 1, read_.length() - 1));
     }
 
     bool AnnotatedClone::RegionIsEmpty(StructuralRegion region) const {

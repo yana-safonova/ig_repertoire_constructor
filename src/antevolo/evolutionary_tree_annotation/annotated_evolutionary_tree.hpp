@@ -50,5 +50,7 @@ namespace antevolo {
         size_t RootDepth() const;
 
         size_t TreeDepth() const;
+
+        size_t GetRegionLength(annotation_utils::StructuralRegion region) const;
     };
 }

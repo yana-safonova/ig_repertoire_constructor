@@ -48,4 +48,9 @@ namespace antevolo {
         }
         return tree_depth;
     }
+
+    size_t AnnotatedEvolutionaryTree::GetRegionLength(annotation_utils::StructuralRegion region) const {
+        size_t root_id = tree_.GetRoot();
+        return seqan::length(clone_set_[root_id].GetRegionString(region));
+    }
 }

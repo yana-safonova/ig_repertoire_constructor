@@ -11,7 +11,9 @@ namespace antevolo {
     void AntEvoloOutputWriter::OutputTreeStats() const {
         std::ofstream out(output_params_.tree_details);
         out << "Tree_id\tNum_vertices\tTree_depth\tRoot_depth\tNum_unique_SHMs\tNum_synonymous_SHMs\t"
-                    "Num_CDR_SHMs\tMax_multiplicity\tNumInFR1\tNumInCDR1\tNumInFR2\tNumInCDR2\t"
+                    "Num_CDR_SHMs\tMax_multiplicity\t"
+                    "FR1_len\tCDR1_len\tFR2_len\tCDR2_len\tFR3_len\tCDR3_len\tFR4_len"
+                    "NumInFR1\tNumInCDR1\tNumInFR2\tNumInCDR2\t"
                     "NumInFR3\tNumInCDR3\tNumInFR4\t"
                     "NumSynInFR1\tNumSynInCDR1\tNumSynInFR2\tNumSynInCDR2\t"
                     "NumSynInFR3\tNumSynInCDR3\tNumSynInFR4" << std::endl;
@@ -20,13 +22,23 @@ namespace antevolo {
             out << tree_index << "\t" << it->Tree().NumVertices() << "\t" << it->TreeDepth() << "\t" <<
                 it->RootDepth() << "\t" << it->NumUniqueSHMs() << "\t" <<
                 it->NumSynonymousSHMs() << "\t" << it->NumSHMsInCDRs() << "\t" << it->MaxSHMMultiplicity() << "\t" <<
+                //
+                it->GetRegionLength(annotation_utils::StructuralRegion::FR1) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::CDR1) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::FR2) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::CDR2) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::FR3) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::CDR3) << "\t" <<
+                it->GetRegionLength(annotation_utils::StructuralRegion::FR4) << "\t" <<
+                //
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::FR1) << "\t" <<
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::CDR1) << "\t" <<
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::FR2) << "\t" <<
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::CDR2) << "\t" <<
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::FR3) << "\t" <<
                 it->NumSHMsInRegion(annotation_utils::StructuralRegion::CDR3) << "\t" <<
-                it->NumSHMsInRegion(annotation_utils::StructuralRegion::FR4) << "\t" << 
+                it->NumSHMsInRegion(annotation_utils::StructuralRegion::FR4) << "\t" <<
+                //
                 it->NumSynonymousSHMsInRegion(annotation_utils::StructuralRegion::FR1) << "\t" <<
                 it->NumSynonymousSHMsInRegion(annotation_utils::StructuralRegion::CDR1) << "\t" <<
                 it->NumSynonymousSHMsInRegion(annotation_utils::StructuralRegion::FR2) << "\t" <<
