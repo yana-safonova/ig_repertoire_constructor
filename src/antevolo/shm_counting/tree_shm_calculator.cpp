@@ -62,7 +62,8 @@ namespace antevolo {
         auto cdr3_src = clone_set_[src].CDR3();
         auto cdr3_dst = clone_set_[dst].CDR3();
         if(seqan::length(cdr3_dst) != seqan::length(cdr3_src)) {
-            WARN("CDR3s of clones #" << src << " & " << dst << " have different lengths");
+            WARN("CDR3s of clones #" << src << "(" << cdr3_src << ") & " << dst << "(" << cdr3_dst <<
+                                     ") have different lengths");
             return;
         }
         for(size_t i = 0; i < seqan::length(cdr3_dst); i++) {
