@@ -43,6 +43,7 @@ add_library(antevolo_library STATIC
         shm_counting/tree_based_shm.cpp
         shm_counting/tree_shm_map.cpp
         shm_counting/tree_shm_calculator.cpp
+        shm_counting/tree_based_shm_convertor.cpp
         #
         parallel_evolution/parallel_evolution_finder.cpp
         parallel_evolution/parallel_rhomb.cpp

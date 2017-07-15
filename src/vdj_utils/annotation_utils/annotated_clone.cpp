@@ -83,9 +83,14 @@ namespace annotation_utils {
         return JAlignment();
     }
 
+    size_t AnnotatedClone::GetAminoAcidPosByNucleotidePos(size_t nucl_pos) const {
+        VERIFY_MSG(nucl_pos < read_.length(), "Position " << nucl_pos << " exceeds sequence length");
+        return (nucl_pos - ORF()) / 3;
+    }
+
     char AnnotatedClone::GetAminoAcidByNucleotidePos(size_t nucl_pos) const {
         VERIFY_MSG(nucl_pos < read_.length(), "Position " << nucl_pos << " exceeds sequence length");
-        return aa_annotation_.AA()[(nucl_pos - ORF()) / 3];
+        return aa_annotation_.AA()[GetAminoAcidPosByNucleotidePos(nucl_pos)];
     }
 
     StructuralRegion AnnotatedClone::GetRegionBySHM(SHM shm) const {

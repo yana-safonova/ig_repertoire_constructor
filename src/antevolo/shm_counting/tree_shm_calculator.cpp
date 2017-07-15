@@ -42,7 +42,7 @@ namespace antevolo {
         size_t src_pos = clone_set_[src].CDR3Range().start_pos + cdr3_pos;
         size_t dst_pos = clone_set_[dst].CDR3Range().start_pos + cdr3_pos;
         TreeSHM tree_shm;
-        tree_shm.gene_pos = size_t(-1);
+        tree_shm.gene_pos = cdr3_pos;
         tree_shm.src_pos = src_pos;
         tree_shm.dst_pos = dst_pos;
         tree_shm.gene_nucl = '-';

@@ -114,6 +114,8 @@ namespace annotation_utils {
         const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentBySegment(
                 germline_utils::SegmentType segment_type) const;
 
+        size_t GetAminoAcidPosByNucleotidePos(size_t nucl_pos) const;
+
         char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
 
         StructuralRegion GetRegionBySHM(SHM shm) const;
