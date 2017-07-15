@@ -33,6 +33,9 @@ namespace antevolo {
 
         const EvolutionaryTree& Tree() const { return tree_; }
 
+        const TreeSHMMap &SHMMap() const { return shm_map_; }
+
+
         size_t NumUniqueSHMs() const { return shm_map_.size(); }
 
         size_t NumSynonymousSHMs() const { return shm_map_.NumSynonymousSHMs(); }

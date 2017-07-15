@@ -3,17 +3,30 @@
 
 namespace antevolo {
     void AntEvoloOutputWriter::OutputSHMForTrees() const {
-        INFO("Tree SHMs were written to " << output_params_.tree_shm_dir);
         for(auto it = annotated_storage_.cbegin(); it != annotated_storage_.cend(); it++) {
             std::string shm_fname = path::append_path(output_params_.tree_shm_dir, it->Tree().GetTreeOutputFname(""));
             std::ofstream out(shm_fname);
             WriteTreeSHMs(*it, out);
             out.close();
         }
+        INFO("Tree SHMs were written to " << output_params_.tree_shm_dir);
     }
 
     void AntEvoloOutputWriter::WriteTreeSHMs(const AnnotatedEvolutionaryTree &tree, std::ofstream &out) const {
-        INFO("Implement me!");
+        auto shm_map = tree.SHMMap();
+        auto root_id = tree.Tree().GetRoot();
+        auto clone_set = tree.Tree().GetCloneSet();
+        out << "@CDR1:" << clone_set[root_id].CDR1Range().start_pos << "," << clone_set[root_id].CDR1Range().end_pos << std::endl;
+        out << "@CDR2:" << clone_set[root_id].CDR2Range().start_pos << "," << clone_set[root_id].CDR2Range().end_pos << std::endl;
+        out << "@CDR3:" << clone_set[root_id].CDR3Range().start_pos << "," << clone_set[root_id].CDR3Range().end_pos << std::endl;
+        out << "VDJ_length:" << clone_set[root_id].Read().length() << std::endl;
+        out << "Position\tSrc_nucl\tDst_nucl\tSrc_aa\tDst_aa\tSrc_triplet\tDst_triplet\tMultiplicity\tRegion" << std::endl;
+        for(auto it = shm_map.c_shm_clone_begin(); it != shm_map.c_shm_clone_end(); it++) {
+            auto shm = it->first;
+            out << shm.dst_pos << "\t" << shm.src_nucl << "\t" << shm.dst_nucl << "\t" <<
+                shm.src_aa << "\t" << shm.dst_aa << "\t" << shm.src_triplet << "\t" << shm.dst_triplet << "\t" <<
+                it->second.size() << "\t" << shm.region << std::endl;
+        }
     }
 
     void AntEvoloOutputWriter::OutputTreeStats() const {
