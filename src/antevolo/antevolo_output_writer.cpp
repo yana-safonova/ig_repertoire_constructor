@@ -14,12 +14,12 @@ namespace antevolo {
 
     void AntEvoloOutputWriter::WriteTreeSHMs(const AnnotatedEvolutionaryTree &tree, std::ofstream &out) const {
         auto shm_map = tree.SHMMap();
-        auto root_id = tree.Tree().GetRoot();
+        auto some_vertex = *tree.Tree().c_vertex_begin();
         auto clone_set = tree.Tree().GetCloneSet();
-        out << "@CDR1:" << clone_set[root_id].CDR1Range().start_pos << "," << clone_set[root_id].CDR1Range().end_pos << std::endl;
-        out << "@CDR2:" << clone_set[root_id].CDR2Range().start_pos << "," << clone_set[root_id].CDR2Range().end_pos << std::endl;
-        out << "@CDR3:" << clone_set[root_id].CDR3Range().start_pos << "," << clone_set[root_id].CDR3Range().end_pos << std::endl;
-        out << "VDJ_length:" << clone_set[root_id].Read().length() << std::endl;
+        out << "@CDR1:" << clone_set[some_vertex].CDR1Range().start_pos << "," << clone_set[some_vertex].CDR1Range().end_pos << std::endl;
+        out << "@CDR2:" << clone_set[some_vertex].CDR2Range().start_pos << "," << clone_set[some_vertex].CDR2Range().end_pos << std::endl;
+        out << "@CDR3:" << clone_set[some_vertex].CDR3Range().start_pos << "," << clone_set[some_vertex].CDR3Range().end_pos << std::endl;
+        out << "VDJ_length:" << clone_set[some_vertex].Read().length() << std::endl;
         out << "Position\tSrc_nucl\tDst_nucl\tSrc_aa\tDst_aa\tSrc_triplet\tDst_triplet\tMultiplicity\tRegion" << std::endl;
         for(auto it = shm_map.c_shm_clone_begin(); it != shm_map.c_shm_clone_end(); it++) {
             auto shm = it->first;

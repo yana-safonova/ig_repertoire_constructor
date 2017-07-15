@@ -3,6 +3,7 @@ import sys
 import shutil
 import matplotlib as mplt
 #mplt.use('Agg')
+import pandas as pd
 
 import numpy as np
 import seaborn as sns
@@ -22,6 +23,7 @@ class SHM:
         self.src_triplet = splits[5]
         self.dst_triplet = splits[6]
         self.mult = int(splits[7])
+        self.region = splits[8]
 
     def synonymous(self):
         return self.src_aa == self.dst_aa
@@ -83,6 +85,15 @@ def output_tree_shms(tree_fname, output_fname):
     pp.close()
     plt.clf()
     print "Output of SHM plot for " + tree_fname
+    
+    df = pd.DataFrame({'mult': [s.mult for s in tree.shms], 'reg': [s.region for s in tree.shms], 'syn' : [s.synonymous() for s in tree.shms]})
+    sns.violinplot(x = 'reg', y = 'mult', data = df, order=["FR1", "CDR1", 'FR2', 'CDR2', 'FR3', 'CDR3', 'FR4'], scale="count", inner="stick", linewidth = 0.5, palette=sns.color_palette("RdYlBu"))
+    plt.xlabel('Region')
+    plt.ylabel('SHM multiplicity')
+    pp = PdfPages(output_fname + "_violin.pdf")
+    pp.savefig()
+    pp.close()
+    plt.clf()
 
 def main(input_dir, output_dir):
     if os.path.exists(output_dir):
