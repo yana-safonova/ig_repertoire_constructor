@@ -706,6 +706,9 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "SIMULATED/errate_0.5000_seed_%%SEED%%", "MULT_SIMULATED_0.5_figs", title="SIMULATEDx10 SIMPLE dataset, 0.5 error per read", show_coords=True)
     plotplot(igrec_dir + "SIMULATED/errate_1.0000_seed_%%SEED%%", "MULT_SIMULATED_1_figs", title="SIMULATEDx10 SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "SIMULATED/errate_2.0000_seed_%%SEED%%", "MULT_SIMULATED_2_figs", title="SIMULATEDx10 SIMPLE dataset, 2 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_0.5000_seed_%%SEED%%", "MULT_SYNTHETIC_0.5_figs", title="SYNTHETICx10 dataset, 0.5 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_1.0000_seed_%%SEED%%", "MULT_SYNTHETIC_1_figs", title="SYNTHETICx10 dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_2.0000_seed_%%SEED%%", "MULT_SYNTHETIC_2_figs", title="SYNTHETICx10 dataset, 2 error per read", show_coords=True)
 
     plotplot(igrec_dir + "py/test_on_pd/REAL/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/REAL_CHU/", "REAL_CHU_figs", title="Sensitivity-precision plot (REAL MiGEC dataset)", show_coords=True)

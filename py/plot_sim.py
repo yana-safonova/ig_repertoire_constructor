@@ -21,6 +21,23 @@ if __name__ == "__main__":
                             which=[1, 2],  # remove IgReC's line
                             multiple=True)
 
+    plot_various_error_rate(igrec_dir + "/SYNTHETIC", what="sensitivity", out="SYN_TEST_Fig_9a",
+                            title="Sensitivity (SYNTHETICx10)",
+                            kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                            multiple=True)
+    plot_various_error_rate(igrec_dir + "/SYNTHETIC", what="precision", out="SYN_TEST_Fig_9b",
+                            title="Precision (SYNTHETICx10)",
+                            kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                            multiple=True)
+    plot_various_error_rate(igrec_dir + "/SYNTHETIC", what="sum", out="SYN_TEST_Fig_9c",
+                            title="Sensitivity + precision (SYNTHETICx10)",
+                            kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                            multiple=True)
+    plot_various_error_rate(igrec_dir + "/SYNTHETIC", what="minsize", out="SYN_TEST_Fig_9d",
+                            title="Optimal minsize (SYNTHETICx10)",
+                            kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
+                            # which=[1, 2],  # remove IgReC's line
+                            multiple=True)
     sys.exit()
     plot_various_error_rate(igrec_dir + "/SIMULATED", what="sensitivity", out="Fig_9a",
                             title="Sensitivity (SIMULATED SIMPLE)",
