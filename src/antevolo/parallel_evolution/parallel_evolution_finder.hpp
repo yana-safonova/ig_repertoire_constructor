@@ -44,8 +44,8 @@ namespace antevolo {
     };
 
     class ParallelEvolutionFinder {
-        const CloneSetWithFakes &clone_set_;
         const EvolutionaryTree &tree_;
+        const CloneSetWithFakes &clone_set_;
 
         std::map<size_t, std::set<size_t>> added_directed_edges_map_;
 
@@ -80,9 +80,8 @@ namespace antevolo {
         //bool VerticesPresentTrueParallelEvolution(size_t src_id, size_t dst_id);
 
     public:
-        ParallelEvolutionFinder(const CloneSetWithFakes &clone_set,
-                                const EvolutionaryTree &tree) : clone_set_(clone_set),
-                                                                tree_(tree) { }
+        ParallelEvolutionFinder(const EvolutionaryTree &tree) : tree_(tree),
+                                                                clone_set_(*tree.GetCloneSetPtr()) { }
 
         ParallelEvolutionStats ComputeParallelSHMs();
     };

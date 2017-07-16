@@ -23,8 +23,7 @@ namespace antevolo {
 
         void LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set);
 
-        void AnalyzeParallelEvolution(const CloneSetWithFakes& clone_set,
-                                      const EvolutionaryTreeStorage& trees);
+        void AnalyzeParallelEvolution(const EvolutionaryTreeStorage& trees);
 
     public:
         AntEvoloLaunch(const AntEvoloConfig& config) : config_(config) { }

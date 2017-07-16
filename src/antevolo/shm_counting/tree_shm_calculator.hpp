@@ -36,9 +36,13 @@ namespace antevolo {
                             const EvolutionaryTree &tree) : clone_set_(clone_set),
                                                             tree_(tree),
                                                             tree_shm_calc_(clone_set_),
-                                                            shm_map_(clone_set_, tree) {
+                                                            shm_map_(){ //(clone_set_, tree) {
         }
 
-        TreeSHMMap ComputeSHMMap();
+        void AddSHMsFromEdge(const EvolutionaryEdgePtr edge_ptr);
+
+        void AddSHMsFromEdge(size_t src_id, size_t dst_id);
+
+        TreeSHMMap GetSHMMap() { return shm_map_; }
     };
 }

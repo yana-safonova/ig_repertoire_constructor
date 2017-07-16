@@ -45,7 +45,10 @@ namespace antevolo {
                     //std::cout << "Good: " << *v1 << " " << *v2 << std::endl;
                     auto v_shms_1 = clone_set_[*v1].VSHMs();
                     auto v_shms_2 = clone_set_[*v2].VSHMs();
-                    if(annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(v_shms_1, v_shms_2)) {
+                    auto j_shms_1 = clone_set_[*v1].JSHMs();
+                    auto j_shms_2 = clone_set_[*v2].JSHMs();
+                    if(annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(v_shms_1, v_shms_2) and
+                            annotation_utils::SHMComparator::SHMs1AreNestedInSHMs2(j_shms_1, j_shms_2)) {
                         if(added_directed_edges_map_.find(*v1) == added_directed_edges_map_.end()) {
                             added_directed_edges_map_[*v1] = std::set<size_t>();
                         }
@@ -122,7 +125,7 @@ namespace antevolo {
         size_t num_added_edges = 0;
         for(auto it = added_directed_edges_map_.begin(); it != added_directed_edges_map_.end(); it++)
             num_added_edges += it->second.size();
-        //INFO("# nested edges: " << num_added_edges);
+        INFO("# nested edges: " << num_added_edges);
     }
 
     EvolutionaryEdgePtr ParallelEvolutionFinder::GetAddedEvolutionaryTree(size_t v_src, size_t v_dst) {

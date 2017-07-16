@@ -23,8 +23,9 @@
 #include "stats_calculation/cluster_fillin_calculator.hpp"
 
 #include "parallel_evolution/clonal_graph_writer.hpp"
-#include "parallel_evolution/mutation_map_writer.hpp"
-#include "parallel_evolution/trusted_shm_finder.hpp"
+//#include "parallel_evolution/mutation_map_writer.hpp"
+//#include "parallel_evolution/trusted_shm_finder.hpp"
+#include "parallel_evolution/clonal_graph_constructor.hpp"
 
 #include "evolutionary_tree_annotation/annotated_tree_storage.hpp"
 
@@ -174,7 +175,8 @@ namespace antevolo {
         INFO(tree_storage.size() << " clonal lineages were splitted into " << connected_tree_storage.size() <<
                                  " connected trees");
 
-//        AnnotatedTreeStorage annotated_storage(*final_clone_set);
+        AnalyzeParallelEvolution(connected_tree_storage);
+
         AnnotatedTreeStorage annotated_storage;
         for(auto it = connected_tree_storage.cbegin(); it != connected_tree_storage.cend(); it++) {
             annotated_storage.AddAnnotatedTree(*it);
@@ -195,51 +197,28 @@ namespace antevolo {
         }
         output_writer.WriteRcmFromStorageInFile(config_.output_params.output_dir, connected_tree_storage);
 
-        AnalyzeParallelEvolution(*final_clone_set, connected_tree_storage);
         INFO("Clonal trees were written to " << config_.output_params.tree_dir);
     };
 
-    void AntEvoloLaunch::AnalyzeParallelEvolution(const CloneSetWithFakes& clone_set,
-                                                  const EvolutionaryTreeStorage& trees) {
+    void AntEvoloLaunch::AnalyzeParallelEvolution(const EvolutionaryTreeStorage& trees) {
         if(!config_.algorithm_params.parallel_evolution_params.enable_parallel_shms_finder)
             return;
         INFO("Parallel evolution finder starts");
-        ParallelEvolutionStats parallel_stats;
         for(auto it = trees.cbegin(); it != trees.cend(); it++) {
-            ParallelEvolutionFinder finder(clone_set, *it);
-            auto cur_stats = finder.ComputeParallelSHMs();
-            if(cur_stats.Empty())
-                continue;
-            ClonalGraph cgraph(clone_set, *it, cur_stats);
-            MutationMap mutation_map(clone_set, /*cur_stats,*/ cgraph);
-            //TrustedSHMFinder trusted_shm_finder(mutation_map, cgraph);
-            //trusted_shm_finder.FindTrustedSHMs();
-            INFO("== Processing " << it->GetTreeOutputFname("") << "...");
-            float non_trivial_shm_rate = roundf(float(mutation_map.NumNontrivialSHMs()) /
-                    float(mutation_map.NumUniqueSHMs()) * 100 * 100) / 100;
-            INFO("# non-trivial SHMs: " << mutation_map.NumNontrivialSHMs() << " (" <<
-                                        non_trivial_shm_rate << "%), max mult: " <<
-                                        mutation_map.MaxMultiplicity());
-            //float trusted_shm_rate = roundf(float(trusted_shm_finder.TrustedNonTrivialSHMNumber()) /
-            //                                float(mutation_map.NumNontrivialSHMs()) * 100 * 100) / 100;
-            //INFO("# trusted non-trivial SHMs: " << trusted_shm_finder.TrustedNonTrivialSHMNumber() << " (" <<
-            //                                    trusted_shm_rate << "%)");
-            INFO("# synonymous non-trivial SHMs: " << mutation_map.NumSynonymousNonTrivialSHMs());
-            //<< " (" << trusted_shm_finder.TrustedSynonymousNumber() << " trusted)");
-            INFO("# hot-spots non-trivial SHMs: " << mutation_map.NumNonTrivialHotSpotSHMs());
-            //<< " (" << trusted_shm_finder.TrustedHotSpotNumber() << " trusted)");
+            ClonalGraph cgraph = ClonalGraphConstructor(*it).ComputeClonalGraph();
+            UniqueSHMCalculator shm_calc(it->GetCloneSet(), *it);
+            for(auto e = cgraph.cbegin(); e != cgraph.cend(); e++) {
+                auto src_nodes = e->second;
+                for(auto src = src_nodes.begin(); src != src_nodes.end(); src++)
+                    shm_calc.AddSHMsFromEdge(e->first, *src);
+            }
+            TreeSHMMap shm_map = shm_calc.GetSHMMap();
             ClonalGraphWriter graph_writer(cgraph);
             graph_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_bulges_dir,
                                            it->GetTreeOutputFname("") + ".dot"));
-            MutationMapWriter map_writer(mutation_map/*, trusted_shm_finder*/);
-            map_writer(path::append_path(config_.output_params.parallel_shm_output.parallel_shm_dir,
-                                         it->GetTreeOutputFname("") + ".txt"));
-            parallel_stats.ConcatenateStats(cur_stats);
         }
     }
-
-
-
+    
     void AntEvoloLaunch::LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
         INFO("EvoQuast starts");
         boost::unordered_map<std::string, size_t> read_name_to_index;

@@ -1,13 +1,15 @@
 #pragma once
 
-#include "parallel_evolution_finder.hpp"
+//#include "parallel_evolution_finder.hpp"
+
+#include "../clone_set_with_fakes.hpp"
+#include "../evolutionary_graph_utils/evolutionary_tree.hpp"
 
 namespace antevolo {
     class ClonalGraph {
-        const CloneSetWithFakes &clone_set_;
-        const EvolutionaryTree &tree_;
-        const ParallelEvolutionStats &stats_;
-
+        //const EvolutionaryTree &tree_;
+        //const CloneSetWithFakes &clone_set_;
+        //const ParallelEvolutionStats &stats_;
 
         std::map<size_t, std::set<size_t> > all_edges_; // key - src vertex, values - dst vertices
         std::set<std::pair<size_t, size_t> > transitive_edges_;
@@ -15,11 +17,9 @@ namespace antevolo {
         std::set<std::pair<size_t, size_t> > end_of_bulges_; // vertices with two or more incoming edges
         std::map<size_t, std::set<size_t> > conflicting_edges_; // key - dst vertex, values - src vertices
 
-        void AddEdge(size_t src, size_t dst);
+        //void AddEdgesFromRhombSide(const ParallelRhomb &rhomb, RhombSide rhomb_side);
 
-        void AddEdgesFromRhombSide(const ParallelRhomb &rhomb, RhombSide rhomb_side);
-
-        void InitializeEdges();
+        //void InitializeEdges();
 
         void FindTransitiveEdges();
 
@@ -30,17 +30,21 @@ namespace antevolo {
         void FillConflictingEdges();
 
     public:
-        ClonalGraph(const CloneSetWithFakes &clone_set,
-                    const EvolutionaryTree &tree,
-                    const ParallelEvolutionStats &stats) : clone_set_(clone_set),
-                                                           tree_(tree),
-                                                           stats_(stats) {
-            InitializeEdges();
-            FindTransitiveEdges();
-            RemoveTransitiveEdges();
-            FindEndOfBulges();
-            FillConflictingEdges();
+        ClonalGraph(/*const EvolutionaryTree &tree ,
+                    const ParallelEvolutionStats &stats*/) //: tree_(tree),
+                                                           //clone_set_(tree.GetCloneSet())//,
+                                                           //stats_(stats)
+        {
+            //InitializeEdges();
+            //FindTransitiveEdges();
+            //RemoveTransitiveEdges();
+            //FindEndOfBulges();
+            //FillConflictingEdges();
         }
+
+        void AddEdge(size_t src, size_t dst);
+
+        void RemoveExtraEdges();
 
         typedef std::map<size_t, std::set<size_t> >::const_iterator ClonalEdgeConstIterator;
 
@@ -63,5 +67,6 @@ namespace antevolo {
 
         std::set<size_t> OutgoingVertices(size_t src) const;
 
+        //const CloneSetWithFakes& CloneSet() const { return clone_set_; }
     };
 }

@@ -18,7 +18,7 @@ output_params {
     tree_shm_dir   tree_shms
 
     parallel_shm_output {
-        parallel_bulges_dir parallel_bulges
+        parallel_bulges_dir clonal_graphs
         parallel_shm_dir    parallel_shms
     }
 }

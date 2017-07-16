@@ -7,14 +7,16 @@ namespace antevolo {
         all_edges_[src].insert(dst);
     }
 
+    /*
     void ClonalGraph::AddEdgesFromRhombSide(const ParallelRhomb &rhomb, RhombSide rhomb_side) {
         for (auto e = rhomb.edge_begin(rhomb_side); e != rhomb.edge_end(rhomb_side); e++) {
             size_t src = (*e)->SrcNum();
             size_t dst = (*e)->DstNum();
             AddEdge(src, dst);
         }
-    }
+    }*/
 
+    /*
     void ClonalGraph::InitializeEdges() {
         for(auto rhomb = stats_.rhombs.begin(); rhomb != stats_.rhombs.end(); rhomb++) {
             AddEdgesFromRhombSide(*rhomb, RhombSide1);
@@ -22,11 +24,11 @@ namespace antevolo {
         }
         for(auto it = tree_.cbegin(); it != tree_.cend(); it++) {
             auto edge_ptr = *it;
-            if(!edge_ptr->IsDirected())
+            if(!edge_ptr->IsDirected()) // ?
                 continue;
             AddEdge(edge_ptr->SrcNum(), edge_ptr->DstNum());
         }
-    }
+    }*/
 
     void ClonalGraph::FindTransitiveEdges() {
         for (auto src = all_edges_.begin(); src != all_edges_.end(); src++) { // a -> {b, c, d}
@@ -87,6 +89,13 @@ namespace antevolo {
                 conflicting_edges_[*v].insert(src);
             }
         }
+    }
+
+    void ClonalGraph::RemoveExtraEdges() {
+        FindTransitiveEdges();
+        RemoveTransitiveEdges();
+        FindEndOfBulges();
+        FillConflictingEdges();
     }
 
     bool ClonalGraph::EdgeIsEndOfBulge(size_t src, size_t dst) const {

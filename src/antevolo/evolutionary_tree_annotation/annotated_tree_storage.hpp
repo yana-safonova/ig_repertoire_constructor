@@ -9,11 +9,7 @@ namespace antevolo {
         std::vector<AnnotatedEvolutionaryTree> annotated_trees_;
 
     public:
-//        AnnotatedTreeStorage(const CloneSetWithFakes &clone_set) :
-//                clone_set_(clone_set) { }
-
         void AddAnnotatedTree(const EvolutionaryTree &tree) {
-//            annotated_trees_.push_back(AnnotatedEvolutionaryTree(clone_set_, tree));
             annotated_trees_.push_back(AnnotatedEvolutionaryTree(tree));
         }
 

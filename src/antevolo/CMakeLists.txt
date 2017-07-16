@@ -45,12 +45,10 @@ add_library(antevolo_library STATIC
         shm_counting/tree_shm_calculator.cpp
         shm_counting/tree_based_shm_convertor.cpp
         #
-        parallel_evolution/parallel_evolution_finder.cpp
-        parallel_evolution/parallel_rhomb.cpp
+        #parallel_evolution/parallel_evolution_finder.cpp
         parallel_evolution/clonal_graph_writer.cpp
         parallel_evolution/clonal_graph.cpp
-        parallel_evolution/mutation_map.cpp
-        parallel_evolution/mutation_map_writer.cpp
+        parallel_evolution/clonal_graph_constructor.cpp
         #
         annotated_clone_by_read_constructor.cpp
         clone_set_with_fakes.hpp
