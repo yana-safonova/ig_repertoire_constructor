@@ -1,8 +1,18 @@
 include(CTest)
-enable_testing()
 
+find_program(MEMORYCHECK_COMMAND valgrind)
+if(NOT MEMORYCHECK_COMMAND)
+  # add_dependencies(memcheck valgrind) It should be done further
+  set(COMPILE_VALGRIND TRUE)
+  get_target_property(MEMORYCHECK_COMMAND valgrind IMPORTED_LOCATION)
+  message("valgrind not found, to be build at ${MEMORYCHECK_COMMAND}")
+else()
+  message("valgrind found at ${MEMORYCHECK_COMMAND}")
+endif()
+
+enable_testing()
 add_custom_target(__alltests__)
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} -V)
+add_custom_target(check COMMAND OMP_NUM_THREADS=1 ${CMAKE_CTEST_COMMAND} -V)
 add_dependencies(check __alltests__)
 
 set(TEST_LIBRARIES pthread gmock_main gtest gmock)
@@ -10,16 +20,10 @@ set(TEST_WORKING_DIRECTORY ${IGREC_MAIN_SRC_DIR}/..)
 set(TEST_COMMAND_ARGS --gtest_color=yes)
 
 set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
-add_custom_target(memcheck COMMAND ${CMAKE_CTEST_COMMAND} -D NightlyMemCheck -V)
+add_custom_target(memcheck COMMAND OMP_NUM_THREADS=1 ${CMAKE_CTEST_COMMAND} -D NightlyMemCheck -V)
 add_dependencies(memcheck __alltests__)
-
-find_program(MEMORYCHECK_COMMAND valgrind)
-if(NOT MEMORYCHECK_COMMAND)
-    add_dependencies(memcheck valgrind)
-    get_target_property(MEMORYCHECK_COMMAND valgrind IMPORTED_LOCATION)
-    message("valgrind not found, to be build at ${MEMORYCHECK_COMMAND}")
-else()
-    message("valgrind found at ${MEMORYCHECK_COMMAND}")
+if(COMPILE_VALGRIND)
+  add_dependencies(memcheck valgrind)
 endif()
 
 function(make_test test)
