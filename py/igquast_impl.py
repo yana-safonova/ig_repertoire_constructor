@@ -257,7 +257,7 @@ class MultToMultData:
 
         # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
-                label="median")
+                label="median approximation")
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
