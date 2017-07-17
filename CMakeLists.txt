@@ -1,12 +1,13 @@
 project(igrec)
 cmake_minimum_required(VERSION 2.8)
 
+include(ExternalProject)
+
 if(CMAKE_GOOGLE_PROFILER)
   set(GPT_PREFIX gperftools)
   # set(GPT_URL ${CMAKE_CURRENT_SOURCE_DIR}/ext/thirdparty/gperftools-2.5.93.tar.gz)
   set(GPT_URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.5.93/gperftools-2.5.93.tar.gz)
 
-  include(ExternalProject)
   ExternalProject_Add(${GPT_PREFIX}
                       PREFIX ${GPT_PREFIX}
                       URL ${GPT_URL}
@@ -36,7 +37,25 @@ if(CMAKE_GOOGLE_PROFILER)
 	link_libraries("-Wl,--no-as-needed,${PROFILER},--as-needed")  # Force linking (otherwise linker may exclude profiler lib automatically and profiling will not work)
 endif()
 
-# http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2
+
+ExternalProject_Add(valgrind-package
+                    PREFIX valgrind
+                    URL http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2
+                    DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
+                    INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
+                    URL_MD5 6eb03c0c10ea917013a7622e483d61bb
+                    CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR>
+                    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+                    BUILD_IN_SOURCE 1
+                    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+                    LOG_DOWNLOAD 1
+                    LOG_BUILD 1)
+
+add_executable(valgrind IMPORTED GLOBAL)
+set_property(TARGET valgrind PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/bin/valgrind${CMAKE_EXECUTABLE_SUFFIX}")
+add_dependencies(valgrind valgrind-package)
+set_target_properties(valgrind PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+set_target_properties(valgrind-package PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 
 
 if(CMAKE_NVERIFY)
