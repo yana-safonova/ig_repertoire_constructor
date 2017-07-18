@@ -104,14 +104,25 @@ namespace clusterer {
 
     ClusterDistChecker ClusteringMode::clusters_close_by_min(const ReadDist& read_dist, size_t limit) {
         return [read_dist, limit](const ClusterPtr<Read>& first, const ClusterPtr<Read>& second) {
-            for (const auto& first_read : first->members) {
-                for (const auto& second_read : second->members) {
-                    if (read_dist(first_read.GetSequence(), second_read.GetSequence()) <= limit) {
-                        return true;
-                    }
+            VERIFY(std::numeric_limits<size_t>::max() / first->size() > second->size());
+            bool found = false;
+            SEQAN_OMP_PRAGMA(parallel for schedule(dynamic, 8))
+            for (size_t i = 0; i < first->size() * second->size(); i ++ ){
+                if (found) continue;
+                const seqan::Dna5String& first_sequence = first->members[i / second->size()].GetSequence();
+                const seqan::Dna5String& second_sequence = second->members[i % second->size()].GetSequence();
+                if (read_dist(first_sequence, second_sequence) <= limit) {
+                    found = true;
                 }
             }
-            return false;
+//            for (const auto& first_read : first->members) {
+//                for (const auto& second_read : second->members) {
+//                    if (read_dist(first_read.GetSequence(), second_read.GetSequence()) <= limit) {
+//                        return true;
+//                    }
+//                }
+//            }
+            return found;
         };
     }
 

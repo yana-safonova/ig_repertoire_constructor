@@ -155,7 +155,7 @@ def process_spaces(str):
     return str
 
 
-def sys_call(cmd, log=None, cwd=None):
+def sys_call(cmd, log=None, cwd=None, **kwargs):
     import shlex
     import subprocess
 
@@ -164,7 +164,7 @@ def sys_call(cmd, log=None, cwd=None):
     else:
         cmd_list = shlex.split(cmd)
 
-    proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+    proc = subprocess.Popen(cmd_list, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd, **kwargs)
 
     output = ''
     while not proc.poll():
@@ -188,6 +188,15 @@ def sys_call(cmd, log=None, cwd=None):
     if proc.returncode:
         error('system call for: "%s" finished abnormally, err code: %d' % (cmd, proc.returncode), log)
     return output
+
+
+def sys_call_ex(cmd, log=None, cwd=None, cpuprofile=None, valgring=False):
+    import os
+    env = os.environ.copy()
+    if cpuprofile is not None:
+        env["CPUPROFILE"] = cpuprofile
+
+    return sys_call(cmd=cmd, log=log, cwd=cwd, env=env)
 
 
 def universal_sys_call(cmd, log, out_filename=None, err_filename=None, cwd=None):

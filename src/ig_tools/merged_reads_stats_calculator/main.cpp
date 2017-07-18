@@ -1,3 +1,4 @@
+#include "omp.h"
 #include "quality_statistics.hpp"
 
 void OutputMergedRL(vector<FastqRead> &reads, ostream &out) {
@@ -6,6 +7,8 @@ void OutputMergedRL(vector<FastqRead> &reads, ostream &out) {
 }
 
 int main(int argc, char *argv[]) {
+	omp_set_num_threads(1);
+
 	/*
 	 * argv[1] - left raw reads
 	 * argv[2] - right raw reads
