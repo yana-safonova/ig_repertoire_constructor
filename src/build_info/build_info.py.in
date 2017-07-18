@@ -9,10 +9,13 @@ cmake = "@BUILD_INFO_CMAKE@"
 system = "@BUILD_INFO_SYSTEM@"
 cpu = "@BUILD_INFO_CPU@"
 
-c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@"
-cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@"
 c_compiler = "@BUILD_INFO_C_COMPILER@"
+c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@"
+c_compiler_version = "@BUILD_INFO_C_COMPILER_VERSION@"
+
 cxx_compiler = "@BUILD_INFO_CXX_COMPILER@"
+cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@"
+cxx_compiler_version = "@BUILD_INFO_CXX_COMPILER_VERSION@"
 
 build_type = "@BUILD_INFO_BUILD_TYPE@"
 c_flags = "@BUILD_INFO_C_FLAGS@"
