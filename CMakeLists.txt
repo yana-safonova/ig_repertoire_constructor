@@ -5,10 +5,10 @@ include(ExternalProject)
 
 ExternalProject_Add(gperftools-package
                     gperftools
-                    URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.5.93/gperftools-2.5.93.tar.gz
+                    URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.6.1/gperftools-2.6.1.tar.gz
                     DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
                     INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
-                    URL_MD5 b181436e9061363821a954ca64626f26
+                    URL_MD5 e010d656b8b62e61c0af0c4d79843782
                     CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=no --prefix=<INSTALL_DIR>
                     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
                     BUILD_IN_SOURCE 1
