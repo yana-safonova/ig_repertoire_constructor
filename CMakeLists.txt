@@ -3,38 +3,32 @@ cmake_minimum_required(VERSION 2.8)
 
 include(ExternalProject)
 
+ExternalProject_Add(gperftools-package
+                    gperftools
+                    URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.6.1/gperftools-2.6.1.tar.gz
+                    DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
+                    INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
+                    URL_MD5 e010d656b8b62e61c0af0c4d79843782
+                    CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=no --prefix=<INSTALL_DIR>
+                    BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
+                    BUILD_IN_SOURCE 1
+                    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install && ${CMAKE_MAKE_PROGRAM} clean
+                    LOG_DOWNLOAD 1
+                    LOG_BUILD 1)
+
+add_library(profiler SHARED IMPORTED GLOBAL)
+# If you want to automatically enable profiling, you need link against SHARED library. See https://github.com/gperftools/gperftools/issues/415
+# GLOBAL means available in ALL CMakeLists included in this one
+set_property(TARGET profiler PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_SHARED_LIBRARY_PREFIX}profiler${CMAKE_SHARED_LIBRARY_SUFFIX}")
+add_dependencies(profiler gperftools-package)
+
+# set_target_properties(profiler PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+set_target_properties(gperftools-package PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+
 if(CMAKE_GOOGLE_PROFILER)
-  set(GPT_PREFIX gperftools)
-  # set(GPT_URL ${CMAKE_CURRENT_SOURCE_DIR}/ext/thirdparty/gperftools-2.5.93.tar.gz)
-  set(GPT_URL https://github.com/gperftools/gperftools/releases/download/gperftools-2.5.93/gperftools-2.5.93.tar.gz)
-
-  ExternalProject_Add(${GPT_PREFIX}
-                      PREFIX ${GPT_PREFIX}
-                      URL ${GPT_URL}
-                      DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/thirdparty-dist
-                      INSTALL_DIR ${CMAKE_BINARY_DIR}/thirdparty
-                      URL_MD5 b181436e9061363821a954ca64626f26
-                      CONFIGURE_COMMAND ./configure --enable-shared=yes --enable-static=no --prefix=<INSTALL_DIR>
-                      BUILD_COMMAND ${CMAKE_MAKE_PROGRAM} libprofiler.la
-                      BUILD_IN_SOURCE 1
-                      INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
-                      LOG_DOWNLOAD 1
-                      LOG_BUILD 1)
-
-  # get the unpacked source directory path
-  ExternalProject_Get_Property(${GPT_PREFIX} SOURCE_DIR)
-  include_directories(${CMAKE_BINARY_DIR}/thirdparty/include)
-
-	add_library(profiler SHARED IMPORTED GLOBAL)
-	# If you want to automatically enable profiling, you need link against SHARED library. See https://github.com/gperftools/gperftools/issues/415
-  # GLOBAL means available in ALL CMakeLists included in this one
-
-  set_property(TARGET profiler PROPERTY IMPORTED_LOCATION "${CMAKE_BINARY_DIR}/thirdparty/lib/${CMAKE_SHARED_LIBRARY_PREFIX}profiler${CMAKE_SHARED_LIBRARY_SUFFIX}")
-  add_dependencies(profiler ${GPT_PREFIX})
-
   link_libraries(profiler)  # It is necessary for correct dependency working
   get_target_property(PROFILER profiler LOCATION)
-	link_libraries("-Wl,--no-as-needed,${PROFILER},--as-needed")  # Force linking (otherwise linker may exclude profiler lib automatically and profiling will not work)
+  link_libraries("-Wl,--no-as-needed,${PROFILER},--as-needed")  # Force linking (otherwise linker may exclude profiler lib automatically and profiling will not work)
 endif()
 
 
@@ -47,7 +41,7 @@ ExternalProject_Add(valgrind-package
                     CONFIGURE_COMMAND ./configure --prefix=<INSTALL_DIR>
                     BUILD_COMMAND ${CMAKE_MAKE_PROGRAM}
                     BUILD_IN_SOURCE 1
-                    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install
+                    INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} install && ${CMAKE_MAKE_PROGRAM} clean
                     LOG_DOWNLOAD 1
                     LOG_BUILD 1)
 
