@@ -268,11 +268,6 @@ class MultToMultData:
                 label="approximation")
 
         handles, labels = ax.get_legend_handles_labels()
-        # remove overestimated clusters
-        def remove_elt(v, i):
-            return v[:i] + v[i+1:]
-        handles = remove_elt(handles, 1)
-        labels = remove_elt(labels, 1)
         ax.legend(handles, labels, loc=2)
 
         if title:
