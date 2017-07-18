@@ -11,7 +11,10 @@ namespace antevolo {
         //const CloneSetWithFakes &clone_set_;
         //const ParallelEvolutionStats &stats_;
 
-        std::map<size_t, std::set<size_t> > all_edges_; // key - src vertex, values - dst vertices
+        std::map<size_t, size_t> old_edges_; // key - dst vertex, value - src vertex
+        std::map<size_t, std::set<size_t> > new_edges_; // key - dst vertex, values - src vertices
+        // key - src, values - dst vertices
+        std::map<size_t, std::set<size_t> > all_edges_; // old edges + new edges without transitive ones
         std::set<std::pair<size_t, size_t> > transitive_edges_;
 
         std::set<std::pair<size_t, size_t> > end_of_bulges_; // vertices with two or more incoming edges
@@ -42,7 +45,9 @@ namespace antevolo {
             //FillConflictingEdges();
         }
 
-        void AddEdge(size_t src, size_t dst);
+        void AddOldEdge(size_t src, size_t dst);
+
+        void AddNewEdge(size_t src, size_t dst);
 
         void RemoveExtraEdges();
 

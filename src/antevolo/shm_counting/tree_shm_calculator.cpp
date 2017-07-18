@@ -98,6 +98,7 @@ namespace antevolo {
     void UniqueSHMCalculator::AddSHMsFromEdge(size_t src_id, size_t dst_id) {
         //if(edge_ptr->IsDirected())
         AddNestedSHMs(src_id, dst_id);
+        AddNestedSHMs(dst_id, src_id);
         AddCDR3SHMs(src_id, dst_id);
     }
 }

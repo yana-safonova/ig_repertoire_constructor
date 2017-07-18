@@ -1,10 +1,14 @@
 #include "clonal_graph.hpp"
 
 namespace antevolo {
-    void ClonalGraph::AddEdge(size_t src, size_t dst) {
-        if (all_edges_.find(src) == all_edges_.end())
-            all_edges_[src] = std::set<size_t>();
-        all_edges_[src].insert(dst);
+    void ClonalGraph::AddOldEdge(size_t src, size_t dst) {
+        old_edges_[dst] = src;
+    }
+
+    void ClonalGraph::AddNewEdge(size_t src, size_t dst) {
+        if(new_edges_.find(dst) == new_edges_.end())
+            new_edges_[dst] = std::set<size_t>();
+        new_edges_[dst].insert(src);
     }
 
     /*
@@ -31,15 +35,17 @@ namespace antevolo {
     }*/
 
     void ClonalGraph::FindTransitiveEdges() {
-        for (auto src = all_edges_.begin(); src != all_edges_.end(); src++) { // a -> {b, c, d}
-            auto outgoing = src->second; // {b, c, d}
-            for (auto dst = outgoing.begin(); dst != outgoing.end(); dst++) { // b, ...
-                if (all_edges_.find(*dst) == all_edges_.end())
-                    continue;
-                auto outgoing2 = all_edges_[*dst]; // b -> {c, e, f}
-                for (auto dst2 = outgoing2.begin(); dst2 != outgoing2.end(); dst2++) { // c, ...
-                    if (outgoing.find(*dst2) != outgoing.end()) // is c in {b ,c ,d}?
-                        transitive_edges_.insert(std::make_pair(src->first, *dst2));
+        for(auto it = new_edges_.begin(); it != new_edges_.end(); it++) {
+            auto src_vertices = it->second;
+            for(auto src1 = src_vertices.begin(); src1 != src_vertices.end(); src1++) {
+                for(auto src2 = src_vertices.begin(); src2 != src_vertices.end(); src2++) {
+                    if(*src1 == *src2)
+                        continue;
+                    if(old_edges_.find(*src1) != old_edges_.end()) {
+                        if (old_edges_[*src1] == *src2) {
+                            transitive_edges_.insert(std::make_pair(*src1, it->first));
+                        }
+                    }
                 }
             }
         }
@@ -48,14 +54,21 @@ namespace antevolo {
 
     void ClonalGraph::RemoveTransitiveEdges() {
         for(auto e = transitive_edges_.begin(); e != transitive_edges_.end(); e++) {
-            if(all_edges_.find(e->first) != all_edges_.end()) {
-                all_edges_[e->first].erase(e->second);
+            new_edges_[e->second].erase(e->first);
+        }
+        for(auto it = old_edges_.begin(); it != old_edges_.end(); it++) {
+            if(all_edges_.find(it->second) == all_edges_.end())
+                all_edges_[it->second] = std::set<size_t>();
+            all_edges_[it->second].insert(it->first);
+        }
+        for(auto it = new_edges_.begin(); it != new_edges_.end(); it++) {
+            auto src_vertices = it->second;
+            for(auto src = src_vertices.begin(); src != src_vertices.end(); src++) {
+                if(all_edges_.find(*src) == all_edges_.end())
+                    all_edges_[*src] = std::set<size_t>();
+                all_edges_[*src].insert(it->first);
             }
         }
-        //size_t num_edges = 0;
-        //for(auto it = all_edges_.begin(); it != all_edges_.end(); it++)
-        //    num_edges += it->second.size();
-        //std::cout << "# edges after removing transitive ones: " << num_edges << std::endl;
     }
 
     void ClonalGraph::FindEndOfBulges() {

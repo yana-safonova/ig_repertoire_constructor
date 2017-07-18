@@ -218,7 +218,7 @@ namespace antevolo {
                                            it->GetTreeOutputFname("") + ".dot"));
         }
     }
-    
+
     void AntEvoloLaunch::LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set) {
         INFO("EvoQuast starts");
         boost::unordered_map<std::string, size_t> read_name_to_index;
