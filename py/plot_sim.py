@@ -3,6 +3,11 @@
 from plot_test import *
 
 if __name__ == "__main__":
+    plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10",
+                  title="sensitivity + precision (SIMULATEDx10)",
+                  kind="igrec", label="IgReC",
+                  multiple=True)
+
     plot_various_error_rate(igrec_dir + "/SIMULATED", what="sensitivity", out="TEST_Fig_9a",
                             title="Sensitivity (SIMULATEDx10 SIMPLE)",
                             kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
@@ -38,6 +43,7 @@ if __name__ == "__main__":
                             kinds=["igrec", "mixcr2", "supernode"], labels=["IgReC", "MiXCR", "pRESTO"],
                             # which=[1, 2],  # remove IgReC's line
                             multiple=True)
+
     sys.exit()
     plot_various_error_rate(igrec_dir + "/SIMULATED", what="sensitivity", out="Fig_9a",
                             title="Sensitivity (SIMULATED SIMPLE)",
@@ -81,10 +87,6 @@ if __name__ == "__main__":
                             kinds=["igrec", "mixcr2", "supernode", "ig_repertoire_constructor"], labels=["IgReC", "MiXCR", "pRESTO", "IgRepertoireConstructor"])
 
 
-
-    plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10",
-                  title="sensitivity + precision (SIMULATED)",
-                  kind="igrec", label="IgReC")
 
     plot_two_sums(igrec_dir + "/SIMULATED", out="Fig_10_prod",
                   prod_criterion=True,
