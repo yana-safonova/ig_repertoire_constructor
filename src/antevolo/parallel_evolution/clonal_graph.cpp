@@ -3,6 +3,8 @@
 namespace antevolo {
     void ClonalGraph::AddOldEdge(size_t src, size_t dst) {
         old_edges_[dst] = src;
+        vertices_.insert(src);
+        vertices_.insert(dst);
     }
 
     void ClonalGraph::AddNewEdge(size_t src, size_t dst) {

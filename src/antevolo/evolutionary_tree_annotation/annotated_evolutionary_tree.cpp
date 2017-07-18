@@ -8,11 +8,11 @@ namespace antevolo {
 
     void AnnotatedEvolutionaryTree::InitializeCloneSHMMap() {
         for(auto it = shm_map_.c_shm_clone_begin(); it != shm_map_.c_shm_clone_end(); it++) {
-            auto clone_ids = it->second;
-            for(auto id = clone_ids.begin(); id != clone_ids.end(); id++) {
-                if(clone_added_shm_map_.find(*id) == clone_added_shm_map_.end())
-                    clone_added_shm_map_[*id] = 0;
-                clone_added_shm_map_[*id]++;
+            auto edges = it->second;
+            for(auto edge = edges.begin(); edge != edges.end(); edge++) {
+                if(clone_added_shm_map_.find(edge->second) == clone_added_shm_map_.end())
+                    clone_added_shm_map_[edge->second] = 0;
+                clone_added_shm_map_[edge->second]++;
             }
         }
         size_t root_id = tree_.GetRoot();

@@ -25,7 +25,7 @@ namespace antevolo {
         std::map<size_t, std::vector<TreeSHM>> root_pos_shm_map;
         for(auto it = shm_map.c_shm_clone_begin(); it != shm_map.c_shm_clone_end(); it++) {
             auto shm = it->first;
-            auto shm_clone_id = it->second[0];
+            auto shm_clone_id = it->second[0].second;
             auto root_n_pos = TreeSHMComparator::GetTreeSHMPosition(clone_set[shm_clone_id],
                                                                     clone_set[root_id], shm);
             if(root_pos_shm_map.find(root_n_pos) == root_pos_shm_map.end()) {

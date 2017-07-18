@@ -1,13 +1,13 @@
 #include "tree_shm_map.hpp"
 
 namespace antevolo {
-    void TreeSHMMap::AddSHM(TreeSHM shm, size_t dst_id) {
+    void TreeSHMMap::AddSHM(TreeSHM shm, size_t src_id, size_t dst_id) {
         if(shm_mult_map_.find(shm) == shm_mult_map_.end())
             shm_mult_map_[shm] = 0;
         shm_mult_map_[shm]++;
         if(shm_clone_ids_.find(shm) == shm_clone_ids_.end())
-            shm_clone_ids_[shm] = std::vector<size_t>();
-        shm_clone_ids_[shm].push_back(dst_id);
+            shm_clone_ids_[shm] = std::vector<std::pair<size_t, size_t> >();
+        shm_clone_ids_[shm].push_back(std::make_pair(src_id, dst_id));
     }
 
     size_t TreeSHMMap::NumSynonymousSHMs() const {

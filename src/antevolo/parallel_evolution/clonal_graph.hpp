@@ -13,6 +13,7 @@ namespace antevolo {
 
         std::map<size_t, size_t> old_edges_; // key - dst vertex, value - src vertex
         std::map<size_t, std::set<size_t> > new_edges_; // key - dst vertex, values - src vertices
+        std::set<size_t> vertices_;
         // key - src, values - dst vertices
         std::map<size_t, std::set<size_t> > all_edges_; // old edges + new edges without transitive ones
         std::set<std::pair<size_t, size_t> > transitive_edges_;
@@ -71,6 +72,8 @@ namespace antevolo {
         bool EdgeIsEndOfBulge(size_t src, size_t dst) const;
 
         std::set<size_t> OutgoingVertices(size_t src) const;
+
+        size_t NumVertices() const { return vertices_.size(); }
 
         //const CloneSetWithFakes& CloneSet() const { return clone_set_; }
     };

@@ -9,6 +9,8 @@ namespace antevolo {
     }
 
     bool operator<(const TreeSHM &left, const TreeSHM &right) {
+        if(left.region != right.region)
+            return left.region < right.region;
         if(left.gene_pos != right.gene_pos)
             return left.gene_pos < right.gene_pos;
         if(left.src_triplet != right.src_triplet)
@@ -17,6 +19,8 @@ namespace antevolo {
     }
 
     bool TreeSHM::operator==(const TreeSHM &obj) const {
+        if(region != obj.region)
+            return false;
         if(gene_pos != obj.gene_pos)
             return false;
         if(src_triplet != obj.src_triplet)

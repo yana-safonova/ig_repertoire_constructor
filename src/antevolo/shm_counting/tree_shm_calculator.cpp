@@ -27,7 +27,7 @@ namespace antevolo {
 
     void UniqueSHMCalculator::AddAddedSHMs(std::vector <annotation_utils::SHM> &shms, size_t src, size_t dst) {
         for(auto it = shms.begin(); it != shms.end(); it++) {
-            shm_map_.AddSHM(tree_shm_calc_.ComputeTreeSHMByUsualSHM(*it, src, dst), dst);
+            shm_map_.AddSHM(tree_shm_calc_.ComputeTreeSHMByUsualSHM(*it, src, dst), src, dst);
         }
     }
 
@@ -68,7 +68,7 @@ namespace antevolo {
         }
         for(size_t i = 0; i < seqan::length(cdr3_dst); i++) {
             if(cdr3_src[i] != cdr3_dst[i]) {
-                shm_map_.AddSHM(ComputeSHMInCDR3(src, dst, i), dst);
+                shm_map_.AddSHM(ComputeSHMInCDR3(src, dst, i), src, dst);
             }
         }
     }
