@@ -2,37 +2,43 @@
 
 import os
 import sys
-import init
 import logging
 import shutil
-import ntpath
 
-home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) #+ '/'
+home_directory = os.path.abspath(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))  # + '/'
 py_src = os.path.join(home_directory, "py/pipeline/")
 vjf_config_dir = os.path.join(home_directory, "configs/vj_finder")
 vj_finder_bin = os.path.join(home_directory, "build/release/bin/vj_finder")
 run_vj_finder = os.path.join(home_directory, "build/release/bin/./vj_finder")
 
 sys.path.append(py_src)
-import process_cfg
+sys.path.append(home_directory)
+# import process_cfg
 import support
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
-test_dir = os.path.join(home_directory, "vjf_test")
+test_dir = "./vjf_test"
 
 tool_name = "VJ Finder"
 
-################################################################################
+
+def SupportInfo(log):
+    log.info("\nIn case you have troubles running IgReC, "
+             "you can write to igtools_support@googlegroups.com.")
+    log.info("Please provide us with igrec.log file from the output directory.")
+
+
 def CheckBinariesExistance(log):
     if not os.path.exists(vj_finder_bin):
         log.info("ERROR: " + tool_name + " binary was not found. Please type make before running")
         sys.exit(1)
 
-################################################################################
+
 def CheckInputReads(input_reads, log):
     if not os.path.exists(input_reads):
         log.info("ERROR: input reads " + input_reads + " were not found")
         sys.exit(1)
+
 
 def CheckGermlineLocus(locus, log):
     loci_set = ['IGH', 'IGK', 'IGL', 'IG', 'TRA', 'TRB', 'TRG', 'TRD', "TR", "all"]
@@ -41,6 +47,7 @@ def CheckGermlineLocus(locus, log):
                                                        "Please use one of the available option values: " + str(loci_set))
         sys.exit(1)
 
+
 def CheckOrganism(organism, log):
     org_set = ['human', 'mouse', 'rat', 'pig', 'rabbit', 'rhesus_monkey']
     if organism not in org_set:
@@ -48,12 +55,13 @@ def CheckOrganism(organism, log):
                                                         "Please use one of the available option values: " + str(org_set))
         sys.exit(1)
 
+
 def CheckParamsCorrectness(params, log):
     CheckInputReads(params.input_reads, log)
     CheckGermlineLocus(params.loci, log)
     CheckOrganism(params.organism, log)
 
-################################################################################
+
 def SetOutputParams(params, log):
     if params.input_reads == test_reads:
         params.output_dir = test_dir
@@ -64,10 +72,12 @@ def SetOutputParams(params, log):
     params.config_dir = os.path.join(params.output_dir, "configs")
     params.config_file = os.path.join(vjf_config_dir, "config.info")
 
+
 def PrepareOutputDir(params):
     if os.path.exists(params.output_dir):
         shutil.rmtree(params.output_dir)
     os.mkdir(params.output_dir)
+
 
 def PrintParams(params, log):
     log.info(tool_name + " parameters:")
@@ -82,7 +92,7 @@ def PrintParams(params, log):
     log.info("  Size of k-mer for V alignment:\t\t" + str(params.v_kmer))
     log.info("  Size of k-mer for J alignment:\t\t" + str(params.j_kmer) + "\n")
 
-################################################################################
+
 def main(argv):
     from argparse import ArgumentParser
     parser = ArgumentParser(description="== " + tool_name + ": a tool for VJ alignment of full-length Rep-seq reads ==",
@@ -106,7 +116,7 @@ def main(argv):
     out_args.add_argument("-o", "--output",
                           type=str,
                           dest="output_dir",
-                          default="", #os.path.join(home_directory, "cdr_test"),
+                          default="",
                           help="Output directory")
 
     optional_args = parser.add_argument_group("Optional arguments")
@@ -118,6 +128,10 @@ def main(argv):
     optional_args.add_argument("-h", "--help",
                                action="help",
                                help="Help message and exit")
+    optional_args.add_argument("--profile",
+                               default=False,
+                               action="store_true",
+                               help="Enable CPU profiling")
 
     germline_args = parser.add_argument_group("Germline arguments")
     germline_args.add_argument("-l", "--loci",
@@ -133,10 +147,9 @@ def main(argv):
                                help="Organism: human, mouse, pig, rabbit, rat, rhesus_monkey are available. "
                                "[default: %(default)s]")
     germline_args.add_argument("--no-pseudogenes",
-                                action='store_const',
-                                const=True,
-                                dest="no_pseudogenes",
-                                help = "Exclusion of pseudogenes for alignment of input reads")
+                               action='store_true',
+                               dest="no_pseudogenes",
+                               help="Exclusion of pseudogenes for alignment of input reads")
 
     alignment_args = parser.add_argument_group("Alignment arguments")
     alignment_args.add_argument("--v-kmer",
@@ -159,7 +172,7 @@ def main(argv):
                                 default=13,
                                 dest="j_min_coverage",
                                 help="Length of minimal coverage of J gene by k-mers")
-    #alignment_args.add_argument("--v-num-cand",
+    # alignment_args.add_argument("--v-num-cand",
     #                            type=int,
     #                            default=3,
     #                            dest="v_min_candidates",
@@ -181,9 +194,9 @@ def main(argv):
     PrepareOutputDir(params)
 
     # log file
-    params.log_filename = os.path.join(params.output_dir, "diversity_analyzer.log")
+    params.log_filename = os.path.join(params.output_dir, "vjfinder.log")
     if os.path.exists(params.log_filename):
-         os.remove(params.log_filename)
+        os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
     log.addHandler(log_handler)
 
@@ -194,42 +207,29 @@ def main(argv):
     PrintParams(params, log)
     log.info("Log will be written to " + params.log_filename + "\n")
 
-    # PrepareConfigs(params, log)
-    # try:
-    #     cdr_command_line = run_cdr_labeler + " " + params.cdr_labeler_config_file
-    #     support.sys_call(cdr_command_line, log)
-    #     if not params.skip_plots:
-    #         log.info("\n==== Visualization of diversity statistics ====")
-    #         visualize_vj_stats.main(["", os.path.join(params.output_dir, "cdr_details.txt"),
-    #                              os.path.join(params.output_dir, "shm_details.txt"),
-    #                              os.path.join(params.output_dir, "plots"), log])
-    #         log.info("\n==== Annotation report creation ====")
-    #         html_report_writer.main(os.path.join(params.output_dir, "cdr_details.txt"),
-    #                             os.path.join(params.output_dir, "shm_details.txt"),
-    #                             os.path.join(params.output_dir, "plots"),
-    #                             os.path.join(params.output_dir, "annotation_report.html"), log)
-    #     Cleanup(params, log)
-    #     log.info("\nThank you for using " + tool_name + "!\n")
-    # except (KeyboardInterrupt):
-    #      log.info("\n" + tool_name + " was interrupted!")
-    # except Exception:
-    #     exc_type, exc_value, _ = sys.exc_info()
-    #     if exc_type == SystemExit:
-    #         sys.exit(exc_value)
-    #     else:
-    #         log.exception(exc_value)
-    #         log.info("\nERROR: Exception caught.")
-    #          #supportInfo(log)
-    # except BaseException:
-    #     exc_type, exc_value, _ = sys.exc_info()
-    #     if exc_type == SystemExit:
-    #         sys.exit(exc_value)
-    #     else:
-    #         log.exception(exc_value)
-    #         log.info("\nERROR: Exception caught.")
-    #         #supportInfo(log)
-    #
-    # log.info("Log was written to " + params.log_filename)
+    if not os.path.exists(params.input_reads):
+        log.info("ERROR: Input reads " + params.input_reads + " were not found")
+        SupportInfo(log)
+        sys.exit(1)
+
+    # self.__CheckInputExistance()
+    command_line = vj_finder_bin + \
+        " -i " + os.path.abspath(params.input_reads) + \
+        " -o " + os.path.abspath(params.output_dir) + \
+        " --db-directory " + home_directory + "/data/germline" + \
+        " -t " + str(params.num_threads) + \
+        " --loci " + params.loci + \
+        " --organism " + params.organism
+    if params.no_pseudogenes:
+        command_line += " --pseudogenes=off"
+    else:
+        command_line += " --pseudogenes=on"
+
+    cpuprofile = os.path.abspath(params.output_dir) + "/vjf_prof.out" if params.profile else None
+
+    support.sys_call_ex(command_line, log, cpuprofile=cpuprofile)
+
+    log.info("Log was written to " + params.log_filename)
 
 
 if __name__ == '__main__':

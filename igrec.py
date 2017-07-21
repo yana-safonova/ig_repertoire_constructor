@@ -349,7 +349,8 @@ class PairReadMerger(Phase):
                                         self.__params.left_reads,
                                         self.__params.right_reads,
                                         self.__params.single_reads)
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/pair_read_merger_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -389,9 +390,12 @@ class VJAlignmentPhase(Phase):
                 command_line += " --pseudogenes=off"
             else:
                 command_line += " --pseudogenes=on"
+
+            cpuprofile = self.__params.output + "/vjf_prof.out" if self.__params.profile else None
+
             cwd = os.getcwd()
             os.chdir(home_directory)
-            support.sys_call(command_line, self._log)
+            support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
             os.chdir(cwd)
         else:
             self._log.info("VJ Finder stage skipped")
@@ -423,7 +427,8 @@ class TrieCompressionPhase(Phase):
         self.__CheckInputExistance()
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
                     " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + " -Toff"
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/trie_compressor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
         command_line = IgRepConConfig().run_triecmp_to_repertoire + " -i " + self.__params.io.cropped_reads + \
                        " -c " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + \
@@ -464,7 +469,8 @@ class GraphConstructionPhase(Phase):
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
                        " --tau=" + str(self.__params.max_mismatches) + " -A" + " -Toff"
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/graph_constructor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
     def PrintOutputFiles(self):
         self.__CheckOutputExistance()
@@ -537,7 +543,8 @@ class ConsensusConstructionPhase(Phase):
                        " -t " + str(self.__params.num_threads) + \
                        " -D " + str(self.__params.discard) + \
                        " --max-votes " + str(self.__params.max_votes)
-        support.sys_call(command_line, self._log)
+        cpuprofile = self.__params.output + "/consensus_constructor_prof.out" if self.__params.profile else None
+        support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
 
     def PrintOutputFiles(self):
@@ -676,7 +683,7 @@ def CreateLogger():
     log.setLevel(logging.DEBUG)
     console = logging.StreamHandler(sys.stdout)
     console.setFormatter(logging.Formatter('%(message)s'))
-    console.setLevel(logging.DEBUG)
+    console.setLevel(logging.INFO)
     log.addHandler(console)
     return log
 
@@ -781,6 +788,10 @@ def ParseCommandLineParams(log):
                                dest="min_snode_size",
                                help="Minimum super read size [default: %(default)d]")
 
+    optional_args.add_argument("--profile",
+                               action="store_true",
+                               default=False,
+                               help="Enable CPU profiling")
     optional_args.add_argument("-h", "--help",
                                action="store_const",
                                const=True,
@@ -945,6 +956,7 @@ def CreateFileLogger(params, log):
     if os.path.exists(params.log_filename):
         os.remove(params.log_filename)
     log_handler = logging.FileHandler(params.log_filename, mode='a')
+    log_handler.setLevel(logging.DEBUG)
     log.addHandler(log_handler)
     log.info("Log will be written to " + params.log_filename + "\n")
 
@@ -986,6 +998,36 @@ def PrintOutputFiles(params, log):
     if os.path.exists(params.io.final_stripped_clusters_fa):
         log.info("  * Highly abundant antibody clusters of final repertoire were written to " + params.io.final_stripped_clusters_fa)
 
+
+def LogInfo(log):
+    import sys
+    sys.path.append(home_directory + "/py")
+    import build_info
+    from datetime import datetime
+
+    class LogInfoToDebugAdapter:
+        def __init__(self, log):
+            self.log__ = log
+        def info(self, *args, **kwargs):
+            self.log__.debug(*args, **kwargs)
+
+    class LogShiftAdapter:
+        def __init__(self, log, shift=8):
+            self.log__ = log
+            self.shift__ = shift
+        def info(self, msg):
+            self.log__.info(" " * self.shift__ + msg)
+
+    log.info("Build info:")
+    shlog = LogShiftAdapter(log)
+    build_info.Log(shlog)
+
+    log.info("\n")
+    dt = datetime.utcnow()
+    log.info("Current time (UTC ISO): " + dt.isoformat())
+    log.info("\n")
+
+
 #######################################################################################
 #           Main
 #######################################################################################
@@ -1004,6 +1046,7 @@ def main():
     PrintParams(params, log)
     PrintCommandLine(log)
     params.io = IgRepConIO(params.output, log)
+    LogInfo(log)
 
     try:
         ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
