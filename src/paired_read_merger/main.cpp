@@ -35,6 +35,7 @@ void create_console_logger(string log_filename) {
 
 
 int main(int argc, char *argv[]) {
+    omp_set_num_threads(1);
     /*
      * argv[1] - left fastq reads
      * argv[2] - right fastq reads

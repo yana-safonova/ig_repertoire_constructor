@@ -321,8 +321,8 @@ def main():
         # We need freshly compiled version to get actual build info
         if not params.no_compilation:
             support.sys_call("make -C " + os.path.join(os.path.dirname(final_dir), "compilation"), log)
-        import build_info
         print "===================Build info==================="
+        from py import build_info
         build_info.Log(log)
         print "================================================"
         support.sys_call("make -C " + final_dir, log)

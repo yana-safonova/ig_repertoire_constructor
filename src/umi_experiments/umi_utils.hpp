@@ -30,6 +30,9 @@ public:
         id_ = other.id_;
         return *this;
     }
+    bool operator<(const Read& other) const {
+        return id_ < other.id_;
+    }
 
     const seqan::Dna5String& GetSequence() const { return read_; }
     size_t GetId() const { return id_; }

@@ -4,13 +4,27 @@ build_type?="RelWithAsserts"
 # Default install prefix
 prefix?="/usr/local"
 
+# Not-verify (disabled)
+nverify?=""
+
+# Build with gpertools profiler (disabled)
+gperf?=""
+
 .PHONY: clean clean_tests cmake all pack
 
 all: igrec
 
+cpcfg:
+	mkdir -p build/tmp
+	cd build/tmp && cmake ../../configs -DCMAKE_OVERWRITE_CONFIGS=true
+	rm -r build/tmp
+
 cmake:
 	mkdir -p build/release
-	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} -Wno-dev
+	cd build/release && cmake ../.. -DCMAKE_BUILD_TYPE="${build_type}" -DCMAKE_INSTALL_PREFIX=${prefix} \
+		-Wno-dev \
+		-DCMAKE_NVERIFY=${nverify} \
+		-DCMAKE_GOOGLE_PROFILER=${gperf}
 
 igrec: cmake
 	$(MAKE) -C build/release all
@@ -52,6 +66,8 @@ igs: cmake
 	$(MAKE) -C build/release ig_simulator
 
 clean:
+	-rm *.pyc
+	-rm py/*.pyc
 	-rm -r build
 
 clean_tests:
