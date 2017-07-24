@@ -4,16 +4,20 @@ import numpy as np
 from joblib import Parallel, delayed
 from joblib.pool import has_shareable_memory
 
+from config.config import config
+
 from shm_kmer_likelihood_optimize.shm_kmer_likelihood_optimize \
     import ShmKmerLikelihoodOptimizator
 from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
 import kmer_utilities.kmer_utilities as kmer_utils
-from shm_kmer_model.cab_shm_model import CAB_SHM_Model
+from genomic_kmers.genomic_kmers import get_genomic_kmers
+from chains.chains import Chains
 
-from config.config import config
+np.seterr(divide='ignore', invalid='ignore')
+
 
 class ShmKmerModelEstimator(object):
-    def __init__(self, kmer_len=5):
+    def __init__(self, model_config, kmer_len=5):
         self.bases = kmer_utils.nucl_bases()
         self.n_nucl = len(self.bases)
         self.kmer_len = kmer_len
@@ -22,8 +26,72 @@ class ShmKmerModelEstimator(object):
         self.column_names = config.output_csv_header
         self.central_nucl_indexes = kmer_utils.central_nucl_indexes(kmer_len)
         self.n_param = len(self.column_names)
+        for chain in Chains:
+            if chain == Chains.IG:
+                continue
+        self.min_mut_coverage = model_config.min_mut_coverage
+        self.min_subst_coverage = model_config.min_subst_coverage
 
-    def estimate_backend(self, kmer_matrices):
+
+    def refine_model(self, results, matrices, chain):
+        fr_matrices = matrices.matrices[:, 0:2, :]
+        cdr_matrices = matrices.matrices[:, 2:4, :]
+        full_matrices = fr_matrices + cdr_matrices
+        subst_matrices = matrices.matrices[:, 4:, :]
+
+        def get_coverage(x):
+            return np.nanmean(np.nanmin(x, axis=1), axis=1)
+        full_coverage = get_coverage(full_matrices)
+        subst_coverage = get_coverage(subst_matrices)
+
+        ind_need_mut_inference, ind_need_subst_inference = [], []
+        for i, kmer in enumerate(kmer_utils.kmer_names()):
+            mut_bad_estimation = \
+                full_coverage[i] < self.min_mut_coverage or \
+                not results.loc[kmer, "success_optim_beta_FULL"] or \
+                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape1"]) or\
+                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape2"])
+
+            subst_bad_estimation = \
+                subst_coverage[i] < self.min_subst_coverage or \
+                not results.loc[kmer, "success_optim_beta_FULL"] or \
+                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape1"]) or\
+                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape2"])
+            if mut_bad_estimation:
+                ind_need_mut_inference.append(i)
+            if subst_bad_estimation:
+                ind_need_subst_inference.append(i)
+
+        for i in ind_need_mut_inference:
+            kmer = kmer_utils.kmer_names()[i]
+            surr_kmers, surr_ind = \
+                kmer_utils.surround_kmers(i=i, bad_ind=ind_need_mut_inference)
+            surr_ind = np.array(surr_ind)
+            means = np.array(results.iloc[surr_ind, 4:6])
+            sums = np.nansum(means, axis=1)
+            means = (means.T / sums).T
+            mean = np.nanmean(means, axis=0)
+            sum_ = np.nanmean(sums)
+            # results.iloc[surr_ind, 4:6] = mean * sum_
+            results.iloc[surr_ind, 4:6] = mean
+            results.loc[kmer, "beta_estimated"] = 0
+
+        # for i in ind_need_subst_inference:
+        #     kmer = kmer_utils.kmer_names()[i]
+        #     surr_kmers, surr_ind = \
+        #         kmer_utils.surround_kmers(i=i, bad_ind=ind_need_mut_inference)
+        #     surr_ind = np.array(surr_ind)
+        #     means = np.array(results.iloc[surr_ind, 6:9])
+        #     sums = np.nansum(means, axis=1)
+        #     means = (means.T / sums).T
+        #     mean = np.nanmean(means, axis=0)
+        #     sum_ = np.nanmean(sums)
+        #     # results.iloc[surr_ind, 6:9] = mean * sum_
+        #     results.iloc[surr_ind, 6:9] = mean
+        #     results.loc[kmer, "dir_estimated"] = 0
+        return results
+
+    def estimate_backend(self, kmer_matrices, strategy, chain):
         kmers = kmer_utils.kmer_names()
         results = np.empty((len(kmers), self.n_param))
 
@@ -60,11 +128,14 @@ class ShmKmerModelEstimator(object):
             results[i, ] = \
                 np.concatenate((fr_x, cdr_x, full_x, dir_x,
                                 success,
-                                starts))
+                                starts,
+                                [1], [1]))
+
         results = pd.DataFrame(data=results,
                                index=self.kmer_names,
                                columns=self.column_names)
-        #return CAB_SHM_Model(results)
+        # results = self.refine_model(results, kmer_matrices, chain)
+        # return CAB_SHM_Model(results)
         return results
 
     def estimate_models(self, kmer_matrices,
@@ -80,8 +151,8 @@ class ShmKmerModelEstimator(object):
         n_models = len(strategies) * len(chains)
         r = Parallel(n_jobs=n_models, max_nbytes=1e10)(
             delayed(joblib_est, has_shareable_memory)
-            (models, strategy, chain, self, kmer_matrices) \
-            for strategy in strategies \
+            (models, strategy, chain, self, kmer_matrices)
+            for strategy in strategies
             for chain in chains
         )
         for strategy, chain, model in r:
@@ -89,9 +160,12 @@ class ShmKmerModelEstimator(object):
         # for strategy in strategies:
         #     for chain in chains:
         #         models[strategy][chain] = \
-        #             self.estimate_backend(kmer_matrices[strategy][chain])
+        #             self.estimate_backend(kmer_matrices[strategy][chain],
+        #                                   strategy, chain)
         return models
+
 
 def joblib_est(models, strategy, chain, estimator, kmer_matrices):
     return strategy, chain, \
-           estimator.estimate_backend(kmer_matrices[strategy][chain])
+           estimator.estimate_backend(kmer_matrices[strategy][chain],
+                                      strategy, chain)

@@ -111,9 +111,8 @@ def main():
 
     wrapper_compare_forward_backward_mutations(matrices, model_config)
     print("Estimating models started")
-    models = ShmKmerModelEstimator().estimate_models(matrices)
+    models = ShmKmerModelEstimator(model_config).estimate_models(matrices)
     print("Estimating models finished")
-
 
     print("Outputing models to %s" % model_config.outdir)
     output_models(models, model_config.outdir)
@@ -142,6 +141,7 @@ def main():
         print("Model distribution plots are drawing...")
         wrapper_plot_distr(models, model_config)
         print("Finished drawing model distribution plots")
+
 
 if __name__ == "__main__":
     main()

@@ -16,7 +16,8 @@
         "start_point_beta_FULL_shape2",
         "start_point_dir_shape1",
         "start_point_dir_shape2",
-        "start_point_dir_shape3"
+        "start_point_dir_shape3",
+        "beta_estimated", "dir_estimated"
     ],
     "output_csv_header_simple_frequency": [
         "FR_mut", "FR_mut_ci_left", "FR_mut_ci_right",

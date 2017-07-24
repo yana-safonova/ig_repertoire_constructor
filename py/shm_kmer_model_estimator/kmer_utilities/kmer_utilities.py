@@ -58,3 +58,21 @@ def reverse_mut_kmer(kmer, base, kmer_len=5):
     mut_kmer[kmer_len // 2] = base
     return ''.join(mut_kmer)
 
+
+def surround_kmers(i=None, kmer=None, bad_ind=[], kmer_len=5):
+    if (i is None and kmer is None) or (i is not None and kmer is not None):
+        raise ValueError("Supply either i or kmer and not both")
+    if kmer is None:
+        kmer = kmer_names()[i]
+    surr_kmers, surr_kmer_inds = [], []
+    bad_ind = set(bad_ind)
+    for left in nucl_bases():
+        for right in nucl_bases():
+            surr_kmer = list(kmer)
+            surr_kmer[0], surr_kmer[-1] = left, right
+            surr_kmer = "".join(surr_kmer)
+            surr_ind = kmer_index(surr_kmer)
+            if surr_ind not in bad_ind:
+                surr_kmer_inds.append(surr_ind)
+                surr_kmers.append(surr_kmer)
+    return surr_kmers, surr_kmer_inds
