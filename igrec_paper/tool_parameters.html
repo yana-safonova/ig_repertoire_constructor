@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        th {
+            font-weight: normal;
+            padding: 5px;
+        }
+        table {
+            margin-bottom: 20px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>MiXCR and pRESTO parameters</title>
+</head>
+<body>
+
+<h2 id="mixcr" align="center">MiXCR parameters (non-barcoded data)</h2>
+<table style="width:70%" align="center" border="1" frame="above" rules="all">
+<tr>
+    <th><b>name</b></th>
+    <th><b>parameters</b></th>
+    <th><b>comments</b></th>
+</tr>
+
+<tr>
+    <th>Align</th>
+    <th>-f, -g, --noMerge, -p&nbsp;=&nbsp;kaligner2, –species&nbsp;=&nbsp;hsa, -OreadsLayout&nbsp;=&nbsp;Collinear,
+        -OvParameters.geneFeatureToAlign&nbsp;=&nbsp;VTranscript, -OallowPartialAlignments&nbsp;=&nbsp;true</th>
+</tr>
+<tr>
+    <th>Assemble</th>
+    <th>-f, -OassemblingFeatures&nbsp;=&nbsp;FR1Begin:FR4Begin</th>
+    <th>Since sequences are cropped by the end of CDR3, FR4 region is not present in final sequences.
+        We selected the specified parameter value since running MiXCR with seemingly more appropriate value FR1Begin:FR4Eend
+        results in a non-stable behavior and often produces an empty repertoire.</th>
+</tr>
+    <tr>
+    <th>Export&nbsp;clones</th>
+    <th>-f, --no-spaces, -sequence, -count, -readIds</th>
+</tr>
+</table>
+
+
+<h2 id="presto_nonb" align="center">pRESTO parameters (non-barcoded data)</h2>
+<table style="width:70%" align="center" border="1" frame="above" rules="all">
+    <tr>
+        <th><b>name</b></th>
+        <th><b>parameters</b></th>
+        <th><b>comments</b></th>
+    </tr>
+
+    <tr>
+        <th>CollapseSeq</th>
+        <th>Default&nbsp;parameters</th>
+        <th>Although this stage can use information about primers,
+            we do not use this information since we want to conduct primer-independent benchmarking.
+            Although this stage can fix unspecified nucleotides (“N”s), but we do not use this feature too,
+            since it is addressed at the  preliminary alignment step.</th>
+    </tr>
+    <tr>
+        <th>SplitSeq</th>
+        <th>Default&nbsp;parameters</th>
+        <th>The stage uses a threshold parameter (--num=X) that is analogous in IgReC (discussed in Section 2.2 of the main text).
+            In our experiments, this parameter is not fixed and estimation of its optimal value is a part of benchmarking.</th>
+    </tr>
+</table>
+
+<h2 id="presto_b" align="center">pRESTO parameters (barcoded data)</h2>
+<table style="width:70%" align="center" border="1" frame="above" rules="all">
+    <tr>
+        <th><b>name</b></th>
+        <th><b>parameters</b></th>
+    </tr>
+
+    <tr>
+        <th>ClusterSets</th>
+        <th>Default&nbsp;parameters</th>
+    </tr>
+    <tr>
+        <th>BuildConsensus</th>
+        <th>--prcons&nbsp;0.6 --maxerror&nbsp;0.1 --maxgap&nbsp;0.5</th>
+    </tr>
+    <tr>
+        <th>CollapseSeq</th>
+        <th>--uf&nbsp;PRCONS --cf&nbsp;CONSCOUNT --act&nbsp;sum</th>
+    </tr>
+</table>
+
+<center style="width:70%; margin:auto" align="center" >
+    <b>Table A1. Benchmarking parameters of MiXCR (top) and pRESTO (middle) on non-barcoded datasets and pRESTO (bottom) on barcoded datasets.</b>
+    For all tools, we unified the read merging, alignment and filtering by using the IgReC preprocessing.
+    After this preprocessing, all input libraries contain Ig-relevant reads that are cropped by the start of the corresponding V gene.
+</center>
+</body>
+</html>
