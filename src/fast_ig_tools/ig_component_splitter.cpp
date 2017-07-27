@@ -127,7 +127,11 @@ void split_component(const std::vector<seqan::String<T>> &reads,
     auto mmsv = maximal_mismatch.secondary_votes;
 
     if (flu) {
-        do_split = -0.0064174097073423269 * static_cast<double>(indices.size()) + 0.79633984048973583 * static_cast<double>(mmsv) - 4.3364230321953841 > 0;
+        // do_split = -0.0064174097073423269 * static_cast<double>(indices.size()) + 0.79633984048973583 * static_cast<double>(mmsv) - 4.3364230321953841 > 0;
+        double size_normalized = (static_cast<double>(indices.size()) - 8.676883) / 41.184787;
+        double value1_normalized = (static_cast<double>(mmsv) - 0.151542) / 0.151542;
+        do_split = size_normalized * 3.33482119388 + value1_normalized * 1.3332263416  +  -4.54705733001;
+        // do_split = -0.0064174097073423269 * static_cast<double>(indices.size()) + 0.79633984048973583 * static_cast<double>(mmsv) - 4.3364230321953841 > 0;
     } else {
         do_split = mmsv >= max_votes;
     }
