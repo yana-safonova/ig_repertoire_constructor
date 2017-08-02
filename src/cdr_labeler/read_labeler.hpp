@@ -35,5 +35,9 @@ namespace cdr_labeler {
         annotation_utils::AnnotatedClone CreateAnnotatedClone(const vj_finder::VJHits &vj_hits);
 
         annotation_utils::CDRAnnotatedCloneSet CreateAnnotatedCloneSet(const vj_finder::VJAlignmentInfo &alignment_info);
+
+        annotation_utils::AnnotatedCloneCalculator& GetCloneCalculator() {
+            return clone_calculator_;
+        }
     };
 }

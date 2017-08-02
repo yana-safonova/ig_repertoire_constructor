@@ -1,0 +1,29 @@
+input_params {
+    input_reads raji_compressed_R12.fastq
+    cdr_labeler_config_fname /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/configs/cdr_labeler/config.info
+    model_input data/shm_model/model_input.csv
+}
+
+output_params {
+    output_dir /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed
+    cdr_graph_dir  cdr3_graphs
+    tree_dir       clonal_trees
+    vertex_dir     clonal_trees_vertices
+    trash_output   trash_output.out
+}
+
+run_params {
+    num_threads    1
+}
+
+algorithm_params {
+    similar_cdr3s_params {
+        num_mismatches   3
+        num_indels       0
+    }
+
+    edge_construction_params {
+        min_num_intersected_v_shms   3
+        intersected_edge_coeff       20
+    }
+}

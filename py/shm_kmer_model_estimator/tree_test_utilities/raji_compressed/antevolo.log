@@ -1,0 +1,62 @@
+Command_line: ./antevolo.py -i raji_compressed_R12.fastq -o raji_compressed
+
+AntEvolo parameters:
+  Input reads:			raji_compressed_R12.fastq
+  Output directory:		/Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed
+  Number of threads:		16
+
+  Loci:				IG
+  Max distance between CDR3:	3
+  Min number of shared SHMs:	3
+Log will be written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/antevolo.log
+
+   0:00:00.002    4M /    4M   INFO  General                 (antevolo_launch.cpp       :  15)   AntEvolo starts
+   0:00:00.050    8M /    8M   INFO  General                 (read_archive.cpp          :  31)   1639 reads were extracted from raji_compressed_R12.fastq
+   0:00:00.051    4M /    8M   INFO  General                 (germline_db_generator.cpp : 128)   34 germline filenames were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/configs/vj_finder/germline_files_config.txt
+   0:00:00.051    4M /    8M   INFO  General                 (germline_db_generator.cpp : 176)   3 V gene segment files will be used for DB:
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 178)   IGH: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGHV.fa
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 178)   IGK: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGKV.fa
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 178)   IGL: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGLV.fa
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 179)   3 J gene segment files will be used for DB:
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 181)   IGH: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGHJ.fa
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 181)   IGK: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGKJ.fa
+   0:00:00.052    4M /    8M   INFO  General                 (germline_db_generator.cpp : 181)   IGL: /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGLJ.fa
+   0:00:00.052    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  21)   Generation of DB for variable segments...
+   0:00:00.061    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   351 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGHV.fa
+   0:00:00.064    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   108 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGKV.fa
+   0:00:00.067    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   91 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGLV.fa
+   0:00:00.067    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  23)   Generation of DB for join segments...
+   0:00:00.067    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   13 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGHJ.fa
+   0:00:00.067    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   9 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGKJ.fa
+   0:00:00.067    4M /    8M   INFO  General                 (immune_gene_database.cpp  :  41)   10 records were extracted from /Users/yanasafonova/gitrep/ig_repertoire_constructor/data/germline/human/IG/IGLJ.fa
+   0:00:00.068    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  26)   CDR labeling for V gene segments
+   0:00:00.068    4M /    8M   INFO  General                 (germline_db_labeler.cpp   :  23)   Algorithm of CDR computation: annotated
+   0:00:00.094    4M /    8M   INFO  General                 (germline_db_labeler.cpp   :  33)   # records from DB with empty CDR labelings: 173
+   0:00:00.094    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  29)   CDR labeling for J gene segments
+   0:00:00.094    4M /    8M   INFO  General                 (germline_db_labeler.cpp   :  23)   Algorithm of CDR computation: annotated
+   0:00:00.094    4M /    8M   INFO  General                 (germline_db_labeler.cpp   :  33)   # records from DB with empty CDR labelings: 0
+   0:00:00.095    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  32)   Creation of labeled V and J databases
+   0:00:00.099    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  34)   Labeled DB of V segments consists of 377 records
+   0:00:00.099    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  36)   Labeled DB of J segments consists of 32 records
+   0:00:00.099    4M /    8M   INFO  General                 (antevolo_launch.cpp       :  37)   Alignment against VJ germline segments
+   0:00:39.490   64M /   76M   INFO  General                 (vj_parallel_processor.cpp :  43)   100% of aligned reads have isotype IGH
+   0:00:39.491   64M /   76M   INFO  General                 (antevolo_launch.cpp       :  44)   1468 reads were aligned; 171 reads were filtered out
+   0:00:39.791   84M /   88M   INFO  General                 (read_labeler.cpp          :  67)   1468 annotated sequences were created
+   0:00:39.819   84M /   88M   INFO  General                 (cdr_output.cpp            :  42)   CDR details were written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/cdr_details.txt
+   0:00:40.107   84M /   88M   INFO  General                 (cdr_output.cpp            : 142)   SHM getails were written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/shm_details.txt
+   0:00:40.107   84M /   88M   INFO  General                 (antevolo_launch.cpp       :  52)   Tree construction starts
+   0:00:40.113   84M /   88M   INFO  General                 (antevolo_processor.cpp    :  31)   VJ decomposition containing 3 classes was created.
+   0:00:40.113   84M /   88M   INFO  General                 (antevolo_processor.cpp    :  32)   Largest class contains 1464 clone(s)
+   0:00:40.113   84M /   88M   INFO  General                 (antevolo_processor.cpp    :  34)   Construction of clonal trees starts
+   0:01:35.732  116M /  120M   INFO  General                 (antevolo_processor.cpp    :  70)   Clonal trees were written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/clonal_trees
+   0:01:35.741  116M /  120M   INFO  General                 (antevolo_launch.cpp       :  54)   4 evolutionary trees were created
+   0:01:35.741  116M /  120M   INFO  General                 (antevolo_launch.cpp       :  55)   Computation of evolutionary statistics
+   0:01:35.741  116M /  120M   INFO  General                 (evolutionary_stats_calcula:  43)   Input tree is a forest containing 30 trees. Computation of stats will be skipped since preliminary decomposition is required
+   0:01:35.742  116M /  120M   INFO  General                 (evolutionary_stats_calcula:  51)   # vertices: 9, root depth: 42, # unique SHMs: 45, # added SHMs: 3, # synonymous SHMs: 1
+   0:01:35.742  116M /  120M   INFO  General                 (evolutionary_stats_calcula:  43)   Input tree is a forest containing 2 trees. Computation of stats will be skipped since preliminary decomposition is required
+   0:01:35.742  116M /  120M   INFO  General                 (evolutionary_stats_calcula:  51)   # vertices: 2, root depth: 42, # unique SHMs: 42, # added SHMs: 0, # synonymous SHMs: 0
+   0:01:35.742  116M /  120M   INFO  General                 (antevolo_launch.cpp       :  61)   AntEvolo ends
+
+Thank you for using AntEvolo!
+
+Log was written to /Users/yanasafonova/gitrep/ig_repertoire_constructor/raji_compressed/antevolo.log

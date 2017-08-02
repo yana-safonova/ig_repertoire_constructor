@@ -1,7 +1,7 @@
 #include "annotated_clone_calculator.hpp"
 
 namespace annotation_utils {
-    AnnotatedClone AnnotatedCloneCalculator::ComputeAnnotatedClone(const core::Read &read, CDRLabeling cdr_labeling,
+    AnnotatedClone AnnotatedCloneCalculator::ComputeAnnotatedClone(core::Read read, CDRLabeling cdr_labeling,
                                                                    alignment_utils::ImmuneGeneReadAlignment v_alignment,
                                                                    alignment_utils::ImmuneGeneReadAlignment j_alignment) {
         auto aa_annotation = aa_calculator_ptr_->ComputeAminoAcidAnnotation(read, cdr_labeling);

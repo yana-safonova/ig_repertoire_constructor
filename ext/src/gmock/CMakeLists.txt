@@ -6,6 +6,5 @@ include_directories(${EXT_DIR}/include)
 
 add_library(gmock STATIC
             gmock-all.cc)
-
 add_library(gmock_main STATIC
             gmock_main.cc)
