@@ -13,10 +13,13 @@ namespace build_info {
     const char *system = "@BUILD_INFO_SYSTEM@";
     const char *cpu = "@BUILD_INFO_CPU@";
 
-    const char *c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@";
-    const char *cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@";
     const char *c_compiler = "@BUILD_INFO_C_COMPILER@";
+    const char *c_compiler_id = "@BUILD_INFO_C_COMPILER_ID@";
+    const char *c_compiler_version = "@BUILD_INFO_C_COMPILER_VERSION@";
+
     const char *cxx_compiler = "@BUILD_INFO_CXX_COMPILER@";
+    const char *cxx_compiler_id = "@BUILD_INFO_CXX_COMPILER_ID@";
+    const char *cxx_compiler_version = "@BUILD_INFO_CXX_COMPILER_VERSION@";
 
     const char *build_type = "@BUILD_INFO_BUILD_TYPE@";
     const char *c_flags = "@BUILD_INFO_C_FLAGS@";

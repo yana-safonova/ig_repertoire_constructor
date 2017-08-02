@@ -66,6 +66,8 @@ umi: cmake
 	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
 clean:
+	-rm *.pyc
+	-rm py/*.pyc
 	-rm -r build
 
 ant: cmake
