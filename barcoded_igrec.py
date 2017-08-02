@@ -146,6 +146,7 @@ def ParseCommandLineParams(log):
                                action="store_false",
                                help=argparse.SUPPRESS)
                                # help="Exclude C++ code compilation from the pipeline")
+    dev_args.set_defaults(no_compilation=True)
     dev_args.add_argument("-c", "--ignore-code",
                                dest="ignore_code_changes",
                                action="store_true",
