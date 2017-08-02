@@ -26,7 +26,7 @@ import process_cfg
 import support
 
 test_reads = os.path.join(home_directory, "test_dataset/merged_reads.fastq")
-test_dir = os.path.join(home_directory, "antevolo_test")
+test_dir = os.path.join(os.getcwd(), "antevolo_test")
 
 tool_name = "AntEvolo"
 comparing_mode_name = "EvoQuast"
