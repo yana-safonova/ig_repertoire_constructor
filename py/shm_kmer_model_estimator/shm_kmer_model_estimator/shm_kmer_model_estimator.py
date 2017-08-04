@@ -10,7 +10,6 @@ from shm_kmer_likelihood_optimize.shm_kmer_likelihood_optimize \
     import ShmKmerLikelihoodOptimizator
 from shm_kmer_likelihood.shm_kmer_likelihood import ShmKmerLikelihood
 import kmer_utilities.kmer_utilities as kmer_utils
-from genomic_kmers.genomic_kmers import get_genomic_kmers
 from chains.chains import Chains
 
 np.seterr(divide='ignore', invalid='ignore')
@@ -34,61 +33,35 @@ class ShmKmerModelEstimator(object):
 
 
     def refine_model(self, results, matrices, chain):
-        fr_matrices = matrices.matrices[:, 0:2, :]
-        cdr_matrices = matrices.matrices[:, 2:4, :]
-        full_matrices = fr_matrices + cdr_matrices
-        subst_matrices = matrices.matrices[:, 4:, :]
-
-        def get_coverage(x):
-            return np.nanmean(np.nanmin(x, axis=1), axis=1)
-        full_coverage = get_coverage(full_matrices)
-        subst_coverage = get_coverage(subst_matrices)
-
         ind_need_mut_inference, ind_need_subst_inference = [], []
         for i, kmer in enumerate(kmer_utils.kmer_names()):
-            mut_bad_estimation = \
-                full_coverage[i] < self.min_mut_coverage or \
-                not results.loc[kmer, "success_optim_beta_FULL"] or \
-                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape1"]) or\
-                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape2"])
-
-            subst_bad_estimation = \
-                subst_coverage[i] < self.min_subst_coverage or \
-                not results.loc[kmer, "success_optim_beta_FULL"] or \
-                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape1"]) or\
-                np.isnan(results.loc[kmer, "start_point_beta_FULL_shape2"])
-            if mut_bad_estimation:
+            if np.isnan(results.loc[kmer, "start_point_beta_FULL_shape1"]) or\
+               np.isnan(results.loc[kmer, "start_point_beta_FULL_shape2"]):
                 ind_need_mut_inference.append(i)
-            if subst_bad_estimation:
+
+            if np.isnan(results.loc[kmer, "start_point_dir_shape1"]) or\
+               np.isnan(results.loc[kmer, "start_point_dir_shape2"]) or\
+               np.isnan(results.loc[kmer, "start_point_dir_shape3"]):
                 ind_need_subst_inference.append(i)
 
-        for i in ind_need_mut_inference:
+        def update_res(i, res_ind, estimated_name):
             kmer = kmer_utils.kmer_names()[i]
             surr_kmers, surr_ind = \
                 kmer_utils.surround_kmers(i=i, bad_ind=ind_need_mut_inference)
             surr_ind = np.array(surr_ind)
-            means = np.array(results.iloc[surr_ind, 4:6])
+            means = np.array(results.iloc[surr_ind, res_ind])
             sums = np.nansum(means, axis=1)
             means = (means.T / sums).T
             mean = np.nanmean(means, axis=0)
-            sum_ = np.nanmean(sums)
-            # results.iloc[surr_ind, 4:6] = mean * sum_
-            results.iloc[surr_ind, 4:6] = mean
-            results.loc[kmer, "beta_estimated"] = 0
+            results.iloc[i, res_ind] = mean
+            results.loc[kmer, estimated_name] = 0
 
-        # for i in ind_need_subst_inference:
-        #     kmer = kmer_utils.kmer_names()[i]
-        #     surr_kmers, surr_ind = \
-        #         kmer_utils.surround_kmers(i=i, bad_ind=ind_need_mut_inference)
-        #     surr_ind = np.array(surr_ind)
-        #     means = np.array(results.iloc[surr_ind, 6:9])
-        #     sums = np.nansum(means, axis=1)
-        #     means = (means.T / sums).T
-        #     mean = np.nanmean(means, axis=0)
-        #     sum_ = np.nanmean(sums)
-        #     # results.iloc[surr_ind, 6:9] = mean * sum_
-        #     results.iloc[surr_ind, 6:9] = mean
-        #     results.loc[kmer, "dir_estimated"] = 0
+        for i in ind_need_mut_inference:
+            update_res(i, [4, 5], "beta_estimated")
+
+        for i in ind_need_subst_inference:
+            update_res(i, [6, 7, 8], "dir_estimated")
+
         return results
 
     def estimate_backend(self, kmer_matrices, strategy, chain):
