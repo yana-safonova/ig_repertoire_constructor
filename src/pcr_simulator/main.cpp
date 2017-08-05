@@ -48,6 +48,7 @@ void create_console_logger() {
 }
 
 int main(int argc, const char* const* argv) {
+    omp_set_num_threads(1);
     perf_counter pc;
     segfault_handler sh;
     create_console_logger();

@@ -39,7 +39,7 @@ def CheckBinariesExistance(params, log):
 def DomainParamCorrect(domain_str):
     return domain_str == "imgt" or domain_str == "kabat"
 
-def LociParamCorrect(loci_str):
+def LociParamIsIg(loci_str):
     return loci_str == "IG" or loci_str == "IGH" or loci_str == "IGK" or loci_str == "IGL"
 
 organism_dict = {'human' : 'human', 'mouse' : 'mouse', 'rat' : 'rat',
@@ -55,9 +55,9 @@ def CheckParamsCorrectness(params, log):
     if not DomainParamCorrect(params.domain_system):
         log.info("Domain system " + params.domain_system + " is not recognized")
         sys.exit(1)
-    if not LociParamCorrect(params.loci):
-        log.info("Loci " + params.loci + " is not recognized")
-        sys.exit(1)
+#    if not LociParamCorrect(params.loci):
+#        log.info("Loci " + params.loci + " is not recognized")
+#        sys.exit(1)
     if not OrganismParamCorrect(params.organism):
         log.info("Organism " + params.organism + " is not recognized")
         sys.exit(1)
@@ -70,6 +70,8 @@ def SetOutputParams(params, log):
     if params.input_reads != test_reads and params.output_dir == "":
         log.info("ERROR: Output dir (-o) was not specified")
         sys.exit(1)
+    if not LociParamIsIg(params.loci):
+        params.skip_plots = True
     params.output_dir = os.path.abspath(params.output_dir)
     params.config_dir = os.path.join(params.output_dir, "configs")
     params.cdr_config_file = os.path.join(cdr_labeler_config_dir, "config.info")
@@ -200,7 +202,7 @@ def main(argv):
                                type=str,
                                default="IG",
                                dest="loci",
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
     optional_args.add_argument("--org",
                                type=str,

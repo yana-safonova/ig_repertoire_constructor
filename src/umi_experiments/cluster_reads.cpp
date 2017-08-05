@@ -19,6 +19,7 @@ namespace {
         bool save_clusters;
         size_t num_threads;
         size_t clustering_threshold;
+        size_t chimera_tau;
         bool output_intermediate;
     };
 
@@ -36,6 +37,7 @@ namespace {
                 ("save-clusters,s", po::value<bool>(&params.save_clusters)->default_value(false), "save clusters by UMI")
                 ("threads,t", po::value<size_t >(&params.num_threads)->default_value(1), "number of threads to use")
                 ("clustering-thr,d", po::value<size_t >(&params.clustering_threshold)->default_value(20), "threshold distance to unite clusters")
+                ("chimera-tau,m", po::value<size_t >(&params.chimera_tau)->default_value(10), "threshold distance between halves while detecting chimeras")
                 ("debug-stages,b", po::value<bool>(&params.output_intermediate)->default_value(false), "output repertoire after each step")
                 ;
         po::variables_map vm;
@@ -103,6 +105,7 @@ int main(int argc, const char* const* argv) {
     if (!read_args(argc, argv, params)) {
         return 0;
     }
+    omp_set_num_threads(static_cast<int>(params.num_threads));
 
     const auto& input = read_everything(params);
 
@@ -125,10 +128,14 @@ int main(int argc, const char* const* argv) {
     for (size_t i = 0; i < input.input_reads.size(); i ++) {
         reads.emplace_back(input.input_reads[i], input.input_ids[i], i);
     }
-    clusterer::Clusterer<Read> clusterer(umi_to_reads, umi_ptr_by_umi, reads);
-    // This works 10-15 times slower than simple way (2 min vs 10 sec). Maybe because we don't try to glue to larger clusters first. Anyway, not a great problem at the moment.
+
     const clusterer::ReadDist& hamming_dist = clusterer::ClusteringMode::bounded_hamming_dist(params.clustering_threshold);
     const auto hamming_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(hamming_dist, params.clustering_threshold);
+    const clusterer::ReadDist& edit_dist = clusterer::ClusteringMode::bounded_edit_dist(params.clustering_threshold, params.clustering_threshold);
+    const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(edit_dist, params.clustering_threshold);
+
+    clusterer::Clusterer<Read> clusterer(umi_to_reads, umi_ptr_by_umi, reads);
+
     INFO("Clustering reads by hamming within single UMIs with threshold " << params.clustering_threshold);
     clusterer.cluster(hamming_dist_checker, compressed_umi_ptrs, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     for (const auto& cluster : clusterer.getCurrentUmiToCluster().toSet()) {
@@ -165,8 +172,6 @@ int main(int argc, const char* const* argv) {
     clusterer.write_clusters_and_correspondence(params.output_dir, "_2_hamming_ngh", params.save_clusters, params.output_intermediate);
 
 
-    const clusterer::ReadDist& edit_dist = clusterer::ClusteringMode::bounded_edit_dist(params.clustering_threshold, params.clustering_threshold);
-    const auto edit_dist_checker = clusterer::ClusteringMode::clusters_close_by_min(edit_dist, params.clustering_threshold);
     INFO("Clustering reads by edit distance within single UMIs with threshold " << params.clustering_threshold);
     clusterer.cluster(edit_dist_checker, compressed_umi_ptrs, clusterer::ReflexiveUmiPairsIterable(compressed_umi_ptrs.size()));
     INFO(clusterer.getCurrentUmiToCluster().toSize() << " clusters found");
@@ -185,11 +190,8 @@ int main(int argc, const char* const* argv) {
 
     if (params.detect_chimeras) {
         clusterer.report_non_major_umi_groups_sw(params.output_dir + "/non_major.csv",
-                                                 params.output_dir + "/left_graph.graph",
-                                                 params.output_dir + "/right_graph.graph",
-                                                 params.output_dir + "/chimeras.txt",
-                                                 params.output_dir + "/umi_chimeras.txt",
-                                                 params.num_threads);
+                params.output_dir + "/left_graph.graph", params.output_dir + "/right_graph.graph",
+                params.output_dir + "/chimeras.txt", params.output_dir + "/umi_chimeras.txt", params.chimera_tau);
 
         clusterer.write_clusters_and_correspondence(params.output_dir, "_5_chimeras", params.save_clusters, params.output_intermediate);
     }

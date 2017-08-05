@@ -10,8 +10,12 @@ for file in "${ref_SIM_NEW}" "${ref_AGE3}" "${ref_AGE7}" "${ref_SIM}" "${ref_FLU
 do
     ./repertoire_stats.py $file
 done
-    
+
 
 ./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/src/extra/ig_quast_tool/FLU_FV_21_IGL/repertoire3.fa.gz"
 ./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/src/extra/ig_quast_tool/FLU_FV_21_IG/repertoire3.fa.gz"
 ./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/src/extra/ig_quast_tool/FLU_FV_21_IG/repertoire1.fa.gz"
+
+./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SIMULATED_0.5/repertoire.fa.gz"
+./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SYNTHETIC_0.5/repertoire.fa.gz"
+./repertoire_stats.py "/home/ashlemov/Git/ig_repertoire_constructor/test_dataset/igquast/SIMTCR_0.5/repertoire.fa.gz"

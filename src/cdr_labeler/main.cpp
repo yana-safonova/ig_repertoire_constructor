@@ -61,6 +61,7 @@ cdr_labeler::CDRLabelerConfig load_config(int argc, char **argv) {
 
 
 int main(int argc, char **argv) {
+    omp_set_num_threads(1);
     segfault_handler sh;
     perf_counter pc;
     create_console_logger();

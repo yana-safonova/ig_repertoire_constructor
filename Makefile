@@ -66,6 +66,8 @@ igs: cmake
 	$(MAKE) -C build/release ig_simulator
 
 clean:
+	-rm *.pyc
+	-rm py/*.pyc
 	-rm -r build
 
 clean_tests:
