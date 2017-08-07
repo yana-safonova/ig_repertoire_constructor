@@ -200,7 +200,7 @@ def main(argv):
     vj_finder_args= parser.add_argument_group("VJ alignment params")
     optional_args.add_argument("-l", "--loci",
                                type=str,
-                               default="IG",
+                               default="all",
                                dest="loci",
                                help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
