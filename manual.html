@@ -130,36 +130,49 @@ IgRepertoireConstructor has the following dependencies:
     </ul>
 </ul>
 
-To compile IgRepertoireConstructor, type:
-<pre class="code">
-    <code>
-    make
-    </code>
-</pre>
+IgRepertoireConstructor needs installation before using. This can be done in one of the following ways.
+<ul>
+    <li>
+        The toolset can be <b>installed</b> into the system evoking:
+        <pre class="code">
+            <code>
+            make install prefix=&lt;INSTALL_PREFIX&gt;
+            </code>
+        </pre>
+        This places IgRepertoireConstructor installation files into <code>&lt;INSTALL_PREFIX&gt;/share/igrec</code>
+        and executables into <code>&lt;INSTALL_PREFIX&gt;/bin</code>.
+        <code>&lt;INSTALL_PREFIX&gt;</code> defaults to <code>/usr/local</code>,
+        thus root privileges may be required.
+        In this case try <code>sudo make install</code>.
+    </li>
 
-After that, all tools could be run from the base directory.
-Also one can install the toolset into the system evoking:
-<pre class="code">
-    <code>
-    make install prefix=&lt;INSTALL_PREFIX&gt;
-    </code>
-</pre>
+    <li>
+        Alternatively, one can build <b>binary packages</b> for <b>DEBIAN</b>-
+        and <b>RedHat</b>-based Linux distributions or general binary archive,
+        which can be further installed.
+        <pre class="code">
+            <code>
+            make deb # for DEBIAN package
+            make rpm # for RPM package
+            make tgz # binary archive
+            </code>
+        </pre>
+        DEB/RPM packages building may require additional system tools, consult with your Linux distribution manual.
+        Packages are build into <code>./packages</code> directory.
+        Built DEBIAN and RedHat packages could be installed using correspondent system package manager
+        (i.e., <code>apt</code> or <code>rpm</code>).
+    </li>
 
-The default <code>&lt;INSTALL_PREFIX&gt;</code> is <code>/usr/local</code>.
-Root privileges may be required, thus, one should probably call <code>sudo make install</code>.
-
-Binary packages for DEBIAN- and RedHat-based Linux distributions along with general binary archive could be built calling:
-<pre class="code">
-    <code>
-    make deb # for DEBIAN package
-    make rpm # for RPM package
-    make tgz # binary archive
-    </code>
-</pre>
-
-DEB/RPM packages building may require additional system tools, consult with your Linux distribution manual.
-Packages are build into <code>./packages</code> directory.
-Built DEBIAN and RedHat packages could be installed using correspondent system package manager (i.e., <code>apt</code> or <code>rpm</code>).
+    <li>
+        Finally, IgRepertoireConstructor can be <b>compiled</b> by running:
+        <pre class="code">
+            <code>
+            make
+            </code>
+        </pre>
+        After this all the tools could be run from the base directory.
+    </li>
+</ul>
 
 <a id="test_datasets"></a>
 <h3>2.1. Verifying your installation</h3>
