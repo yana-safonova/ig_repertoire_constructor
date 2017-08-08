@@ -275,4 +275,13 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
         EXPECT_THAT(rel_pos, testing::ElementsAre(6, 9, 12, 13, 14, 15, 16, 17, 20, 23));
     }
+
+    {
+        EvolutionaryEdgeAlignment alignment("AA-CGGAAAA", "AACCGGTTAA", "id", 0, 1, 1, 0, 0, 0, 0);
+        auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
+        ASSERT_EQ(rel_pos.size(), 1);
+        ASSERT_EQ(rel_pos[0], 2);
+    }
 }
