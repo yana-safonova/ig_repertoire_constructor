@@ -167,7 +167,7 @@ def ModifyCDRLabelerConfigFile(params, log):
 def ModifyVjFinderConfigFile(params, log):
     vj_param_dict = dict()
     vj_param_dict['loci'] = params.loci
-    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_germline")
+    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_crop_allelic")
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
     vj_param_dict['germline_filenames_config'] = params.germline_config_file
     process_cfg.substitute_params(params.vj_finder_config_file, vj_param_dict, log)
