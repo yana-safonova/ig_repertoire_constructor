@@ -10,13 +10,18 @@ namespace shm_kmer_matrix_estimator {
 std::vector<size_t>
 NoKNeighboursMutationStrategy::calculate_relevant_positions(EvolutionaryEdgeAlignment &alignment) const
 {
-    std::deque<int> mismatch_positions(alignment.son().size());
-    for (size_t i = 0; i < alignment.size(); ++i)
-        mismatch_positions[i] = static_cast<int>(alignment.son()[i] != alignment.parent()[i]);
+    std::vector<int> mismatch_positions;
+    mismatch_positions.reserve(alignment.son().size());
 
     for (size_t i = 0; i < kmer_len_ / 2; ++i) {
-        mismatch_positions.push_back(0);
-        mismatch_positions.push_front(0);
+        mismatch_positions.emplace_back(0);
+    }
+
+    for (size_t i = 0; i < alignment.size(); ++i)
+        mismatch_positions.emplace_back(static_cast<int>(alignment.son()[i] != alignment.parent()[i]));
+
+    for (size_t i = 0; i < kmer_len_ / 2; ++i) {
+        mismatch_positions.emplace_back(0);
     }
 
     std::vector<int> cum_sums(alignment.son().size());
