@@ -249,7 +249,6 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     {
         EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGTTAA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
         ASSERT_EQ(rel_pos.size(), 1);
         ASSERT_EQ(rel_pos[0], 2);
     }
@@ -257,7 +256,6 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     {
         EvolutionaryEdgeAlignment alignment("AATCGGAAAA", "AACCGGAAAA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
         ASSERT_EQ(rel_pos.size(), 4);
         ASSERT_EQ(rel_pos[0], 2);
         for (size_t i = 1; i < 4; ++i)
@@ -279,8 +277,6 @@ TEST_F(MutationStrategiesTest, CheckNoKNeighbour) {
     {
         EvolutionaryEdgeAlignment alignment("AA-CGGAAAA", "AACCGGTTAA", "id", 0, 1, 1, 0, 0, 0, 0);
         auto rel_pos = ms_nkn.calculate_relevant_positions(alignment);
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
-        // ASSERT_THAT(v, ElementsAre(2, 5, 6, 7, 8, 9));
         ASSERT_EQ(rel_pos.size(), 1);
         ASSERT_EQ(rel_pos[0], 2);
     }
