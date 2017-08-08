@@ -1,4 +1,4 @@
-#include "omp.h"
+#include <omp.h>
 #include "quality_statistics.hpp"
 
 void OutputMergedRL(vector<FastqRead> &reads, ostream &out) {
