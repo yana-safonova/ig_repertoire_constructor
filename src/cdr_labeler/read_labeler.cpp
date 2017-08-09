@@ -50,7 +50,7 @@ namespace cdr_labeler {
                                                                    j_hit.BlockAlignment());
         auto j_cdr_labeling = j_labeling_.GetLabelingByGene(j_hit.ImmuneGene());
         annotation_utils::CDRRange read_cdr3(v_alignment.QueryPositionBySubjectPosition(v_cdr_labeling.cdr3.start_pos),
-                                             j_alignment.QueryPositionBySubjectPosition(j_cdr_labeling.cdr3.end_pos));
+                                             j_alignment.QueryPositionBySubjectPosition(0) - 1);
 
         return clone_calculator_.ComputeAnnotatedClone(vj_hits.Read(),
                                                        annotation_utils::CDRLabeling(read_cdr1, read_cdr2, read_cdr3),
