@@ -115,6 +115,38 @@ namespace antevolo {
     }
 
 
+    void VJClassProcessor::HG_components(SparseGraphPtr hg_component, size_t component_id,
+                                         const ShmModelEdgeWeightCalculator &edge_weight_calculator)
+    {
+        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+                                                unique_cdr3s_map_,
+                                                cdr3_to_old_index_map_,
+                                                unique_cdr3s_,
+                                                hg_component,
+                                                component_id);
 
+        auto clones = hamming_graph_info.GetAllClones();
+        const auto& clone_set = *clone_set_ptr_;
+
+        std::string output_fname = path::append_path(config_.output_params.output_dir, "HG_stats.txt");
+        std::ofstream out(output_fname, std::ios::app);
+
+        out << "Component size: " << clones.size() << "\n";
+        std::map<std::string, int> q;
+        size_t cdr3_len;
+        for (auto const& it: clones)
+        {
+            std::string v_name = std::string(seqan::toCString(clone_set[it].VGene().name()));
+            std::string j_name = std::string(seqan::toCString(clone_set[it].JGene().name()));
+            q[v_name + '_' + j_name] += 1;
+            cdr3_len = seqan::length(clone_set[it].CDR3());
+        }
+        for (auto it=q.begin(); it!=q.end(); ++it)
+        {
+            out << it->first << " " << it->second << "\n";
+        }
+        out << "CDR3: " << cdr3_len << "\n\n";
+        out.close();
+    }
 
 }

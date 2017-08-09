@@ -14,8 +14,10 @@ namespace antevolo {
         auto input_edges = PrepareEdgeVector();
         auto branching_edges = EdmondsProcessor().process_edge_list(input_edges);
         SetEdges(tree, branching_edges);
-        ReconstructMissingVertices(vertices_nums_, tree);
-        Refine(vertices_nums_, tree);
+
+        //ReconstructMissingVertices(vertices_nums_, tree);
+        //Refine(vertices_nums_, tree);
+
         tree.AddAllEdges();
         return tree;
     }

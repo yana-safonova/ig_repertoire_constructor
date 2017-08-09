@@ -37,6 +37,8 @@ namespace antevolo {
 
         EvolutionaryTreeStorage ConstructClonalTrees();
 
+        EvolutionaryTreeStorage ConstructClonalTreesHG();
+
         CloneSetWithFakesPtr GetCloneSetWithFakes() { return final_clone_set_with_fakes_; }
     };
 }

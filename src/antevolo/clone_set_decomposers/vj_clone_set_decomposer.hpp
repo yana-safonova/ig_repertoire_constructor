@@ -14,5 +14,7 @@ namespace antevolo {
                 CloneSetDecomposer(clone_set) { }
 
         core::Decomposition CreateDecomposition() const;
+
+        core::Decomposition CreateDecompositionToOneClass() const;
     };
 }

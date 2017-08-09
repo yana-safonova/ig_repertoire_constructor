@@ -51,5 +51,10 @@ namespace antevolo {
 
         size_t GetCurrentFakeCloneIndex() const { return current_fake_clone_index_; };
         size_t GetNumberOfReconstructedClones() const { return reconstructed_; };
+
+        void HG_components(SparseGraphPtr hg_component, size_t component_id,
+                           const ShmModelEdgeWeightCalculator &edge_weight_calculator);
+
+
     };
 }

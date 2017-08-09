@@ -37,4 +37,26 @@ namespace antevolo {
         }
         return decomposition;
     }
+
+    core::Decomposition VJCloneSetDecomposer::CreateDecompositionToOneClass() const {
+
+        std::map<std::string, std::vector<size_t>> vj_clusters;
+        vj_clusters["0"] = std::vector<size_t>();
+
+        for(size_t i = 0; i < clone_set_.size(); i++) {
+            vj_clusters["0"].push_back(i);
+        }
+
+        core::Decomposition decomposition(clone_set_.size());
+        size_t class_index = 0;
+        for (auto it = vj_clusters.begin(); it != vj_clusters.end(); it++) {
+            auto vj_class = it->second;
+            for (auto it2 = vj_class.begin(); it2 != vj_class.end(); it2++)
+                decomposition.SetClass(*it2, class_index);
+            class_index++;
+        }
+        return decomposition;
+    }
+
+
 }
