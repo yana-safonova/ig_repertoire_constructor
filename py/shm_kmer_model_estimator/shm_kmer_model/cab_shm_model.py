@@ -19,14 +19,17 @@ class Region(Enum):
 class CAB_SHM_Model(object):
     model_path = os.path.join('/', 'Sid', 'abzikadze', 'shm_models')
 
-    def __init__(self, strategy, chain, kmer_len=5):
+    def __init__(self, strategy, chain, dataset=None, kmer_len=5):
         self.kmer_len = kmer_len
         self.kmer_names = kmer_utilities.kmer_names(kmer_len)
         self.column_names = config.output_csv_header
-        self.strategy = strategy 
+        self.strategy = strategy
         self.chain = chain
         path = os.path.join(self.model_path, '%s_%s.csv' % (strategy.name, chain.name))
-        self.dataset = pd.read_csv(path, index_col=0)
+        if dataset is None:
+            self.dataset = pd.read_csv(path, index_col=0)
+        else:
+            self.dataset = dataset.copy()
 
     def __get_beta_params(self, region=Region.ANY):
         if region == Region.FR:
