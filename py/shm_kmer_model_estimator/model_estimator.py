@@ -18,6 +18,7 @@ from experiments.loci_comparison import compare_loci
 from experiments.forward_backward_mutations import compare_forward_backward_mutations
 from experiments.plot_beta_dir import plot_distr
 from experiments.model_analysis import read_models
+from experiments.ci_analysis import ci_len_analysis
 
 from chains.chains import Chains
 from shm_kmer_model.cab_shm_model import Region, CAB_SHM_Model
@@ -125,21 +126,30 @@ def bootstrap(models, matrices, model_config):
     for strategy in matrices:
         for chain in matrices[strategy]:
             means_beta_fr, means_beta_cdr, means_beta_full = [], [], []
-            means_dir = []
-            print(results[strategy][chain][0].dataset.head())
+            means_dir1, means_dir2, means_dir3 = [], [], []
             for i in xrange(model_config.bootstrap_iterations):
                 model = results[strategy][chain][i]
                 means_beta_fr.append(model.all_expect_mut_probs(region=Region.FR))
                 means_beta_cdr.append(model.all_expect_mut_probs(region=Region.CDR))
                 means_beta_full.append(model.all_expect_mut_probs())
+                all_dir_means = np.array(model.all_dir_means())
+                means_dir1.append(all_dir_means[:,0])
+                means_dir2.append(all_dir_means[:,1])
+                means_dir3.append(all_dir_means[:,2])
 
             means_beta_fr = np.stack(means_beta_fr, axis=1)
             means_beta_cdr = np.stack(means_beta_cdr, axis=1)
             means_beta_full = np.stack(means_beta_full, axis=1)
+            means_dir1 = np.stack(means_dir1, axis=1)
+            means_dir2 = np.stack(means_dir2, axis=1)
+            means_dir3 = np.stack(means_dir3, axis=1)
 
             percentile_beta_fr = np.nanpercentile(means_beta_fr, [5, 95], axis=1)
             percentile_beta_cdr = np.nanpercentile(means_beta_cdr, [5, 95], axis=1)
             percentile_beta_full = np.nanpercentile(means_beta_full, [5, 95], axis=1)
+            percentile_dir1 = np.nanpercentile(means_dir1, [5, 95], axis=1)
+            percentile_dir2 = np.nanpercentile(means_dir2, [5, 95], axis=1)
+            percentile_dir3 = np.nanpercentile(means_dir3, [5, 95], axis=1)
 
             model = models[strategy][chain]
 
@@ -151,6 +161,9 @@ def bootstrap(models, matrices, model_config):
             model = add_ci(model, percentile_beta_fr, "percentile_beta_fr")
             model = add_ci(model, percentile_beta_cdr, "percentile_beta_cdr")
             model = add_ci(model, percentile_beta_full, "percentile_beta_full")
+            model = add_ci(model, percentile_dir1, "percentile_dir1")
+            model = add_ci(model, percentile_dir2, "percentile_dir2")
+            model = add_ci(model, percentile_dir3, "percentile_dir3")
     return models
 
 
@@ -181,6 +194,10 @@ def main():
     output_models(models, model_config.outdir)
 
     print("Analysis of models' convergence")
+    wrapper_convergence_analysis(models, model_config)
+
+    print("Analysis of ci_len")
+    ci_len_analysis(model_config)
 
     if not parsed_args.skip_analysis:
         print("Plotting mutability boxplots started")
