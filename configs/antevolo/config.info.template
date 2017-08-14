@@ -1,0 +1,47 @@
+input_params {
+    input_reads test7_compressed.fq; test_dataset/test7.fastq ;test_dataset/merged_reads.fastq
+    decomposition_rcm None
+    cdr_labeler_config_fname configs/cdr_labeler/config.info  
+    shm_kmer_matrix_estimator_config_fname configs/shm_kmer_matrix_estimator/default_config_antevolo.info
+    shm_kmer_model_igh data/shm_model/NoKNeighbours_IGH.csv
+    shm_kmer_model_igk data/shm_model/NoKNeighbours_IGK.csv
+    shm_kmer_model_igl data/shm_model/NoKNeighbours_IGL.csv
+}
+
+output_params {
+    output_dir     antevolo_test
+    cdr_graph_dir  cdr3_graphs
+    tree_dir       clonal_trees
+    vertex_dir     clonal_trees_vertices
+    trash_output   trash_output.out
+    tree_details   tree_details.txt
+    tree_shm_dir   tree_shms
+
+    parallel_shm_output {
+        parallel_bulges_dir clonal_graphs
+        parallel_shm_dir    parallel_shms
+    }
+}
+
+run_params {
+    num_threads    1
+}
+
+algorithm_params {
+    compare 0
+    model 0
+
+    similar_cdr3s_params {
+        num_mismatches   3
+        num_indels       0
+    }
+
+    edge_construction_params {
+        min_num_intersected_v_shms   3
+        intersected_edge_coeff       1.0
+    }
+
+    parallel_evolution_params {
+        enable_parallel_shms_finder false
+    }
+}

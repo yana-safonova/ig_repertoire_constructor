@@ -25,7 +25,7 @@ namespace vj_finder {
         const germline_utils::CustomGeneDatabase &v_db_;
         const germline_utils::CustomGeneDatabase &j_db_;
 
-        ProcessedVJHits ComputeFilteringResults(const core::Read &read, VJHits vj_hits);
+        ProcessedVJHits ComputeFilteringResults(core::Read &read, VJHits vj_hits);
 
         std::shared_ptr<BaseFillFixCropProcessor> GetFillFixCropProcessor();
 
@@ -38,6 +38,6 @@ namespace vj_finder {
                                                                            v_db_(v_db),
                                                                            j_db_(j_db) { }
 
-        ProcessedVJHits Process(const core::Read &read);
+        ProcessedVJHits Process(core::Read &read);
     };
 }

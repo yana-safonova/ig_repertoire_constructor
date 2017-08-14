@@ -39,7 +39,7 @@ namespace core {
         return reads_.size();
     }
 
-    const Read& ReadArchive::operator[](size_t index) const {
+    Read& ReadArchive::operator[](size_t index) {
         VERIFY_MSG(index < reads_.size(), "Index " << index << " exceeds archive size");
         return reads_[index];
     }

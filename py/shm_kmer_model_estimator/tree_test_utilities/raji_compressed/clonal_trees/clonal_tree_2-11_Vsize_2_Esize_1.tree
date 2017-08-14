@@ -1,0 +1,2 @@
+Src_id	Dst_id	Src_clone	Dst_clone	Num_Src_SHMs	Num_Dst_SHMs	Edge_type	Num_shared_SHMs	Num_added_SHMs	CDR3_dist	Weight	Src_productive	Dst_productive	Synonymous	Src_CDR3	Dst_CDR3
+1152	743	MIG_UMI:ACAGGGAAACGT:193___size___1	MIG_UMI:CAGGAAGCCTAG:192___size___1	42	42	undirected	42	0	0	0	0	0	1	GCGAGACAGAGGAATGATTTTTCTGATAATTTGACTTC	GCGAGACAGAGGAATGATTTTTCTGATAATTTGACTTC

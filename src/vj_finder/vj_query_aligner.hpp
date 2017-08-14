@@ -9,7 +9,7 @@ namespace vj_finder {
     class VJQueryAligner {
         const VJFinderConfig::AlgorithmParams & algorithm_params_;
 
-        core::ReadArchive &read_archive_;
+        //core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_custom_db_;
         const germline_utils::CustomGeneDatabase &j_custom_db_;
 
@@ -52,17 +52,17 @@ namespace vj_finder {
 
     public:
         VJQueryAligner(const VJFinderConfig::AlgorithmParams &algorithm_params,
-                       core::ReadArchive &read_archive,
+                       //core::ReadArchive &read_archive,
                        const germline_utils::CustomGeneDatabase &v_custom_db,
                        const germline_utils::CustomGeneDatabase &j_custom_db) :
                 algorithm_params_(algorithm_params),
-                read_archive_(read_archive),
+                //read_archive_(read_archive),
                 v_custom_db_(v_custom_db),
                 j_custom_db_(j_custom_db) {
             CheckDbConsistencyFatal();
         }
 
-        VJHits Align(const core::Read& read);
+        VJHits Align(core::Read& read);
 
     private:
         DECL_LOGGER("VJQueryAligner");

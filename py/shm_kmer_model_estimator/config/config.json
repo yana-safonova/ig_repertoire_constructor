@@ -1,0 +1,27 @@
+{
+    "output_csv_header": [
+        "beta_FR_shape1", "beta_FR_shape2",
+        "beta_CDR_shape1", "beta_CDR_shape2",
+        "beta_FULL_shape1", "beta_FULL_shape2",
+        "dir_shape1", "dir_shape2", "dir_shape3",
+        "success_optim_beta_FR",
+        "success_optim_beta_CDR",
+        "success_optim_beta_FULL",
+        "success_optim_dir",
+        "start_point_beta_FR_shape1",
+        "start_point_beta_FR_shape2",
+        "start_point_beta_CDR_shape1",
+        "start_point_beta_CDR_shape2",
+        "start_point_beta_FULL_shape1",
+        "start_point_beta_FULL_shape2",
+        "start_point_dir_shape1",
+        "start_point_dir_shape2",
+        "start_point_dir_shape3"
+    ],
+    "output_csv_header_simple_frequency": [
+        "FR_mut", "FR_mut_ci_left", "FR_mut_ci_right",
+        "CDR_mut", "CDR_mut_ci_left", "CDR_mut_ci_right",
+        "FULL_mut", "FULL_mut_ci_left", "FULL_mut_ci_right",
+        "subst_1", "subst_2", "subst_3"
+    ]
+}
