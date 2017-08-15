@@ -54,7 +54,11 @@ int main(int argc, char **argv) {
     seqan::Dna5String seq;
     std::string qual;
 
+    size_t i = 0;
     while(!seqan::atEnd(seqan_input)) {
+        if (not (i % 10000))
+            std::cout << "Processed " << i << " sequences\n";
+
         seqan::readRecord(id, seq, qual, seqan_input);
         size_t left = 0, right = qual.length();
         while (qual[left] <= threshold)
@@ -70,6 +74,7 @@ int main(int argc, char **argv) {
         qual = qual.substr(left, right - left);
 
         seqan::writeRecord(seqan_output, id, infix, qual);
+        i++;
     }
 
     return 0;
