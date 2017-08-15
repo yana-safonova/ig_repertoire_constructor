@@ -4,6 +4,7 @@ from kmer_utilities.kmer_utilities import central_nucl_indexes, \
                                           kmer_names, \
                                           kmer_index
 
+
 class KmerMatrices(object):
     def __init__(self, fr_matrices=None, cdr_matrices=None):
         if fr_matrices is None or cdr_matrices is None:
@@ -46,7 +47,21 @@ class KmerMatrices(object):
         self.cdr_matrices = np.concatenate(self.cdr_matrices, 2)
 
         self.shape = self.matrices.shape
+        self.nkmer, self.nparams, self.ndatasets = self.shape
         self.kmer_names = kmer_names()
+
+
+    def get_bootstrap_matrices(self):
+        ndatasets = self.shape[2]
+        idx = np.random.randint(ndatasets, size=ndatasets)
+        rand_fr_matrices = self.fr_matrices[:, :, idx]
+        rand_cdr_matrices = self.cdr_matrices[:, :, idx]
+        drand_fr_matrices, drand_cdr_matrices = {}, {}
+        for i in xrange(ndatasets):
+            drand_fr_matrices[i] = rand_fr_matrices[:, :, i]
+            drand_cdr_matrices[i] = rand_cdr_matrices[:, :, i]
+        return KmerMatrices(drand_fr_matrices, drand_cdr_matrices)
+
 
     @classmethod
     def FromKmerMatricesList(cls, kmer_matrices):

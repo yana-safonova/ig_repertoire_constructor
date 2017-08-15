@@ -1,4 +1,7 @@
 from __future__ import division
+import warnings
+
+
 from scipy.optimize import minimize
 import numpy as np
 
@@ -45,7 +48,9 @@ class ShmKmerLikelihoodOptimizator:
                 scale_beta = \
                     (first_moment - second_moment) / \
                     (second_moment - first_moment**2)
-                assert scale_beta > 0
+
+                if scale_beta <= 0:
+                    scale_beta = 1
 
             beta_shape = \
                 scale_beta * np.array([first_moment, 1 - first_moment])
@@ -68,7 +73,10 @@ class ShmKmerLikelihoodOptimizator:
 
         scaled_mutated_sample = (lklh.mutated_sample.T /
                                  np.sum(lklh.mutated_sample, axis=1)).T
-        dir_mean = np.nanmean(scaled_mutated_sample, axis=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            dir_mean = np.nanmean(scaled_mutated_sample, axis=0)
+
         if scale_dir is None:
             if np.any(dir_mean == 1) or \
                np.any(dir_mean == 0) or \
@@ -78,7 +86,8 @@ class ShmKmerLikelihoodOptimizator:
                 dir_var = np.nanvar(scaled_mutated_sample, axis=0)
                 scale_dir = dir_var / (dir_mean * (1 - dir_mean))
                 scale_dir = np.nanmean(scale_dir)
-                assert scale_dir > 0
+                if scale_dir <= 0:
+                    scale_dir = 1
 
         dir_lambda = scale_dir * dir_mean
         return beta_shape_fr, beta_shape_cdr, beta_shape_full, dir_lambda

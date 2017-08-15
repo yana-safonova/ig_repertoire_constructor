@@ -8,6 +8,7 @@ from abc import abstractmethod
 import kmer_utilities.kmer_utilities as kmer_utilities
 import mutation_strategies.mutation_strategies as mutation_strategies
 import chains.chains as chains
+import special_utils.model_utils as model_utils
 
 from config.config import config
 
@@ -16,17 +17,28 @@ class Region(Enum):
     FR, CDR, ANY = range(3)
 
 
+def get_cab_models():
+    models = model_utils.stddict()
+    for strategy in models:
+        for locus in models[strategy]:
+            models[strategy][locus] = CAB_SHM_Model(strategy, locus)
+    return models
+
+
 class CAB_SHM_Model(object):
     model_path = os.path.join('/', 'Sid', 'abzikadze', 'shm_models')
 
-    def __init__(self, strategy, chain, kmer_len=5):
+    def __init__(self, strategy, chain, dataset=None, kmer_len=5):
         self.kmer_len = kmer_len
         self.kmer_names = kmer_utilities.kmer_names(kmer_len)
         self.column_names = config.output_csv_header
-        self.strategy = strategy 
+        self.strategy = strategy
         self.chain = chain
         path = os.path.join(self.model_path, '%s_%s.csv' % (strategy.name, chain.name))
-        self.dataset = pd.read_csv(path, index_col=0)
+        if dataset is None:
+            self.dataset = pd.read_csv(path, index_col=0)
+        else:
+            self.dataset = dataset.copy()
 
     def __get_beta_params(self, region=Region.ANY):
         if region == Region.FR:
@@ -58,6 +70,11 @@ class CAB_SHM_Model(object):
         return self.dataset[['dir_shape1',
                              'dir_shape2',
                              'dir_shape3']]
+
+    def all_dir_means(self):
+        dir_params = self.all_dir_params()
+        sums = np.sum(dir_params, axis=1)
+        return (dir_params.T / sums).T
 
     def __get_start_point_params(self, region=Region.ANY):
         if region == Region.FR:
@@ -129,3 +146,28 @@ class CAB_SHM_Model(object):
         if not np.isnan(result):
             return result
         return kmer_info['start_point_dir_shape' + str(mutation_index)]
+
+    def __get_beta_ci(self, region=Region.ANY):
+        if region == Region.FR:
+            left, right = 'percentile_beta_fr_left', 'percentile_beta_fr_right'
+        elif region == Region.CDR:
+            left, right = 'percentile_beta_cdr_left', 'percentile_beta_cdr_right'
+        elif region == Region.ANY:
+            left, right = 'percentile_beta_full_left', 'percentile_beta_full_right'
+        else:
+             raise ValueError("Wrong region")
+        return left, right
+
+    def get_beta_ci(self, kmer, region=Region.ANY):
+        assert kmer in self.kmer_names
+        p1, p2 = self.__get_beta_ci(region)
+        return self.dataset.loc[kmer][[p1, p2]]
+
+    def get_all_beta_ci(self, region=Region.ANY):
+        p1, p2 = self.__get_beta_ci(region)
+        return self.dataset[[p1, p2]]
+
+    def get_all_dir_ci(self, ind):
+        p1 = "percentile_dir%d_left" % ind
+        p2 = "percentile_dir%d_right" % ind
+        return self.dataset[[p1, p2]]
