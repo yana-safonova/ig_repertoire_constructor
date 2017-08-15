@@ -50,9 +50,9 @@ int main(int argc, char **argv) {
 
     seqan::SeqFileIn seqan_input(seqan::toCString(input));
     seqan::SeqFileOut seqan_output(seqan::toCString(output));
-    seqan::CharString id;
-    seqan::Dna5String seq;
-    std::string qual;
+    // seqan::CharString id;
+    // seqan::Dna5String seq;
+    std::string id, seq, qual;
 
     size_t i = 0;
     while(!seqan::atEnd(seqan_input)) {
@@ -70,10 +70,9 @@ int main(int argc, char **argv) {
         while (qual[right - 1] <= threshold)
             right--;
 
-        auto infix = seqan::infix(seq, left, right);
-        qual = qual.substr(left, right - left);
-
-        seqan::writeRecord(seqan_output, id, infix, qual);
+        seqan::writeRecord(seqan_output, id,
+                           seq.substr(left, right - left),
+                           qual.substr(left, right - left));
         i++;
     }
 
