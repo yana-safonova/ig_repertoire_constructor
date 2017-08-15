@@ -76,6 +76,9 @@ ant: cmake
 igs: cmake
 	$(MAKE) -C build/release ig_simulator
 
+rt: cmake
+	$(MAKE) -C build/release read_trimmer
+
 clean_tests:
 	-rm *.pyc
 	-rm -r igrec_test
