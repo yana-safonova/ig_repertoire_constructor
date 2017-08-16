@@ -30,7 +30,8 @@ class ShmKmerModelEstimator(object):
                 continue
         self.min_mut_coverage = model_config.min_mut_coverage
         self.min_subst_coverage = model_config.min_subst_coverage
-
+        self.max_beta_sum = model_config.max_beta_sum
+        self.max_dir_sum = model_config.max_dir_sum
 
     def refine_model(self, results, matrices, chain):
         ind_need_mut_inference, ind_need_subst_inference = [], []
@@ -84,16 +85,21 @@ class ShmKmerModelEstimator(object):
             full = res['optim_res_beta_full']
             direchlet = res['optim_res_dir']
 
-            def x_success(start, max_obj):
+            def x_success(start, max_obj, sum_threshold):
                 success = max_obj.success
                 if np.any(np.isnan(max_obj.x)):
                     success = 0
+                elif np.sum(max_obj.x) > sum_threshold:
+                    max_obj.x /= np.sum(max_obj.x)
+                    max_obj.x *= sum_threshold
                 return success, max_obj.x
 
-            fr_success, fr_x = x_success(start_fr, fr)
-            cdr_success, cdr_x = x_success(start_cdr, cdr)
-            full_success, full_x = x_success(start_full, full)
-            dir_success, dir_x = x_success(start_dir, direchlet)
+            fr_success, fr_x = x_success(start_fr, fr, self.max_beta_sum)
+            cdr_success, cdr_x = x_success(start_cdr, cdr, self.max_beta_sum)
+            full_success, full_x = x_success(start_full, full,
+                                             self.max_beta_sum)
+            dir_success, dir_x = x_success(start_dir, direchlet,
+                                           self.max_dir_sum)
 
             success = np.array([fr_success, cdr_success,
                                 full_success, dir_success])
