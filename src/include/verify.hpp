@@ -51,25 +51,3 @@
 #define VERIFY(expr) ((void) 0);
 #define VERIFY_MSG(expr, msg) ((void) 0);
 #endif
-
-namespace verify_details {
-
-template<typename T>
-void __FormVerifyMessage(std::ostringstream &ss, T &&t) {
-    ss << t;
-}
-
-template<typename T, typename... Args>
-void __FormVerifyMessage(std::ostringstream &ss, T &&t, Args &&... args) {
-    ss << t << " ";
-    __FormVerifyMessage(ss, std::forward<Args>(args)...);
-}
-
-} // End namespace verify_details
-
-template<typename... Args>
-std::string FormVerifyMessage(Args &&... args) {
-    std::ostringstream ss;
-    verify_details::__FormVerifyMessage(ss, std::forward<Args>(args)...);
-    return ss.str();
-}

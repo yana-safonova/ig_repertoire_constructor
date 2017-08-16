@@ -56,8 +56,8 @@ ShmModel PosteriorDistributionCalculator::calculate(const ShmModel &prior,
           size_t number_of_trials = sample[0] + sample[1] + sample[2] + sample[3];
           size_t number_of_successes = number_of_trials - sample[index_central_nucleotide];
           VERIFY_MSG(number_of_successes <= number_of_trials,
-                     FormVerifyMessage("Number of successes", number_of_successes,
-                                       "Number of trials", number_of_trials));
+                     "Number of successes = " <<  number_of_successes << ", " <<
+                     "Number of trials = " << number_of_trials);
           beta_param[0] += static_cast<double>(number_of_successes);
           beta_param[1] += static_cast<double>(number_of_trials - number_of_successes);
         };
