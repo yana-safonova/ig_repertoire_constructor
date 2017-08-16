@@ -61,13 +61,15 @@ int main(int argc, char **argv) {
 
         seqan::readRecord(id, seq, qual, seqan_input);
         size_t left = 0, right = qual.length();
-        while (qual[left] <= threshold)
+        while (left < qual.length() and qual[left] <= threshold)
             left++;
 
-        if (left == qual.length())
+        if (left == qual.length()) {
+            seqan::writeRecord(seqan_output, id, seq, qual);
             continue;
+        }
 
-        while (qual[right - 1] <= threshold)
+        while (right and qual[right - 1] <= threshold)
             right--;
 
         seqan::writeRecord(seqan_output, id,
