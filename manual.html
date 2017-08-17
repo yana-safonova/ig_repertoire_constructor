@@ -130,12 +130,49 @@ IgRepertoireConstructor has the following dependencies:
     </ul>
 </ul>
 
-To install IgRepertoireConstructor, type:
+IgRepertoireConstructor needs installation before using. This can be done in one of the following ways.
+<ul>
+    <li>
+        The toolset can be <b>installed</b> into the system evoking:
+<pre class="code">
+    <code>
+    make install prefix=&lt;INSTALL_PREFIX&gt;
+    </code>
+</pre>
+        This places IgRepertoireConstructor installation files into <code>&lt;INSTALL_PREFIX&gt;/share/igrec</code>
+        and executables into <code>&lt;INSTALL_PREFIX&gt;/bin</code>.
+        <code>&lt;INSTALL_PREFIX&gt;</code> defaults to <code>/usr/local</code>,
+        thus root privileges may be required.
+        In this case try <code>sudo make install</code>.
+    </li>
+
+    <li>
+        Alternatively, one can build <b>binary packages</b> for <b>DEBIAN</b>-
+        and <b>RedHat</b>-based Linux distributions or general binary archive,
+        which can be further installed.
+<pre class="code">
+    <code>
+    make deb # for DEBIAN package
+    make rpm # for RPM package
+    make tgz # binary archive
+    </code>
+</pre>
+        DEB/RPM packages building may require additional system tools, consult with your Linux distribution manual.
+        Packages are build into <code>./packages</code> directory.
+        Built DEBIAN and RedHat packages could be installed using correspondent system package manager
+        (i.e., <code>apt</code> or <code>rpm</code>).
+    </li>
+
+    <li>
+        Finally, IgRepertoireConstructor can be <b>compiled</b> by running:
 <pre class="code">
     <code>
     make
     </code>
 </pre>
+        After this all the tools could be run from the base directory.
+    </li>
+</ul>
 
 <a id="test_datasets"></a>
 <h3>2.1. Verifying your installation</h3>

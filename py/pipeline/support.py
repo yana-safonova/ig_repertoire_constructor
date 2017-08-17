@@ -60,11 +60,6 @@ def check_python_version():
               "Supported versions are " + ", ".join(options_storage.SUPPORTED_PYTHON_VERSIONS))
 
 
-def get_spades_binaries_info_message():
-    return "You can obtain IG Repertoire Consructor binaries by the following way:" +\
-           "\nBuild source code by runing  ./prepare_cfg; make"
-
-
 def check_binaries(binary_dir, log):
     pass
 
