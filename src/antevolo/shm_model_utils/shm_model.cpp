@@ -20,7 +20,9 @@ using Tokenizer = tokenizer<escaped_list_separator<char>>;
 
 namespace antevolo {
 
-ShmModel::ShmModel(const std::string &filename) {
+ShmModel::ShmModel(const std::string &filename) :
+        min_mutation_prob(1)
+{
     std::fstream in(filename);
     VERIFY_MSG(in.is_open(), std::string("File is not opened! Filename:") + filename);
     std::string line;
@@ -49,6 +51,9 @@ ShmModel::ShmModel(const std::string &filename) {
         i += 2;
         beta_full_params_.push_back({std::stod(parsed_vector[i]),
                                      std::stod(parsed_vector[i + 1])});
+        auto& lparam = beta_full_params_.back();
+        min_mutation_prob = std::fmin(min_mutation_prob,
+                                      lparam[0] / (lparam[0] + lparam[1]));
         i += 2;
 
         dirichlet_params_.push_back({std::stod(parsed_vector[i]),
@@ -213,6 +218,14 @@ std::ostream &operator<<(std::ostream &os, const ShmModel &obj) {
 
     }
     return os;
+}
+
+double ShmModel::likelihood_gap() const {
+    return min_mutation_prob;
+}
+
+double ShmModel::loglikelihood_gap() const {
+    return log(likelihood_gap());
 }
 
 } // End namespace antevolo

@@ -36,6 +36,8 @@ private:
     SuccessMLEOptimazation beta_full_success_mle_;
     SuccessMLEOptimazation dirichlet_success_mle_;
 
+    double min_mutation_prob;
+
 public:
     ShmModel() = delete;
 
@@ -94,6 +96,9 @@ public:
                                    const char nucl,
                                    const annotation_utils::StructuralRegion& region =
                                        annotation_utils::StructuralRegion::AnyRegion) const;
+
+    double likelihood_gap() const;
+    double loglikelihood_gap() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const ShmModel& obj);
