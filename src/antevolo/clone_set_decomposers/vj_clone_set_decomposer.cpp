@@ -19,6 +19,11 @@ namespace antevolo {
         return GetGeneBaseName(clone.VGene().name()) + "_" + GetGeneBaseName(clone.JGene().name());
     }
 
+    std::string VJCloneSetDecomposer::GetVKeyByClone(const annotation_utils::AnnotatedClone &clone) const {
+        //return clone.VGene().name() + "__" + clone.JGene().name();
+        return GetGeneBaseName(clone.VGene().name());
+    }
+
     core::Decomposition VJCloneSetDecomposer::CreateDecomposition() const {
         std::map<std::string, std::vector<size_t>> vj_clusters;
         for(size_t i = 0; i < clone_set_.size(); i++) {
@@ -32,6 +37,25 @@ namespace antevolo {
         for(auto it = vj_clusters.begin(); it != vj_clusters.end(); it++) {
             auto vj_class = it->second;
             for(auto it2 = vj_class.begin(); it2 != vj_class.end(); it2++)
+                decomposition.SetClass(*it2, class_index);
+            class_index++;
+        }
+        return decomposition;
+    }
+
+    core::Decomposition VJCloneSetDecomposer::CreateDecompositionByVGenes() const {
+        std::map<std::string, std::vector<size_t>> v_clusters;
+        for(size_t i = 0; i < clone_set_.size(); i++) {
+            std::string v_key = GetVKeyByClone(clone_set_[i]);
+            if(v_clusters.find(v_key) == v_clusters.end())
+                v_clusters[v_key] = std::vector<size_t>();
+            v_clusters[v_key].push_back(i);
+        }
+        core::Decomposition decomposition(clone_set_.size());
+        size_t class_index = 0;
+        for(auto it = v_clusters.begin(); it != v_clusters.end(); it++) {
+            auto v_class = it->second;
+            for(auto it2 = v_class.begin(); it2 != v_class.end(); it2++)
                 decomposition.SetClass(*it2, class_index);
             class_index++;
         }

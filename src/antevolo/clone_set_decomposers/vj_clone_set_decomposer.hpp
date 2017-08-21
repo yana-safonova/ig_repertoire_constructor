@@ -9,6 +9,8 @@ namespace antevolo {
 
         std::string GetVJKeyByClone(const annotation_utils::AnnotatedClone &clone) const;
 
+        std::string GetVKeyByClone(const annotation_utils::AnnotatedClone &clone) const;
+
     public:
         VJCloneSetDecomposer(const annotation_utils::CDRAnnotatedCloneSet& clone_set) :
                 CloneSetDecomposer(clone_set) { }
@@ -16,5 +18,7 @@ namespace antevolo {
         core::Decomposition CreateDecomposition() const;
 
         core::Decomposition CreateDecompositionToOneClass() const;
+
+        core::Decomposition CreateDecompositionByVGenes() const;
     };
 }
