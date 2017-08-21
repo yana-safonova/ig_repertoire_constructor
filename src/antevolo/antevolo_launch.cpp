@@ -66,20 +66,20 @@ namespace antevolo {
                                                          config_.cdr_labeler_config.vj_finder_config.algorithm_params.germline_params);
         INFO("Generation of DB for variable segments...");
         germline_utils::CustomGeneDatabase v_db = db_generator.GenerateVariableDb();
-        INFO("Generation of DB for join segments...");
-        germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
+//        INFO("Generation of DB for join segments...");
+//        germline_utils::CustomGeneDatabase j_db = db_generator.GenerateJoinDb();
         // todo: refactor code duplication
         INFO("CDR labeling for V gene segments");
         auto v_labeling = cdr_labeler::GermlineDbLabeler(v_db,
                                                          config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
-        INFO("CDR labeling for J gene segments");
-        auto j_labeling = cdr_labeler::GermlineDbLabeler(j_db,
-                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
+//        INFO("CDR labeling for J gene segments");
+//        auto j_labeling = cdr_labeler::GermlineDbLabeler(j_db,
+//                                                         config_.cdr_labeler_config.cdrs_params).ComputeLabeling();
         INFO("Creation of labeled V and J databases");
         auto labeled_v_db = v_labeling.CreateFilteredDb();
         INFO("Labeled DB of V segments consists of " << labeled_v_db.size() << " records");
-        auto labeled_j_db = j_labeling.CreateFilteredDb();
-        INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
+//        auto labeled_j_db = j_labeling.CreateFilteredDb();
+//        INFO("Labeled DB of J segments consists of " << labeled_j_db.size() << " records");
         INFO("Alignment against VJ germline segments");
         vj_finder::VJParallelProcessor processor(read_archive,
                                                  config_.cdr_labeler_config.vj_finder_config.algorithm_params,
@@ -158,7 +158,7 @@ namespace antevolo {
                                                                  total_number_of_reads,
                                                                  edge_weight_calculator);
 
-        auto tree_storage = antevolo_processor.ConstructClonalTreesHG();
+        auto tree_storage = antevolo_processor.ConstructClonalTrees();
 
         auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
         INFO("Evolutionary directions for " << tree_storage.size() << " clonal lineages were created");

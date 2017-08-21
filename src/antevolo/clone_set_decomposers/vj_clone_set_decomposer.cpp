@@ -47,6 +47,7 @@ namespace antevolo {
         std::map<std::string, std::vector<size_t>> v_clusters;
         for(size_t i = 0; i < clone_set_.size(); i++) {
             std::string v_key = GetVKeyByClone(clone_set_[i]);
+            std::cout << v_key << "\n";
             if(v_clusters.find(v_key) == v_clusters.end())
                 v_clusters[v_key] = std::vector<size_t>();
             v_clusters[v_key].push_back(i);
