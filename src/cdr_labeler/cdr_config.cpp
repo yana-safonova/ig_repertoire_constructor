@@ -158,16 +158,20 @@ namespace cdr_labeler {
         shm_p.shm_finding_algorithm = convert_str_shm_search_params(shm_finding_str);
     }
 
-    void CDRLabelerConfig::load(std::string config_fname) {
+    void load(CDRLabelerConfig& cfg, boost::property_tree::ptree const& pt, bool) {
+        using config_common::load;
+        load(cfg.input_params, pt, "input_params", true);
+        load(cfg.output_params, pt, "output_params", true);
+        load(cfg.run_params, pt, "run_params", true);
+        load(cfg.cdrs_params, pt, "cdrs_params", true);
+        load(cfg.shm_params, pt, "shm_params", true);
+        vj_finder::load(cfg.vj_finder_config, cfg.input_params.vj_finder_config);
+        cfg.vj_finder_config.algorithm_params.germline_params.pseudogenes = false;
+    }
+
+    void load(CDRLabelerConfig& cfg, const std::string& config_fname) {
         boost::property_tree::ptree pt;
         boost::property_tree::read_info(config_fname, pt);
-        using config_common::load;
-        load(input_params, pt, "input_params", true);
-        load(output_params, pt, "output_params", true);
-        load(run_params, pt, "run_params", true);
-        load(cdrs_params, pt, "cdrs_params", true);
-        load(shm_params, pt, "shm_params", true);
-        vj_finder::load(vj_finder_config, input_params.vj_finder_config);
-        vj_finder_config.algorithm_params.germline_params.pseudogenes = false;
+        load(cfg, pt, true);
     }
 }
