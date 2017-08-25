@@ -40,7 +40,7 @@ namespace {
             return "configs/vj_finder/config.info";
         }
 
-        void FillConfigFromCommandline(vj_finder::VJFinderConfig& config, int argc, char** argv) const override {
+        void FillConfigFromCommandline(vj_finder::VJFinderConfig& config, int argc, const char* const* argv) const override {
             parse_command_line_args(config, argc, argv);
         }
 
@@ -51,7 +51,7 @@ namespace {
 }
 
 
-int main(int argc, char **argv) {
+int main(int argc, const char* const* argv) {
     omp_set_num_threads(1);
 
     segfault_handler sh;

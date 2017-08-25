@@ -9,8 +9,8 @@ namespace config_utils {
     template<typename Config>
     class ConfigLoader {
     public:
-        virtual std::string LoadConfig(int argc, char** argv) const {
-            std::string cfg_filename = FetConfigFilename(argc, argv);
+        virtual std::string LoadConfig(int argc, const char* const* argv) const {
+            std::string cfg_filename = GetConfigFilename(argc, argv);
             path::CheckFileExistenceFATAL(cfg_filename);
             ConfigHelper::create_instance(cfg_filename);
             FillConfigFromCommandline(ConfigHelper::get_writable(), argc, argv);
@@ -24,14 +24,14 @@ namespace config_utils {
 
         virtual std::string GetDefaultCfgFilename() const = 0;
 
-        virtual std::string FetConfigFilename(int argc, char** argv) const {
+        virtual std::string GetConfigFilename(int argc, const char* const* argv) const {
             if(argc == 2 and (std::string(argv[1]) != "--help" and std::string(argv[1]) != "--version" and
                               std::string(argv[1]) != "--help-hidden"))
                 return std::string(argv[1]);
             return GetDefaultCfgFilename();
         }
 
-        virtual void FillConfigFromCommandline(Config& config, int argc, char** argv) const = 0;
+        virtual void FillConfigFromCommandline(Config& config, int argc, const char* const* argv) const = 0;
 
         virtual std::string GetOutputDirPath(const Config& config) const = 0;
 

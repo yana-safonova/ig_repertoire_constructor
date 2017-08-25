@@ -9,6 +9,7 @@
 #include "cdr_config.hpp"
 #include "cdr_launch.hpp"
 #include "../config/config_utils.hpp"
+#include "CdrLConfigLoader.hpp"
 
 namespace {
     void create_console_logger(/*std::string cfg_filename*/) {
@@ -31,19 +32,6 @@ namespace {
         bf % hours % mins % secs;
         return bf.str();
     }
-
-    class CdrLConfigLoader : public config_utils::ConfigLoader<cdr_labeler::CDRLabelerConfig> {
-    protected:
-        std::string GetDefaultCfgFilename() const override {
-            return "configs/cdr_labeler/config.info";
-        }
-
-        void FillConfigFromCommandline(cdr_labeler::CDRLabelerConfig&, int, char**) const override {}
-
-        std::string GetOutputDirPath(const cdr_labeler::CDRLabelerConfig& config) const override {
-            return config.output_params.output_dir;
-        }
-    };
 }
 
 int main(int argc, char **argv) {
@@ -51,7 +39,7 @@ int main(int argc, char **argv) {
     segfault_handler sh;
     perf_counter pc;
     create_console_logger();
-    CdrLConfigLoader().LoadConfig(argc, argv);
+    cdr_labeler::CdrLConfigLoader().LoadConfig(argc, argv);
     const cdr_labeler::CDRLabelerConfig config = cdr_labeler::cdrl_cfg::get();
     cdr_labeler::CDRLabelerLaunch(config).Launch();
     //create_console_logger(cfg_filename);

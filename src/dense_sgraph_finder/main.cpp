@@ -43,7 +43,7 @@ namespace {
 
     class DsfConfigLoader : public config_utils::ConfigLoader<dsf_config> {
     protected:
-        void FillConfigFromCommandline(dsf_config&, int, char**) const override {}
+        void FillConfigFromCommandline(dsf_config&, int, const char* const*) const override {}
 
         void PrepareOutputDir(const std::string&) const override {}
 

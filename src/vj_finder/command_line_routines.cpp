@@ -3,7 +3,7 @@
 #include <boost/program_options.hpp>
 #include <build_info.hpp>
 
-bool command_line_requires_parsing(int argc, char **argv) {
+bool command_line_requires_parsing(int argc, const char* const* argv) {
     if(argc == 1)
         return false;
     if(argc > 2)
@@ -13,7 +13,7 @@ bool command_line_requires_parsing(int argc, char **argv) {
 }
 
 // cfg contains default values from config file
-void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, char** argv) {
+void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, const char* const* argv) {
     if(!command_line_requires_parsing(argc, argv))
         return;
 

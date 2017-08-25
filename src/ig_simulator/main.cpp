@@ -32,7 +32,7 @@ namespace {
 
     class IgsConfigLoader : public config_utils::ConfigLoader<ig_simulator::IgSimulatorConfig> {
     protected:
-        void FillConfigFromCommandline(ig_simulator::IgSimulatorConfig&, int, char**) const override {}
+        void FillConfigFromCommandline(ig_simulator::IgSimulatorConfig&, int, const char* const*) const override {}
 
         std::string GetDefaultCfgFilename() const override {
             return "configs/ig_simulator/config.info";
