@@ -40,7 +40,7 @@ namespace config_utils {
         }
 
         virtual void CopyConfigs(const std::string& cfg_filename, const Config& config) const {
-            std::string to_dir = path::append_path(GetOutputDirPath(config), "config");
+            std::string to_dir = path::append_path(GetOutputDirPath(config), "configs");
             path::make_dir(to_dir);
             path::copy_files_by_ext(path::parent_path(cfg_filename), to_dir, ".info", true);
             path::copy_files_by_ext(path::parent_path(cfg_filename), to_dir, ".properties", true);

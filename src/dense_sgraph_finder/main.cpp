@@ -59,7 +59,7 @@ namespace {
         void CopyConfigs(const std::string& cfg_filename, const dsf_config& config) const override {
             //using namespace debruijn_graph;
 
-            std::string to_dir = path::append_path(GetOutputDirPath(config), "config");
+            std::string to_dir = path::append_path(GetOutputDirPath(config), "configs");
             if (!make_dir(to_dir)) {
                 WARN("Could not create files use in /tmp directory");
             }
