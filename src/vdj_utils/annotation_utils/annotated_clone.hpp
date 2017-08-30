@@ -69,6 +69,7 @@ namespace annotation_utils {
             return GetRegionString(StructuralRegion::CDR3);
         }
 
+
         CDRRange CDR1Range() const {
             return GetRangeByRegion(StructuralRegion::CDR1);
         }

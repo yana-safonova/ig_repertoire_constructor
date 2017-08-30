@@ -35,7 +35,7 @@ namespace antevolo {
                 thread_tree_storages_.push_back(EvolutionaryTreeStorage());
         }
 
-        EvolutionaryTreeStorage ConstructClonalTrees();
+        void ConstructClonalTrees();
 
         EvolutionaryTreeStorage ConstructClonalTreesHG();
 
