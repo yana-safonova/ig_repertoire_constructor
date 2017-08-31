@@ -71,8 +71,10 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
         }
         cdr_details_stream >> has_stop_codon >> in_frame >> productive >> temp >>
                  cdr1_start >> cdr1_end >> temp >> cdr2_start >> cdr2_end;
-        // if (not (cdr_details_stream))
-        //     continue;
+
+        // If cdr{i}_{start,end} is not supplied (is '-') drop this read.
+        if (not (cdr1_start and cdr1_end and cdr2_start and cdr2_end))
+            continue;
 
         --cdr1_start, --cdr1_end, --cdr2_start, --cdr2_end;
         EvolutionaryEdgeAlignment alignment(std::move(germline_seq), std::move(read_seq), gene_id,

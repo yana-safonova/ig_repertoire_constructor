@@ -8,7 +8,19 @@ namespace antevolo {
         for (size_t clone_num : vertices_nums_) {
             VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
         }
-
+        auto edge_constructor = GetEdgeConstructor();
+        for (size_t src_num : vertices_nums_) {
+            for (size_t dst_num : vertices_nums_) {
+                auto edge = edge_constructor->ConstructEdge((*clone_set_ptr_)[src_num],
+                                                            (*clone_set_ptr_)[dst_num],
+                                                            src_num,
+                                                            dst_num);
+                if (not (edge->IsDirected() or edge->IsUndirected())) {
+                    continue;
+                }
+                auto length = GetLength(edge); //
+            }
+        }
 
         SetShortestDirectedParentEdges();
         auto input_edges = PrepareEdgeVector();

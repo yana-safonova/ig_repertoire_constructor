@@ -71,13 +71,16 @@ public:
         check_result_(false)
     {
         VERIFY_MSG(parent.size() == son.size(),
-                   "Parent and son lengths are not equal\n" + parent + "\n" + son + "\n" + gene_id);
+                   "Parent and son lengths are not equal\n" << parent << "\n" << son << "\n" << gene_id);
         VERIFY_MSG(cdr1_start <= cdr1_end and cdr1_end <= cdr2_start and cdr2_start <= cdr2_end,
-                   std::string("Incorrect cdr initial values: ") +
-                   std::string("cdr1_start = ") + std::to_string(cdr1_start) +
-                   std::string("cdr1_end   = ") + std::to_string(cdr1_end) +
-                   std::string("cdr2_start = ") + std::to_string(cdr2_start) +
-                   std::string("cdr2_end   = ") + std::to_string(cdr2_end));
+                   "\nIncorrect cdr initial values.\n" <<
+                   "gene_id = "    << gene_id << "\n"
+                   "parent "       << parent << "\n"
+                   "son "          << son << "\n"
+                   "cdr1_start = " << cdr1_start << "\n"
+                   "cdr1_end   = " << cdr1_end << "\n"
+                   "cdr2_start = " << cdr2_start << "\n"
+                   "cdr2_end   = " << cdr2_end);
     }
 
     EvolutionaryEdgeAlignment(const annotation_utils::AnnotatedClone& clone) :
