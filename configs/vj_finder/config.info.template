@@ -1,0 +1,101 @@
+; run parameters ;
+run_params {
+    num_threads    8
+}
+
+io_params {
+    input_params {
+        input_reads test_dataset/merged_reads.fastq
+        config_dir ./configs/vj_finder
+
+        germline_input {
+            ig_dir                    IG
+            tcr_dir                   TCR
+            germline_filenames_config ./configs/vj_finder/germline_files_config.txt
+        }
+    }
+
+     output_params {
+        output_files {
+            output_dir              	vjf_test
+            log_filename           	log.properties
+            cleaned_reads_fname     	cleaned_reads.fa        
+            filtered_reads_fname    	filtered_reads.fa
+            alignment_info_fname    	alignment_info.csv
+            filtering_info_filename 	filtering_info.csv
+            valignments_filename    	v_alignments.fa
+        }
+
+        output_details {
+            compress                 false
+            fix_spaces               true
+            separator                comma
+            num_aligned_candidates   1
+        }
+    }
+}
+
+algorithm_params {
+    aligner_params {
+        word_size_v                 7
+        word_size_j                 5
+        min_k_coverage_v            50
+        min_k_coverage_j            13
+        max_candidates_v            10
+        max_candidates_j            10
+        fix_strand                  true
+    }
+
+    germline_params {
+        germline_dir    ./data/germline
+        organism        human
+        loci            all
+        pseudogenes     true
+    }
+
+    filtering_params {
+        enable_filtering            true
+        left_uncovered_limit        16
+        right_uncovered_limit       5
+        min_v_segment_length        250
+        min_j_segment_length        30
+        min_aligned_length          300
+    }
+            
+    fix_crop_fill_params {
+        enable_filling  true
+        enable_fixing   true
+        enable_cropping true
+        fill_left       true
+        fill_right      true
+        fix_left        3
+        fix_right       21
+        crop_left       true
+        crop_right      true
+        fcf_algorithm   aggressive_fcf; accurate_fcf - is not implemented yet
+    }
+
+    scoring_params {
+        v_scoring {
+            max_global_gap              24
+            max_local_insertions        12
+            max_local_deletions	        12
+            gap_opening_cost            4
+            gap_extention_cost          1
+            mismatch_extention_cost     0
+            mismatch_opening_cost       0
+            match_reward                1
+        }
+
+        j_scoring {
+            max_global_gap              24
+            max_local_insertions        12
+            max_local_deletions         12
+            gap_opening_cost            5
+            gap_extention_cost          2
+            mismatch_extention_cost     0
+            mismatch_opening_cost       0
+            match_reward                1
+        }
+    }
+}
