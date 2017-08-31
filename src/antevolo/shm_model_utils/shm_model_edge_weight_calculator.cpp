@@ -32,15 +32,21 @@ ShmModelEdgeWeightCalculator::get_prepared_strings(const BaseEvolutionaryEdge &e
                std::string("Gene id's should be the same. Src gene id = ") + gene_id_src +
                " , Dst gene is = " + gene_id_dst);
 
-    size_t cdr1_start_src(edge.SrcClone()->CDR1Range().start_pos);
-    size_t cdr1_end_src(edge.SrcClone()->CDR1Range().end_pos);
-    size_t cdr2_start_src(edge.SrcClone()->CDR2Range().start_pos);
-    size_t cdr2_end_src(edge.SrcClone()->CDR2Range().end_pos);
+    bool cdr_are_well_defined(edge.SrcClone()->RegionIsEmpty(StructuralRegion::CDR1) and
+                              edge.SrcClone()->RegionIsEmpty(StructuralRegion::CDR2) and
+                              edge.SrcClone()->RegionIsEmpty(StructuralRegion::CDR3));
+    size_t cdr1_start_src = size_t(-1);
+    size_t cdr1_end_src = size_t(-1);
+    size_t cdr2_start_src = size_t(-1);
+    size_t cdr2_end_src = size_t(-1);
 
-    // size_t cdr1_start_dst(edge.DstClone()->CDR1Range().start_pos);
-    // size_t cdr1_end_dst(edge.DstClone()->CDR1Range().end_pos);
-    // size_t cdr2_start_dst(edge.DstClone()->CDR2Range().start_pos);
-    // size_t cdr2_end_dst(edge.DstClone()->CDR2Range().end_pos);
+    if (cdr_are_well_defined) {
+        cdr1_start_src = edge.SrcClone()->CDR1Range().start_pos;
+        cdr1_end_src   = edge.SrcClone()->CDR1Range().end_pos;
+        cdr2_start_src = edge.SrcClone()->CDR2Range().start_pos;
+        cdr2_end_src   = edge.SrcClone()->CDR2Range().end_pos;
+    }
+
 
     // AndreyS explained me that this is not necessarily true, so I disabled these asserts for now.
     // VERIFY_MSG(cdr1_start_src == cdr1_start_dst,
@@ -61,6 +67,7 @@ ShmModelEdgeWeightCalculator::get_prepared_strings(const BaseEvolutionaryEdge &e
                                      edge.SrcClone()->HasStopCodon(),
                                      edge.SrcClone()->InFrame(),
                                      edge.SrcClone()->Productive(),
+                                     cdr_are_well_defined,
                                      cdr1_start_src,
                                      cdr1_end_src,
                                      cdr2_start_src,
@@ -91,11 +98,14 @@ double ShmModelEdgeWeightCalculator::calculate_weigth_edge_per_position(const Ev
     if ((gap_ind_read == kmer_len_ / 2) and (gap_ind_read_last == kmer_len_ / 2))
         return model_.loglikelihood_gap();
 
-    if ((center_nucl_pos >= src_dst_pair.cdr1_start() and center_nucl_pos <= src_dst_pair.cdr1_end()) or
-        (center_nucl_pos >= src_dst_pair.cdr2_start() and center_nucl_pos <= src_dst_pair.cdr2_end())) {
-        return model_.loglikelihood_kmer_nucl(gene_substring, center_nucl, StructuralRegion::CDR);
+    if (src_dst_pair.cdr_are_well_defined()) {
+        if ((center_nucl_pos >= src_dst_pair.cdr1_start() and center_nucl_pos <= src_dst_pair.cdr1_end()) or
+            (center_nucl_pos >= src_dst_pair.cdr2_start() and center_nucl_pos <= src_dst_pair.cdr2_end())) {
+            return model_.loglikelihood_kmer_nucl(gene_substring, center_nucl, StructuralRegion::CDR);
+        }
+        return model_.loglikelihood_kmer_nucl(gene_substring, center_nucl, StructuralRegion::FR);
     }
-    return model_.loglikelihood_kmer_nucl(gene_substring, center_nucl, StructuralRegion::FR);
+    return model_.loglikelihood_kmer_nucl(gene_substring, center_nucl);
 }
 
 double ShmModelEdgeWeightCalculator::calculate_weigth_edge(const BaseEvolutionaryEdge &edge) const {

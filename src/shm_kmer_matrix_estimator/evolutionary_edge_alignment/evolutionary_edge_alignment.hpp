@@ -35,11 +35,11 @@ private:
     bool in_frame_;
     bool productive_;
 
+    bool cdr_are_well_defined_;
     size_t cdr1_start_;
     size_t cdr1_end_;
     size_t cdr2_start_;
     size_t cdr2_end_;
-
 
     bool cropped_;
     bool checked_;
@@ -52,6 +52,7 @@ public:
                               const bool has_stop_codon,
                               const bool in_frame,
                               const bool productive,
+                              const bool cdr_are_well_defined,
                               const size_t cdr1_start,
                               const size_t cdr1_end,
                               const size_t cdr2_start,
@@ -62,6 +63,7 @@ public:
         has_stop_codon_(has_stop_codon),
         in_frame_(in_frame),
         productive_(productive),
+        cdr_are_well_defined_(cdr_are_well_defined),
         cdr1_start_(cdr1_start),
         cdr1_end_(cdr1_end),
         cdr2_start_(cdr2_start),
@@ -90,11 +92,20 @@ public:
         has_stop_codon_(clone.HasStopCodon()),
         in_frame_(clone.InFrame()),
         productive_(clone.Productive()),
-        cdr1_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos),
-        cdr1_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).end_pos),
-        cdr2_start_(clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos),
-        cdr2_end_  (clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).end_pos)
+        cdr_are_well_defined_(clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR1) and
+                              clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR2) and
+                              clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)),
+        cdr1_start_(size_t(-1)),
+        cdr1_end_  (size_t(-1)),
+        cdr2_start_(size_t(-1)),
+        cdr2_end_  (size_t(-1))
     {
+        if (cdr_are_well_defined_) {
+            cdr1_start_ = clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos;
+            cdr1_end_   = clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).end_pos;
+            cdr2_start_ = clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos;
+            cdr2_end_   = clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).end_pos;
+        }
         VERIFY_MSG(parent_.size() == son_.size(),
                    "Parent and son lengths are not equal\n" + parent_ + "\n" + son_ + "\n" + gene_id_);
         VERIFY_MSG(cdr1_start_ <= cdr1_end_ and cdr1_end_ <= cdr2_start_ and cdr2_start_ <= cdr2_end_,
@@ -104,6 +115,8 @@ public:
     const std::string &parent() const { return parent_; }
     const std::string &son() const { return son_; }
     const std::string &gene_id() const { return gene_id_; }
+
+    bool cdr_are_well_defined() const { return cdr_are_well_defined_; }
 
     size_t cdr1_start() const { return cdr1_start_; }
     size_t cdr2_start() const { return cdr2_start_; }
