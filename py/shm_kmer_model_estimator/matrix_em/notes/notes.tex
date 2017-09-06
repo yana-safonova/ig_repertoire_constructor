@@ -1,0 +1,172 @@
+\documentclass[10pt]{article}
+
+\usepackage{amsfonts,amssymb}
+\usepackage[utf8x]{inputenc}
+\usepackage[english,russian]{babel}
+\usepackage{graphicx}
+\usepackage{mathtools}
+\usepackage{multicol}
+\usepackage{ textcomp }
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[colorlinks,urlcolor=blue]{hyperref}
+
+\pdfcompresslevel0
+
+\textheight=220mm
+\textwidth=160mm
+
+\title{EM Algorithm for SHM kmer matrix estimation}
+\author{Andrey Bzikadze}
+\date{}
+
+\begin{document}
+
+\voffset=-20mm
+\hoffset=-17mm
+\font\Got=eufm10 scaled\magstep2 \font\Got=eufm10
+
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\tr}[1]{\text{tr}{#1}}
+\newcommand\cond[1][]{\:#1\vert\:}
+
+\maketitle
+
+\section{Theory}
+\subsection{Input}
+
+The given sample $\{(x_i, g_i)\}_{i=1}^N$ is a set of pairs of 5mers.
+Any $x_i$ denotes a 5mer from the cluster's consensus and
+any $g_i$ --- a 5mer from the germline that corresponds to $x_i$.
+
+Let us introduce the following notation:
+\begin{itemize}
+    \item $\mathbf X = \{x_i\}_{i=1}^N$;
+    \item $\mathbf G = \{g_i\}_{i=1}^N$;
+    \item $t_i$ --- the 5mer that is the predecessor for $x_i$, $\mathbf T = \{t_i\}_{i=1}^N$;
+    \item $\overline a$ for any 5mer $a$ is its central nucleotide;
+    \item $\Theta = \{\theta_k\}$ --- probability of mutation of the central base 
+          for the 5mer $k$ ($1024$ parameters);
+    \item $\mathbf P = \{p_k(B)\}$ --- 
+          probability of mutation of the central base in the 5mer $k$ to base $B$ under the condition that
+          some mutation has happened ($1024 \cdot 3 = 3072$ parameters).
+    \item $\nu_k = \mathbb P(t = k)$, $\nu = \{\nu_k\}$ ($1024$ parameters).
+    \item $I(i) = I(x_i, g_i)$ for such $x_i$ and $g_i$ that $\overline x_i \neq \overline g_i$
+          is the set of all possible values of $t_i$.
+          Formally 
+          $$I(i) = \left\{\ell = \overline{\ell_1 \ldots \ell_5} \,|\, 
+                          \ell_j \in \{x_i[j], g_i[j]\}, j \neq 2; \ell_2 = \overline g_i\right\}.$$
+\end{itemize}
+
+\subsection{Model definition}
+For any 5mers $x$, $g$ and $t$
+\begin{gather}
+    p(x, g, t; \Theta, \mathbf P, \nu) = p(x, g \,|\, t; \Theta, \mathbf P) p(t; \nu) =
+    \begin{cases}
+        (1 - \theta_g) \nu_g, \, & \mbox{ if $\overline x = \overline t$ and $t = g$}, \\
+        \theta_tp_t(\overline x) \nu_t, \, & \mbox{ if $\overline x \neq \overline t$ and $t \in I(x, g)$},\\
+        0 \, & \mbox{ otherwise}.
+    \end{cases}
+\end{gather}
+
+The full likelihood of the model with the given sample is
+\begin{gather}
+    p(\mathbf X, \mathbf G, \mathbf T; \Theta, \mathbf P, \nu) = 
+    \prod_{i=1}^N p(x_i, g_i, t_i; \Theta, \mathbf P, \nu).
+\end{gather}
+
+\subsection{Task}
+
+The maximization of marginal likelihood:
+\begin{gather}
+    p(\mathbf X, \mathbf G; \Theta, \mathbf P, \nu) \to \max_{\Theta, \mathbf P, \nu}.
+\end{gather}
+The solution is to use EM-algorithm:
+\begin{gather}
+    \mathcal L(q, \Theta, \mathbf P, \nu) = 
+    \mathbb E_{q(\mathbf T)} \log p(\mathbf X, \mathbf G, \mathbf T; \Theta, \mathbf P, \nu) -
+    \mathbb E_{q(\mathbf T)} \log q(\mathbf T).
+\end{gather}
+E-step:
+\begin{gather}
+    q(\mathbf T) = \prod_i p(t_i | x_i, g_i; \Theta, \mathbf P, \nu).
+\end{gather}
+M-step:
+\begin{gather}
+    \mathbb E_{q(\mathbf T)} \log p(\mathbf X, \mathbf G, \mathbf T; \Theta, \mathbf P, \nu) \to 
+    \max_{\Theta, \mathbf P, \nu}.
+\end{gather}
+
+\subsection{E-step}
+By Bayes formula we easily get
+\begin{gather}
+    q_{t_i}(t) = p(t_i \, | \, x_i, g_i, \Theta, \mathbf P, \nu) =
+    \begin{cases}
+        \delta(t_i = g_i), \, & \mbox{ if $\overline x_i = \overline g_i$}, \\
+        \propto \nu_t \theta_t p_t(\overline x) [t \in I(i)], \, & 
+        \mbox{ if $\overline x_i \neq \overline g_i$}.
+    \end{cases}
+\end{gather}
+
+\subsection{M-step}
+\begin{gather}
+    \nonumber
+    \mathbb E_{q(\mathbf T)} \log p(\mathbf X, \mathbf T, \mathbf G \, | \, \Theta, \mathbf P, \nu) \to 
+    \max_{\Theta, \mathbf P, \nu}.\\
+    \mathbb E_{q(\mathbf T)} \log p(\mathbf X, \mathbf T, \mathbf G \, | \, \Theta, \mathbf P, \nu) =
+    \sum_{i: \overline x_i = \overline g_i} \log [\nu_{g_i} (1 - \theta_{g_i})] + 
+    \sum_{i: \overline x_i \neq \overline g_i} \sum_{t \in I(i)}
+        \log\left(\theta_{t} p_{t}(\overline{x_i}) \nu_t\right) q_{t_i}(t).
+\end{gather}
+
+1. Find estimate $\widehat{\theta_k}$.
+\begin{gather}
+    \frac{\sum_{\overline x_i =    \overline g_i} [g_i = k]}{1 - \theta_k} = 
+    \frac{\sum_{\overline x_i \neq \overline g_i} [k \in I(i)] q_{t_i}(k)}{\theta_k}.
+\end{gather}
+Consequently,
+\begin{gather}
+    \widehat{\theta_k} = 
+    \frac{\sum_{\overline x_i \neq \overline g_i} [k \in I(i)] q_{t_i}(k)}
+         {\sum_{\overline x_i =    \overline g_i} [g_i = k] +
+          \sum_{\overline x_i \neq \overline g_i} [k \in I(i)] q_{t_i}(k)}.
+\end{gather}
+
+2. Find estimate $\widehat{p_k(B)}$.
+\begin{gather}
+    \frac{\sum_{i: \overline x_i \neq \overline g_i} [k \in I(i), B = \overline x_i] q_{t_i}(k)}{p_k(B)} =
+    \lambda_{k,B}.
+\end{gather}
+Let us denote
+$$C_{i, B} = \sum_{i: \overline x_i \neq \overline g_i} [k \in I(i), B = \overline x_i] q_{t_i}(k).$$
+Then
+\begin{gather}
+    \widehat{p_k(B)} = 
+    \frac{C_{i, B}}{\sum_{B'\neq B} C_{i, B'}}.
+\end{gather}
+
+3. Find estimate $\widehat{\nu_k}$.
+\begin{gather}
+    D_k := 
+    \sum_{i: \overline x_i =    \overline g_i} [k = g_i] +
+    \sum_{i: \overline x_i \neq \overline g_i} [k \in I(i)] q_{t_i}(t) =
+    \mu_k \nu_k.
+\end{gather}
+Then
+\begin{gather}
+    \widehat{\nu_k} = \frac{D_k}{\sum_{k'} D_{k'}}.
+\end{gather}
+
+\subsection{Lower bound to the target Likelihood}
+\begin{gather}
+    \nonumber
+    \mathcal L(q, \Theta, \mathbf P, \nu) = 
+    \mathbb E_{q(\mathbf T)} \log p(\mathbf X, \mathbf G, \mathbf T; \Theta, \mathbf P, \nu) -
+    \mathbb E_{q(\mathbf T)} \log q(\mathbf T) = \\
+    \sum_{i: \overline x_i = \overline g_i} \log [\nu_{g_i}(1 - \theta_{g_i})] + 
+    \sum_{i: \overline x_i \neq \overline g_i} \sum_{t \in I(i)} 
+        \left[\log\left(\frac{\theta_{t} p_{t}(\overline{x_i}) \nu_t}{q_{t_i}(t)}\right)\right] q_{t_i}(t).
+\end{gather}
+
+
+\end{document}
