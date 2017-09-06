@@ -37,7 +37,7 @@ namespace antevolo {
         for (size_t i = 0; i < hg_component_->N(); i++) {
 //            size_t old_index = graph_component_map_.GetOldVertexByNewVertex(component_id, i);
             size_t old_index = GetOldIndexByNewIndex(i);
-            //auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3s_[old_index]];
+            //auto clones_sharing_cdr3 = unique_cdr3s_map_[unique_cdr3Jnucleotides_[old_index]];
             auto clones_sharing_cdr3 = GetClonesByOldIndex(old_index);
             for (size_t clone_num : clones_sharing_cdr3) {
                 vertices_nums.insert(clone_num);

@@ -14,13 +14,13 @@ namespace antevolo {
         const AnnotatedCloneByReadConstructor &clone_by_read_constructor_;
         size_t current_fake_clone_index_;
         size_t reconstructed_;
-        typedef std::map<std::pair<std::string, std::string>, std::vector<size_t>> UniqueCDR3JNuclIndexMap;
-        typedef std::map<std::string, size_t> CDR3ToIndexMap;
+        typedef std::map<std::pair<seqan::Dna5String, seqan::Dna5String>, std::vector<size_t>> UniqueCDR3JNuclIndexMap;
+        typedef std::map<std::pair<seqan::Dna5String, seqan::Dna5String>, size_t> CDR3ToIndexMap;
         typedef boost::associative_property_map<std::map<size_t, size_t>> AP_map;
 
         UniqueCDR3JNuclIndexMap unique_cdr3sJnucl_map_;
-        CDR3ToIndexMap cdr3_to_old_index_map_;
-        std::vector<std::string> unique_cdr3s_;
+        CDR3ToIndexMap cdr3Jnucl_to_old_index_map_;
+        std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> unique_cdr3Jnucleotides_;
 
         SparseGraphPtr sparse_cdr_graph_;
         GraphComponentMap graph_component_map_;
@@ -45,7 +45,10 @@ namespace antevolo {
 
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class);
 
-        std::string GetJNucleotides(const annotation_utils::AnnotatedClone &);
+        std::string WriteUniqueCDR3JNucleotidesInFasta(core::DecompositionClass decomposition_class);
+
+
+        seqan::Dna5String GetJNucleotides(const annotation_utils::AnnotatedClone &);
 
         void CreateUniqueCDR3JNucleotidesMap(core::DecompositionClass decomposition_class);
 
@@ -54,18 +57,19 @@ namespace antevolo {
 
         std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
 
-        void
+        map<vector<std::pair<seqan::Dna5String, seqan::Dna5String>>, vector<int>>
         ComputeCDR3JNucleotidesHammingGraphs(double tau, std::string cdr_graph);
 
         void dfs(int v, bool *used, std::vector<int> &components_helper,
-                         std::vector<std::pair<string, string>> const &unique_cdr3Jnucl, double tau);
+                 std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> const &unique_cdr3Jnucl, double tau);
 
         void ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id);
 
-        void ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
+        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
                                          const ShmModelEdgeWeightCalculator &edge_weight_calculator);
 
-        double CDR3JNucleotidesDistance(const std::pair<string, string> &, const std::pair<string, string> &);
+        double CDR3JNucleotidesDistance(const std::pair<seqan::Dna5String, seqan::Dna5String> &,
+                                        const std::pair<seqan::Dna5String, seqan::Dna5String> &);
 
         size_t GetCurrentFakeCloneIndex() const { return current_fake_clone_index_; };
 

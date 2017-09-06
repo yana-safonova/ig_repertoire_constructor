@@ -17,10 +17,10 @@ namespace antevolo {
         size_t component_id_;
 
     public:
-        CDR3HammingGraphInfo(GraphComponentMap& graph_component_map,
-                             const UniqueCDR3IndexMap& cdr3_to_indices_vector_map,
-                             const CDR3ToIndexMap& cdr3_to_old_index_map,
-                             const std::vector<std::string>& unique_cdr3s,
+        CDR3HammingGraphInfo(GraphComponentMap &graph_component_map,
+                             const UniqueCDR3IndexMap &cdr3_to_indices_vector_map,
+                             const CDR3ToIndexMap &cdr3_to_old_index_map,
+                             const std::vector<std::string> &unique_cdr3s,
                              SparseGraphPtr hg_component,
                              size_t component_id) :
             graph_component_map_(graph_component_map),
