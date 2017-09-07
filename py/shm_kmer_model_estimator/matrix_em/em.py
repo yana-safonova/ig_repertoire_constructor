@@ -37,7 +37,11 @@ class EM:
     def read_input(self, paired_input):
         self.nmut, self.mut = [0] * self.all_k, defaultdict(int)
         self.init_matr = np.zeros((self.all_k, 4))
-        for read, gene in paired_input:
+        for j, (read, gene) in enumerate(paired_input):
+            if not (j % 1000):
+                print("%d / %d" % (j+1, len(paired_input)))
+            j += 1
+
             for i in xrange(len(read) - self.k):
                 rkmer, gkmer = read[i:(i+5)], gene[i:(i+5)]
                 if 'N' in gkmer:
@@ -63,6 +67,9 @@ class EM:
                     np.log(self.pkb[inds, self.get_pkb_ind(inds, read[2])])
             self.q[pair] = np.exp(log_q - np.max(log_q))
             self.q[pair] /= np.sum(self.q[pair])
+        # for i, pair in enumerate(self.mut):
+        #     if i == 50:
+        #         print(np.round(self.q[pair], 5))
         self.qs.append(copy(self.q))
 
     def m_step(self):
@@ -78,58 +85,76 @@ class EM:
             self.pkb[inds, pkb_ind] += self.q[pair]
             self.nu[inds] += self.q[pair]
 
-        self.theta = self.theta / (self.theta + self.nmut)
-        self.theta[np.isnan(self.theta)] = 0
-        self.thetas.append(copy(self.theta))
+        with np.errstate(divide='ignore', invalid='ignore'):
+            self.theta = self.theta / (self.theta + self.nmut)
+            self.theta[np.isnan(self.theta)] = 0
+            self.thetas.append(copy(self.theta))
 
-        self.pkb = (self.pkb.T / np.sum(self.pkb, axis=1)).T
-        self.pkb[np.isnan(self.pkb)] = 0
-        self.pkbs.append(copy(self.pkb))
+            self.pkb = (self.pkb.T / np.sum(self.pkb, axis=1)).T
+            self.pkb[np.isnan(self.pkb)] = 1/3.
+            self.pkbs.append(copy(self.pkb))
 
-        self.nu /= np.sum(self.nu)
-        self.nu[np.isnan(self.nu)] = 0
-        self.nus.append(copy(self.nu))
+            self.nu /= np.sum(self.nu)
+            self.nu[np.isnan(self.nu)] = 0
+            self.nus.append(copy(self.nu))
 
 
     def initial_params(self):
-        self.nu = np.random.dirichlet([1] * self.all_k, size=1)[0]
+        with np.errstate(divide='ignore', invalid='ignore'):
+            self.nu = np.random.dirichlet([1] * self.all_k, size=1)[0]
 
-        self.theta = np.sum(self.init_matr[:, 1:], axis=1) / np.sum(self.init_matr, axis=1)
-        self.theta[np.isnan(self.theta)] = 0.05
-        self.theta[self.theta < 1e-3] = 1e-3
-        self.theta[self.theta > 1 - 1e-3] = 1 - 1e-3
+            self.theta = np.sum(self.init_matr[:, 1:], axis=1) / np.sum(self.init_matr, axis=1)
+            self.theta[np.isnan(self.theta)] = 0.05
+            self.theta[self.theta < 1e-3] = 1e-3
+            self.theta[self.theta > 1 - 1e-3] = 1 - 1e-3
 
-        self.pkb = (self.init_matr[:, 1:].T / np.sum(self.init_matr[:, 1:], axis=1)).T
-        self.pkb[np.isnan(self.pkb)] = 1
-        self.pkb[self.pkb < 1e-3] = 1e-3
-        self.pkb[self.pkb > 1 - 1e-3] = 1 - 1e-3
-        self.pkb = (self.pkb.T / np.sum(self.pkb, axis=1)).T
+            self.pkb = (self.init_matr[:, 1:].T / np.sum(self.init_matr[:, 1:], axis=1)).T
+            self.pkb[np.isnan(self.pkb)] = 1
+            self.pkb[self.pkb < 1e-3] = 1e-3
+            self.pkb[self.pkb > 1 - 1e-3] = 1 - 1e-3
+            self.pkb = (self.pkb.T / np.sum(self.pkb, axis=1)).T
 
         self.nus, self.thetas, self.pkbs = [copy(self.nu)], [copy(self.theta)], [copy(self.pkb)]
         self.qs = []
         self.e_step()
-        self.m_step()
+
+    def get_final_matrix(self):
+        self.final_matrix = np.zeros_like(self.init_matr, dtype=np.int)
+        self.final_matrix[np.arange(self.final_matrix.shape[0]),
+                          kmer_utils.central_nucl_indexes()] = self.nmut
+        for pair in self.q:
+            read, gene = pair
+            kmers, inds = self.get_valid_kmers(pair)
+            argmax = np.argmax(self.q[pair])
+            ind = inds[argmax]
+            assert kmers[argmax][2] != read[2]
+            self.final_matrix[ind, list("ACGT").index(read[2])] += self.mut[pair]
+        self.final_matrix = self.final_matrix.astype(np.int)
 
     def run(self):
         L_old, L = -np.inf, -np.inf
-        iteration = 1
+        iteration = 0
         self.Ls = []
-        while (iteration < 100):
+        while (iteration < 1000):
             iteration += 1
             self.e_step()
-            L_old = self.get_L()
+            L_old = L
             self.m_step()
             L = self.get_L()
-            print(L, L_old)
+            print(iteration, L, L_old, L - L_old)
             assert L_old <= L
             self.Ls.append(L)
-        # print(sorted(self.theta))
-        # np.set_printoptions(threshold=np.nan)
-        print(self.init_matr)
-        print(np.round(self.theta, 3))
-        print(np.round(self.thetas[0], 3))
-        print(np.round(self.pkb, 3))
-        print(np.round(self.pkbs[0], 3))
+            if L - L_old < 0.1:
+                break
+
+        # print(self.init_matr)
+        # print(np.round(self.theta, 3))
+        # print(np.round(self.thetas[0], 3))
+        # print(np.round(self.pkb, 3))
+        # print(np.round(self.pkbs[0], 3))
+
+        self.get_final_matrix()
+        return self.final_matrix
 
     def get_valid_kmers(self, pair):
         read, gene = pair
@@ -141,8 +166,10 @@ class EM:
                     new_kmers.append(kmer + read[i])
                 new_kmers.append(kmer + gene[i])
             kmers = new_kmers
+        kmers = list(set(kmers))
         kmers.sort()
         indices = map(lambda x: kmer_utils.kmer_index(x), kmers)
+        assert indices == sorted(indices)
         return kmers, np.array(indices)
 
     def get_pkb_ind(self, I, B):
@@ -158,7 +185,8 @@ class EM:
         assert np.sum(np.isnan(self.theta)) == 0
         assert np.sum(np.isnan(self.nu)) == 0
         assert np.sum(np.isnan(self.pkb)) == 0
-        result = self.nmut.dot(np.nan_to_num(np.log(self.nu) + np.log(1 - self.theta)))
+        with np.errstate(divide='ignore', invalid='ignore'):
+            result = self.nmut.dot(np.nan_to_num(np.log(self.nu) + np.log(1 - self.theta)))
         for pair in self.mut:
             assert sum(np.isnan(self.q[pair])) == 0
             read, gene = pair
@@ -177,13 +205,38 @@ class EM:
         self.read_input(pinp)
         self.initial_params()
 
+
+class EMTest():
+    def __init__(self):
+        self.em = EM("head.fasta")
+
+    def test_get_valid_kmers(self):
+        kmers, _ = self.em.get_valid_kmers(('ACCTA', 'ACTTA')) 
+        assert kmers == ['ACTTA']
+        kmers, _ = self.em.get_valid_kmers(('ACCTA', 'CCTTA')) 
+        assert kmers == ['ACTTA', 'CCTTA']
+        kmers, _ = self.em.get_valid_kmers(('ACCTA', 'CATTA')) 
+        assert kmers == ['AATTA', 'ACTTA', 'CATTA', 'CCTTA']
+
+    def test_get_pkb_ind(self):
+        kmer_names = np.array(kmer_utils.kmer_names())
+        I = np.array([100, 525, 1023])
+        B = 'C'
+        assert np.array_equal(self.em.get_pkb_ind(I, B), [1, 0, 1])
+
+    def run_tests(self):
+        self.test_get_valid_kmers()
+        self.test_get_pkb_ind()
+
 def main():
+    # EMTest().run_tests()
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input",
                         type=str)
     params = parser.parse_args()
     em = EM(params.input)
-    em.run()
+    matrix = em.run()
+    np.savetxt('test.csv', matrix, fmt='%d')
 
 
 if __name__ == "__main__":
