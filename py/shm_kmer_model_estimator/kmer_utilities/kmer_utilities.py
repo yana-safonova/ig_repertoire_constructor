@@ -1,10 +1,12 @@
 import itertools
+from memoize.memoized import memoized
 
 
 def nucl_bases():
     return ['A', 'C', 'G', 'T']
 
 
+@memoized
 def kmer_names(kmer_len=5):
     """ Simple routine to get all kmer_names over DNA alphabet. """
     bases = nucl_bases()
@@ -23,6 +25,7 @@ def central_nucl_indexes(kmer_len=5):
     return indexes
 
 
+@memoized
 def nonmutated_index(kmer, kmer_len=5):
     """ Simple routine to get index in the alphabet
     of a central nucl in a kmer. """
@@ -30,6 +33,7 @@ def nonmutated_index(kmer, kmer_len=5):
     return nucl_bases().index(nonmutated_nucl)
 
 
+@memoized
 def kmer_index(kmer, kmer_len=5):
     """ Simple routine to get index of a kmer in list of all kmers. """
     assert len(kmer) == kmer_len
@@ -43,6 +47,7 @@ def kmer_index(kmer, kmer_len=5):
     return index
 
 
+@memoized
 def mutative_bases(kmer, kmer_len=5):
     """ Simple routine to get all bases to which central base can mutate """
     assert len(kmer) == kmer_len
@@ -52,6 +57,7 @@ def mutative_bases(kmer, kmer_len=5):
     return bases
 
 
+@memoized
 def reverse_mut_kmer(kmer, base, kmer_len=5):
     assert len(kmer) == kmer_len
     mut_kmer = list(kmer)
