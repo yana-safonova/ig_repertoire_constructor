@@ -100,10 +100,10 @@ M-step:
 \subsection{E-step}
 By Bayes formula we easily get
 \begin{gather}
-    q_{t_i}(t) = p(t_i \, | \, x_i, g_i, \Theta, \mathbf P, \nu) =
+    q_{t_i}(t) = p(t_i \, | \, x_i, g_i; \Theta, \mathbf P, \nu) =
     \begin{cases}
         \delta(t_i = g_i), \, & \mbox{ if $\overline x_i = \overline g_i$}, \\
-        \propto \nu_t \theta_t p_t(\overline x) [t \in I(i)], \, & 
+        \propto \nu_t \theta_t p_t(\overline x_i) [t \in I(i)], \, & 
         \mbox{ if $\overline x_i \neq \overline g_i$}.
     \end{cases}
 \end{gather}
