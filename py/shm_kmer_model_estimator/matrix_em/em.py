@@ -208,7 +208,7 @@ class EM:
 
 class EMTest():
     def __init__(self):
-        self.em = EM("head.fasta")
+        self.em = EM("test.fasta")
 
     def test_get_valid_kmers(self):
         kmers, _ = self.em.get_valid_kmers(('ACCTA', 'ACTTA')) 
@@ -224,19 +224,118 @@ class EMTest():
         B = 'C'
         assert np.array_equal(self.em.get_pkb_ind(I, B), [1, 0, 1])
 
+    def set_random_params(self):
+        self.em.nu = np.random.dirichlet([1] * self.em.all_k, size=1)[0]
+        self.em.theta = np.random.dirichlet([1] * self.em.all_k, size=1)[0]
+        self.em.pkb = np.random.dirichlet([1] * 3, size=1024)
+
+        for pair in self.em.mut:
+            read, gene = pair
+            kmers, inds = self.em.get_valid_kmers(pair)
+            self.em.q[pair] = np.random.dirichlet([1] * len(kmers), size=1)[0]
+
+
+    def test_e_step(self): 
+        self.set_random_params()
+        self.em.e_step()
+        q = defaultdict(int)
+        for pair in self.em.mut:
+            read, gene = pair
+            kmers, inds = self.em.get_valid_kmers(pair)
+            q[pair] = np.zeros(len(kmers))
+            for i in xrange(len(kmers)):
+                read_ind = list("ACGT").index(read[2])
+                t_ind = list("ACGT").index(kmers[i][2])
+                assert read_ind != t_ind
+                if read_ind > t_ind:
+                    read_ind -= 1
+                q[pair][i] = self.em.nu[inds[i]] * self.em.theta[inds[i]] * self.em.pkb[inds[i], read_ind]
+            q[pair] /= sum(q[pair])
+            np.testing.assert_array_almost_equal(q[pair], self.em.q[pair], decimal=3)
+        
+    def test_m_step(self):
+        self.em.m_step()
+        theta = np.zeros_like(self.em.theta)
+        pkb = np.zeros_like(self.em.pkb)
+        nu = np.zeros_like(self.em.nu)
+        for k in xrange(len(self.em.theta)):
+            print(k)
+            nu[k] += self.em.nmut[k]
+            for pair in self.em.mut:
+                read, gene = pair
+                kmers, inds = self.em.get_valid_kmers(pair)
+                inds = list(inds)
+                read_ind = list("ACGT").index(read[2])
+
+                try:
+                    i = inds.index(k)
+                    theta[k] += self.em.q[pair][i]
+                    nu[k] += self.em.q[pair][i]
+                    t_ind = list("ACGT").index(kmers[i][2])
+                    assert read_ind != t_ind
+                    if read_ind > t_ind:
+                        read_ind -= 1
+                    pkb[k][read_ind] += self.em.q[pair][inds.index(k)]
+                except ValueError:
+                    pass
+            if theta[k] + self.em.nmut[k] > 1e-10:
+                theta[k] /= theta[k] + self.em.nmut[k]
+            else:
+                theta[k] = 0
+            if np.sum(pkb[k] > 1e-10):
+                pkb[k] /= np.sum(pkb[k])
+            else:
+                pkb[k] = np.ones(3) / 3.
+            np.testing.assert_almost_equal(theta[k], self.em.theta[k])
+            np.testing.assert_array_almost_equal(pkb[k], self.em.pkb[k])
+
+        nu /= np.sum(nu)
+        np.testing.assert_array_almost_equal(nu, self.em.nu)
+
+    def test_get_L(self):
+        L = self.em.nmut.dot(np.log(self.em.nu) + np.log(1 - self.em.theta))
+        for pair in self.em.mut:
+            read, gene = pair
+            kmers, inds = self.em.get_valid_kmers(pair)
+            inds = list(inds)
+            read_ind = list("ACGT").index(read[2])
+            for i, (kmer, ind) in enumerate(zip(kmers, inds)):
+                t_ind = list("ACGT").index(kmer[2])
+                assert read_ind != t_ind
+                real_read_ind = read_ind - 1 if read_ind > t_ind else read_ind
+                L += (np.log(self.em.theta[ind]) + np.log(self.em.pkb[ind, real_read_ind]) + \
+                      np.log(self.em.nu[ind]) - np.log(self.em.q[pair][i])) * self.em.q[pair][i]
+        np.testing.assert_almost_equal(L, self.em.get_L())
+
+            
+
+
     def run_tests(self):
+        print("test_get_valid_kmers()")
         self.test_get_valid_kmers()
+        print("test_get_pkb_ind()")
         self.test_get_pkb_ind()
+        print("test_get_L()")
+        self.test_get_L()
+        print("test_m_step()")
+        self.test_m_step()
+        print("test_e_step()")
+        self.test_e_step()
 
 def main():
-    # EMTest().run_tests()
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--input",
                         type=str)
+    parser.add_argument("-o", "--output",
+                        type=str)
+    parser.add_argument("-t", "--test", action='store_true')
     params = parser.parse_args()
+    if params.test:
+        EMTest().run_tests()
+        sys.exit()
     em = EM(params.input)
     matrix = em.run()
-    np.savetxt('test.csv', matrix, fmt='%d')
+    np.savetxt(params.output, matrix, fmt='%d')
 
 
 if __name__ == "__main__":
