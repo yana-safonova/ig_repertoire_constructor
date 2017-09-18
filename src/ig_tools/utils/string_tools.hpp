@@ -41,9 +41,9 @@ string number_to_string(T n) {
 }
 
 // TODO: rename
-inline string delete_spaces(string str) {
+inline string delete_whitespaces(string str) {
     for (size_t i = 0; i < str.size(); i++)
-        if (str[i] == ' ')
+        if (str[i] <= ' ')
             str[i] = '_';
     return str;
 }
