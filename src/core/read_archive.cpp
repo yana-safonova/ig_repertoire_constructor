@@ -57,7 +57,7 @@ namespace core {
 
     void ReadArchive::FixSpacesInHeaders() {
         for(auto it = reads_.begin(); it != reads_.end(); it++)
-            std::replace(it->name.begin(), it->name.end(), ' ', '_');
+            std::replace_if(it->name.begin(), it->name.end(), [](char c) { return std::isspace(c); }, '_');
     }
 
     void ReadArchive::UpdateReadByIndex(size_t index, seqan::Dna5String new_seq) {
