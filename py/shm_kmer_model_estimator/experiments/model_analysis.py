@@ -119,8 +119,8 @@ def convergence_analysis_chain_strategy(model, strategy, chain):
     assert good_sp_kmers_full <= gen_kmers_all
     assert good_sp_kmers_subst <= gen_kmers_all
 
-    assert est_fr == good_sp_kmers_fr
-    assert est_cdr == good_sp_kmers_cdr
+    assert est_fr <= good_sp_kmers_fr
+    assert est_cdr <= good_sp_kmers_cdr
     # assert est_full <= good_sp_kmers_full
     # assert est_subst <= good_sp_kmers_subst
     return OrderedDict([

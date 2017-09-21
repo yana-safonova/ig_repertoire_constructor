@@ -18,7 +18,7 @@ from disk_memoize.disk_memoize import memoize_to_disk
 
 
 def get_hiv_trees_path(chain_type=chains.Chains.IGH, n_largest_trees=5,
-        data_path_prefix='/Sid/abzikadze/datasets/HIV/antevolo_output_on_final_rep_large'):
+        data_path_prefix='/Sid/abzikadze/antevolo_paper_results/antevolo/HIV/antevolo_backup'):
     chain_type = chain_type.name
     return get_hiv_trees_path__(chain_type, n_largest_trees, data_path_prefix)
 

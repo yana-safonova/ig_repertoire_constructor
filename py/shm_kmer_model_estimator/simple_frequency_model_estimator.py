@@ -211,8 +211,8 @@ def main():
         print("Plotting Mutabilities with CIs")
         draw_muts(config=simple_freq_model_config, models=models)
 
-    print("FR and CDR mutabilities")
-    compare_fr_cdr(models, simple_freq_model_config)
+    # print("FR and CDR mutabilities")
+    # compare_fr_cdr(models, simple_freq_model_config)
 
 if __name__ == "__main__":
     main()
