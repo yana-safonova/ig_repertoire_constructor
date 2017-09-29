@@ -117,7 +117,7 @@ install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/py"
         PATTERN "*.pyc" EXCLUDE
         PATTERN ".gitignore" EXCLUDE)
 
-set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py;ig_simulator.py;antevolo.py;tree_visualizer.py")
+set(tools "igrec.py;mass_spectra_analyzer.py;dense_subgraph_finder.py;igquast.py;barcoded_igrec.py;diversity_analyzer.py;ig_simulator.py;antevolo.py;tree_visualizer.py;igrec_gui.py")
 foreach(tool ${tools})
     install(PROGRAMS ${tool}
             DESTINATION "${INSTALL_DIR}"
