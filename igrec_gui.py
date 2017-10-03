@@ -67,7 +67,7 @@ class FileOpenDialog(CompoundControl):
                                             filetypes=filetypes)
 
     def get(self):
-        return self.var.get()
+        return self.var.get().strip()
 
     def disable(self):
         from Tkinter import DISABLED, NORMAL
@@ -159,7 +159,7 @@ class StatusBar(ttk.Frame):
         self.label.insert(1.0, text)
         self.label.config(state=DISABLED)
         self.label.bind("<1>", lambda event: event.widget.focus_set())
-        # self.label.update_idletasks()
+        self.label.update_idletasks()
 
     def clear(self):
         self.label.config(text="")
@@ -167,6 +167,7 @@ class StatusBar(ttk.Frame):
 
     def bg(self, color):
         self.label.config(bg=color)
+        self.label.update_idletasks()
 
 
 def seticon(root, path):
@@ -284,6 +285,8 @@ if __name__ == "__main__":
 
 
     def run_igrec():
+        import tkMessageBox
+
         open_button.config(state=DISABLED)
         if not input_check():
             statusbar.bg("red")
@@ -293,10 +296,15 @@ if __name__ == "__main__":
             statusbar.bg("red")
             statusbar.set("Specify output dir!")
             return
-
         if not threads.check():
             statusbar.bg("red")
             statusbar.set("Specify correct #threads!")
+            return
+
+
+        output_directory = dsd.get()
+        result = tkMessageBox.askquestion("Warning", "Specified output folder already exists. Overwrite?", icon="warning")
+        if result == "no":
             return
 
         tool = "barcoded_igrec.py" if barcoded.get() else "igrec.py"
