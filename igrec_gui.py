@@ -167,17 +167,18 @@ def platform():
 def open_file(path):
     import os
     import subprocess
-    platform = platform()
+    system = platform()
 
-    if platform == "Windows":
+    if system == "Windows":
         os.startfile(path)
-    elif platform == "Darwin":
-        subprocess.Popen(["open", path])
+    elif system == "Darwin":
+        subprocess.Popen(["open", path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     else:
-        subprocess.Popen(["xdg-open", path])
+        subprocess.Popen(["xdg-open", path], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
 if __name__ == "__main__":
+    from Tkinter import W, E, LEFT, RIGHT, X, TOP, DISABLED, NORMAL
     root = tk.ThemedTk()              # Creates an object for the ThemedTk wrapper for the normal Tk class
 
     theme = "linux" if platform() == "Linux" else "macos"
@@ -192,7 +193,7 @@ if __name__ == "__main__":
     root.title("Ig Repertoire Constructor")
     root.resizable(False, False)
 
-    iconpath = home_directory + "/src/extra/BaseSpace/logos/IgReC_100.png"
+    iconpath = home_directory + "src/extra/desktop_application/desktop_app_logo_128.png"
     seticon(root, iconpath)
 
     statusbar = StatusBar(root, "Setup parameters and press RUN")
@@ -206,7 +207,6 @@ if __name__ == "__main__":
 
     read_type = Tkinter.StringVar()
 
-    from Tkinter import W, E, LEFT, RIGHT, X, TOP
     merged_radio = ttk.Radiobutton(inputframe, text="Merged reads: ",
                                    variable=read_type, value="merged")
     paired_radio = ttk.Radiobutton(inputframe, text="Paired-end reads",
@@ -268,6 +268,7 @@ if __name__ == "__main__":
 
 
     def run_igrec():
+        open_button.config(state=DISABLED)
         if not input_check():
             statusbar.set("Specify input file(s)!")
             statusbar.bg("red")
@@ -286,6 +287,7 @@ if __name__ == "__main__":
         call = home_directory + "/%s %s -o %s -l %s --organism %s -t %d" % (tool, data, dsd.get(), loci.get(), organism.get(), threads.get())
 
         statusbar.set("IgReC running...")
+        statusbar.bg("white")
 
         from subprocess import Popen, PIPE, STDOUT
         import shlex
@@ -296,6 +298,8 @@ if __name__ == "__main__":
         if ret_code == 0:
             statusbar.set("Success")
             statusbar.bg("Green")
+            open_button.config(state=NORMAL)
+            open_button.output_directory = dsd.get()
         else:
             error = ""
             for line in reversed(stdoutdata.split("\n")):
@@ -310,7 +314,16 @@ if __name__ == "__main__":
 
         return ret_code
 
-    run_button = ttk.Button(root, text="RUN", command=run_igrec)
-    run_button.pack(padx=10, pady=5)
+    def open_output_dir():
+        open_file(open_button.output_directory)
+
+
+    buttonframe = ttk.Frame(root)
+    run_button = ttk.Button(buttonframe, text="RUN", command=run_igrec)
+    open_button = ttk.Button(buttonframe, text="Open output dir...", command=open_output_dir)
+    open_button.config(state=DISABLED)
+    buttonframe.pack()
+    run_button.grid(column=0, row=0, padx=10, pady=5)
+    open_button.grid(column=1, row=0, padx=10, pady=5)
 
     root.mainloop()
