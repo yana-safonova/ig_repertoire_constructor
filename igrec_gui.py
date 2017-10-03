@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 
-import Tkinter, Tkconstants, tkFileDialog
+import Tkinter
+import tkFileDialog
+from ttkthemes import themed_tk as tk   # Also imports the normal tk definitions, such as Button, Label, etc.
+import ttk
 import os
 
 
@@ -9,7 +12,7 @@ home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + 
 
 class CompoundControl(object):
     def __init__(self, root):
-        self.frame = Tkinter.Frame(root, height=2, bd=1)
+        self.frame = ttk.Frame(root, height=2)
 
     def pack(self, *args, **kwargs):
         self.frame.pack(*args, **kwargs)
@@ -23,20 +26,20 @@ class FileOpenDialog(CompoundControl):
         from Tkinter import X, SUNKEN, LEFT, RIGHT, E, W
         CompoundControl.__init__(self, root)
 
-        self.label = Tkinter.Label(self.frame, text=label)
+        self.label = ttk.Label(self.frame, text=label)
         self.var = Tkinter.StringVar(self.frame)
-        self.textbox = Tkinter.Entry(self.frame, textvariable=self.var, width=50)
+        self.textbox = ttk.Entry(self.frame, textvariable=self.var, width=50)
 
         def browse():
             filename = self.browse()
             if filename:
                 self.var.set(filename)
 
-        self.button = Tkinter.Button(self.frame, text="Browse...", command=browse)
+        self.button = ttk.Button(self.frame, text="Browse...", command=browse)
 
         self.label.pack(side=LEFT)
         self.button.pack(side=RIGHT)
-        Tkinter.Label(self.frame, text=" ").pack(side=RIGHT)
+        ttk.Label(self.frame, text=" ").pack(side=RIGHT)
         self.textbox.pack(side=RIGHT)
 
     def browse(self):
@@ -76,14 +79,14 @@ class DirSaveDialog(FileOpenDialog):
 
 class DropdownMenu:
     def __init__(self, root, label, options, default=0):
-        from Tkinter import Frame, X, SUNKEN, LEFT
-        self.frame = Tkinter.Frame(root, height=2, bd=1)
-        self.label = Tkinter.Label(self.frame, text=label)
+        from Tkinter import X, SUNKEN, LEFT
+        self.frame = ttk.Frame(root, height=2)
+        self.label = ttk.Label(self.frame, text=label)
         self.var = Tkinter.StringVar(self.frame)
         if type(default) == int:
             default = options[default]
         self.var.set(default)
-        self.option = Tkinter.OptionMenu(self.frame, self.var, *options)
+        self.option = ttk.OptionMenu(self.frame, self.var, *options)
         self.label.pack(side=LEFT)
         self.option.pack(side=LEFT)
 
@@ -107,9 +110,9 @@ class ThreadMenu(CompoundControl):
             cpus = multiprocessing.cpu_count()
             default = cpus - 1 if cpus > 1 else 1
 
-        self.label = Tkinter.Label(self.frame, text="threads: ")
+        self.label = ttk.Label(self.frame, text="threads: ")
         self.var = Tkinter.StringVar(self.frame, str(default))
-        self.textbox = Tkinter.Entry(self.frame, textvariable=self.var, width=5)
+        self.textbox = ttk.Entry(self.frame, textvariable=self.var, width=5)
         self.label.pack(side=LEFT)
         self.textbox.pack(side=LEFT)
 
@@ -125,11 +128,11 @@ class ThreadMenu(CompoundControl):
         return int(self.var.get())
 
 
-class StatusBar(Tkinter.Frame):
+class StatusBar(ttk.Frame):
     def __init__(self, master, text=""):
-        from Tkinter import Frame, Label, SUNKEN, BOTTOM, W, X
-        Frame.__init__(self, master)
-        self.label = Label(self, bd=1, relief=SUNKEN, anchor=W, bg="white")
+        from Tkinter import SUNKEN, BOTTOM, W, X
+        ttk.Frame.__init__(self, master)
+        self.label = Tkinter.Label(self, relief=SUNKEN, anchor=W, bg="white")
         self.label.pack(fill=X)
         self.pack(side=BOTTOM, fill=X)
         self.set(text)
@@ -147,38 +150,37 @@ class StatusBar(Tkinter.Frame):
 
 
 def seticon(root, path):
-    from Tkinter import Image
+    import Tkinter
     img = Tkinter.Image("photo", file=path)
     root.tk.call("wm", "iconphoto", root._w, img)
 
 
 if __name__ == "__main__":
-    root = Tkinter.Tk()
+    root = tk.ThemedTk()              # Creates an object for the ThemedTk wrapper for the normal Tk class
+    root.set_theme("radiance")
     root.title("Ig Repertoire Constructor")
-    root.resizable(True, False)
     root.resizable(False, False)
+    root.configure(background="#F6F4F2")
 
     iconpath = home_directory + "/src/extra/BaseSpace/logos/IgReC_100.png"
     seticon(root, iconpath)
 
-
     statusbar = StatusBar(root, "Setup parameters and press RUN")
 
-    inputframe = Tkinter.LabelFrame(root, text="Input")
-    inputframe.pack(fill="both", expand="yes")
+    inputframe = ttk.LabelFrame(root, text="Input", padding=3)
+    inputframe.pack(fill="both", expand="yes", padx=10, pady=5)
 
-
-    fod = FileOpenDialog(inputframe, label="Merged reads: ")
-    fod_s1 = FileOpenDialog(inputframe, label="Left reads: ")
-    fod_s2 = FileOpenDialog(inputframe, label="Right reads: ")
+    fod = FileOpenDialog(inputframe, label=" ")
+    fod_s1 = FileOpenDialog(inputframe, label="Left: ")
+    fod_s2 = FileOpenDialog(inputframe, label="Right: ")
 
     read_type = Tkinter.StringVar()
 
-    from Tkinter import W, LEFT, RIGHT
-    merged_radio = Tkinter.Radiobutton(inputframe, text="Merged reads",
-                                       variable=read_type, value="merged")
-    paired_radio = Tkinter.Radiobutton(inputframe, text="Paired-end reads",
-                                       variable=read_type, value="paired-end")
+    from Tkinter import W, E, LEFT, RIGHT, X, TOP
+    merged_radio = ttk.Radiobutton(inputframe, text="Merged reads: ",
+                                   variable=read_type, value="merged")
+    paired_radio = ttk.Radiobutton(inputframe, text="Paired-end reads",
+                                   variable=read_type, value="paired-end")
 
     def reads_select(somevar1, somevar2, mode):
         val = read_type.get()
@@ -194,37 +196,35 @@ if __name__ == "__main__":
     read_type.trace("w", reads_select)
     read_type.set("merged")
 
-
     barcoded = Tkinter.IntVar(0)
-    barcoded_checkbox = Tkinter.Checkbutton(inputframe, text="barcoded data", variable=barcoded)
+    barcoded_checkbox = ttk.Checkbutton(inputframe, text="barcoded data", variable=barcoded)
 
-    from Tkinter import X, TOP
-    merged_radio.pack(anchor=W)
-    fod.pack(side=TOP, fill=X)
-    paired_radio.pack(anchor=W)
-    fod_s1.pack(side=TOP, fill=X)
-    fod_s2.pack(side=TOP, fill=X)
-    barcoded_checkbox.pack(anchor=W)
-
+    merged_radio.grid(column=0, row=0, stick=W)
+    fod.grid(column=1, row=0, stick=E)
+    paired_radio.grid(column=0, row=2, stick=W)
+    fod_s1.grid(column=0, row=3, stick=E, columnspan=2)
+    fod_s2.grid(column=0, row=4, stick=E, columnspan=2)
+    barcoded_checkbox.grid(column=0, row=5, stick=W)
 
 
-    outputframe = Tkinter.LabelFrame(root, text="Output")
+
+    outputframe = ttk.LabelFrame(root, text="Output", padding=3)
     dsd = DirSaveDialog(outputframe, label="Output directory: ")
     dsd.pack(fill=X)
-    outputframe.pack(fill="both", expand="yes")
+    outputframe.pack(fill="both", expand="yes", padx=10, pady=5)
 
 
-    paramframe = Tkinter.LabelFrame(root, text="Parameters")
+    paramframe = ttk.LabelFrame(root, text="Parameters", padding=3)
     organism = DropdownMenu(paramframe, label="organism:", options=["human", "mouse", "pig", "rabbit", "rat", "rhesus_monkey"])
-    organism.grid(row=0, column=0)
+    organism.grid(row=0, column=0, padx=0)
 
     loci = DropdownMenu(paramframe, label="loci:", options=["IGH", "IGK", "IGL", "IG", "TRA", "TRB", "TRG", "TRD", "TR", "all"], default=-1)
-    loci.grid(row=0, column=1)
+    loci.grid(row=0, column=1, padx=20)
 
     threads = ThreadMenu(paramframe)
-    threads.grid(row=0, column=2)
+    threads.grid(row=0, column=2, padx=0)
 
-    paramframe.pack(fill="both", expand="yes")
+    paramframe.pack(fill="both", expand="yes", padx=10, pady=5)
 
 
     def input_check():
@@ -280,7 +280,7 @@ if __name__ == "__main__":
 
         return ret_code
 
-    run_button = Tkinter.Button(root, text="RUN", command=run_igrec)
-    run_button.pack()
+    run_button = ttk.Button(root, text="RUN", command=run_igrec)
+    run_button.pack(padx=10, pady=5)
 
     root.mainloop()
