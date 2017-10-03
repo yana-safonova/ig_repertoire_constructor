@@ -159,12 +159,38 @@ def seticon(root, path):
     root.tk.call("wm", "iconphoto", root._w, img)
 
 
+def platform():
+    import platform
+    return platform.system()
+
+
+def open_file(path):
+    import os
+    import subprocess
+    platform = platform()
+
+    if platform == "Windows":
+        os.startfile(path)
+    elif platform == "Darwin":
+        subprocess.Popen(["open", path])
+    else:
+        subprocess.Popen(["xdg-open", path])
+
+
 if __name__ == "__main__":
     root = tk.ThemedTk()              # Creates an object for the ThemedTk wrapper for the normal Tk class
-    root.set_theme("radiance")
+
+    theme = "linux" if platform() == "Linux" else "macos"
+
+    if theme == "macos":
+        root.set_theme("aquativo")
+        root.configure(background="#FAFAFA")
+    elif theme == "linux":
+        root.set_theme("radiance")
+        root.configure(background="#F6F4F2")
+
     root.title("Ig Repertoire Constructor")
     root.resizable(False, False)
-    root.configure(background="#F6F4F2")
 
     iconpath = home_directory + "/src/extra/BaseSpace/logos/IgReC_100.png"
     seticon(root, iconpath)
