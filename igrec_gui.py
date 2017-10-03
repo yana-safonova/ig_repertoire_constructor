@@ -1,11 +1,11 @@
 #!/usr/bin/env python2
 
 import Tkinter, Tkconstants, tkFileDialog
-import tkMessageBox
-
-
 import os
+
+
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + "/"
+
 
 class CompoundControl(object):
     def __init__(self, root):
@@ -16,6 +16,7 @@ class CompoundControl(object):
 
     def grid(self, *args, **kwargs):
         self.frame.grid(*args, **kwargs)
+
 
 class FileOpenDialog(CompoundControl):
     def __init__(self, root, label="LABEL"):
@@ -40,10 +41,10 @@ class FileOpenDialog(CompoundControl):
 
     def browse(self):
         filetypes = []
-        for type in ["q", "a"]:
+        for suffix in ["q", "a"]:
             for compression in ["", ".gz", "bz2"]:
-                for suffix in ["f", "fast"]:
-                    filetypes.append(("FAST%s files" % type.upper(), "*.%s%s%s" % (suffix, type, compression)))
+                for prefix in ["f", "fast"]:
+                    filetypes.append(("FAST%s files" % suffix.upper(), "*.%s%s%s" % (prefix, suffix, compression)))
 
 
         filetypes.append(("All files", "*.*"))
@@ -141,6 +142,9 @@ class StatusBar(Tkinter.Frame):
         self.label.config(text="")
         self.label.update_idletasks()
 
+    def bg(self, color):
+        self.label.config(bg=color)
+
 
 def seticon(root, path):
     from Tkinter import Image
@@ -222,7 +226,27 @@ if __name__ == "__main__":
 
     paramframe.pack(fill="both", expand="yes")
 
+
+    def input_check():
+        if read_type.get() == "merged":
+            return fod.get().strip() != ""
+        elif read_type.get() == "paired-end":
+            return fod_s1.get().strip() != "" and fod_s2.get().strip() != ""
+
+    def output_check():
+        return dsd.get().strip() != ""
+
+
     def run_igrec():
+        if not input_check():
+            statusbar.set("Specify input file(s)!")
+            statusbar.bg("red")
+            return
+        if not output_check():
+            statusbar.set("Specify output dir!")
+            statusbar.bg("red")
+            return
+
         tool = "barcoded_igrec.py" if barcoded.get() else "igrec.py"
         if read_type.get() == "merged":
             data = "-s %s" % fod.get()
@@ -241,6 +265,7 @@ if __name__ == "__main__":
 
         if ret_code == 0:
             statusbar.set("Success")
+            statusbar.bg("Green")
         else:
             error = ""
             for line in reversed(stdoutdata.split("\n")):
@@ -249,13 +274,13 @@ if __name__ == "__main__":
                     print line
                     break
             statusbar.set("Run failed with code %d: Message: %s" % (ret_code, error))
+            statusbar.bg("red")
 
         print stdoutdata
 
         return ret_code
 
     run_button = Tkinter.Button(root, text="RUN", command=run_igrec)
-    run_button.pack(fill="both", expand="yes")
-
+    run_button.pack()
 
     root.mainloop()
