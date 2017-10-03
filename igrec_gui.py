@@ -1,13 +1,17 @@
 #!/usr/bin/env python2
 
+import os
+home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + "/"
+import sys
+
+sys.path.append(home_directory + "/py/ext")
+
 import Tkinter
 import tkFileDialog
 from ttkthemes import themed_tk as tk   # Also imports the normal tk definitions, such as Button, Label, etc.
 import ttk
-import os
 
 
-home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + "/"
 
 
 class CompoundControl(object):
