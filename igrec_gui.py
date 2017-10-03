@@ -323,7 +323,7 @@ if __name__ == "__main__":
                     error = line.strip()
                     print line
                     break
-            statusbar.set("Run failed with code %d: Message: %s" % (ret_code, error))
+            statusbar.set("Run failed with code %d. %s" % (ret_code, error))
             statusbar.bg("red")
 
         print stdoutdata
