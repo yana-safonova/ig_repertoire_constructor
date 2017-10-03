@@ -147,14 +147,19 @@ class StatusBar(ttk.Frame):
     def __init__(self, master, text=""):
         from Tkinter import SUNKEN, BOTTOM, W, X
         ttk.Frame.__init__(self, master)
-        self.label = Tkinter.Label(self, relief=SUNKEN, anchor=W, bg="white")
+        self.label = Tkinter.Text(self, relief=SUNKEN, bg="white", height=1, padx=2)
         self.label.pack(fill=X)
         self.pack(side=BOTTOM, fill=X)
         self.set(text)
 
     def set(self, text):
-        self.label.config(text=text)
-        self.label.update_idletasks()
+        from Tkinter import END, NORMAL, DISABLED
+        self.label.config(state=NORMAL)
+        self.label.delete(1.0, END)
+        self.label.insert(1.0, text)
+        self.label.config(state=DISABLED)
+        self.label.bind("<1>", lambda event: event.widget.focus_set())
+        # self.label.update_idletasks()
 
     def clear(self):
         self.label.config(text="")
