@@ -12,6 +12,11 @@ from ttkthemes import themed_tk as tk   # Also imports the normal tk definitions
 import ttk
 
 
+def callback_select_all(event):
+    # select text
+    event.widget.select_range(0, 'end')
+    # move cursor to the end
+    event.widget.icursor('end')
 
 
 class CompoundControl(object):
@@ -33,6 +38,7 @@ class FileOpenDialog(CompoundControl):
         self.label = ttk.Label(self.frame, text=label)
         self.var = Tkinter.StringVar(self.frame)
         self.textbox = ttk.Entry(self.frame, textvariable=self.var, width=50)
+        self.textbox.bind('<Control-KeyRelease-a>', callback_select_all)
 
         def browse():
             filename = self.browse()
@@ -120,13 +126,18 @@ class ThreadMenu(CompoundControl):
         self.label.pack(side=LEFT)
         self.textbox.pack(side=LEFT)
 
-        def validate(value):
-            import re
-            pattern = re.compile("^[0-9]+$")
-            return pattern.match(value)
 
-        self.textbox.validatecommand=validate
+        self.textbox.validatecommand=self.validate_value
         self.textbox.validate="all"
+
+    @staticmethod
+    def validate_value(value):
+        import re
+        pattern = re.compile("^[0-9]+$")
+        return pattern.match(value)
+
+    def check(self):
+        return self.validate_value(self.var.get()) and 0 < self.get() < 1024
 
     def get(self):
         return int(self.var.get())
@@ -275,6 +286,11 @@ if __name__ == "__main__":
             return
         if not output_check():
             statusbar.set("Specify output dir!")
+            statusbar.bg("red")
+            return
+
+        if not threads.check():
+            statusbar.set("Specify correct #threads!")
             statusbar.bg("red")
             return
 
