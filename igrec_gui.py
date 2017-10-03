@@ -281,17 +281,17 @@ if __name__ == "__main__":
     def run_igrec():
         open_button.config(state=DISABLED)
         if not input_check():
-            statusbar.set("Specify input file(s)!")
             statusbar.bg("red")
+            statusbar.set("Specify input file(s)!")
             return
         if not output_check():
-            statusbar.set("Specify output dir!")
             statusbar.bg("red")
+            statusbar.set("Specify output dir!")
             return
 
         if not threads.check():
-            statusbar.set("Specify correct #threads!")
             statusbar.bg("red")
+            statusbar.set("Specify correct #threads!")
             return
 
         tool = "barcoded_igrec.py" if barcoded.get() else "igrec.py"
@@ -302,8 +302,8 @@ if __name__ == "__main__":
 
         call = home_directory + "/%s %s -o %s -l %s --organism %s -t %d" % (tool, data, dsd.get(), loci.get(), organism.get(), threads.get())
 
-        statusbar.set("IgReC running...")
         statusbar.bg("white")
+        statusbar.set("IgReC running...")
 
         from subprocess import Popen, PIPE, STDOUT
         import shlex
