@@ -9,7 +9,7 @@ from flask import url_for
 from flask import send_from_directory
 from flask_autoindex import AutoIndex
 from flask import session
-from flask.ext.session import Session
+from flask_session import Session
 
 import os
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -18,6 +18,13 @@ igrec_dir = os.path.dirname(current_dir)
 app = Flask(__name__)
 runs_dir = current_dir + "/runs"
 idx = AutoIndex(app, runs_dir, add_url_rules=False)
+
+
+app.config['SESSION_TYPE'] = "filesystem"
+app.config['SESSION_USE_SIGNER'] = True
+app.config['SESSION_FILE_DIR'] = os.path.join(current_dir, "sessions")
+app.config['SECRET_KEY'] = "dc6627ce-2b94-4c45-a1e7-75fd595e2aca"
+Session(app)
 
 
 @app.route("/jQueryFileTree", methods=["POST"])
@@ -88,6 +95,9 @@ def run_igrec():
     output_id = create_uuid_dir(runs_dir)
     output = os.path.join(runs_dir, output_id)
     return_code = os.system("%s/igrec.py -s %s --loci=all --threads=3 --output=%s" % (igrec_dir, input, output))
+
+    session['last_input'] = input
+    session['last_output'] = output
 
     print return_code
     return redirect(url_for("autoindex", path=output_id))
