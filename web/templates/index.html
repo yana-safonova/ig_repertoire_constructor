@@ -5,47 +5,21 @@
 <html>
 <head>
 <script src="static/jquery-3.2.1.min.js"></script>
+
+<link rel="stylesheet" href="static/jQueryFileTree.min.css">
 <script src="static/jQueryFileTree.min.js"></script>
 
 
 
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 
-<!-- Basic Page Needs
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
 <meta charset="utf-8">
-<title>IgReC mega web-app</title>
-<meta name="description" content="">
-<meta name="author" content="">
-
-<!-- Mobile Specific Metas
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<!-- <meta name="viewport" content="width=device&#45;width, initial&#45;scale=1"> -->
-
-<!-- FONT
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<!-- <link href='//fonts.googleapis.com/css?family=Raleway:400,300,600' rel='stylesheet' type='text/css'> -->
-
-<!-- CSS
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
-<!-- <link rel="stylesheet" href="css/skeleton.css"> -->
-<link rel="stylesheet" href="static/jQueryFileTree.min.css">
-<!-- <link rel="stylesheet" href="css/jqft&#45;test.css"> -->
-<!-- <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/atelier&#45;cave.light.min.css"> -->
-
-<!-- Favicon
-–––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IgReC web-app</title>
 <link rel="icon" type="image/png" href="images/favicon.png" />
 
-
-
-
-
-
-<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script> -->
-<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script> -->
-<!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery&#45;easing/1.3/jquery.easing.min.js"></script> -->
-<script src="static/jQueryFileTree.min.js"></script>
 
 
 
@@ -57,28 +31,76 @@ $(document).ready(function() {
     $('#filetree').fileTree({
         script: '/jQueryFileTree'
     }, function(file) {
-        $('#merged_reads').val(file);
+        // $('#myModal').val(file);
+    });
+
+    $('#filetree').on('dblclick', '.file', function(event) {
+        $('#merged_reads').val(event.target.rel);
+        $('#myModal').modal('hide')
     });
 });
+
+
 </script>
 </head>
 
 
 <body>
-    <div id="filetree"></div>
-    <form method="post" action="/run_igrec">
-    <input id="merged_reads" name="merged_reads" type="text">
-    <!-- {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %} -->
-    <!-- <input type="radio" name="loci" value="{{loci}}" {{'checked' if loci == 'all' else ''}}> {{loci}}<br> -->
-    <!-- {% endfor %} -->
+<form method="post" action="/run_igrec">
+    <div class="row">
+    <div class="col-lg-6">
+        <div class="input-group">
+            <!-- <label for="merged_reads">Merged reads:</label> -->
+            <input id="merged_reads" name="merged_reads" type="text" class="form-control" placeholder="Merged reads...">
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal">Browse...</button>
+            </span>
+        </div>
+    </div>
+    </div>
 
-    <select name="loci">
-        {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
-        <option value="{{loci}}" selected="{{'selected' if loci == 'all' else ''}}"> {{loci}}</option>
-        {% endfor %}
-    </select>
-    <input type="submit" value="Run IgReC">
-    </form>
+    <div class="row">
+    <div class="col-lg-6">
+        <div class="form-group">
+            <label for="loci">Loci:</label>
+            <select id="loci" name="loci" class="form-control">
+                {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
+                <option value="{{loci}}" selected="{{'selected' if loci == 'all' else ''}}"> {{loci}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    </div>
+    <input type="submit" class="btn btn-info" value="Run IgReC">
+</form>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="modal-dialog" style="overflow-y: initial !important"> <!-- https://stackoverflow.com/questions/25874001/how-to-put-scrollbar-only-for-modal-body-in-bootstrap-modal-dialog -->
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select read file</h4>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="filetree"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Select</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
 </body>
 
 

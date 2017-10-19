@@ -57,6 +57,19 @@ def jQueryFileTree():
         # No access
         files = dirs = []
 
+    # Filter hidden files
+    def filter_out_hidden_files(filenames):
+        return [f for f in filenames if not f.startswith(".")]
+
+    files = filter_out_hidden_files(files)
+    dirs = filter_out_hidden_files(dirs)
+
+    def filter_fastx_files(filenames):
+        import re
+        return [f for f in files if re.match(r"^.*\.f(ast)?(a|q)(\.gz|\.bz2)?$", f)]
+
+    files = filter_fastx_files(files)
+
     # TODO Check sorting options of jQueryFileTree module
     return render_template("jQueryFileTree.html", path=path,
                            files=sorted(files), dirs=sorted(dirs))
