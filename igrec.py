@@ -48,14 +48,14 @@ class PhaseNames:
                               self.__consensus_constructor,
                               self.__compress_equal_clusters,
                               self.__remove_low_abundance_reads]
-        self.__long_names = {'pair_reads_merger': 'Pair reads merging',
-                             'vj_alignment' : 'VJ Alignment',
-                             'trie_compressor' : 'Trie Compressor',
-                             'graph_constructor' : 'Graph Constructor',
-                             'dsf' : 'Dense Subgraph Finder',
-                             'consensus_constructor' : 'Consensus Constructor',
-                             'compress_equal_clusters' : 'Compress Equal Final Clusters',
-                             'remove_low_abundance_reads' : 'Low Abundant Clusters Remover'}
+        self.__long_names = {self.__pair_reads_merger: 'Pair reads merging',
+                             self.__vj_alignment: 'VJ Alignment',
+                             self.__trie_compressor: 'Trie Compressor',
+                             self.__graph_construction: 'Graph Constructor',
+                             self.__dsf: 'Dense Subgraph Finder',
+                             self.__consensus_constructor: 'Consensus Constructor',
+                             self.__compress_equal_clusters: 'Compress Equal Final Clusters',
+                             self.__remove_low_abundance_reads: 'Low Abundant Clusters Remover'}
 
     def __iter__(self):
         for sname in self.__phase_order:
