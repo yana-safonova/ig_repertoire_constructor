@@ -538,19 +538,19 @@ class PhaseFactory:
     )
 
     def __init__(self, params, log):
-        self.__entry_point = params.entry_point if params.entry_point is not None else self.__phase_order[0][1]
+        self.__entry_point = params.entry_point
+        if self.__entry_point is None:
+            if params.left_reads:
+                self.__entry_point = self.__phase_order[0][1]
+            else:
+                self.__entry_point = self.__phase_order[1][1]
         self.__params = params
         self.__log = log
 
     def __CreatePhaseByName(self, phase_name):
         return next(phase for phase, phase_id in self.__phase_order if phase_id == phase_name)()
 
-    @classmethod
-    def GetFirstPhaseId(cls):
-        return PhaseFactory.__phase_order[0][1]
-
     def CreatePhases(self):
-        phase_list = list()
         phase_ids = [phase_id for phase, phase_id in self.__phase_order]
         if self.__entry_point in phase_ids:
             first_phase_index = next(idx for idx, phase_id in enumerate(phase_ids) if phase_id == self.__entry_point)
@@ -559,28 +559,24 @@ class PhaseFactory:
             sys.exit(1)
         return [phase(self.__params, self.__log) for phase, _ in self.__phase_order[first_phase_index :]]
 
+
 ############
 class PhaseManager:
     def __init__(self, phase_factory, params, log):
-        self.__params = params
         self.__log = log
-        self.__phase_factory = phase_factory
-        self.__phases = self.__phase_factory.CreatePhases()
-
-    def __RunSinglePhase(self, phase_index):
-        self.__phases[phase_index].Run()
+        self.__phases = phase_factory.CreatePhases()
 
     def __PrintPhaseDelimeter(self):
         self.__log.info("\n============================================\n")
 
-    def Run(self, start_phase=0):
-        self.__RunSinglePhase(start_phase)
-        for i in range(start_phase + 1, len(self.__phases) - 1):
-            self.__PrintPhaseDelimeter()
-            self.__RunSinglePhase(i)
-        if len(self.__phases) - start_phase != 1:
-            self.__PrintPhaseDelimeter()
-            self.__RunSinglePhase(len(self.__phases) - 1)
+    def Run(self):
+        first = True
+        for phase in self.__phases:
+            if not first:
+                self.__PrintPhaseDelimeter()
+            first = False
+            phase.Run()
+
 
 #######################################################################################
 #           IO routines
@@ -737,7 +733,7 @@ def ParseCommandLineParams(log):
                           help="Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
-                          default=PhaseFactory.GetFirstPhaseId(),
+                          default=None,
                           help="Continue from the given stage [default: %(default)s]")
     dev_args.add_argument("--create-triv-dec",
                           action="store_const",
@@ -864,7 +860,7 @@ def PrintParams(params, log):
     log.info("  Output directory:\t\t" + params.output)
     log.info("  Number of threads:\t\t" + str(params.num_threads))
     log.info("  Maximal number of mismatches:\t" + str(params.max_mismatches))
-    log.info("  Entry point:\t\t\t" + params.entry_point)
+    log.info("  Entry point:\t\t\t" + params.entry_point if params.entry_point is not None else "start")
 
 
 def CreateFileLogger(params, log):
@@ -970,10 +966,7 @@ def main():
     try:
         ig_phase_factory = PhaseFactory(params, log)
         ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
-        if params.left_reads:
-            ig_repertoire_constructor.Run(start_phase=0)
-        else:
-            ig_repertoire_constructor.Run(start_phase=1)
+        ig_repertoire_constructor.Run()
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
         log.info("\nThank you for using IgReC!")
