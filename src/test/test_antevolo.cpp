@@ -36,7 +36,7 @@ public:
     void SetUp() {
         create_console_logger();
         std::string config_fname = "configs/cdr_labeler/config.info";
-        config.load(config_fname);
+        cdr_labeler::load(config, config_fname);
         config.vj_finder_config.algorithm_params.germline_params.loci = "IG";
         germline_utils::GermlineDbGenerator db_generator(config.vj_finder_config.io_params.input_params.germline_input,
                                                          config.vj_finder_config.algorithm_params.germline_params);
