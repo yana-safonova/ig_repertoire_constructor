@@ -3,7 +3,7 @@
 #include <boost/program_options.hpp>
 #include <build_info.hpp>
 
-bool command_line_requires_parsing(int argc, char **argv) {
+bool command_line_requires_parsing(int argc, const char* const* argv) {
     if(argc == 1)
         return false;
     if(argc > 2)
@@ -13,7 +13,7 @@ bool command_line_requires_parsing(int argc, char **argv) {
 }
 
 // cfg contains default values from config file
-void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, char** argv) {
+void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, const char* const* argv) {
     if(!command_line_requires_parsing(argc, argv))
         return;
 
@@ -53,14 +53,10 @@ void parse_command_line_args(vj_finder::VJFinderConfig &cfg, int argc, char** ar
     // config file
     po::options_description config("Configuration");
     config.add_options()
-            ("compress,Z", po::value<bool>(&cfg.io_params.output_params.output_details.compress)->default_value(cfg.io_params.output_params.output_details.compress),
-             "compress output FASTA files using zlib")
             //("verbose,V", po::value<bool>(&cfg.io_params.output_params.output_details.verbose)->default_value(cfg.io_params.output_params.output_details.verbose)->implicit_value(true),
             // "produce alignment output for each query")
             ("fix-spaces", po::value<bool>(&cfg.io_params.output_params.output_details.fix_spaces)->default_value(cfg.io_params.output_params.output_details.fix_spaces),
              "replace spaces in read headers with underline symbol '_'")
-            ("separator", po::value<std::string>(&cfg.io_params.output_params.output_details.separator)->default_value(cfg.io_params.output_params.output_details.separator),
-             "separator for alignment info file: ','")
 
             ("pseudogenes,P", po::value<bool>(&cfg.algorithm_params.germline_params.pseudogenes)->default_value(cfg.algorithm_params.germline_params.pseudogenes),
              "use pseudogenes along with normal germline genes")
