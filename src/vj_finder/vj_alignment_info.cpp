@@ -68,7 +68,7 @@ namespace vj_finder {
                         out << "\t";
                     }
                     first = false;
-                    using ct = VJFinderConfig::IOParams::OutputParams::OutputDetails::AlignmentInfoColumnType;
+                    using ct = VJFinderConfig::IOParams::OutputParams::OutputDetails::AlignmentInfoColumnTypes;
                     switch (column) {
                         case ct::ReadName:
                             out << vj_hits.Read().name;
