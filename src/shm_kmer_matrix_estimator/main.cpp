@@ -12,7 +12,7 @@ using namespace shm_kmer_matrix_estimator;
 std::string get_config_fname(int argc, char **argv) {
     if(argc == 2)
         return std::string(argv[1]);
-    return "configs/shm_kmer_matrix_estimator/configs.info";
+    return "configs/shm_kmer_matrix_estimator/config.info";
 }
 
 std::string load_config(int argc, char **argv) {
