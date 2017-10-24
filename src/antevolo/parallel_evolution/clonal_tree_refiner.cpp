@@ -1,6 +1,7 @@
 #include "clonal_tree_refiner.hpp"
 
 namespace antevolo {
+    /*
     void ClonalTreeRefiner::FillAaSHMMap() {
         VERIFY(false);
     }
@@ -17,4 +18,5 @@ namespace antevolo {
         // add selected edge to the tree
         // remove other conflicing edges from the map
     }
+    */
 }

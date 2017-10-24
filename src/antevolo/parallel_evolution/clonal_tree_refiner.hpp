@@ -11,7 +11,7 @@ namespace antevolo {
 
         AaSHMMap aa_shm_map_;
         EvolutionaryTree refined_tree_;
-
+        /*
         void FillAaSHMMap();
 
         ClonalTreeRefiner::ClonalEdge GetMaximalConflictingEdge();
@@ -19,13 +19,14 @@ namespace antevolo {
         void ResolveConflictingGroup(ClonalEdge selected_edge);
 
         bool ConflictsExist();
+        */
 
     public:
         ClonalTreeRefiner(const ClonalGraph& clonal_graph,
                           CloneSetWithFakesPtr clone_set_ptr) : clonal_graph_(clonal_graph),
                                                                 aa_shm_map_(),
                                                                 refined_tree_(clone_set_ptr) { }
-
+        /*
         EvolutionaryTree RefineClonalTree() {
             while(ConflictsExist()) {
                 ClonalEdge edge = GetMaximalConflictingEdge();
@@ -33,5 +34,6 @@ namespace antevolo {
             }
             return refined_tree_;
         }
+        */
     };
 }
