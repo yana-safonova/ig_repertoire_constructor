@@ -109,8 +109,6 @@ namespace antevolo {
             }
             size_t root_num = roots[best_root_index];
             auto edge = roots_nearest_neighbours[root_num];
-            const auto& root_clone = clone_set[root_num];
-            const auto& neighbour_clone = *edge->DstClone();
 
             if (rejected_roots.find(root_num) != rejected_roots.end()) {
                 continue;
@@ -350,8 +348,6 @@ namespace antevolo {
         auto parent_clone = clone_by_read_constructor_.GetCloneByReadAndAlignment(tpl,
                                                                                   left.VGene(),
                                                                                   left.JGene());
-        auto& parent_read = parent_clone.Read();
-
         auto new_left_parent_edge = edge_constructor->ConstructEdge(parent_clone,
                                                                     left,
                                                                     parent_num,

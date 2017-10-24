@@ -9,6 +9,7 @@ namespace antevolo {
         return left.dst_aa < right.dst_aa;
     }
 
+    /*
     void AaSHMMap::AddSHM(TreeSHM tree_shm, size_t src_id, size_t dst_id) {
         VERIFY(false);
     }
@@ -16,4 +17,5 @@ namespace antevolo {
     void AaSHMMap::DeleteEdge(size_t src_id, size_t dst_id) {
         VERIFY(false);
     }
+    */
 }
