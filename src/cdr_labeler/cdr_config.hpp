@@ -112,6 +112,9 @@ namespace cdr_labeler {
 
         vj_finder::VJFinderConfig vj_finder_config;
 
-        void load(std::string config_fname);
     };
+
+    void load(CDRLabelerConfig& cfg, const std::string& config_fname);
+
+    typedef config_common::config<CDRLabelerConfig> cdrl_cfg;
 }

@@ -4,8 +4,7 @@ dsf_test
 divan_test
 barigrec_test
 igquast_test*
-.idea
-src/.idea/
+cdr_test
 build/
 
 # cmake files
@@ -24,6 +23,10 @@ packages
 *.la
 *.a
 *.so
+.*.swp
+*.dSYM
 
 # Clion
 cmake-build-*/
+.idea
+src/.idea/

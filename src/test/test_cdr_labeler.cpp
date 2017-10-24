@@ -9,6 +9,7 @@
 #include <vj_parallel_processor.hpp>
 #include <read_labeler.hpp>
 #include <convert.hpp>
+#include <CdrLConfigLoader.hpp>
 
 void create_console_logger() {
         using namespace logging;
@@ -21,12 +22,23 @@ cdr_labeler::CDRLabelerConfig config;
 germline_utils::CustomGeneDatabase filtered_v_db(germline_utils::SegmentType::VariableSegment);
 germline_utils::CustomGeneDatabase filtered_j_db(germline_utils::SegmentType::JoinSegment);
 
+class CdrLTestConfigLoader : cdr_labeler::CdrLConfigLoader {
+public:
+    using cdr_labeler::CdrLConfigLoader::LoadConfig;
+
+    void LoadConfig(std::string cfg_filename) {
+        const char* argv[] = { nullptr, cfg_filename.c_str() };
+        LoadConfig(2, argv);
+    }
+};
+
 class CDRLabelerTest : public ::testing::Test {
 public:
     void SetUp() {
         create_console_logger();
         std::string config_fname = "configs/cdr_labeler/config.info";
-        config.load(config_fname);
+        CdrLTestConfigLoader().LoadConfig(config_fname);
+        config = cdr_labeler::cdrl_cfg::get();
         config.vj_finder_config.algorithm_params.germline_params.loci = "IG";
         germline_utils::GermlineDbGenerator db_generator(config.vj_finder_config.io_params.input_params.germline_input,
                                                          config.vj_finder_config.algorithm_params.germline_params);
