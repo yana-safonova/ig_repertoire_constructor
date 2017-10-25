@@ -30,12 +30,12 @@ namespace antevolo {
 
         annotation_utils::AnnotatedClone GetCloneByRead(core::Read& read) const;
 
-        annotation_utils::AnnotatedClone GetCloneByReadWithSpecificGenes(
+        annotation_utils::AnnotatedClone GetCloneByReadWithSpecificGenes (
                 core::Read &read,
                 const germline_utils::ImmuneGene &v_gene,
                 const germline_utils::ImmuneGene &j_gene) const;
 
-        annotation_utils::AnnotatedClone GetCloneByReadAndAlignment(
+        annotation_utils::AnnotatedClone GetCloneByReadAndAlignment (
                 std::tuple<core::Read,
                         seqan::Align<seqan::Dna5String>,
                         seqan::Align<seqan::Dna5String>> tpl,

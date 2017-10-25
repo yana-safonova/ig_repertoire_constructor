@@ -121,6 +121,10 @@ namespace annotation_utils {
 
         StructuralRegion GetRegionBySHM(SHM shm) const;
 
+        seqan::Dna5String GetJNucleotides() const;
+
+        seqan::Dna5String GetCDR3JNucleotides() const;
+
     };
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj);

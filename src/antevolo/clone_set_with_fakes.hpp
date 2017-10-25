@@ -23,6 +23,14 @@ namespace antevolo {
             }
             return original_clone_set_[i];
         }
+        annotation_utils::AnnotatedClone& operator[](size_t i) {
+            if (IsFake(i)) {
+                return fakes_clone_set_[i - first_fake_];
+            }
+            return const_cast<annotation_utils::AnnotatedClone&>(original_clone_set_[i]);
+        }
+
+
         void AddClone(const annotation_utils::AnnotatedClone& clone) {
             fakes_clone_set_.AddClone(clone);
         }

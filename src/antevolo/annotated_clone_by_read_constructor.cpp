@@ -9,7 +9,7 @@ namespace antevolo {
         cdr_labeler::ReadCDRLabeler read_labeler(shm_config_, v_labeling_, j_labeling_);
         return read_labeler.CreateAnnotatedClone(vj_hits);
     }
-    annotation_utils::AnnotatedClone AnnotatedCloneByReadConstructor::GetCloneByReadWithSpecificGenes(
+    annotation_utils::AnnotatedClone AnnotatedCloneByReadConstructor::GetCloneByReadWithSpecificGenes (
             core::Read &read,
             const germline_utils::ImmuneGene &v_gene,
             const germline_utils::ImmuneGene &j_gene) const {

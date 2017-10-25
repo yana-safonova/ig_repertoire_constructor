@@ -33,6 +33,7 @@ namespace antevolo {
         size_t GetOldIndexByNewIndex(size_t i);
         size_t GetNewIndexByOldIndex(size_t old_index);
         const std::vector<size_t>& GetClonesByCDR3(std::string cdr3);
+        size_t GetOldIndexByCDR3JNucl(std::string cdr3JNucl);
         const std::string& GetCDR3ByOldIndex(size_t old_index);
         size_t GetOldIndexByCDR3(const std::string& cdr3);
         const std::vector<size_t>& GetClonesByOldIndex(size_t old_index);

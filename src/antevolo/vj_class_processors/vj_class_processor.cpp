@@ -5,8 +5,6 @@
 #include <convert.hpp>
 #include <annotation_utils/shm_comparator.hpp>
 #include <cdr3_hamming_graph_connected_components_processors/edmonds_cdr3_hg_cc_processor.hpp>
-#include <seqan/align.h>
-#include <mutex>
 
 namespace antevolo {
     void VJClassProcessor::Clear() {
@@ -15,41 +13,34 @@ namespace antevolo {
     }
 
 
-//    void VJClassProcessor::CreateUniqueCDR3Map(
-//            core::DecompositionClass decomposition_class) {
-//        const auto &clone_set = *clone_set_ptr_;
-//        for (auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
-//            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
-//                continue;
-//            auto cdr3 = core::dna5String_to_string(clone_set[*it].CDR3());
-//            if (unique_cdr3sJnucl_map_.find(cdr3) == unique_cdr3sJnucl_map_.end())
-//                unique_cdr3sJnucl_map_[cdr3] = std::vector<size_t>();
-//            unique_cdr3sJnucl_map_[cdr3].push_back(*it);
-//        }
-//        for (auto it = unique_cdr3sJnucl_map_.begin(); it != unique_cdr3sJnucl_map_.end(); it++)
-//            unique_cdr3Jnucleotides_.push_back(it->first);
-//        for (size_t i = 0; i < unique_cdr3Jnucleotides_.size(); ++i)
-//            cdr3Jnucl_to_old_index_map_[unique_cdr3Jnucleotides_[i]] = i;
-//    }
-
-    std::mutex m;
-
-    seqan::Dna5String VJClassProcessor::GetJNucleotides(const annotation_utils::AnnotatedClone &clone) {
-        //indels! :(
-        auto row_query = seqan::row(clone.JAlignment().Alignment(), 1);
-//        std::cout << row_query << "\n";
-//        m.unlock();
-        std::string JNucleotides(8, 'N');
-        JNucleotides[0] = core::dna5String_to_string(row_query[length(row_query) - 1 - 28])[0];
-        JNucleotides[1] = core::dna5String_to_string(row_query[length(row_query) - 1 - 27])[0];
-        JNucleotides[2] = core::dna5String_to_string(row_query[length(row_query) - 1 - 26])[0];
-        JNucleotides[3] = core::dna5String_to_string(row_query[length(row_query) - 1 - 25])[0];
-        JNucleotides[4] = core::dna5String_to_string(row_query[length(row_query) - 1 - 22])[0];
-        JNucleotides[5] = core::dna5String_to_string(row_query[length(row_query) - 1 - 19])[0];
-        JNucleotides[6] = core::dna5String_to_string(row_query[length(row_query) - 1 - 18])[0];
-        JNucleotides[7] = core::dna5String_to_string(row_query[length(row_query) - 1 - 17])[0];
-        return seqan::Dna5String(JNucleotides);
+    void VJClassProcessor::CreateUniqueCDR3Map(
+            core::DecompositionClass decomposition_class) {
+        const auto &clone_set = *clone_set_ptr_;
+        for (auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
+            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
+                continue;
+            auto cdr3 = core::dna5String_to_string(clone_set[*it].CDR3());
+            if (unique_cdr3s_map_.find(cdr3) == unique_cdr3s_map_.end())
+                unique_cdr3s_map_[cdr3] = std::vector<size_t>();
+            unique_cdr3s_map_[cdr3].push_back(*it);
+        }
+        for (auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
+            unique_cdr3_.push_back(it->first);
+        for (size_t i = 0; i < unique_cdr3_.size(); ++i)
+            cdr3_to_old_index_map_[unique_cdr3_[i]] = i;
     }
+
+    void VJClassProcessor::ChangeJgene(core::DecompositionClass decomposition_class, const germline_utils::ImmuneGene &v_gene,
+                     const germline_utils::ImmuneGene &j_gene) {
+        auto &clone_set = *clone_set_ptr_;
+        for (auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
+            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
+                continue;
+            auto read = const_cast<core::Read&>(clone_set[*it].Read());
+            clone_set[*it] = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, j_gene);
+        }
+    }
+
 
     void VJClassProcessor::CreateUniqueCDR3JNucleotidesMap(core::DecompositionClass decomposition_class) {
         const auto &clone_set = *clone_set_ptr_;
@@ -57,8 +48,10 @@ namespace antevolo {
             if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
                 continue;
             auto cdr3 = clone_set[*it].CDR3();
-            auto JNucleotides = GetJNucleotides(clone_set[*it]);
-            auto CDR3JNucleotides = std::make_pair(cdr3, JNucleotides);
+            auto JNucleotides = clone_set[*it].GetJNucleotides();
+
+            std::string CDR3JNucleotides = core::dna5String_to_string(cdr3) + core::dna5String_to_string(JNucleotides);
+
 
             if (unique_cdr3sJnucl_map_.find(CDR3JNucleotides) == unique_cdr3sJnucl_map_.end())
                 unique_cdr3sJnucl_map_[CDR3JNucleotides] = std::vector<size_t>();
@@ -66,7 +59,8 @@ namespace antevolo {
         }
 
         for (auto it = unique_cdr3sJnucl_map_.begin(); it != unique_cdr3sJnucl_map_.end(); it++)
-            unique_cdr3Jnucleotides_.push_back(it->first);
+            unique_cdr3Jnucleotides_.push_back(it->first); // pair(cdr3, JNucleotides)
+
         for (size_t i = 0; i < unique_cdr3Jnucleotides_.size(); ++i)
             cdr3Jnucl_to_old_index_map_[unique_cdr3Jnucleotides_[i]] = i;
     }
@@ -86,21 +80,27 @@ namespace antevolo {
         return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
+
     std::string VJClassProcessor::WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) {
         std::string output_fname = GetFastaFname(decomposition_class);
         std::ofstream out(output_fname);
-        for (auto it = unique_cdr3Jnucleotides_.begin(); it != unique_cdr3Jnucleotides_.end(); it++)
+        for (auto it = unique_cdr3_.begin(); it != unique_cdr3_.end(); it++) {
             out << ">" << *it << std::endl << *it << std::endl;
+        }
         return output_fname;
+
     }
 
 
-    std::string VJClassProcessor::WriteUniqueCDR3JNucleotidesInFasta(core::DecompositionClass decomposition_class)
-    {
+    std::string VJClassProcessor::WriteUniqueCDR3JNucleotidesInFasta(core::DecompositionClass decomposition_class) {
         std::string output_fname = GetFastaFname(decomposition_class);
         std::ofstream out(output_fname);
+
         for (auto it = unique_cdr3Jnucleotides_.begin(); it != unique_cdr3Jnucleotides_.end(); it++)
-            out << ">" << it->first << it->second << "\n" << it->first << it->second << "\n";
+            //for (auto it = unique_cdr3_.begin(); it != unique_cdr3_.end(); it++)
+        {
+            out << ">" << *it << std::endl << *it << std::endl;
+        }
         return output_fname;
     }
 
@@ -112,7 +112,7 @@ namespace antevolo {
         std::stringstream ss;
         ss << config_.cdr_labeler_config.input_params.run_hg_constructor << " -i " << cdr_fasta <<
            " -o " << graph_fname << " --tau " << num_mismatches_ << " -S " << " 0 " <<
-           " -T " << " 0 " << " -k 10 > " << config_.output_params.trash_output;
+           " -T " << " 0 " << " -k 8 > " << config_.output_params.trash_output;
         int err_code = system(ss.str().c_str());
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
         auto sparse_cdr_graph_ = GraphReader(graph_fname).CreateGraph();
@@ -167,37 +167,37 @@ namespace antevolo {
 
 
 // return connected components of Hamming graph on CDR3s + JNucleotides
-    map<vector<std::pair<seqan::Dna5String, seqan::Dna5String>>, vector<int>>
-    VJClassProcessor::ComputeCDR3JNucleotidesHammingGraphs(
-            double tau, std::string graph_fname) {
-        std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> unique_cdr3Jnucl;
-        for (auto const &it:unique_cdr3sJnucl_map_)
-            unique_cdr3Jnucl.push_back(it.first);
-        std::map<std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>>, std::vector<int>> connected_components;
-        std::vector<int> components_helper_ind;
-
-        bool *used = new bool[unique_cdr3Jnucl.size()];
-        for (int i = 0; i < unique_cdr3Jnucl.size(); ++i)
-            if (!used[i]) {
-                components_helper_ind.clear();
-                dfs(i, used, components_helper_ind, unique_cdr3Jnucl, tau);
-
-                std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> components_key;
-                std::vector<int> components_value;
-
-                for (auto const &it:components_helper_ind) {
-                    components_key.push_back(unique_cdr3Jnucl[it]);
-                    components_value.insert(components_value.end(),
-                                            unique_cdr3sJnucl_map_[unique_cdr3Jnucl[it]].begin(),
-                                            unique_cdr3sJnucl_map_[unique_cdr3Jnucl[it]].end());
-                }
-
-                std::cout << components_key.size() << " " << components_value.size() << "\n";
-                connected_components[components_key] = components_value;
-            }
-        delete[] used;
-        return connected_components;
-    }
+//    map<vector<std::pair<seqan::Dna5String, seqan::Dna5String>>, vector<int>>
+//    VJClassProcessor::ComputeCDR3JNucleotidesHammingGraphs(
+//            double tau, std::string graph_fname) {
+//        std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> unique_cdr3Jnucl;
+//        for (auto const &it:unique_cdr3sJnucl_map_)
+//            unique_cdr3Jnucl.push_back(it.first);
+//        std::map<std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>>, std::vector<int>> connected_components;
+//        std::vector<int> components_helper_ind;
+//
+//        bool *used = new bool[unique_cdr3Jnucl.size()];
+//        for (int i = 0; i < unique_cdr3Jnucl.size(); ++i)
+//            if (!used[i]) {
+//                components_helper_ind.clear();
+//                dfs(i, used, components_helper_ind, unique_cdr3Jnucl, tau);
+//
+//                std::vector<std::pair<seqan::Dna5String, seqan::Dna5String>> components_key;
+//                std::vector<int> components_value;
+//
+//                for (auto const &it:components_helper_ind) {
+//                    components_key.push_back(unique_cdr3Jnucl[it]);
+//                    components_value.insert(components_value.end(),
+//                                            unique_cdr3sJnucl_map_[unique_cdr3Jnucl[it]].begin(),
+//                                            unique_cdr3sJnucl_map_[unique_cdr3Jnucl[it]].end());
+//                }
+//
+//                std::cout << components_key.size() << " " << components_value.size() << "\n";
+//                connected_components[components_key] = components_value;
+//            }
+//        delete[] used;
+//        return connected_components;
+//    }
 
 
     void VJClassProcessor::ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id) {
@@ -220,7 +220,7 @@ namespace antevolo {
 //        return tree;
     }
 
-    //void VJClassProcessor::ProcessComponentWithEdmonds(
+
     EvolutionaryTree VJClassProcessor::ProcessComponentWithEdmonds(
             SparseGraphPtr hg_component,
             size_t component_id,
@@ -248,33 +248,63 @@ namespace antevolo {
 
     void VJClassProcessor::HG_components(SparseGraphPtr hg_component, size_t component_id,
                                          const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
-//        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
-//                                                unique_cdr3sJnucl_map_,
-//                                                cdr3Jnucl_to_old_index_map_,
-//                                                unique_cdr3Jnucleotides_,
-//                                                hg_component,
-//                                                component_id);
-//
-//        auto clones = hamming_graph_info.GetAllClones();
-//        const auto &clone_set = *clone_set_ptr_;
-//
-//        std::string output_fname = path::append_path(config_.output_params.output_dir, "HG_stats.txt");
-//        std::ofstream out(output_fname, std::ios::app);
-//
-//        out << "Component size: " << clones.size() << "\n";
-//        std::map<std::string, int> q;
-//        size_t cdr3_len;
-//        for (auto const &it: clones) {
-//            std::string v_name = std::string(seqan::toCString(clone_set[it].VGene().name()));
-//            std::string j_name = std::string(seqan::toCString(clone_set[it].JGene().name()));
-//            q[v_name + '_' + j_name] += 1;
-//            cdr3_len = seqan::length(clone_set[it].CDR3());
-//        }
-//        for (auto it = q.begin(); it != q.end(); ++it) {
-//            out << it->first << " " << it->second << "\n";
-//        }
-//        out << "CDR3: " << cdr3_len << "\n\n";
-//        out.close();
+        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+                                                unique_cdr3sJnucl_map_,
+                                                cdr3Jnucl_to_old_index_map_,
+                                                unique_cdr3Jnucleotides_,
+                                                hg_component,
+                                                component_id);
+
+        auto clones = hamming_graph_info.GetAllClones();
+        const auto &clone_set = *clone_set_ptr_;
+
+        std::string output_fname = path::append_path(config_.output_params.output_dir, "HG_stats.txt");
+        std::ofstream out(output_fname, std::ios::app);
+
+        out << "Component size: " << clones.size() << "\n";
+        std::map<std::string, int> q;
+        size_t cdr3_len;
+        for (auto const &it: clones) {
+            std::string v_name = std::string(seqan::toCString(clone_set[it].VGene().name()));
+            std::string j_name = std::string(seqan::toCString(clone_set[it].JGene().name()));
+            q[v_name + '_' + j_name] += 1;
+            cdr3_len = seqan::length(clone_set[it].CDR3());
+        }
+        for (auto it = q.begin(); it != q.end(); ++it) {
+            out << it->first << " " << it->second << "\n";
+        }
+        out << "CDR3: " << cdr3_len << "\n\n";
+        out.close();
+    }
+
+
+    int VJClassProcessor::VJgenes(SparseGraphPtr hg_component, size_t component_id,
+                                         const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
+        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+                                                unique_cdr3sJnucl_map_,
+                                                cdr3Jnucl_to_old_index_map_,
+                                                unique_cdr3Jnucleotides_,
+                                                hg_component,
+                                                component_id);
+
+        //std::cout << "VJ\n";
+
+        auto clones = hamming_graph_info.GetAllClones();
+        const auto &clone_set = *clone_set_ptr_;
+
+        std::string output_fname = path::append_path(config_.output_params.output_dir, "VJgenes.txt");
+        std::ofstream out(output_fname, std::ios::app);
+
+        std::map<std::string, int> q;
+        size_t cdr3_len;
+        for (auto const &it: clones) {
+            std::string v_name = std::string(seqan::toCString(clone_set[it].VGene().name()));
+            std::string j_name = std::string(seqan::toCString(clone_set[it].JGene().name()));
+            out << clone_set[it].Read().name << " " << v_name << " " << j_name << "\n";
+        }
+        out.close();
+
+        return clones.size();
     }
 
 

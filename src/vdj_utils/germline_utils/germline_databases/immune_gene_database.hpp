@@ -6,6 +6,7 @@
 #include "../chain_type.hpp"
 #include "../germline_gene_type.hpp"
 #include <annotation_utils/aa_annotation/aa_annotation.hpp>
+#include "convert.hpp"
 
 namespace germline_utils {
 
@@ -62,11 +63,18 @@ namespace germline_utils {
         SegmentType Segment() const { return gene_type_.Segment(); }
 
         size_t id() const { return id_; }
+
+        friend bool operator<(const ImmuneGene& l, const ImmuneGene& r)
+        {
+            return core::dna5String_to_string(l.seq()) < core::dna5String_to_string(r.seq());
+        }
     };
 
     typedef std::shared_ptr <ImmuneGene> ImmuneGenePtr;
 
     std::ostream &operator<<(std::ostream &out, const ImmuneGene &obj);
+
+
 
 // ----------------------------------------------------------------------------
 

@@ -1,9 +1,13 @@
 #include <verify.hpp>
 
 #include "annotated_clone.hpp"
+#include "convert.hpp"
 
 #include <seqan/stream.h>
 #include <seqan/translation.h>
+#include <seqan/align.h>
+
+#include <mutex>
 
 namespace annotation_utils {
     std::ostream& operator<<(std::ostream& out, const StructuralRegion &region) {
@@ -107,6 +111,27 @@ namespace annotation_utils {
         if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR3).end_pos)
             return StructuralRegion::CDR3;
         return StructuralRegion::FR4;
+    }
+
+    seqan::Dna5String AnnotatedClone::GetJNucleotides() const{
+        auto row_gene = seqan::row(this->JAlignment().Alignment(), 0);
+        auto row_clone = seqan::row(this->JAlignment().Alignment(), 1);
+        std::string JNucleotides(8, 'N');
+        JNucleotides[0] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 28])[0];
+        JNucleotides[1] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 27])[0];
+        JNucleotides[2] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 26])[0];
+        JNucleotides[3] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 25])[0];
+        JNucleotides[4] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 22])[0];
+        JNucleotides[5] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 19])[0];
+        JNucleotides[6] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 18])[0];
+        JNucleotides[7] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - 17])[0];
+        return seqan::Dna5String(JNucleotides);
+    }
+
+    seqan::Dna5String AnnotatedClone::GetCDR3JNucleotides() const{
+        std::string cdr3 = core::dna5String_to_string(this->CDR3());
+        std::string Jnucl = core::dna5String_to_string(this->GetJNucleotides());
+        return seqan::Dna5String(cdr3 + Jnucl);
     }
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj) {
