@@ -164,8 +164,7 @@ namespace vj_finder {
         load(od.fix_spaces, pt, "fix_spaces");
         load(od.num_aligned_candidates, pt, "num_aligned_candidates");
         std::string columns_str;
-        load(columns_str, pt, "alignment_columns");
-        od.alignment_columns = ReportColumns<OutputDetails::AlignmentInfoColumnTypes>::CreateFromString(columns_str);
+        load(od.alignment_columns, pt, "alignment_columns");
     }
 
     using VJFAlignmentInfoColumnTypeEnum = OutputDetails::AlignmentInfoColumnTypes::ColumnTypeEnum;

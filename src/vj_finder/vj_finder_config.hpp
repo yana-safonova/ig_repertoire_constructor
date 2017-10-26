@@ -52,7 +52,7 @@ namespace vj_finder {
 
                     bool fix_spaces;
                     size_t num_aligned_candidates;
-                    ReportColumns<AlignmentInfoColumnTypes> alignment_columns;
+                    std::string alignment_columns;
                 };
 
                 OutputFiles output_files;

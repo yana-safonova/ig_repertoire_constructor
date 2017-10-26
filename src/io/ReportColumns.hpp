@@ -4,38 +4,78 @@
 #include <vector>
 #include "../ig_tools/utils/string_tools.hpp"
 
-template <typename ColumnTypes>
-class ReportColumns {
-public:
-    ReportColumns() = default;
-
-    ReportColumns(const std::vector<typename ColumnTypes::ColumnTypeEnum>& columns_, const std::string& csv_header_) :
-            csv_header(csv_header_), columns(columns_) {}
-
-    static ReportColumns CreateFromString(const std::string& columns_raw) {
-        std::vector<std::string> col_strings = split(columns_raw, ',');
-        std::vector<typename ColumnTypes::ColumnTypeEnum> columns;
-        std::stringstream header;
+namespace ReportColumns {
+    template <typename T, typename TList>
+    T find_element_by_name_or_report_failure(const TList& list, const std::string& query, const std::string& type_name) {
+        std::stringstream ss;
         bool first = true;
-        for (auto& s : col_strings) {
-            boost::algorithm::trim(s);
-            VERIFY_MSG(ColumnTypes::string_to_column_type.find(s) != ColumnTypes::string_to_column_type.end(), s);
-            columns.push_back(ColumnTypes::string_to_column_type.at(s));
-            if (!first) {
-                header << "\t";
+        for (const auto& element : list) {
+            if (element.name == query) {
+                return element;
             }
+            if (!first) ss << ", ";
             first = false;
-            header << s;
+            ss << element.name;
         }
-        return ReportColumns(columns, header.str());
+        VERIFY_MSG(false, "Could not find a supported " << type_name << " with name " << query << ". Supported " << type_name << "s are " << ss);
     }
 
-    std::string GetCsvHeader() const { return csv_header; }
+    template <typename Context, typename Out>
+    struct Column {
+        const std::string name;
+        const std::function<void(Out&, const Context&)> print;
 
-    std::vector<typename ColumnTypes::ColumnTypeEnum> GetColumns() const { return columns; }
+        static Column<Context, Out> GetColumn(const std::string& name) {
+            return find_element_by_name_or_report_failure<Column>(COLUMN_TYPES, name, "column");
+        }
 
-private:
-    std::string csv_header;
+        static const std::vector<Column<Context, Out>> COLUMN_TYPES;
+    };
 
-    std::vector<typename ColumnTypes::ColumnTypeEnum> columns;
+    template <typename Context, typename Out>
+    struct ColumnSet {
+        const std::string name;
+        const std::vector<Column<Context, Out>> columns;
+
+        ColumnSet(const std::string& name, const std::vector<Column<Context, Out>>& columns) : name(name), columns(columns) {}
+
+        void PrintCsvHeader(Out& out) const {
+            PrintInfo(out, [&](Column<Context, Out> column) { out << column.name; });
+        }
+
+        void print(Out& out, const Context& context) const {
+            PrintInfo(out, [&](Column<Context, Out> column) { column.print(out, context); });
+        }
+
+        static ColumnSet<Context, Out> GetPreset(const std::string& name) {
+            return find_element_by_name_or_report_failure<ColumnSet>(PRESETS, name, "column set");
+        }
+
+        static ColumnSet<Context, Out> ParseColumns(const std::string& line) {
+            std::vector<std::string> col_strings = split(line, ',');
+            std::vector<Column<Context, Out>> columns;
+            for (auto& name : col_strings) {
+                boost::algorithm::trim(name);
+                columns.push_back(Column<Context, Out>::GetColumn(name));
+
+            }
+            return ColumnSet{"custom", columns};
+        }
+
+        static const std::vector<ColumnSet<Context, Out>> PRESETS;
+
+    private:
+        void PrintInfo(Out& out, std::function<void(Column<Context, Out>)> print_info) const {
+            bool first = true;
+            for (const auto& column : columns) {
+                if (!first) {
+                    out << "\t";
+                }
+                first = false;
+                print_info(column);
+            }
+            out << "\n";
+        }
+    };
 };
+

@@ -88,5 +88,12 @@ namespace vj_finder {
         void OutputVAlignments() const;
 
         void OutputFilteringInfo() const;
+
+    };
+
+    struct ReportFeatureEvaluationContext {
+        const VJHits& vj_hits;
+        const VGeneHit& v_hits;
+        const JGeneHit& j_hits;
     };
 }
