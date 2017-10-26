@@ -17,7 +17,7 @@ namespace ReportColumns {
             first = false;
             ss << element.name;
         }
-        VERIFY_MSG(false, "Could not find a supported " << type_name << " with name " << query << ". Supported " << type_name << "s are " << ss);
+        VERIFY_MSG(false, "Could not find a supported " << type_name << " with name " << query << ". Supported " << type_name << "s are " << ss.str());
     }
 
     template <typename Context, typename Out>
