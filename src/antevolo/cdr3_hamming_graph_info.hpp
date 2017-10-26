@@ -25,7 +25,7 @@ namespace antevolo {
                              size_t component_id) :
             graph_component_map_(graph_component_map),
             cdr3_to_indices_vector_map_(cdr3_to_indices_vector_map),
-            cdr3_to_old_index_map_{cdr3_to_old_index_map},
+            cdr3_to_old_index_map_(cdr3_to_old_index_map),
             unique_cdr3s_(unique_cdr3s),
             hg_component_(hg_component),
             component_id_(component_id) {}
