@@ -9,6 +9,7 @@ namespace cdr_labeler {
 
         germline_utils::CustomGeneDatabase GetDatabaseByCDRLabeling(const germline_utils::CustomGeneDatabase &gene_db,
                                                                     DbCDRLabeling cdr_labeling);
+        void CheckInputParams();
 
     public:
         explicit CDRLabelerLaunch(const CDRLabelerConfig &config) :

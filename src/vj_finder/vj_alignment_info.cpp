@@ -57,7 +57,7 @@ namespace vj_finder {
         std::ofstream out(output_params_.output_files.alignment_info_fname);
         const auto columns = ReportColumns::ColumnSet<VJFReportEvalContext>::ParseColumns(
                 output_params_.output_details.alignment_columns
-        );
+        ).value();
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
             const auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
             for(size_t j = 0; j < output_params_.output_details.num_aligned_candidates; j++) {
