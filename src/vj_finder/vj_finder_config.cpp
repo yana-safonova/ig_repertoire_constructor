@@ -25,6 +25,14 @@ namespace vj_finder {
         //update_input_config(ip);
     }
 
+    void load(VJFinderConfig::IOParams::OutputParams::OutputDetails & od, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(od.fix_spaces, pt, "fix_spaces");
+        load(od.num_aligned_candidates, pt, "num_aligned_candidates");
+        std::string columns_str;
+        load(od.alignment_columns, pt, "alignment_columns");
+    }
+
     void update_output_files_config(VJFinderConfig::IOParams::OutputParams::OutputFiles & of) {
         of.log_filename = path::append_path(of.output_dir, of.log_filename);
         of.alignment_info_fname = path::append_path(of.output_dir, of.alignment_info_fname);
@@ -34,8 +42,7 @@ namespace vj_finder {
         of.valignments_filename = path::append_path(of.output_dir, of.valignments_filename);
     }
 
-    void load(VJFinderConfig::IOParams::OutputParams::OutputFiles & of,
-              boost::property_tree::ptree const &pt, bool) {
+    void load(VJFinderConfig::IOParams::OutputParams::OutputFiles & of, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(of.log_filename, pt, "log_filename");
         load(of.alignment_info_fname, pt, "alignment_info_fname");
@@ -158,14 +165,6 @@ namespace vj_finder {
     }
 
     using OutputDetails = VJFinderConfig::IOParams::OutputParams::OutputDetails;
-
-    void load(OutputDetails & od, boost::property_tree::ptree const &pt, bool) {
-        using config_common::load;
-        load(od.fix_spaces, pt, "fix_spaces");
-        load(od.num_aligned_candidates, pt, "num_aligned_candidates");
-        std::string columns_str;
-        load(od.alignment_columns, pt, "alignment_columns");
-    }
 
     using VJFAlignmentInfoColumnTypeEnum = OutputDetails::AlignmentInfoColumnTypes::ColumnTypeEnum;
 

@@ -11,8 +11,13 @@ namespace cdr_labeler {
         };
 
         struct OutputParams {
+            struct FeatureReportParams {
+                std::string cdr_details;
+                std::string preset;
+                std::string columns;
+            };
+
             std::string output_dir;
-            std::string cdr_details;
             std::string shm_details;
             std::string cdr1_fasta;
             std::string cdr2_fasta;
@@ -21,6 +26,7 @@ namespace cdr_labeler {
             std::string v_alignment_fasta;
             std::string cleaned_reads;
             std::string trash_output;
+            FeatureReportParams feature_report_params;
         };
 
         struct RunParams {

@@ -11,7 +11,7 @@ namespace cdr_labeler {
                                                                     DbCDRLabeling cdr_labeling);
 
     public:
-        CDRLabelerLaunch(const CDRLabelerConfig &config) :
+        explicit CDRLabelerLaunch(const CDRLabelerConfig &config) :
                 config_(config) { }
 
         void Launch();

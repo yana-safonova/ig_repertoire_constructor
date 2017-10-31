@@ -20,56 +20,63 @@ namespace ReportColumns {
         VERIFY_MSG(false, "Could not find a supported " << type_name << " with name " << query << ". Supported " << type_name << "s are " << ss.str());
     }
 
-    template <typename Context, typename Out>
+    template <typename Context>
     struct Column {
         const std::string name;
-        const std::function<void(Out&, const Context&)> print;
+        const std::function<void(std::basic_ostream<char>&, const Context&)> print;
 
-        static Column<Context, Out> GetColumn(const std::string& name) {
+        static Column<Context> GetColumn(const std::string& name) {
             return find_element_by_name_or_report_failure<Column>(COLUMN_TYPES, name, "column");
         }
 
-        static const std::vector<Column<Context, Out>> COLUMN_TYPES;
+        static const std::vector<Column<Context>> COLUMN_TYPES;
     };
 
-    template <typename Context, typename Out>
+    template <typename Context>
     struct ColumnSet {
         const std::string name;
-        const std::vector<Column<Context, Out>> columns;
+        const std::vector<Column<Context>> columns;
 
-        ColumnSet(const std::string& name, const std::vector<Column<Context, Out>>& columns) : name(name), columns(columns) {}
+        ColumnSet(const std::string& name, const std::vector<Column<Context>>& columns) : name(name), columns(columns) {}
 
-        void PrintCsvHeader(Out& out) const {
-            PrintInfo(out, [&](Column<Context, Out> column) { out << column.name; });
+        void PrintCsvHeader(std::basic_ostream<char>& out, const std::string& separator = "\t") const {
+            PrintInfo(out, [&](Column<Context> column) { out << column.name; }, separator);
         }
 
-        void print(Out& out, const Context& context) const {
-            PrintInfo(out, [&](Column<Context, Out> column) { column.print(out, context); });
+        void Print(std::basic_ostream<char>& out, const Context& context) const {
+            PrintInfo(out, [&](Column<Context> column) { column.print(out, context); });
         }
 
-        static ColumnSet<Context, Out> GetPreset(const std::string& name) {
+        static ColumnSet<Context> GetPreset(const std::string& name) {
             return find_element_by_name_or_report_failure<ColumnSet>(PRESETS, name, "column set");
         }
 
-        static ColumnSet<Context, Out> ParseColumns(const std::string& line) {
+        static ColumnSet<Context> ParseColumns(const std::string& line) {
             std::vector<std::string> col_strings = split(line, ',');
-            std::vector<Column<Context, Out>> columns;
+            std::vector<Column<Context>> columns;
             for (auto& name : col_strings) {
                 boost::algorithm::trim(name);
-                columns.push_back(Column<Context, Out>::GetColumn(name));
+                columns.push_back(Column<Context>::GetColumn(name));
 
             }
             return ColumnSet{"custom", columns};
         }
 
-        static const std::vector<ColumnSet<Context, Out>> PRESETS;
+        static ColumnSet<Context> ChooseColumns(const std::string& preset_name, const std::string& columns) {
+            if (!columns.empty()) {
+                return ParseColumns(columns);
+            }
+            return GetPreset(preset_name);
+        };
+
+        static const std::vector<ColumnSet<Context>> PRESETS;
 
     private:
-        void PrintInfo(Out& out, std::function<void(Column<Context, Out>)> print_info) const {
+        void PrintInfo(std::basic_ostream<char>& out, const std::function<void(Column<Context>)>& print_info, const std::string& separator = "\t") const {
             bool first = true;
             for (const auto& column : columns) {
                 if (!first) {
-                    out << "\t";
+                    out << separator;
                 }
                 first = false;
                 print_info(column);

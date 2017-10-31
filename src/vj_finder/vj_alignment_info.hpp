@@ -91,7 +91,7 @@ namespace vj_finder {
 
     };
 
-    struct ReportFeatureEvaluationContext {
+    struct VJFReportEvalContext {
         const VJHits& vj_hits;
         const VGeneHit& v_hits;
         const JGeneHit& j_hits;

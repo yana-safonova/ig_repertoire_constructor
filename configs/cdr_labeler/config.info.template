@@ -7,7 +7,6 @@ input_params {
 output_params {
     output_dir             cdr_test
     cleaned_reads          cleaned_sequences.fasta
-    cdr_details            cdr_details.txt  
     shm_details            shm_details.txt
     cdr1_fasta             cdr1s.fasta
     cdr2_fasta             cdr2s.fasta 
@@ -16,6 +15,14 @@ output_params {
     cleaned_reads          cleaned_sequences.fasta
     v_alignment_fasta      v_alignment.fasta
     trash_output           trash.out
+
+    feature_report_params {
+	    cdr_details  cdr_details.txt
+	    ""           "Supported preset values are: divan"
+	    preset       divan
+	    ""           "Supported column values are: Read_name,Chain_type,V_hit,J_hit,AA_seq,Has_stop_codon,In,Productive,CDR1_nucls,CDR1_start,CDR1_end,CDR2_nucls,CDR2_start,CDR2_end,CDR3_nucls,CDR3_start,CDR3_end"
+	    columns      
+    }
 
     shm_output_details {
         v_start_max_skipped  5
