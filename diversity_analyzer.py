@@ -222,7 +222,7 @@ def main(argv):
                                default="divan",
                                dest="preset",
                                help="Predefined set of repertoire features to report. Supported values: divan."
-                                    # "Min outputs same fields as MiXCR export with min preset, "
+                                    # "min outputs same fields as MiXCR export with min preset, "
                                     "divan outputs default IgDiversityAnalyzer feature set, "
                                     # "custom reads feature set from cdr_labeler config file."
                                     " [default: %(default)s]")

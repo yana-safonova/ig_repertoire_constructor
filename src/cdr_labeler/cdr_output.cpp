@@ -264,14 +264,28 @@ namespace ReportColumns {
                         ReportColumns::DiversityAnalyzer::CDR3_END
                 }
         };
-    }
+
+        static const DivanReportColumnSet MIN_PRESET = {
+                "min",
+                {
+//                        ReportColumns::DiversityAnalyzer::CLONE_COUNT,
+                        ReportColumns::DiversityAnalyzer::V_HIT,
+//                        ReportColumns::DiversityAnalyzer::D_HIT,
+                        ReportColumns::DiversityAnalyzer::J_HIT,
+//                        ReportColumns::DiversityAnalyzer::C_HIT,
+                        ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
+                }
+        };
+    };
 
     template <>
     const std::vector<DivanReportColumn> DivanReportColumn::COLUMN_TYPES = {
             ReportColumns::DiversityAnalyzer::READ_NAME,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
+//            ReportColumns::DiversityAnalyzer::D_HIT,
             ReportColumns::DiversityAnalyzer::J_HIT,
+//            ReportColumns::DiversityAnalyzer::C_HIT,
             ReportColumns::DiversityAnalyzer::AA_SEQ,
             ReportColumns::DiversityAnalyzer::HAS_STOP_CODON,
             ReportColumns::DiversityAnalyzer::IN_FRAME,
@@ -284,11 +298,13 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CDR2_END,
             ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR3_START,
-            ReportColumns::DiversityAnalyzer::CDR3_END
+            ReportColumns::DiversityAnalyzer::CDR3_END,
+//            ReportColumns::DiversityAnalyzer::CLONE_COUNT,
     };
 
     template <>
     const std::vector<DivanReportColumnSet> DivanReportColumnSet::PRESETS = {
-            ReportColumns::DiversityAnalyzer::DIVAN_PRESET
+            ReportColumns::DiversityAnalyzer::DIVAN_PRESET,
+            ReportColumns::DiversityAnalyzer::MIN_PRESET,
     };
 }
