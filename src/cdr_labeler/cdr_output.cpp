@@ -1,6 +1,7 @@
 #include "cdr_output.hpp"
 
 #include "compressed_cdr_set.hpp"
+#include "../ig_tools/utils/string_tools.hpp"
 
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
@@ -135,9 +136,33 @@ namespace ReportColumns {
     using DivanReportColumnSet = ReportColumns::ColumnSet<cdr_labeler::DivanReportEvalContext>;
 
     namespace DiversityAnalyzer {
-        static const DivanReportColumn READ_NAME =
-                {"Read_name", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+
+        struct CloneInfo {
+            size_t id;
+            size_t size;
+
+            CloneInfo(size_t id, size_t size) : id(id), size(size) {}
+
+            static boost::optional<CloneInfo> TryParse(std::string name) {
+                const std::vector<std::string> parts = split(name, "___");
+                if (parts.size() != 4) return {};
+                const auto id = try_string_to_number<std::size_t>(parts[1]);
+                const auto size = try_string_to_number<std::size_t>(parts[3]);
+                if (!id || !size) return {};
+                return {CloneInfo(*id, *size)};
+            }
+        };
+
+        static const DivanReportColumn CLONE_NAME =
+                {"Clone_name", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Read().name; }};
+        static const DivanReportColumn CLONE_ID =
+                {"Clone_ID", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
+                    VERIFY_MSG(clone_info, "Unknown clone name format. "
+                            "Are you trying to use Clone_ID column for bare IgDiversityAnalyzer without running IgReC?");
+                    out << clone_info->id;
+                }};
         static const DivanReportColumn CHAIN_TYPE =
                 {"Chain_type", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.ChainType(); }};
@@ -245,7 +270,7 @@ namespace ReportColumns {
         static const DivanReportColumnSet DIVAN_PRESET = {
                 "divan",
                 {
-                        ReportColumns::DiversityAnalyzer::READ_NAME,
+                        ReportColumns::DiversityAnalyzer::CLONE_NAME,
                         ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
                         ReportColumns::DiversityAnalyzer::V_HIT,
                         ReportColumns::DiversityAnalyzer::J_HIT,
@@ -280,7 +305,8 @@ namespace ReportColumns {
 
     template <>
     const std::vector<DivanReportColumn> DivanReportColumn::COLUMN_TYPES = {
-            ReportColumns::DiversityAnalyzer::READ_NAME,
+            ReportColumns::DiversityAnalyzer::CLONE_NAME,
+            ReportColumns::DiversityAnalyzer::CLONE_ID,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
 //            ReportColumns::DiversityAnalyzer::D_HIT,
