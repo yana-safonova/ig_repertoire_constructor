@@ -45,5 +45,6 @@ namespace cdr_labeler {
         const annotation_utils::AnnotatedClone& cdr_clone;
         const alignment_utils::ImmuneGeneReadAlignment& v_alignment;
         const alignment_utils::ImmuneGeneReadAlignment& j_alignment;
+        const std::size_t total_clone_sizes;
     };
 }

@@ -1,8 +1,7 @@
 #include "cdr_output.hpp"
 
 #include "compressed_cdr_set.hpp"
-#include "../ig_tools/utils/string_tools.hpp"
-
+#include "CloneInfo.hpp"
 #include <seqan/seq_io.h>
 #include <seqan/stream.h>
 
@@ -13,8 +12,15 @@ namespace cdr_labeler {
                 output_config_.feature_report_params.preset, output_config_.feature_report_params.columns
         );
         columns.PrintCsvHeader(out);
+        size_t total_clone_sizes = 0;
+        {
+            for (const auto& cdr_clone : clone_set_) {
+                const auto clone_info = CloneInfo::TryParse(cdr_clone.Read().name);
+                if (clone_info) total_clone_sizes += clone_info->size;
+            }
+        }
         for (const auto& cdr_clone : clone_set_) {
-            columns.Print(out, DivanReportEvalContext{cdr_clone, cdr_clone.VAlignment(), cdr_clone.JAlignment()});
+            columns.Print(out, DivanReportEvalContext{cdr_clone, cdr_clone.VAlignment(), cdr_clone.JAlignment(), total_clone_sizes});
         }
         out.close();
         INFO("CDR details were written to " << output_config_.feature_report_params.cdr_details);
@@ -137,22 +143,6 @@ namespace ReportColumns {
 
     namespace DiversityAnalyzer {
 
-        struct CloneInfo {
-            size_t id;
-            size_t size;
-
-            CloneInfo(size_t id, size_t size) : id(id), size(size) {}
-
-            static boost::optional<CloneInfo> TryParse(std::string name) {
-                const std::vector<std::string> parts = split(name, "___");
-                if (parts.size() != 4) return {};
-                const auto id = try_string_to_number<std::size_t>(parts[1]);
-                const auto size = try_string_to_number<std::size_t>(parts[3]);
-                if (!id || !size) return {};
-                return {CloneInfo(*id, *size)};
-            }
-        };
-
         static const DivanReportColumn CLONE_NAME =
                 {"Clone_name", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Read().name; }};
@@ -169,6 +159,13 @@ namespace ReportColumns {
                     VERIFY_MSG(clone_info, "Unknown clone name format. "
                             "Are you trying to use Clone_count column for bare IgDiversityAnalyzer without running IgReC?");
                     out << clone_info->size;
+                }};
+        static const DivanReportColumn CLONE_FRACTION =
+                {"Clone_fraction", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
+                    VERIFY_MSG(clone_info, "Unknown clone name format. "
+                            "Are you trying to use Clone_fraction column for bare IgDiversityAnalyzer without running IgReC?");
+                    out << static_cast<double>(clone_info->size) / static_cast<double>(context.total_clone_sizes);
                 }};
         static const DivanReportColumn CHAIN_TYPE =
                 {"Chain_type", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
@@ -315,6 +312,7 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CLONE_NAME,
             ReportColumns::DiversityAnalyzer::CLONE_ID,
             ReportColumns::DiversityAnalyzer::CLONE_COUNT,
+            ReportColumns::DiversityAnalyzer::CLONE_FRACTION,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
 //            ReportColumns::DiversityAnalyzer::D_HIT,
