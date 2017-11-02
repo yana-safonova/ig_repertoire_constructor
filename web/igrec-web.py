@@ -71,6 +71,13 @@ def index():
     return response
 
 
+@app.route('/report')
+def report():
+    response = make_response(render_template("report.html"))
+    # response.set_cookie('username', 'the username')
+    return response
+
+
 def create_uuid_dir(basedir):
     import uuid
     import os
@@ -97,12 +104,24 @@ def autoindex(path='.'):
 
 @app.route('/run_igrec', methods=["POST"])
 def run_igrec():
-    input = request.form["merged_reads"]
-    output_id = create_uuid_dir(runs_dir)
-    output = os.path.join(runs_dir, output_id)
-    return_code = os.system("%s/igrec.py -s %s --loci=all --threads=3 --output=%s" % (igrec_dir, input, output))
+    form = dict(request.form)
+    # TODO Add validation
+    for k in form:
+        form[k] = form[k][0]
 
-    session['last_input'] = input
+
+    form["output_id"] = output_id = create_uuid_dir(runs_dir)
+    form["output"] = output = os.path.join(runs_dir, output_id)
+    form["igrec_dir"] = igrec_dir
+
+    form["input_line"] = "-s %(merged-reads-file)s" % form if form["readstype"] == "merged" else "-1 %(paired-reads-file-right)s -2 %(paired-reads-file-left)s" % form
+
+    form["tool"] = "igrec.py" if form["barcodingtype"] == "no" else "barcoded_igrec.py"
+    if form["barcodingtype"] == "file":
+        return "Barcodes in a separate file are not supported yet =("
+
+    return_code = os.system("%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form)
+
     session['last_output'] = output
 
     print return_code
