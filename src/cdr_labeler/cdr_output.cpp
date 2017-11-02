@@ -167,6 +167,9 @@ namespace ReportColumns {
                             "Are you trying to use Clone_fraction column for bare IgDiversityAnalyzer without running IgReC?");
                     out << static_cast<double>(clone_info->size) / static_cast<double>(context.total_clone_sizes);
                 }};
+        static const DivanReportColumn CLONE_SEQUENCE =
+                {"Clone_sequence", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    out << context.cdr_clone.Read().seq; }};
         static const DivanReportColumn CHAIN_TYPE =
                 {"Chain_type", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.ChainType(); }};
@@ -313,6 +316,7 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CLONE_ID,
             ReportColumns::DiversityAnalyzer::CLONE_COUNT,
             ReportColumns::DiversityAnalyzer::CLONE_FRACTION,
+            ReportColumns::DiversityAnalyzer::CLONE_SEQUENCE,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
 //            ReportColumns::DiversityAnalyzer::D_HIT,
