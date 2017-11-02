@@ -11,11 +11,15 @@ from flask_autoindex import AutoIndex
 from flask import session
 from flask_session import Session
 
+from flask_socketio import SocketIO
+
+app = Flask(__name__)
+
+
 import os
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = os.path.dirname(current_dir)
 
-app = Flask(__name__)
 runs_dir = current_dir + "/runs"
 idx = AutoIndex(app, runs_dir, add_url_rules=False)
 
@@ -25,6 +29,8 @@ app.config['SESSION_USE_SIGNER'] = True
 app.config['SESSION_FILE_DIR'] = os.path.join(current_dir, "sessions")
 app.config['SECRET_KEY'] = "dc6627ce-2b94-4c45-a1e7-75fd595e2aca"
 Session(app)
+
+socketio = SocketIO(app)
 
 
 @app.route("/jQueryFileTree", methods=["POST"])
@@ -104,4 +110,4 @@ def run_igrec():
 
 
 if __name__ == "__main__":
-    app.run()
+    socketio.run(app)

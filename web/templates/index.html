@@ -4,35 +4,57 @@
 
 <html>
 <head>
-<script src="static/jquery-3.2.1.min.js"></script>
-
-<link rel="stylesheet" href="static/jQueryFileTree.min.css">
-<script src="static/jQueryFileTree.min.js"></script>
-
-<link rel="stylesheet" href="static/bootstrap.min.css">
-<link rel="stylesheet" href="static/bootstrap-theme.min.css">
-<script src="static/bootstrap.min.js"></script>
+<title>IgReC web-app</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IgReC web-app</title>
-<link rel="icon" type="image/png" href="images/favicon.png">
+
+{% include 'libs.html' %}
 
 <script type="text/javascript">
 $(document).ready(function() {
     $('#filetree').fileTree({
         script: '/jQueryFileTree'
     }, function(file) {
-        // $('#myModal').val(file);
+        // $('#fileOpenDialog').val(file);
     });
 
     $('#filetree').on('dblclick', '.file', function(event) {
-        $('#merged_reads').val(event.target.rel);
-        $('#myModal').modal('hide')
+        var target = $('#filetree').attr("data-target");
+        $(target).val(event.target.rel);
+        $("#fileOpenDialog").modal('hide')
+    });
+
+    $("input[type=radio][name=readstype]").change(function() {
+        if (this.value == "readstype-paired") {
+            $("#merged-reads-group").hide();
+            $("#merged-reads-file").prop('required', false);
+            $("#paired-reads-group").show();
+            $("#paired-reads-file-left").prop('required', true);
+            $("#paired-reads-file-right").prop('required', true);
+        } else {
+            $("#merged-reads-group").show();
+            $("#merged-reads-file").prop('required', true);
+            $("#paired-reads-group").hide();
+            $("#paired-reads-file-left").prop('required', false);
+            $("#paired-reads-file-right").prop('required', false);
+        }
+    });
+
+    $("input[type=radio][name=barcodingtype]").change(function() {
+        if (this.value == "file") {
+            $("#barcodes-group").show();
+        } else {
+            $("#barcodes-group").hide();
+        }
+    });
+
+    $(".btn-browse").click(function() {
+        $('#fileOpenDialog').modal('show')
+        $('#filetree').attr("data-target", $(this).attr("data-target"));
     });
 });
-
-
 </script>
 </head>
 
@@ -45,7 +67,7 @@ $(document).ready(function() {
             <!-- <label for="merged_reads">Merged reads:</label> -->
             <input id="merged_reads" name="merged_reads" type="text" class="form-control" placeholder="Merged reads...">
             <span class="input-group-btn">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal">Browse...</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#fileOpenDialog">Browse...</button>
             </span>
         </div>
     </div>
@@ -68,8 +90,134 @@ $(document).ready(function() {
 
 
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" role="dialog">
+<form class="form-horizontal">
+<fieldset>
+
+<!-- Form Name -->
+<legend>IgReC</legend>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="readstype">Reads type</label>
+    <div class="col-md-4">
+        <label class="radio-inline" for="readstype-paired">
+            <input type="radio" name="readstype" id="readstype-paired" value="paired" checked="checked">
+            Paired reads
+        </label>
+        <label class="radio-inline" for="readstype-merged">
+            <input type="radio" name="readstype" id="readstype-merged" value="merged">
+            Merged reads
+        </label>
+    </div>
+</div>
+
+
+
+<!-- Appended Input-->
+<div class="form-group" id="merged-reads-group" style="display: none">
+  <label class="col-md-4 control-label" for="merged-reads-file">Merged reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="merged-reads-file" name="merged-reads-file" class="form-control" placeholder="merged reads file" type="text" required="">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#merged-reads-file-right">browse...</button>
+      </span>
+    </div>
+    <p class="help-block">help</p>
+  </div>
+</div>
+
+<!-- Appended Input-->
+<div class="form-group" id="paired-reads-group">
+  <label class="col-md-4 control-label" for="paired-reads-file-left">Left reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-left" name="paired-reads-file-left" class="form-control" placeholder="left reads file" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-left">browse...</button>
+      </span>
+    </div>
+    <p class="help-block">help</p>
+  </div>
+
+  <label class="col-md-4 control-label" for="paired-reads-file-right">Right reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-right" name="paired-reads-file-right" class="form-control" placeholder="right reads files" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-right">browse...</button>
+      </span>
+    </div>
+    <p class="help-block">help</p>
+  </div>
+</div>
+
+
+<!-- Select Basic -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="organism">Organism</label>
+  <div class="col-md-4">
+    <select id="organism" name="organism" class="form-control">
+      <option value="human">human</option>
+      <option value="mouse">mouse</option>
+    </select>
+  </div>
+</div>
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
+  <div class="col-md-4">
+  <div class="radio">
+    <label for="barcodingtype-no">
+      <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked">
+      No barcoding
+    </label>
+	</div>
+  <div class="radio">
+    <label for="barcodingtype-ids">
+      <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids">
+      Barcodes in read IDs
+    </label>
+	</div>
+  <div class="radio">
+    <label for="barcodingtype-file">
+      <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file">
+      Barcodes in file
+    </label>
+	</div>
+  </div>
+</div>
+
+<div class="form-group" id="barcodes-group" style="display: none">
+  <label class="col-md-4 control-label" for="appendedtext">Barcode file</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="appendedtext" name="appendedtext" class="form-control" placeholder="barcode file name" type="text">
+      <span class="input-group-addon">browse...</span>
+    </div>
+    <p class="help-block">help</p>
+  </div>
+</div>
+
+<!-- Button -->
+<div class="form-group">
+  <label class="col-md-4 control-label" for="submit"></label>
+  <div class="col-md-4">
+    <button id="submit" name="submit" class="btn btn-primary">Run IgReC</button>
+  </div>
+</div>
+
+</fieldset>
+</form>
+
+
+
+
+
+
+
+
+<!-- Modal dialog -->
+<div class="modal fade" id="fileOpenDialog" role="dialog">
     <div class="modal-dialog" style="overflow-y: initial !important"> <!-- https://stackoverflow.com/questions/25874001/how-to-put-scrollbar-only-for-modal-body-in-bootstrap-modal-dialog -->
 
         <!-- Modal content-->
@@ -91,6 +239,16 @@ $(document).ready(function() {
 
 Your latest run: {{session["last_input"]}}
 
+
+<div id="tester" style="width:600px;height:250px;"></div>
+
+<script>
+    TESTER = $("#tester")[0];
+	Plotly.plot( TESTER, [{
+	x: [1, 2, 3, 4, 5],
+	y: [1, 2, 4, 8, 16] }], {
+	margin: { t: 0 } } );
+</script>
 
 
 </body>
