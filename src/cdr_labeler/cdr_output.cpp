@@ -163,6 +163,13 @@ namespace ReportColumns {
                             "Are you trying to use Clone_ID column for bare IgDiversityAnalyzer without running IgReC?");
                     out << clone_info->id;
                 }};
+        static const DivanReportColumn CLONE_COUNT =
+                {"Clone_count", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
+                    VERIFY_MSG(clone_info, "Unknown clone name format. "
+                            "Are you trying to use Clone_count column for bare IgDiversityAnalyzer without running IgReC?");
+                    out << clone_info->size;
+                }};
         static const DivanReportColumn CHAIN_TYPE =
                 {"Chain_type", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.ChainType(); }};
@@ -307,6 +314,7 @@ namespace ReportColumns {
     const std::vector<DivanReportColumn> DivanReportColumn::COLUMN_TYPES = {
             ReportColumns::DiversityAnalyzer::CLONE_NAME,
             ReportColumns::DiversityAnalyzer::CLONE_ID,
+            ReportColumns::DiversityAnalyzer::CLONE_COUNT,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
 //            ReportColumns::DiversityAnalyzer::D_HIT,
