@@ -177,13 +177,13 @@ namespace ReportColumns {
                 {"V_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.v_alignment.subject().name(); }};
         static const DivanReportColumn D_HIT =
-                {"D_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"D_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn J_HIT =
                 {"J_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.j_alignment.subject().name(); }};
         static const DivanReportColumn C_HIT =
-                {"C_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"C_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn AA_SEQ =
                 {"AA_seq", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
@@ -197,6 +197,15 @@ namespace ReportColumns {
         static const DivanReportColumn PRODUCTIVE =
                 {"Productive", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Productive(); }};
+        static const DivanReportColumn FR1_NUCLS =
+                {"FR1_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto region = annotation_utils::StructuralRegion::FR1;
+                    if (context.cdr_clone.RegionIsEmpty(region)) {
+                        out << "-";
+                    } else {
+                        out << context.cdr_clone.GetRegionString(region);
+                    }
+                }};
         static const DivanReportColumn CDR1_NUCLS =
                 {"CDR1_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
             const auto region = annotation_utils::StructuralRegion::CDR1;
@@ -224,6 +233,15 @@ namespace ReportColumns {
                 out << context.cdr_clone.GetRangeByRegion(region).end_pos + 1;
             }
         }};
+        static const DivanReportColumn FR2_NUCLS =
+                {"FR2_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto region = annotation_utils::StructuralRegion::FR2;
+                    if (context.cdr_clone.RegionIsEmpty(region)) {
+                        out << "-";
+                    } else {
+                        out << context.cdr_clone.GetRegionString(region);
+                    }
+                }};
         static const DivanReportColumn CDR2_NUCLS =
                 {"CDR2_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
             const auto region = annotation_utils::StructuralRegion::CDR2;
@@ -251,6 +269,15 @@ namespace ReportColumns {
                 out << context.cdr_clone.GetRangeByRegion(region).end_pos + 1;
             }
         }};
+        static const DivanReportColumn FR3_NUCLS =
+                {"FR3_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto region = annotation_utils::StructuralRegion::FR3;
+                    if (context.cdr_clone.RegionIsEmpty(region)) {
+                        out << "-";
+                    } else {
+                        out << context.cdr_clone.GetRegionString(region);
+                    }
+                }};
         static const DivanReportColumn CDR3_NUCLS =
                 {"CDR3_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
             const auto region = annotation_utils::StructuralRegion::CDR3;
@@ -278,6 +305,15 @@ namespace ReportColumns {
                 out << context.cdr_clone.GetRangeByRegion(region).end_pos + 1;
             }
         }};
+        static const DivanReportColumn FR4_NUCLS =
+                {"FR4_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    const auto region = annotation_utils::StructuralRegion::FR4;
+                    if (context.cdr_clone.RegionIsEmpty(region)) {
+                        out << "-";
+                    } else {
+                        out << context.cdr_clone.GetRegionString(region);
+                    }
+                }};
 
 
         static const DivanReportColumnSet DIVAN_PRESET = {
@@ -314,6 +350,39 @@ namespace ReportColumns {
                         ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
                 }
         };
+
+        static const DivanReportColumnSet MIXCR_FULL_PRESET = {
+                "mixcr-full",
+                {
+                        ReportColumns::DiversityAnalyzer::CLONE_ID,
+                        ReportColumns::DiversityAnalyzer::CLONE_COUNT,
+                        ReportColumns::DiversityAnalyzer::CLONE_FRACTION,
+                        ReportColumns::DiversityAnalyzer::CLONE_SEQUENCE,
+                        ReportColumns::DiversityAnalyzer::V_HIT,
+                        ReportColumns::DiversityAnalyzer::D_HIT,
+                        ReportColumns::DiversityAnalyzer::J_HIT,
+                        ReportColumns::DiversityAnalyzer::C_HIT,
+//                        ReportColumns::DiversityAnalyzer::V_ALIGNMENTS,
+//                        ReportColumns::DiversityAnalyzer::D_ALIGNMENTS,
+//                        ReportColumns::DiversityAnalyzer::J_ALIGNMENTS,
+//                        ReportColumns::DiversityAnalyzer::C_ALIGNMENTS,
+                        ReportColumns::DiversityAnalyzer::FR1_NUCLS,
+                        ReportColumns::DiversityAnalyzer::CDR1_NUCLS,
+                        ReportColumns::DiversityAnalyzer::FR2_NUCLS,
+                        ReportColumns::DiversityAnalyzer::CDR2_NUCLS,
+                        ReportColumns::DiversityAnalyzer::FR3_NUCLS,
+                        ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
+                        ReportColumns::DiversityAnalyzer::FR4_NUCLS,
+//                        ReportColumns::DiversityAnalyzer::FR1_AA,
+//                        ReportColumns::DiversityAnalyzer::CDR1_AA,
+//                        ReportColumns::DiversityAnalyzer::FR2_AA,
+//                        ReportColumns::DiversityAnalyzer::CDR2_AA,
+//                        ReportColumns::DiversityAnalyzer::FR3_AA,
+//                        ReportColumns::DiversityAnalyzer::CDR3_AA,
+//                        ReportColumns::DiversityAnalyzer::FR4_AA,
+//                        ReportColumns::DiversityAnalyzer::REF_POINTS,
+                }
+        };
     };
 
     template <>
@@ -332,20 +401,25 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::HAS_STOP_CODON,
             ReportColumns::DiversityAnalyzer::IN_FRAME,
             ReportColumns::DiversityAnalyzer::PRODUCTIVE,
+            ReportColumns::DiversityAnalyzer::FR1_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR1_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR1_START,
             ReportColumns::DiversityAnalyzer::CDR1_END,
+            ReportColumns::DiversityAnalyzer::FR2_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR2_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR2_START,
             ReportColumns::DiversityAnalyzer::CDR2_END,
+            ReportColumns::DiversityAnalyzer::FR3_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR3_START,
             ReportColumns::DiversityAnalyzer::CDR3_END,
+            ReportColumns::DiversityAnalyzer::FR4_NUCLS,
     };
 
     template <>
     const std::vector<DivanReportColumnSet> DivanReportColumnSet::PRESETS = {
             ReportColumns::DiversityAnalyzer::DIVAN_PRESET,
             ReportColumns::DiversityAnalyzer::MIN_PRESET,
+            ReportColumns::DiversityAnalyzer::MIXCR_FULL_PRESET,
     };
 }
