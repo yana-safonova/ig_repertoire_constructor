@@ -176,9 +176,15 @@ namespace ReportColumns {
         static const DivanReportColumn V_HIT =
                 {"V_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.v_alignment.subject().name(); }};
+        static const DivanReportColumn D_HIT =
+                {"D_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    out << "Unsupported"; }};
         static const DivanReportColumn J_HIT =
                 {"J_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.j_alignment.subject().name(); }};
+        static const DivanReportColumn C_HIT =
+                {"C_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    out << "Unsupported"; }};
         static const DivanReportColumn AA_SEQ =
                 {"AA_seq", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.AA(); }};
@@ -300,11 +306,11 @@ namespace ReportColumns {
         static const DivanReportColumnSet MIN_PRESET = {
                 "min",
                 {
-//                        ReportColumns::DiversityAnalyzer::CLONE_COUNT,
+                        ReportColumns::DiversityAnalyzer::CLONE_COUNT,
                         ReportColumns::DiversityAnalyzer::V_HIT,
-//                        ReportColumns::DiversityAnalyzer::D_HIT,
+                        ReportColumns::DiversityAnalyzer::D_HIT,
                         ReportColumns::DiversityAnalyzer::J_HIT,
-//                        ReportColumns::DiversityAnalyzer::C_HIT,
+                        ReportColumns::DiversityAnalyzer::C_HIT,
                         ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
                 }
         };
@@ -319,9 +325,9 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CLONE_SEQUENCE,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
-//            ReportColumns::DiversityAnalyzer::D_HIT,
+            ReportColumns::DiversityAnalyzer::D_HIT,
             ReportColumns::DiversityAnalyzer::J_HIT,
-//            ReportColumns::DiversityAnalyzer::C_HIT,
+            ReportColumns::DiversityAnalyzer::C_HIT,
             ReportColumns::DiversityAnalyzer::AA_SEQ,
             ReportColumns::DiversityAnalyzer::HAS_STOP_CODON,
             ReportColumns::DiversityAnalyzer::IN_FRAME,
@@ -335,7 +341,6 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CDR3_NUCLS,
             ReportColumns::DiversityAnalyzer::CDR3_START,
             ReportColumns::DiversityAnalyzer::CDR3_END,
-//            ReportColumns::DiversityAnalyzer::CLONE_COUNT,
     };
 
     template <>
