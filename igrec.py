@@ -638,7 +638,7 @@ def ParseCommandLineParams(log):
 
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, "single_reads", os.path.join(home_directory, "test_dataset/merged_reads.fastq"))
-            setattr(namespace, "loci", "all")
+            setattr(namespace, "loci", "IG")
             setattr(namespace, "output", "igrec_test")
 
     req_args = parser.add_argument_group("Input")
