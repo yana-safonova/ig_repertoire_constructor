@@ -350,6 +350,44 @@ namespace ReportColumns {
                 {"FR4_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::FR4);
                 }};
+        static const DivanReportColumn REF_POINTS =
+                {"Ref_points", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    out << "::::";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::FR1)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::FR1).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR1)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR1).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::FR2)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::FR2).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR2)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR2).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::FR3)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::FR3).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::CDR3).start_pos;
+                    }
+                    // V deletion, V end, D begin, D 5' and 3' deletions, D end, J begin, J deletions skipped
+                    out << ":::::::::";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::FR4)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::FR4).start_pos;
+                    }
+                    out << ":";
+                    if (! context.cdr_clone.RegionIsEmpty(annotation_utils::StructuralRegion::FR4)) {
+                        out << context.cdr_clone.GetRangeByRegion(annotation_utils::StructuralRegion::FR4).end_pos + 1;
+                    }
+                    // C end skipped
+                    out << ":";
+                }};
 
 
         static const DivanReportColumnSet DIVAN_PRESET = {
@@ -416,7 +454,7 @@ namespace ReportColumns {
                         ReportColumns::DiversityAnalyzer::FR3_AA,
                         ReportColumns::DiversityAnalyzer::CDR3_AA,
                         ReportColumns::DiversityAnalyzer::FR4_AA,
-//                        ReportColumns::DiversityAnalyzer::REF_POINTS,
+                        ReportColumns::DiversityAnalyzer::REF_POINTS,
                 }
         };
     };
@@ -454,6 +492,7 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CDR3_START,
             ReportColumns::DiversityAnalyzer::CDR3_END,
             ReportColumns::DiversityAnalyzer::FR4_NUCLS,
+            ReportColumns::DiversityAnalyzer::REF_POINTS,
     };
 
     template <>
