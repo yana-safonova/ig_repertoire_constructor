@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+
+
+<html>
+<head>
+<title>IgReC web-app</title>
+<link rel="icon" type="image/png" href="images/favicon.png">
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{% include 'libs.html' %}
+
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#filetree").fileTree({
+        script: "/jQueryFileTree",
+        root: "/home/eodus/"
+    }, function(file) {
+        $("#filetree").attr("data-file", file);
+    });
+
+    $("#select-button").click(function() {
+        var target = $("#filetree").attr("data-target");
+        $(target).val($("#filetree").attr("data-file"));
+        $("#fileOpenDialog").modal("hide")
+    });
+
+    $("#filetree").on("dblclick", ".file", function(event) {
+        var target = $("#filetree").attr("data-target");
+        $(target).val(event.target.rel);
+        $("#fileOpenDialog").modal("hide")
+    });
+
+    $("input[type=radio][name=readstype]").change(function() {
+        if (this.value == "paired") {
+            $("#merged-reads-group").hide();
+            $("#merged-reads-file").prop("required", false);
+            $("#paired-reads-group").show();
+            $("#paired-reads-file-left").prop("required", true);
+            $("#paired-reads-file-right").prop("required", true);
+        } else if (this.value == "merged") {
+            $("#merged-reads-group").show();
+            $("#merged-reads-file").prop("required", true);
+            $("#paired-reads-group").hide();
+            $("#paired-reads-file-left").prop("required", false);
+            $("#paired-reads-file-right").prop("required", false);
+        }
+    });
+
+    $("#readstype-merged").click();
+
+    $("input[type=radio][name=barcodingtype]").change(function() {
+        if (this.value == "file") {
+            $("#barcodes-group").show();
+            $("#barcodes-file").prop('required', true);
+        } else {
+            $("#barcodes-group").hide();
+            $("#barcodes-file").prop('required', false);
+        }
+    });
+
+    $("#barcodingtype-no").click();
+
+    $(".btn-browse").click(function() {
+        $('#fileOpenDialog').modal('show')
+        $('#filetree').attr("data-target", $(this).attr("data-target"));
+    });
+});
+</script>
+</head>
+
+
+<body>
+<div class="container-fluid">
+<form class="form-horizontal" method="post" action="/run_igrec">
+<fieldset>
+
+<legend>IgReC</legend>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="readstype">Reads type</label>
+    <div class="col-md-4">
+        <label class="radio-inline" for="readstype-paired">
+            <input type="radio" name="readstype" id="readstype-paired" value="paired">
+            Paired reads
+        </label>
+        <label class="radio-inline" for="readstype-merged">
+            <input type="radio" name="readstype" id="readstype-merged" value="merged" checked>
+            Merged reads
+        </label>
+    </div>
+</div>
+
+
+
+<!-- Appended Input-->
+<div class="form-group" id="merged-reads-group">
+  <label class="col-md-4 control-label" for="merged-reads-file">Merged reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="merged-reads-file" name="merged-reads-file" class="form-control" placeholder="merged reads file" type="text" required="">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#merged-reads-file">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+
+<!-- Appended Input-->
+<div class="form-group" id="paired-reads-group" style="display: none">
+  <label class="col-md-4 control-label" for="paired-reads-file-left">Left reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-left" name="paired-reads-file-left" class="form-control" placeholder="left reads file" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-left">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+
+  <label class="col-md-4 control-label" for="paired-reads-file-right">Right reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-right" name="paired-reads-file-right" class="form-control" placeholder="right reads file" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-right">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="organism">Organism</label>
+    <div class="col-md-4">
+        <select id="organism" name="organism" class="selectpicker form-control">
+            {% for organism in "human mouse pig rabbit rat rhesus_monkey".split() %}
+            <option value="{{organism}}"{{' selected' if organism == 'human' else ''}}> {{organism}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="loci">Loci</label>
+    <div class="col-md-4">
+        <select id="loci" name="loci" class="selectpicker form-control">
+            {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
+            <option value="{{loci}}"{{'selected' if loci == 'all' else ''}}> {{loci}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+
+<div class="form-group">
+  <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
+  <div class="col-md-4">
+  <div class="radio">
+    <label for="barcodingtype-no">
+      <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked">
+      No barcoding
+    </label>
+	</div>
+  <div class="radio">
+    <label for="barcodingtype-ids">
+      <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids">
+      Barcodes in read IDs
+    </label>
+	</div>
+  <div class="radio">
+    <label for="barcodingtype-file">
+      <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file">
+      Barcodes in a file
+    </label>
+	</div>
+  </div>
+</div>
+
+<div class="form-group" id="barcodes-group" style="display: none">
+  <label class="col-md-4 control-label" for="barcodes-file">Barcodes file</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="barcodes-file" name="barcodes-file" class="form-control" placeholder="barcodes file name" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#barcodes-file">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="submit-button"></label>
+    <div class="col-md-4">
+        <input type="submit" name="submit-button" class="btn btn-primary" value="Run IgReC">
+    </div>
+</div>
+
+</fieldset>
+</form>
+</div>
+
+<!-- Modal dialog -->
+<div class="modal fade" id="fileOpenDialog" role="dialog">
+    <div class="modal-dialog" style="overflow-y: initial !important"> <!-- https://stackoverflow.com/questions/25874001/how-to-put-scrollbar-only-for-modal-body-in-bootstrap-modal-dialog -->
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select read file</h4>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="filetree"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="select-button">Select</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+Your latest run: {{session["last_input"]}}
+
+
+</body>
+
+
+</html>
