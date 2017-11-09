@@ -25,8 +25,10 @@ namespace antevolo {
     public:
         AaSHMMap() { }
 
+        /*
         void AddSHM(TreeSHM tree_shm, size_t src_id, size_t dst_id);
 
         void DeleteEdge(size_t src_id, size_t dst_id);
+        */
     };
 }

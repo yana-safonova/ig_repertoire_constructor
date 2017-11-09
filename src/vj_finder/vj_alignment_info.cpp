@@ -24,8 +24,8 @@ namespace vj_finder {
 
     void VJAlignmentInfo::UpdateHits(VJHits vj_hits) {
         UpdateChainTypeMap(vj_hits);
+        read_id_hit_index_map_[vj_hits.Read().id] = alignment_records_.size();
         alignment_records_.push_back(std::move(vj_hits));
-        read_id_hit_index_map_[vj_hits.Read().id] = alignment_records_.size() - 1;
     }
 
 
@@ -55,20 +55,16 @@ namespace vj_finder {
 
     void VJAlignmentOutput::OutputAlignmentInfo() const {
         std::ofstream out(output_params_.output_files.alignment_info_fname);
-        out << "Read_name\tChain_type\tV_hit\tV_start_pos\tV_end_pos\tV_score\t"
-                       "J_hit\tJ_start_pos\tJ_end_pos\tJ_score" << std::endl;
+        const auto columns = ReportColumns::ColumnSet<VJFReportEvalContext>::ParseColumns(
+                output_params_.output_details.alignment_columns
+        ).value();
         for(size_t i = 0; i < alignment_info_.NumVJHits(); i++) {
-            auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
-            for(size_t j = 0; j < output_params_.output_details.num_aligned_candidates; j++)
-                out << vj_hits.Read().name << "\t" << vj_hits.GetVHitByIndex(0).ImmuneGene().Chain() << "\t" <<
-                        vj_hits.GetVHitByIndex(j).ImmuneGene().name() << "\t" <<
-                        vj_hits.GetVHitByIndex(j).FirstMatchReadPos() + 1 << "\t" <<
-                        vj_hits.GetVHitByIndex(j).LastMatchReadPos() << "\t" <<
-                        vj_hits.GetVHitByIndex(j).Score() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).ImmuneGene().name() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).FirstMatchReadPos() + 1 << "\t" <<
-                        vj_hits.GetJHitByIndex(j).LastMatchReadPos() << "\t" <<
-                        vj_hits.GetJHitByIndex(j).Score() << "\t" << std::endl;
+            const auto vj_hits = alignment_info_.GetVJHitsByIndex(i);
+            for(size_t j = 0; j < output_params_.output_details.num_aligned_candidates; j++) {
+                const auto v_hits = vj_hits.GetVHitByIndex(j);
+                const auto j_hits = vj_hits.GetJHitByIndex(j);
+                columns.Print(out, VJFReportEvalContext{vj_hits, v_hits, j_hits});
+            }
         }
         out.close();
         INFO("Alignment info was written to " << output_params_.output_files.alignment_info_fname);
@@ -129,4 +125,27 @@ namespace vj_finder {
         out.close();
         INFO("Information about filtered reads was written to " << output_params_.output_files.filtering_info_filename);
     }
+}
+
+namespace ReportColumns {
+    using VJFReportColumn = ReportColumns::Column<vj_finder::VJFReportEvalContext>;
+
+    template <>
+    const std::vector<ReportColumns::VJFReportColumn> ReportColumns::VJFReportColumn::COLUMN_TYPES = {
+            {"Read_name", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.vj_hits.Read().name; }},
+            {"Chain_type", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().Chain(); }},
+            {"V_hit", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().name(); }},
+            {"V_start_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.FirstMatchReadPos() + 1; }},
+            {"V_end_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.LastMatchReadPos(); }},
+            {"V_score", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.Score(); }},
+            {"J_hit", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.ImmuneGene().name(); }},
+            {"J_start_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.FirstMatchReadPos() + 1; }},
+            {"J_end_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.LastMatchReadPos(); }},
+            {"J_score", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.Score(); }}
+    };
+
+    using VJFReportColumnSet = ReportColumns::ColumnSet<vj_finder::VJFReportEvalContext>;
+
+    template <>
+    const std::vector<ReportColumns::VJFReportColumnSet> ReportColumns::VJFReportColumnSet::PRESETS = {};
 }

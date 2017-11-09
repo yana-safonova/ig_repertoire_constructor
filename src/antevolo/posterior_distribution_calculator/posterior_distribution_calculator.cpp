@@ -55,8 +55,8 @@ ShmModel PosteriorDistributionCalculator::calculate(const ShmModel &prior,
              decltype(posterior_beta_fr_param)& beta_param) {
           size_t number_of_trials = sample[0] + sample[1] + sample[2] + sample[3];
           size_t number_of_successes = number_of_trials - sample[index_central_nucleotide];
-          beta_param[0] += number_of_successes;
-          beta_param[1] += number_of_trials - number_of_successes;
+          beta_param[0] += static_cast<double>(number_of_successes);
+          beta_param[1] += static_cast<double>(number_of_trials - number_of_successes);
         };
 
         std::unordered_set<size_t> mutated_indices{0, 1, 2, 3};

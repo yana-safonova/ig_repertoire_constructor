@@ -4,6 +4,9 @@
 #include "config_singl.hpp"
 #include <boost/property_tree/ptree_fwd.hpp>
 #include "germline_utils/germline_config.hpp"
+#include <boost/algorithm/string/trim.hpp>
+#include "../ig_tools/utils/string_tools.hpp"
+#include "../io/ReportColumns.hpp"
 
 namespace vj_finder {
     struct VJFinderConfig {
@@ -30,10 +33,26 @@ namespace vj_finder {
                 };
 
                 struct OutputDetails {
-                    bool compress;
+                    struct AlignmentInfoColumnTypes {
+                        enum ColumnTypeEnum {
+                            ReadName,
+                            ChainType,
+                            VHit,
+                            VStartPos,
+                            VEndPos,
+                            VScore,
+                            JHit,
+                            JStartPos,
+                            JEndPos,
+                            JScore
+                        };
+
+                        static const std::map<std::string, ColumnTypeEnum> string_to_column_type;
+                    };
+
                     bool fix_spaces;
-                    std::string separator;
                     size_t num_aligned_candidates;
+                    std::string alignment_columns;
                 };
 
                 OutputFiles output_files;

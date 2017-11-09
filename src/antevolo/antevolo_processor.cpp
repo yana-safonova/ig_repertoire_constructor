@@ -12,7 +12,7 @@ namespace antevolo {
         for(auto it = thread_tree_storages_.begin(); it != thread_tree_storages_.end(); it++) {
             resulting_tree_storage.AppendArchive(*it);
         }
-        auto const& tree = *resulting_tree_storage.cbegin();
+//        auto const& tree = *resulting_tree_storage.cbegin();
         return resulting_tree_storage;
     }
 

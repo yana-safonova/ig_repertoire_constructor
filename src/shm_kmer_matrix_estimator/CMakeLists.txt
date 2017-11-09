@@ -7,7 +7,7 @@
 project(shm_kmer_matrix_estimator CXX)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${SPADES_MAIN_INCLUDE_DIR})
+include_directories(${IGREC_MAIN_INCLUDE_DIR})
 include_directories(${GRAPH_UTILS})
 include_directories(${VDJ_UTILS_DIR})
 include_directories(${CORE_DIR})

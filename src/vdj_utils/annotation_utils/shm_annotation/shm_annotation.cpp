@@ -98,4 +98,21 @@ namespace annotation_utils {
             out << *it << std::endl;
         return out;
     }
+
+    void SHM::AppendInMixcrFormat(std::ostream& out) const {
+        out << shm_type;
+        if (shm_type != InsertionSHM) {
+            out << gene_nucl;
+        }
+        out << gene_nucl_pos;
+        if (shm_type != DeletionSHM) {
+            out << read_nucl;
+        }
+    }
+
+    void GeneSegmentSHMs::AppendInMixcrFormat(std::ostream& out) const {
+        for (auto shm_it = cbegin(); shm_it != cend(); ++ shm_it) {
+            shm_it->AppendInMixcrFormat(out);
+        }
+    }
 }

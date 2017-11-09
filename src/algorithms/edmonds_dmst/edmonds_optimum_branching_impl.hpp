@@ -160,7 +160,8 @@ namespace detail {
         {
             const int byte_len = 8;
             const int num_buckets = 1u << byte_len;
-            const unsigned digits = (sizeof (vertex_idx_t)) * std::numeric_limits<unsigned char>::digits;
+            const unsigned digits = static_cast<unsigned>(
+                    (sizeof (vertex_idx_t)) * std::numeric_limits<unsigned char>::digits);
             const unsigned mask = (1u << byte_len) - 1;
 
             std::vector< std::list<EdgeNode *> > buckets(num_buckets);
