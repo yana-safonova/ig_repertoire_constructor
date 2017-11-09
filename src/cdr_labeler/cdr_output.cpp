@@ -143,7 +143,7 @@ namespace ReportColumns {
 
     namespace DiversityAnalyzer {
 
-        void print_region_nucleotides(std::basic_ostream<char>& out, const annotation_utils::AnnotatedClone& cdr_clone,
+        void print_region_nucleotides(std::ostream& out, const annotation_utils::AnnotatedClone& cdr_clone,
                 const annotation_utils::StructuralRegion region) {
             if (cdr_clone.RegionIsEmpty(region)) {
                 out << "-";
@@ -152,7 +152,7 @@ namespace ReportColumns {
             }
         }
 
-        void print_region_aa(std::basic_ostream<char>& out, const annotation_utils::AnnotatedClone& cdr_clone,
+        void print_region_aa(std::ostream& out, const annotation_utils::AnnotatedClone& cdr_clone,
                 const annotation_utils::StructuralRegion region) {
             if (cdr_clone.RegionIsEmpty(region)) {
                 out << "-";
@@ -163,7 +163,7 @@ namespace ReportColumns {
             }
         }
 
-        void append_mixcr_alignment(basic_ostream<char>& out, const alignment_utils::ImmuneGeneReadAlignment& v_alignment,
+        void append_mixcr_alignment(ostream& out, const alignment_utils::ImmuneGeneReadAlignment& v_alignment,
                 const annotation_utils::GeneSegmentSHMs& shms) {
             out << v_alignment.StartSubjectPosition() << '|'
                 << v_alignment.EndSubjectPosition() + 1 << '|'
@@ -175,89 +175,89 @@ namespace ReportColumns {
         }
 
         static const DivanReportColumn CLONE_NAME =
-                {"Clone_name", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Clone_name", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Read().name; }};
         static const DivanReportColumn CLONE_ID =
-                {"Clone_ID", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Clone_ID", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
                     VERIFY_MSG(clone_info, "Unknown clone name format. "
                             "Are you trying to use Clone_ID column for bare IgDiversityAnalyzer without running IgReC?");
                     out << clone_info->id;
                 }};
         static const DivanReportColumn CLONE_COUNT =
-                {"Clone_count", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Clone_count", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
                     VERIFY_MSG(clone_info, "Unknown clone name format. "
                             "Are you trying to use Clone_count column for bare IgDiversityAnalyzer without running IgReC?");
                     out << clone_info->size;
                 }};
         static const DivanReportColumn CLONE_FRACTION =
-                {"Clone_fraction", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Clone_fraction", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto clone_info = CloneInfo::TryParse(context.cdr_clone.Read().name);
                     VERIFY_MSG(clone_info, "Unknown clone name format. "
                             "Are you trying to use Clone_fraction column for bare IgDiversityAnalyzer without running IgReC?");
                     out << static_cast<double>(clone_info->size) / static_cast<double>(context.total_clone_sizes);
                 }};
         static const DivanReportColumn CLONE_SEQUENCE =
-                {"Clone_sequence", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Clone_sequence", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Read().seq; }};
         static const DivanReportColumn CHAIN_TYPE =
-                {"Chain_type", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Chain_type", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.ChainType(); }};
         static const DivanReportColumn V_HIT =
-                {"V_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"V_hit", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.v_alignment.subject().name(); }};
         static const DivanReportColumn V_ALIGNMENT =
-                {"V_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"V_alignment", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     append_mixcr_alignment(out, context.v_alignment, context.cdr_clone.VSHMs()); }};
         static const DivanReportColumn D_HIT =
-                {"D_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                {"D_hit", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn D_ALIGNMENT =
-                {"D_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                {"D_alignment", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn J_HIT =
-                {"J_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"J_hit", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.j_alignment.subject().name(); }};
         static const DivanReportColumn J_ALIGNMENT =
-                {"J_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"J_alignment", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     append_mixcr_alignment(out, context.j_alignment, context.cdr_clone.JSHMs()); }};
         static const DivanReportColumn C_HIT =
-                {"C_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                {"C_hit", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn C_ALIGNMENT =
-                {"C_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                {"C_alignment", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn AA_SEQ =
-                {"AA_seq", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"AA_seq", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.AA(); }};
         static const DivanReportColumn HAS_STOP_CODON =
-                {"Has_stop_codon", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Has_stop_codon", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.HasStopCodon(); }};
         static const DivanReportColumn IN_FRAME =
-                {"In-frame", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"In-frame", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.InFrame(); }};
         static const DivanReportColumn PRODUCTIVE =
-                {"Productive", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"Productive", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Productive(); }};
         static const DivanReportColumn FR1_NUCLS =
-                {"FR1_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR1_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::FR1);
                 }};
         static const DivanReportColumn FR1_AA =
-                {"FR1_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR1_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::FR1);
                 }};
         static const DivanReportColumn CDR1_NUCLS =
-                {"CDR1_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR1_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR1);
                 }};
         static const DivanReportColumn CDR1_AA =
-                {"CDR1_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR1_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR1);
                 }};
         static const DivanReportColumn CDR1_START =
-                {"CDR1_start", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR1_start", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR1;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -266,7 +266,7 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn CDR1_END =
-                {"CDR1_end", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR1_end", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR1;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -275,23 +275,23 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn FR2_NUCLS =
-                {"FR2_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR2_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::FR2);
                 }};
         static const DivanReportColumn FR2_AA =
-                {"FR2_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR2_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::FR2);
                 }};
         static const DivanReportColumn CDR2_NUCLS =
-                {"CDR2_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR2_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR2);
                 }};
         static const DivanReportColumn CDR2_AA =
-                {"CDR2_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR2_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR2);
                 }};
         static const DivanReportColumn CDR2_START =
-                {"CDR2_start", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR2_start", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR2;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -300,7 +300,7 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn CDR2_END =
-                {"CDR2_end", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR2_end", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR2;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -309,23 +309,23 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn FR3_NUCLS =
-                {"FR3_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR3_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::FR3);
                 }};
         static const DivanReportColumn FR3_AA =
-                {"FR3_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR3_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::FR3);
                 }};
         static const DivanReportColumn CDR3_NUCLS =
-                {"CDR3_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR3_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR3);
                 }};
         static const DivanReportColumn CDR3_AA =
-                {"CDR3_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR3_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::CDR3);
                 }};
         static const DivanReportColumn CDR3_START =
-                {"CDR3_start", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR3_start", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR3;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -334,7 +334,7 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn CDR3_END =
-                {"CDR3_end", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"CDR3_end", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     const auto region = annotation_utils::StructuralRegion::CDR3;
                     if (context.cdr_clone.RegionIsEmpty(region)) {
                         out << "-";
@@ -343,11 +343,11 @@ namespace ReportColumns {
                     }
                 }};
         static const DivanReportColumn FR4_NUCLS =
-                {"FR4_nucls", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR4_nucls", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_nucleotides(out, context.cdr_clone, annotation_utils::StructuralRegion::FR4);
                 }};
         static const DivanReportColumn FR4_AA =
-                {"FR4_aa", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                {"FR4_aa", [](std::ostream& out, const cdr_labeler::DivanReportEvalContext& context) {
                     print_region_aa(out, context.cdr_clone, annotation_utils::StructuralRegion::FR4);
                 }};
 

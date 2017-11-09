@@ -132,16 +132,16 @@ namespace ReportColumns {
 
     template <>
     const std::vector<ReportColumns::VJFReportColumn> ReportColumns::VJFReportColumn::COLUMN_TYPES = {
-            {"Read_name", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.vj_hits.Read().name; }},
-            {"Chain_type", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().Chain(); }},
-            {"V_hit", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().name(); }},
-            {"V_start_pos", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.FirstMatchReadPos() + 1; }},
-            {"V_end_pos", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.LastMatchReadPos(); }},
-            {"V_score", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.Score(); }},
-            {"J_hit", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.ImmuneGene().name(); }},
-            {"J_start_pos", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.FirstMatchReadPos() + 1; }},
-            {"J_end_pos", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.LastMatchReadPos(); }},
-            {"J_score", [](std::basic_ostream<char>& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.Score(); }}
+            {"Read_name", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.vj_hits.Read().name; }},
+            {"Chain_type", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().Chain(); }},
+            {"V_hit", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.ImmuneGene().name(); }},
+            {"V_start_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.FirstMatchReadPos() + 1; }},
+            {"V_end_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.LastMatchReadPos(); }},
+            {"V_score", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.v_hits.Score(); }},
+            {"J_hit", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.ImmuneGene().name(); }},
+            {"J_start_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.FirstMatchReadPos() + 1; }},
+            {"J_end_pos", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.LastMatchReadPos(); }},
+            {"J_score", [](std::ostream& out, const vj_finder::VJFReportEvalContext& context) { out << context.j_hits.Score(); }}
     };
 
     using VJFReportColumnSet = ReportColumns::ColumnSet<vj_finder::VJFReportEvalContext>;

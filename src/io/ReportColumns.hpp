@@ -23,7 +23,7 @@ namespace ReportColumns {
     template <typename Context>
     struct Column {
         const std::string name;
-        const std::function<void(std::basic_ostream<char>&, const Context&)> print;
+        const std::function<void(std::ostream&, const Context&)> print;
 
         static boost::optional<Column<Context>> GetColumn(const std::string& name) {
             return get_element_by_name<Column>(COLUMN_TYPES, name);
@@ -39,11 +39,11 @@ namespace ReportColumns {
 
         ColumnSet(const std::string& name, const std::vector<Column<Context>>& columns) : name(name), columns(columns) {}
 
-        void PrintCsvHeader(std::basic_ostream<char>& out, const std::string& separator = "\t") const {
+        void PrintCsvHeader(std::ostream& out, const std::string& separator = "\t") const {
             PrintInfo(out, [&](Column<Context> column) { out << column.name; }, separator);
         }
 
-        void Print(std::basic_ostream<char>& out, const Context& context) const {
+        void Print(std::ostream& out, const Context& context) const {
             PrintInfo(out, [&](Column<Context> column) { column.print(out, context); });
         }
 
@@ -81,7 +81,7 @@ namespace ReportColumns {
         static const std::vector<ColumnSet<Context>> PRESETS;
 
     private:
-        void PrintInfo(std::basic_ostream<char>& out, const std::function<void(Column<Context>)>& print_info, const std::string& separator = "\t") const {
+        void PrintInfo(std::ostream& out, const std::function<void(Column<Context>)>& print_info, const std::string& separator = "\t") const {
             bool first = true;
             for (const auto& column : columns) {
                 if (!first) {
