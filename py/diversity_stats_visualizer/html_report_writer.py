@@ -76,7 +76,7 @@ class HTMLReportWriter:
 def ComputeLocusCharacteristics(vj_df, locus):
     stats = []
     locus_df = vj_df.loc[vj_df['Chain_type'] == locus]
-    stats.append(len(locus_df["Read_name"]))
+    stats.append(len(locus_df["Clone_name"]))
     stats.append(len([s for s in locus_df['Productive'] if s == 1]))
     stats.append(len([s for s in locus_df['Has_stop_codon'] if s == 1]))
     stats.append(len([s for s in locus_df['In-frame'] if s == 0]))
