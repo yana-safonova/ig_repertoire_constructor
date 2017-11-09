@@ -163,6 +163,17 @@ namespace ReportColumns {
             }
         }
 
+        void append_mixcr_alignment(basic_ostream<char>& out, const alignment_utils::ImmuneGeneReadAlignment& v_alignment,
+                const annotation_utils::GeneSegmentSHMs& shms) {
+            out << v_alignment.StartSubjectPosition() << '|'
+                << v_alignment.EndSubjectPosition() + 1 << '|'
+                << v_alignment.subject().length() << '|'
+                << v_alignment.StartQueryPosition() << '|'
+                << v_alignment.EndQueryPosition() + 1 << '|';
+            shms.AppendInMixcrFormat(out);
+            out << '|' << v_alignment.Score();
+        }
+
         static const DivanReportColumn CLONE_NAME =
                 {"Clone_name", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.cdr_clone.Read().name; }};
@@ -196,14 +207,26 @@ namespace ReportColumns {
         static const DivanReportColumn V_HIT =
                 {"V_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.v_alignment.subject().name(); }};
+        static const DivanReportColumn V_ALIGNMENT =
+                {"V_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    append_mixcr_alignment(out, context.v_alignment, context.cdr_clone.VSHMs()); }};
         static const DivanReportColumn D_HIT =
                 {"D_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                    out << "Unsupported"; }};
+        static const DivanReportColumn D_ALIGNMENT =
+                {"D_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn J_HIT =
                 {"J_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
                     out << context.j_alignment.subject().name(); }};
+        static const DivanReportColumn J_ALIGNMENT =
+                {"J_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
+                    append_mixcr_alignment(out, context.j_alignment, context.cdr_clone.JSHMs()); }};
         static const DivanReportColumn C_HIT =
                 {"C_hit", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
+                    out << "Unsupported"; }};
+        static const DivanReportColumn C_ALIGNMENT =
+                {"C_alignment", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext&) {
                     out << "Unsupported"; }};
         static const DivanReportColumn AA_SEQ =
                 {"AA_seq", [](std::basic_ostream<char>& out, const cdr_labeler::DivanReportEvalContext& context) {
@@ -375,10 +398,10 @@ namespace ReportColumns {
                         ReportColumns::DiversityAnalyzer::D_HIT,
                         ReportColumns::DiversityAnalyzer::J_HIT,
                         ReportColumns::DiversityAnalyzer::C_HIT,
-//                        ReportColumns::DiversityAnalyzer::V_ALIGNMENTS,
-//                        ReportColumns::DiversityAnalyzer::D_ALIGNMENTS,
-//                        ReportColumns::DiversityAnalyzer::J_ALIGNMENTS,
-//                        ReportColumns::DiversityAnalyzer::C_ALIGNMENTS,
+                        ReportColumns::DiversityAnalyzer::V_ALIGNMENT,
+                        ReportColumns::DiversityAnalyzer::D_ALIGNMENT,
+                        ReportColumns::DiversityAnalyzer::J_ALIGNMENT,
+                        ReportColumns::DiversityAnalyzer::C_ALIGNMENT,
                         ReportColumns::DiversityAnalyzer::FR1_NUCLS,
                         ReportColumns::DiversityAnalyzer::CDR1_NUCLS,
                         ReportColumns::DiversityAnalyzer::FR2_NUCLS,
@@ -407,9 +430,13 @@ namespace ReportColumns {
             ReportColumns::DiversityAnalyzer::CLONE_SEQUENCE,
             ReportColumns::DiversityAnalyzer::CHAIN_TYPE,
             ReportColumns::DiversityAnalyzer::V_HIT,
+            ReportColumns::DiversityAnalyzer::V_ALIGNMENT,
             ReportColumns::DiversityAnalyzer::D_HIT,
+            ReportColumns::DiversityAnalyzer::D_ALIGNMENT,
             ReportColumns::DiversityAnalyzer::J_HIT,
+            ReportColumns::DiversityAnalyzer::J_ALIGNMENT,
             ReportColumns::DiversityAnalyzer::C_HIT,
+            ReportColumns::DiversityAnalyzer::C_ALIGNMENT,
             ReportColumns::DiversityAnalyzer::AA_SEQ,
             ReportColumns::DiversityAnalyzer::HAS_STOP_CODON,
             ReportColumns::DiversityAnalyzer::IN_FRAME,
