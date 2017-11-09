@@ -1,13 +1,26 @@
 {% extends 'template.html' %}
-{% block title %}IgReC{% endblock %}
+{% block title %}IgReC - report{% endblock %}
 {% block body %}
-<div id="tester" style="width:600px;height:250px;"></div>
 
+
+<h2>IgReC report</h2>
+
+
+<div id="includedContent"></div>
 <script>
-    TESTER = $("#tester")[0];
+$(document).ready(function() {
+    $("#includedContent").load("/runs/{{output_id}}/igrec.log");
+});
+</script>
+
+
+<div id="tester" style="width:600px;height:250px;"></div>
+<script>
+	var TESTER = $("#tester")[0];
 	Plotly.plot( TESTER, [{
 	x: [1, 2, 3, 4, 5],
 	y: [1, 2, 4, 8, 16] }], {
 	margin: { t: 0 } } );
 </script>
+
 {% endblock %}

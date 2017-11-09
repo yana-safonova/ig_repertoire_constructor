@@ -1,0 +1,15 @@
+{% extends 'template.html' %}
+{% block title %}IgReC - task status{% endblock %}
+{% block body %}
+
+<h2>STATUS: {{status}}</h2>
+<a href="/report/{{output_id}}">Go to resultant files</a>
+
+{% for line in log %}
+{{line}}<br>
+{% endfor %}
+
+
+
+
+{% endblock %}
