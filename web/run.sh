@@ -5,7 +5,10 @@ trap 'jobs -p | xargs kill' EXIT
 
 redis-server &
 
-celery -A igrec-web.celery worker &
+celery -A igrec-web.celery worker --loglevel info --statedb=worker.state --events &
+# --events is necessary for task listing (aka inspect())
+# To read about statedb: http://docs.celeryproject.org/en/latest/userguide/workers.html#persistent-revokes
+
 
 gunicorn -w 8 igrec-web:app --worker-class eventlet &
 

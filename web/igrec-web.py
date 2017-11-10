@@ -1,5 +1,11 @@
 #!/usr/bin/env python2
 
+# TODO
+# nice file uploader
+# https://www.startutorial.com/articles/view/resumable-file-upload-part-1
+# https://github.com/23/resumable.js/blob/master/samples/Frontend%20in%20jQuery.md
+
+
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -13,6 +19,9 @@ from flask_session import Session
 
 from flask_socketio import SocketIO
 
+
+from celery.task.control import inspect
+import celery as celery_module
 app = Flask(__name__)
 
 
@@ -31,6 +40,7 @@ app.config['SECRET_KEY'] = "dc6627ce-2b94-4c45-a1e7-75fd595e2aca"
 
 app.config['CELERY_RESULT_BACKEND'] = "redis://localhost:6379/0"
 app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"  # FIXME Use user-defined db-id
+# app.config['CELERY_BROKER_URL'] = "amqp://user:password@localhost:5672/vhost"  # FIXME Use user-defined db-id
 # TODO Set CELERY_TRACK_STARTED
 
 Session(app)
@@ -60,6 +70,17 @@ def run_command_simple(cmd):
     import os
     rc = os.system(cmd)
     return rc
+
+
+
+def terminate_task(id, signal="SIGTERM"):
+    app.control.revoke(id, terminate=True, signal=signal)
+
+
+@app.route('/tasks/commands/terminate/<uuid:task_id>')
+def task_command_terminate(task_id):
+    terminate_task(str(task_id))
+
 
 
 @celery.task(bind=True)
@@ -96,9 +117,11 @@ def status_page(task_id):
 
     if task.status in ["PROGRESS", "SUCCESS"]:
         log = task.info["log"]
-        output_id=task.info["output_id"]
     else:
         log = ["NOLOG"]
+    if task.status in ["SUCCESS"]:
+        output_id=task.info["output_id"]
+    else:
         output_id=None
 
     return render_template("status.html", status=task.status, log=log,
@@ -196,6 +219,8 @@ def run_igrec():
 
     # return_code = os.system("%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form)
     cmd = "%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form
+
+    cmd = "ping ya.ru -c 1000; " + cmd
     task = execute.delay(cmd, output_id=output_id)
     # task = execute.delay("ping ya.ru -c 15", output_id=output_id)
 
@@ -206,16 +231,16 @@ def run_igrec():
     return redirect(url_for("status_page", task_id=task.id))
 
 
-
+# import redis
+# r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 @app.route('/tasks')
 def show_tasks():
-    from celery.task.control import inspect
     # Inspect all nodes.
-    i = inspect()
+    i = celery.control.inspect()
 
-    # Show the items that have an ETA or are scheduled for later processing
     response = ""
+    # Show the items that have an ETA or are scheduled for later processing
     response += str(i.scheduled())
 
     # Show tasks that are currently active.
