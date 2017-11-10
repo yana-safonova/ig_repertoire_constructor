@@ -86,6 +86,7 @@ def terminate_task(id, signal="SIGTERM"):
 @app.route('/tasks/commands/terminate/<uuid:task_id>')
 def task_command_terminate(task_id):
     terminate_task(str(task_id))
+    return "Terminated"
 
 
 
@@ -238,13 +239,13 @@ def run_igrec():
     return redirect(url_for("status_page", task_id=task.id))
 
 
-@app.route('/tasks2')
-def show_tasks2():
-    state = State()
-    tasks = list(state.itertasks())
-    print tasks
+# @app.route('/tasks2')
+# def show_tasks2():
+#     state = State()
+#     tasks = list(state.itertasks())
+#     print tasks
 
-    return "\n".join(tasks)
+#     return "\n".join(tasks)
 
 @app.route('/tasks')
 def show_tasks():

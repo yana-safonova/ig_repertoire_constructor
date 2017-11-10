@@ -138,7 +138,7 @@ $(document).ready(function() {
     <div class="col-md-4">
         <select id="loci" name="loci" class="selectpicker form-control">
             {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
-            <option value="{{loci}}"{{'selected' if loci == 'all' else ''}}> {{loci}}</option>
+            <option value="{{loci}}"{{'selected' if loci == 'IG' else ''}}>{{loci}}</option>
             {% endfor %}
         </select>
     </div>
