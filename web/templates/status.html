@@ -5,11 +5,17 @@
 <h2>STATUS: {{status}}</h2>
 {% if status == "SUCCESS" %}
 <a href="/report/{{output_id}}" class="btn btn-info" role="button">Report</a>
+{% else %}
+<a href="/tasks/commands/terminate/{{task_id}}" class="btn btn-info" role="button">Terminate</a>
 {% endif %}
+<br>
 
+{% if log %}
+<!-- TODO nice log window -->
 {% for line in log %}
 {{line}}<br>
 {% endfor %}
+{% endif %}
 
 
 

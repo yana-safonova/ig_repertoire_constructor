@@ -1,22 +1,11 @@
-<!DOCTYPE html>
-
-
-
-<html>
-<head>
-<title>IgReC web-app</title>
-<link rel="icon" type="image/png" href="images/favicon.png">
-
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-{% include 'libs.html' %}
-
+{% extends 'template.html' %}
+{% block title %}IgReC - web app{% endblock %}
+{% block head %}
 <script type="text/javascript">
 $(document).ready(function() {
     $("#filetree").fileTree({
         script: "/jQueryFileTree",
-        root: "/home/eodus/"
+        root: "/home/"
     }, function(file) {
         $("#filetree").attr("data-file", file);
     });
@@ -69,10 +58,8 @@ $(document).ready(function() {
     });
 });
 </script>
-</head>
-
-
-<body>
+{% endblock %}
+{% block body %}
 <div class="container-fluid">
 <form class="form-horizontal" method="post" action="/run_igrec">
 <fieldset>
@@ -226,11 +213,4 @@ $(document).ready(function() {
 
     </div>
 </div>
-
-Your latest run: {{session["last_input"]}}
-
-
-</body>
-
-
-</html>
+{% endblock %}

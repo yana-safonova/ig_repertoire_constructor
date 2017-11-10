@@ -43,11 +43,17 @@ app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"  # FIXME Use user-d
 # app.config['CELERY_BROKER_URL'] = "amqp://user:password@localhost:5672/vhost"  # FIXME Use user-defined db-id
 # TODO Set CELERY_TRACK_STARTED
 
+# import redis
+# r = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 Session(app)
 
 socketio = SocketIO(app)
 
 from celery import Celery
+
+from celery.events.state import State
+
 
 def make_celery(app):
     celery = Celery(app.import_name, backend=app.config['CELERY_RESULT_BACKEND'],
@@ -74,7 +80,7 @@ def run_command_simple(cmd):
 
 
 def terminate_task(id, signal="SIGTERM"):
-    app.control.revoke(id, terminate=True, signal=signal)
+    celery.control.revoke(id, terminate=True, signal=signal)
 
 
 @app.route('/tasks/commands/terminate/<uuid:task_id>')
@@ -118,13 +124,14 @@ def status_page(task_id):
     if task.status in ["PROGRESS", "SUCCESS"]:
         log = task.info["log"]
     else:
-        log = ["NOLOG"]
+        log = None
     if task.status in ["SUCCESS"]:
         output_id=task.info["output_id"]
     else:
         output_id=None
 
     return render_template("status.html", status=task.status, log=log,
+                           task_id=task_id,
                            output_id=output_id)
 
 
@@ -231,8 +238,13 @@ def run_igrec():
     return redirect(url_for("status_page", task_id=task.id))
 
 
-# import redis
-# r = redis.StrictRedis(host='localhost', port=6379, db=0)
+@app.route('/tasks2')
+def show_tasks2():
+    state = State()
+    tasks = list(state.itertasks())
+    print tasks
+
+    return "\n".join(tasks)
 
 @app.route('/tasks')
 def show_tasks():
