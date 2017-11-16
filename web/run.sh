@@ -10,7 +10,8 @@ celery -A igrec-web.celery worker --loglevel info --statedb=worker.state --event
 # To read about statedb: http://docs.celeryproject.org/en/latest/userguide/workers.html#persistent-revokes
 
 
-gunicorn -w 8 igrec-web:app --worker-class eventlet &
+# gunicorn --workers=8 igrec-web:app --worker-class eventlet &
+gunicorn --workers=8 igrec-web:app --bind=:8000 --worker-class eventlet &
 
 while pgrep -P "$BASHPID" > /dev/null; do
     wait

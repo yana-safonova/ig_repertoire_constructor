@@ -44,7 +44,7 @@ app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"  # FIXME Use user-d
 # TODO Set CELERY_TRACK_STARTED
 
 
-app.config["USE_X_SENDFILE"] = True # TODO Add nginx support
+# app.config["USE_X_SENDFILE"] = True # TODO Add nginx support
 
 # import redis
 # r = redis.StrictRedis(host='localhost', port=6379, db=0)
