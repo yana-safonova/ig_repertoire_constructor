@@ -43,6 +43,9 @@ app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"  # FIXME Use user-d
 # app.config['CELERY_BROKER_URL'] = "amqp://user:password@localhost:5672/vhost"  # FIXME Use user-defined db-id
 # TODO Set CELERY_TRACK_STARTED
 
+
+app.config["USE_X_SENDFILE"] = True # TODO Add nginx support
+
 # import redis
 # r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
@@ -228,6 +231,10 @@ def run_igrec():
     # return_code = os.system("%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form)
     cmd = "%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form
 
+    if form["readstype"] == "paired":
+        form["merged-reads-file"] = form["output"] + "/merged_reads.fq"
+
+    cmd += " && %(igrec_dir)s/igquast.py --initial-reads=%(merged-reads-file)s --constructed-repertoire=%(output)s/final_repertoire.fa --constructed-rcm=%(output)s/final_repertoire.rcm --output=%(output)s/igquast"
     cmd = "ping ya.ru -c 1000; " + cmd
     task = execute.delay(cmd, output_id=output_id)
     # task = execute.delay("ping ya.ru -c 15", output_id=output_id)

@@ -64,7 +64,23 @@ $(document).ready(function() {
 <form class="form-horizontal" method="post" action="/run_igrec">
 <fieldset>
 
-<legend>IgReC</legend>
+<legend>Running tool parameters</legend>
+
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="tool">Tool</label>
+    <div class="col-md-4">
+        <label class="radio-inline" for="tool-igrec">
+            <input type="radio" name="tool" id="tool-igrec" value="igrec" checked>
+            IgReC
+        </label>
+        <label class="radio-inline" for="tool-mitools">
+            <input type="radio" name="tool" id="tool-mitools" value="mitools">
+            MiXCR/MiGEC
+        </label>
+    </div>
+</div>
+
 
 <div class="form-group">
     <label class="col-md-4 control-label" for="readstype">Reads type</label>
@@ -82,7 +98,6 @@ $(document).ready(function() {
 
 
 
-<!-- Appended Input-->
 <div class="form-group" id="merged-reads-group">
   <label class="col-md-4 control-label" for="merged-reads-file">Merged reads</label>
   <div class="col-md-5">
