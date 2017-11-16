@@ -234,7 +234,7 @@ def run_igrec():
     if form["readstype"] == "paired":
         form["merged-reads-file"] = form["output"] + "/merged_reads.fq"
 
-    cmd += " && %(igrec_dir)s/igquast.py --initial-reads=%(merged-reads-file)s --constructed-repertoire=%(output)s/final_repertoire.fa --constructed-rcm=%(output)s/final_repertoire.rcm --output=%(output)s/igquast"
+    cmd += " && %(igrec_dir)s/igquast.py --initial-reads=%(merged-reads-file)s --constructed-repertoire=%(output)s/final_repertoire.fa --constructed-rcm=%(output)s/final_repertoire.rcm --output=%(output)s/igquast" % form
     print cmd
     # cmd = "ping ya.ru -c 1000; " + cmd
     task = execute.delay(cmd, output_id=output_id)
