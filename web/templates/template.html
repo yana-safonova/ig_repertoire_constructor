@@ -10,7 +10,24 @@
 {% endblock %}
 </head>
 <body>
+<div class="container-fluid">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">WebIgReC</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/">New run</a></li>
+      <li><a href="/runs">Performed runs</a></li>
+      <li><a href="/tasks">Task list</a></li>
+      <li><a href="/uploads">Data upload</a></li>
+    </ul>
+  </div>
+</nav>
+
+{% print request.url_rule.endpoint %}
 {% block body %}
 {% endblock %}
+</div>
 </body>
 </html>

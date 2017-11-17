@@ -5,7 +5,7 @@
 $(document).ready(function() {
     $("#filetree").fileTree({
         script: "/jQueryFileTree",
-        root: "/home/"
+        root: "/"
     }, function(file) {
         $("#filetree").attr("data-file", file);
     });
@@ -58,9 +58,10 @@ $(document).ready(function() {
     });
 });
 </script>
+
+
 {% endblock %}
 {% block body %}
-<div class="container-fluid">
 <form class="form-horizontal" method="post" action="/run_igrec">
 <fieldset>
 
@@ -80,7 +81,6 @@ $(document).ready(function() {
         </label>
     </div>
 </div>
-
 
 <div class="form-group">
     <label class="col-md-4 control-label" for="readstype">Reads type</label>
@@ -139,7 +139,7 @@ $(document).ready(function() {
 
 <div class="form-group">
     <label class="col-md-4 control-label" for="organism">Organism</label>
-    <div class="col-md-4">
+    <div class="col-md-2">
         <select id="organism" name="organism" class="selectpicker form-control">
             {% for organism in "human mouse pig rabbit rat rhesus_monkey".split() %}
             <option value="{{organism}}"{{' selected' if organism == 'human' else ''}}> {{organism}}</option>
@@ -150,7 +150,7 @@ $(document).ready(function() {
 
 <div class="form-group">
     <label class="col-md-4 control-label" for="loci">Loci</label>
-    <div class="col-md-4">
+    <div class="col-md-1">
         <select id="loci" name="loci" class="selectpicker form-control">
             {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
             <option value="{{loci}}"{{'selected' if loci == 'IG' else ''}}>{{loci}}</option>
@@ -198,6 +198,25 @@ $(document).ready(function() {
 </div>
 
 <div class="form-group">
+    <label class="col-md-4 control-label" for="tool">Additional options</label>
+    <div class="col-md-5">
+        <div class="checkbox">
+            <label class="checkbox" for="skip-alignment">
+                <input type="checkbox" name="skip-alignment" id="skip-alignment" value="">
+                Skip VJ-Alignment phase
+            </label>
+        </div>
+        <div class="checkbox">
+            <label class="checkbox" for="do-igquast">
+                <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
+                Perform Quality Assestment (IgQUAST)
+            </label>
+        </div>
+    </div>
+</div>
+
+
+<div class="form-group">
     <label class="col-md-4 control-label" for="submit-button"></label>
     <div class="col-md-4">
         <input type="submit" name="submit-button" class="btn btn-primary" value="Run IgReC">
@@ -206,7 +225,6 @@ $(document).ready(function() {
 
 </fieldset>
 </form>
-</div>
 
 <!-- Modal dialog -->
 <div class="modal fade" id="fileOpenDialog" role="dialog">

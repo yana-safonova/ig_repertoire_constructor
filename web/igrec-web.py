@@ -46,8 +46,8 @@ app.config['CELERY_BROKER_URL'] = "redis://localhost:6379/0"  # FIXME Use user-d
 
 # app.config["USE_X_SENDFILE"] = True # TODO Add nginx support
 
-# import redis
-# r = redis.StrictRedis(host='localhost', port=6379, db=0)
+import redis
+r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 Session(app)
 
@@ -87,10 +87,25 @@ def terminate_task(id, signal="SIGTERM"):
 
 
 @app.route('/tasks/commands/terminate/<uuid:task_id>')
-def task_command_terminate(task_id):
+def tasks_command_terminate(task_id):
     terminate_task(str(task_id))
     return "Terminated"
 
+
+@app.route('/tasks/commands/get_status/<uuid:task_id>')
+def tasks_command_get_status(task_id):
+    task = execute.AsyncResult(str(task_id))
+
+    return task.status
+
+@app.route("/tasks/commands/get_output/<uuid:task_id>")
+def tasks_commands_get_output(task_id):
+    task = execute.AsyncResult(str(task_id))
+
+    if task.status in ["SUCCESS"]:
+        return task.info["output_id"]
+    else:
+        return ""
 
 
 @celery.task(bind=True)
@@ -118,10 +133,21 @@ def execute(self, command, output_id):
     raise Ignore()
 
 
+def add_task(command, output_id):
+    task = execute.delay(command, output_id)
+
+    r.lpush("TaskList", task.id)
+    return task
+
+
+
+
+
+
 # TODO Use redis to real-time tracking
 # https://stackoverflow.com/questions/35437668/realtime-progress-tracking-of-celery-tasks
 
-@app.route("/status/<uuid:task_id>")
+@app.route("/tasks/status/<uuid:task_id>")
 def status_page(task_id):
     task = execute.AsyncResult(str(task_id))
 
@@ -228,16 +254,26 @@ def run_igrec():
     if form["barcodingtype"] == "file":
         return "Barcodes in a separate file are not supported yet =("
 
-    # return_code = os.system("%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form)
-    cmd = "%(igrec_dir)s/%(tool)s %(input_line)s --loci=%(loci)s --organism=%(organism)s --threads=3 --output=%(output)s" % form
+    cmd = "%(igrec_dir)s/%(tool)s %(input_line)s \
+        --loci=%(loci)s --organism=%(organism)s \
+        --threads=3 --output=%(output)s" % form
 
-    if form["readstype"] == "paired":
-        form["merged-reads-file"] = form["output"] + "/merged_reads.fq"
+    print form
+    if "skip-alignment" in form:
+        cmd += " --no-alignment"
 
-    cmd += " && %(igrec_dir)s/igquast.py --initial-reads=%(merged-reads-file)s --constructed-repertoire=%(output)s/final_repertoire.fa --constructed-rcm=%(output)s/final_repertoire.rcm --output=%(output)s/igquast" % form
+    if "do-igquast" in form:
+        cmd += " && %(igrec_dir)s/igquast.py \
+            --initial-reads=%(output)s/vjfinder/cleaned_reads.fa \
+            --constructed-repertoire=%(output)s/final_repertoire.fa \
+            --constructed-rcm=%(output)s/final_repertoire.rcm \
+            --output=%(output)s/igquast \
+            --reference-free" % form
+
     print cmd
-    # cmd = "ping ya.ru -c 1000; " + cmd
-    task = execute.delay(cmd, output_id=output_id)
+    cmd = "ping ya.ru -c 1000; " + cmd
+    task = add_task(cmd, output_id=output_id)
+
     # task = execute.delay("ping ya.ru -c 15", output_id=output_id)
 
     session['last_output'] = output
@@ -247,31 +283,13 @@ def run_igrec():
     return redirect(url_for("status_page", task_id=task.id))
 
 
-# @app.route('/tasks2')
-# def show_tasks2():
-#     state = State()
-#     tasks = list(state.itertasks())
-#     print tasks
-
-#     return "\n".join(tasks)
-
 @app.route('/tasks')
 def show_tasks():
-    # Inspect all nodes.
-    i = celery.control.inspect()
+    tasks = r.lrange("TaskList", 0, -1)
 
-    response = ""
-    # Show the items that have an ETA or are scheduled for later processing
-    response += str(i.scheduled())
+    print tasks
 
-    # Show tasks that are currently active.
-    response += str(i.active())
-
-    # Show tasks that have been claimed by workers
-    response += str(i.reserved())
-
-    return response
-
+    return render_template("jobs.html", tasks=tasks)
 
 
 if __name__ == "__main__":

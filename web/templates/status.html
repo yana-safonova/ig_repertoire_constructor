@@ -3,6 +3,7 @@
 {% block body %}
 
 <h2>STATUS: {{status}}</h2>
+<div class="container-fluid">
 {% if status == "SUCCESS" %}
 <a href="/report/{{output_id}}" class="btn btn-info" role="button">Report</a>
 {% else %}
@@ -19,5 +20,5 @@
 
 
 
-
+</div>
 {% endblock %}
