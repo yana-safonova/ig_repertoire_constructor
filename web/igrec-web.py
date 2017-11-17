@@ -20,8 +20,6 @@ from flask_session import Session
 from flask_socketio import SocketIO
 
 
-from celery.task.control import inspect
-import celery as celery_module
 app = Flask(__name__)
 
 
@@ -55,9 +53,6 @@ socketio = SocketIO(app)
 
 from celery import Celery
 
-from celery.events.state import State
-
-
 def make_celery(app):
     celery = Celery(app.import_name, backend=app.config['CELERY_RESULT_BACKEND'],
                     broker=app.config['CELERY_BROKER_URL'])
@@ -72,9 +67,9 @@ def make_celery(app):
     return celery
 
 
-celery = make_celery(app)
+celery = celery_app = make_celery(app)
 
-@celery.task()
+@celery_app.task()
 def run_command_simple(cmd):
     import os
     rc = os.system(cmd)
@@ -83,7 +78,11 @@ def run_command_simple(cmd):
 
 
 def terminate_task(id, signal="SIGTERM"):
-    celery.control.revoke(id, terminate=True, signal=signal)
+    from celery import Terminated
+    try:
+        celery.control.revoke(id, terminate=True, signal=signal)
+    except Terminated:
+        pass
 
 
 @app.route('/tasks/commands/terminate/<uuid:task_id>')
@@ -108,7 +107,7 @@ def tasks_commands_get_output(task_id):
         return ""
 
 
-@celery.task(bind=True)
+@celery_app.task(bind=True)
 def execute(self, command, output_id):
     import subprocess
     from celery.exceptions import Ignore
@@ -199,7 +198,7 @@ def jQueryFileTree():
 
 
 @app.route('/')
-def index():
+def new_run():
     response = make_response(render_template("index.html"))
     # response.set_cookie('username', 'the username')
     return response
@@ -258,7 +257,7 @@ def run_igrec():
         --loci=%(loci)s --organism=%(organism)s \
         --threads=3 --output=%(output)s" % form
 
-    print form
+    # print form
     if "skip-alignment" in form:
         cmd += " --no-alignment"
 
@@ -270,7 +269,7 @@ def run_igrec():
             --output=%(output)s/igquast \
             --reference-free" % form
 
-    print cmd
+    # print cmd
     cmd = "ping ya.ru -c 1000; " + cmd
     task = add_task(cmd, output_id=output_id)
 
@@ -279,15 +278,12 @@ def run_igrec():
     session['last_output'] = output
     session['last_task'] = task
 
-    # return redirect(url_for("autoindex", path=output_id))
     return redirect(url_for("status_page", task_id=task.id))
 
 
 @app.route('/tasks')
-def show_tasks():
+def task_list():
     tasks = r.lrange("TaskList", 0, -1)
-
-    print tasks
 
     return render_template("jobs.html", tasks=tasks)
 
