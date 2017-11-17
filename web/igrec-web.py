@@ -263,14 +263,14 @@ def run_igrec():
 
     if "do-igquast" in form:
         cmd += " && %(igrec_dir)s/igquast.py \
-            --initial-reads=%(output)s/vjfinder/cleaned_reads.fa \
+            --initial-reads=%(output)s/vj_finder/cleaned_reads.fa \
             --constructed-repertoire=%(output)s/final_repertoire.fa \
             --constructed-rcm=%(output)s/final_repertoire.rcm \
             --output=%(output)s/igquast \
             --reference-free" % form
 
     # print cmd
-    cmd = "ping ya.ru -c 1000; " + cmd
+    # cmd = "ping ya.ru -c 1000; " + cmd
     task = add_task(cmd, output_id=output_id)
 
     # task = execute.delay("ping ya.ru -c 15", output_id=output_id)
