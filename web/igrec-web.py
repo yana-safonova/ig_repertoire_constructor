@@ -261,9 +261,18 @@ def run_igrec():
     if "skip-alignment" in form:
         cmd += " --no-alignment"
 
+
+    if "skip-alignment" in form:
+        if form["readstype"] == "merged":
+            form["initial-reads-file"] = form["merged-reads-file"]
+        else:
+            form["initial-reads-file"] = "%(output)s/merged_reads.fq" % form
+    else:
+        form["initial-reads-file"] = "%(output)s/vj_finder/cleaned_reads.fa" % form
+
     if "do-igquast" in form:
         cmd += " && %(igrec_dir)s/igquast.py \
-            --initial-reads=%(output)s/vj_finder/cleaned_reads.fa \
+            --initial-reads=%(initial-reads-file)s \
             --constructed-repertoire=%(output)s/final_repertoire.fa \
             --constructed-rcm=%(output)s/final_repertoire.rcm \
             --output=%(output)s/igquast \
@@ -286,6 +295,98 @@ def task_list():
     tasks = r.lrange("TaskList", 0, -1)
 
     return render_template("jobs.html", tasks=tasks)
+
+@app.route('/uploads')
+def uploads():
+    return render_template("upload.html")
+
+
+# From here https://github.com/szelcsanyi/resumable.js/blob/8872d84c57b8c8cc756f7b74ec51b78233f82021/samples/Backend%20on%20Flask.md
+
+temp_base = current_dir + "/tmp/"
+from flask import abort
+
+@app.route('/upload', methods=['GET'])
+def show():
+
+    identifier = request.args.get('resumableIdentifier', type=str)
+    filename = request.args.get('resumableFilename', type=str)
+    chunk_number = request.args.get('resumableChunkNumber', type=int)
+
+    if not identifier or not filename or not chunk_number:
+        # Parameters are missing or invalid
+        abort(500, 'Parameter error')
+
+    # chunk folder path based on the parameters
+    temp_dir = "{}{}".format(temp_base, identifier)
+    # chunk path based on the parameters
+    chunk_file = "{}/{}.part{}".format(temp_dir, filename, chunk_number)
+
+    app.logger.debug('Getting chunk: %s', chunk_file)
+
+    if os.path.isfile(chunk_file):
+        #Let resumable.js know this chunk already exists
+        return 'OK'
+    else:
+        #Let resumable.js know this chunk does not exists and needs to be uploaded
+        abort(404, 'Not found')
+
+
+
+@app.route('/upload', methods=['POST'])
+def create():
+
+    identifier = request.form.get('resumableIdentifier', type=str)
+    filename = request.form.get('resumableFilename', type=str)
+    chunk_number = request.form.get('resumableChunkNumber', type=int)
+    chunk_size = request.form.get('resumableChunkSize', type=int)
+    current_chunk_size = request.form.get('resumableCurrentChunkSize', type=int)
+    total_size = request.form.get('resumableTotalSize', type=int)
+
+    if not identifier or not filename or not chunk_number or not chunk_size or not current_chunk_size or not total_size:
+        # Parameters are missing or invalid
+        abort(500, 'Parameter error')
+
+    # chunk folder path based on the parameters
+    temp_dir = "{}{}".format(temp_base, identifier)
+    # chunk path based on the parameters
+    chunk_file = "{}/{}.part{}".format(temp_dir, filename, chunk_number)
+
+    app.logger.debug('Creating chunk: %s', chunk_file)
+
+    # Create directory of not exists
+    if not os.path.isdir(temp_dir):
+        os.makedirs(temp_dir, 0777)
+
+    file = request.files['file']
+    file.save(chunk_file)
+
+    current_size = chunk_number * chunk_size
+
+    # When all chunks are uploaded
+    # (does not handle if chunks are out of order!)
+    if (current_size + current_chunk_size ) >= total_size:
+
+        # Create a target file
+        target_file_name = "{}/{}".format(temp_base, filename)
+        with open(target_file_name, "ab") as target_file:
+            # Loop trough the chunks
+            for i in range(1, chunk_number+1):
+                # Select the chun
+                stored_chunk_file_name = "{}/{}.part{}".format(temp_dir, filename, str(i))
+                stored_chunk_file = open(stored_chunk_file_name, 'rb')
+                # Write chunk into target file
+                target_file.write( stored_chunk_file.read() )
+                stored_chunk_file.close()
+                # Deleting chunk
+                os.unlink(stored_chunk_file_name)
+                target_file.close()
+                os.rmdir(temp_dir)
+                app.logger.debug('File saved to: %s', target_file_name)
+
+    return 'OK'
+
+
 
 
 if __name__ == "__main__":
