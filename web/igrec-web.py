@@ -97,12 +97,8 @@ def tasks_command_get_status(task_id):
 
 @app.route("/tasks/commands/get_output/<uuid:task_id>")
 def tasks_commands_get_output(task_id):
-    task = execute.AsyncResult(str(task_id))
-
-    if task.status in ["SUCCESS"]:
-        return task.info["output_id"]
-    else:
-        return ""
+    task_id = str(task_id)
+    return r.get("output." + task_id) or ""
 
 
 @celery_app.task(bind=True)

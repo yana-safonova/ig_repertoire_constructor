@@ -66,16 +66,19 @@ $(document).ready(function() {
         var task_id = target.attr("data-target");
         $.ajax("/tasks/commands/get_status/" + task_id).done(function(data) {
             target.find("td.status").text(data);
+            var hide_report = data != "SUCCESS";
+            $.ajax("/tasks/commands/get_output/" + task_id).done(function(data) {
+                if (hide_report) {
+                    target.find("td.report").text("");
+                } else {
+                    target.find("td.report").html("<a href='/report/" + data +"'>Report</a>");
+                }
+                target.find("td.result").html("<a href='/runs/" + data +"'>" + data + "</a>");
+            });
             if (["FAILED", "SUCCESS", "REVOKED", "CRASHED"].includes(data)) {
                 target.find("button.button-terminate").prop("disabled", true);
-                $.ajax("/tasks/commands/get_output/" + task_id).done(function(data) {
-                    target.find("td.report").html("<a href='/report/" + data +"'>Report</a>");
-                    target.find("td.result").html("<a href='/runs/" + data +"'>" + data + "</a>");
-                });
             } else {
                 target.find("button.button-terminate").prop("disabled", false);
-                target.find("td.report").text("");
-                target.find("td.result").text("");
             }
         });
     }
