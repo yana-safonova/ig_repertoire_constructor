@@ -318,7 +318,7 @@ def task_list():
 
     tasks = [task for task in tasks if valid(task)]
 
-    return render_template("jobs.html", tasks=tasks)
+    return render_template("tasks.html", tasks=tasks)
 
 @app.route('/uploads')
 def uploads():
