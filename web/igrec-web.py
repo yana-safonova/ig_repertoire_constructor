@@ -290,9 +290,28 @@ def run_igrec():
     return redirect(url_for("status_page", task_id=task.id))
 
 
+@app.route('/tasks/commands/purge')
+def reset_all_tasts():
+    # TODO Add unique command token
+    for key in r.scan_iter("*"):
+        print key
+        r.delete(key)
+
+    return "OK"
+
+
 @app.route('/tasks')
 def task_list():
     tasks = r.lrange("TaskList", 0, -1)
+
+    # check task presence
+    def valid(task_id):
+        task = execute.AsyncResult(str(task_id))
+        print task
+        print task.status
+        return True
+
+    tasks = [task for task in tasks if valid(task)]
 
     return render_template("jobs.html", tasks=tasks)
 
