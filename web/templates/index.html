@@ -198,12 +198,10 @@ div.tooltip-inner {
 <div class="form-group">
     <label class="col-md-4 control-label" for="tool">Quality Assestment</label>
     <div class="col-md-5">
-        <div class="checkbox">
-            <label class="checkbox" for="do-igquast">
+            <label class="checkbox-inline" for="do-igquast">
                 <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
                 Perform Quality Assestment (IgQUAST)
             </label>
-        </div>
     </div>
 </div>
 
@@ -212,21 +210,34 @@ div.tooltip-inner {
 
 <div class="form-group">
     <div class="col-md-4">
-        <a data-toggle="collapse" href="#" data-target="#collapseOne">
+        <a data-toggle="collapse" href="#" data-target="#additional-options">
             Addtitional options
         </a>
     </div>
-    <div class="col-md-5 collapse no-transition" id="collapseOne">
-        <div class="checkbox">
-            <label class="checkbox" for="skip-alignment">
+</div>
+
+<div class="collapse no-transition" id="additional-options">
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="skip-alignment">Alignment</label>
+        <div class="col-md-4">
+            <label class="checkbox-inline" for="skip-alignment">
                 <input type="checkbox" name="skip-alignment" id="skip-alignment" value="">
                 Skip VJ-Alignment phase
             </label>
         </div>
     </div>
+
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="threads">Threads</label>
+        <div class="col-md-1">
+            <select id="threads" name="threads" class="selectpicker form-control">
+                {% for thread in [1, 2, 4, 8, 16, 32] %}
+                <option value="{{thread}}"{{'selected' if thread == '4' else ''}}>{{thread}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
 </div>
-
-
 
 <div class="form-group">
     <label class="col-md-4 control-label" for="submit-button"></label>
