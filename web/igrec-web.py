@@ -78,7 +78,7 @@ def run_command_simple(cmd):
 
 
 def terminate_task(id, signal="SIGTERM"):
-    from celery import Terminated
+    from celery.exceptions import Terminated
     try:
         celery.control.revoke(id, terminate=True, signal=signal)
     except Terminated:
