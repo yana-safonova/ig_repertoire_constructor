@@ -2,42 +2,32 @@
 {% block title %}IgReC - task status{% endblock %}
 {% block body %}
 
-<h2>STATUS: {{status}}</h2>
-
-<div class="container" style="padding-top: 100px;">
-
-    <div class="row">
-        <div class="col-lg-offset-2 col-lg-8">
-            <div class="page-header">
-                <h1> Resumable file upload<small> <br/>with Resumable.js and some example</small></h1>
-            </div>
-        </div>
-
-        <div class="col-lg-offset-2 col-lg-8">
-            <button type="button" class="btn btn-success" aria-label="Add file" id="add-file-btn">
-                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add file
-            </button>
-            <button type="button" class="btn btn-info" aria-label="Start upload" id="start-upload-btn">
-                <span class="glyphicon glyphicon-upload" aria-hidden="true"></span> Start upload
-            </button>
-            <button type="button" class="btn btn-warning" aria-label="Pause upload" id="pause-upload-btn">
-                <span class="glyphicon glyphicon-pause " aria-hidden="true"></span> Pause upload
-            </button>
-        </div>
-
-
-        <div class="col-lg-offset-2 col-lg-8">
-            <p>
-                <div class="progress hide" id="upload-progress">
-                    <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" style="width: 0%">
-                        <span class="sr-only"></span>
-                    </div>
-                </div>
-            </p>
-        </div>
+<h2>Files upload</h2>
+<div class="row">
+    <div class="col-lg-offset-2 col-lg-8">
+        <button type="button" class="btn btn-success" aria-label="Add files" id="add-file-btn">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add file
+        </button>
+        <button type="button" class="btn btn-info" aria-label="Start upload" id="start-upload-btn">
+            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span> Start upload
+        </button>
+        <button type="button" class="btn btn-warning hide" aria-label="Pause upload" id="pause-upload-btn">
+            <span class="glyphicon glyphicon-pause " aria-hidden="true"></span> Pause upload
+        </button>
     </div>
 
+
+    <div class="col-lg-offset-2 col-lg-8">
+        <p>
+        <div class="progress hide" id="upload-progress">
+            <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" style="width: 0%">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        </p>
+    </div>
 </div>
+
 
 
 <script>
@@ -69,15 +59,20 @@
 
     r.on('fileSuccess', function(file, message){
         progressBar.finish();
+        $('#pause-upload-btn').addClass('hide');
     });
 
     r.on('progress', function(){
         progressBar.uploading(r.progress()*100);
+        $('#pause-upload-btn').removeClass('hide');
         $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-play').addClass('glyphicon-pause');
+        $('#pause-upload-btn').text("Pause upload");
     });
 
     r.on('pause', function(){
+        $('#pause-upload-btn').removeClass('hide');
         $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-pause').addClass('glyphicon-play');
+        $('#pause-upload-btn').text("Resume upload");
     });
 
     function ProgressBar(ele) {
@@ -89,10 +84,12 @@
 
         this.uploading = function(progress) {
             (this.thisEle).find('.progress-bar').attr('style', "width:"+progress+'%');
+            (this.thisEle).find('.progress-bar').removeClass('progress-bar-success').addClass('progress-bar-info');
         },
 
         this.finish = function() {
-            (this.thisEle).addClass('hide').find('.progress-bar').css('width','0%');
+            this.uploading(100);
+            (this.thisEle).find('.progress-bar').removeClass('progress-bar-info').addClass('progress-bar-success');
         }
     }
 </script>
