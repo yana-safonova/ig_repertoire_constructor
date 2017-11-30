@@ -95,7 +95,7 @@ RUN git checkout webserver
 # https://github.com/nameko/nameko/issues/425
 RUN pip install eventlet==0.20.0
 
-ENV VERSION 4
+ENV VERSION 7
 RUN git pull origin webserver
 
 RUN mkdir -p /opt/y-tools/web/tmp
