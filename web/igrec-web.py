@@ -93,9 +93,7 @@ def tasks_command_terminate(task_id):
 
 @app.route('/tasks/commands/get_status/<uuid:task_id>')
 def tasks_command_get_status(task_id):
-    task = execute.AsyncResult(str(task_id))
-
-    return task.status
+    return get_task_status(task_id)
 
 @app.route("/tasks/commands/get_output/<uuid:task_id>")
 def tasks_commands_get_output(task_id):
@@ -133,33 +131,68 @@ def execute(self, command, output_id):
 
 
 def add_task(command, output_id):
+    import datetime
+
+    now = datetime.datetime.now()
     task = execute.delay(command, output_id)
 
-    r.lpush("TaskList", task.id)
+    r.rpush("TaskList", task.id)
+    r.set("start_time." + task.id, now.strftime("%Y-%m-%d %H:%M:%S"))
+    r.set("command." + task.id, command)
+    r.set("output." + task.id, output_id)
     return task
 
 
 
+def rerun(task_id):
+    command = r.get("command." + task_id)
+    output = r.get("output." + task_id)
+    if (command and output):
+        new_output = create_uuid_dir(runs_dir, "_(rerun_%s)" % output)
+        new_task = add_task(command, new_output)
+        return new_task.id
+    else:
+        return False
 
 
+@app.route('/tasks/commands/rerun/<uuid:task_id>')
+def tasks_command_rerun(task_id):
+    task_id = str(task_id)
+    result = rerun(task_id)
+    return result or "FAILED"
+
+
+
+def get_task_status(task_id):
+    task = execute.AsyncResult(str(task_id))
+
+    status = task.status
+    if task.status in ["SUCCESS"]:
+        if task.info["rc"] != 0:
+            status = "CRASHED"
+
+    return status
 
 # TODO Use redis to real-time tracking
 # https://stackoverflow.com/questions/35437668/realtime-progress-tracking-of-celery-tasks
 
+
+
 @app.route("/tasks/status/<uuid:task_id>")
 def status_page(task_id):
-    task = execute.AsyncResult(str(task_id))
+    task_id = str(task_id)
+    task = execute.AsyncResult(task_id)
 
-    if task.status in ["PROGRESS", "SUCCESS"]:
+    status = get_task_status(task_id)
+
+    if status in ["PROGRESS", "SUCCESS", "CRASHED"]:
         log = task.info["log"]
     else:
         log = None
-    if task.status in ["SUCCESS"]:
-        output_id=task.info["output_id"]
-    else:
-        output_id=None
 
-    return render_template("status.html", status=task.status, log=log,
+    output_id=r.get("output." + task_id)
+
+    return render_template("status.html", status=status, log=log,
                            task_id=task_id,
                            output_id=output_id)
 
@@ -211,7 +244,7 @@ def report(output_id):
     return response
 
 
-def create_uuid_dir(basedir):
+def create_uuid_dir(basedir, suffix=""):
     import uuid
     import os
     import time
@@ -221,10 +254,11 @@ def create_uuid_dir(basedir):
 
     name = time.strftime("%d%b%Y_%H-%M-%S")
     name += "-" + hashlib.md5(id).hexdigest()[:5]
+    name += suffix
     try:
         os.mkdir(os.path.join(basedir, name))
     except OSError:
-        return create_uuid_dir(basedir)
+        return create_uuid_dir(basedir, suffix=suffix)
 
     return name
 
@@ -309,16 +343,13 @@ def reset_all_tasts():
 def task_list():
     tasks = r.lrange("TaskList", 0, -1)
 
-    # check task presence
-    def valid(task_id):
-        task = execute.AsyncResult(str(task_id))
-        print task
-        print task.status
-        return True
+    def get_task_time(task_id):
+       time = r.get("start_time." + task_id)
+       return time
 
-    tasks = [task for task in tasks if valid(task)]
+    times = map(get_task_time, tasks)
 
-    return render_template("tasks.html", tasks=tasks)
+    return render_template("tasks.html", tasks=tasks, times=times, zipped=zip(tasks, times))
 
 @app.route('/uploads')
 def uploads():

@@ -11,24 +11,28 @@ IgReC - job list
 <table id="jobs" class="table table-striped">
     <thead>
         <tr>
+            <th scope="col">Starting time</th>
             <th scope="col">Task ID</th>
-            <th scope="col">Result</th>
+            <th scope="col">Output</th>
             <th scope="col">Report</th>
             <th scope="col">Status</th>
             <th scope="col">Terminate</th>
+            <th scope="col">Rerun</th>
         </tr>
     </thead>
     <tbody>
-        {% for task in tasks %}
+        {% for task, time in zipped %}
         <tr class="status" data-target="{{task}}">
+            <td>{{time}}</td>
             <td><a href="/tasks/status/{{task}}">{{task}}</a></td>
             <td class="result"></td>
             <td class="report"></td>
             <td class="status"></td>
             <td><button class="btn btn-danger button-terminate">Terminate</button></td>
+            <td><button class="btn btn-primary button-rerun">Rerun</button></td>
         </tr>
+        {% endfor%}
     </tbody>
-    {% endfor%}
 
 
 </table>
@@ -45,15 +49,28 @@ $(document).ready(function() {
         });
     });
 
+    $("#jobs").on("click", "button.button-rerun", function(event) {
+        var target = $($(event.target).parent().parent());
+        var task_id = target.attr("data-target");
+        console.log(task_id)
+        $.ajax("/tasks/commands/rerun/" + task_id).done(function(data) {
+            if (data != "FAILED") {
+                new_task_id = data;
+                console.log(new_task_id)
+                window.location = "/tasks/status/" + new_task_id;
+            }
+        });
+    });
+
     function update_status(target) {
         var task_id = target.attr("data-target");
         $.ajax("/tasks/commands/get_status/" + task_id).done(function(data) {
             target.find("td.status").text(data);
-            if (["FAILED", "SUCCESS", "REVOKED"].includes(data)) {
+            if (["FAILED", "SUCCESS", "REVOKED", "CRASHED"].includes(data)) {
                 target.find("button.button-terminate").prop("disabled", true);
                 $.ajax("/tasks/commands/get_output/" + task_id).done(function(data) {
                     target.find("td.report").html("<a href='/report/" + data +"'>Report</a>");
-                    target.find("td.result").html("<a href='/runs/" + data +"'>Result</a>");
+                    target.find("td.result").html("<a href='/runs/" + data +"'>" + data + "</a>");
                 });
             } else {
                 target.find("button.button-terminate").prop("disabled", false);
@@ -65,7 +82,10 @@ $(document).ready(function() {
 
     $("#jobs").find("tr.status").each(function() {update_status($(this))});
 
-    $("#jobs").DataTable();
+    $("#jobs").DataTable({
+        "order": [[ 0, "desc" ]]
+    }
+    );
 });
 </script>
 

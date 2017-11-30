@@ -20,8 +20,8 @@ html, body{
 <object data="/runs/{{output_id}}/divan/annotation_report.html" width=100% height=100%>
 
 <script>
-    $('object').attr({'width':$( window ).width() * 0.9})
-    $('object').attr({'height':$( window ).height() * 0.7});
+    $('object').attr({'width':$( window ).width() * 0.95})
+    $('object').attr({'height':$( window ).height() * 0.8});
 </script>
 <!-- <object data="/runs/{{output_id}}/divan/annotation_report.html" type="text/html"  style="float:left;width:230px;height:100%"> -->
 <!-- <div id="includedContent"></div> -->
@@ -32,13 +32,13 @@ html, body{
 <!-- </script> -->
 
 
-<div id="tester" style="width:600px;height:250px;"></div>
-<script>
-    var TESTER = $("#tester")[0];
-    Plotly.plot( TESTER, [{
-    x: [1, 2, 3, 4, 5],
-    y: [1, 2, 4, 8, 16] }], {
-    margin: { t: 0 } } );
-</script>
+<!-- <div id="tester" style="width:600px;height:250px;"></div> -->
+<!-- <script> -->
+<!--     var TESTER = $("#tester")[0]; -->
+<!--     Plotly.plot( TESTER, [{ -->
+<!--     x: [1, 2, 3, 4, 5], -->
+<!--     y: [1, 2, 4, 8, 16] }], { -->
+<!--     margin: { t: 0 } } ); -->
+<!-- </script> -->
 
 {% endblock %}

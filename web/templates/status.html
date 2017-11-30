@@ -4,18 +4,41 @@
 
 <h2>STATUS: {{status}}</h2>
 <div class="container-fluid">
-{% if status == "SUCCESS" %}
+{% if status in ["SUCCESS", "FAILED", "CRASHED"] %}
 <a href="/report/{{output_id}}" class="btn btn-info" role="button">Report</a>
 {% else %}
-<a href="/tasks/commands/terminate/{{task_id}}" class="btn btn-info" role="button">Terminate</a>
+<a href="/tasks/commands/terminate/{{task_id}}" class="btn btn-danger" role="button">Terminate</a>
+<script>
+setTimeout(function(){
+   window.location.reload(1);
+}, 1000);
+</script>
 {% endif %}
-<br>
+
+<style>
+.log {
+    background-color: dimgray;
+    font-family: monospace;
+    color: white;
+    height: 80vh;
+}
+</style>
 
 {% if log %}
+<br>
+<h2>Log:</h2>
+<div id="log", class="pre-scrollable log">
 <!-- TODO nice log window -->
 {% for line in log %}
 {{line}}<br>
 {% endfor %}
+</div>
+
+<script>
+// Scroll log to the end
+// https://stackoverflow.com/questions/10503606/scroll-to-bottom-of-div-on-page-load-jquery
+$('#log').scrollTop($('#log')[0].scrollHeight)
+</script>
 {% endif %}
 
 
