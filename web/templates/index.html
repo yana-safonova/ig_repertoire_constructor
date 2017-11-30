@@ -22,42 +22,18 @@ $(document).ready(function() {
         $("#fileOpenDialog").modal("hide")
     });
 
-    $("input[type=radio][name=readstype]").change(function() {
-        if (this.value == "paired") {
-            $("#merged-reads-group").hide();
-            $("#merged-reads-file").prop("required", false);
-            $("#paired-reads-group").show();
-            $("#paired-reads-file-left").prop("required", true);
-            $("#paired-reads-file-right").prop("required", true);
-        } else if (this.value == "merged") {
-            $("#merged-reads-group").show();
-            $("#merged-reads-file").prop("required", true);
-            $("#paired-reads-group").hide();
-            $("#paired-reads-file-left").prop("required", false);
-            $("#paired-reads-file-right").prop("required", false);
-        }
-    });
-
-    $("#readstype-merged").click();
-
-    $("input[type=radio][name=barcodingtype]").change(function() {
-        if (this.value == "file") {
-            $("#barcodes-group").show();
-            $("#barcodes-file").prop('required', true);
-        } else {
-            $("#barcodes-group").hide();
-            $("#barcodes-file").prop('required', false);
-        }
-    });
-
-    $("#barcodingtype-no").click();
-
     $(".btn-browse").click(function() {
         $('#fileOpenDialog').modal('show')
         $('#filetree').attr("data-target", $(this).attr("data-target"));
     });
 });
 </script>
+
+<style>
+.no-transition {
+    transition: none !important;
+}
+</style>
 
 
 {% endblock %}
@@ -86,19 +62,20 @@ $(document).ready(function() {
     <label class="col-md-4 control-label" for="readstype">Reads type</label>
     <div class="col-md-4">
         <label class="radio-inline" for="readstype-paired">
-            <input type="radio" name="readstype" id="readstype-paired" value="paired">
+            <input type="radio" name="readstype" id="readstype-paired" value="paired" data-toggle="collapse" data-target="#paired-reads-group:not(.in),#merged-reads-group.in">
             Paired reads
         </label>
         <label class="radio-inline" for="readstype-merged">
-            <input type="radio" name="readstype" id="readstype-merged" value="merged" checked>
+            <input type="radio" name="readstype" id="readstype-merged" value="merged" checked data-toggle="collapse" data-target="#merged-reads-group:not(.in),#paired-reads-group.in">
             Merged reads
         </label>
     </div>
 </div>
 
+<!-- TODO Try this approach https://stackoverflow.com/questions/29151241/using-bootstrap-collapse-on-radio-buttons-to-show-hide-content-no-js -->
 
-
-<div class="form-group" id="merged-reads-group">
+<div class="collapse in no-transition" id="merged-reads-group">
+<div class="form-group">
   <label class="col-md-4 control-label" for="merged-reads-file">Merged reads</label>
   <div class="col-md-5">
     <div class="input-group">
@@ -110,9 +87,10 @@ $(document).ready(function() {
     <!-- <p class="help-block">help</p> -->
   </div>
 </div>
+</div>
 
-<!-- Appended Input-->
-<div class="form-group" id="paired-reads-group" style="display: none">
+<div class="collapse no-transition" id="paired-reads-group">
+<div class="form-group">
   <label class="col-md-4 control-label" for="paired-reads-file-left">Left reads</label>
   <div class="col-md-5">
     <div class="input-group">
@@ -134,6 +112,7 @@ $(document).ready(function() {
     </div>
     <!-- <p class="help-block">help</p> -->
   </div>
+</div>
 </div>
 
 
@@ -160,31 +139,36 @@ $(document).ready(function() {
 </div>
 
 
+<!-- TODO try https://v4-alpha.getbootstrap.com/components/collapse/ -->
+
 <div class="form-group">
     <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
     <div class="col-md-4">
         <div class="radio">
             <label for="barcodingtype-no">
-                <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked">
+                <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked" data-toggle="collapse" data-target="#barcodes-group:.in">
                 No barcoding
             </label>
         </div>
         <div class="radio">
             <label for="barcodingtype-ids">
-                <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids">
+                <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids" data-toggle="collapse" data-target="#barcodes-group.in">
                 Barcodes in read IDs
             </label>
         </div>
-        <!-- <div class="radio"> -->
-        <!--     <label for="barcodingtype-file"> -->
-        <!--         <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file"> -->
-        <!--         Barcodes in a file -->
-        <!--     </label> -->
-        <!-- </div> -->
+        <div class="radio">
+            <label for="barcodingtype-file">
+                <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file" data-toggle="collapse" data-target="#barcodes-group:not(.in)">
+                Barcodes in a file
+            </label>
+        </div>
     </div>
 </div>
 
-<div class="form-group" id="barcodes-group" style="display: none">
+<!-- Use outside div block for smooth animation -->
+<!-- Thanks https://stackoverflow.com/questions/27221332/bootstrap-collapse-animation-not-smooth -->
+<div class="collapse no-transition" id="barcodes-group">
+<div class="form-group">
   <label class="col-md-4 control-label" for="barcodes-file">Barcodes file</label>
   <div class="col-md-5">
     <div class="input-group">
@@ -196,16 +180,11 @@ $(document).ready(function() {
     <!-- <p class="help-block">help</p> -->
   </div>
 </div>
+</div>
 
 <div class="form-group">
-    <label class="col-md-4 control-label" for="tool">Additional options</label>
+    <label class="col-md-4 control-label" for="tool">Quality Assestment</label>
     <div class="col-md-5">
-        <div class="checkbox">
-            <label class="checkbox" for="skip-alignment">
-                <input type="checkbox" name="skip-alignment" id="skip-alignment" value="">
-                Skip VJ-Alignment phase
-            </label>
-        </div>
         <div class="checkbox">
             <label class="checkbox" for="do-igquast">
                 <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
@@ -214,6 +193,24 @@ $(document).ready(function() {
         </div>
     </div>
 </div>
+
+
+<div class="form-group">
+    <div class="col-md-4">
+        <a data-toggle="collapse" href="#" data-target="#collapseOne">
+            Addtitional options
+        </a>
+    </div>
+    <div class="col-md-5 collapse no-transition" id="collapseOne">
+        <div class="checkbox">
+            <label class="checkbox" for="skip-alignment">
+                <input type="checkbox" name="skip-alignment" id="skip-alignment" value="">
+                Skip VJ-Alignment phase
+            </label>
+        </div>
+    </div>
+</div>
+
 
 
 <div class="form-group">
