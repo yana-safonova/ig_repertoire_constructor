@@ -30,7 +30,9 @@
       <li class="{{'active' if endpoint=='autoindex' else ''}}"><a href="/runs">Performed runs</a></li>
       <li class="{{'active' if endpoint=='task_list' else ''}}"><a href="/tasks">Task list</a></li>
       <li class="{{'active' if endpoint=='uploads' else ''}}"><a href="/uploads">Data upload</a></li>
+      {% if endpoint == 'admin' %}
       <li class="{{'active' if endpoint=='admin' else ''}}"><a href="/admin">Admin</a></li>
+      {% endif %}
     </ul>
   </div>
 </nav>
