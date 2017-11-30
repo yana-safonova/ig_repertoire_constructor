@@ -143,6 +143,11 @@ def add_task(command, output_id):
     return task
 
 
+@app.route('/admin')
+def admin():
+    return render_template("admin.html")
+
+
 
 def rerun(task_id):
     command = r.get("command." + task_id)
