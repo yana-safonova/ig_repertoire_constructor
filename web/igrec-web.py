@@ -214,8 +214,13 @@ def report(output_id):
 def create_uuid_dir(basedir):
     import uuid
     import os
+    import time
+    import hashlib
 
-    name = str(uuid.uuid4())
+    id = str(uuid.uuid4())
+
+    name = time.strftime("%d%b%Y_%H-%M-%S")
+    name += "-" + hashlib.md5(id).hexdigest()[:5]
     try:
         os.mkdir(os.path.join(basedir, name))
     except OSError:
