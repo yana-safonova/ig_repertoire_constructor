@@ -27,11 +27,24 @@ $(document).ready(function() {
         $('#filetree').attr("data-target", $(this).attr("data-target"));
     });
 });
+
+
+$(document).ready(function() {
+// We have to specify trigger for the correct disappearing
+// https://stackoverflow.com/questions/33584392/bootstraps-tooltip-doesnt-disappear-after-button-click-mouseleave
+$('[data-toggle="tooltip"]').tooltip({
+    trigger: 'hover'
+});
+});
 </script>
 
 <style>
 .no-transition {
     transition: none !important;
+}
+
+div.tooltip-inner {
+    max-width: 350px;
 }
 </style>
 
@@ -145,19 +158,19 @@ $(document).ready(function() {
     <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
     <div class="col-md-4">
         <div class="radio">
-            <label for="barcodingtype-no">
+            <label for="barcodingtype-no" data-toggle="tooltip" data-placement="right" title="Not using barcoding, perform IgReC run">
                 <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked" data-toggle="collapse" data-target="#barcodes-group:.in">
                 No barcoding
             </label>
         </div>
         <div class="radio">
-            <label for="barcodingtype-ids">
+            <label for="barcodingtype-ids" data-toggle="tooltip" data-placement="right" title="Barcodes encoded in reads IDs, e.g., &gt;93844_mutated_from_2966_UMI:CACACGCAACCAATA">
                 <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids" data-toggle="collapse" data-target="#barcodes-group.in">
                 Barcodes in read IDs
             </label>
         </div>
         <div class="radio">
-            <label for="barcodingtype-file">
+            <label for="barcodingtype-file" data-toggle="tooltip" data-placement="right" title="Barcodes in separate read file with the same IDs as IG reads">
                 <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file" data-toggle="collapse" data-target="#barcodes-group:not(.in)">
                 Barcodes in a file
             </label>
