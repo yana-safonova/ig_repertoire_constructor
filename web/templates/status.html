@@ -2,7 +2,7 @@
 {% block title %}IgReC - task status{% endblock %}
 {% block body %}
 
-<h2>STATUS: {{status}}</h2>
+<legend>STATUS: {{status}}</legend>
 <div class="container-fluid">
 {% if status in ["SUCCESS", "FAILED", "CRASHED"] %}
 <a href="/report/{{output_id}}" class="btn btn-info" role="button">Report</a>
