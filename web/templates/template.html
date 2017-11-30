@@ -9,6 +9,12 @@
 {% include 'libs.html' %}
 {% block head %}
 {% endblock %}
+<style>
+.navbar-brand>img {
+  height: 100%;
+  width: auto;
+}
+</style>
 </head>
 <body>
 {% set endpoint = request.url_rule.endpoint %}
@@ -16,7 +22,8 @@
 <nav class="navbar navbar-default">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="#">WebIgReC</a>
+        <a class="navbar-brand" href="/"><img src="/static/icons/desktop_app_logo_128.png"></a>
+        <a class="navbar-brand" href="/">WebIgReC platform</a>
     </div>
     <ul class="nav navbar-nav">
       <li class="{{'active' if endpoint=='new_run' else ''}}"><a href="/">New run</a></li>
