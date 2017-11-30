@@ -260,7 +260,7 @@ def run_igrec():
 
     cmd = "%(igrec_dir)s/%(tool)s %(input_line)s \
         --loci=%(loci)s --organism=%(organism)s \
-        --threads=%(threads)s --output=%(output)s" % form
+        --threads=%(threads)s --tau=%(tau)s --output=%(output)s" % form
 
     # print form
     if "skip-alignment" in form:

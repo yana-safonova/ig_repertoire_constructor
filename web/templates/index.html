@@ -231,8 +231,19 @@ div.tooltip-inner {
         <label class="col-md-4 control-label" for="threads">Threads</label>
         <div class="col-md-1">
             <select id="threads" name="threads" class="selectpicker form-control">
-                {% for thread in [1, 2, 4, 8, 16, 32] %}
-                <option value="{{thread}}"{{'selected' if thread == '4' else ''}}>{{thread}}</option>
+                {% for threads in [1, 2, 4, 8, 16, 32] %}
+                <option value="{{threads}}"{{'selected' if threads == 4 else ''}}>{{threads}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="tau">Maximum allowed mismatches (tau)</label>
+        <div class="col-md-1">
+            <select id="tau" name="tau" class="selectpicker form-control">
+                {% for tau in [0, 1, 2, 3, 4] %}
+                <option value="{{tau}}"{{'selected' if tau == 4 else ''}}>{{tau}}</option>
                 {% endfor %}
             </select>
         </div>
