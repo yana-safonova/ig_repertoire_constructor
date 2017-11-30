@@ -161,27 +161,27 @@ $(document).ready(function() {
 
 
 <div class="form-group">
-  <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
-  <div class="col-md-4">
-  <div class="radio">
-    <label for="barcodingtype-no">
-      <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked">
-      No barcoding
-    </label>
+    <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
+    <div class="col-md-4">
+        <div class="radio">
+            <label for="barcodingtype-no">
+                <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked">
+                No barcoding
+            </label>
+        </div>
+        <div class="radio">
+            <label for="barcodingtype-ids">
+                <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids">
+                Barcodes in read IDs
+            </label>
+        </div>
+        <!-- <div class="radio"> -->
+        <!--     <label for="barcodingtype-file"> -->
+        <!--         <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file"> -->
+        <!--         Barcodes in a file -->
+        <!--     </label> -->
+        <!-- </div> -->
     </div>
-  <div class="radio">
-    <label for="barcodingtype-ids">
-      <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids">
-      Barcodes in read IDs
-    </label>
-    </div>
-  <div class="radio">
-    <label for="barcodingtype-file">
-      <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file">
-      Barcodes in a file
-    </label>
-    </div>
-  </div>
 </div>
 
 <div class="form-group" id="barcodes-group" style="display: none">
