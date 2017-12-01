@@ -360,6 +360,7 @@ def uploads():
 # From here https://github.com/szelcsanyi/resumable.js/blob/8872d84c57b8c8cc756f7b74ec51b78233f82021/samples/Backend%20on%20Flask.md
 
 temp_base = current_dir + "/tmp/"
+upload_dir = current_dir + "/uploads/"
 from flask import abort
 
 @app.route('/upload', methods=['GET'])
@@ -428,8 +429,8 @@ def create():
     print "#chunks", n_of_chunks
     if len(onlyfiles) == n_of_chunks:
         # Create a target file
-        target_file_name = "{}/{}".format(temp_base, filename)
-        with open(target_file_name, "wb") as target_file:
+        target_file_name = "{}/{}".format(upload_dir, filename)
+        with open(target_file_name, "wb") as target_file:  # TODO Use flock here
             # Loop through the chunks
             for i in range(1, n_of_chunks + 1):
                 # Select the chunk

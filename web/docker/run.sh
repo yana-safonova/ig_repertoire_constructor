@@ -19,6 +19,7 @@ docker run -p 15284:8000 \
     --mount type=bind,source="${UPLOAD_DIR}",destination=/opt/y-tools/web/uploads \
     --mount type=bind,source="${REDIS_DIR}",destination=/opt/y-tools/web/redis \
     --mount type=bind,source=/,destination=/host-root,readonly \
+    --mount type=bind,source=${UPLOAD_DIR},destination=/uploads,readonly \
     igrec-web:latest
 
 # Use
