@@ -169,12 +169,12 @@ div.tooltip-inner {
                 Barcodes in read IDs
             </label>
         </div>
-        <div class="radio">
-            <label for="barcodingtype-file" data-toggle="tooltip" data-placement="right" title="Barcodes in a separate read file with the same IDs as IG reads">
-                <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file" data-toggle="collapse" data-target="#barcodes-group:not(.in)">
-                Barcodes in a file
-            </label>
-        </div>
+        <!-- <div class="radio"> -->
+        <!--     <label for="barcodingtype-file" data-toggle="tooltip" data-placement="right" title="Barcodes in a separate read file with the same IDs as IG reads"> -->
+        <!--         <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file" data-toggle="collapse" data-target="#barcodes-group:not(.in)"> -->
+        <!--         Barcodes in a file -->
+        <!--     </label> -->
+        <!-- </div> -->
     </div>
 </div>
 
@@ -195,16 +195,6 @@ div.tooltip-inner {
 </div>
 </div>
 
-<div class="form-group">
-    <label class="col-md-4 control-label" for="tool">Quality Assestment</label>
-    <div class="col-md-5">
-            <label class="checkbox-inline" for="do-igquast">
-                <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
-                Perform Quality Assestment (IgQUAST)
-            </label>
-    </div>
-</div>
-
 <!-- TODO Collapse does not work perfectly with keyboard arrow radio switching -->
 
 
@@ -217,6 +207,16 @@ div.tooltip-inner {
 </div>
 
 <div class="collapse no-transition" id="additional-options">
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="tool">Quality Assesstment</label>
+        <div class="col-md-5">
+            <label class="checkbox-inline" for="do-igquast">
+                <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
+                Perform Quality Assesstment (IgQUAST)
+            </label>
+        </div>
+    </div>
+
     <div class="form-group">
         <label class="col-md-4 control-label" for="skip-alignment">Alignment</label>
         <div class="col-md-4">
