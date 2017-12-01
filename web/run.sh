@@ -3,7 +3,9 @@
 # https://stackoverflow.com/questions/18279540/bash-shutdown-hook-or-kill-all-background-processes-when-main-process-is-kille
 trap 'jobs -p | xargs kill' EXIT
 
-redis-server --dir redis &
+cd redis
+redis-server &
+cd ..
 
 celery -A igrec-web.celery worker --loglevel info --statedb=worker.state --events &
 # --events is necessary for task listing (aka inspect())
