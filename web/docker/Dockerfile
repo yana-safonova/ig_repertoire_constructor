@@ -98,7 +98,6 @@ RUN pip install eventlet==0.20.0
 ENV VERSION 9
 RUN git pull origin webserver
 
-RUN mkdir -p /opt/y-tools/web/tmp
 RUN mkdir -p /host-root
 
 EXPOSE 8000
