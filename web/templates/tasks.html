@@ -75,10 +75,12 @@ $(document).ready(function() {
                 }
                 target.find("td.result").html("<a href='/runs/" + data +"'>" + data + "</a>");
             });
-            if (["FAILED", "SUCCESS", "REVOKED", "CRASHED"].includes(data)) {
+            if (["FAILED", "SUCCESS", "REVOKED", "CRASHED", "FAILURE"].includes(data)) {
                 target.find("button.button-terminate").prop("disabled", true);
+                target.find("button.button-terminate").hide();
             } else {
                 target.find("button.button-terminate").prop("disabled", false);
+                target.find("button.button-terminate").show();
             }
         });
     }
