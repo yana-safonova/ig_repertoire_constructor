@@ -78,7 +78,7 @@ def run_command_simple(cmd):
 
 
 def terminate_task(id, signal="SIGTERM"):
-    from celery import Terminated
+    from celery.exceptions import Terminated
     try:
         celery.control.revoke(id, terminate=True, signal=signal)
     except Terminated:
@@ -97,12 +97,8 @@ def tasks_command_get_status(task_id):
 
 @app.route("/tasks/commands/get_output/<uuid:task_id>")
 def tasks_commands_get_output(task_id):
-    task = execute.AsyncResult(str(task_id))
-
-    if task.status in ["SUCCESS"]:
-        return task.info["output_id"]
-    else:
-        return ""
+    task_id = str(task_id)
+    return r.get("output." + task_id) or ""
 
 
 @celery_app.task(bind=True)
@@ -368,7 +364,6 @@ from flask import abort
 
 @app.route('/upload', methods=['GET'])
 def show():
-
     identifier = request.args.get('resumableIdentifier', type=str)
     filename = request.args.get('resumableFilename', type=str)
     chunk_number = request.args.get('resumableChunkNumber', type=int)
@@ -384,18 +379,18 @@ def show():
 
     app.logger.debug('Getting chunk: %s', chunk_file)
 
+    # TODO Get rid of code duplication
     if os.path.isfile(chunk_file):
-        #Let resumable.js know this chunk already exists
+        # Let resumable.js know this chunk already exists
         return 'OK'
     else:
-        #Let resumable.js know this chunk does not exists and needs to be uploaded
+        # Let resumable.js know this chunk does not exists and needs to be uploaded
         abort(404, 'Not found')
 
 
 
 @app.route('/upload', methods=['POST'])
 def create():
-
     identifier = request.form.get('resumableIdentifier', type=str)
     filename = request.form.get('resumableFilename', type=str)
     chunk_number = request.form.get('resumableChunkNumber', type=int)
@@ -415,34 +410,37 @@ def create():
     app.logger.debug('Creating chunk: %s', chunk_file)
 
     # Create directory of not exists
-    if not os.path.isdir(temp_dir):
+    try:
         os.makedirs(temp_dir, 0777)
+    except:
+        pass
 
     file = request.files['file']
     file.save(chunk_file)
 
-    current_size = chunk_number * chunk_size
+    from os import listdir
+    from os.path import isfile, join
+    import math
+    onlyfiles = [f for f in listdir(temp_dir) if isfile(join(temp_dir, f))]
 
     # When all chunks are uploaded
-    # (does not handle if chunks are out of order!)
-    if (current_size + current_chunk_size ) >= total_size:
-
+    n_of_chunks = int(math.ceil(float(total_size) / chunk_size))
+    print "#chunks", n_of_chunks
+    if len(onlyfiles) == n_of_chunks:
         # Create a target file
         target_file_name = "{}/{}".format(temp_base, filename)
-        with open(target_file_name, "ab") as target_file:
-            # Loop trough the chunks
-            for i in range(1, chunk_number+1):
-                # Select the chun
+        with open(target_file_name, "wb") as target_file:
+            # Loop through the chunks
+            for i in range(1, n_of_chunks + 1):
+                # Select the chunk
                 stored_chunk_file_name = "{}/{}.part{}".format(temp_dir, filename, str(i))
-                stored_chunk_file = open(stored_chunk_file_name, 'rb')
-                # Write chunk into target file
-                target_file.write( stored_chunk_file.read() )
-                stored_chunk_file.close()
+                with open(stored_chunk_file_name, 'rb') as stored_chunk_file:
+                    # Write chunk into target file
+                    target_file.write(stored_chunk_file.read())  # We do not need buffering here, chunks are already small enough
                 # Deleting chunk
                 os.unlink(stored_chunk_file_name)
-                target_file.close()
-                os.rmdir(temp_dir)
-                app.logger.debug('File saved to: %s', target_file_name)
+        os.rmdir(temp_dir)
+        app.logger.debug('File saved to: %s', target_file_name)
 
     return 'OK'
 
