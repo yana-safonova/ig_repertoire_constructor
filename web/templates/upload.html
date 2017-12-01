@@ -6,13 +6,17 @@
 <div class="row">
     <div class="col-lg-offset-2 col-lg-8">
         <button type="button" class="btn btn-success" aria-label="Add files" id="add-file-btn">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add file
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add files
         </button>
         <button type="button" class="btn btn-info" aria-label="Start upload" id="start-upload-btn">
             <span class="glyphicon glyphicon-upload" aria-hidden="true"></span> Start upload
         </button>
         <button type="button" class="btn btn-warning hide" aria-label="Pause upload" id="pause-upload-btn">
-            <span class="glyphicon glyphicon-pause " aria-hidden="true"></span> Pause upload
+            <span class="glyphicon glyphicon-pause " aria-hidden="true"></span>
+            <span class="text">Pause upload</span>
+        </button>
+        <button type="button" class="btn btn-danger" aria-label="Cancel upload" id="cancel-upload-btn">
+            <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Cancel upload
         </button>
     </div>
 
@@ -43,7 +47,7 @@
     });
 
     $('#pause-upload-btn').click(function(){
-        if (r.files.length>0) {
+        if (r.files.length > 0) {
             if (r.isUploading()) {
               return  r.pause();
             }
@@ -51,45 +55,72 @@
         }
     });
 
+    $('#cancel-upload-btn').click(function() {
+        return r.cancel();
+    });
+
     var progressBar = new ProgressBar($('#upload-progress'));
 
-    r.on('fileAdded', function(file, event){
+    r.on('fileAdded', function(file){
         progressBar.fileAdded();
     });
 
-    r.on('fileSuccess', function(file, message){
-        progressBar.finish();
-        $('#pause-upload-btn').addClass('hide');
+    r.on('fileError', function(file, message) {
+        console.log("Error during file upload. File " + file + " message " + message);
+    });
+
+    // r.on('fileSuccess', function(file, message){
+    //     progressBar.finish();
+    //     $('#pause-upload-btn').addClass('hide');
+    // });
+
+    r.on('complete', function() {
+         progressBar.finish();
+         $('#pause-upload-btn').addClass('hide');
     });
 
     r.on('progress', function(){
         progressBar.uploading(r.progress()*100);
         $('#pause-upload-btn').removeClass('hide');
         $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-play').addClass('glyphicon-pause');
-        $('#pause-upload-btn').text("Pause upload");
+        $('#pause-upload-btn').find(".text").text("Pause upload");
     });
 
     r.on('pause', function(){
         $('#pause-upload-btn').removeClass('hide');
         $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-pause').addClass('glyphicon-play');
-        $('#pause-upload-btn').text("Resume upload");
+        $('#pause-upload-btn').find(".text").text("Resume upload");
     });
 
     function ProgressBar(ele) {
         this.thisEle = $(ele);
+        this.bar = $(ele).find(".progress-bar");
 
         this.fileAdded = function() {
-            (this.thisEle).removeClass('hide').find('.progress-bar').css('width','0%');
+            this.thisEle.removeClass('hide').find('.progress-bar').css('width','0%');
+        },
+
+        this.setClass = function(cl) {
+            this.bar.removeClass('progress-bar-success').removeClass('progress-bar-info').removeClass('progress-bar-danger');
+            this.bar.addClass(cl);
+        },
+
+        this.error = function() {
+            this.setClass('progress-bar-danger');
+        },
+
+        this.setValue = function(progress) {
+            this.bar.attr('style', "width:"+progress+'%');
         },
 
         this.uploading = function(progress) {
-            (this.thisEle).find('.progress-bar').attr('style', "width:"+progress+'%');
-            (this.thisEle).find('.progress-bar').removeClass('progress-bar-success').addClass('progress-bar-info');
+            this.setValue(progress);
+            this.setClass('progress-bar-info');
         },
 
         this.finish = function() {
-            this.uploading(100);
-            (this.thisEle).find('.progress-bar').removeClass('progress-bar-info').addClass('progress-bar-success');
+            this.setValue(100);
+            this.setClass('progress-bar-success');
         }
     }
 </script>
