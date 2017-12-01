@@ -381,35 +381,11 @@ def show():
 
     # TODO Get rid of code duplication
     if os.path.isfile(chunk_file):
-        #Let resumable.js know this chunk already exists
-        from os import listdir
-        from os.path import isfile, join
-        import math
-        onlyfiles = [f for f in listdir(temp_dir) if isfile(join(temp_dir, f))]
-
-        # When all chunks are uploaded
-        n_of_chunks = math.ceil(total_size / chunk_size)
-        print "#chunks", n_of_chunks
-        if len(onlyfiles) == n_of_chunks:
-            # Create a target file
-            target_file_name = "{}/{}".format(temp_base, filename)
-            with open(target_file_name, "wb") as target_file:
-                # Loop through the chunks
-                for i in range(1, n_of_chunks + 1):
-                    # Select the chunk
-                    stored_chunk_file_name = "{}/{}.part{}".format(temp_dir, filename, str(i))
-                    with open(stored_chunk_file_name, 'rb') as stored_chunk_file:
-                        # Write chunk into target file
-                        target_file.write(stored_chunk_file.read())  # We do not need buffering here, chunks are already small enough
-                    # Deleting chunk
-                    os.unlink(stored_chunk_file_name)
-            os.rmdir(temp_dir)
-            app.logger.debug('File saved to: %s', target_file_name)
-
+        # Let resumable.js know this chunk already exists
         return 'OK'
     else:
-        #Let resumable.js know this chunk does not exists and needs to be uploaded
-        abort(415, 'Not found')
+        # Let resumable.js know this chunk does not exists and needs to be uploaded
+        abort(404, 'Not found')
 
 
 
@@ -448,7 +424,7 @@ def create():
     onlyfiles = [f for f in listdir(temp_dir) if isfile(join(temp_dir, f))]
 
     # When all chunks are uploaded
-    n_of_chunks = math.ceil(total_size / chunk_size)
+    n_of_chunks = int(math.ceil(float(total_size) / chunk_size))
     print "#chunks", n_of_chunks
     if len(onlyfiles) == n_of_chunks:
         # Create a target file
