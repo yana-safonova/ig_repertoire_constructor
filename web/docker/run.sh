@@ -8,6 +8,7 @@ RUN_DIR="/Bmo/ashlemov/igrec-web/runs"
 UPLOAD_DIR="/Bmo/ashlemov/igrec-web/uploads"
 REDIS_DIR="/Bmo/ashlemov/igrec-web/redis"
 TMP_DIR="/Bmo/ashlemov/igrec-web/tmp"
+DATA_DIR="/Nancy/data/"
 mkdir -p "${RUN_DIR}"
 mkdir -p "${UPLOAD_DIR}"
 mkdir -p "${TMP_DIR}"
@@ -18,8 +19,8 @@ docker run -p 15284:8000 \
     --mount type=bind,source="${TMP_DIR}",destination=/opt/y-tools/web/tmp \
     --mount type=bind,source="${UPLOAD_DIR}",destination=/opt/y-tools/web/uploads \
     --mount type=bind,source="${REDIS_DIR}",destination=/opt/y-tools/web/redis \
-    --mount type=bind,source=/,destination=/host-root,readonly \
-    --mount type=bind,source=${UPLOAD_DIR},destination=/uploads,readonly \
+    --mount type=bind,source="${DATA_DIR}",destination=/data,readonly \
+    --mount type=bind,source="${UPLOAD_DIR}",destination=/uploads,readonly \
     igrec-web:latest
 
 # Use
