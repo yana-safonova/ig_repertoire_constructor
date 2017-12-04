@@ -1,6 +1,8 @@
 #pragma once
 
+#include <boost/optional.hpp>
 #include "include_me.hpp"
+#include "verify.hpp"
 #include <seqan/seq_io.h>
 
 inline vector<string> split(const string &s, char delim) {
@@ -18,6 +20,41 @@ inline pair<string, string> split_by_dots(string str) {
     assert(del_pos != string::npos);
     return make_pair(str.substr(0, del_pos),
                      str.substr(del_pos + 2, str.size() - del_pos - 2));
+}
+
+template <typename T>
+T str_to_int(const char* str, char** p) {
+    **p = *str; // avoid warning
+    VERIFY_MSG(false, "Implement me");
+}
+
+template <>
+inline unsigned long long str_to_int(const char* str, char** p) {
+    return strtoull(str, p, 10);
+}
+
+template <>
+inline unsigned long str_to_int(const char* str, char** p) {
+    return strtoul(str, p, 10);
+}
+
+template <>
+inline long str_to_int(const char* str, char** p) {
+    return strtol(str, p, 10);
+}
+
+template <>
+inline long long str_to_int(const char* str, char** p) {
+    return strtoll(str, p, 10);
+}
+
+template <typename T>
+boost::optional<T> try_string_to_number(const std::string& str) {
+    if (str.empty()) return {};
+    char* p;
+    const auto r = str_to_int<T>(str.c_str(), &p);
+    if (*p == 0) return r;
+    return boost::none;
 }
 
 template<typename T>
@@ -41,9 +78,9 @@ string number_to_string(T n) {
 }
 
 // TODO: rename
-inline string delete_spaces(string str) {
+inline string delete_whitespaces(string str) {
     for (size_t i = 0; i < str.size(); i++)
-        if (str[i] == ' ')
+        if (str[i] <= ' ')
             str[i] = '_';
     return str;
 }

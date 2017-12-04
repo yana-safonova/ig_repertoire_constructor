@@ -16,14 +16,14 @@
 #define VERIFY(expr)                                                        \
     do {                                                                    \
         if (!(expr)) {                                                      \
-            std::stringstream ss;                                           \
+            std::stringstream ss_verify;                                    \
             print_stacktrace();                                             \
-            ss << "Verification of expression '" << #expr <<                \
+            ss_verify << "Verification of expression '" << #expr <<         \
                     "' failed in function '" <<  BOOST_CURRENT_FUNCTION <<  \
                     "'. In file '" << __FILE__ <<                           \
                     "' on line " << __LINE__ << ".";                        \
-            std::cout << ss.str() << std::endl;                             \
-            std::cerr << ss.str() << std::endl;                             \
+            std::cout << ss_verify.str() << std::endl;                      \
+            std::cerr << ss_verify.str() << std::endl;                      \
             fflush(stdout);                                                 \
             fflush(stderr);                                                 \
             abort();                                                        \
@@ -33,15 +33,15 @@
 #define VERIFY_MSG(expr, msg)                                               \
     do {                                                                    \
         if (!(expr)) {                                                      \
-            std::stringstream ss;                                           \
+            std::stringstream ss_verify;                                    \
             print_stacktrace();                                             \
-            ss << "Verification of expression '" << #expr <<                \
+            ss_verify << "Verification of expression '" << #expr <<         \
                     "' failed in function '" <<  BOOST_CURRENT_FUNCTION <<  \
                     "'. In file '" << __FILE__ <<                           \
                     "' on line " << __LINE__ <<                             \
                     ". Message '" << msg << "'.";                           \
-            std::cout << ss.str() << std::endl;                             \
-            std::cerr << ss.str() << std::endl;                             \
+            std::cout << ss_verify.str() << std::endl;                      \
+            std::cerr << ss_verify.str() << std::endl;                      \
             fflush(stdout);                                                 \
             fflush(stderr);                                                 \
             abort();                                                        \

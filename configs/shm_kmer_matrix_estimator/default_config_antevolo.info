@@ -1,0 +1,32 @@
+io_params {
+    input_params {
+        v_alignments test_dataset/shm_kmer_matrix_estimator/v_alignment.fasta
+        cdr_details test_dataset/shm_kmer_matrix_estimator/cdr_details.txt
+    }
+    output_params {
+        output_dir test_dataset/shm_kmer_matrix_estimator
+        output_filename_fr kmer_matrix_fr.csv
+        output_filename_cdr kmer_matrix_cdr.csv
+        log_filename log.properties
+    }
+}
+
+alignment_checker_params {
+    alignment_checker_method NoGaps
+    functionality_method all
+}
+
+alignment_cropper_params {
+    alignment_cropper_method UptoLastReliableKMer
+    method_params {
+        kmer_len 5
+        hash_base 7
+    }
+}
+
+mutations_strategy_params {
+    mutations_strategy_method Trivial
+    kmer_len 5
+    method_params {
+    }
+}

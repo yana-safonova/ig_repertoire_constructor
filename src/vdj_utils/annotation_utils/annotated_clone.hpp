@@ -7,15 +7,15 @@
 #include "../alignment_utils/pairwise_alignment.hpp"
 
 namespace annotation_utils {
-    enum StructuralRegion { CDR1, CDR2, CDR3 };
+    enum StructuralRegion { CDR, FR, CDR1, CDR2, CDR3, FR1, FR2, FR3, FR4, UnknownRegion, AnyRegion };
 
     std::ostream& operator<<(std::ostream& out, const StructuralRegion &region);
 
     class AnnotatedClone {
-        const core::Read *read_ptr_;
+        core::Read read_;
 
-        std::unordered_map<StructuralRegion, seqan::Dna5String, std::hash<int>> region_string_map_;
-        std::unordered_map<StructuralRegion, CDRRange, std::hash<int>> region_range_map_;
+        std::map<StructuralRegion, seqan::Dna5String> region_string_map_;
+        std::map<StructuralRegion, CDRRange> region_range_map_;
 
         alignment_utils::ImmuneGeneReadAlignment v_alignment_;
         alignment_utils::ImmuneGeneReadAlignment j_alignment_;
@@ -25,6 +25,8 @@ namespace annotation_utils {
         GeneSegmentSHMs v_shms_;
         GeneSegmentSHMs j_shms_;
 
+        size_t size_;
+
         void CheckRangeConsistencyFatal(CDRRange range);
 
         void UpdateStructuralRegion(StructuralRegion region, CDRRange range);
@@ -32,19 +34,20 @@ namespace annotation_utils {
         void Initialize(CDRLabeling cdr_labeling);
 
     public:
-        AnnotatedClone(const core::Read &read,
+        AnnotatedClone(core::Read read,
                        CDRLabeling cdr_labeling,
                        alignment_utils::ImmuneGeneReadAlignment v_alignment,
                        alignment_utils::ImmuneGeneReadAlignment j_alignment,
                        AminoAcidAnnotation<core::Read> aa_annotation,
                        GeneSegmentSHMs v_shms,
                        GeneSegmentSHMs j_shms) :
-                read_ptr_(&read),
+                read_(read),
                 v_alignment_(v_alignment),
                 j_alignment_(j_alignment),
                 aa_annotation_(aa_annotation),
                 v_shms_(v_shms),
-                j_shms_(j_shms) {
+                j_shms_(j_shms),
+                size_(1) {
             Initialize(cdr_labeling);
         }
 
@@ -66,7 +69,19 @@ namespace annotation_utils {
             return GetRegionString(StructuralRegion::CDR3);
         }
 
-        const core::Read& Read() const { return *read_ptr_; }
+        CDRRange CDR1Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR1);
+        }
+
+        CDRRange CDR2Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR2);
+        }
+
+        CDRRange CDR3Range() const {
+            return GetRangeByRegion(StructuralRegion::CDR3);
+        }
+
+        const core::Read& Read() const { return read_; }
 
         const alignment_utils::ImmuneGeneReadAlignment& VAlignment() const { return v_alignment_; }
 
@@ -89,6 +104,22 @@ namespace annotation_utils {
         const germline_utils::ImmuneGene& VGene() const { return v_alignment_.subject(); }
 
         const germline_utils::ImmuneGene& JGene() const { return j_alignment_.subject(); }
+
+        size_t ORF() const { return aa_annotation_.ORF(); }
+
+        size_t  Size() const { return size_; }
+
+        void SetSize(size_t n) { size_ = n; }
+
+        const alignment_utils::ImmuneGeneReadAlignment& GetAlignmentBySegment(
+                germline_utils::SegmentType segment_type) const;
+
+        size_t GetAminoAcidPosByNucleotidePos(size_t nucl_pos) const;
+
+        char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
+
+        StructuralRegion GetRegionBySHM(SHM shm) const;
+
     };
 
     std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj);

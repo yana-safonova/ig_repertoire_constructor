@@ -1,0 +1,92 @@
+input_params {
+    input_reads test_dataset/merged_reads.fastq
+    vj_finder_config configs/vj_finder/config.info
+}
+
+output_params {
+    output_dir             cdr_test
+    cdr_details            cdr_details.txt  
+    shm_details            shm_details.txt
+    cdr1_fasta             cdr1s.fasta
+    cdr2_fasta             cdr2s.fasta 
+    cdr3_fasta             cdr3s.fasta
+    cdr3_compressed_fasta  compressed_cdr3s.fasta
+    cleaned_reads          cleaned_sequences.fasta
+    v_alignment_fasta      v_alignment.fasta
+    trash_output           trash.out
+
+    shm_output_details {
+        v_start_max_skipped  5
+        v_end_max_skipped    5
+        j_start_max_skipped  10
+        j_end_max_skipped    5
+    }
+}
+
+run_params {
+    num_threads 4
+}
+
+cdrs_params {
+    annotated_search_params {
+        domain_system        imgt ; kabat
+
+        v_gene_annotation {
+            v_gene_line_index       0
+            cdr1_start_line_index   3
+            cdr1_end_line_index     4
+            cdr2_start_line_index   7
+            cdr2_end_line_index     8
+            fr3_end_index           10
+            imgt_v_annotation       data/annotation/human_v_imgt.txt
+            kabat_v_annotation      data/annotation/human_v_kabat.txt
+        }
+
+        j_gene_annotation {
+            j_gene_line_index    0
+            cdr3_end_index       1
+            imgt_j_annotation    data/annotation/human_j_imgt.txt
+            kabat_j_annotation   data/annotation/human_j_kabat.txt
+        }
+    }
+
+    hcdr1_params {
+        start_pos        25
+        start_shift      10
+        min_length       10
+        max_length       12
+        residues_before  C-X-X-X
+        residues_after   X-X-W/M
+    }
+
+    hcdr2_params {
+        distance_from_cdr1_end   15
+        distance_shift           5
+        min_length               16
+        max_length               19
+        residues_before          L-G-W-I-G
+        residues_after           K/R-L/I/V/F/W/A-W/S/I/A
+    }
+
+    hcdr3_params {
+        distance_from_cdr2_end   33
+        distance_shift           5
+        min_length               3
+        max_length               25
+        residues_before          C-X-X
+        residues_after           W-G-X-G
+    }
+
+    cdr_search_algorithm annotated_search ; de_novo_search
+}
+
+shm_params {
+    shm_filtering_params {
+        v_start_max_skipped  5
+        v_end_max_skipped    5
+        j_start_max_skipped  10
+        j_end_max_skipped    5
+    }
+
+    shm_finding_algorithm filtering_algorithm; cdr_filtering_algorithm
+}

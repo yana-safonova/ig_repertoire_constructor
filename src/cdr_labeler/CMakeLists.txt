@@ -17,6 +17,7 @@ include_directories(${GRAPH_UTILS})
 
 add_library(cdr_labeler_library STATIC
         cdr_config.cpp
+        CdrLConfigLoader.cpp
         germline_db_labeler.cpp
         immunoglobulin_cdr_labeling/single_loop_labelers/single_loop_labeler.cpp
         immunoglobulin_cdr_labeling/single_loop_labelers/hcdr1_labeler.cpp

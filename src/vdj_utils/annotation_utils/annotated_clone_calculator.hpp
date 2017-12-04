@@ -19,7 +19,7 @@ namespace annotation_utils {
                 j_shm_calculator_ptr_(j_shm_calculator_ptr) {
         }
 
-        AnnotatedClone ComputeAnnotatedClone(const core::Read &read,
+        AnnotatedClone ComputeAnnotatedClone(core::Read read,
                                              CDRLabeling cdr_labeling,
                                              alignment_utils::ImmuneGeneReadAlignment v_alignment,
                                              alignment_utils::ImmuneGeneReadAlignment j_alignment);

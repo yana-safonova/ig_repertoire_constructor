@@ -4,6 +4,7 @@ import os
 import shutil
 import sys
 import logging
+from abc import ABCMeta, abstractmethod
 
 home_directory = os.path.abspath(os.path.dirname(os.path.realpath(__file__))) + '/'
 
@@ -30,98 +31,6 @@ def SupportInfo(log):
 #######################################################################################
 #           Binary routines
 #######################################################################################
-class PhaseNames:
-    def __init__(self):
-        self.__pair_reads_merger = 'pair_reads_merger'
-        self.__vj_alignment = 'vj_alignment'
-        self.__trie_compressor = 'trie_compressor'
-        self.__graph_construction = 'graph_constructor'
-        self.__dsf = 'dsf'
-        self.__consensus_constructor = 'consensus_constructor'
-        self.__compress_equal_clusters = 'compress_equal_clusters'
-        self.__remove_low_abundance_reads = 'remove_low_abundance_reads'
-        self.__phase_order = [self.__pair_reads_merger,
-                              self.__vj_alignment,
-                              self.__trie_compressor,
-                              self.__graph_construction,
-                              self.__dsf,
-                              self.__consensus_constructor,
-                              self.__compress_equal_clusters,
-                              self.__remove_low_abundance_reads]
-        self.__long_names = {'pair_reads_merger': 'Pair reads merging',
-                             'vj_alignment' : 'VJ Alignment',
-                             'trie_compressor' : 'Trie Compressor',
-                             'graph_constructor' : 'Graph Constructor',
-                             'dsf' : 'Dense Subgraph Finder',
-                             'consensus_constructor' : 'Consensus Constructor',
-                             'compress_equal_clusters' : 'Compress Equal Final Clusters',
-                             'remove_low_abundance_reads' : 'Low Abundant Clusters Remover'}
-
-    def __iter__(self):
-        for sname in self.__phase_order:
-            yield sname
-
-    def __len__(self):
-        return len(self.__phase_order)
-
-    def GetPhaseNameBy(self, index):
-        return self.__phase_order[index]
-
-    def GetPhaseIndex(self, phase_name):
-        for i in range(len(self)):
-            if self.GetPhaseNameBy(i) == phase_name:
-                return i
-        return -1
-
-    def PhaseIsPairReadsMerger(self, phase_name):
-        return phase_name == self.__pair_reads_merger
-
-    def GetPairReadMergerLongName(self):
-        return self.__long_names[self.__pair_reads_merger]
-
-    def PhaseIsVJAlignment(self, phase_name):
-        return phase_name == self.__vj_alignment
-
-    def GetVJAlignmentLongName(self):
-        return self.__long_names[self.__vj_alignment]
-
-    def PhaseIsTrieCompressor(self, phase_name):
-        return phase_name == self.__trie_compressor
-
-    def GetTrieCompressorLongName(self):
-        return self.__long_names[self.__trie_compressor]
-
-    def PhaseIsGraphConstructor(self, phase_name):
-        return phase_name == self.__graph_construction
-
-    def GetGraphConstructionLongName(self):
-        return self.__long_names[self.__graph_construction]
-
-    def PhaseIsDSF(self, phase_name):
-        return phase_name == self.__dsf
-
-    def GetDSFLongName(self):
-        return self.__long_names[self.__dsf]
-
-    def PhaseIsConsensusConstructor(self, phase_name):
-        return phase_name == self.__consensus_constructor
-
-    def GetConsensusConstructorLongName(self):
-        return self.__long_names[self.__consensus_constructor]
-
-    def PhaseIsCompressEqualClusters(self, phase_name):
-        return phase_name == self.__compress_equal_clusters
-
-    def GetCompressEqualClustersName(self):
-        return self.__long_names[self.__compress_equal_clusters]
-
-    def PhaseIsRemoveLowAbundanceReads(self, phase_name):
-        return phase_name == self.__remove_low_abundance_reads
-
-    def GetRemoveLowAbundanceReadsName(self):
-        return self.__long_names[self.__remove_low_abundance_reads]
-
-###########
 class IgRepConConfig:
     def __initBinaryPaths(self):
         self.path_to_pair_reads_merger = os.path.join(home_directory, 'build/release/bin/paired_read_merger')
@@ -139,54 +48,60 @@ class IgRepConConfig:
         self.run_compress_equal_clusters = os.path.join(home_directory, 'py/ig_compress_equal_clusters.py')
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.run_triecmp_to_repertoire = os.path.join(home_directory, 'py/ig_triecmp_to_repertoire.py')
+        self.run_divan = os.path.join(home_directory, 'diversity_analyzer.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
+        self.path_to_divan = os.path.join(home_directory, 'build/release/bin/cdr_labeler')
         self.path_to_germline = os.path.join(home_directory, "data/germline")
 
     def __init__(self):
         self.__initBinaryPaths()
 
     def CheckBinaries(self, log):
-        phase_names = PhaseNames()
         if not os.path.exists(self.path_to_pair_reads_merger):
-            log.info("ERROR: Binary file of " + phase_names.GetPairReadMergerLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + PairReadMergerPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_vj_aligner):
-            log.info("ERROR: Binary file of " + phase_names.GetVJAlignmentLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + VJAlignmentPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_trie_compressor):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.path_to_trie_compressor +") was not found\n")
+            log.info("ERROR: Binary file of " + TrieCompressionPhase.GetLongName() + " (" + self.path_to_trie_compressor +") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_report_supernodes):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
+            log.info("ERROR: Binary file of " + TrieCompressionPhase.GetLongName() +  " (" + self.run_report_supernodes + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_triecmp_to_repertoire):
-            log.info("ERROR: Binary file of " + phase_names.GetTrieCompressorLongName() + " (" + self.run_triecmp_to_repertoire + ") was not found\n")
+            log.info("ERROR: Binary file of " + TrieCompressionPhase.GetLongName() + " (" + self.run_triecmp_to_repertoire + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_graph_constructor):
-            log.info("ERROR: Binary file of " + phase_names.GetGraphConstructionLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + GraphConstructionPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_dsf):
-            log.info("ERROR: Binary file of " + phase_names.GetDSFLongName() + " was not found\n")
+            log.info("ERROR: Binary file of " + DSFPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.path_to_consensus_constructor):
-            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
+            log.info("ERROR: Binary file of " + ConsensusConstructionPhase.GetLongName() + " (" + self.path_to_consensus_constructor + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_rcm_recoverer):
-            log.info("ERROR: Binary file of " + phase_names.GetConsensusConstructorLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
+            log.info("ERROR: Binary file of " + ConsensusConstructionPhase.GetLongName() + " (" + self.run_rcm_recoverer + ") was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
         if not os.path.exists(self.run_compress_equal_clusters):
-            log.info("ERROR: Binary file of " + phase_names.GetCompressEqualClustersName() + " was not found\n")
+            log.info("ERROR: Binary file of " + CompressEqualClustersPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
+        if not os.path.exists(self.run_divan) or not os.path.exists(self.path_to_divan):
+            log.info("ERROR: Binary file of " + DiversityAnalyzerPhase.GetLongName() + " was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
+
 
 class IgRepConIO:
     def __initVJFinderOutput(self, output_dir):
@@ -216,6 +131,10 @@ class IgRepConIO:
         self.compressed_final_clusters_fa = os.path.join(output_dir, 'final_repertoire.fa')
         self.compressed_final_rcm = os.path.join(output_dir, 'final_repertoire.rcm')
 
+    def __initDiversityAnalyzer(self, output_dir):
+        self.divan_output = os.path.join(output_dir, 'divan')
+        self.divan_feature_file = os.path.join(self.divan_output, 'cdr_details.txt')
+
     def __init__(self, output_dir, log):
         self.__log = log
         self.__initVJFinderOutput(output_dir)
@@ -225,126 +144,83 @@ class IgRepConIO:
         self.__initFinalOutput(output_dir)
         self.final_stripped_clusters_fa = os.path.join(output_dir, 'final_repertoire_large.fa')
         self.__initCompressEqualClusters(output_dir)
+        self.__initDiversityAnalyzer(output_dir)
 
-    def CheckCroppedReadsExistance(self):
-        if not os.path.exists(self.cropped_reads):
-            self.__log.info("ERROR: File containing cleaned Ig-Seq reads was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckBadReadsExistance(self):
-        if not os.path.exists(self.bad_reads):
-            self.__log.info("ERROR: File containing contaminated reads (not Ig-Seq) was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckVJAlignmentInfoExistance(self):
-        if not os.path.exists(self.vj_alignment_info):
-            self.__log.info("ERROR: File containing VJ alignment info was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckCompressedReadsExistance(self):
-        if not os.path.exists(self.compressed_reads):
-            self.__log.info("ERROR: File containing compressed reads was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckCroppedCompressedMapExistance(self):
-        if not os.path.exists(self.map_file):
-            self.__log.info("ERROR: File containing map from cleaned reads to compressed reads was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckSupernodesExistance(self):
-        if not os.path.exists(self.supernodes_file):
-            self.__log.info("ERROR: File containing super-reads was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckSWGraphExistance(self):
-        if not os.path.exists(self.sw_graph):
-            self.__log.info("ERROR: File containing Smith-Waterman graph was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckDenseSubgraphDecompositionExistance(self):
-        if not os.path.exists(self.dense_sgraph_decomposition):
-            self.__log("ERROR: File containing dense subgraph decomposition was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckUncompressedFinalClustersExistance(self):
-        if not os.path.exists(self.uncompressed_final_clusters_fa):
-            self.__log("ERROR: File containing uncompressed antibody clusters of final repertoire was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckCompressedFinalClustersExistance(self):
-        if not os.path.exists(self.compressed_final_clusters_fa):
-            self.__log("ERROR: File containing compressed antibody clusters of final repertoire was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckUncompressedFinalRCMExistance(self):
-        if not os.path.exists(self.uncompressed_final_rcm):
-            self.__log("ERROR: File containing RCM of uncompressed final repertoire was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-    def CheckCompressedFinalRCMExistance(self):
-        if not os.path.exists(self.compressed_final_rcm):
-            self.__log("ERROR: File containing RCM of compressed final repertoire was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
-
-    def CheckFinalStrippedClustersExistance(self):
-        if not os.path.exists(self.final_stripped_clusters_fa):
-            self.__log("ERROR: File containing large antibody clusters of final repertoire was not found")
-            SupportInfo(self.__log)
-            sys.exit(1)
 
 #######################################################################################
 #           Phases
 #######################################################################################
 class Phase:
-    def __init__(self, long_name, log):
-        self._long_name = long_name
+    __metaclass__ = ABCMeta
+
+    def __init__(self, log):
         self._log = log
 
-    def PrintStartMessage(self):
-        self._log.info("==== " + self._long_name + " starts\n")
+    @classmethod
+    def GetLongName(cls):
+        raise NotImplementedError()
 
     def Run(self):
-        print "This method should be overloaded"
+        self._PrintStartMessage()
+        self._CheckFilesExistence(self._GetInputFiles())
+        self._Run()
+        self._CheckFilesExistence(self._GetOutputFiles())
+        self._PrintOutputFiles()
+        self._PrintFinishMessage()
 
-    def PrintFinishMessage(self):
-        self._log.info("\n==== " + self._long_name + " finished")
+    def _PrintStartMessage(self):
+        self._log.info("==== " + self.GetLongName() + " starts\n")
+
+    def _PrintFinishMessage(self):
+        self._log.info("\n==== " + self.GetLongName() + " finished")
+
+    @abstractmethod
+    def _GetInputFiles(self):
+        pass
+
+    @abstractmethod
+    def _GetOutputFiles(self):
+        pass
+
+    def _CheckFilesExistence(self, files_with_descr):
+        for (file_path, description) in files_with_descr:
+            if not os.path.exists(file_path):
+                self._log.error('Could not find the file with ' + description + ' at ' + file_path)
+                SupportInfo(self._log)
+                sys.exit(1)
+
+    def _PrintOutputFiles(self):
+        self._log.info("\nOutput files: ")
+        for (file, description) in self._GetOutputFiles():
+            self._log.info('  * ' + description + ' can be found at ' + file)
+
+    @abstractmethod
+    def _Run(self):
+        pass
+
 
 ###########
-
-class PairReadMerger(Phase):
+class PairReadMergerPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetPairReadMergerLongName(), log)
+        super(PairReadMergerPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        if not os.path.exists(self.__params.left_reads):
-            self._log.info("ERROR: Input left reads " + self.__params.left_reads + " were not found")
-            SupportInfo(self._log)
-            sys.exit(1)
-        if not os.path.exists(self.__params.right_reads):
-            self._log.info("ERROR: Input right reads " + self.__params.right_reads + " were not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+    @classmethod
+    def GetLongName(cls):
+        return 'Pair reads merging'
 
-    def __CheckOutputExistance(self):
-        if not os.path.exists(self.__params.single_reads):
-            self._log.info("ERROR: Input reads " + self.__params.single_reads + " were not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+    def _GetInputFiles(self):
+        return (
+            (self.__params.left_reads, 'input left reads'),
+            (self.__params.right_reads, 'input right reads'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.single_reads, 'input reads'),
+        )
+
+    def _Run(self):
         command_line = "%s %s %s %s" % (IgRepConConfig().run_pair_reads_merger,
                                         self.__params.left_reads,
                                         self.__params.right_reads,
@@ -352,31 +228,34 @@ class PairReadMerger(Phase):
         cpuprofile = self.__params.output + "/pair_read_merger_prof.out" if self.__params.profile else None
         support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files: ")
-        self._log.info("  * Merged reads were written to " + self.__params.single_reads)
 
 ###########
 class VJAlignmentPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetVJAlignmentLongName(), log)
+        super(VJAlignmentPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        if not os.path.exists(self.__params.single_reads):
-            self._log.info("ERROR: Input reads " + self.__params.single_reads + " were not found")
-            SupportInfo(self._log)
-            sys.exit(1)
+    @classmethod
+    def GetLongName(cls):
+        return 'VJ Alignment'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckCroppedReadsExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.single_reads, 'input reads'),
+        )
+
+    def _GetOutputFiles(self):
+        output_files = [
+            (self.__params.io.cropped_reads, 'cleaned Ig-Seq reads'),
+        ]
         if not self.__params.no_alignment:
-            self.__params.io.CheckBadReadsExistance()
-            self.__params.io.CheckVJAlignmentInfoExistance()
+            output_files.extend([
+                (self.__params.io.bad_reads, 'contaminated (not Ig-Seq) reads'),
+                (self.__params.io.vj_alignment_info, 'VJ alignment output'),
+            ])
+        return output_files
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _Run(self):
         if not self.__params.no_alignment:
             self.__params.vj_finder_output = os.path.join(self.__params.output, "vj_finder")
             command_line = os.path.abspath(IgRepConConfig().run_vj_aligner) + \
@@ -401,30 +280,30 @@ class VJAlignmentPhase(Phase):
             self._log.info("VJ Finder stage skipped")
             self.__params.io.cropped_reads = self.__params.single_reads
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        if not self.__params.no_alignment:
-            self._log.info("\nOutput files: ")
-            self._log.info("  * Cleaned Ig-Seq reads were written to " + self.__params.io.cropped_reads)
-            self._log.info("  * Contaminated (not Ig-Seq) reads were written to " + self.__params.io.bad_reads)
-            self._log.info("  * VJ alignment output was written to " + self.__params.io.vj_alignment_info)
 
 ###########
 class TrieCompressionPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetTrieCompressorLongName(), log)
+        super(TrieCompressionPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckCroppedReadsExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Trie Compressor'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckCompressedReadsExistance()
-        self.__params.io.CheckCroppedCompressedMapExistance()
-        self.__params.io.CheckSupernodesExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.cropped_reads, 'cleaned Ig-Seq reads'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.compressed_reads, 'compressed reads'),
+            (self.__params.io.supernodes_file, 'super reads'),
+            (self.__params.io.map_file, 'map from cleaned reads to compressed reads'),
+        )
+
+    def _Run(self):
         command_line = IgRepConConfig().run_trie_compressor + " -i " + self.__params.io.cropped_reads + \
                     " -o " + self.__params.io.compressed_reads + " -m " + self.__params.io.map_file + " -Toff"
         cpuprofile = self.__params.output + "/trie_compressor_prof.out" if self.__params.profile else None
@@ -446,45 +325,53 @@ class TrieCompressionPhase(Phase):
             support.sys_call(command_line, self._log)
 
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Compressed reads were written to " + self.__params.io.compressed_reads)
-        self._log.info("  * Super reads were written to " + self.__params.io.supernodes_file)
-
 ###########
 class GraphConstructionPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetGraphConstructionLongName(), log)
+        super(GraphConstructionPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckCompressedReadsExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Graph Constructor'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckSWGraphExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.compressed_reads, 'compressed reads'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.sw_graph, 'Smith-Waterman graph'),
+        )
+
+    def _Run(self):
         command_line = IgRepConConfig().run_graph_constructor + " -i " + self.__params.io.compressed_reads + \
                        " -o " + self.__params.io.sw_graph + " -t " + str(self.__params.num_threads) + \
                        " --tau=" + str(self.__params.max_mismatches) + " -A" + " -Toff"
         cpuprofile = self.__params.output + "/graph_constructor_prof.out" if self.__params.profile else None
         support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Smith-Waterman graph was written to " + self.__params.io.sw_graph)
 
 ###########
 class DSFPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetDSFLongName(), log)
+        super(DSFPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckSWGraphExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Dense Subgraph Finder'
+
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.sw_graph, 'Smith-Waterman graph'),
+        )
+
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.dense_sgraph_decomposition, 'dense subgraph decomposition'),
+        )
 
     def __GetDSFParams(self):
         dsf_params = ['-g', self.__params.io.sw_graph,
@@ -498,37 +385,35 @@ class DSFPhase(Phase):
             dsf_params.append('--save-aux-files')
         return dsf_params
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckDenseSubgraphDecompositionExistance()
-
-    def Run(self):
-        self.__CheckInputExistance()
+    def _Run(self):
         dense_subgraph_finder.main(self.__GetDSFParams(), self.__params.log_filename)
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Dense subgraph decomposition was written to " +
-                       self.__params.io.dense_sgraph_decomposition)
 
 ###########
 class ConsensusConstructionPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetConsensusConstructorLongName(), log)
+        super(ConsensusConstructionPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckCompressedReadsExistance()
-        self.__params.io.CheckDenseSubgraphDecompositionExistance()
-        self.__params.io.CheckCroppedReadsExistance()
-        self.__params.io.CheckCroppedCompressedMapExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Consensus Constructor'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckUncompressedFinalClustersExistance()
-        self.__params.io.CheckUncompressedFinalRCMExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.compressed_reads, 'compressed reads'),
+            (self.__params.io.dense_sgraph_decomposition, 'dense subgraph decomposition'),
+            (self.__params.io.cropped_reads, 'cleaned Ig-Seq'),
+            (self.__params.io.map_file, 'map from cleaned reads to compressed reads'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.uncompressed_final_clusters_fa, 'antibody clusters of uncompressed final repertoire'),
+            (self.__params.io.uncompressed_final_rcm, 'read-cluster map of uncompressed final repertoire'),
+        )
+
+    def _Run(self):
         command_line = "%s -i %s -c %s -q %s -o %s" % (IgRepConConfig().run_rcm_recoverer,
                                                        self.__params.io.cropped_reads,
                                                        self.__params.io.map_file,
@@ -547,29 +432,28 @@ class ConsensusConstructionPhase(Phase):
         support.sys_call_ex(command_line, self._log, cpuprofile=cpuprofile)
 
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Antibody clusters of uncompressed final repertoire were written to " +
-                       self.__params.io.uncompressed_final_clusters_fa)
-        self._log.info("  * Read-cluster map of uncompressed final repertoire was written to " +
-                       self.__params.io.uncompressed_final_rcm)
-
-class CompressEqualClusters(Phase):
+class CompressEqualClustersPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetCompressEqualClustersName(), log)
+        super(CompressEqualClustersPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckUncompressedFinalClustersExistance()
-        self.__params.io.CheckUncompressedFinalRCMExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Compress Equal Final Clusters'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckCompressedFinalClustersExistance()
-        self.__params.io.CheckCompressedFinalRCMExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.uncompressed_final_clusters_fa, 'antibody clusters of uncompressed final repertoire'),
+            (self.__params.io.uncompressed_final_rcm, 'read-cluster map of uncompressed final repertoire'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.compressed_final_clusters_fa, 'compressed antibody clusters of final repertoire'),
+            (self.__params.io.compressed_final_rcm, 'read-cluster map of compressed final repertoire'),
+        )
+
+    def _Run(self):
         command_line = "%s %s %s -T %s -m %s -r %s -R %s" % (IgRepConConfig().run_compress_equal_clusters,
                                                              self.__params.io.uncompressed_final_clusters_fa,
                                                              self.__params.io.compressed_final_clusters_fa,
@@ -580,25 +464,26 @@ class CompressEqualClusters(Phase):
         support.sys_call(command_line, self._log)
 
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Equal output clusters joined " +
-                       self.__params.io.compressed_final_clusters_fa)
-
 class RemoveLowAbundanceReadsPhase(Phase):
     def __init__(self, params, log):
-        Phase.__init__(self, PhaseNames().GetRemoveLowAbundanceReadsName(), log)
+        super(RemoveLowAbundanceReadsPhase, self).__init__(log)
         self.__params = params
 
-    def __CheckInputExistance(self):
-        self.__params.io.CheckCompressedFinalClustersExistance()
+    @classmethod
+    def GetLongName(cls):
+        return 'Low Abundant Clusters Remover'
 
-    def __CheckOutputExistance(self):
-        self.__params.io.CheckFinalStrippedClustersExistance()
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.compressed_final_clusters_fa, 'compressed antibody clusters of final repertoire'),
+        )
 
-    def Run(self):
-        self.__CheckInputExistance()
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.final_stripped_clusters_fa, 'highly abundant antibody clusters of final repertoire'),
+        )
+
+    def _Run(self):
         command_line = "%s %s %s --limit=%d" % (IgRepConConfig().run_report_supernodes,
                                                 self.__params.io.compressed_final_clusters_fa,
                                                 self.__params.io.final_stripped_clusters_fa,
@@ -606,73 +491,92 @@ class RemoveLowAbundanceReadsPhase(Phase):
         support.sys_call(command_line, self._log)
 
 
-    def PrintOutputFiles(self):
-        self.__CheckOutputExistance()
-        self._log.info("\nOutput files:")
-        self._log.info("  * Highly abundant antibody clusters of final repertoire were written to " +
-                       self.__params.io.final_stripped_clusters_fa)
+class DiversityAnalyzerPhase(Phase):
+    def __init__(self, params, log):
+        super(DiversityAnalyzerPhase, self).__init__(log)
+        self.__params = params
+
+    @classmethod
+    def GetLongName(cls):
+        return 'IgDiversityAnalyzer'
+
+    def _GetInputFiles(self):
+        return (
+            (self.__params.io.compressed_final_clusters_fa, 'compressed antibody clusters of final repertoire'),
+        )
+
+    def _GetOutputFiles(self):
+        return (
+            (self.__params.io.divan_feature_file, 'repertoire sequence features'),
+        )
+
+    def _Run(self):
+        command_line = "%s -i %s -t %d -o %s -l %s --org %s" % (
+            IgRepConConfig().run_divan,
+            self.__params.io.compressed_final_clusters_fa,
+            self.__params.num_threads,
+            self.__params.io.divan_output,
+            self.__params.loci,
+            self.__params.organism
+        )
+        support.sys_call(command_line, self._log)
+
 
 ###########
 class PhaseFactory:
-    def __init__(self, phase_names, params, log):
-        self.__phase_names = phase_names
+
+    __phase_order = (
+        (PairReadMergerPhase, 'pair_reads_merger'),
+        (VJAlignmentPhase, 'vj_alignment'),
+        (TrieCompressionPhase, 'trie_compressor'),
+        (GraphConstructionPhase, 'graph_constructor'),
+        (DSFPhase, 'dsf'),
+        (ConsensusConstructionPhase, 'consensus_constructor'),
+        (CompressEqualClustersPhase, 'compress_equal_clusters'),
+        (RemoveLowAbundanceReadsPhase, 'remove_low_abundance_reads'),
+        (DiversityAnalyzerPhase, 'diversity_analyzer'),
+    )
+
+    def __init__(self, params, log):
         self.__entry_point = params.entry_point
+        if self.__entry_point is None:
+            if params.left_reads:
+                self.__entry_point = self.__phase_order[0][1]
+            else:
+                self.__entry_point = self.__phase_order[1][1]
         self.__params = params
         self.__log = log
 
     def __CreatePhaseByName(self, phase_name):
-        if self.__phase_names.PhaseIsPairReadsMerger(phase_name):
-            return PairReadMerger(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsVJAlignment(phase_name):
-            return VJAlignmentPhase(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsTrieCompressor(phase_name):
-            return TrieCompressionPhase(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsGraphConstructor(phase_name):
-            return GraphConstructionPhase(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsDSF(phase_name):
-            return DSFPhase(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsConsensusConstructor(phase_name):
-            return ConsensusConstructionPhase(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsCompressEqualClusters(phase_name):
-            return CompressEqualClusters(self.__params, self.__log)
-        elif self.__phase_names.PhaseIsRemoveLowAbundanceReads(phase_name):
-            return RemoveLowAbundanceReadsPhase(self.__params, self.__log)
+        return next(phase for phase, phase_id in self.__phase_order if phase_id == phase_name)()
 
     def CreatePhases(self):
-        phase_list = list()
-        first_phase_index = self.__phase_names.GetPhaseIndex(self.__entry_point)
-        if first_phase_index == -1:
+        phase_ids = [phase_id for phase, phase_id in self.__phase_order]
+        if self.__entry_point in phase_ids:
+            first_phase_index = next(idx for idx, phase_id in enumerate(phase_ids) if phase_id == self.__entry_point)
+        else:
             self.__log.info("Incorrect name of entry-point")
             sys.exit(1)
-        for i in range(first_phase_index, len(self.__phase_names )):
-            phase_list.append(self.__CreatePhaseByName(self.__phase_names.GetPhaseNameBy(i)))
-        return phase_list
+        return [phase(self.__params, self.__log) for phase, _ in self.__phase_order[first_phase_index :]]
+
 
 ############
 class PhaseManager:
     def __init__(self, phase_factory, params, log):
-        self.__params = params
         self.__log = log
-        self.__phase_factory = phase_factory
-        self.__phases = self.__phase_factory.CreatePhases()
-
-    def __RunSinglePhase(self, phase_index):
-            self.__phases[phase_index].PrintStartMessage()
-            self.__phases[phase_index].Run()
-            self.__phases[phase_index].PrintOutputFiles()
-            self.__phases[phase_index].PrintFinishMessage()
+        self.__phases = phase_factory.CreatePhases()
 
     def __PrintPhaseDelimeter(self):
         self.__log.info("\n============================================\n")
 
-    def Run(self, start_phase=0):
-        self.__RunSinglePhase(start_phase)
-        for i in range(start_phase + 1, len(self.__phases) - 1):
-            self.__PrintPhaseDelimeter()
-            self.__RunSinglePhase(i)
-        if len(self.__phases) - start_phase != 1:
-            self.__PrintPhaseDelimeter()
-            self.__RunSinglePhase(len(self.__phases) - 1)
+    def Run(self):
+        first = True
+        for phase in self.__phases:
+            if not first:
+                self.__PrintPhaseDelimeter()
+            first = False
+            phase.Run()
+
 
 #######################################################################################
 #           IO routines
@@ -717,6 +621,7 @@ def HelpString():
     "In case you have troubles running IgReC, you can write to igtools_support@googlegroups.com.\n" +\
     "Please provide us with igrec.log file from the output directory."
 
+
 def ParseCommandLineParams(log):
     import argparse
     parser = argparse.ArgumentParser(description="IgReC: an algorithm for construction of "
@@ -733,7 +638,7 @@ def ParseCommandLineParams(log):
 
         def __call__(self, parser, namespace, values, option_string=None):
             setattr(namespace, "single_reads", os.path.join(home_directory, "test_dataset/merged_reads.fastq"))
-            setattr(namespace, "loci", "all")
+            setattr(namespace, "loci", "IG")
             setattr(namespace, "output", "igrec_test")
 
     req_args = parser.add_argument_group("Input")
@@ -828,7 +733,7 @@ def ParseCommandLineParams(log):
                           help="Minimum edge fill-in of dense subgraphs [default: %(default)2.1f]")
     dev_args.add_argument('--entry-point',
                           type=str,
-                          default=PhaseNames().GetPhaseNameBy(0),
+                          default=None,
                           help="Continue from the given stage [default: %(default)s]")
     dev_args.add_argument("--create-triv-dec",
                           action="store_const",
@@ -891,10 +796,12 @@ def ParseCommandLineParams(log):
 
     return parser, params
 
+
 def EnsureAbsPath(s):
     if not os.path.isabs(s):
         s = os.path.abspath(s)
     return s
+
 
 def CheckGeneralParamsCorrectness(parser, params, log):
     if not "output" in params or params.output == "":
@@ -906,6 +813,7 @@ def CheckGeneralParamsCorrectness(parser, params, log):
         HelpString()
         sys.exit(1)
 
+
 def CheckSingleReadsCorrectness(parser, params, log):
     if not "single_reads" in params or params.single_reads == "":
         log.info("ERROR: Single reads (-s) were not specified\n")
@@ -916,6 +824,7 @@ def CheckSingleReadsCorrectness(parser, params, log):
         HelpString()
         sys.exit(-1)
     params.single_reads = EnsureAbsPath(params.single_reads)
+
 
 def CheckPairedReadsCorrectness(parser, params, log):
     if not "left_reads" in params or params.left_reads == "":
@@ -937,11 +846,13 @@ def CheckPairedReadsCorrectness(parser, params, log):
     params.left_reads = EnsureAbsPath(params.left_reads)
     params.right_reads = EnsureAbsPath(params.right_reads)
 
+
 def PrepareOutputDir(params):
     if params.entry_point == "vj_alignment" and os.path.exists(params.output):
         shutil.rmtree(params.output)
     if not os.path.isdir(params.output):
         os.makedirs(params.output)
+
 
 def PrintParams(params, log):
     log.info("IgReC parameters:")
@@ -949,7 +860,8 @@ def PrintParams(params, log):
     log.info("  Output directory:\t\t" + params.output)
     log.info("  Number of threads:\t\t" + str(params.num_threads))
     log.info("  Maximal number of mismatches:\t" + str(params.max_mismatches))
-    log.info("  Entry point:\t\t\t" + params.entry_point)
+    log.info("  Entry point:\t\t\t" + params.entry_point if params.entry_point is not None else "start")
+
 
 def CreateFileLogger(params, log):
     params.log_filename = os.path.join(params.output, "igrec.log")
@@ -960,9 +872,11 @@ def CreateFileLogger(params, log):
     log.addHandler(log_handler)
     log.info("Log will be written to " + params.log_filename + "\n")
 
+
 def PrintCommandLine(log):
     command_line = "Command line: " + " ".join(sys.argv)
     log.info("\n" + command_line + "\n")
+
 
 def RemoveAuxFiles(params):
     if params.debug_mode:
@@ -980,6 +894,7 @@ def RemoveAuxFiles(params):
     if os.path.exists(params.io.uncompressed_final_rcm):
         os.remove(params.io.uncompressed_final_rcm)
     #if os.path.exists(params.io.merged_reads)
+
 
 def PrintOutputFiles(params, log):
     log.info("\nIgReC output:")
@@ -1049,12 +964,9 @@ def main():
     LogInfo(log)
 
     try:
-        ig_phase_factory = PhaseFactory(PhaseNames(), params, log)
+        ig_phase_factory = PhaseFactory(params, log)
         ig_repertoire_constructor = PhaseManager(ig_phase_factory, params, log)
-        if params.left_reads:
-            ig_repertoire_constructor.Run(start_phase=0)
-        else:
-            ig_repertoire_constructor.Run(start_phase=1)
+        ig_repertoire_constructor.Run()
         RemoveAuxFiles(params)
         PrintOutputFiles(params, log)
         log.info("\nThank you for using IgReC!")
@@ -1080,6 +992,7 @@ def main():
             sys.exit(exc_value)
 
     log.info("Log was written to " + params.log_filename)
+
 
 if __name__ == '__main__':
     main()

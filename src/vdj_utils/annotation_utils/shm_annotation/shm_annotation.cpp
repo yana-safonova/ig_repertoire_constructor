@@ -22,6 +22,46 @@ namespace annotation_utils {
             shm_type = SHMType::SubstitutionSHM;
     }
 
+    bool SHM::operator==(const SHM &shm) const {
+        if(gene_nucl_pos != shm.gene_nucl_pos)
+            return false;
+        if(gene_nucl != shm.gene_nucl)
+            return false;
+        if(read_nucl != shm.read_nucl)
+            return false;
+//        if(read_aa != shm.read_aa)
+//            return false;
+        return shm_type == shm.shm_type;
+    }
+
+    bool SHM::operator!=(const SHM &shm) const {
+        return !(*this == shm);
+    }
+
+    bool operator<(const SHM &left, const SHM &right) {
+        if(left.gene_nucl_pos != right.gene_nucl_pos)
+            return left.gene_nucl_pos < right.gene_nucl_pos;
+        if(left.read_aa != right.read_aa)
+            return left.read_aa < right.read_aa;
+        //if(left.read_aa != right.read_aa)
+        return left.read_nucl < right.read_nucl;
+        //return left.gene_nucl < right.gene_nucl;
+    }
+
+    bool TrivialSHMComparator::operator()(const SHM &shm1, const SHM &shm2) {
+        if(shm1.gene_nucl_pos != shm2.gene_nucl_pos)
+            return shm1.gene_nucl_pos < shm2.gene_nucl_pos;
+        if(shm1.read_nucl_pos != shm2.read_nucl_pos)
+            return shm1.read_nucl_pos < shm2.read_nucl_pos;
+        if(shm1.gene_nucl != shm2.gene_nucl)
+            return shm1.gene_nucl < shm2.gene_nucl;
+        if(shm1.read_nucl != shm2.read_nucl)
+            return shm1.read_nucl < shm2.read_nucl;
+        if(shm1.gene_aa != shm2.gene_aa)
+            return shm1.gene_aa < shm2.gene_aa;
+        return shm1.read_aa < shm2.read_aa;
+    }
+
     std::ostream& operator<<(std::ostream &out, const SHM& shm) {
         out << shm.gene_nucl_pos << " - " << shm.read_nucl_pos << ", " << shm.gene_nucl << "->" << shm.read_nucl << ", " <<
         shm.gene_aa << "->" << shm.read_aa;
@@ -57,5 +97,22 @@ namespace annotation_utils {
         for(auto it = shms.cbegin(); it != shms.cend(); it++)
             out << *it << std::endl;
         return out;
+    }
+
+    void SHM::AppendInMixcrFormat(std::ostream& out) const {
+        out << shm_type;
+        if (shm_type != InsertionSHM) {
+            out << gene_nucl;
+        }
+        out << gene_nucl_pos;
+        if (shm_type != DeletionSHM) {
+            out << read_nucl;
+        }
+    }
+
+    void GeneSegmentSHMs::AppendInMixcrFormat(std::ostream& out) const {
+        for (auto shm_it = cbegin(); shm_it != cend(); ++ shm_it) {
+            shm_it->AppendInMixcrFormat(out);
+        }
     }
 }

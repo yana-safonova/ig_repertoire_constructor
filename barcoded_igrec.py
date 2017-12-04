@@ -98,6 +98,10 @@ def ParseCommandLineParams(log):
                                default=16,
                                dest="num_threads",
                                help="Thread number [default: %(default)d]")
+    optional_args.add_argument("--no-alignment",
+                               dest="no_alignment",
+                               action="store_true",
+                               help="Run on aligned and filtered reads")
     optional_args.add_argument("--umi-graph-tau",
                                type=int,
                                default=1,
@@ -146,6 +150,7 @@ def ParseCommandLineParams(log):
                                action="store_false",
                                help=argparse.SUPPRESS)
                                # help="Exclude C++ code compilation from the pipeline")
+    dev_args.set_defaults(no_compilation=True)
     dev_args.add_argument("-c", "--ignore-code",
                                dest="ignore_code_changes",
                                action="store_true",
@@ -277,7 +282,9 @@ def InitMakeFiles(params, log):
     _StagePrepare.EnsureExists(params.output)
     _StagePrepare.Prepare(params, ".", log, makefile_name="Makefile_vars")
     _StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest="compilation")
-    if params.single_reads:
+    if params.no_alignment:
+        _StagePrepare.Prepare(params, "vj_finder_empty", log, stage_dest="vj_finder")
+    elif params.single_reads:
         _StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest="vj_finder")
     else:
         _StagePrepare.Prepare(params, "merged_reads", log)

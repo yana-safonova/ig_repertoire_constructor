@@ -102,7 +102,7 @@ class SequenceMerger {
         if(name1[0] == '@')
             name1 = name1.substr(1, name1.size() - 1);
         stringstream ss;
-        ss << "@" << index << "_merged_read_" << delete_spaces(name1);
+        ss << "@" << index << "_merged_read_" << delete_whitespaces(name1);
         return ss.str();
     }
 
