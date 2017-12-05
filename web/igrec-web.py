@@ -312,7 +312,7 @@ def run_igrec():
     else:
         form["initial-reads-file"] = "%(output)s/vj_finder/cleaned_reads.fa" % form
 
-    if "do-igquast" in form:
+    if "do-igquast" in form and form["barcodingtype"] == "no":  # TODO Implement Quast for bacodedIgReC
         cmd += " && %(igrec_dir)s/igquast.py \
             --initial-reads=%(initial-reads-file)s \
             --constructed-repertoire=%(output)s/final_repertoire.fa \
