@@ -312,13 +312,21 @@ def run_igrec():
     else:
         form["initial-reads-file"] = "%(output)s/vj_finder/cleaned_reads.fa" % form
 
-    if "do-igquast" in form and form["barcodingtype"] == "no":  # TODO Implement Quast for bacodedIgReC
-        cmd += " && %(igrec_dir)s/igquast.py \
-            --initial-reads=%(initial-reads-file)s \
-            --constructed-repertoire=%(output)s/final_repertoire.fa \
-            --constructed-rcm=%(output)s/final_repertoire.rcm \
-            --output=%(output)s/igquast \
-            --reference-free" % form
+    if "do-igquast" in form:
+        if form["barcodingtype"] == "no":
+            cmd += " && %(igrec_dir)s/igquast.py \
+                --initial-reads=%(initial-reads-file)s \
+                --constructed-repertoire=%(output)s/final_repertoire.fa \
+                --constructed-rcm=%(output)s/final_repertoire.rcm \
+                --output=%(output)s/igquast \
+                --reference-free" % form
+        else:
+            cmd += " && %(igrec_dir)s/igquast.py \
+                --initial-reads=%(initial-reads-file)s \
+                --constructed-repertoire=%(output)s/final_repertoire/final_repertoire.fa \
+                --constructed-rcm=%(output)s/final_repertoire/final_repertoire.rcm \
+                --output=%(output)s/igquast \
+                --reference-free" % form
 
     print cmd
     # cmd = "ping ya.ru -c 1000; " + cmd
