@@ -2001,6 +2001,10 @@ class Repertoire:
         else:
             values = self.__errors_by_positions()
 
+        if not values:
+            # TODO Debug it
+            return
+
         l = len(values)
         bins = np.arange(l + 1)
 
