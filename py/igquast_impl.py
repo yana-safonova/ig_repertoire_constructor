@@ -2001,11 +2001,11 @@ class Repertoire:
         else:
             values = self.__errors_by_positions()
 
-        if not values:
+        l = len(values)
+        if l == 0:
             # TODO Debug it
             return
 
-        l = len(values)
         bins = np.arange(l + 1)
 
         widths = bins[1:] - bins[:-1]
