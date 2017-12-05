@@ -74,7 +74,7 @@ int main(int argc, const char* const* argv) {
 
     Params params;
     if (!read_args(argc, argv, params)) {
-        return 0;
+        return 1;
     }
 
     INFO("Creating compressed germline from " << params.input_germline_dir << " at " << params.output_germline_dir);

@@ -4,6 +4,8 @@ BIN := $(IGREC)/build/release/bin
 SRC := $(IGREC)/src
 PY_SRC := $(IGREC)/py
 UMI_SRC := $(SRC)/umi_experiments
+GERMLINE := $(IGREC)/data/germline
+GERMLINE_ION := $(GERMLINE)/human_ion/IG
 
 # Relative paths
 VJ_FINDER = vj_finder

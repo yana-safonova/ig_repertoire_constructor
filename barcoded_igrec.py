@@ -92,6 +92,11 @@ def ParseCommandLineParams(log):
                                dest="organism",
                                help="Organism (human and mouse only are supported for this moment) [default: %(default)s]")
 
+    vj_align_args.add_argument("--ion-torrent",
+                               dest="ion_torrent",
+                               action="store_true",
+                               help="Run on Ion Torrent reads. Experimental feature.")
+
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-t", "--threads",
                                type=int,
@@ -197,6 +202,10 @@ def CheckParamsCorrectness(parser, params, log):
         else:
             print "File with reads doesn't exist: ", params.left_reads if not os.path.exists(params.left_reads) else params.right_reads
         HelpAndReturn(log, parser, 1)
+    if params.ion_torrent:
+        if params.organism != "human" or params.loci != "IGH" or params.left_reads or params.right_reads or params.no_alignment:
+            print "Ion Torrent input is supported only for single IGH human reads. --no-alignment flag is not supported."
+            HelpAndReturn(log, parser, 1)
 
 
 class _StagePrepare:
@@ -220,6 +229,18 @@ class _StagePrepare:
         return name
 
     @staticmethod
+    def _GetFullExt(file):
+        ext = ""
+        cur_file = file
+        while True:
+            f, cur_ext = os.path.splitext(cur_file)
+            if f == cur_file:
+                break
+            cur_file = f
+            ext = cur_ext + ext
+        return ext
+
+    @staticmethod
     def _ReplaceVariables(tmp_file, params, log):
         # Files are rather small, so no problem with first reading them
         lines = [line for line in open(tmp_file, 'r')]
@@ -236,6 +257,7 @@ class _StagePrepare:
                 line = line.replace("%RUN_PATH", home_directory)
                 if params.single_reads:
                     line = line.replace("%INPUT", os.path.abspath(params.single_reads))
+                    line = line.replace("%EXT_INPUT", _StagePrepare._GetFullExt(os.path.abspath(params.single_reads)))
                 if params.left_reads and params.right_reads:
                     line = line.replace("%LEFT_INPUT", os.path.abspath(params.left_reads))
                     line = line.replace("%RIGHT_INPUT", os.path.abspath(params.right_reads))
@@ -282,7 +304,9 @@ def InitMakeFiles(params, log):
     _StagePrepare.EnsureExists(params.output)
     _StagePrepare.Prepare(params, ".", log, makefile_name="Makefile_vars")
     _StagePrepare.Prepare(params, "no_compilation" if params.no_compilation else "compilation", log, stage_dest="compilation")
-    if params.no_alignment:
+    if params.ion_torrent:
+        _StagePrepare.Prepare(params, "vj_finder_ion", log, stage_dest="vj_finder")
+    elif params.no_alignment:
         _StagePrepare.Prepare(params, "vj_finder_empty", log, stage_dest="vj_finder")
     elif params.single_reads:
         _StagePrepare.Prepare(params, "vj_finder_input", log, stage_dest="vj_finder")

@@ -13,4 +13,8 @@ void read_seqan_records(const std::string& input_file_name, std::vector<seqan::C
 
 void read_seqan_records(const std::string& input_file_name, std::unordered_map<seqan::CharString, seqan::Dna5String>& id_to_read);
 
+void read_seqan_records_cut_umi(const std::string& input_file_name, std::vector<seqan::CharString>& ids, std::vector<seqan::Dna5String>& reads);
+
+void read_seqan_records_cut_umi(const std::string& input_file_name, std::unordered_map<seqan::CharString, seqan::Dna5String>& id_to_read);
+
 std::unordered_map<seqan::CharString, size_t> read_rcm_file(std::string file_path);

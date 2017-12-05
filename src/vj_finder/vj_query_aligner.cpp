@@ -59,6 +59,11 @@ namespace vj_finder {
         if(algorithm_params_.aligner_params.fix_strand) {
             core::Read read_rc = read.ReverseComplement();
             CustomDbBlockAlignmentHits reverse_v_aligns = v_aligner.Align(read_rc.seq);
+            TRACE(reverse_v_aligns.size() << " V hits were computed for reversed read: ")
+            for(auto it = reverse_v_aligns.begin(); it != reverse_v_aligns.end(); it++) {
+                TRACE(v_custom_db_[it->second].name() << ", start: " << it->first.first_match_read_pos() <<
+                                                      ", end: " << it->first.last_match_read_pos());
+            }
             if(v_aligns.BestScore() < reverse_v_aligns.BestScore()) {
                 TRACE("Reverse complementary strand was selected");
                 stranded_read = read_rc;

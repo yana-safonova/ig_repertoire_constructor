@@ -58,7 +58,7 @@ int main(int argc, const char* const* argv) {
 
     Params params;
     if (!read_args(argc, argv, params)) {
-        return 0;
+        return 1;
     }
 
     std::vector<seqan::CharString> input_ids;
@@ -86,8 +86,8 @@ int main(int argc, const char* const* argv) {
             std::string id = seqan_string_to_string(input_ids[i]);
             const std::string umi_str = seqan_string_to_string(umis[i]);
             const std::string compressed_umi_str = seqan_string_to_string(umi);
-            id.replace(id.find(umi_str), id.length(), compressed_umi_str);
-            output_ids.push_back(seqan::CharString(id.c_str()));
+            id.replace(id.length() - umi_str.length(), umi_str.length(), compressed_umi_str);
+            output_ids.emplace_back(id);
         }
     }
     INFO((umis.size() - compressed_umis.size()) << " reads filtered out as too short (shorter than " << MIN_READ_LENGTH << ").");

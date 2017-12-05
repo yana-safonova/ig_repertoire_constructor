@@ -44,6 +44,27 @@ void read_seqan_records(const std::string& input_file_name, std::unordered_map<s
     INFO(reads.size() << " sequences read");
 }
 
+seqan::CharString strip_umi(const seqan::CharString& s) {
+    return split(seqan_string_to_string(s), "|UMI")[0];
+}
+
+void read_seqan_records_cut_umi(const std::string& input_file_name, std::vector<seqan::CharString>& ids, std::vector<seqan::Dna5String>& reads) {
+    std::vector<seqan::CharString> tmp;
+    read_seqan_records(input_file_name, tmp, reads);
+    ids.reserve(tmp.size());
+    for (const auto& id: tmp) {
+        ids.push_back(strip_umi(id));
+    }
+}
+
+void read_seqan_records_cut_umi(const std::string& input_file_name, std::unordered_map<seqan::CharString, seqan::Dna5String>& id_to_read) {
+    std::unordered_map<seqan::CharString, seqan::Dna5String> tmp;
+    read_seqan_records(input_file_name, tmp);
+    for (const auto& entry: tmp) {
+        id_to_read[strip_umi(entry.first)] = entry.second;
+    }
+}
+
 std::unordered_map<seqan::CharString, size_t> read_rcm_file(std::string file_path) {
     INFO("Reading rcm from " << file_path);
     std::unordered_map<seqan::CharString, size_t> rcm;
