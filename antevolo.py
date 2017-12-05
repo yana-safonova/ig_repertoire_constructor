@@ -105,7 +105,7 @@ def CopyConfigs(params, log):
     params.antevolo_config_file = os.path.join(params.antevolo_config_dir, "config.info")
     params.cdr_labeler_config_file = os.path.join(params.cdr_labeler_config_dir, "config.info")
     params.vj_finder_config_file = os.path.join(params.vj_finder_config_dir, "config.info")
-    params.shm_kmer_matrix_estimator_config_file = os.path.join(params.shm_kmer_matrix_estimator_config_dir, "configs.info") # s?? wtf?
+    params.shm_kmer_matrix_estimator_config_file = os.path.join(params.shm_kmer_matrix_estimator_config_dir, "config.info") # s?? wtf?
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
 
     if not os.path.exists(params.antevolo_config_dir):
