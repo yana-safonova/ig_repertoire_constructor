@@ -295,7 +295,9 @@ def run_igrec():
 
     cmd = "%(igrec_dir)s/%(tool)s %(input_line)s \
         --loci=%(loci)s --organism=%(organism)s \
-        --threads=%(threads)s --tau=%(tau)s --output=%(output)s" % form
+        --threads=%(threads)s --output=%(output)s" % form
+    if form["barcodingtype"] == "no":
+        cmd += " --tau=%(tau)s" % form
 
     # print form
     if "skip-alignment" in form:
@@ -318,7 +320,7 @@ def run_igrec():
             --output=%(output)s/igquast \
             --reference-free" % form
 
-    # print cmd
+    print cmd
     # cmd = "ping ya.ru -c 1000; " + cmd
     task = add_task(cmd, output_id=output_id)
 
