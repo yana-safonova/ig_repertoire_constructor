@@ -37,6 +37,6 @@ namespace antevolo {
                                             current_fake_clone_index),
                    edge_weight_calculator_(edge_weight_calculator){}
 
-        virtual EvolutionaryTree ConstructForest() override;
+        virtual EvolutionaryTree Process() override;
     };
 }

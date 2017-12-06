@@ -23,7 +23,7 @@ namespace antevolo {
                                    const boost::unordered_set<size_t> &vertices_nums, EvolutionaryTree &tree);
     public:
 
-        EvolutionaryTree ConstructForest() override;
+        EvolutionaryTree Process() override;
 
         Kruskal_CDR3_HG_CC_Processor(CloneSetWithFakesPtr clone_set_ptr,
                                      const AntEvoloConfig::AlgorithmParams &config,

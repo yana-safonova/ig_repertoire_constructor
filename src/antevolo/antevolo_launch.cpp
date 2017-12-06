@@ -157,7 +157,7 @@ namespace antevolo {
                                                                  clone_by_read_constructor,
                                                                  total_number_of_reads,
                                                                  edge_weight_calculator);
-        auto tree_storage = antevolo_processor.ConstructClonalTrees();
+        auto tree_storage = antevolo_processor.Process();
         auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
         INFO("Evolutionary directions for " << tree_storage.size() << " clonal lineages were created");
         INFO("Computation of evolutionary statistics");

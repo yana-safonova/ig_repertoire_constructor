@@ -1,6 +1,6 @@
 #include "edmonds_cdr3_hg_cc_processor.hpp"
 namespace antevolo {
-    EvolutionaryTree Edmonds_CDR3_HG_CC_Processor::ConstructForest() {
+    EvolutionaryTree Edmonds_CDR3_HG_CC_Processor::Process() {
         EvolutionaryTree tree(clone_set_ptr_);
         vertices_nums_ = boost::unordered_set<size_t>(hamming_graph_info_.GetAllClones());
         

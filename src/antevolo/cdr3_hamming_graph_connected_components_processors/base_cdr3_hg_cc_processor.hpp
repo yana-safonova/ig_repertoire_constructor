@@ -88,7 +88,7 @@ namespace antevolo {
                                   CDR3HammingGraphInfo& hamming_graph_info,
                                   size_t current_fake_clone_index);
 
-        virtual EvolutionaryTree ConstructForest() = 0;
+        virtual EvolutionaryTree Process() = 0;
 
         std::shared_ptr<EvolutionaryEdgeConstructor> GetEdgeConstructor() {
             EvolutionaryEdgeConstructor* ptr = new VJEvolutionaryEdgeConstructor(config_.edge_construction_params);

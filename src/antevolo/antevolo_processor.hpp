@@ -35,7 +35,7 @@ namespace antevolo {
                 thread_tree_storages_.push_back(EvolutionaryTreeStorage());
         }
 
-        EvolutionaryTreeStorage ConstructClonalTrees();
+        EvolutionaryTreeStorage Process();
 
         CloneSetWithFakesPtr GetCloneSetWithFakes() { return final_clone_set_with_fakes_; }
     };

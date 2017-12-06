@@ -1,6 +1,4 @@
 #include <verify.hpp>
-
-#include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
 #include "evolutionary_tree.hpp"
 
 namespace antevolo {
