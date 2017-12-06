@@ -1,6 +1,6 @@
 #include <logger/logger.hpp>
-
 #include "antevolo_processor.hpp"
+
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
 #include "vj_class_processors/vj_class_processor.hpp"
 
@@ -18,10 +18,13 @@ namespace antevolo {
 
     EvolutionaryTreeStorage AntEvoloProcessor::ConstructClonalTrees() {
 
-        VJCloneSetDecomposer clone_set_decomposer(clone_set_); // storage for reconstructed fake vertices
-        auto vj_decomposition = clone_set_decomposer.CreateDecomposition();
-        INFO("VJ decomposition containing " << vj_decomposition.Size() << " classes was created.");
-        INFO("Largest class contains " << vj_decomposition.MaxClassSize() << " clone(s)");
+//        VJCloneSetDecomposer clone_set_decomposer(clone_set_); // storage for reconstructed fake vertices
+        CloneSetDecomposerPtr clone_set_decomposer(new VJCloneSetDecomposer(clone_set_)); // storage for reconstructed fake vertices
+//        auto vj_decomposition = clone_set_decomposer.CreateDecomposition();
+        auto v_decomposition = clone_set_decomposer->CreateDecomposition();
+//        INFO("VJ decomposition containing " << v_decomposition.Size() << " classes was created.");
+        INFO("V decomposition containing " << v_decomposition.Size() << " classes was created.");
+        INFO("Largest class contains " << v_decomposition.MaxClassSize() << " clone(s)");
         omp_set_num_threads(config_.run_params.num_threads);
         INFO("Construction of clonal trees starts");
         std::vector<size_t> fake_clone_indices(config_.run_params.num_threads);
@@ -35,9 +38,9 @@ namespace antevolo {
         }
 
 #pragma omp parallel for schedule(dynamic)
-        for(size_t i = 0; i < vj_decomposition.Size(); i++) {
+        for(size_t i = 0; i < v_decomposition.Size(); i++) {
             size_t thread_id = omp_get_thread_num();
-            auto vj_class = vj_decomposition.GetClass(i);
+            auto vj_class = v_decomposition.GetClass(i);
 //            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
             auto vj_class_processor = VJClassProcessor(clone_sets[thread_id],
                                                        config_,

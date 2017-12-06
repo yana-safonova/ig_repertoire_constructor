@@ -18,7 +18,7 @@ namespace antevolo {
                 const boost::unordered_map<std::string, size_t>& read_name_to_index);
 
         void LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                           const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
+                           annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                            size_t total_number_of_reads);
 
         void LaunchEvoQuast(const annotation_utils::CDRAnnotatedCloneSet& clone_set);

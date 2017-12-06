@@ -18,6 +18,8 @@ include_directories(${SHM_DIR})
 
 add_library(antevolo_library STATIC
         clone_set_decomposers/vj_clone_set_decomposer.cpp
+	clone_set_decomposers/v_clone_set_decomposer.cpp
+	clone_set_decomposers/clone_set_decomposer.cpp
         vj_class_processors/clonally_related_candidates.cpp
         vj_class_processors/vj_class_processor.cpp
         vj_class_processors/edmonds_tarjan_DMST_calculator.cpp
@@ -58,7 +60,7 @@ add_library(antevolo_library STATIC
         antevolo_output_writer.cpp
         antevolo_config.cpp
         antevolo_processor.cpp
-        antevolo_launch.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.hpp)
+        antevolo_launch.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.cpp)
 
 target_link_libraries(antevolo_library
         vj_finder_library

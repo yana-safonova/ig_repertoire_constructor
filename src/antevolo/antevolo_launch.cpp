@@ -148,7 +148,7 @@ namespace antevolo {
     }
 
     void AntEvoloLaunch::LaunchDefault(const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                       const annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
+                                       annotation_utils::CDRAnnotatedCloneSet& annotated_clone_set,
                                        size_t total_number_of_reads) {
         INFO("Tree construction starts");
         auto edge_weight_calculator = ShmModelPosteriorCalculation(annotated_clone_set);
