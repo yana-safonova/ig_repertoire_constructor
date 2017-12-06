@@ -7,7 +7,7 @@
 #include <shm_model_utils/shm_model_edge_weight_calculator.hpp>
 
 namespace antevolo {
-    class BaseVJClassProcessor {
+    class BaseGeneClassProcessor {
     protected:
         CloneSetWithFakesPtr clone_set_ptr_;
 
@@ -37,7 +37,7 @@ namespace antevolo {
 
     public:
 
-        BaseVJClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
+        BaseGeneClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
                              const AntEvoloConfig& config,
                              const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                              size_t current_fake_clone_index) :
@@ -55,8 +55,8 @@ namespace antevolo {
         size_t GetNumberOfReconstructedClones() const { return reconstructed_; };
 
 
-        virtual ~BaseVJClassProcessor() { }
+        virtual ~BaseGeneClassProcessor() { }
     };
 
-    typedef std::shared_ptr<BaseVJClassProcessor> VJCLassProcessorPtr;
+    typedef std::shared_ptr<BaseGeneClassProcessor> GeneCLassProcessorPtr;
 }

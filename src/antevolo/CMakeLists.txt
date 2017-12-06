@@ -18,9 +18,10 @@ include_directories(${SHM_DIR})
 
 add_library(antevolo_library STATIC
         clone_set_decomposers/vj_clone_set_decomposer.cpp
-	clone_set_decomposers/v_clone_set_decomposer.cpp
-	clone_set_decomposers/clone_set_decomposer.cpp
+	    clone_set_decomposers/v_clone_set_decomposer.cpp
+	    clone_set_decomposers/clone_set_decomposer.cpp
 		vj_class_processors/vj_class_processor.cpp
+        vj_class_processors/base_gene_class_processor.cpp
         #
         evolutionary_graph_utils/evolutionary_tree.cpp
         evolutionary_graph_utils/evolutionary_tree_splitter.cpp
@@ -38,7 +39,9 @@ add_library(antevolo_library STATIC
         #
         shm_model_utils/shm_model.cpp
         posterior_distribution_calculator/posterior_distribution_calculator.cpp
-        shm_model_utils/shm_model_edge_weight_calculator.cpp stats_calculation/cluster_fillin_calculator.cpp stats_calculation/cluster_fillin_calculator.hpp
+        shm_model_utils/shm_model_edge_weight_calculator.cpp
+		stats_calculation/cluster_fillin_calculator.cpp
+		stats_calculation/cluster_fillin_calculator.hpp
         #
         shm_counting/tree_based_shm.cpp
         shm_counting/tree_shm_map.cpp
@@ -58,7 +61,8 @@ add_library(antevolo_library STATIC
         antevolo_output_writer.cpp
         antevolo_config.cpp
         antevolo_processor.cpp
-        antevolo_launch.cpp evolutionary_graph_utils/one_child_fake_clones_filterer.cpp vj_class_processors/base_vj_class_processor.cpp)
+        antevolo_launch.cpp
+        evolutionary_graph_utils/one_child_fake_clones_filterer.cpp vj_class_processors/v_class_processor.cpp vj_class_processors/v_class_processor.hpp)
 
 target_link_libraries(antevolo_library
         vj_finder_library

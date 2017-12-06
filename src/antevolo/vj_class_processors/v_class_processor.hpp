@@ -4,19 +4,19 @@
 
 
 namespace antevolo {
-    class VJClassProcessor : public BaseGeneClassProcessor {
+    class VClassProcessor : public BaseGeneClassProcessor {
 
 
 
     public:
-        VJClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
+        VClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
                          const AntEvoloConfig& config,
                          const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                          size_t current_fake_clone_index) :
                 BaseGeneClassProcessor(clone_set_ptr,
-                                     config,
-                                     clone_by_read_constructor,
-                                     current_fake_clone_index) { }
+                                       config,
+                                       clone_by_read_constructor,
+                                       current_fake_clone_index) { }
 
 //        void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
         std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) override;

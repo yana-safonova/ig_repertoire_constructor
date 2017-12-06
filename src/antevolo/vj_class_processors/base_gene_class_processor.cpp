@@ -1,4 +1,4 @@
-#include "base_vj_class_processor.hpp"
+#include "base_gene_class_processor.hpp"
 #include <path_helper.hpp>
 #include "../../graph_utils/graph_io.hpp"
 #include "../../graph_utils/graph_splitter.hpp"
@@ -9,12 +9,15 @@
 namespace antevolo {
 
     // return connected components of Hamming graph on CDR3s
-    std::vector<SparseGraphPtr> BaseVJClassProcessor::ComputeCDR3HammingGraphs(std::string cdr_fasta,
+    std::vector<SparseGraphPtr> BaseGeneClassProcessor::ComputeCDR3HammingGraphs(std::string cdr_fasta,
                                                                            std::string graph_fname) {
 //        std::string run_graph_constructor = "./build/release/bin/ig_swgraph_construct";
         std::stringstream ss;
         ss << config_.cdr_labeler_config.input_params.run_hg_constructor << " -i " << cdr_fasta <<
-           " -o " << graph_fname << " --tau " << num_mismatches_ << " -S " << " 0 " <<
+           " -o " << graph_fname
+           << " --tau " << config_.algorithm_params.similar_cdr3s_params.num_mismatches
+           << " --max-indels " << config_.algorithm_params.similar_cdr3s_params.num_indels
+           << " -S " << " 0 " <<
            " -T " << " 0 " << " -k 10 > " << config_.output_params.trash_output;
         int err_code = system(ss.str().c_str());
         VERIFY_MSG(err_code == 0, "Graph constructor finished abnormally, error code: " << err_code);
@@ -27,12 +30,12 @@ namespace antevolo {
     }
 
 
-    void BaseVJClassProcessor::Clear() {
+    void BaseGeneClassProcessor::Clear() {
         unique_cdr3s_.clear();
         unique_cdr3s_map_.clear();
     }
 
-    void BaseVJClassProcessor::CreateUniqueCDR3Map(
+    void BaseGeneClassProcessor::CreateUniqueCDR3Map(
             core::DecompositionClass decomposition_class) {
         const auto& clone_set = *clone_set_ptr_;
         for(auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
@@ -49,21 +52,21 @@ namespace antevolo {
             cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
-    std::string BaseVJClassProcessor::GetFastaFname(core::DecompositionClass decomposition_class) {
+    std::string BaseGeneClassProcessor::GetFastaFname(core::DecompositionClass decomposition_class) {
         std::stringstream ss;
         size_t key = *decomposition_class.begin();
         ss << "CDR3_sequences_key_" << key << ".fasta";
         return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
-    std::string BaseVJClassProcessor::GetGraphFname(core::DecompositionClass decomposition_class) {
+    std::string BaseGeneClassProcessor::GetGraphFname(core::DecompositionClass decomposition_class) {
         std::stringstream ss;
         size_t key = *decomposition_class.begin();
         ss << "CDR3_sequences_key_" << key << ".graph";
         return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
-    EvolutionaryTree BaseVJClassProcessor::ProcessComponentWithEdmonds(
+    EvolutionaryTree BaseGeneClassProcessor::ProcessComponentWithEdmonds(
             SparseGraphPtr hg_component,
             size_t component_id,
             const ShmModelEdgeWeightCalculator& edge_weight_calculator) {
@@ -87,7 +90,7 @@ namespace antevolo {
         return tree;
     }
 
-    EvolutionaryTree BaseVJClassProcessor::ProcessComponent(
+    EvolutionaryTree BaseGeneClassProcessor::ProcessComponent(
             SparseGraphPtr hg_component,
             size_t component_id,
             const ShmModelEdgeWeightCalculator& edge_weight_calculator) {

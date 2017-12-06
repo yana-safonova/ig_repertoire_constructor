@@ -3,7 +3,7 @@
 #include "antevolo_processor.hpp"
 
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
-#include "vj_class_processors/base_vj_class_processor.hpp"
+#include "vj_class_processors/base_gene_class_processor.hpp"
 
 
 namespace antevolo {
@@ -43,7 +43,7 @@ namespace antevolo {
             size_t thread_id = omp_get_thread_num();
             auto vj_class = gene_class_decomposition.GetClass(i);
 //            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
-            auto vj_class_processor = VJCLassProcessorPtr(new VJClassProcessor(clone_sets[thread_id],
+            auto vj_class_processor = GeneCLassProcessorPtr(new VJClassProcessor(clone_sets[thread_id],
                                                        config_,
                                                        clone_by_read_constructor_,
                                                        fake_clone_indices[thread_id]));
