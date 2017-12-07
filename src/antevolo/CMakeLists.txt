@@ -57,7 +57,7 @@ add_library(antevolo_library STATIC
         annotated_clone_by_read_constructor.cpp
         clone_set_with_fakes.hpp
         parent_read_reconstructor.cpp
-        cdr3_hamming_graph_info.cpp
+        cdr3_hamming_graph_component_info.cpp
         antevolo_output_writer.cpp
         antevolo_config.cpp
         antevolo_processor.cpp

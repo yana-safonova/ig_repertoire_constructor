@@ -11,6 +11,7 @@ namespace antevolo {
     protected:
         CloneSetWithFakesPtr clone_set_ptr_;
 
+        const core::DecompositionClass& decomposition_class_;
         const AntEvoloConfig& config_;
         size_t num_mismatches_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
@@ -27,27 +28,29 @@ namespace antevolo {
         GraphComponentMap graph_component_map_;
 
         void Clear();
-        std::string GetFastaFname(core::DecompositionClass decomposition_class);
-        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
+        std::string GetFastaFname();
+        virtual EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
                                                      const ShmModelEdgeWeightCalculator &edge_weight_calculator);
-        void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
-        virtual std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) = 0;
-        std::string GetGraphFname(core::DecompositionClass decomposition_class);
+        virtual void CreateUniqueCDR3Map() = 0;
+        std::string WriteUniqueCDR3InFasta();
+        std::string GetGraphFname();
         std::vector<SparseGraphPtr> ComputeCDR3HammingGraphs(std::string cdr_fasta, std::string cdr_graph);
 
     public:
 
         BaseGeneClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
-                             const AntEvoloConfig& config,
-                             const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                             size_t current_fake_clone_index) :
+                               const core::DecompositionClass& decomposition_class,
+                               const AntEvoloConfig& config,
+                               const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                               size_t current_fake_clone_index) :
                 clone_set_ptr_(clone_set_ptr),
+                decomposition_class_(decomposition_class),
                 config_(config),
                 num_mismatches_(config.algorithm_params.similar_cdr3s_params.num_mismatches),
                 clone_by_read_constructor_(clone_by_read_constructor),
                 current_fake_clone_index_(current_fake_clone_index),
                 reconstructed_(0) { }
-        virtual vector<SparseGraphPtr> ComputeConnectedComponents(const core::DecompositionClass& decomposition_class) = 0;
+        virtual vector<SparseGraphPtr> ComputeConnectedComponents() = 0;
         virtual EvolutionaryTree ProcessComponent(SparseGraphPtr hg_component, size_t component_id,
                                                      const ShmModelEdgeWeightCalculator &edge_weight_calculator);
 

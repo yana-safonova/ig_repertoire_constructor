@@ -27,7 +27,7 @@ namespace antevolo {
         Edmonds_CDR3_HG_CC_Processor(CloneSetWithFakesPtr clone_set_ptr,
                                      const AntEvoloConfig::AlgorithmParams &config,
                                      const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                     CDR3HammingGraphInfo& hamming_graph_info,
+                                     CDR3HammingGraphComponentInfo& hamming_graph_info,
                                      size_t current_fake_clone_index,
                                      const ShmModelEdgeWeightCalculator& edge_weight_calculator)
                 : Base_CDR3_HG_CC_Processor(clone_set_ptr,

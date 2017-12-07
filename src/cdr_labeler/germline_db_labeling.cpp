@@ -10,10 +10,10 @@ namespace cdr_labeler {
         size_t gene_length = immune_gene.length();
         // todo: refactor it!
         if(immune_gene.GeneType().Segment() == germline_utils::SegmentType::VariableSegment)
-            return labeling.cdr1.start_pos < gene_length and labeling.cdr1.end_pos < gene_length and
-                    labeling.cdr2.start_pos < gene_length and labeling.cdr2.end_pos < gene_length and
-                    labeling.cdr3.start_pos < gene_length;
-        return labeling.cdr3.end_pos < gene_length;
+            return labeling.cdr1.start_pos <= gene_length and labeling.cdr1.end_pos <= gene_length and
+                    labeling.cdr2.start_pos <= gene_length and labeling.cdr2.end_pos <= gene_length and
+                    labeling.cdr3.start_pos <= gene_length;
+        return labeling.cdr3.end_pos <= gene_length;
     }
 
     void DbCDRLabeling::AddGeneLabeling(const germline_utils::ImmuneGene &immune_gene, CDRLabeling labeling)  {

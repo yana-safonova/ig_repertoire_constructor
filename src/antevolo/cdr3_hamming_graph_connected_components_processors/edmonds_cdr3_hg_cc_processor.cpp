@@ -9,6 +9,10 @@ namespace antevolo {
 //            VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
 //        }
 
+        for (size_t clone_num : vertices_nums_) {
+//            VERIFY(clone_set_ptr_->operator[](clone_num).CDR3Range().length() == cdr3_length);
+            tree.AddVertex(clone_num);
+        }
 
         SetShortestDirectedParentEdges();
         auto input_edges = PrepareEdgeVector();
@@ -25,11 +29,13 @@ namespace antevolo {
         auto edge_constructor = GetEdgeConstructor();
 
         for (auto src_num : vertices_nums_) {
-            size_t dst_num;
-            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
-            while (it.HasNext()) {
-                dst_num = it.Next();
-                VERIFY(vertices_nums_.find(dst_num) != vertices_nums_.end());
+//            size_t dst_num;
+//            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
+//            while (it.HasNext()) {
+//                dst_num = it.Next();
+//                VERIFY(vertices_nums_.find(dst_num) != vertices_nums_.end());
+
+            for (size_t dst_num : vertices_nums_) {
                 if (dst_num == src_num) {
                     continue;
                 }
@@ -61,11 +67,12 @@ namespace antevolo {
             const auto& src_clone = clone_set[src_num];
             res.push_back(WeightedEdge<int>(germline_vertex, src_num,
                                             static_cast<int>(src_clone.VSHMs().size() + src_clone.JSHMs().size())));
-            size_t dst_num;
-            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
-            while (it.HasNext()) {
-                dst_num = it.Next();
-                VERIFY(vertices_nums_.find(dst_num) != vertices_nums_.end());
+//            size_t dst_num;
+//            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
+//            while (it.HasNext()) {
+//                dst_num = it.Next();
+//                VERIFY(vertices_nums_.find(dst_num) != vertices_nums_.end());
+            for (size_t dst_num : vertices_nums_) {
                 if (dst_num == src_num) {
                     continue;
                 }

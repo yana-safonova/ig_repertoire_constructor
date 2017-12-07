@@ -1,30 +1,39 @@
 #pragma once
 
 #include "base_gene_class_processor.hpp"
-
+#include <cdr3_hamming_graph_component_info.hpp>
 
 namespace antevolo {
     class VClassProcessor : public BaseGeneClassProcessor {
+        std::vector<size_t> jdifference_positions_;
 
-
-
+        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
+                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
     public:
+
         VClassProcessor(CloneSetWithFakesPtr clone_set_ptr,
-                         const AntEvoloConfig& config,
-                         const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                         size_t current_fake_clone_index) :
+                        const core::DecompositionClass& decomposition_class,
+                        const AntEvoloConfig& config,
+                        const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
+                        size_t current_fake_clone_index) :
                 BaseGeneClassProcessor(clone_set_ptr,
+                                       decomposition_class,
                                        config,
                                        clone_by_read_constructor,
-                                       current_fake_clone_index) { }
+                                       current_fake_clone_index) {
+            auto chain = clone_set_ptr->operator[](*decomposition_class_.cbegin()).ChainType().Chain();
+            if (chain == germline_utils::ImmuneChainType::HeavyIgChain) {
+                jdifference_positions_ = {17, 18, 19, 22, 25, 26, 27, 28}; // FIXME: move to config!!
+            } else {
+                jdifference_positions_ = {};
+            }
+        }
 
-//        void CreateUniqueCDR3Map(core::DecompositionClass decomposition_class);
-        std::string WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) override;
-//        std::string GetGraphFname(core::DecompositionClass decomposition_class);
+        void CreateUniqueCDR3Map() override;
+        vector<SparseGraphPtr> ComputeConnectedComponents() override;
 
-        EvolutionaryTree ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id);
-//        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
-//                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
-        vector<SparseGraphPtr> ComputeConnectedComponents(const core::DecompositionClass& decomposition_class) override;
+        void ChangeJgene(const germline_utils::ImmuneGene &v_gene,
+                         const germline_utils::ImmuneGene &j_gene);
+        void ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info);
     };
 }

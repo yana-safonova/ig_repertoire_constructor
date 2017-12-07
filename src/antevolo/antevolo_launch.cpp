@@ -159,7 +159,14 @@ namespace antevolo {
                                                                  edge_weight_calculator);
         auto tree_storage = antevolo_processor.Process();
         auto final_clone_set = antevolo_processor.GetCloneSetWithFakes();
-        INFO("Evolutionary directions for " << tree_storage.size() << " clonal lineages were created");
+        size_t non_singleton_lineages = 0;
+        for (auto it = tree_storage.begin(); it != tree_storage.end(); it++) {
+//            if (it->NumEdges() > 0) {
+            if (it->NumVertices() > 1) {
+                ++non_singleton_lineages;
+            }
+        }
+        INFO("Evolutionary directions for " << non_singleton_lineages << " non-singleton clonal lineages were created");
         INFO("Computation of evolutionary statistics");
         // todo: add refactoring!!!
         EvolutionaryTreeStorage connected_tree_storage;

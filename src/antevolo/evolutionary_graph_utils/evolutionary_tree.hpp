@@ -38,6 +38,8 @@ namespace antevolo {
 
         bool HasParentEdge(size_t clone_num) const;
 
+        void AddVertex(size_t clone_num);
+
         size_t NumEdges() const { return edges_.size(); }
         size_t NumVertices() const { return vertices_.size(); }
 

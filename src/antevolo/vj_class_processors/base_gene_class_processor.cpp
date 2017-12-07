@@ -35,33 +35,24 @@ namespace antevolo {
         unique_cdr3s_map_.clear();
     }
 
-    void BaseGeneClassProcessor::CreateUniqueCDR3Map(
-            core::DecompositionClass decomposition_class) {
-        const auto& clone_set = *clone_set_ptr_;
-        for(auto it = decomposition_class.begin(); it != decomposition_class.end(); it++) {
-            if(clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
-                continue;
-            auto cdr3 = core::dna5String_to_string(clone_set[*it].CDR3());
-            if (unique_cdr3s_map_.find(cdr3) == unique_cdr3s_map_.end())
-                unique_cdr3s_map_[cdr3] = std::vector<size_t>();
-            unique_cdr3s_map_[cdr3].push_back(*it);
-        }
-        for(auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
-            unique_cdr3s_.push_back(it->first);
-        for(size_t i = 0; i < unique_cdr3s_.size(); ++i)
-            cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
+    std::string BaseGeneClassProcessor::WriteUniqueCDR3InFasta() {
+        std::string output_fname = GetFastaFname();
+        std::ofstream out(output_fname);
+        for(auto it = unique_cdr3s_.begin(); it != unique_cdr3s_.end(); it++)
+            out << ">" << *it << std::endl << *it << std::endl;
+        return output_fname;
     }
 
-    std::string BaseGeneClassProcessor::GetFastaFname(core::DecompositionClass decomposition_class) {
+    std::string BaseGeneClassProcessor::GetFastaFname() {
         std::stringstream ss;
-        size_t key = *decomposition_class.begin();
+        size_t key = *decomposition_class_.begin();
         ss << "CDR3_sequences_key_" << key << ".fasta";
         return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
 
-    std::string BaseGeneClassProcessor::GetGraphFname(core::DecompositionClass decomposition_class) {
+    std::string BaseGeneClassProcessor::GetGraphFname() {
         std::stringstream ss;
-        size_t key = *decomposition_class.begin();
+        size_t key = *decomposition_class_.begin();
         ss << "CDR3_sequences_key_" << key << ".graph";
         return path::append_path(config_.output_params.cdr_graph_dir, ss.str());
     }
@@ -71,7 +62,7 @@ namespace antevolo {
             size_t component_id,
             const ShmModelEdgeWeightCalculator& edge_weight_calculator) {
 
-        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3s_map_,
                                                 cdr3_to_old_index_map_,
                                                 unique_cdr3s_,

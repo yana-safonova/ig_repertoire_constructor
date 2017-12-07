@@ -23,7 +23,7 @@ namespace antevolo {
         CloneSetWithFakesPtr clone_set_ptr_;
         const AntEvoloConfig::AlgorithmParams& config_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
-        CDR3HammingGraphInfo& hamming_graph_info_;
+        CDR3HammingGraphComponentInfo& hamming_graph_info_;
         size_t current_fake_clone_index_;
         size_t reconstructed_;
 
@@ -85,7 +85,7 @@ namespace antevolo {
         Base_CDR3_HG_CC_Processor(CloneSetWithFakesPtr clone_set_ptr,
                                   const AntEvoloConfig::AlgorithmParams &config,
                                   const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-                                  CDR3HammingGraphInfo& hamming_graph_info,
+                                  CDR3HammingGraphComponentInfo& hamming_graph_info,
                                   size_t current_fake_clone_index);
 
         virtual EvolutionaryTree Process() = 0;

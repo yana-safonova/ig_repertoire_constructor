@@ -9,7 +9,7 @@
 namespace antevolo {
     class AntEvoloProcessor {
         const AntEvoloConfig& config_;
-        const annotation_utils::CDRAnnotatedCloneSet& clone_set_;
+        annotation_utils::CDRAnnotatedCloneSet& clone_set_;
         CloneSetWithFakesPtr final_clone_set_with_fakes_;
         const AnnotatedCloneByReadConstructor& clone_by_read_constructor_;
         const size_t total_number_of_reads_;
@@ -21,7 +21,7 @@ namespace antevolo {
 
     public:
         AntEvoloProcessor(const AntEvoloConfig& config,
-                          const annotation_utils::CDRAnnotatedCloneSet& clone_set,
+                          annotation_utils::CDRAnnotatedCloneSet& clone_set,
                           const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
                           size_t total_number_of_reads,
                           const ShmModelEdgeWeightCalculator& edge_weight_calculator) :

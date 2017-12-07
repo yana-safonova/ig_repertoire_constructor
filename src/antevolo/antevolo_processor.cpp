@@ -1,5 +1,6 @@
 #include <logger/logger.hpp>
 #include <vj_class_processors/vj_class_processor.hpp>
+#include <vj_class_processors/v_class_processor.hpp>
 #include "antevolo_processor.hpp"
 
 #include "clone_set_decomposers/vj_clone_set_decomposer.hpp"
@@ -43,11 +44,13 @@ namespace antevolo {
             size_t thread_id = omp_get_thread_num();
             auto vj_class = gene_class_decomposition.GetClass(i);
 //            CloneSetWithFakesPtr fakes_clone_set_ptr(new CloneSetWithFakes(clone_set_));
-            auto vj_class_processor = GeneCLassProcessorPtr(new VJClassProcessor(clone_sets[thread_id],
-                                                       config_,
-                                                       clone_by_read_constructor_,
-                                                       fake_clone_indices[thread_id]));
-            auto connected_components = vj_class_processor->ComputeConnectedComponents(vj_class);
+            auto vj_class_processor = GeneCLassProcessorPtr(
+                    new VClassProcessor(clone_sets[thread_id],
+                                         vj_class,
+                                         config_,
+                                         clone_by_read_constructor_,
+                                         fake_clone_indices[thread_id]));
+            auto connected_components = vj_class_processor->ComputeConnectedComponents();
             for(size_t component_index = 0; component_index < connected_components.size(); component_index++) {
                 EvolutionaryTree tree(clone_sets[thread_id]);
                 if (config_.algorithm_params.model) {
@@ -63,10 +66,10 @@ namespace antevolo {
 //                            component_index);
                 }
                 tree.SetTreeIndices(i + 1, component_index, 0);
-                if (tree.NumEdges() != 0) {
-                    thread_tree_storages_[thread_id].Add(tree);
+//                if (tree.NumEdges() != 0) {
+                thread_tree_storages_[thread_id].Add(tree);
                     //TRACE(i + 1 << "-th clonal tree was written to " << tree_output_fname);
-                }
+//                }
             }
             fake_clone_indices[thread_id] = vj_class_processor->GetCurrentFakeCloneIndex();
             reconstructed[thread_id] += vj_class_processor->GetNumberOfReconstructedClones();

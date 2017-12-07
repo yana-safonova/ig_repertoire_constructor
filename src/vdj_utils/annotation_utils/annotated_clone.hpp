@@ -6,6 +6,7 @@
 #include <annotation_utils/shm_annotation/shm_annotation.hpp>
 #include "../alignment_utils/pairwise_alignment.hpp"
 
+
 namespace annotation_utils {
     enum StructuralRegion { CDR, FR, CDR1, CDR2, CDR3, FR1, FR2, FR3, FR4, UnknownRegion, AnyRegion };
 
@@ -119,6 +120,9 @@ namespace annotation_utils {
         char GetAminoAcidByNucleotidePos(size_t nucl_pos) const;
 
         StructuralRegion GetRegionBySHM(SHM shm) const;
+
+        seqan::Dna5String GetJDifferenceNucleotides(std::vector<size_t> positions) const;
+        seqan::Dna5String GetCDR3JDifferenceNucleotides(std::vector<size_t> positions) const;
 
     };
 

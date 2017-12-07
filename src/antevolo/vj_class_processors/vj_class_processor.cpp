@@ -6,7 +6,7 @@ namespace antevolo {
 
     EvolutionaryTree VJClassProcessor::ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id) {
 
-        CDR3HammingGraphInfo hamming_graph_info(graph_component_map_,
+        CDR3HammingGraphComponentInfo hamming_graph_info(graph_component_map_,
                                                 unique_cdr3s_map_,
                                                 cdr3_to_old_index_map_,
                                                 unique_cdr3s_,
@@ -24,19 +24,26 @@ namespace antevolo {
         return tree;
     }
 
-    std::string VJClassProcessor::WriteUniqueCDR3InFasta(core::DecompositionClass decomposition_class) {
-        std::string output_fname = GetFastaFname(decomposition_class);
-        std::ofstream out(output_fname);
-        for(auto it = unique_cdr3s_.begin(); it != unique_cdr3s_.end(); it++)
-            out << ">" << *it << std::endl << *it << std::endl;
-        return output_fname;
+    void VJClassProcessor::CreateUniqueCDR3Map() {
+        const auto& clone_set = *clone_set_ptr_;
+        for(auto it = decomposition_class_.begin(); it != decomposition_class_.end(); it++) {
+            if(clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
+                continue;
+            auto cdr3 = core::dna5String_to_string(clone_set[*it].CDR3());
+            if (unique_cdr3s_map_.find(cdr3) == unique_cdr3s_map_.end())
+                unique_cdr3s_map_[cdr3] = std::vector<size_t>();
+            unique_cdr3s_map_[cdr3].push_back(*it);
+        }
+        for(auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
+            unique_cdr3s_.push_back(it->first);
+        for(size_t i = 0; i < unique_cdr3s_.size(); ++i)
+            cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
-    vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents(
-            const core::DecompositionClass& decomposition_class) {
-        CreateUniqueCDR3Map(decomposition_class);
-        std::string cdrs_fasta = WriteUniqueCDR3InFasta(decomposition_class);
-        std::string graph_fname = GetGraphFname(decomposition_class);
+    vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents() {
+        CreateUniqueCDR3Map();
+        std::string cdrs_fasta = WriteUniqueCDR3InFasta();
+        std::string graph_fname = GetGraphFname();
         return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
     }
 
