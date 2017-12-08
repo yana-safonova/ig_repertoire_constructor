@@ -3,6 +3,11 @@
 namespace antevolo {
     EvolutionaryTree OneChildFakeClonesFilterer::FilterOneChildFakes(const EvolutionaryTree& connected_tree) const {
 //        tree have to be connected!!
+        if (connected_tree.NumEdges() == 0) {
+            VERIFY_MSG(connected_tree.NumVertices() == 1,
+                       "wtf, no edges but " << connected_tree.NumVertices() << " vertices");
+            return EvolutionaryTree(connected_tree);
+        }
         EvolutionaryTree filtered_tree(connected_tree.GetCloneSetPtr());
         auto edge_constructor = GetEdgeConstructor();
         const auto& clone_set = connected_tree.GetCloneSet();

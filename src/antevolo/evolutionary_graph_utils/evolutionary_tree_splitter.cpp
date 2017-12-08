@@ -8,6 +8,7 @@ namespace antevolo {
         std::queue<size_t> vertex_queue;
         vertex_queue.push(root_id);
         EvolutionaryTree connected_tree(tree.GetCloneSetPtr());
+        connected_tree.AddVertex(root_id);
         connected_tree.SetTreeIndices(tree.GetVJClassIndex(), tree.GetConnectedComponentIndex(), tree_3rd_idx);
         while(!vertex_queue.empty()) {
             size_t cur_vertex = vertex_queue.front();

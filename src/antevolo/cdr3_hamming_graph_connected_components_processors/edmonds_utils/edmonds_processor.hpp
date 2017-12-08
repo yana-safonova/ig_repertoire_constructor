@@ -25,7 +25,7 @@ namespace antevolo {
                 dst_(size_t(-1)),
                 weight_(MAX_WEIGHT) { }
 
-        WeightedEdge(size_t src, size_t dst, int weight) :
+        WeightedEdge(size_t src, size_t dst, T weight) :
                 src_(src),
                 dst_(dst),
                 weight_(weight) { }

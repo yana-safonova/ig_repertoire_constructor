@@ -29,7 +29,8 @@ namespace antevolo {
         if (!(annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(src_clone.VSHMs(),
                                                                            dst_clone.VSHMs()) &&
               annotation_utils::SHMComparator::SHMsInsertionBlocksAreEqual(src_clone.JSHMs(),
-                                                                           dst_clone.JSHMs())))
+                                                                           dst_clone.JSHMs()))   ||
+             src_clone.CDR3Range().length() != dst_clone.CDR3Range().length())
             {
             return std::shared_ptr<BaseEvolutionaryEdge>( new BaseEvolutionaryEdge(src_clone, dst_clone,
                                                                                    src_num, dst_num) );

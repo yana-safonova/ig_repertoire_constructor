@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cdr3_hamming_graph_info.hpp"
+#include "cdr3_hamming_graph_component_info.hpp"
 #include <annotation_utils/annotated_clone.hpp>
 
 namespace antevolo {
@@ -12,14 +12,14 @@ namespace antevolo {
         };
 
         size_t old_index_;
-        CDR3HammingGraphInfo& hamming_graph_info_;
+        CDR3HammingGraphComponentInfo& hamming_graph_info_;
         SparseGraph::EdgesIterator similar_cdr3s_it_;
         SparseGraph::EdgesIterator similar_cdr3s_it_end_;
         State state_;
 
     public:
         ClonesSharingCDR3sIterator(const ClonesSharingCDR3sIterator& oth) = default;
-        ClonesSharingCDR3sIterator(CDR3HammingGraphInfo& hamming_graph_info,
+        ClonesSharingCDR3sIterator(CDR3HammingGraphComponentInfo& hamming_graph_info,
                                    size_t old_index) :
                 old_index_(old_index),
                 hamming_graph_info_(hamming_graph_info),
@@ -58,9 +58,9 @@ namespace antevolo {
 
     };
 
-    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphInfo& hamming_graph_info, const std::string& cdr3);
+    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphComponentInfo& hamming_graph_info, const std::string& cdr3);
 
-    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphInfo& hamming_graph_info,
+    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphComponentInfo& hamming_graph_info,
                                                    const annotation_utils::AnnotatedClone& clone);
 
 
