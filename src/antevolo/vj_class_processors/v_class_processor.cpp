@@ -62,9 +62,9 @@ namespace antevolo {
                 })->first;
 
         for (auto it = vertices.begin(); it != vertices.end(); it++) {
-//            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
-//                continue;
-//            }
+            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+                continue;
+            }
 
             auto& clone = clone_set[*it];
             std::string cdr3Jnucl = core::dna5String_to_string(
