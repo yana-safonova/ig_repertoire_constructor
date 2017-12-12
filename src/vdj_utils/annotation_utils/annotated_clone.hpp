@@ -54,6 +54,8 @@ namespace annotation_utils {
 
         bool RegionIsEmpty(StructuralRegion region) const;
 
+        bool AnnotationIsNotValid() const;
+
         CDRRange GetRangeByRegion(StructuralRegion region) const;
 
         seqan::Dna5String GetRegionString(StructuralRegion region) const;

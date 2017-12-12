@@ -6,7 +6,7 @@ namespace antevolo {
         vertices_nums_ = boost::unordered_set<size_t>(hamming_graph_info_.GetAllClones());
 
         for (auto it = vertices_nums_.begin(); it != vertices_nums_.end(); ) {
-            if (clone_set_ptr_->operator[](*it).RegionIsEmpty(annotation_utils::StructuralRegion::CDR3)) {
+            if (clone_set_ptr_->operator[](*it).AnnotationIsNotValid()) {
                 vertices_nums_.erase(it++);
             }
             else {
