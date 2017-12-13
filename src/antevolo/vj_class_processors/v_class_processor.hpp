@@ -23,10 +23,15 @@ namespace antevolo {
                                        current_fake_clone_index) {
             auto chain = clone_set_ptr->operator[](*decomposition_class_.cbegin()).ChainType().Chain();
             if (chain == germline_utils::ImmuneChainType::HeavyIgChain) {
-                jdifference_positions_ = {17, 18, 19, 22, 25, 26, 27, 28}; // FIXME: move to config!!
+                jdifference_positions_ = {17, 18, 19, 22, 25, 26, 27}; // FIXME: move to config!!
+            } else if (chain == germline_utils::ImmuneChainType::KappaIgChain) {
+                jdifference_positions_ = {12, 13, 14, 15, 16, 22, 23, 24};
+            } else if (chain == germline_utils::ImmuneChainType::LambdaIgChain) {
+                jdifference_positions_ = {12, 15, 19, 22, 23, 24, 25};
             } else {
                 jdifference_positions_ = {};
             }
+            VERIFY(jdifference_positions_.size() != 0);
         }
 
         void CreateUniqueCDR3Map() override;
