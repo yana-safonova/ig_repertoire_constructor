@@ -44,7 +44,10 @@ namespace antevolo {
         CreateUniqueCDR3Map();
         std::string cdrs_fasta = WriteUniqueCDR3InFasta();
         std::string graph_fname = GetGraphFname();
-        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
+        auto chain = BaseGeneClassProcessor::clone_set_ptr_->operator[](
+                *decomposition_class_.cbegin()).ChainType().Chain();
+        size_t tau = config_.algorithm_params.GetNumMismatchesByChainType(chain);
+        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname, tau);
     }
 
 

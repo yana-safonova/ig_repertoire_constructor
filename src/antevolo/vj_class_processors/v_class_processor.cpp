@@ -8,13 +8,17 @@ namespace antevolo {
         CreateUniqueCDR3Map();
         std::string cdrs_fasta = WriteUniqueCDR3InFasta();
         std::string graph_fname = GetGraphFname();
-        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname);
+
+        auto chain = BaseGeneClassProcessor::clone_set_ptr_->operator[](
+                *decomposition_class_.cbegin()).ChainType().Chain();
+        size_t tau = config_.algorithm_params.GetNumMismatchesByChainType(chain);
+        return ComputeCDR3HammingGraphs(cdrs_fasta, graph_fname, tau);
     }
 
     void VClassProcessor::CreateUniqueCDR3Map() {
-        const auto& clone_set = *clone_set_ptr_;
-        for(auto it = decomposition_class_.begin(); it != decomposition_class_.end(); it++) {
-            if(clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
+        const auto &clone_set = *clone_set_ptr_;
+        for (auto it = decomposition_class_.begin(); it != decomposition_class_.end(); it++) {
+            if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
                 continue;
             auto cdr3_jdifference_nucls = core::dna5String_to_string(
                     clone_set[*it].GetCDR3JDifferenceNucleotides(jdifference_positions_));
@@ -22,9 +26,9 @@ namespace antevolo {
                 unique_cdr3s_map_[cdr3_jdifference_nucls] = std::vector<size_t>();
             unique_cdr3s_map_[cdr3_jdifference_nucls].push_back(*it);
         }
-        for(auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
+        for (auto it = unique_cdr3s_map_.begin(); it != unique_cdr3s_map_.end(); it++)
             unique_cdr3s_.push_back(it->first);
-        for(size_t i = 0; i < unique_cdr3s_.size(); ++i)
+        for (size_t i = 0; i < unique_cdr3s_.size(); ++i)
             cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
@@ -34,12 +38,13 @@ namespace antevolo {
         for (auto it = decomposition_class_.begin(); it != decomposition_class_.end(); it++) {
             if (clone_set[*it].RegionIsEmpty(annotation_utils::StructuralRegion::CDR3))
                 continue;
-            auto read = const_cast<core::Read&>(clone_set[*it].Read());
+            auto read = const_cast<core::Read &>(clone_set[*it].Read());
             clone_set[*it] = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, j_gene);
         }
     }
+
     void VClassProcessor::ChangeJgeneToMax(CDR3HammingGraphComponentInfo hamming_graph_info) {
-        auto& clone_set = *clone_set_ptr_;
+        auto &clone_set = *clone_set_ptr_;
         auto vertices = hamming_graph_info.GetAllClones();
         auto v_gene = clone_set[*vertices.begin()].VGene();
         // get most frequent J gene
@@ -66,11 +71,11 @@ namespace antevolo {
                 continue;
             }
 
-            auto& clone = clone_set[*it];
+            auto &clone = clone_set[*it];
             std::string cdr3Jnucl = core::dna5String_to_string(
                     clone.GetCDR3JDifferenceNucleotides(jdifference_positions_));
             VERIFY(cdr3_to_old_index_map_.find(cdr3Jnucl) != cdr3_to_old_index_map_.end());
-            auto read = const_cast<core::Read&>(clone_set[*it].Read());
+            auto read = const_cast<core::Read &>(clone_set[*it].Read());
             auto new_clone = clone_by_read_constructor_.GetCloneByReadWithSpecificGenes(read, v_gene, max_j_gene);
             clone_set[*it] = new_clone;
             std::string new_cdr3Jnucl = core::dna5String_to_string(
@@ -79,6 +84,7 @@ namespace antevolo {
             VERIFY(cdr3_to_old_index_map_.find(new_cdr3Jnucl) != cdr3_to_old_index_map_.end());
         }
     }
+
     EvolutionaryTree VClassProcessor::ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
                                                                   const ShmModelEdgeWeightCalculator &edge_weight_calculator) {
 
@@ -101,8 +107,6 @@ namespace antevolo {
         reconstructed_ += forest_calculator->GetNumberOfReconstructedClones();
         return tree;
     }
-
-
 
 
 }

@@ -78,7 +78,6 @@ def PrintParams(params, log):
     log.info("  Output directory:\t\t" + params.output_dir)
     log.info("  Number of threads:\t\t" + str(params.num_threads) + "\n")
     log.info("  Loci:\t\t\t\t" + params.loci)
-    log.info("  Max distance between CDR3:\t" + str(params.cdr3_tau))
     log.info("  Min number of shared SHMs:\t" + str(params.min_shared_shms))
     log.info("  Use SHM model:\t\t" + str(params.model))
 
@@ -237,11 +236,6 @@ def main(argv):
     optional_args.set_defaults(compare=False)
 
     algorithm_args = parser.add_argument_group("Algorithm arguments")
-    algorithm_args.add_argument("--tau",
-                                type=int,
-                                default=3,
-                                dest="cdr3_tau",
-                                help="Threshold for construction Hamming graph on CDR3s [default: %(default)d]")
     algorithm_args.add_argument("-s", "--min-shared-shms",
                                 type=int,
                                 default=3,

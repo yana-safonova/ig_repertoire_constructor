@@ -157,7 +157,9 @@ namespace antevolo {
                                                                    clone_set[index_to_vertex[u]],
                                                                    index_to_vertex[v],
                                                                    index_to_vertex[u])->CDR3Distance();
-                if (CDR3_dist <= config_.similar_cdr3s_params.num_mismatches) {
+
+                auto chain = clone_set[v].ChainType().Chain();
+                if (CDR3_dist <= config_.GetNumMismatchesByChainType(chain)) {
                     edges.push_back(WeightedEdge<double>(v, u, static_cast<double>(CDR3_dist)));
                 }
             }

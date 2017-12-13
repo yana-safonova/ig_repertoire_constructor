@@ -32,7 +32,9 @@ algorithm_params {
     model 0
 
     similar_cdr3s_params {
-        num_mismatches   3
+        num_mismatches_igh   6
+        num_mismatches_igk   3
+        num_mismatches_igl   3
         num_indels       0
     }
 
