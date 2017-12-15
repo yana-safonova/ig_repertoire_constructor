@@ -3,20 +3,20 @@
 #include "../graph_utils/sparse_graph.hpp"
 
 struct GraphPair {
-    vector<vector<bool> > matrix_;
+    std::vector<std::vector<bool> > matrix_;
     SparseGraphPtr sparse_;
     double fill_;
 
     GraphPair(size_t size, double fill) : fill_(fill) {
         for (size_t i = 0; i < size; i ++) {
-            matrix_.push_back(vector<bool>(size));
+            matrix_.push_back(std::vector<bool>(size));
         }
         for (size_t i = 0; i < size; i ++) {
             for (size_t j = 0; j < i; j ++) {
                 matrix_[i][j] = matrix_[j][i] = rand() < RAND_MAX * fill_;
             }
         }
-        vector<GraphEdge> edges;
+        std::vector<GraphEdge> edges;
         for (size_t i = 0; i < size; i ++) {
             for (size_t j = i + 1; j < size; j ++) {
                 if (matrix_[i][j]) {
@@ -33,7 +33,7 @@ public:
     void SetUp();
 };
 
-vector<GraphPair> graphs;
+std::vector<GraphPair> graphs;
 
 TEST_F(SparseGraphTestFixture, TestHasEdge) {
     for (auto graph : graphs) {
@@ -105,7 +105,7 @@ void SparseGraphTestFixture::SetUp() {
     time_t seed = 935486;
     srand(static_cast<unsigned>(seed));
     INFO("setting up with rand seed " << seed);
-    vector<size_t> sizes { 0, 1, 2, 5, 10, 100 };
+    std::vector<size_t> sizes { 0, 1, 2, 5, 10, 100 };
     for (auto size : sizes) {
         graphs.push_back(GraphPair(size, 0.0));
         double fill = 1.0;
