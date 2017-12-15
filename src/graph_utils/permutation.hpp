@@ -1,11 +1,11 @@
 #pragma once
 
-#include "include_me.hpp"
+#include <logger/logger.hpp>
 
 class Permutation {
     size_t num_vertices_;
-    vector<size_t> direct_;
-    vector<size_t> reverse_;
+    std::vector<size_t> direct_;
+    std::vector<size_t> reverse_;
 
 public:
     Permutation(size_t num_vertices) :
@@ -16,18 +16,18 @@ public:
         }
     }
 
-    void ReadFromFile(string filename);
+    void ReadFromFile(std::string filename);
 
     size_t Size() const { return num_vertices_; }
 
-    const vector<size_t>& Direct() const { return direct_; }
+    const std::vector<size_t>& Direct() const { return direct_; }
 
-    const vector<size_t>& Reverse() const { return reverse_; }
+    const std::vector<size_t>& Reverse() const { return reverse_; }
 
 private:
     DECL_LOGGER("Permutation");
 };
 
-ostream& operator<<(ostream &out, const Permutation &permutation);
+std::ostream& operator<<(std::ostream &out, const Permutation &permutation);
 
-typedef shared_ptr<Permutation> PermutationPtr;
+typedef std::shared_ptr<Permutation> PermutationPtr;

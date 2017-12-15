@@ -52,11 +52,11 @@ namespace {
     }
 }
 
-std::vector<string> extract_umis(const std::vector<seqan::CharString> read_ids) {
+std::vector<std::string> extract_umis(const std::vector<seqan::CharString> read_ids) {
     std::vector<seqan::Dna5String> umis_seqan;
     std::vector<seqan::DnaQString> umi_quals;
     extract_barcodes_from_read_ids(read_ids, umis_seqan, umi_quals);
-    std::vector<string> umis(read_ids.size());
+    std::vector<std::string> umis(read_ids.size());
     std::transform(umis_seqan.cbegin(), umis_seqan.cend(), umis.begin(), seqan_string_to_string<seqan::Dna5String>);
     return umis;
 }
@@ -98,7 +98,7 @@ int main(int argc, const char* const* argv) {
     }
 
     const auto& input = read_everything(params);
-    const std::vector<string>& umis = extract_umis(input.input_ids);
+    const std::vector<std::string>& umis = extract_umis(input.input_ids);
     
     std::unordered_map<std::string, std::vector<size_t>> umi_to_idx_list;
     for (size_t i = 0; i < input.input_ids.size(); i ++) {
@@ -120,8 +120,8 @@ int main(int argc, const char* const* argv) {
         entry.second = filtered_idx_list;
         const auto& precise_consensus = calculate_consensus(input.input_reads, filtered_idx_list);
         umi_to_consensus[entry.first] = precise_consensus;
-        min_consensus_length = min(min_consensus_length, length(precise_consensus));
-        max_consensus_length = max(max_consensus_length, length(precise_consensus));
+        min_consensus_length = std::min(min_consensus_length, length(precise_consensus));
+        max_consensus_length = std::max(max_consensus_length, length(precise_consensus));
     }
 
     std::unordered_map<std::string, std::vector<std::string>> consensus_prefix_to_umi_list;
@@ -136,7 +136,7 @@ int main(int argc, const char* const* argv) {
     for (const auto& entry : consensus_prefix_to_umi_list) {
         std::vector<size_t> idx_list;
         for (const auto& umi : entry.second) {
-            const vector<size_t>& list = umi_to_idx_list[umi];
+            const std::vector<size_t>& list = umi_to_idx_list[umi];
             idx_list.insert(idx_list.end(), list.begin(), list.end());
         }
         const seqan::Dna5String& consensus = calculate_consensus(input.input_reads, idx_list);
@@ -145,12 +145,12 @@ int main(int argc, const char* const* argv) {
             cluster_id[idx] = sequence_id;
         }
         repertoire.push_back(consensus);
-        repertoire_ids.push_back(seqan::CharString("cluster___" + to_string(sequence_id) + "___size___" + to_string(idx_list.size())));
+        repertoire_ids.push_back(seqan::CharString("cluster___" + std::to_string(sequence_id) + "___size___" + std::to_string(idx_list.size())));
     }
     write_seqan_records(boost::filesystem::path(params.output_dir).append("naive_repertoire.fa"), repertoire_ids, repertoire);
     std::ofstream rcm_file(boost::filesystem::path(params.output_dir).append("naive_repertoire.rcm").string());
     for (size_t idx = 0; idx < input.input_reads.size(); idx ++) {
-        rcm_file << input.input_ids[idx] << "\t" << (cluster_id[idx] < repertoire.size() ? to_string(cluster_id[idx]) : "") << std::endl;
+        rcm_file << input.input_ids[idx] << "\t" << (cluster_id[idx] < repertoire.size() ? std::to_string(cluster_id[idx]) : "") << std::endl;
     }
 
     return 0;

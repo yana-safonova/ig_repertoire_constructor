@@ -106,7 +106,7 @@ int main(int argc, const char* const* argv) {
     std::vector<size_t> cluster_umi_abundances(new_read_ids.size());
     for (size_t i = 0; i < input.read_ids.size(); i ++) {
         const std::string id = seqan_string_to_string(input.read_ids[i]);
-        std::vector<string> parts = split(id, "___");
+        std::vector<std::string> parts = split(id, "___");
         size_t cluster = std::stoull(parts[1]);
 //        size_t size = std::stoull(parts[3]);
 //        new_read_ids[i] = seqan::CharString("cluster_" + std::to_string(cluster) + "|UMIs_" + std::to_string(final_cluster_umi_abundances[cluster]) + "|reads_" + std::to_string(size));

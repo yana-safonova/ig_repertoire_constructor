@@ -39,9 +39,9 @@ namespace dense_subgraph_finder {
             Initialize();
         }
 
-        void WriteAllStats(ostream &out);
+        void WriteAllStats(std::ostream &out);
 
-        void WriteShortStats(ostream &out);
+        void WriteShortStats(std::ostream &out);
 
     private:
         DECL_LOGGER("DecompositionStatsCalculator");

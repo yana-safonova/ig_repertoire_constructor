@@ -13,12 +13,12 @@ namespace dense_subgraph_finder {
         size_t min_supernode_size_;
 
         // auxiliary structs
-        map <size_t, set<size_t>> decomposition_graph_;
-        vector <bool> class_processed_;
-        vector <bool> class_has_supernode_;
-        vector <size_t> class_size_;
+        std::map <size_t, std::set<size_t>> decomposition_graph_;
+        std::vector <bool> class_processed_;
+        std::vector <bool> class_has_supernode_;
+        std::vector <size_t> class_size_;
         size_t num_processed_;
-        vector <size_t> vertex_class_;
+        std::vector <size_t> vertex_class_;
 
         // output parameters
         DecompositionPtr output_decomposition_ptr_;

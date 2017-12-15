@@ -20,16 +20,6 @@ namespace {
         attach_logger(lg);
     }
 
-    std::string running_time_format(const perf_counter &pc) {
-        unsigned ms = (unsigned)pc.time_ms();
-        unsigned secs = (ms / 1000) % 60;
-        unsigned mins = (ms / 1000 / 60) % 60;
-        unsigned hours = (ms / 1000 / 60 / 60);
-        boost::format bf("%u hours %u minutes %u seconds");
-        bf % hours % mins % secs;
-        return bf.str();
-    }
-
     class IgsConfigLoader : public config_utils::ConfigLoader<ig_simulator::IgSimulatorConfig> {
     protected:
         void FillConfigFromCommandline(ig_simulator::IgSimulatorConfig&, int, const char* const*) const override {}

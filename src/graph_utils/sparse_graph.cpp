@@ -1,7 +1,6 @@
 #include <verify.hpp>
 #include "sparse_graph.hpp"
 
-
 size_t SparseGraph::get_edge_at_index(size_t vertex, size_t idx) const {
     return idx < RowIndexT()[vertex + 1] - RowIndexT()[vertex]
            ? ColT()[RowIndexT()[vertex] + idx]
@@ -31,9 +30,9 @@ bool SparseGraph::HasEdge(size_t from, size_t to) const {
 }
 
 // vertex set should be sorted
-std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const set<size_t> &vertex_set) {
-    vector<GraphEdge> subgraph_edges;
-    vector<size_t> vertex_weights;
+std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const std::set<size_t> &vertex_set) {
+    std::vector<GraphEdge> subgraph_edges;
+    std::vector<size_t> vertex_weights;
     component_map_.AddComponentInMap(subgraph_id, vertex_set);
     for(auto it = vertex_set.begin(); it != vertex_set.end(); it++) {
         size_t vertex1 = *it;
@@ -52,11 +51,11 @@ std::shared_ptr<SparseGraph> SparseGraph::GetSubgraph(size_t subgraph_id, const 
     return std::shared_ptr<SparseGraph>(new SparseGraph(vertex_set.size(), subgraph_edges, vertex_weights));
 }
 
-ostream& operator<<(ostream &out, const SparseGraph &graph) {
-    out << "Direct matrix" << endl;
-    out << *(graph.DirectMatrix()) << endl;
-    out << "-------------" << endl;
-    out << "Transposed matrix" << endl;
+std::ostream& operator<<(std::ostream &out, const SparseGraph &graph) {
+    out << "Direct matrix" << std::endl;
+    out << *(graph.DirectMatrix()) << std::endl;
+    out << "-------------" << std::endl;
+    out << "Transposed matrix" << std::endl;
     out << *(graph.TransposedMatrix());
     return out;
 }

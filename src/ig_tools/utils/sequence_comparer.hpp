@@ -1,6 +1,5 @@
 #pragma once
 
-#include "include_me.hpp"
 #include "sequence_tools.hpp"
 
 struct SeqComparisonResults {

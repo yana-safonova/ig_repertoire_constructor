@@ -1,18 +1,20 @@
 #pragma once
 
-#include "../utils/include_me.hpp"
+#include <string>
+#include <vector>
+#include <fstream>
 
-bool IsFastaName(string str) {
+bool IsFastaName(std::string str) {
 	if(str.size() == 0)
 		return false;
 	return str[0] == '>';
 }
 
 struct fasta_read {
-	string name;
-	string seq;
+	std::string name;
+	std::string seq;
 
-	fasta_read(string new_name, string new_seq) :
+	fasta_read(std::string new_name, std::string new_seq) :
 		name(new_name),
 		seq(new_seq) { }
 
@@ -34,15 +36,15 @@ struct paired_fasta_read {
 };
 
 class PairedFastaReadConstructor {
-	ifstream &file_handler_;
+	std::ifstream &file_handler_;
 public:
-	PairedFastaReadConstructor(ifstream &file_handler) :
+	PairedFastaReadConstructor(std::ifstream &file_handler) :
 		file_handler_(file_handler) { }
 
-	vector<paired_fasta_read> Read() {
-		vector<paired_fasta_read> reads;
-		string tmp_str;
-		string name1, seq1, name2, seq2;
+    std::vector<paired_fasta_read> Read() {
+        std::vector<paired_fasta_read> reads;
+		std::string tmp_str;
+		std::string name1, seq1, name2, seq2;
 		while(!file_handler_.eof()) {
 			getline(file_handler_, tmp_str);
 			if(IsFastaName(tmp_str)){
@@ -78,8 +80,8 @@ public:
 
 	vector<fasta_read> Read() {
 		vector<fasta_read> reads;
-		string tmp_str;
-		string name, seq;
+		std::string tmp_str;
+		std::string name, seq;
 		while(!file_handler_.eof()) {
 			getline(file_handler_, tmp_str);
 			if(tmp_str != "") {
@@ -104,11 +106,11 @@ class FastaReader {
 	ifstream file_handler_;
 	ReadConstructor reader_;
 public:
-	FastaReader(string fname) :
+	FastaReader(std::string fname) :
 		file_handler_(fname.c_str()),
 		reader_(file_handler_) {
         if(file_handler_.fail()) {
-            cout << "Input FASTA file " << fname << " was not found" << endl;
+            cout << "Input FASTA file " << fname << " was not found" << std::endl;
 		    assert(!file_handler_.fail());
         }
 	}
@@ -127,14 +129,14 @@ public:
 };
 
 class FastaWriter {
-	ofstream out_;
+	std::ofstream out_;
 public:
-	FastaWriter(string fname) :
+	FastaWriter(std::string fname) :
 		out_(fname.c_str()) {
 		assert(!out_.fail());
 	}
 
 	void Write(fasta_read read) {
-		out_ << ">" << read.name << endl << read.seq << endl;
+		out_ << ">" << read.name << std::endl << read.seq << std::endl;
 	}
 };
