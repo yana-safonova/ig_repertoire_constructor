@@ -1,4 +1,3 @@
-#include "standard.hpp"
 #include "logger/log_writers.hpp"
 #include "omp.h"
 
@@ -14,12 +13,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "path_helper.hpp"
 #include "dsf_config.hpp"
 #include "launch.hpp"
 #include "../config/config_utils.hpp"
 
 namespace {
     void make_dirs() {
+        using path::make_dir;
         make_dir(dsf_cfg::get().io.output_base.output_dir);
         if(dsf_cfg::get().rp.threads_count > 1) {
             make_dir(dsf_cfg::get().io.output_mthreading.connected_components_dir);
@@ -60,7 +61,7 @@ namespace {
             //using namespace debruijn_graph;
 
             std::string to_dir = path::append_path(GetOutputDirPath(config), "configs");
-            if (!make_dir(to_dir)) {
+            if (!path::make_dir(to_dir)) {
                 WARN("Could not create files use in /tmp directory");
             }
             path::copy_files_by_ext(path::parent_path(cfg_filename), to_dir, ".info", true);
