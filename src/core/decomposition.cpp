@@ -6,7 +6,7 @@
 namespace core {
     Decomposition::Decomposition(std::string decomposition_filename) {
         std::ifstream in(decomposition_filename);
-        assert(in.good());
+        VERIFY(in.good());
         std::vector <size_t> classes_list = ReadClassIdsFromIfstream(in);
         TRACE("Decomposition of size " << classes_list.size() << " was extracted from " << decomposition_filename);
         num_vertices_ = classes_list.size();
@@ -52,7 +52,7 @@ namespace core {
     }
 
     void Decomposition::SetClass(size_t vertex, size_t class_id) {
-        assert(vertex < num_vertices_);
+        VERIFY(vertex < num_vertices_);
         RemoveVertex(vertex);
         if (decomposition_classes_.size() == 0 or class_id > decomposition_classes_.size() - 1)
             for (size_t i = decomposition_classes_.size(); i <= class_id; i++)

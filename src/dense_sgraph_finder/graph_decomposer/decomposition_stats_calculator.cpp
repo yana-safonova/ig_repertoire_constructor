@@ -65,7 +65,7 @@ void DecompositionStatsCalculator::WriteAllStats(std::ostream &out) {
     Initialize();
     TRACE("Initialization ends");
     for (size_t i = 0; i < decomposition_->Size(); i++) {
-        assert(decomposition_->ClassSize(i) != 0);
+        VERIFY(decomposition_->ClassSize(i) != 0);
         out << i << "\t" << class_edge_fillin_[i] << std::endl;
     }
 }

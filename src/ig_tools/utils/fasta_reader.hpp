@@ -59,7 +59,7 @@ public:
 						name2 = tmp_str;
 			}
 			else{
-				assert(name1 != "");
+				VERIFY(name1 != "");
 				if(name2 == "")
 					seq1 = seq1 + tmp_str;
 				else
@@ -111,7 +111,7 @@ public:
 		reader_(file_handler_) {
         if(file_handler_.fail()) {
             cout << "Input FASTA file " << fname << " was not found" << std::endl;
-		    assert(!file_handler_.fail());
+			VERIFY(!file_handler_.fail());
         }
 	}
 
@@ -133,7 +133,7 @@ class FastaWriter {
 public:
 	FastaWriter(std::string fname) :
 		out_(fname.c_str()) {
-		assert(!out_.fail());
+		VERIFY(!out_.fail());
 	}
 
 	void Write(fasta_read read) {

@@ -92,7 +92,7 @@ class SequenceMerger {
             merged_qual = merged_qual + qual2.substr(overlap_size,
                     rc_right.size() - overlap_size );
         }
-        assert(merged_seq.size() == merged_qual.size());
+        VERIFY(merged_seq.size() == merged_qual.size());
         return make_pair(merged_seq, merged_qual);
     }
 

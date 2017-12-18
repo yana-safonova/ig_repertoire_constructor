@@ -41,7 +41,7 @@ void write_metis_graph(const Graph &graph,
                        const std::vector<size_t> &weights,
                        const std::string &filename,
                        bool undirected) {
-    assert(graph.size() == weights.size());
+    VERIFY(graph.size() == weights.size());
 
     std::ofstream out(filename);
 
@@ -86,8 +86,8 @@ bool check_repr_kmers_consistancy(const std::vector<size_t> &answer,
 // TODO Rename it to be consistent with the paper
 std::vector<size_t> optimal_coverage(const std::vector<size_t> &multiplicities,
                                      size_t K, size_t n) {
-    assert(n >= 1);
-    assert(multiplicities.size() + K - 1 >= n * K);
+    VERIFY(n >= 1);
+    VERIFY(multiplicities.size() + K - 1 >= n * K);
 
     const size_t INF = std::numeric_limits<size_t>::max() / 2;
 
@@ -129,7 +129,7 @@ std::vector<size_t> optimal_coverage(const std::vector<size_t> &multiplicities,
             i -= 1;
         }
     }
-    assert(j == 0);
+    VERIFY(j == 0);
     // Find first element
     size_t ii = i;
     while (mults[0][i] != multiplicities[ii]) {
@@ -143,9 +143,9 @@ std::vector<size_t> optimal_coverage(const std::vector<size_t> &multiplicities,
     for (size_t i : result) {
         sum += multiplicities.at(i);
     }
-    assert(ans == sum);
+    VERIFY(ans == sum);
 
-    assert(check_repr_kmers_consistancy(result, multiplicities, K, n));
+    VERIFY(check_repr_kmers_consistancy(result, multiplicities, K, n));
 
     return result;
 }

@@ -7,7 +7,6 @@
 #ifndef CONCURRENTDSU_HPP_
 #define CONCURRENTDSU_HPP_
 
-#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <cstdarg>

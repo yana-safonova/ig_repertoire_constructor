@@ -1,5 +1,6 @@
 #pragma once
 
+#include <verify.hpp>
 #include <seqan/seq_io.h>
 
 inline std::vector<std::string> split(const std::string &s, char delim) {
@@ -14,7 +15,7 @@ inline std::vector<std::string> split(const std::string &s, char delim) {
 
 inline std::pair<std::string, std::string> split_by_dots(std::string str) {
     size_t del_pos = str.find("..");
-    assert(del_pos != std::string::npos);
+    VERIFY(del_pos != std::string::npos);
     return make_pair(str.substr(0, del_pos),
                      str.substr(del_pos + 2, str.size() - del_pos - 2));
 }

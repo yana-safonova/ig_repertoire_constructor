@@ -2,7 +2,6 @@
 // Created by Andrew Bzikadze on 5/22/16.
 //
 
-#include <cassert>
 #include "upto_last_reliable_kmer_alignment_cropper.hpp"
 
 namespace shm_kmer_matrix_estimator {
@@ -63,8 +62,8 @@ PairIter UptoLastReliableKmerAlignmentCropper::find_correct_boarder(
     if (hash_parent == hash_son)
         return begin_iterators;
 
-    assert(iter_boarder.first == begin_iterators.first);
-    assert(iter_boarder.second == begin_iterators.second);
+    VERIFY(iter_boarder.first == begin_iterators.first);
+    VERIFY(iter_boarder.second == begin_iterators.second);
 
     // Otherwise, find a kmer with equal hashes in the parent gene sequence and the son.
     while (iter_boarder.first + kmer_len != end_iterators.first &&

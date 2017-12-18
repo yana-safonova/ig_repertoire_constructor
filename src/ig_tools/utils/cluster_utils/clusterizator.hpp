@@ -87,7 +87,7 @@ public:
 			}
 		}
 
-        //assert(false);
+        //VERIFY(false);
 		return result;
 	}
 };
@@ -138,7 +138,7 @@ class Clusterizator {
     map<size_t, std::string> read_seq_map_;
 
     std::string GetSuperString(std::string s1, std::string s2, SeqComparisonResults comparison_result) {
-        assert(comparison_result.match);
+		VERIFY(comparison_result.match);
         if(comparison_result.second_reverse)
             s2 = reverse_complementary(s2);
         size_t overlap_size = comparison_result.s2_overlap_pos.second - comparison_result.s2_overlap_pos.first + 1;
@@ -230,7 +230,7 @@ public:
             }
         }
 
-        assert(result.ClustersSize() == clusters_.num_sets());
+		VERIFY(result.ClustersSize() == clusters_.num_sets());
 
 		return result;
 

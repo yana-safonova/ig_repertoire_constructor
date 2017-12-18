@@ -16,7 +16,7 @@ class Clusters {
 public:
 	Clusters(std::string fname) :
 		src_(fname.c_str()) {
-		assert(!src_.fail());
+		VERIFY(!src_.fail());
 	}
 
 	void ExtractFromFile() {
@@ -27,7 +27,7 @@ public:
 				std::vector<std::string> splits = split(tmp, '\t');
                 if(splits.size() != 2) {
                     cout << "String " << tmp << " is wrong. Nummber of splits is " << splits.size() << endl;
-				    assert(splits.size() == 2);
+					VERIFY(splits.size() == 2);
                 }
 				std::string name;
 				size_t pos = splits[0].find("fr=");
@@ -55,7 +55,7 @@ public:
 	std::map<size_t, std::vector<size_t> >::iterator clusters_end() { return clusters_.end(); }
 
 	size_t GetCluster(size_t read_index) {
-		assert(read_index < reads_.size());
+		VERIFY(read_index < reads_.size());
 		return read_cluster_[reads_[read_index]];
 	}
 

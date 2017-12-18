@@ -28,7 +28,7 @@ class EdgeWeightedGraphReader {
             for(auto it = line_splits.begin(); it != line_splits.end(); it++)
                 std::cout << *it << " ";
             std::cout << std::endl;
-            assert(line_splits.size() % 2 == 0);
+            VERIFY(line_splits.size() % 2 == 0);
         }
         for(size_t i = 0; i < line_splits.size(); i += 2) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
@@ -73,7 +73,7 @@ class EdgeVertexWeightedGraphReader {
             for(auto it = line_splits.begin(); it != line_splits.end(); it++)
                 std::cout << *it << " ";
             std::cout << std::endl;
-            assert(line_splits.size() % 2 != 0);
+            VERIFY(line_splits.size() % 2 != 0);
         }
         for(size_t i = 1; i < line_splits.size(); i += 2) {
             size_t dst_vertex = string_to_number<size_t>(line_splits[i]) - 1;
@@ -159,7 +159,7 @@ class VersatileGraphReader {
     }
 
     size_t GetNumVertices(const std::vector<std::string> &header_splits) {
-        assert(header_splits.size() > 0);
+        VERIFY(header_splits.size() > 0);
         return string_to_number<size_t>(header_splits[0]);
     }
 

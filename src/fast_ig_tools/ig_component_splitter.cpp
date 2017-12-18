@@ -1,4 +1,3 @@
-#include <cassert>
 #include <algorithm>
 
 #include <unordered_map>
@@ -20,7 +19,6 @@ namespace po = boost::program_options;
 
 #include <seqan/seq_io.h>
 #undef NDEBUG
-#include <cassert>
 
 using seqan::Dna5String;
 using seqan::SeqFileIn;

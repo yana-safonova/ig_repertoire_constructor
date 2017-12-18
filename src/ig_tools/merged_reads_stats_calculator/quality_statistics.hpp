@@ -73,8 +73,8 @@ class PairedReadQialityStatsCalculator {
 	size_t IdealReadLength() {
 		size_t read_length = reads_[0].left_read.seq.size();
 		for(size_t i = 0; i < reads_.size(); i++) {
-			assert(reads_[i].left_read.seq.size() == read_length);
-			assert(reads_[i].right_read.seq.size() == read_length);
+			VERIFY(reads_[i].left_read.seq.size() == read_length);
+			VERIFY(reads_[i].right_read.seq.size() == read_length);
 		}
 		//cout << "Ideal read length - " << read_length << std::endl;
 		return read_length;

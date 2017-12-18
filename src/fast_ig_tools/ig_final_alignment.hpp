@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <cassert>
 #include <algorithm>
 
 #include <seqan/seq_io.h>

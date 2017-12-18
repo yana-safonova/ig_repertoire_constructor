@@ -111,7 +111,7 @@ bool GreedyJoiningDecomposition::ClassesCanBeGlued(size_t main_class, size_t sec
     double average_fillin = 0;
     for(auto it = sec_class_set.begin(); it != sec_class_set.end(); it++) {
         double cur_avg_fillin = ComputeRelativeFillin(main_class, *it);
-        assert(cur_avg_fillin <= 1);
+        VERIFY(cur_avg_fillin <= 1);
         average_fillin += cur_avg_fillin;
     }
     average_fillin /= double(sec_class_set.size());

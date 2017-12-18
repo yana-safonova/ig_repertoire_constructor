@@ -24,7 +24,7 @@ inline double get_median(const std::map<int, size_t> &hist) {
       return iter->first;
     }
   }
-  assert(false);
+  VERIFY(false);
   return -1;
 }
 

@@ -30,7 +30,7 @@ class SingleFastaReader {
 public:
     SingleFastaReader(std::string fname) :
         src_(fname.c_str()) {
-        assert(!src_.fail());
+        VERIFY(!src_.fail());
     }
     fasta_read NextRead() {
         std::string name;

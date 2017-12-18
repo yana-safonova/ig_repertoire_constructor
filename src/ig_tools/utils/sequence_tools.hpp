@@ -15,7 +15,7 @@ char get_complementary(char nucl){
 	if(nucl == 'N' || nucl == 'n')
 		return 'A';
     std::cout << "Char " << nucl << " is not from nucleotide alphabet" << std::endl;
-	assert(false);
+	VERIFY(false);
 	return 'A';
 }
 
@@ -27,7 +27,7 @@ std::string reverse_complementary(std::string seq) {
 }
 
 size_t HammingDistance(std::string s1, std::string s2) {
-	assert(s1.size() == s2.size());
+	VERIFY(s1.size() == s2.size());
 	size_t dist = 0;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])
@@ -36,7 +36,7 @@ size_t HammingDistance(std::string s1, std::string s2) {
 }
 
 std::set<size_t> DifferentPositions(std::string s1, std::string s2) {
-	assert(s1.size() == s2.size());
+	VERIFY(s1.size() == s2.size());
     std::set<size_t> pos;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])
@@ -45,7 +45,7 @@ std::set<size_t> DifferentPositions(std::string s1, std::string s2) {
 }
 
 std::string random_correction(std::string s1, std::string s2) {
-	assert(s1.size() == s2.size());
+	VERIFY(s1.size() == s2.size());
 	std::string s = s1;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])

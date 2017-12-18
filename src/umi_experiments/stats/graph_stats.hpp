@@ -31,7 +31,7 @@ public:
               unclassified_vert(unclassified_vert), unclassified_comp(unclassified_comp),
               acgt(acgt), acgt_in_large_components(acgt_in_large_components),
               acgt_weighted(acgt_weighted), acgt_in_large_components_weighted(acgt_in_large_components_weighted) {
-        assert(single + doublets * 2 + vert_in_stars + unclassified_vert == graph->N());
+        VERIFY(single + doublets * 2 + vert_in_stars + unclassified_vert == graph->N());
     }
 
     std::string ToString(size_t min_unclassified_size) const;

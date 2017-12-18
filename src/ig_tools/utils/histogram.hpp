@@ -20,7 +20,7 @@ class BaseHistogram {
 	}
 
 	T operator[](size_t idx){
-		assert(idx < part_sums_.size());
+		VERIFY(idx < part_sums_.size());
 		if(size() == 0)
 			return 0;
 		if(idx == 0)
@@ -38,7 +38,7 @@ public:
 	}
 
 	T Quantile(double quantile){
-		assert(quantile > 0 && quantile <= 1);
+		VERIFY(quantile > 0 && quantile <= 1);
 		if(invalid_part_sums_)
 			CalculatePartSums();
 		if(part_sums_.size() == 0)
@@ -68,7 +68,7 @@ public:
 
 	void LoadFrom(std::string filename) {
 		ifstream src(filename.c_str());
-		assert(!src.fail());
+		VERIFY(!src.fail());
 		while(!src.eof()){
 			std::string tmp;
 			getline(src, tmp);

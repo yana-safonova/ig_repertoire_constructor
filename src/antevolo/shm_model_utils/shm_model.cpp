@@ -6,7 +6,6 @@
 
 #include <string>
 
-#include <cassert>
 #include <cmath>
 #include <boost/tokenizer.hpp>
 

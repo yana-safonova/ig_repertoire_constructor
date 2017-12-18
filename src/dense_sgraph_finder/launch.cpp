@@ -75,7 +75,7 @@ namespace {
             }
             DecompositionPtr final_decomposition_ptr(new Decomposition(graph_ptr_->N()));
             for(size_t i = 0; i < graph_ptr_->N(); i++) {
-                assert(vertex_new_set.find(i) != vertex_new_set.end());
+                VERIFY(vertex_new_set.find(i) != vertex_new_set.end());
                 size_t class_id = vertex_new_set[i];
                 final_decomposition_ptr->SetClass(i, class_id);
             }

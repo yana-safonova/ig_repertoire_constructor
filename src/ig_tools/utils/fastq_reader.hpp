@@ -66,7 +66,7 @@ public:
 
         fb.push(file);
 
-		assert(!src_.fail());
+		VERIFY(!src_.fail());
 	}
 
 	std::vector<FastqRead> ReadFile() {
@@ -81,7 +81,7 @@ public:
 			getline(src_, tmp);
 			getline(src_, qual);
 
-			assert(seq.size() == qual.size());
+			VERIFY(seq.size() == qual.size());
 
 			if(name != "" && seq != "" && qual != "")
 				reads.push_back(FastqRead(name, seq, qual));
