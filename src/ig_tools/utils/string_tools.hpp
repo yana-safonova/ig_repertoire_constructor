@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/optional.hpp>
 #include <verify.hpp>
 #include <seqan/seq_io.h>
 

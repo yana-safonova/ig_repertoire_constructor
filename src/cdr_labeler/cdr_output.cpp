@@ -163,7 +163,7 @@ namespace ReportColumns {
             }
         }
 
-        void append_mixcr_alignment(ostream& out, const alignment_utils::ImmuneGeneReadAlignment& v_alignment,
+        void append_mixcr_alignment(std::ostream& out, const alignment_utils::ImmuneGeneReadAlignment& v_alignment,
                 const annotation_utils::GeneSegmentSHMs& shms) {
             out << v_alignment.StartSubjectPosition() << '|'
                 << v_alignment.EndSubjectPosition() + 1 << '|'
