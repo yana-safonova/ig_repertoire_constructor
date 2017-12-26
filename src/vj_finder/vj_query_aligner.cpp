@@ -38,17 +38,9 @@ namespace vj_finder {
         using namespace algorithms;
         TRACE("VJ Aligner algorithm starts");
         // we can construct it once and use as a parameter of constructor
-        CustomGermlineDbHelper v_kmer_index_helper(v_custom_db_);
-        SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String> v_kmer_index(
-                v_custom_db_, algorithm_params_.aligner_params.word_size_v, v_kmer_index_helper);
-        TRACE("Kmer index for V gene segment DB was constructed");
-        PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> v_aligner(
-                v_kmer_index, v_kmer_index_helper,
-                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams>(
-                algorithm_params_.scoring_params.v_scoring),
-                CreateVBlockAlignerParams());
+
         TRACE("Computation of V hits");
-        CustomDbBlockAlignmentHits v_aligns = v_aligner.Align(read.seq);
+        CustomDbBlockAlignmentHits v_aligns = v_helper_->get_aligner()->Align(read.seq);
         TRACE(v_aligns.size() << " V hits were computed: ")
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++) {
             TRACE(v_custom_db_[it->second].name() << ", start: " << it->first.first_match_read_pos() <<
@@ -58,7 +50,7 @@ namespace vj_finder {
         bool strand = true;
         if(algorithm_params_.aligner_params.fix_strand) {
             core::Read read_rc = read.ReverseComplement();
-            CustomDbBlockAlignmentHits reverse_v_aligns = v_aligner.Align(read_rc.seq);
+            CustomDbBlockAlignmentHits reverse_v_aligns = v_helper_->get_aligner()->Align(read_rc.seq);
             if(v_aligns.BestScore() < reverse_v_aligns.BestScore()) {
                 TRACE("Reverse complementary strand was selected");
                 stranded_read = read_rc;
@@ -72,29 +64,22 @@ namespace vj_finder {
         TRACE("V Locus was identified: " << v_chain_type);
         TRACE("Strand: " << strand);
 
-        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(
-                germline_utils::ImmuneGeneType(v_chain_type, germline_utils::SegmentType::JoinSegment));
+        germline_utils::ImmuneGeneType immune_gene_type(v_chain_type, germline_utils::SegmentType::JoinSegment);
+        std::shared_ptr<JHelper> j_helper = get_j_helper(immune_gene_type);
+        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(immune_gene_type);
         TRACE("J database for locus " << v_chain_type << " consists of " << j_gene_db.size() << " gene segments");
-
-        ImmuneGeneGermlineDbHelper j_kmer_index_helper(j_gene_db);
-        SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> j_kmer_index(
-                j_gene_db, algorithm_params_.aligner_params.word_size_j, j_kmer_index_helper);
-        PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> j_aligner(
-                j_kmer_index, j_kmer_index_helper,
-                CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::JScoringParams>(
-                        algorithm_params_.scoring_params.j_scoring),
-                CreateJBlockAlignerParams());
+        
         auto dj_read_suffix = DefineReadJSuffix(v_aligns, stranded_read.seq);
         if(seqan::length(dj_read_suffix) == 0)
             return VJHits(read);
 
         TRACE("Computation of J hits");
-        auto j_aligns = j_aligner.Align(dj_read_suffix);
+        auto j_aligns = j_helper->get_aligner()->Align(dj_read_suffix);
         //for(auto it = j_aligns.begin(); it != j_aligns.end(); it++)
         //    it->first.add_read_shift(int(stranded_read.length() - seqan::length(dj_read_suffix)));
         TRACE(j_aligns.size() << " J hits were computed: ")
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
-            TRACE(j_gene_db[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<
+            TRACE(j_helper->get_j_gene_db()[it->second].name() << ", Q start: " << it->first.first_match_read_pos() <<
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
@@ -103,7 +88,7 @@ namespace vj_finder {
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++)
             vj_hits.AddVHit(VGeneHit(read, v_custom_db_[it->second], it->first, strand));
         for(auto it = j_aligns.begin(); it != j_aligns.end(); it++) {
-            JGeneHit j_hit(read, j_gene_db[it->second], it->first, strand);
+            JGeneHit j_hit(read, j_helper->get_j_gene_db()[it->second], it->first, strand);
             j_hit.AddShift(int(read.length() - seqan::length(dj_read_suffix)));
             vj_hits.AddJHit(j_hit);
         }
