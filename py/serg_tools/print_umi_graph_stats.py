@@ -79,7 +79,7 @@ class BinaryRunner:
         log.info("Running " + cmdline)
         exit_code = os.system(cmdline)
         if exit_code != 0:
-            exit(exit_code)
+            sys.exit(exit_code + (exit_code >> 8))
 
 class WorkflowRunner:
     def Run(self, log, params):

@@ -196,7 +196,8 @@ class MultToMultData:
 
     def plot_reference_vs_constructed_size(self, out, title="", format=None,
                                            points=True,
-                                           marginals=False):
+                                           marginals=False,
+                                           do_plot_reds=False):
         import seaborn as sns
 
         if points:
@@ -231,16 +232,23 @@ class MultToMultData:
             ax = g.ax_joint
         else:
             if points:
-                plt.plot(self.reference_cluster_sizes[~is_overcorrected],
-                         self.constructed_cluster_sizes[~is_overcorrected], "bo",
-                         color="blue",
-                         label="clusters", alpha=0.5,
-                         markersize=6)
-                plt.plot(self.reference_cluster_sizes[is_overcorrected],
-                         self.constructed_cluster_sizes[is_overcorrected], "bo",
-                         color="red",
-                         label="overestimated clusters", alpha=0.5,
-                         markersize=6)
+                if do_plot_reds:
+                    plt.plot(self.reference_cluster_sizes[~is_overcorrected],
+                             self.constructed_cluster_sizes[~is_overcorrected], "bo",
+                             color="blue",
+                             label="clusters", alpha=0.5,
+                             markersize=6)
+                    plt.plot(self.reference_cluster_sizes[is_overcorrected],
+                             self.constructed_cluster_sizes[is_overcorrected], "bo",
+                             color="red",
+                             label="overestimated clusters", alpha=0.5,
+                             markersize=6)
+                else:
+                    plt.plot(self.reference_cluster_sizes,
+                             self.constructed_cluster_sizes, "bo",
+                             color="blue",
+                             label="clusters", alpha=0.5,
+                             markersize=6)
 
             else:
                 # ax.set_axis_bgcolor('darkgrey')
@@ -257,7 +265,7 @@ class MultToMultData:
 
         # ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.mean_rates_unique)
         ax.plot(self.reference_cluster_sizes_unique, self.reference_cluster_sizes_unique * self.median_rates_unique,
-                label="median")
+                label="approximation")
 
         handles, labels = ax.get_legend_handles_labels()
         ax.legend(handles, labels, loc=2)
@@ -2002,6 +2010,10 @@ class Repertoire:
             values = self.__errors_by_positions()
 
         l = len(values)
+        if l == 0:
+            # TODO Debug it
+            return
+
         bins = np.arange(l + 1)
 
         widths = bins[1:] - bins[:-1]

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{% block title %}IgReC{% endblock %}</title>
+<!-- https://stackoverflow.com/questions/18301745/how-to-set-up-a-favicon -->
+<link rel="shortcut icon" type="image/x-icon" href="/static/icons/desktop_app_logo_128.ico">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+{% include 'libs.html' %}
+{% block head %}
+{% endblock %}
+<style>
+.navbar-brand>img {
+  height: 100%;
+  width: auto;
+}
+</style>
+</head>
+<body>
+{% set endpoint = request.url_rule.endpoint %}
+<div class="container-fluid">
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="/"><img src="/static/icons/desktop_app_logo_128.png"></a>
+        <a class="navbar-brand" href="/">WebIgReC platform</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="{{'active' if endpoint=='new_run' else ''}}"><a href="/">New run</a></li>
+      <li class="{{'active' if endpoint=='autoindex' else ''}}"><a href="/runs">Performed runs</a></li>
+      <li class="{{'active' if endpoint=='task_list' else ''}}"><a href="/tasks">Task list</a></li>
+      <li class="{{'active' if endpoint=='uploads' else ''}}"><a href="/uploads">Data upload</a></li>
+      {% if endpoint == 'admin' %}
+      <li class="{{'active' if endpoint=='admin' else ''}}"><a href="/admin">Admin</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+
+{% block body %}
+{% endblock %}
+</div>
+</body>
+</html>

@@ -190,12 +190,12 @@ def main(argv):
                                type=int,
                                default=16,
                                dest="num_threads",
-                               help="Threads number [default: %(default)d]")
-    optional_args.add_argument("-d", '--domain',
+                               help="Threads number. [default: %(default)d]")
+    optional_args.add_argument("-d", "--domain",
                                type=str,
                                default="imgt",
                                dest="domain_system",
-                               help='Domain system for CDR search: imgt OR kabat [default: %(default)s]')
+                               help="Domain system for CDR search: imgt OR kabat. [default: %(default)s]")
 
     vj_finder_args= parser.add_argument_group("VJ alignment params")
     optional_args.add_argument("-l", "--loci",
@@ -204,17 +204,28 @@ def main(argv):
                                dest="loci",
                                help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
+
     optional_args.add_argument("--org",
                                type=str,
                                default="human",
                                dest="organism",
-                               help="Organism: human, mouse, rat, rabbit, rhesus-monkey [default: %(default)s]")
+                               help="Organism: human, mouse, rat, rabbit, rhesus-monkey. [default: %(default)s]")
 
-    optional_args.add_argument('--skip-plots',
-                               action='store_const',
+    optional_args.add_argument("--skip-plots",
+                               action="store_const",
                                const=True,
                                dest = "skip_plots",
                                help = "Skip drawing plots")
+
+    optional_args.add_argument("--preset",
+                               type=str,
+                               default="divan",
+                               dest="preset",
+                               help="Predefined set of repertoire features to report. Supported values: divan."
+                                    # "min outputs same fields as MiXCR export with min preset, "
+                                    "divan outputs default IgDiversityAnalyzer feature set, "
+                                    # "custom reads feature set from cdr_labeler config file."
+                                    " [default: %(default)s]")
 
     optional_args.add_argument("-h", "--help",
                                action="help",

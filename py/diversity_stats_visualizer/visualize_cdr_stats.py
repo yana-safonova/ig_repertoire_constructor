@@ -190,8 +190,8 @@ def output_cdr_stats_for_locus(locus_df, locus_name, column_name, region_name, o
 
 def output_cdrs_stats_for_locus(vj_df, locus_name, output_dir, log):
     locus_df = vj_df.loc[vj_df['Chain_type'] == locus_name]
-    num_records = len(vj_df['Read_name'])
-    num_locus_records = len(locus_df['Read_name'])
+    num_records = len(vj_df['Clone_name'])
+    num_locus_records = len(locus_df['Clone_name'])
     if float(num_locus_records) / float(num_records) < .05 or num_locus_records < 10:
         log.info("Output contains very low number (" + str(num_locus_records) + ") of " + locus_name + " records. Drawing plots was skipped")
         return
@@ -208,7 +208,7 @@ def main(df_fname, output_dir, log):
         os.mkdir(output_dir)
     log.info("== Output CDR statistics")
     vj_df = pd.read_table(df_fname, delim_whitespace = True)
-    if len(vj_df['Read_name']) == 0:
+    if len(vj_df['Clone_name']) == 0:
         log.info("CDR data-frame contains 0 records. CDR visualization will be skipped")
         return
     output_cdrs_stats_for_locus(vj_df, "IGH", output_dir, log)

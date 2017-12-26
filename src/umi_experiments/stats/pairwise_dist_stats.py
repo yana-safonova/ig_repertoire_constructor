@@ -78,12 +78,12 @@ def main():
 
     print "drawing histograms"
     bin_width = 1
-    all_distr = [float(sum([alld[i] for i in alld if i <= d])) / total_dists for d in range(m)]
+    all_distr = [float(sum([alld[i] for i in alld if i <= d])) / total_dists for d in range(m + 1)]
     print "all distribution", zip(range(len(all_distr)), all_distr)
-    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights': all_distr}, color='blue', kde=False)
-    cluster_distr = [float(sum([clusterd[i] for i in clusterd if i >= d])) / cluster_n for d in range(m)]
+    dp = sns.distplot(range(m + 1), m / bin_width, hist_kws={'weights': all_distr}, color='blue', kde=False)
+    cluster_distr = [float(sum([clusterd[i] for i in clusterd.keys() if i >= d])) / cluster_n for d in range(m + 1)]
     print "cluster distribution", zip(range(len(cluster_distr)), cluster_distr)
-    dp = sns.distplot(range(m), m / bin_width, hist_kws={'weights': cluster_distr}, color='red', kde=False)
+    dp = sns.distplot(range(m + 1), m / bin_width, hist_kws={'weights': cluster_distr}, color='red', kde=False)
     plt.xlabel("Distance")
     plt.ylabel("% of read pairs")
     plt.title("Distributions of distances between all reads and between reads sharing barcode")

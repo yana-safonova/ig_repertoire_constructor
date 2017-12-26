@@ -294,10 +294,15 @@ def plot_two_sums(dir,
                   legend=True,
                   format=("png", "pdf", "svg"),
                   which=None,
-                  prod_criterion=False):
-    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kind, woans=False)
-    data_wa = get_plot_various_error_rate_data(dir, kind=kind, woans=False)[1]
-    data_woa = get_plot_various_error_rate_data(dir, kind=kind, woans=True)[1]
+                  prod_criterion=False,
+                  multiple=True):
+    # lambdas, _ = get_plot_various_error_rate_data(dir, kind=kind, woans=False)
+    # data_wa = get_plot_various_error_rate_data(dir, kind=kind, woans=False)[1]
+    # data_woa = get_plot_various_error_rate_data(dir, kind=kind, woans=True)[1]
+    lambdas, _ = get_plot_various_error_rate_data(dir, kind=kind, woans=False, multiple=multiple)
+    data_wa = get_plot_various_error_rate_data(dir, kind=kind, woans=False, multiple=multiple)[1]
+    data_woa = get_plot_various_error_rate_data(dir, kind=kind, woans=True, multiple=multiple)[1]
+
     import matplotlib.pyplot as plt
     import seaborn as sns
 
@@ -342,8 +347,25 @@ def plot_two_sums(dir,
     if which is not None:
         zipped = [zipped[i] for i in which]
     for y, color, label in zipped:
-        plt.plot(lambdas, y,
-                 "b-", color=color, label=label)
+        min_lambda = min(lambdas)
+        nseeds = sum(1 for l in lambdas if l == min_lambda)
+        nlambdas = len(lambdas) / nseeds
+        if what == "minsize":
+            means = []
+            lms = []
+            for i in range(nlambdas):
+                _y = y[i*nseeds:(i+1)*nseeds]
+                means.append(float(sum(_y)) / len(_y))
+                lms.append(lambdas[i*nseeds])
+                plt.plot([lambdas[i*nseeds]] * 2, [min(_y), max(_y)],
+                         "--bo", color=color, label=label)
+            plt.plot(lms, means,
+                     "b-", color=color, label=label)
+        else:
+            for seed in range(nseeds):
+                plt.plot(lambdas[seed::nseeds], y[seed::nseeds],
+                         "b-", color=color, label=label)
+        print label, y
 
     eps = 0.025
     if what == "sum":
@@ -360,7 +382,8 @@ def plot_two_sums(dir,
 
     if legend:
         handles, labels = ax.get_legend_handles_labels()
-        ax.legend(handles, labels, loc=3)
+        nlines = len(handles) / len(zipped)
+        ax.legend(handles[nlines-1::nlines], labels[nlines-1::nlines], loc=3)
 
     save_plot(out, format=format)
 
@@ -706,6 +729,9 @@ if __name__ == "__main__":
     plotplot(igrec_dir + "SIMULATED/errate_0.5000_seed_%%SEED%%", "MULT_SIMULATED_0.5_figs", title="SIMULATEDx10 SIMPLE dataset, 0.5 error per read", show_coords=True)
     plotplot(igrec_dir + "SIMULATED/errate_1.0000_seed_%%SEED%%", "MULT_SIMULATED_1_figs", title="SIMULATEDx10 SIMPLE dataset, 1 error per read", show_coords=True)
     plotplot(igrec_dir + "SIMULATED/errate_2.0000_seed_%%SEED%%", "MULT_SIMULATED_2_figs", title="SIMULATEDx10 SIMPLE dataset, 2 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_0.5000_seed_%%SEED%%", "MULT_SYNTHETIC_0.5_figs", title="SYNTHETICx10 dataset, 0.5 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_1.0000_seed_%%SEED%%", "MULT_SYNTHETIC_1_figs", title="SYNTHETICx10 dataset, 1 error per read", show_coords=True)
+    plotplot(igrec_dir + "SYNTHETIC/errate_2.0000_seed_%%SEED%%", "MULT_SYNTHETIC_2_figs", title="SYNTHETICx10 dataset, 2 error per read", show_coords=True)
 
     plotplot(igrec_dir + "py/test_on_pd/REAL/", "REAL_figs", title="Sensitivity-precision plot (REAL dataset)", show_coords=True)
     plotplot(igrec_dir + "py/test_on_pd/REAL_CHU/", "REAL_CHU_figs", title="Sensitivity-precision plot (REAL MiGEC dataset)", show_coords=True)
