@@ -143,8 +143,8 @@ namespace antevolo {
                 clone_AA_string.push_back(clone_AA_seq[i]);
             }
 
-            //assert((static_cast<int>(start_pos) - static_cast<int>(ORF)) % 3 == 0);
-            //assert((static_cast<int>(end_pos) + 1 - static_cast<int>(ORF)) % 3 == 0);
+            //VERIFY((static_cast<int>(start_pos) - static_cast<int>(ORF)) % 3 == 0);
+            //VERIFY((static_cast<int>(end_pos) + 1 - static_cast<int>(ORF)) % 3 == 0);
             char left_CDR3_anchor_AA = clone_AA_string[(start_pos - ORF) / 3 - 1];
             char right_CDR3_anchor_AA = clone_AA_string[(end_pos + 1 - ORF) / 3];
 

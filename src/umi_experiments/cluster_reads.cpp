@@ -51,8 +51,8 @@ namespace {
     }
 
     struct Input {
-        Input(vector<seqan::CharString>& input_ids_, std::vector<seqan::Dna5String>& input_reads_,
-              vector<seqan::CharString>& umi_ids_, std::vector<seqan::Dna5String>& umis_,
+        Input(std::vector<seqan::CharString>& input_ids_, std::vector<seqan::Dna5String>& input_reads_,
+              std::vector<seqan::CharString>& umi_ids_, std::vector<seqan::Dna5String>& umis_,
               std::vector<seqan::Dna5String>& compressed_umis_, SparseGraphPtr& umi_graph_)
                 : input_ids(input_ids_), input_reads(input_reads_), umi_ids(umi_ids_), umis(umis_),
                   compressed_umis(compressed_umis_), umi_graph(umi_graph_) {}
@@ -66,14 +66,14 @@ namespace {
     };
 
     Input read_everything(const Params& params) {
-        vector<seqan::CharString> input_ids;
+        std::vector<seqan::CharString> input_ids;
         std::vector<seqan::Dna5String> input_reads;
         INFO("Reading records from " << params.reads_path);
         seqan::SeqFileIn reads_file(params.reads_path.c_str());
         readRecords(input_ids, input_reads, reads_file);
         INFO(input_ids.size() << " records read");
 
-        vector<seqan::CharString> umi_ids;
+        std::vector<seqan::CharString> umi_ids;
         std::vector<seqan::Dna5String> umis;
         INFO("Reading UMI records from " << params.umi_uncompressed_path);
         seqan::SeqFileIn umi_file(params.umi_uncompressed_path.c_str());

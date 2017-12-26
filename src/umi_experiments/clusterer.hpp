@@ -200,7 +200,7 @@ namespace clusterer {
         static ClusterPtr<ElementType> merge_clusters(const ClusterPtr<ElementType>& first, const ClusterPtr<ElementType>& second, const size_t id);
         static seqan::Dna5String findNewCenter(const std::vector<ElementType>& members);
         static void print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters);
-        void get_graph(const size_t tau, const size_t strategy, const size_t k, const vector<seqan::Dna5String> &sequences,
+        void get_graph(const size_t tau, const size_t strategy, const size_t k, const std::vector<seqan::Dna5String> &sequences,
                 const ReadDist &dist, Graph &graph, size_t &num_of_dist_computations) const;
 
         ManyToManyCorrespondenceUmiToCluster<Read> current_umi_to_cluster_;
@@ -213,7 +213,7 @@ namespace clusterer {
         for (auto& entry : umi_to_reads) {
             const auto& umi = umi_ptr_by_umi.at(entry.first);
             for (auto& read_idx : entry.second) {
-                const auto& cluster = make_shared<clusterer::Cluster<Read>>(reads_[read_idx], reads_[read_idx].GetSequence(), read_idx);
+                const auto& cluster = std::make_shared<clusterer::Cluster<Read>>(reads_[read_idx], reads_[read_idx].GetSequence(), read_idx);
                 current_umi_to_cluster_.add(umi, cluster);
             }
         }
@@ -329,15 +329,15 @@ namespace clusterer {
 
         std::ofstream file_with_seqs(fs::path(output_dir).append("clusters_with_huge_len_span.txt").string());
 
-        map<size_t, size_t> len_span_to_count;
-        map<size_t, map<size_t, size_t>> len_span_to_sizes;
+        std::map<size_t, size_t> len_span_to_count;
+        std::map<size_t, std::map<size_t, size_t>> len_span_to_sizes;
         for (const auto& cluster : current_umi_to_cluster_.toSet()) {
-            size_t min_len = numeric_limits<size_t>::max();
+            size_t min_len = std::numeric_limits<size_t>::max();
             size_t max_len = 0;
             for (const auto& read : cluster->members) {
                 size_t len = length(read.GetSequence());
-                min_len = min(min_len, len);
-                max_len = max(max_len, len);
+                min_len = std::min(min_len, len);
+                max_len = std::max(max_len, len);
             }
             len_span_to_count[max_len - min_len] ++;
             len_span_to_sizes[max_len - min_len][cluster->size()] ++;
@@ -351,7 +351,7 @@ namespace clusterer {
         }
         INFO("Number of clusters by difference between shortest and longest member.")
         for (const auto& entry : len_span_to_count) {
-            stringstream ss;
+            std::stringstream ss;
             ss << entry.first << " -> " << entry.second << ". ";
             for (const auto& size_entry : len_span_to_sizes[entry.first]) {
                 ss << " " << size_entry.first << ": " << size_entry.second;
@@ -589,7 +589,7 @@ namespace clusterer {
         {
             size_t cluster_id = 0;
             for (const auto& cluster : current_umi_to_cluster_.toSet()) {
-                repertoire_ids.emplace_back("intermediate_cluster___" + to_string(cluster_id) + "___size___" + to_string(cluster->size()));
+                repertoire_ids.emplace_back("intermediate_cluster___" + std::to_string(cluster_id) + "___size___" + std::to_string(cluster->size()));
                 repertoire_reads.push_back(cluster->center);
                 VERIFY(cluster->size() > 0);
                 for (const auto& read : cluster->members) {
@@ -650,7 +650,7 @@ namespace clusterer {
 
     template <typename ElementType>
     void Clusterer<ElementType>::print_umi_to_cluster_stats(const ManyToManyCorrespondenceUmiToCluster<ElementType>& umis_to_clusters) {
-        map<size_t, size_t> clusters_per_umi;
+        std::map<size_t, size_t> clusters_per_umi;
         for (const auto& umi : umis_to_clusters.fromSet()) {
             clusters_per_umi[umis_to_clusters.forth(umi).size()] ++;
         }

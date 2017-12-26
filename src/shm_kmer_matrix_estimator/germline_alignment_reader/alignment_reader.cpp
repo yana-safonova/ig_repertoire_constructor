@@ -53,8 +53,8 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
         std::string read_seq = std::string(seqan::toCString(*ReadIterator));
         ++ReadIterator;
         ++NamesIterator;
-        assert(ReadIterator != reads.cend());
-        assert(NamesIterator != names.cend());
+        VERIFY(ReadIterator != reads.cend());
+        VERIFY(NamesIterator != names.cend());
         std::string germline_seq = std::string(seqan::toCString(*ReadIterator));
         std::string gene_id = std::string(seqan::toCString(*NamesIterator));
         ++ReadIterator;

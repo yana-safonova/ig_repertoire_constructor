@@ -20,7 +20,7 @@ bool readArgs(int argc, char **argv, std::string& reads_file, std::string& graph
     po::variables_map vm;
     po::store(po::command_line_parser(argc, argv).options(cmdl_options).run(), vm);
     if (vm.count("help") || argc == 1) {
-        cout << cmdl_options << endl;
+        std::cout << cmdl_options << std::endl;
         return false;
     }
     po::notify(vm);

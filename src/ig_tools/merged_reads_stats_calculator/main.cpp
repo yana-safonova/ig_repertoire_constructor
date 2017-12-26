@@ -1,9 +1,9 @@
 #include "omp.h"
 #include "quality_statistics.hpp"
 
-void OutputMergedRL(vector<FastqRead> &reads, ostream &out) {
+void OutputMergedRL(std::vector<FastqRead> &reads, std::ostream &out) {
 	for(auto it = reads.begin(); it != reads.end(); it++)
-		out << it->seq.size() << endl;
+		out << it->seq.size() << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -16,8 +16,8 @@ int main(int argc, char *argv[]) {
 	 */
 
 	if(argc != 5) {
-		cout << "Invalid input parameters" << endl <<
-				"\t./compute_quality_stats left_reads.fq right_reads.fq merged_reads.fq output_dir" << endl;
+		std::cout << "Invalid input parameters" << std::endl <<
+				"\t./compute_quality_stats left_reads.fq right_reads.fq merged_reads.fq output_dir" << std::endl;
 		return 1;
 	}
 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	PairedReadQialityStatsCalculator paired_calculator(paired_reads, phred_offset);
 	paired_calculator.Calculate();
 	//paired_calculator.Stats().ShortPrint(cout);
-	ofstream out1((string(argv[4]) + "/paired_nucl_qual.stats").c_str());
+	std::ofstream out1((std::string(argv[4]) + "/paired_nucl_qual.stats").c_str());
 	paired_calculator.Stats().OutputNucleotideQuality(out1);
 
 	//cout << "Statistics for paired reads" << endl;
@@ -36,10 +36,10 @@ int main(int argc, char *argv[]) {
 	MergedReadQualityStatsCalculator merged_calculator(merged_reads, phred_offset);
 	merged_calculator.Calculate();
 	//merged_calculator.Stats().ShortPrint(cout);
-	ofstream out2((string(argv[4]) + "/merged_nucl_qual.stats").c_str());
+	std::ofstream out2((std::string(argv[4]) + "/merged_nucl_qual.stats").c_str());
 	merged_calculator.Stats().OutputNucleotideQuality(out2);
 
-	ofstream out3((string(argv[4]) + "/merged_rl.stats").c_str());
+	std::ofstream out3((std::string(argv[4]) + "/merged_rl.stats").c_str());
 	OutputMergedRL(merged_reads, out3);
 
 	return 0;

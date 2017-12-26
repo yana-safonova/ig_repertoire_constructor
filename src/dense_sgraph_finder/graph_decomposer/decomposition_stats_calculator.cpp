@@ -34,7 +34,7 @@ void DecompositionStatsCalculator::ComputeShortStats() {
     size_t num_nontrivial_classes = 0;
     for(size_t i = 0; i < class_edge_fillin_.size(); i++) {
         if(decomposition_->ClassSize(i) > 1) {
-            max_edge_fillin_ = max<double>(class_edge_fillin_[i], max_edge_fillin_);
+            max_edge_fillin_ = std::max<double>(class_edge_fillin_[i], max_edge_fillin_);
             average_fillin_ += class_edge_fillin_[i];
             num_nontrivial_classes++;
         }
@@ -60,17 +60,17 @@ double DecompositionStatsCalculator::ComputeClassFillin(size_t class_id) {
                                                          (decomposition_->ClassSize(class_id) - 1)) * 2;
 }
 
-void DecompositionStatsCalculator::WriteAllStats(ostream &out) {
+void DecompositionStatsCalculator::WriteAllStats(std::ostream &out) {
     TRACE("Initialization starts");
     Initialize();
     TRACE("Initialization ends");
     for (size_t i = 0; i < decomposition_->Size(); i++) {
-        assert(decomposition_->ClassSize(i) != 0);
-        out << i << "\t" << class_edge_fillin_[i] << endl;
+        VERIFY(decomposition_->ClassSize(i) != 0);
+        out << i << "\t" << class_edge_fillin_[i] << std::endl;
     }
 }
 
-void DecompositionStatsCalculator::WriteShortStats(ostream &) {
+void DecompositionStatsCalculator::WriteShortStats(std::ostream &) {
     INFO("Decomposition contains " << decomposition_->Size() << " classes");
     float trivial_classes_perc = float(num_trivial_classes_ * 100) / float(decomposition_->Size());
     if(decomposition_->Size() == 0)

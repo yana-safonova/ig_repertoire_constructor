@@ -1,10 +1,8 @@
-#include "include_me.hpp"
-
 const size_t HEADER_LEN = 80;
 const size_t BEF_HEADER_LEN = 20;
 
-string GetHeader(string header, char del) {
-	stringstream ss;
+std::string GetHeader(std::string header, char del) {
+	std::stringstream ss;
 	for(size_t i = 0; i < BEF_HEADER_LEN; i++)
 		ss << del;
 	ss << " " << header << " ";
@@ -14,16 +12,16 @@ string GetHeader(string header, char del) {
 	return ss.str();
 }
 
-string GetH1(string header) {
+std::string GetH1(std::string header) {
 	return GetHeader(header, '=');
 }
 
-string GetH2(string header) {
+std::string GetH2(std::string header) {
 	return GetHeader(header, '-');
 }
 
-string GetEnd() {
-	stringstream ss;
+std::string GetEnd() {
+	std::stringstream ss;
 	for(size_t i = 0; i < HEADER_LEN; i++)
 		ss << "=";
 	return ss.str();

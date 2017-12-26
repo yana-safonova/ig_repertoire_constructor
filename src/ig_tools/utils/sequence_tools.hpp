@@ -1,6 +1,7 @@
 #pragma once
 
-#include "include_me.hpp"
+#include <iostream>
+#include <set>
 
 char get_complementary(char nucl){
 	if(nucl == 'A' || nucl == 'a')
@@ -13,20 +14,20 @@ char get_complementary(char nucl){
 		return 'C';
 	if(nucl == 'N' || nucl == 'n')
 		return 'A';
-	cout << "Char " << nucl << " is not from nucleotide alphabet" << endl;
-	assert(false);
+    std::cout << "Char " << nucl << " is not from nucleotide alphabet" << std::endl;
+	VERIFY(false);
 	return 'A';
 }
 
-string reverse_complementary(string seq) {
-	string rc_seq = seq;
+std::string reverse_complementary(std::string seq) {
+	std::string rc_seq = seq;
 	for(size_t i = 0; i < seq.size(); i++)
 		rc_seq[seq.size() - i - 1] = get_complementary(seq[i]);
 	return rc_seq;
 }
 
-size_t HammingDistance(string s1, string s2) {
-	assert(s1.size() == s2.size());
+size_t HammingDistance(std::string s1, std::string s2) {
+	VERIFY(s1.size() == s2.size());
 	size_t dist = 0;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])
@@ -34,18 +35,18 @@ size_t HammingDistance(string s1, string s2) {
 	return dist;
 }
 
-set<size_t> DifferentPositions(string s1, string s2) {
-	assert(s1.size() == s2.size());
-	set<size_t> pos;
+std::set<size_t> DifferentPositions(std::string s1, std::string s2) {
+	VERIFY(s1.size() == s2.size());
+    std::set<size_t> pos;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])
 			pos.insert(i);
 	return pos;
 }
 
-string random_correction(string s1, string s2) {
-	assert(s1.size() == s2.size());
-	string s = s1;
+std::string random_correction(std::string s1, std::string s2) {
+	VERIFY(s1.size() == s2.size());
+	std::string s = s1;
 	for(size_t i = 0; i < s1.size(); i++)
 		if(s1[i] != s2[i])
 			s[i] = s2[i];
@@ -57,8 +58,8 @@ char GetRangomNucleotide() {
 	return nucls[rand() % 4];
 }
 
-string GetPalindrom(size_t half_size) {
-	string str;
+std::string GetPalindrom(size_t half_size) {
+	std::string str;
 	for(size_t i = 0; i < half_size; i++)
 		str = str + GetRangomNucleotide();
 	for(size_t i = 0; i < half_size; i++)

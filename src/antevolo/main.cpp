@@ -21,16 +21,6 @@ void create_console_logger(/*std::string cfg_filename*/) {
     attach_logger(lg);
 }
 
-std::string running_time_format(const perf_counter &pc) {
-    unsigned ms = (unsigned)pc.time_ms();
-    unsigned secs = (ms / 1000) % 60;
-    unsigned mins = (ms / 1000 / 60) % 60;
-    unsigned hours = (ms / 1000 / 60 / 60);
-    boost::format bf("%u hours %u minutes %u seconds");
-    bf % hours % mins % secs;
-    return bf.str();
-}
-
 void prepare_output_dir(const antevolo::AntEvoloConfig &config) {
     path::make_dir(config.output_params.output_dir);
     path::make_dir(config.output_params.tree_dir);

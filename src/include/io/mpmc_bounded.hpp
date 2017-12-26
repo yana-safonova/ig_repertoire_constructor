@@ -39,7 +39,7 @@ class mpmc_bounded_queue {
   mpmc_bounded_queue(size_t buffer_size)
       : buffer_(new cell_t [buffer_size])
       , buffer_mask_(buffer_size - 1) {
-    assert((buffer_size >= 2) && ((buffer_size & (buffer_size - 1)) == 0));
+    VERIFY((buffer_size >= 2) && ((buffer_size & (buffer_size - 1)) == 0));
     for (size_t i = 0; i != buffer_size; i += 1)
       buffer_[i].sequence_.store(i, std::memory_order_relaxed);
     enqueue_pos_.store(0, std::memory_order_relaxed);

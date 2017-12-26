@@ -20,6 +20,12 @@ namespace clusterer {
         };
     }
 
+    size_t abs_diff(size_t a, size_t b) {
+        if(a > b)
+            return a - b;
+        return b - a;
+    }
+
     ReadDist ClusteringMode::bounded_edit_dist(size_t limit, size_t max_indels, bool binary) {
         return [limit, max_indels, binary](const seqan::Dna5String& first, const seqan::Dna5String& second) {
             const size_t INF = std::numeric_limits<size_t>::max() / 2;

@@ -15,7 +15,7 @@ namespace dense_subgraph_finder {
         // config params
         const dsf_config::dense_sgraph_finder_params &dsf_params_;
         const dsf_config::metis_io_params &metis_params_;
-        string graph_filename_;
+        std::string graph_filename_;
 
         PermutationPtr CreatePermutation(SparseGraphPtr graph_ptr);
 
@@ -36,7 +36,7 @@ namespace dense_subgraph_finder {
     public:
         MetisDenseSubgraphConstructor(const dsf_config::dense_sgraph_finder_params &dsf_params,
                                       const dsf_config::metis_io_params &metis_params,
-                                      string graph_filename) :
+                                      std::string graph_filename) :
                 dsf_params_(dsf_params),
                 metis_params_(metis_params),
                 graph_filename_(graph_filename) { }

@@ -22,16 +22,6 @@ namespace {
         lg->add_writer(std::make_shared<console_writer>());
         attach_logger(lg);
     }
-
-    std::string running_time_format(const perf_counter &pc) {
-        unsigned ms = (unsigned)pc.time_ms();
-        unsigned secs = (ms / 1000) % 60;
-        unsigned mins = (ms / 1000 / 60) % 60;
-        unsigned hours = (ms / 1000 / 60 / 60);
-        boost::format bf("%u hours %u minutes %u seconds");
-        bf % hours % mins % secs;
-        return bf.str();
-    }
 }
 
 int main(int argc, char **argv) {

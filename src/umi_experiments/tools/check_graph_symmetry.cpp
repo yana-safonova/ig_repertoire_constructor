@@ -5,12 +5,12 @@
 
 int main(int, char **argv) {
     create_console_logger();
-    string input_file = argv[1];
+    std::string input_file = argv[1];
     const SparseGraphPtr graph = GraphReader(input_file).CreateGraph();
-    vector<vector<size_t> > g(graph->N());
+    std::vector<std::vector<size_t> > g(graph->N());
     int e = 0;
     for (size_t v = 0; v < graph->N(); v ++) {
-        g[v] = vector<size_t>();
+        g[v] = std::vector<size_t>();
         for (size_t u : graph->VertexEdges(v)) {
             g[v].push_back(u);
             e ++;

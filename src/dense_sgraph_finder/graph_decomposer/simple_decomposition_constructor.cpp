@@ -34,7 +34,7 @@ bool SimpleDecompositionConstructor::GlueVertexWithPreviousSet(size_t vertex) {
         return false;
     double edge_perc = ComputeEdgePercToPreviousSet(vertex);
     TRACE("Edge %: " << edge_perc);
-    assert(edge_perc <= 1.0);
+    VERIFY(edge_perc <= 1.0);
     return edge_perc >= edge_perc_threshold_;
 }
 

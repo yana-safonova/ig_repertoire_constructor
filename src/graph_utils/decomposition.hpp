@@ -1,5 +1,6 @@
 #pragma once
 
+#include <logger/logger.hpp>
 #include "graph_collapsed_structure.hpp"
 
 class Decomposition {
@@ -7,15 +8,15 @@ class Decomposition {
     size_t num_vertices_;
 
     // decomposition fields
-    vector<size_t> vertex_class_;
-    vector<set<size_t> > decomposition_classes_;
+    std::vector<size_t> vertex_class_;
+    std::vector<std::set<size_t> > decomposition_classes_;
 
     // number of all classes: real and removed
     size_t num_classes_;
 
     void InitializeVertexClasses();
 
-    vector<size_t> ReadClassIdsFromIfstream(ifstream &in);
+    std::vector<size_t> ReadClassIdsFromIfstream(std::ifstream &in);
 
     void AddNewClass();
 
@@ -29,18 +30,18 @@ public:
         InitializeVertexClasses();
     }
 
-    Decomposition(string decomposition_filename);
+    Decomposition(std::string decomposition_filename);
 
     void SetClass(size_t vertex, size_t class_id);
 
-    void AddDecomposition(shared_ptr<Decomposition> decomposition);
+    void AddDecomposition(std::shared_ptr<Decomposition> decomposition);
 
-    const set<size_t>& GetClass(size_t index) const {
-        assert(index < Size());
+    const std::set<size_t>& GetClass(size_t index) const {
+        VERIFY(index < Size());
         return decomposition_classes_[index];
     }
 
-    const set<size_t>& LastClass() const { return GetClass(Size() - 1); }
+    const std::set<size_t>& LastClass() const { return GetClass(Size() - 1); }
 
     size_t ClassSize(size_t index) const { return GetClass(index).size(); }
 
@@ -51,7 +52,7 @@ public:
     size_t VertexNumber() const { return vertex_class_.size(); }
 
     size_t GetVertexClass(size_t vertex) const {
-        assert(vertex < VertexNumber());
+        VERIFY(vertex < VertexNumber());
         return vertex_class_[vertex];
     }
 
@@ -61,7 +62,7 @@ public:
 
     size_t Size() const { return decomposition_classes_.size(); }
 
-    void SaveTo(string output_fname);
+    void SaveTo(std::string output_fname);
 
     bool LastClassContains(size_t vertex) const {
         return LastClass().find(vertex) != LastClass().end();
@@ -77,8 +78,8 @@ private:
     DECL_LOGGER("Decomposition");
 };
 
-typedef set<size_t> DecompositionClass;
+typedef std::set<size_t> DecompositionClass;
 
-ostream& operator<<(ostream &out, const Decomposition &hg_decomposition);
+std::ostream& operator<<(std::ostream &out, const Decomposition &hg_decomposition);
 
-typedef shared_ptr<Decomposition> DecompositionPtr;
+typedef std::shared_ptr<Decomposition> DecompositionPtr;

@@ -6,7 +6,6 @@
 // d(s, "") = d("", s) = lizard_tail(|s|)
 // d(Xs, Yz) = max(match(X, Y) + d(s, z); indel_cost + d(Xs, z); indel_cost + d(s, Yz))
 #include <seqan/seq_io.h>
-#include <cassert>
 #include <vector>
 #include <algorithm>
 

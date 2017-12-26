@@ -155,7 +155,7 @@ class ClustersEvaluator {
 	}
 
 	bool IsClusterBigAndSingletons(size_t orig_cluster_ind) {
-		assert(IsClusterNotMerged(orig_cluster_ind));
+		VERIFY(IsClusterNotMerged(orig_cluster_ind));
 		vector<string> read_names = GetReadNamesFromCluster(orig_cluster_ind, original_clusters_, original_reads_);
 
 		set<size_t> not_trivial_clusters;
@@ -182,7 +182,7 @@ class ClustersEvaluator {
 		set<size_t> orig_clusters_inds;
 		for(auto it = read_names.begin(); it != read_names.end(); it++)
 			orig_clusters_inds.insert(original_clusters_.GetCluster(*it));
-		assert(orig_clusters_inds.size() == 1);
+		VERIFY(orig_clusters_inds.size() == 1);
 		return *(orig_clusters_inds.begin());
 	}
 

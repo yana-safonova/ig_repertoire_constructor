@@ -31,7 +31,7 @@ CustomGeneChooser::ReadProbabilities(const std::string& filename,
             break;
         Tokenizer tokenizer(line);
         parsed_vector.assign(tokenizer.begin(), tokenizer.end());
-        assert(parsed_vector.size() == 2);
+        VERIFY(parsed_vector.size() == 2);
         size_t index_of_current_gene = igdb.GetIndexByName(parsed_vector.front());
         probs[index_of_current_gene] = std::stod(parsed_vector.back());
         VERIFY(probs[index_of_current_gene] >= 0 and
