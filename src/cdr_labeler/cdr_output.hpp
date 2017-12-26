@@ -2,7 +2,6 @@
 
 #include "cdr_config.hpp"
 #include <annotation_utils/annotated_clone_set.hpp>
-#include <vj_alignment_info.hpp>
 #include "compressed_cdr_set.hpp"
 
 namespace cdr_labeler {
@@ -10,9 +9,6 @@ namespace cdr_labeler {
         const CDRLabelerConfig::OutputParams &output_config_;
         //const vj_finder::VJAlignmentInfo &alignment_info_;
         const annotation_utils::CDRAnnotatedCloneSet &clone_set_;
-
-        std::ostream& OutputCloneRegion(std::ostream& out, const annotation_utils::AnnotatedClone &clone,
-                                       annotation_utils::StructuralRegion region) const;
 
         void OutputRegionFasta(std::string output_fname, annotation_utils::StructuralRegion region) const;
 
@@ -43,5 +39,12 @@ namespace cdr_labeler {
         void OutputSHMs() const;
 
         void OutputCleanedReads() const;
+    };
+
+    struct DivanReportEvalContext {
+        const annotation_utils::AnnotatedClone& cdr_clone;
+        const alignment_utils::ImmuneGeneReadAlignment& v_alignment;
+        const alignment_utils::ImmuneGeneReadAlignment& j_alignment;
+        const std::size_t total_clone_sizes;
     };
 }

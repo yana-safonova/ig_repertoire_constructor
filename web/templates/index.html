@@ -1,0 +1,283 @@
+{% extends 'template.html' %}
+{% block title %}IgReC - web app{% endblock %}
+{% block head %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $("#filetree").fileTree({
+        script: "/jQueryFileTree",
+        root: "/"
+    }, function(file) {
+        $("#filetree").attr("data-file", file);
+    });
+
+    $("#select-button").click(function() {
+        var target = $("#filetree").attr("data-target");
+        $(target).val($("#filetree").attr("data-file"));
+        $("#fileOpenDialog").modal("hide")
+    });
+
+    $("#filetree").on("dblclick", ".file", function(event) {
+        var target = $("#filetree").attr("data-target");
+        $(target).val(event.target.rel);
+        $("#fileOpenDialog").modal("hide")
+    });
+
+    $(".btn-browse").click(function() {
+        $('#fileOpenDialog').modal('show')
+        $('#filetree').attr("data-target", $(this).attr("data-target"));
+    });
+});
+
+
+$(document).ready(function() {
+// We have to specify trigger for the correct disappearing
+// https://stackoverflow.com/questions/33584392/bootstraps-tooltip-doesnt-disappear-after-button-click-mouseleave
+$('[data-toggle="tooltip"]').tooltip({
+    trigger: 'hover'
+});
+});
+</script>
+
+<style>
+.no-transition {
+    transition: none !important;
+}
+
+div.tooltip-inner {
+    max-width: 350px;
+}
+</style>
+
+
+{% endblock %}
+{% block body %}
+<form class="form-horizontal" method="post" action="/run_igrec">
+<fieldset>
+
+<legend>Running tool parameters</legend>
+
+
+<!-- <div class="form-group"> -->
+<!--     <label class="col-md-4 control-label" for="tool">Tool</label> -->
+<!--     <div class="col-md-4"> -->
+<!--         <label class="radio-inline" for="tool-igrec"> -->
+<!--             <input type="radio" name="tool" id="tool-igrec" value="igrec" checked> -->
+<!--             IgReC -->
+<!--         </label> -->
+<!--         <label class="radio-inline" for="tool-mitools"> -->
+<!--             <input type="radio" name="tool" id="tool-mitools" value="mitools"> -->
+<!--             MiXCR/MiGEC -->
+<!--         </label> -->
+<!--     </div> -->
+<!-- </div> -->
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="readstype">Reads type</label>
+    <div class="col-md-4">
+        <label class="radio-inline" for="readstype-paired">
+            <input type="radio" name="readstype" id="readstype-paired" value="paired" data-toggle="collapse" data-target="#paired-reads-group:not(.in),#merged-reads-group.in">
+            Paired reads
+        </label>
+        <label class="radio-inline" for="readstype-merged">
+            <input type="radio" name="readstype" id="readstype-merged" value="merged" checked data-toggle="collapse" data-target="#merged-reads-group:not(.in),#paired-reads-group.in">
+            Merged reads
+        </label>
+    </div>
+</div>
+
+<!-- TODO Try this approach https://stackoverflow.com/questions/29151241/using-bootstrap-collapse-on-radio-buttons-to-show-hide-content-no-js -->
+
+<div class="collapse in no-transition" id="merged-reads-group">
+<div class="form-group">
+  <label class="col-md-4 control-label" for="merged-reads-file">Merged reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="merged-reads-file" name="merged-reads-file" class="form-control" placeholder="merged reads file" type="text" required="">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#merged-reads-file">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+</div>
+
+<div class="collapse no-transition" id="paired-reads-group">
+<div class="form-group">
+  <label class="col-md-4 control-label" for="paired-reads-file-left">Left reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-left" name="paired-reads-file-left" class="form-control" placeholder="left reads file" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-left">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+
+  <label class="col-md-4 control-label" for="paired-reads-file-right">Right reads</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="paired-reads-file-right" name="paired-reads-file-right" class="form-control" placeholder="right reads file" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#paired-reads-file-right">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+</div>
+
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="organism">Organism</label>
+    <div class="col-md-2">
+        <select id="organism" name="organism" class="selectpicker form-control">
+            {% for organism in "human mouse pig rabbit rat rhesus_monkey".split() %}
+            <option value="{{organism}}"{{' selected' if organism == 'human' else ''}}> {{organism}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="loci">Loci</label>
+    <div class="col-md-1">
+        <select id="loci" name="loci" class="selectpicker form-control">
+            {% for loci in "IGH IGK IGL IG TRA TRB TRG TRD TR all".split() %}
+            <option value="{{loci}}"{{'selected' if loci == 'IG' else ''}}>{{loci}}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+
+<!-- TODO try https://v4-alpha.getbootstrap.com/components/collapse/ -->
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="barcodingtype">Barcoding</label>
+    <div class="col-md-4">
+        <div class="radio">
+            <label for="barcodingtype-no" data-toggle="tooltip" data-placement="right" title="Not using barcoding, perform IgReC run">
+                <input type="radio" name="barcodingtype" id="barcodingtype-no" value="no" checked="checked" data-toggle="collapse" data-target="#barcodes-group:.in">
+                No barcoding
+            </label>
+        </div>
+        <div class="radio">
+            <label for="barcodingtype-ids" data-toggle="tooltip" data-placement="right" title="Barcodes encoded in reads IDs, e.g., &gt;93844_mutated_from_2966_UMI:CACACGCAACCAATA">
+                <input type="radio" name="barcodingtype" id="barcodingtype-ids" value="ids" data-toggle="collapse" data-target="#barcodes-group.in">
+                Barcodes in read IDs
+            </label>
+        </div>
+        <!-- <div class="radio"> -->
+        <!--     <label for="barcodingtype-file" data-toggle="tooltip" data-placement="right" title="Barcodes in a separate read file with the same IDs as IG reads"> -->
+        <!--         <input type="radio" name="barcodingtype" id="barcodingtype-file" value="file" data-toggle="collapse" data-target="#barcodes-group:not(.in)"> -->
+        <!--         Barcodes in a file -->
+        <!--     </label> -->
+        <!-- </div> -->
+    </div>
+</div>
+
+<!-- Use outside div block for smooth animation -->
+<!-- Thanks https://stackoverflow.com/questions/27221332/bootstrap-collapse-animation-not-smooth -->
+<div class="collapse no-transition" id="barcodes-group">
+<div class="form-group">
+  <label class="col-md-4 control-label" for="barcodes-file">Barcodes file</label>
+  <div class="col-md-5">
+    <div class="input-group">
+      <input id="barcodes-file" name="barcodes-file" class="form-control" placeholder="barcodes file name" type="text">
+      <span class="input-group-btn">
+          <button type="button" class="btn btn-secondary btn-browse" data-target="#barcodes-file">browse...</button>
+      </span>
+    </div>
+    <!-- <p class="help-block">help</p> -->
+  </div>
+</div>
+</div>
+
+<!-- TODO Collapse does not work perfectly with keyboard arrow radio switching -->
+
+
+<div class="form-group">
+    <div class="col-md-4 control-label">
+        <a data-toggle="collapse" href="#" data-target="#additional-options">
+            Addtitional options...
+        </a>
+    </div>
+</div>
+
+<div class="collapse no-transition" id="additional-options">
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="tool">Quality Assesstment</label>
+        <div class="col-md-5">
+            <label class="checkbox-inline" for="do-igquast">
+                <input type="checkbox" name="do-igquast" id="do-igquast" value="" checked>
+                Perform Quality Assesstment (IgQUAST)
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="skip-alignment">Alignment</label>
+        <div class="col-md-4">
+            <label class="checkbox-inline" for="skip-alignment">
+                <input type="checkbox" name="skip-alignment" id="skip-alignment" value="">
+                Skip VJ-Alignment phase
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="threads">Threads</label>
+        <div class="col-md-1">
+            <select id="threads" name="threads" class="selectpicker form-control">
+                {% for threads in [1, 2, 4, 8, 16, 32] %}
+                <option value="{{threads}}"{{'selected' if threads == 4 else ''}}>{{threads}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-md-4 control-label" for="tau">Maximum allowed mismatches (tau)</label>
+        <div class="col-md-1">
+            <select id="tau" name="tau" class="selectpicker form-control">
+                {% for tau in [0, 1, 2, 3, 4] %}
+                <option value="{{tau}}"{{'selected' if tau == 4 else ''}}>{{tau}}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-md-4 control-label" for="submit-button"></label>
+    <div class="col-md-4">
+        <input type="submit" name="submit-button" class="btn btn-primary" value="Run IgReC">
+    </div>
+</div>
+
+</fieldset>
+</form>
+
+<!-- Modal dialog -->
+<div class="modal fade" id="fileOpenDialog" role="dialog">
+    <div class="modal-dialog" style="overflow-y: initial !important"> <!-- https://stackoverflow.com/questions/25874001/how-to-put-scrollbar-only-for-modal-body-in-bootstrap-modal-dialog -->
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Select read file</h4>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="filetree"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="select-button">Select</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

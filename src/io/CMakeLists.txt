@@ -10,6 +10,7 @@ add_library(input STATIC
             parser.cpp
             path_helper.cpp
             copy_file.cpp
-            library.cpp)
+            library.cpp
+            ReportColumns.hpp)
 
 target_link_libraries(input yaml-cpp)

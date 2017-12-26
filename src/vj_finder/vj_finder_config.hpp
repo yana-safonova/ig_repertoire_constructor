@@ -6,6 +6,7 @@
 #include "germline_utils/germline_config.hpp"
 #include <boost/algorithm/string/trim.hpp>
 #include "../ig_tools/utils/string_tools.hpp"
+#include "../io/ReportColumns.hpp"
 
 namespace vj_finder {
     struct VJFinderConfig {
@@ -32,43 +33,26 @@ namespace vj_finder {
                 };
 
                 struct OutputDetails {
-                    enum AlignmentInfoColumnType {
-                        ReadName,
-                        ChainType,
-                        VHit,
-                        VStartPos,
-                        VEndPos,
-                        VScore,
-                        JHit,
-                        JStartPos,
-                        JEndPos,
-                        JScore
-                    };
+                    struct AlignmentInfoColumnTypes {
+                        enum ColumnTypeEnum {
+                            ReadName,
+                            ChainType,
+                            VHit,
+                            VStartPos,
+                            VEndPos,
+                            VScore,
+                            JHit,
+                            JStartPos,
+                            JEndPos,
+                            JScore
+                        };
 
-                    class AlignmentColumns {
-                    public:
-                        AlignmentColumns() {}
-
-                        AlignmentColumns(std::vector<AlignmentInfoColumnType> columns_, std::string csv_header_) :
-                                csv_header(csv_header_), columns(columns_) {}
-
-                        static AlignmentColumns CreateFromString(std::string columns_raw);
-
-                        std::string GetCsvHeader() const { return csv_header; }
-
-                        std::vector<AlignmentInfoColumnType> GetColumns() const { return columns; }
-
-                    private:
-                        std::string csv_header;
-
-                        std::vector<AlignmentInfoColumnType> columns;
-
-                        static const std::map<std::string, AlignmentInfoColumnType> string_to_column_type;
+                        static const std::map<std::string, ColumnTypeEnum> string_to_column_type;
                     };
 
                     bool fix_spaces;
                     size_t num_aligned_candidates;
-                    AlignmentColumns alignment_columns;
+                    std::string alignment_columns;
                 };
 
                 OutputFiles output_files;

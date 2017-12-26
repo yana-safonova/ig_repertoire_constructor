@@ -1,0 +1,133 @@
+{% extends 'template.html' %}
+{% block title %}IgReC - task status{% endblock %}
+{% block body %}
+
+<legend>Files upload</legend>
+<div class="row">
+    <div class="col-lg-offset-2 col-lg-8">
+        <button type="button" class="btn btn-success" aria-label="Add files" id="add-file-btn">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add files
+        </button>
+        <button type="button" class="btn btn-info" aria-label="Start upload" id="start-upload-btn">
+            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span> Start upload
+        </button>
+        <button type="button" class="btn btn-warning hide" aria-label="Pause upload" id="pause-upload-btn">
+            <span class="glyphicon glyphicon-pause " aria-hidden="true"></span>
+            <span class="text">Pause upload</span>
+        </button>
+        <!-- <button type="button" class="btn btn-danger" aria-label="Cancel upload" id="cancel-upload-btn"> -->
+        <!--     <span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span> Cancel upload -->
+        <!-- </button> -->
+    </div>
+
+
+    <div class="col-lg-offset-2 col-lg-8">
+        <p>
+        <div class="progress hide" id="upload-progress">
+            <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" style="width: 0%">
+                <span class="sr-only"></span>
+            </div>
+        </div>
+        </p>
+    </div>
+</div>
+
+<!-- TODO Check out other libraries https://colorlib.com/wp/jquery-file-upload-scripts/ -->
+
+<script>
+    var r = new Resumable({
+        target: '/upload',
+        testChunks: true
+    });
+
+    r.assignBrowse(document.getElementById('add-file-btn'));
+
+    $('#start-upload-btn').click(function(){
+        r.upload();
+    });
+
+    $('#pause-upload-btn').click(function(){
+        if (r.files.length > 0) {
+            if (r.isUploading()) {
+              return  r.pause();
+            }
+            return r.upload();
+        }
+    });
+
+    $('#cancel-upload-btn').click(function() {
+        return r.cancel();
+    });
+
+    var progressBar = new ProgressBar($('#upload-progress'));
+
+    r.on('fileAdded', function(file){
+        progressBar.fileAdded();
+    });
+
+    r.on('fileError', function(file, message) {
+        console.log("Error during file upload. File " + file + " message " + message);
+    });
+
+    // r.on('fileSuccess', function(file, message){
+    //     progressBar.finish();
+    //     $('#pause-upload-btn').addClass('hide');
+    // });
+
+    r.on('complete', function() {
+         progressBar.finish();
+         $('#pause-upload-btn').addClass('hide');
+    });
+
+    r.on('progress', function(){
+        progressBar.uploading(r.progress()*100);
+        $('#pause-upload-btn').removeClass('hide');
+        $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-play').addClass('glyphicon-pause');
+        $('#pause-upload-btn').find(".text").text("Pause upload");
+    });
+
+    r.on('pause', function(){
+        $('#pause-upload-btn').removeClass('hide');
+        $('#pause-upload-btn').find('.glyphicon').removeClass('glyphicon-pause').addClass('glyphicon-play');
+        $('#pause-upload-btn').find(".text").text("Resume upload");
+    });
+
+    function ProgressBar(ele) {
+        this.thisEle = $(ele);
+        this.bar = $(ele).find(".progress-bar");
+
+        this.fileAdded = function() {
+            this.thisEle.removeClass('hide').find('.progress-bar').css('width','0%');
+        },
+
+        this.setClass = function(cl) {
+            this.bar.removeClass('progress-bar-success').removeClass('progress-bar-info').removeClass('progress-bar-danger');
+            this.bar.addClass(cl);
+        },
+
+        this.error = function() {
+            this.setClass('progress-bar-danger');
+        },
+
+        this.setValue = function(progress) {
+            this.bar.attr('style', "width:"+progress+'%');
+        },
+
+        this.uploading = function(progress) {
+            this.setValue(progress);
+            this.setClass('progress-bar-info');
+        },
+
+        this.finish = function() {
+            this.setValue(100);
+            this.setClass('progress-bar-success');
+        }
+    }
+</script>
+
+</body>
+</html>
+
+</div>
+{% endblock %}
+

@@ -11,7 +11,6 @@ namespace cdr_labeler {
     }
 
     void update_output_config(CDRLabelerConfig::OutputParams &op) {
-        op.cdr_details = path::append_path(op.output_dir, op.cdr_details);
         op.cdr1_fasta = path::append_path(op.output_dir, op.cdr1_fasta);
         op.cdr2_fasta = path::append_path(op.output_dir, op.cdr2_fasta);
         op.cdr3_fasta = path::append_path(op.output_dir, op.cdr3_fasta);
@@ -20,12 +19,19 @@ namespace cdr_labeler {
         op.cleaned_reads = path::append_path(op.output_dir, op.cleaned_reads);
         op.shm_details = path::append_path(op.output_dir, op.shm_details);
         op.trash_output = path::append_path(op.output_dir, op.trash_output);
+        op.feature_report_params.cdr_details = path::append_path(op.output_dir, op.feature_report_params.cdr_details);
+    }
+
+    void load(CDRLabelerConfig::OutputParams::FeatureReportParams &op, boost::property_tree::ptree const &pt, bool) {
+        using config_common::load;
+        load(op.cdr_details, pt, "cdr_details", true);
+        load(op.preset, pt, "preset");
+        load(op.columns, pt, "columns");
     }
 
     void load(CDRLabelerConfig::OutputParams &op, boost::property_tree::ptree const &pt, bool) {
         using config_common::load;
         load(op.output_dir, pt, "output_dir");
-        load(op.cdr_details, pt, "cdr_details");
         load(op.shm_details, pt, "shm_details");
         load(op.cdr1_fasta, pt, "cdr1_fasta");
         load(op.cdr2_fasta, pt, "cdr2_fasta");
@@ -34,6 +40,7 @@ namespace cdr_labeler {
         load(op.v_alignment_fasta, pt, "v_alignment_fasta");
         load(op.cleaned_reads, pt, "cleaned_reads");
         load(op.trash_output, pt, "trash_output");
+        load(op.feature_report_params, pt, "feature_report_params");
         update_output_config(op);
     }
 
@@ -141,7 +148,7 @@ namespace cdr_labeler {
         load(shm_fp.j_end_max_skipped, pt, "j_end_max_skipped");
     }
 
-    CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm convert_str_shm_search_params(std::string str) {
+    CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm convert_str_shm_search_params(const std::string& str) {
         if(str == "filtering_algorithm")
             return CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::FilteringSHMAlgorithm;
         if(str == "cdr_filtering_algorithm")

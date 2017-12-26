@@ -2010,6 +2010,10 @@ class Repertoire:
             values = self.__errors_by_positions()
 
         l = len(values)
+        if l == 0:
+            # TODO Debug it
+            return
+
         bins = np.arange(l + 1)
 
         widths = bins[1:] - bins[:-1]

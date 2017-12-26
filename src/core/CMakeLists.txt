@@ -9,6 +9,6 @@ add_library(core STATIC
         aa_utils/aa_motif_finder.cpp
         convert.cpp
         decomposition.cpp
-        )
+        CloneInfo.cpp CloneInfo.hpp)
 
 target_link_libraries(core input)
