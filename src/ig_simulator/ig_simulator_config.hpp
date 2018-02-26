@@ -126,9 +126,15 @@ struct IgSimulatorConfig {
                     double lambda;
                 };
 
-                enum class TreeSizeGeneratorMethod { Geometric };
+                struct UniformParams {
+                    size_t low;
+                    size_t high;
+                };
+
+                enum class TreeSizeGeneratorMethod { Geometric, Uniform };
                 TreeSizeGeneratorMethod method;
                 GeometricParams geometric_params;
+                UniformParams uniform_params;
             };
 
             struct SHM_CreatorParams {
