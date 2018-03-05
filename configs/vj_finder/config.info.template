@@ -56,7 +56,7 @@ algorithm_params {
         enable_filtering            true
         left_uncovered_limit        16
         right_uncovered_limit       5
-        min_v_segment_length        250
+        min_v_segment_length        220
         min_j_segment_length        30
         min_aligned_length          300
     }

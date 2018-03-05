@@ -4,22 +4,22 @@
 
 namespace antevolo {
     Base_CDR3_HG_CC_Processor::Base_CDR3_HG_CC_Processor(
-              CloneSetWithFakesPtr clone_set_ptr,
-              const AntEvoloConfig::AlgorithmParams &config,
-              const AnnotatedCloneByReadConstructor& clone_by_read_constructor,
-              CDR3HammingGraphInfo& hamming_graph_info,
-              size_t current_fake_clone_index) :
+            CloneSetWithFakesPtr clone_set_ptr,
+            const AntEvoloConfig::AlgorithmParams &config,
+            const AnnotatedCloneByReadConstructor &clone_by_read_constructor,
+            CDR3HammingGraphComponentInfo &hamming_graph_info,
+            size_t current_fake_clone_index) :
             clone_set_ptr_(clone_set_ptr),
             config_(config),
             clone_by_read_constructor_(clone_by_read_constructor),
             hamming_graph_info_(hamming_graph_info),
             current_fake_clone_index_(current_fake_clone_index),
-            reconstructed_(0) { }
+            reconstructed_(0) {}
 
 
     void Base_CDR3_HG_CC_Processor::AddUndirectedForest(boost::disjoint_sets<AP_map, AP_map> &ds_on_undirected_edges,
                                                         const boost::unordered_set<size_t> &vertices_nums) {
-        const auto& clone_set = *clone_set_ptr_;
+        const auto &clone_set = *clone_set_ptr_;
         for (auto src_num : vertices_nums) {
             size_t dst_num;
             auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[src_num]);
@@ -56,9 +56,9 @@ namespace antevolo {
         }
     }
 
-    void Base_CDR3_HG_CC_Processor::ReconstructMissingVertices(boost::unordered_set<size_t>& vertices_nums,
-                                                                  EvolutionaryTree& tree) {
-        const auto& clone_set = *clone_set_ptr_;
+    void Base_CDR3_HG_CC_Processor::ReconstructMissingVertices(boost::unordered_set<size_t> &vertices_nums,
+                                                               EvolutionaryTree &tree) {
+        const auto &clone_set = *clone_set_ptr_;
         auto edge_constructor = GetEdgeConstructor();
         boost::unordered_map<size_t, EvolutionaryEdgePtr> roots_nearest_neighbours;
         std::vector<size_t> roots;
@@ -72,10 +72,11 @@ namespace antevolo {
         }
 
         for (size_t root_num : roots) {
-            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[root_num]);
-            while (it.HasNext()) {
-                size_t dst_num = it.Next();
-                VERIFY(vertices_nums.find(dst_num) != vertices_nums.end());
+//            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[root_num]);
+//            while (it.HasNext()) {
+//                size_t dst_num = it.Next();
+//                VERIFY(vertices_nums.find(dst_num) != vertices_nums.end());
+            for (size_t dst_num : vertices_nums) {
                 if (dst_num == root_num) {
                     continue;
                 }
@@ -95,7 +96,7 @@ namespace antevolo {
         while (true) {
             size_t best_root_index = 0;
             size_t best_root_edge_length = EVO_EDGE_MAX_LENGTH;
-            for (size_t i = 0; i < roots.size(); ++i)  {
+            for (size_t i = 0; i < roots.size(); ++i) {
                 if (!tree.HasParentEdge(roots[i]) &&
                     rejected_roots.find(roots[i]) == rejected_roots.end() &&
                     roots_nearest_neighbours.find(roots[i]) != roots_nearest_neighbours.end() &&
@@ -136,17 +137,18 @@ namespace antevolo {
         }
     }
 
-    void Base_CDR3_HG_CC_Processor::Refine(boost::unordered_set<size_t>& vertices_nums,
-                                           EvolutionaryTree& tree) {
-        auto& clone_set = *clone_set_ptr_;
+    void Base_CDR3_HG_CC_Processor::Refine(boost::unordered_set<size_t> &vertices_nums,
+                                           EvolutionaryTree &tree) {
+        auto &clone_set = *clone_set_ptr_;
         auto edge_constructor = GetEdgeConstructor();
         boost::unordered_map<size_t, EvolutionaryEdgePtr> best_intersected_edges;
         boost::unordered_map<size_t, EvolutionaryEdgePtr> best_reverse_edges;
 //        INFO("start refinement");
         for (size_t clone_num : vertices_nums) {
-            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[clone_num]);
-            while (it.HasNext()) {
-                size_t src_num = it.Next();
+//            auto it = getRelatedClonesIterator(hamming_graph_info_, clone_set[clone_num]);
+//            while (it.HasNext()) {
+//                size_t src_num = it.Next();
+            for (size_t src_num : vertices_nums) {
                 VERIFY(vertices_nums.find(src_num) != vertices_nums.end());
                 if (src_num == clone_num) {
                     continue;
@@ -156,10 +158,16 @@ namespace antevolo {
                         clone_set[clone_num],
                         src_num,
                         clone_num);
+
+                auto chain = clone_set[clone_num].ChainType().Chain();
+                if (edge->CDR3Distance() > config_.GetNumMismatchesByChainType(chain) +
+                                           config_.similar_cdr3s_params.num_indels) {
+                    continue;
+                }
                 if (edge->IsIntersected()) {
                     if ((best_intersected_edges.find(clone_num) == best_intersected_edges.end() ||
                          edge->Length() < best_intersected_edges[clone_num]->Length()) &&
-                            CheckClonesConsistencyForReconstruction(*edge->SrcClone(), *edge->DstClone())) {
+                        CheckClonesConsistencyForReconstruction(*edge->SrcClone(), *edge->DstClone())) {
                         best_intersected_edges[clone_num] = edge;
                     }
                 }
@@ -183,7 +191,7 @@ namespace antevolo {
 //            INFO("here");
             size_t reverse_cost = size_t(-1);
             size_t intersected_cost = size_t(-1);
-            size_t default_cost= tree.GetParentEdgeLength(clone_num);
+            size_t default_cost = tree.GetParentEdgeLength(clone_num);
 //            INFO("here 2");
             if (best_reverse_edges.find(clone_num) != best_reverse_edges.end()) {
                 reverse_cost = best_reverse_edges[clone_num]->Length();
@@ -202,11 +210,10 @@ namespace antevolo {
                         tree.ReplaceEdge(clone_num, edge);
                         continue;
                     }
-                }
-                else {
+                } else {
 //                    INFO("reconstruction case");
-                    const auto& left = *edge->SrcClone();
-                    const auto& right= *edge->DstClone();
+                    const auto &left = *edge->SrcClone();
+                    const auto &right = *edge->DstClone();
                     size_t left_num = edge->SrcNum();
                     size_t right_num = clone_num;
                     size_t parent_num = clone_set.size();
@@ -276,7 +283,7 @@ namespace antevolo {
         }
     }
 
-    bool Base_CDR3_HG_CC_Processor::SecondCloneIsFirstsAncestor(EvolutionaryTree& tree,
+    bool Base_CDR3_HG_CC_Processor::SecondCloneIsFirstsAncestor(EvolutionaryTree &tree,
                                                                 size_t first_clone,
                                                                 size_t second_clone) {
         size_t current_clone = first_clone;
@@ -320,14 +327,14 @@ namespace antevolo {
             std::vector<size_t> &roots,
             boost::unordered_map<size_t, size_t> &iterator_index_map) {
         VERIFY_MSG(edge->IsIntersected(), "ancesrtal lineage reconstructor got a non-intersected edge");
-        auto& clone_set = *clone_set_ptr_;
+        auto &clone_set = *clone_set_ptr_;
         size_t left_num = edge->DstNum();
         size_t right_num = edge->SrcNum();
         while (tree.HasParentEdge(left_num)) {
             left_num = tree.GetParentEdge(left_num)->SrcNum();
         }
-        const auto& left = clone_set[left_num];
-        const auto& right = clone_set[right_num];
+        const auto &left = clone_set[left_num];
+        const auto &right = clone_set[right_num];
         auto edge_n = edge_constructor->ConstructEdge(left, right, left_num, right_num);
         if (edge_n->IsDirected()) {
             tree.ReplaceEdge(right_num, edge_n);
@@ -373,16 +380,15 @@ namespace antevolo {
     }
 
 
-
     void Base_CDR3_HG_CC_Processor::HandleRootNeighbour(
             size_t root_num,
             size_t dst_num,
-            boost::unordered_set<size_t>& vertices_nums,
-            EvolutionaryTree& tree,
-            boost::unordered_map<size_t, EvolutionaryEdgePtr>& roots_nearest_neighbours,
-            const std::shared_ptr<EvolutionaryEdgeConstructor>& edge_constructor) {
+            boost::unordered_set<size_t> &vertices_nums,
+            EvolutionaryTree &tree,
+            boost::unordered_map<size_t, EvolutionaryEdgePtr> &roots_nearest_neighbours,
+            const std::shared_ptr<EvolutionaryEdgeConstructor> &edge_constructor) {
 
-        const auto& clone_set = *clone_set_ptr_;
+        const auto &clone_set = *clone_set_ptr_;
         if (dst_num == root_num || vertices_nums.find(dst_num) == vertices_nums.end()) {
             return;
         }
@@ -415,8 +421,8 @@ namespace antevolo {
     }
 
     bool Base_CDR3_HG_CC_Processor::CheckClonesConsistencyForReconstruction(
-            const annotation_utils::AnnotatedClone& left,
-            const annotation_utils::AnnotatedClone& right) {
+            const annotation_utils::AnnotatedClone &left,
+            const annotation_utils::AnnotatedClone &right) {
         if (left.CDR3Range().length() != right.CDR3Range().length()) {
             return false;
         }

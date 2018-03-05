@@ -4,22 +4,24 @@
 
 #include <seqan/stream.h>
 #include <seqan/translation.h>
+#include <seqan/align.h>
+#include <convert.hpp>
 
 namespace annotation_utils {
-    std::ostream& operator<<(std::ostream& out, const StructuralRegion &region) {
-        if(region == StructuralRegion::CDR1)
+    std::ostream &operator<<(std::ostream &out, const StructuralRegion &region) {
+        if (region == StructuralRegion::CDR1)
             out << "CDR1";
-        else if(region == StructuralRegion::CDR2)
+        else if (region == StructuralRegion::CDR2)
             out << "CDR2";
-        else if(region == StructuralRegion::CDR3)
+        else if (region == StructuralRegion::CDR3)
             out << "CDR3";
-        else if(region == StructuralRegion::FR1)
+        else if (region == StructuralRegion::FR1)
             out << "FR1";
-        else if(region == StructuralRegion::FR2)
+        else if (region == StructuralRegion::FR2)
             out << "FR2";
-        else if(region == StructuralRegion::FR3)
+        else if (region == StructuralRegion::FR3)
             out << "FR3";
-        else if(region == StructuralRegion::FR4)
+        else if (region == StructuralRegion::FR4)
             out << "FR4";
         else
             out << "Unknown region";
@@ -29,7 +31,18 @@ namespace annotation_utils {
     void AnnotatedClone::CheckRangeConsistencyFatal(CDRRange range) {
         VERIFY(range.Full());
         VERIFY_MSG(range.start_pos < read_.length() and range.end_pos < read_.length(), "Start pos (" <<
-                range.start_pos << ") or end pos (" << range.end_pos << ") exceeds read length " << read_.length());
+                                                                                                      range.start_pos
+                                                                                                      << ") or end pos ("
+                                                                                                      << range.end_pos
+                                                                                                      << ") exceeds read length "
+                                                                                                      << read_.length());
+    }
+
+    bool AnnotatedClone::AnnotationIsNotValid() const {
+        return RegionIsEmpty(StructuralRegion::FR1) || RegionIsEmpty(StructuralRegion::CDR1) ||
+               RegionIsEmpty(StructuralRegion::FR2) || RegionIsEmpty(StructuralRegion::CDR2) ||
+               RegionIsEmpty(StructuralRegion::FR3) || RegionIsEmpty(StructuralRegion::CDR3) ||
+               RegionIsEmpty(StructuralRegion::FR4);
     }
 
     void AnnotatedClone::UpdateStructuralRegion(StructuralRegion region, CDRRange range) {
@@ -37,7 +50,7 @@ namespace annotation_utils {
         CheckRangeConsistencyFatal(range);
         region_range_map_[region] = range;
         seqan::Dna5String cdr_seq;
-        if(range.Valid())
+        if (range.Valid())
             cdr_seq = seqan::infixWithLength(read_.seq, range.start_pos, range.length());
         region_string_map_[region] = cdr_seq;
     }
@@ -61,7 +74,7 @@ namespace annotation_utils {
     }
 
     seqan::Dna5String AnnotatedClone::GetRegionString(StructuralRegion region) const {
-        if(region_range_map_.find(region) == region_range_map_.end())
+        if (region_range_map_.find(region) == region_range_map_.end())
             return seqan::Dna5String();
         //VERIFY_MSG(region_range_map_.find(region) != region_range_map_.end(),
         //           "Clone does not have information about region " << region);
@@ -73,12 +86,12 @@ namespace annotation_utils {
         return region_range_map_.at(region);
     }
 
-    const alignment_utils::ImmuneGeneReadAlignment& AnnotatedClone::GetAlignmentBySegment(
+    const alignment_utils::ImmuneGeneReadAlignment &AnnotatedClone::GetAlignmentBySegment(
             germline_utils::SegmentType segment_type) const {
         VERIFY_MSG(segment_type == germline_utils::SegmentType::VariableSegment or
-                           segment_type == germline_utils::SegmentType::JoinSegment,
+                   segment_type == germline_utils::SegmentType::JoinSegment,
                    "Segment " << segment_type << "is not variable or join");
-        if(segment_type == germline_utils::SegmentType::VariableSegment)
+        if (segment_type == germline_utils::SegmentType::VariableSegment)
             return VAlignment();
         return JAlignment();
     }
@@ -94,28 +107,45 @@ namespace annotation_utils {
     }
 
     StructuralRegion AnnotatedClone::GetRegionBySHM(SHM shm) const {
-        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR1).start_pos)
+        if (shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR1).start_pos)
             return StructuralRegion::FR1;
-        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR1).end_pos)
+        if (shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR1).end_pos)
             return StructuralRegion::CDR1;
-        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR2).start_pos)
+        if (shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR2).start_pos)
             return StructuralRegion::FR2;
-        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR2).end_pos)
+        if (shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR2).end_pos)
             return StructuralRegion::CDR2;
-        if(shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR3).start_pos)
+        if (shm.read_nucl_pos < GetRangeByRegion(StructuralRegion::CDR3).start_pos)
             return StructuralRegion::FR3;
-        if(shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR3).end_pos)
+        if (shm.read_nucl_pos <= GetRangeByRegion(StructuralRegion::CDR3).end_pos)
             return StructuralRegion::CDR3;
         return StructuralRegion::FR4;
     }
 
-    std::ostream& operator<<(std::ostream& out, const AnnotatedClone &obj) {
+    seqan::Dna5String AnnotatedClone::GetJDifferenceNucleotides(std::vector<size_t> positions) const {
+        // Heavy chain positions (distance to the end of the gene) = {17, 18, 19, 22, 25, 26, 27, 28}
+        auto row_gene = seqan::row(this->JAlignment().Alignment(), 0);
+        auto row_clone = seqan::row(this->JAlignment().Alignment(), 1);
+        std::string JNucleotides(positions.size(), 'N');
+        for (size_t i = 0; i < positions.size(); ++i) {
+            JNucleotides[i] = core::dna5String_to_string(row_clone[length(row_clone) - 1 - positions[i]])[0];
+        }
+        return seqan::Dna5String(JNucleotides);
+    }
+
+    seqan::Dna5String AnnotatedClone::GetCDR3JDifferenceNucleotides(std::vector<size_t> positions) const {
+        std::string cdr3 = core::dna5String_to_string(this->CDR3());
+        std::string Jnucl = core::dna5String_to_string(this->GetJDifferenceNucleotides(positions));
+        return seqan::Dna5String(cdr3 + Jnucl);
+    }
+
+    std::ostream &operator<<(std::ostream &out, const AnnotatedClone &obj) {
         out << obj.Read() << std::endl;
-        if(!obj.RegionIsEmpty(StructuralRegion::CDR1))
+        if (!obj.RegionIsEmpty(StructuralRegion::CDR1))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR1) << std::endl;
-        if(!obj.RegionIsEmpty(StructuralRegion::CDR2))
+        if (!obj.RegionIsEmpty(StructuralRegion::CDR2))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR2) << std::endl;
-        if(!obj.RegionIsEmpty(StructuralRegion::CDR3))
+        if (!obj.RegionIsEmpty(StructuralRegion::CDR3))
             out << "CDR1: " << obj.GetRegionString(StructuralRegion::CDR3) << std::endl;
         return out;
     }

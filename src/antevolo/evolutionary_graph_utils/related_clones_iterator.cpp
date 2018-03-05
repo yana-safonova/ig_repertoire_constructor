@@ -38,14 +38,14 @@ namespace antevolo {
         return next;
     }
 
-    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphInfo& hamming_graph_info, const std::string& cdr3) {
+    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphComponentInfo& hamming_graph_info, const std::string& cdr3) {
         size_t old_index = hamming_graph_info.GetOldIndexByCDR3(cdr3);
         ClonesSharingCDR3sIterator vectors_iterator(hamming_graph_info,
                                                     old_index);
         return RelatedClonesIterator(vectors_iterator);
     }
 
-    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphInfo& hamming_graph_info,
+    RelatedClonesIterator getRelatedClonesIterator(CDR3HammingGraphComponentInfo& hamming_graph_info,
                                                    const annotation_utils::AnnotatedClone& clone) {
         std::string cdr3;
         const auto& cdr3_dna5 = clone.CDR3();

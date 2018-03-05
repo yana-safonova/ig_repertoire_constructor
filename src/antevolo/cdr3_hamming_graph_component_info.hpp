@@ -5,7 +5,7 @@
 
 namespace antevolo {
 
-    class CDR3HammingGraphInfo {
+    class CDR3HammingGraphComponentInfo {
         typedef std::map<std::string, std::vector<size_t>> UniqueCDR3IndexMap;
         typedef std::map<std::string, size_t> CDR3ToIndexMap;
 
@@ -17,7 +17,7 @@ namespace antevolo {
         size_t component_id_;
 
     public:
-        CDR3HammingGraphInfo(GraphComponentMap& graph_component_map,
+        CDR3HammingGraphComponentInfo(GraphComponentMap& graph_component_map,
                              const UniqueCDR3IndexMap& cdr3_to_indices_vector_map,
                              const CDR3ToIndexMap& cdr3_to_old_index_map,
                              const std::vector<std::string>& unique_cdr3s,

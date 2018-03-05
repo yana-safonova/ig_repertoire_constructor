@@ -25,7 +25,7 @@ namespace antevolo {
         output_params.parallel_shm_output.parallel_bulges_dir = path::append_path(output_params.output_dir,
                                                                                   output_params.parallel_shm_output.parallel_bulges_dir);
         output_params.parallel_shm_output.parallel_shm_dir = path::append_path(output_params.output_dir,
-                                                              output_params.parallel_shm_output.parallel_shm_dir);
+                                                                               output_params.parallel_shm_output.parallel_shm_dir);
     }
 
     void load(AntEvoloConfig::OutputParams::ParallelSHMOutput &parallel_shm_output,
@@ -53,10 +53,13 @@ namespace antevolo {
         load(run_params.num_threads, pt, "num_threads");
     }
 
-    void load(AntEvoloConfig::AlgorithmParams::SimilarCDR3Params &similar_cdr3s_params, boost::property_tree::ptree const &pt,
+    void load(AntEvoloConfig::AlgorithmParams::SimilarCDR3Params &similar_cdr3s_params,
+              boost::property_tree::ptree const &pt,
               bool) {
         using config_common::load;
-        load(similar_cdr3s_params.num_mismatches, pt, "num_mismatches");
+        load(similar_cdr3s_params.num_mismatches_igh, pt, "num_mismatches_igh");
+        load(similar_cdr3s_params.num_mismatches_igk, pt, "num_mismatches_igk");
+        load(similar_cdr3s_params.num_mismatches_igl, pt, "num_mismatches_igl");
         load(similar_cdr3s_params.num_indels, pt, "num_indels");
     }
 
@@ -96,5 +99,18 @@ namespace antevolo {
         cdr_labeler_config.shm_params.shm_finding_algorithm =
                 cdr_labeler::CDRLabelerConfig::SHMFindingParams::SHMFindingAlgorithm::CDRFilteringSHMAlgorithm;
         shm_kmer_matrix_estimator::load(shm_config, input_params.shm_kmer_matrix_estimator_config_fname);
+    }
+
+    size_t
+    AntEvoloConfig::AlgorithmParams::GetNumMismatchesByChainType(const germline_utils::ImmuneChainType chain) const {
+        size_t num_mismatches = 0;
+        if (chain == germline_utils::ImmuneChainType::HeavyIgChain)
+            num_mismatches = similar_cdr3s_params.num_mismatches_igh;
+        else if (chain == germline_utils::ImmuneChainType::KappaIgChain)
+            num_mismatches = similar_cdr3s_params.num_mismatches_igk;
+        else if (chain == germline_utils::ImmuneChainType::LambdaIgChain)
+            num_mismatches = similar_cdr3s_params.num_mismatches_igl;
+        VERIFY(num_mismatches != 0);
+        return num_mismatches;
     }
 }

@@ -78,7 +78,6 @@ def PrintParams(params, log):
     log.info("  Output directory:\t\t" + params.output_dir)
     log.info("  Number of threads:\t\t" + str(params.num_threads) + "\n")
     log.info("  Loci:\t\t\t\t" + params.loci)
-    log.info("  Max distance between CDR3:\t" + str(params.cdr3_tau))
     log.info("  Min number of shared SHMs:\t" + str(params.min_shared_shms))
     log.info("  Use SHM model:\t\t" + str(params.model))
 
@@ -167,7 +166,8 @@ def ModifyCDRLabelerConfigFile(params, log):
 def ModifyVjFinderConfigFile(params, log):
     vj_param_dict = dict()
     vj_param_dict['loci'] = params.loci
-    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_germline")
+    # vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_germline")
+    vj_param_dict['germline_dir'] = os.path.join(home_directory, "data/antevolo_V_crop_allelic")
     params.germline_config_file = os.path.join(params.vj_finder_config_dir, "germline_files_config.txt")
     vj_param_dict['germline_filenames_config'] = params.germline_config_file
     process_cfg.substitute_params(params.vj_finder_config_file, vj_param_dict, log)
@@ -236,11 +236,6 @@ def main(argv):
     optional_args.set_defaults(compare=False)
 
     algorithm_args = parser.add_argument_group("Algorithm arguments")
-    algorithm_args.add_argument("--tau",
-                                type=int,
-                                default=3,
-                                dest="cdr3_tau",
-                                help="Threshold for construction Hamming graph on CDR3s [default: %(default)d]")
     algorithm_args.add_argument("-s", "--min-shared-shms",
                                 type=int,
                                 default=3,

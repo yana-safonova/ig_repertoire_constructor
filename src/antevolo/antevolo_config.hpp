@@ -2,6 +2,7 @@
 
 #include <cdr_config.hpp>
 #include <shm_kmer_matrix_estimator_config.hpp>
+#include <germline_utils/chain_type.hpp>
 
 namespace antevolo {
     struct AntEvoloConfig {
@@ -43,7 +44,9 @@ namespace antevolo {
             bool model;
 
             struct SimilarCDR3Params {
-                size_t num_mismatches;
+                size_t num_mismatches_igh;
+                size_t num_mismatches_igk;
+                size_t num_mismatches_igl;
                 size_t num_indels;
             };
 
@@ -59,6 +62,8 @@ namespace antevolo {
             SimilarCDR3Params similar_cdr3s_params;
             EdgeConstructionParams edge_construction_params;
             ParallelEvolutionParams parallel_evolution_params;
+
+            size_t GetNumMismatchesByChainType(const germline_utils::ImmuneChainType chain) const;
         };
 
         InputParams input_params;

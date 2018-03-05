@@ -5,17 +5,23 @@
 
 namespace antevolo {
     class CloneSetWithFakes {
-        const annotation_utils::CDRAnnotatedCloneSet& original_clone_set_;
+        annotation_utils::CDRAnnotatedCloneSet& original_clone_set_;
         annotation_utils::CDRAnnotatedCloneSet fakes_clone_set_;
         size_t first_fake_;
 
     public:
-        explicit CloneSetWithFakes(const annotation_utils::CDRAnnotatedCloneSet& original_clone_set) :
+        explicit CloneSetWithFakes(annotation_utils::CDRAnnotatedCloneSet& original_clone_set) :
                 original_clone_set_(original_clone_set),
                 first_fake_(original_clone_set_.size()) {}
 
         bool IsFake(size_t i) const {
             return i >= first_fake_;
+        }
+        annotation_utils::AnnotatedClone& operator[](size_t i) {
+            if (IsFake(i)) {
+                return fakes_clone_set_[i - first_fake_];
+            }
+            return original_clone_set_[i];
         }
         const annotation_utils::AnnotatedClone& operator[](size_t i) const {
             if (IsFake(i)) {

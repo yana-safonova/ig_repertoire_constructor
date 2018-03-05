@@ -1,11 +1,11 @@
-#include <vj_class_processors/edmonds_tarjan_DMST_calculator.hpp>
+#include <cdr3_hamming_graph_connected_components_processors/edmonds_utils/edmonds_processor.hpp>
 #include "kruskal_cdr3_hg_cc_processor.hpp"
 #include "parent_read_reconstructor.hpp"
 
 
 namespace antevolo {
 
-    EvolutionaryTree Kruskal_CDR3_HG_CC_Processor::ConstructForest() {
+    EvolutionaryTree Kruskal_CDR3_HG_CC_Processor::Process() {
         EvolutionaryTree tree(clone_set_ptr_);
         boost::unordered_set<size_t> vertices_nums(hamming_graph_info_.GetAllClones());
 
@@ -146,8 +146,7 @@ namespace antevolo {
             index_to_vertex[index] = vertex;
             ++index;
         }
-        typedef EdmondsTarjanDMSTCalculator::WeightedEdge WeightedEdge;
-        std::vector<WeightedEdge> edges;
+        std::vector<WeightedEdge<double>> edges;
         std::vector<boost::unordered_map<size_t, size_t>> kruskal_graph(n);
         for (size_t v = 0; v < n; ++v) {
             for (size_t u = 0; u < n; ++u) {
@@ -158,8 +157,10 @@ namespace antevolo {
                                                                    clone_set[index_to_vertex[u]],
                                                                    index_to_vertex[v],
                                                                    index_to_vertex[u])->CDR3Distance();
-                if (CDR3_dist <= config_.similar_cdr3s_params.num_mismatches) {
-                    edges.push_back(WeightedEdge(v, u, static_cast<double>(CDR3_dist)));
+
+                auto chain = clone_set[v].ChainType().Chain();
+                if (CDR3_dist <= config_.GetNumMismatchesByChainType(chain)) {
+                    edges.push_back(WeightedEdge<double>(v, u, static_cast<double>(CDR3_dist)));
                 }
             }
         }
@@ -173,11 +174,11 @@ namespace antevolo {
         for (size_t i = 0; i < n; ++i) {
             ds.make_set(i);
         }
-        std::sort(edges.begin(), edges.end(), [](WeightedEdge e1, WeightedEdge e2) {
+        std::sort(edges.begin(), edges.end(), [](WeightedEdge<double> e1, WeightedEdge<double> e2) {
             return e1.weight_ < e2.weight_;
         });
 
-        std::vector<WeightedEdge> edges_to_add;
+        std::vector<WeightedEdge<double>> edges_to_add;
         size_t edge_num = 0;
         size_t added_edge_num = 0;
         while (edge_num < edges.size() && added_edge_num < n) {
