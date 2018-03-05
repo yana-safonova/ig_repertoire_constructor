@@ -4,7 +4,7 @@
 
 namespace antevolo {
 
-    vector<SparseGraphPtr> VClassProcessor::ComputeConnectedComponents() {
+    std::vector<SparseGraphPtr> VClassProcessor::ComputeConnectedComponents() {
         CreateUniqueCDR3Map();
         std::string cdrs_fasta = WriteUniqueCDR3InFasta();
         std::string graph_fname = GetGraphFname();

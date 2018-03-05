@@ -35,7 +35,7 @@ namespace antevolo {
         }
 
         void CreateUniqueCDR3Map() override;
-        vector<SparseGraphPtr> ComputeConnectedComponents() override;
+        std::vector<SparseGraphPtr> ComputeConnectedComponents() override;
 
         void ChangeJgene(const germline_utils::ImmuneGene &v_gene,
                          const germline_utils::ImmuneGene &j_gene);

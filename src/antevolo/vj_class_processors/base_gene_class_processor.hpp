@@ -57,7 +57,7 @@ namespace antevolo {
                 current_fake_clone_index_(current_fake_clone_index),
                 reconstructed_(0) {}
 
-        virtual vector<SparseGraphPtr> ComputeConnectedComponents() = 0;
+        virtual std::vector<SparseGraphPtr> ComputeConnectedComponents() = 0;
 
         virtual EvolutionaryTree ProcessComponent(SparseGraphPtr hg_component, size_t component_id,
                                                   const ShmModelEdgeWeightCalculator &edge_weight_calculator);

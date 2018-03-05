@@ -60,9 +60,12 @@ add_library(antevolo_library STATIC
         cdr3_hamming_graph_component_info.cpp
         antevolo_output_writer.cpp
         antevolo_config.cpp
+		reannotation/antevolo_reannotator.cpp
         antevolo_processor.cpp
         antevolo_launch.cpp
-        evolutionary_graph_utils/one_child_fake_clones_filterer.cpp vj_class_processors/v_class_processor.cpp vj_class_processors/v_class_processor.hpp)
+        evolutionary_graph_utils/one_child_fake_clones_filterer.cpp
+		vj_class_processors/v_class_processor.cpp
+		vj_class_processors/v_class_processor.hpp)
 
 target_link_libraries(antevolo_library
         vj_finder_library

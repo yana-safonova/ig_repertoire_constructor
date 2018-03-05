@@ -24,6 +24,6 @@ namespace antevolo {
         EvolutionaryTree ProcessComponentWithKruskal(SparseGraphPtr hg_component, size_t component_id);
 //        EvolutionaryTree ProcessComponentWithEdmonds(SparseGraphPtr hg_component, size_t component_id,
 //                                                     const ShmModelEdgeWeightCalculator &edge_weight_calculator);
-        vector<SparseGraphPtr> ComputeConnectedComponents() override;
+        std::vector<SparseGraphPtr> ComputeConnectedComponents() override;
     };
 }

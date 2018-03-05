@@ -40,7 +40,7 @@ namespace antevolo {
             cdr3_to_old_index_map_[unique_cdr3s_[i]] = i;
     }
 
-    vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents() {
+    std::vector<SparseGraphPtr> VJClassProcessor::ComputeConnectedComponents() {
         CreateUniqueCDR3Map();
         std::string cdrs_fasta = WriteUniqueCDR3InFasta();
         std::string graph_fname = GetGraphFname();
