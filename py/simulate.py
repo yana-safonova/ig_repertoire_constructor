@@ -482,12 +482,12 @@ def run_vidjil(input_file, output_dir,
     else:
         input_file_tmp = None
 
-    # This is done automatically
-    # if loci == "IG":
-    #     loci = "IGH,IGK,IGL"
-    # elif loci == "TR":
-    #     loci = "TRA,TRB,TRG,TRD"
-    #
+    # TODO this should be done automatically but it is not. Submit a bug
+    if loci == "IG":
+        loci = "IGH,IGK,IGL"
+    elif loci == "TR":
+        loci = "TRA,TRB,TRG,TRD"
+
     path = path_to_vidjil
     args = {"path": path,
             "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
