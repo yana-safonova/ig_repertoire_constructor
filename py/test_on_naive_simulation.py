@@ -17,6 +17,7 @@ def run_and_quast_all(input_reads,
                       threads=4,
                       rerun_mixcr=False,
                       rerun_igrec=False,
+                      rerun_vidjil=False,
                       rerun_igquast=False,
                       do_not_run=False,
                       do_run_igrec_old=False,
@@ -117,6 +118,9 @@ def run_and_quast_all(input_reads,
                 if rerun_igrec or not os.path.isfile(out_dir + "/" + run.name + "/final_repertoire.fa"):
                     run.run()
 
+        if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil/final_repertoire.fa"):
+            run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil/", loci="IG")
+
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
 
@@ -137,7 +141,7 @@ def run_and_quast_all(input_reads,
         shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full", "vidjil"]
 
     if do_run_igrec_old:
         kinds += ["ig_repertoire_constructor"]
