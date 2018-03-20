@@ -462,6 +462,8 @@ def run_vidjil(input_file, output_dir,
                loci="IG", enforce_fastq=False,
                threads=16,
                species="homo-sapiens",
+               window=50,
+               n=5,
                remove_tmp=True):
     from os.path import basename, splitext
     if log is None:
@@ -480,11 +482,12 @@ def run_vidjil(input_file, output_dir,
     else:
         input_file_tmp = None
 
-    if loci == "IG":
-        loci = "IGH,IGK,IGL"
-    elif loci == "TR":
-        loci = "TRA,TRB,TRG,TRD"
-
+    # This is done automatically
+    # if loci == "IG":
+    #     loci = "IGH,IGK,IGL"
+    # elif loci == "TR":
+    #     loci = "TRA,TRB,TRG,TRD"
+    #
     path = path_to_vidjil
     args = {"path": path,
             "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
@@ -494,12 +497,14 @@ def run_vidjil(input_file, output_dir,
             "output_dir": output_dir,
             "species": species,
             "loci": "" if loci == "all" else ":" + loci,
+            "n_value": n,
+            "window": "all" if window == 0 else str(window),
             "input_prefix": splitext(basename(input_file))[0]}
 
     timer = Timer()
 
 
-    support.sys_call("%(vidjil_cmd)s -c clones -g %(path)s/germline/%(species)s.g%(loci)s -2 -3 -r 1 %(input_file)s -o %(output_dir)s" %
+    support.sys_call("%(vidjil_cmd)s -c clones -g %(path)s/germline/%(species)s.g%(loci)s -2 -3 -r 1 %(input_file)s -o %(output_dir)s -y all -w %(window)s -n %(n_value)d" %
                      args, log=log)
     timer.stamp(output_dir + "/time.txt")
 
@@ -516,8 +521,8 @@ def run_vidjil(input_file, output_dir,
         shutil.rmtree(output_dir + "/seq")
         os.remove(output_dir + "/%(input_prefix)s.edges" % args)
         os.remove(output_dir + "/%(input_prefix)s.vdj.fa" % args)
-        os.remove(output_dir + "/%(input_prefix)s.vidjil" % args)
         os.remove(output_dir + "/%(input_prefix)s.windows.fa" % args)
+        # os.remove(output_dir + "/%(input_prefix)s.vidjil" % args)
         os.remove(output_dir + "/vidjil_uncompressed.fa")
 
 
