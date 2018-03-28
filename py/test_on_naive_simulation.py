@@ -8,6 +8,7 @@ import multiprocessing
 import tempfile
 
 path_to_igquast = igrec_dir + "/igquast.py"
+path_to_divan = igrec_dir + "/diversity_analyzer.py"
 
 
 def run_and_quast_all(input_reads,
@@ -21,6 +22,7 @@ def run_and_quast_all(input_reads,
                       rerun_igquast=False,
                       do_not_run=False,
                       do_run_igrec_old=False,
+                      do_run_divan=True,
                       do_run_igrec=True):
     import os.path
     import shutil
@@ -151,6 +153,10 @@ def run_and_quast_all(input_reads,
 
     if do_run_igrec_old:
         kinds += ["ig_repertoire_constructor"]
+
+    if do_run_divan:
+        cmd = path_to_divan + " -i " + ideal_repertoire_fa + "-t 4 " + "-o " + out_dir + "/divan"
+        os.system(cmd)
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,
