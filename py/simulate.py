@@ -488,6 +488,9 @@ def run_vidjil(input_file, output_dir,
     elif loci == "TR":
         loci = "TRA,TRB,TRG,TRD"
 
+    if window == "all":
+        window = 0
+
     path = path_to_vidjil
     args = {"path": path,
             "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
