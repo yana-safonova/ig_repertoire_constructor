@@ -320,7 +320,7 @@ def extract_barcode_age(s):
     """
     import re
 
-    m = re.match(r".*UMI:([ACTG]{12,17}):.*", s)
+    m = re.match(r".*UMI:([ACTG]{12,17})(:.*)?$", s)
     return m.groups()[0] if m else None
 
 
@@ -332,7 +332,7 @@ def extract_barcode_yale(s):
     """
     import re
 
-    m = re.match(r".*BARCODE=([ACTG]{17}).*", s)
+    m = re.match(r".*BARCODE=([ACTG]{15,17}).*", s)
     return m.groups()[0] if m else None
 
 
