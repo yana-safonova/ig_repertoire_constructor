@@ -162,6 +162,11 @@ def parse_command_line():
                  default=False,
                  help="reference-free metrics")
 
+    add_selector(scenarios,
+                 "--reference-free-for-reference",
+                 default=False,
+                 help="reference-free metrics for reference repertoire")
+
     scenarios.add_argument("--experimental",
                            default=False,
                            action="store_true",
@@ -206,7 +211,7 @@ def parse_command_line():
     if args.export_bad_clusters:
         args.reference_free = True
 
-    args.rcm_based = args.reference_free or args.partition_based
+    args.rcm_based = args.reference_free or args.reference_free_for_reference or args.partition_based
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
@@ -292,7 +297,7 @@ def main(args):
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free:
         ref_free_plots(rep, "constructed", args.reference_free_dir)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free_for_reference:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
         ref_free_plots(rep_ideal, "reference", args.reference_free_dir)
 
