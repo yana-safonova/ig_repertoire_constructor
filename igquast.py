@@ -316,7 +316,8 @@ def main(args):
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
 
-            for size in [1, 3, 5, 10]:
+            sizes=(1, 3, 5, 10, 25, 50)
+            for size in sizes:
                 res.plot_sensitivity_precision(what="ref2cons",
                                                out=args.reference_based_dir + "/reference_to_constructed_distance_distribution_size_%d" % size,
                                                size=size, differential=True,
@@ -327,8 +328,9 @@ def main(args):
                                                size=size, differential=True,
                                                format=args.figure_format)
 
-                res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
-                                  format=args.figure_format)
+            res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
+                              sizes=sizes,
+                              format=args.figure_format)
 
             res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/sensitivity_precision",
                                              format=args.figure_format)

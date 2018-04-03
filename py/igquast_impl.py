@@ -827,7 +827,7 @@ class RepertoireMatch:
         if max_tau is None:
             max_tau = self.max_tau
 
-        initialize_plot(figsize=(8, 4), font_scale=1)
+        initialize_plot(figsize=(2 * len(sizes), 4), font_scale=1)
 
         N = len(sizes)
         for i in xrange(len(sizes)):
