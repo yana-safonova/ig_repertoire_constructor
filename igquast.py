@@ -331,6 +331,7 @@ def main(args):
             res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
                               sizes=sizes,
                               format=args.figure_format)
+            res.plot_missed_clusters_sizes_distribution(out=args.reference_based_dir + "/missed_cluster_sizes_distribution")
 
             res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/sensitivity_precision",
                                              format=args.figure_format)
