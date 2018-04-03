@@ -415,7 +415,7 @@ class Reperoire2RepertoireMatching:
         ylim = (0, ylim[1])
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-        ax.set_xlabel("Cluszer size")
+        ax.set_xlabel("Cluster size")
         ax.set_ylabel("#clusters")
 
         handles, labels = ax.get_legend_handles_labels()
