@@ -263,7 +263,8 @@ def main(args):
             mkdir_p(dir)
 
             rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
-                                                     format=args.figure_format)
+                                                     format=args.figure_format,
+                                                     max_val=10)
             rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_max_error_scatter" % name,
                                                           format=args.figure_format)
             if args.page_mode:
