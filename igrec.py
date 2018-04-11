@@ -49,6 +49,7 @@ class IgRepConConfig:
         self.run_report_supernodes = os.path.join(home_directory, 'py/ig_report_supernodes.py')
         self.run_triecmp_to_repertoire = os.path.join(home_directory, 'py/ig_triecmp_to_repertoire.py')
         self.run_divan = os.path.join(home_directory, 'diversity_analyzer.py')
+        self.run_to_vidjil = os.path.join(home_directory, 'py/to_vidjil.py')
         self.path_to_dsf = os.path.join(home_directory, 'build/release/bin/dense_sgraph_finder')
         self.path_to_divan = os.path.join(home_directory, 'build/release/bin/cdr_labeler')
         self.path_to_germline = os.path.join(home_directory, "data/germline")
@@ -101,6 +102,10 @@ class IgRepConConfig:
             log.info("ERROR: Binary file of " + DiversityAnalyzerPhase.GetLongName() + " was not found\n")
             ErrorMessagePrepareCfg(log)
             sys.exit(1)
+        if not os.path.exists(self.run_to_vidjil):
+            log.info("ERROR: Binary file of " + DiversityAnalyzerPhase.GetLongName() + " was not found\n")
+            ErrorMessagePrepareCfg(log)
+            sys.exit(1)
 
 
 class IgRepConIO:
@@ -133,6 +138,8 @@ class IgRepConIO:
 
     def __initDiversityAnalyzer(self, output_dir):
         self.divan_output = os.path.join(output_dir, 'divan')
+        self.vidjil_output = os.path.join(output_dir, 'igrec.vidjil')
+        self.output = output_dir
         self.divan_feature_file = os.path.join(self.divan_output, 'cdr_details.txt')
 
     def __init__(self, output_dir, log):
@@ -519,6 +526,12 @@ class DiversityAnalyzerPhase(Phase):
             self.__params.loci,
             self.__params.organism
         )
+        support.sys_call(command_line, self._log)
+        command_line = "%s -i %s -o %s --initial-reads %s" % (
+            IgRepConConfig().run_to_vidjil,
+            self.__params.io.output,
+            self.__params.io.vidjil_output,
+            self.__params.single_reads)
         support.sys_call(command_line, self._log)
 
 
