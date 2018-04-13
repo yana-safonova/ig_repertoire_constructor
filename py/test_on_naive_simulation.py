@@ -23,6 +23,7 @@ def run_and_quast_all(input_reads,
                       do_not_run=False,
                       do_run_igrec_old=False,
                       do_run_divan=True,
+                      do_run_ref_free_on_reference=True,
                       do_run_igrec=True):
     import os.path
     import shutil
@@ -124,10 +125,10 @@ def run_and_quast_all(input_reads,
             run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil/", loci="all")
         if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil_wall/final_repertoire.fa"):
             run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil_wall/", loci="all", window=0)
-        if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil_w30/final_repertoire.fa"):
-            run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil_w30/", loci="all", window=30)
-        if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil_w100/final_repertoire.fa"):
-            run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil_w100/", loci="all", window=100)
+        # if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil_w30/final_repertoire.fa"):
+        #     run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil_w30/", loci="all", window=30)
+        # if rerun_vidjil or not os.path.isfile(out_dir + "/vidjil_w100/final_repertoire.fa"):
+        #     run_vidjil(input_reads, threads=threads, output_dir=out_dir + "/vidjil_w100/", loci="all", window=100)
 
         if rerun_mixcr or not os.path.isfile(out_dir + "/mixcr2/final_repertoire.fa"):
             run_mixcr2(input_reads, threads=threads, output_dir=out_dir + "/mixcr2/", loci="all")
@@ -149,14 +150,26 @@ def run_and_quast_all(input_reads,
         shutil.copy(out_dir + "/" + igrec_runs[0].name + "/supernode_repertoire.rcm",
                     out_dir + "/supernode/final_repertoire.rcm")
 
-    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full", "vidjil", "vidjil_wall", "vidjil_w30", "vidjil_w100"]
+    kinds = [run.name for run in igrec_runs] + ["supernode", "mixcr2", "mixcr2full", "vidjil", "vidjil_wall"]
 
     if do_run_igrec_old:
         kinds += ["ig_repertoire_constructor"]
 
-    if do_run_divan:
-        cmd = path_to_divan + " -i " + ideal_repertoire_fa + "-t 4 " + "-o " + out_dir + "/divan"
+    if do_run_divan and not os.path.isfile(out_dir + "/divan/shm_details.txt"):
+        cmd = path_to_divan + " -i " + ideal_repertoire_fa + " -t 4 " + "-o " + out_dir + "/divan"
+        print cmd
         os.system(cmd)
+
+    if do_run_ref_free_on_reference and not os.path.isfile(out_dir + "/ref_free_reference/aimquast.json") and os.path.isfile(ideal_repertoire_rcm):
+        args = {"ideal_repertoire_fa": ideal_repertoire_fa,
+                "input_reads": input_reads,
+                "ideal_repertoire_rcm": ideal_repertoire_rcm,
+                "out_dir": out_dir}
+        cmd = path_to_igquast + " -s %(input_reads)s -c %(ideal_repertoire_fa)s -C %(ideal_repertoire_rcm)s \
+            --reference-free -o %(out_dir)s/ref_free_reference \
+            --json %(out_dir)s/ref_free_reference/aimquast.json" % args
+        os.system(cmd)
+
 
     for kind in kinds:
         args = {"ideal_repertoire_fa": ideal_repertoire_fa,

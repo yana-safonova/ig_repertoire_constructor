@@ -415,7 +415,7 @@ class Reperoire2RepertoireMatching:
         ylim = (0, ylim[1])
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
-        ax.set_xlabel("Cluszer size")
+        ax.set_xlabel("Cluster size")
         ax.set_ylabel("#clusters")
 
         handles, labels = ax.get_legend_handles_labels()
@@ -479,6 +479,8 @@ class RepertoireMatch:
         result.sort()
         return result
 
+    # FIXME cons_size/ref_size args are probably swapped. Check and fix if
+    # necessary
     @memoize
     def extra_clusters(self, cons_size=5, ref_size=5):
         assert len(self.constructed_ids) == len(self.rep2rep.constructed_abundances) == len(self.constructed_new[:, 0])
@@ -496,6 +498,10 @@ class RepertoireMatch:
     @memoize
     def missed_clusters_cons_sizes(self, cons_size=5, ref_size=5):
         return [match for ab, match in zip(self.rep2rep.reference_abundances, self.reference_new[:, 0]) if ab >= cons_size and match < ref_size]
+
+    @memoize
+    def missed_clusters_sizes(self, cons_size=5, ref_size=5):
+        return [ab for ab, match in zip(self.rep2rep.reference_abundances, self.reference_new[:, 0]) if ab >= cons_size and match < ref_size]
 
     def __init__(self,
                  constructed_repertoire, reference_repertoire,
@@ -767,6 +773,38 @@ class RepertoireMatch:
 
         return measures, taus, labels
 
+
+    def plot_missed_clusters_sizes_distribution(self, out,
+                                                format=None, ylog=False,
+                                                xmax=None, ymax=0, bins=100):
+        import seaborn as sns
+        from matplotlib.ticker import MaxNLocator
+        missed_clusters_sizes = self.missed_clusters_sizes()
+
+        f, ax = initialize_plot()
+        # FROM https://stackoverflow.com/questions/12050393/how-to-force-the-y-axis-to-only-use-integers-in-matplotlib
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+        if xmax is None:
+            xmax = max(missed_clusters_sizes + [0])
+
+        data = missed_clusters_sizes
+        try:
+            sns.distplot(data, kde=False, bins=bins, ax=ax)
+            ax.set_xlabel("Cluster size")
+            ax.set_ylabel("#clusters")
+            ax.set_xlim((0, xmax))
+            if ylog:
+                plt.yscale("log", nonposy="clip")
+            else:
+                ymax = max(ymax, len(data))
+                ax.set_ylim((0, ymax))
+
+            save_plot(out, format=format)
+        except BaseException as ex:
+            print ex
+
+
     def plot_sensitivity_precision(self, out,
                                    size=1,
                                    what="sensitivity",
@@ -827,7 +865,7 @@ class RepertoireMatch:
         if max_tau is None:
             max_tau = self.max_tau
 
-        initialize_plot(figsize=(8, 4), font_scale=1)
+        initialize_plot(figsize=(2 * len(sizes), 4), font_scale=1)
 
         N = len(sizes)
         for i in xrange(len(sizes)):
