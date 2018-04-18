@@ -68,7 +68,8 @@ if __name__ == "__main__":
 
     total = segmented + nonsegmented
 
-    cdr_details = pd.DataFrame.from_csv(args.input + "/divan/cdr_details.txt", sep='\t')
+    cdr_details = pd.read_csv(args.input + "/divan/cdr_details.txt", sep='\t')
+    cdr_details.set_index("Clone_name", inplace=True)
 
     clones = []
     with open(args.input + "/final_repertoire.fa") as fin:
