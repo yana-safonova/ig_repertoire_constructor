@@ -10,6 +10,8 @@ import numpy as np
 import datetime
 from Bio import SeqIO
 from collections import defaultdict
+import scipy
+import scipy.stats
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 igrec_dir = current_dir + "/../"
@@ -86,7 +88,6 @@ if __name__ == "__main__":
                      "name": name,
                      "sequence": str(record.seq),
                      "reads": [mult],
-                     "top": 1,
                      "_average_read_length": [cluster2avlen[cluster_id]],
                      "germline": row["Chain_type"],
                      "seg": {
@@ -96,6 +97,11 @@ if __name__ == "__main__":
                         }
                      }
             clones.append(clone)
+
+    sizes = [clone["reads"][0] for clone in clones]
+    ranks = scipy.stats.rankdata(-np.array(sizes), method="ordinal")
+    for clone, rank in zip(clones, ranks):
+        clone["top"] = int(rank) - 1
 
     command_line = "N/A"
     with open(args.input + "/igrec.log") as fin:
