@@ -101,7 +101,7 @@ if __name__ == "__main__":
     sizes = [clone["reads"][0] for clone in clones]
     ranks = scipy.stats.rankdata(-np.array(sizes), method="ordinal")
     for clone, rank in zip(clones, ranks):
-        clone["top"] = int(rank) - 1
+        clone["top"] = int(rank)
 
     command_line = "N/A"
     with open(args.input + "/igrec.log") as fin:
