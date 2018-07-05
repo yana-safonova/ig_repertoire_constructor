@@ -9,7 +9,6 @@
 
 #include "io/mmapped_writer.hpp"
 
-#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <cstdarg>

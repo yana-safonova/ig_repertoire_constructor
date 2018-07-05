@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <array>
 #include <boost/pool/object_pool.hpp>
-#include <cassert>
 #include <limits>
 #include <memory>
 #include <boost/unordered_map.hpp>
 #include <vector>
 
 #include <seqan/seq_io.h>
+#include <verify.hpp>
 
 namespace fast_ig_tools {
 template <typename T>
@@ -138,7 +138,7 @@ public:
 
     template <typename T>
     void add(const T &s) {
-        assert(!isCompressed());
+        VERIFY(!isCompressed());
 
         TrieNode *p = root_;
 
@@ -150,7 +150,7 @@ public:
                 break;
             }
             size_t el = seqan::ordValue(s[i]);
-            assert((0 <= el) && (el < p->children.size()));
+            VERIFY((0 <= el) && (el < p->children.size()));
 
             if (!p->children[el]) {
                 p->children[el] = pool_.construct();
@@ -210,7 +210,7 @@ private:
         }
 
         size_t represent() const {
-            assert(!empty());
+            VERIFY(!empty());
 
             return id_vector[0];
         }

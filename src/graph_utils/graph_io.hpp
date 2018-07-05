@@ -1,5 +1,6 @@
 #pragma once
 
+#include <logger/logger.hpp>
 #include "sparse_graph.hpp"
 
 class GraphReader {

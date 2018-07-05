@@ -88,7 +88,7 @@ namespace algorithms {
                 std::vector<Match> combined = combine_sequential_kmer_matches(matches, kmer_index_.k());
                 std::sort(combined.begin(), combined.end(),
                           [](const Match &a, const Match &b) -> bool { return a.subject_pos < b.subject_pos; });
-                assert(combined.size() > 0);
+                VERIFY(combined.size() > 0);
                 PairwiseBlockAlignment align = MakeAlignment(combined, query, i);
                 if (CheckAlignment(align)) {
                     result.Add(std::move(align), i);

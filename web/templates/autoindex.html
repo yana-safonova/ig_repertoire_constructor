@@ -1,0 +1,34 @@
+{% extends 'template.html' %}
+{% from "__autoindex__/macros.html" import entry, thead, breadcrumb
+   with context %}
+
+{% block title %}
+Index of {{ curdir.path }}
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('__autoindex__.static', filename='autoindex.css') }}">
+{% endblock %}
+
+{% block body %}
+<legend>Outputs of performed runs</legend>
+  {% block table %}
+    <table>
+      <thead>
+        {{ thead() }}
+        {% if not curdir.is_root() %}
+          <tr>
+            <td class="breadcrumb" colspan="4">
+              <h1>{{ breadcrumb(curdir) }}</h1>
+            </td>
+          </tr>
+        {% endif %}
+      </thead>
+      <tbody>
+        {% for ent in entries %}
+          {{ entry(ent) }}
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endblock %}
+{% endblock %}

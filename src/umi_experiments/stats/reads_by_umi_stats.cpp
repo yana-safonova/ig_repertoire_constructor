@@ -28,7 +28,7 @@ bool read_args(int argc, char **argv, std::string& reads_file, std::string& outp
     return true;
 }
 
-void print_umi_reads_distribution_by_size(unordered_map<Umi, vector<size_t>>& umi_to_reads) {
+void print_umi_reads_distribution_by_size(std::unordered_map<Umi, std::vector<size_t>>& umi_to_reads) {
     std::map<size_t, size_t> size_to_count;
     for (auto& entry : umi_to_reads) {
         size_to_count[entry.second.size()] ++;

@@ -1,7 +1,7 @@
 #include "graph_collapsed_structure.hpp"
 
 void GraphCollapsedStructure::InitializeMainVerticesMap() {
-    vector<size_t> main_vertices_tree;
+    std::vector<size_t> main_vertices_tree;
     for(size_t i = 0; i < hamming_graph_ptr_->N(); i++) {
         multiplicity_.push_back(1);
         main_vertices_tree.push_back(i);
@@ -53,12 +53,12 @@ size_t GraphCollapsedStructure::NumberCollapsedEdges(SparseGraphPtr hamming_grap
     return collapsed_edges;
 }
 
-ostream& operator<<(ostream& out, GraphCollapsedStructure collapsed_structure) {
-    out << "Old vertex - new vertex" << endl;
+std::ostream& operator<<(std::ostream& out, GraphCollapsedStructure collapsed_structure) {
+    out << "Old vertex - new vertex" << std::endl;
     for(size_t i = 0; i < collapsed_structure.NumberNewVertices(); i++)
-        out << collapsed_structure.OldVerticesList()[i] << "\t" << i << endl;
-    out << "Old vertex - main vertex" << endl;
+        out << collapsed_structure.OldVerticesList()[i] << "\t" << i << std::endl;
+    out << "Old vertex - main vertex" << std::endl;
     for(size_t i = 0; i < collapsed_structure.NumberOldVertices(); i++)
-        out << i << "\t" << collapsed_structure.GetMainVertexIndex(i) << endl;
+        out << i << "\t" << collapsed_structure.GetMainVertexIndex(i) << std::endl;
     return out;
 }

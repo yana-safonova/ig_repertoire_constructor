@@ -1,5 +1,3 @@
-#include "include_me.hpp"
-
 template<class T1, class T2, class T3>
 struct triple {
 	T1 first;

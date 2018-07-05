@@ -1,3 +1,5 @@
+#include <queue>
+#include <logger/logger.hpp>
 #include "graph_splitter.hpp"
 
 void ConnectedComponentGraphSplitter::InitializeInnerVertices() {
@@ -15,9 +17,9 @@ size_t ConnectedComponentGraphSplitter::GetStartVertex() {
 }
 
 SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(size_t component_id, size_t start_vertex) {
-    queue<size_t> vertex_queue;
+    std::queue<size_t> vertex_queue;
     vertex_queue.push(start_vertex);
-    set<size_t> connected_component;
+    std::set<size_t> connected_component;
     // check if vertex is isolated
     if(graph_ptr_->VertexIsIsolated(start_vertex)) {
         connected_component.insert(start_vertex);
@@ -47,10 +49,10 @@ SparseGraphPtr ConnectedComponentGraphSplitter::GetConnectedComponentByVertex(si
     return graph_ptr_->GetSubgraph(component_id, connected_component);
 }
 
-vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
+std::vector<SparseGraphPtr> ConnectedComponentGraphSplitter::Split() {
     InitializeInnerVertices();
     TRACE("Connected component splitter was initialized");
-    vector<SparseGraphPtr> connected_components;
+    std::vector<SparseGraphPtr> connected_components;
     size_t start_vertex = GetStartVertex();
     while(start_vertex != size_t(-1)) {
         size_t component_id = connected_components.size();

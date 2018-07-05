@@ -52,7 +52,7 @@ namespace cdr_labeler {
             JGeneAnnotation() : name(), cdr3_end(), orf() { }
 
             JGeneAnnotation(std::string name, size_t cdr3_end) : name(name), cdr3_end(cdr3_end) {
-                orf = (cdr3_end + 1) % 3;
+                orf = static_cast<unsigned  int>((cdr3_end + 1) % 3);
             }
         };
 

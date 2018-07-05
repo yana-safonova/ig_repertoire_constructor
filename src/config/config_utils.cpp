@@ -1,0 +1,1 @@
+// Just to trick cmake that this library exists. If hpp is not included in any library it's not analyzed by CLion.

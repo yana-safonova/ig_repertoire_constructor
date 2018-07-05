@@ -6,7 +6,7 @@
 struct GraphStats {
 public:
     static const size_t LARGE_COMPONENT_THRESHOLD = 60;
-    static const string ACGT;
+    static const std::string ACGT;
 
     const SparseGraphPtr graph;
     const size_t size;
@@ -15,56 +15,56 @@ public:
     const size_t stars;
     const size_t vert_in_stars;
     const size_t unclassified_vert;
-    const vector<vector<size_t> > unclassified_comp;
-    const vector<size_t> acgt;
-    const vector<size_t> acgt_in_large_components;
-    const vector<size_t> acgt_weighted;
-    const vector<size_t> acgt_in_large_components_weighted;
+    const std::vector<std::vector<size_t> > unclassified_comp;
+    const std::vector<size_t> acgt;
+    const std::vector<size_t> acgt_in_large_components;
+    const std::vector<size_t> acgt_weighted;
+    const std::vector<size_t> acgt_in_large_components_weighted;
 
     GraphStats(const GraphStats& other) = default;
 
     GraphStats(const SparseGraphPtr graph, size_t size, size_t single, size_t doublets, size_t stars,
-               size_t vert_in_stars, size_t unclassified_vert, const vector<vector<size_t>> unclassified_comp,
-               vector<size_t> acgt, vector<size_t> acgt_in_large_components,
-               vector<size_t> acgt_weighted, vector<size_t> acgt_in_large_components_weighted)
+               size_t vert_in_stars, size_t unclassified_vert, const std::vector<std::vector<size_t>> unclassified_comp,
+               std::vector<size_t> acgt, std::vector<size_t> acgt_in_large_components,
+               std::vector<size_t> acgt_weighted, std::vector<size_t> acgt_in_large_components_weighted)
             : graph(graph), size(size), single(single), doublets(doublets), stars(stars), vert_in_stars(vert_in_stars),
               unclassified_vert(unclassified_vert), unclassified_comp(unclassified_comp),
               acgt(acgt), acgt_in_large_components(acgt_in_large_components),
               acgt_weighted(acgt_weighted), acgt_in_large_components_weighted(acgt_in_large_components_weighted) {
-        assert(single + doublets * 2 + vert_in_stars + unclassified_vert == graph->N());
+        VERIFY(single + doublets * 2 + vert_in_stars + unclassified_vert == graph->N());
     }
 
-    string ToString(size_t min_unclassified_size) const;
+    std::string ToString(size_t min_unclassified_size) const;
 
-    string ToString() const { return ToString(size + 1); }
+    std::string ToString() const { return ToString(size + 1); }
 
-    static GraphStats GetStats(const vector<seqan::Dna5String>& reads, const vector<size_t>& abundances, const SparseGraphPtr graph);
+    static GraphStats GetStats(const std::vector<seqan::Dna5String>& reads, const std::vector<size_t>& abundances, const SparseGraphPtr graph);
 
 private:
     static void append_distribution(std::stringstream& ss, const std::string& caption, const std::vector<size_t>& counts);
-    static void mark_component(const SparseGraphPtr graph, const size_t v, vector<bool> &visited, vector<size_t> &cc);
+    static void mark_component(const SparseGraphPtr graph, const size_t v, std::vector<bool> &visited, std::vector<size_t> &cc);
     static bool is_star(const SparseGraphPtr  graph, const size_t v);
     static bool is_doublet(const SparseGraphPtr  graph, const size_t v);
 };
 
-const string GraphStats::ACGT = "ACGT";
+const std::string GraphStats::ACGT = "ACGT";
 
-GraphStats GraphStats::GetStats(const vector<seqan::Dna5String>& reads, const vector<size_t>& abundances, const SparseGraphPtr graph) {
-    vector<bool> visited(graph->N(), false);
+GraphStats GraphStats::GetStats(const std::vector<seqan::Dna5String>& reads, const std::vector<size_t>& abundances, const SparseGraphPtr graph) {
+    std::vector<bool> visited(graph->N(), false);
     size_t single = 0;
     size_t stars = 0;
     size_t stars_sum = 0;
     size_t doublets = 0;
     size_t left = 0;
-    vector<vector<size_t> > unclassified_comp;
-    vector<size_t> acgt(4);
-    vector<size_t> acgt_in_large_components(4);
-    vector<size_t> acgt_weighted(4);
-    vector<size_t> acgt_in_large_components_weighted(4);
+    std::vector<std::vector<size_t> > unclassified_comp;
+    std::vector<size_t> acgt(4);
+    std::vector<size_t> acgt_in_large_components(4);
+    std::vector<size_t> acgt_weighted(4);
+    std::vector<size_t> acgt_in_large_components_weighted(4);
     for (size_t i = 0; i < graph->N(); i++) {
         if (visited[i]) continue;
 
-        vector<size_t> component;
+        std::vector<size_t> component;
         mark_component(graph, i, visited, component);
         size_t size = component.size();
 
@@ -117,7 +117,7 @@ GraphStats GraphStats::GetStats(const vector<seqan::Dna5String>& reads, const ve
                       acgt, acgt_in_large_components, acgt_weighted, acgt_in_large_components_weighted);
 }
 
-void GraphStats::mark_component(const SparseGraphPtr graph, const size_t v, vector<bool> &visited, vector<size_t> &cc) {
+void GraphStats::mark_component(const SparseGraphPtr graph, const size_t v, std::vector<bool> &visited, std::vector<size_t> &cc) {
     if (visited[v]) return;
     visited[v] = true;
     cc.push_back(v);
@@ -153,12 +153,12 @@ void GraphStats::append_distribution(std::stringstream& ss, const std::string& c
     ss << std::endl;
 }
 
-string GraphStats::ToString(size_t min_unclassified_size) const {
-    stringstream ss;
+std::string GraphStats::ToString(size_t min_unclassified_size) const {
+    std::stringstream ss;
     ss << boost::format("Found:\ntotal unique UMIs: %d\nsingletons: %d\nstars: %d\ndoublets: %d\nunclassified vertices: %d\naverage star size: %f\naverage unclassified component size: %f\n\n")
             % graph->N() % single % stars % doublets % unclassified_vert
             % (static_cast<double>(vert_in_stars) / static_cast<double>(stars))
-            % (static_cast<double>(unclassified_vert) / static_cast<double>(unclassified_comp.size())) << endl;
+            % (static_cast<double>(unclassified_vert) / static_cast<double>(unclassified_comp.size())) << std::endl;
 
     append_distribution(ss, "ACGT counts in reads:", acgt);
     append_distribution(ss, "ACGT counts in reads forming components of at least " + std::to_string(LARGE_COMPONENT_THRESHOLD) + " unique UMIs:", acgt_in_large_components);
@@ -171,7 +171,7 @@ string GraphStats::ToString(size_t min_unclassified_size) const {
         for (auto u : component) {
             ss << graph->Weight()[u] << " ";
         }
-        ss << endl << "edges: ";
+        ss << std::endl << "edges: ";
         for (size_t u = 0; u < component.size(); u ++) {
             for (size_t v = 0; v < u; v ++) {
                 if (graph->HasEdge(component[v], component[u])) {
@@ -179,7 +179,7 @@ string GraphStats::ToString(size_t min_unclassified_size) const {
                 }
             }
         }
-        ss << endl;
+        ss << std::endl;
     }
     return ss.str();
 }

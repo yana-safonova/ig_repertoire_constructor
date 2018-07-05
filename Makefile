@@ -44,6 +44,9 @@ install: igrec
 dsf: cmake
 	$(MAKE) -C build/release dense_sgraph_finder
 
+shm_kmer_matrix: cmake
+	$(MAKE) -C build/release/shm_kmer_matrix_estimator
+
 check: cmake
 	$(MAKE) -C build/release check
 
@@ -62,11 +65,16 @@ cdr: cmake
 umi: cmake
 	$(MAKE) -C build/release umi_correction_stats umi_graph umi_naive umi_to_fastq
 
+clean:
+	-rm *.pyc
+	-rm py/*.pyc
+	-rm -r build
+
+ant: cmake
+	$(MAKE) -C build/release antevolo
+
 igs: cmake
 	$(MAKE) -C build/release ig_simulator
-
-clean:
-	-rm -r build
 
 clean_tests:
 	-rm *.pyc

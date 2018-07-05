@@ -134,7 +134,7 @@ void PcrSimulator::AmplifySequences(double pcr_error_prob) {
 //    ReportAverageErrorRate(read_error_count);
 }
 
-void PcrSimulator::AddRecord(const string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count) {
+void PcrSimulator::AddRecord(const std::string& id, const seqan::Dna5String& read, const seqan::Dna5String& barcode, size_t error_count) {
     amplified_reads_.emplace_back(std::to_string(amplified_reads_.size()) + id, read, barcode, error_count);
 }
 

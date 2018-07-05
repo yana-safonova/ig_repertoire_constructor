@@ -24,7 +24,7 @@ namespace annotation_utils {
             if(gene_row[i] != read_row[i]) {
                 size_t real_read_pos = seqan::toSourcePosition(read_row, i);
                 size_t real_gene_pos = seqan::toSourcePosition(gene_row, i);
-                SHM shm(real_gene_pos, real_read_pos, gene_row[i], read_row[i],
+                SHM shm(alignment.subject().Segment(), real_gene_pos, real_read_pos, gene_row[i], read_row[i],
                         get_aa_by_pos(alignment.subject().aa_seq(), real_gene_pos, alignment.subject().ORF()),
                         aa_annotation.GetAminoAcidByPos(real_read_pos));
                 shms.AddSHM(shm);
@@ -35,7 +35,8 @@ namespace annotation_utils {
 
     //--------------------------------------------------------------------
 
-    void StartEndFilteringSHMCalculator::ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms) {
+    void StartEndFilteringSHMCalculator::ComputeStartMeaningPositions(const GeneSegmentSHMs &all_shms,
+            size_t, size_t) {
         if(all_shms.size() == 0) {
             //std::cout << "SHMs are empty" << std::endl;
             return;
@@ -84,7 +85,7 @@ namespace annotation_utils {
 
     void StartEndFilteringSHMCalculator::ComputeMeaningPositions(const GeneSegmentSHMs& all_shms,
                                                                  const alignment_utils::ImmuneGeneReadAlignment& alignment) {
-        ComputeStartMeaningPositions(all_shms);
+        ComputeStartMeaningPositions(all_shms, alignment.StartQueryPosition(), alignment.StartSubjectPosition());
         ComputeEndMeaningPositions(all_shms, alignment.EndQueryPosition(), alignment.EndSubjectPosition());
     }
 
@@ -101,8 +102,9 @@ namespace annotation_utils {
         //std::cout << last_meaning_read_pos_ << " - " << last_meaning_gene_pos_ << std::endl;
         for(auto it = all_shms.cbegin(); it != all_shms.cend(); it++) {
             if(it->read_nucl_pos >= first_meaning_read_pos_ and it->gene_nucl_pos >= first_meaning_gene_pos_ and
-                    it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_)
+                    it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_) {
                 filtered_shms.AddSHM(*it);
+            }
         }
         return filtered_shms;
     }
@@ -121,7 +123,7 @@ namespace annotation_utils {
             return;
         }
         VERIFY_MSG(all_shms.SegmentType() == germline_utils::SegmentType::JoinSegment,
-                   "Segment is not variable and diversity");
+                   "Segment " << all_shms.SegmentType() << " is not variable or diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
         first_meaning_read_pos_ = cdr_labeling.cdr3.end_pos + 1;
         first_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(first_meaning_read_pos_);
@@ -136,11 +138,12 @@ namespace annotation_utils {
         if(all_shms.SegmentType() == germline_utils::SegmentType::JoinSegment or !cdr_labeling.cdr3.Valid()) {
             last_meaning_gene_pos_ = all_shms[all_shms.size() - 1].gene_nucl_pos;
             last_meaning_read_pos_ = all_shms[all_shms.size() - 1].read_nucl_pos;
+            return;
         }
         VERIFY_MSG(all_shms.SegmentType() == germline_utils::SegmentType::VariableSegment,
-                   "Segment is not variable and diversity");
+                   "Segment " << all_shms.SegmentType() << " is not variable or diversity");
         VERIFY_MSG(cdr_labeling.cdr3.Valid(), "CDR3 is not defined");
-        last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos + 1;
+        last_meaning_read_pos_ = cdr_labeling.cdr3.start_pos - 1;
         last_meaning_gene_pos_ = alignment.SubjectPositionByQueryPosition(last_meaning_read_pos_);
     }
 
@@ -159,6 +162,12 @@ namespace annotation_utils {
         GeneSegmentSHMs all_shms = NaiveSHMCalculator().ComputeSHMs(alignment, aa_annotation, cdr_labeling);
         ComputeMeaningPositions(alignment, all_shms, cdr_labeling);
         GeneSegmentSHMs filtered_shms(alignment.query(), alignment.subject());
-        return all_shms;
+        for(auto it = all_shms.cbegin(); it != all_shms.cend(); it++) {
+            if(it->read_nucl_pos >= first_meaning_read_pos_ and it->gene_nucl_pos >= first_meaning_gene_pos_ and
+               it->read_nucl_pos <= last_meaning_read_pos_ and it->gene_nucl_pos <= last_meaning_gene_pos_) {
+                filtered_shms.AddSHM(*it);
+            }
+        }
+        return filtered_shms;
     }
 }

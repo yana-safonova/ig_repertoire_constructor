@@ -1,22 +1,24 @@
 #pragma once
 
+#include <fstream>
+#include <vector>
 #include <utils/fastq_reader.hpp>
 
 struct QualityStatistics {
 	double aver_read_qual;
-	vector<double> aver_nucls_qual;
+	std::vector<double> aver_nucls_qual;
 
-	void ShortPrint(ostream &out) {
-		out << "Average read quality\t\t" << aver_read_qual << endl;
-		out << "Average nucleotide quality:" << endl;
+	void ShortPrint(std::ostream &out) {
+		out << "Average read quality\t\t" << aver_read_qual << std::endl;
+		out << "Average nucleotide quality:" << std::endl;
 		for(auto it = aver_nucls_qual.begin(); it != aver_nucls_qual.end(); it++)
 			out << *it << " ";
-		out << endl;
+		out << std::endl;
 	}
 
-	void OutputNucleotideQuality(ostream &out) {
+	void OutputNucleotideQuality(std::ostream &out) {
 		for(auto it = aver_nucls_qual.begin(); it != aver_nucls_qual.end(); it++)
-			out << *it << endl;
+			out << *it << std::endl;
 	}
 
 	QualityStatistics() :
@@ -29,7 +31,7 @@ class QualityStatisticsCalculator {
 	size_t read_number_;
 	size_t ideal_rl_;
 
-	double AverageQuality(string quality) {
+	double AverageQuality(std::string quality) {
 		size_t sum_qual = 0;
 		for(size_t i = 0; i < quality.size(); i++)
 			sum_qual += quality[i];
@@ -65,21 +67,21 @@ public:
 };
 
 class PairedReadQialityStatsCalculator {
-	vector<PairedFastqRead> &reads_;
+	std::vector<PairedFastqRead> &reads_;
 	QualityStatisticsCalculator calc_;
 
 	size_t IdealReadLength() {
 		size_t read_length = reads_[0].left_read.seq.size();
 		for(size_t i = 0; i < reads_.size(); i++) {
-			assert(reads_[i].left_read.seq.size() == read_length);
-			assert(reads_[i].right_read.seq.size() == read_length);
+			VERIFY(reads_[i].left_read.seq.size() == read_length);
+			VERIFY(reads_[i].right_read.seq.size() == read_length);
 		}
-		//cout << "Ideal read length - " << read_length << endl;
+		//cout << "Ideal read length - " << read_length << std::endl;
 		return read_length;
 	}
 
 public:
-	PairedReadQialityStatsCalculator(vector<PairedFastqRead> &reads, size_t phred_offset) :
+	PairedReadQialityStatsCalculator(std::vector<PairedFastqRead> &reads, size_t phred_offset) :
 		reads_(reads),
 		calc_(phred_offset, 2 * reads.size(), IdealReadLength()) {
 	}
@@ -97,19 +99,19 @@ public:
 };
 
 class MergedReadQualityStatsCalculator {
-	vector<FastqRead> &reads_;
+	std::vector<FastqRead> &reads_;
 	QualityStatisticsCalculator calc_;
 
 	size_t ReadLength() {
 		size_t rl(size_t(-1));
 		for(auto it = reads_.begin(); it != reads_.end(); it++)
-			rl = min<size_t>(it->seq.size(), rl);
-		//cout << "Ideal read length - " << rl << endl;
+			rl = std::min<size_t>(it->seq.size(), rl);
+		//cout << "Ideal read length - " << rl << std::endl;
 		return rl;
 	}
 
 public:
-	MergedReadQualityStatsCalculator(vector<FastqRead> &reads, size_t phred_offset) :
+	MergedReadQualityStatsCalculator(std::vector<FastqRead> &reads, size_t phred_offset) :
 		reads_(reads),
 		calc_(phred_offset, reads.size(), ReadLength()) { }
 

@@ -7,10 +7,10 @@
 
 namespace vj_finder {
     class VJQueryAligner {
-        
+
         const VJFinderConfig::AlgorithmParams & algorithm_params_;
-        
-        core::ReadArchive &read_archive_;
+
+        //core::ReadArchive &read_archive_;
         const germline_utils::CustomGeneDatabase &v_custom_db_;
         const germline_utils::CustomGeneDatabase &j_custom_db_;
 
@@ -50,7 +50,7 @@ namespace vj_finder {
 
         seqan::Dna5String DefineReadJSuffix(const CustomDbBlockAlignmentHits& v_alignments,
                                             seqan::Dna5String read) const;
-        
+
         template<typename SubjectDatabase, typename StringType>
         std::shared_ptr<algorithms::PairwiseBlockAligner<SubjectDatabase, StringType> > get_aligner(const algorithms::SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
                                                                                                     algorithms::KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
@@ -61,18 +61,18 @@ namespace vj_finder {
 
     public:
         VJQueryAligner(const VJFinderConfig::AlgorithmParams &algorithm_params,
-                       core::ReadArchive &read_archive,
+                       //core::ReadArchive &read_archive,
                        const germline_utils::CustomGeneDatabase &v_custom_db,
                        const germline_utils::CustomGeneDatabase &j_custom_db) :
                 algorithm_params_(algorithm_params),
-                read_archive_(read_archive),
+                //read_archive_(read_archive),
                 v_custom_db_(v_custom_db),
                 j_custom_db_(j_custom_db) {
             CheckDbConsistencyFatal();
             v_helper_ = std::shared_ptr<VHelper>(new VHelper(*this));
         }
 
-        VJHits Align(const core::Read& read);
+        VJHits Align(core::Read& read);
 
     private:
         DECL_LOGGER("VJQueryAligner");
@@ -85,8 +85,8 @@ namespace vj_finder {
                 CustomGermlineDbHelper kmer_index_helper_;
                 algorithms::SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String> kmer_index_;
                 std::shared_ptr<algorithms::PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > aligner_;
-             
-            public:  
+
+            public:
                 VHelper(VJQueryAligner &vj_query_aligner_) :
                     vj_query_aligner_(vj_query_aligner_),
                     kmer_index_helper_(vj_query_aligner_.v_custom_db_),
@@ -114,8 +114,8 @@ namespace vj_finder {
                 ImmuneGeneGermlineDbHelper kmer_index_helper_;
                 algorithms::SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> kmer_index_;
                 std::shared_ptr<algorithms::PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > aligner_;
-                  
-            public:      
+
+            public:
                 JHelper(VJQueryAligner &vj_query_aligner_, germline_utils::ImmuneGeneType immune_gene_type) :
                     vj_query_aligner_(vj_query_aligner_),
                     immune_gene_type_(immune_gene_type),
@@ -135,7 +135,7 @@ namespace vj_finder {
                 const germline_utils::ImmuneGeneType& get_immune_gene_type() const {
                     return immune_gene_type_;
                 }
-                
+
                 const germline_utils::ImmuneGeneDatabase& get_j_gene_db() const {
                     return j_gene_db_;
                 }

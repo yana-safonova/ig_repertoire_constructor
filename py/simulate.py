@@ -15,8 +15,10 @@ from ig_compress_equal_clusters import parse_cluster_mult
 
 
 path_to_ig_simulator = igrec_dir + "/../ig_simulator/"
+path_to_ig_simulator_tcr = igrec_dir + "/../ig_simulator_tcr/"
 path_to_mixcr = igrec_dir + "/src/extra/tools/mixcr-1.7"
-path_to_mixcr2 = igrec_dir + "/src/extra/tools/mixcr-2.0"
+path_to_mixcr2 = igrec_dir + "/src/extra/tools/mixcr-2.1.9"
+path_to_vidjil = igrec_dir + "/src/extra/tools/vidjil"
 path_to_igrec = igrec_dir
 path_to_igrec_old = igrec_dir + "/../ig_repertoire_constructor_old"
 
@@ -119,7 +121,11 @@ def jit_fx_file(input_file, output_file, error_rate=2, random_errors=True,
 
     output_format = idFormatByFileName(output_file)
     input_format = idFormatByFileName(input_file)
+    print seed
     random.seed(seed)
+    np.random.seed(seed)
+
+    print np.random.ranf(1)
 
     with smart_open(input_file) as fh, smart_open(output_file, "w") as fout:
         for record in SeqIO.parse(fh, input_format):
@@ -240,13 +246,14 @@ def simulate_data(input_file, output_dir, log=None,
 
 
 def run_ig_simulator(output_dir, log=None,
-                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000):
+                     chain="HC", num_bases=100, num_mutated=1000, repertoire_size=5000,
+                     tcr=False):
     if log is None:
         log = FakeLog()
 
     assert chain in ["HC", "LC"]
 
-    args = {"path": path_to_ig_simulator,
+    args = {"path": path_to_ig_simulator if not tcr else path_to_ig_simulator_tcr,
             "output_dir": output_dir,
             "chain": chain,
             "num_bases": num_bases,
@@ -254,7 +261,13 @@ def run_ig_simulator(output_dir, log=None,
             "repertoire_size": repertoire_size}
 
     timer = Timer()
-    support.sys_call("%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args,
+    cmd = "%(path)s/ig_simulator.py --chain-type %(chain)s --num-bases %(num_bases)d --num-mutated %(num_mutated)d --repertoire-size %(repertoire_size)d -o %(output_dir)s --skip-drawing" % args
+    if tcr:
+        vgenes = igrec_dir + "/data/germline/human/TCR/TRBV.fa"
+        jgenes = igrec_dir + "/data/germline/human/TCR/TRBJ.fa"
+        dgenes = igrec_dir + "/data/germline/human/TCR/TRBD.fa"
+        cmd += " --vgenes=" + vgenes + " --jgenes=" + jgenes + " --dgenes=" + dgenes
+    support.sys_call(cmd,
                      log=log)
     timer.stamp(output_dir + "/time.txt")
 
@@ -426,6 +439,94 @@ def run_igrec(input_file, output_dir, log=None,
     timer.stamp(output_dir + "/time.txt")
     if remove_tmp:
         rmdir(output_dir + "/vj_finder")
+
+def convert_vidjil_output_to_igrec(input, output):
+    import json
+    data = json.load(open(input))
+    clones = data["clones"]
+    with open(output, "w") as fout:
+        print "#clones", len(clones)
+        if not clones:
+            return
+        for i, clone in enumerate(clones):
+            size = int(clone["reads"][0])  # TODO Ask about this field, I think it supposed to be a list of read IDs of the cluster
+            seq = clone["sequence"]
+            if seq == 0:
+                continue
+            fout.write(">cluster___%d___size___%d\n" % (i, size))
+            fout.write("%s\n" % seq)
+
+
+def run_vidjil(input_file, output_dir,
+               log=None,
+               loci="IG", enforce_fastq=False,
+               threads=16,
+               species="homo-sapiens",
+               window=50,
+               n=5,
+               remove_tmp=True):
+    from os.path import basename, splitext
+    if log is None:
+        log = FakeLog()
+
+    mkdir_p(output_dir)
+
+    if enforce_fastq and idFormatByFileName(input_file) == "fasta":
+        input_file_fq = "%s/input_reads.fq" % output_dir
+        fastx2fastx(input_file, input_file_fq)
+        input_file = input_file_tmp = input_file_fq
+    elif idFormatByFileName(input_file) == "fasta":
+        input_file_fasta = "%s/input_reads.fasta" % output_dir
+        fastx2fastx(input_file, input_file_fasta)
+        input_file = input_file_tmp = input_file_fasta
+    else:
+        input_file_tmp = None
+
+    # TODO this should be done automatically but it is not. Submit a bug
+    if loci == "IG":
+        loci = "IGH,IGK,IGL"
+    elif loci == "TR":
+        loci = "TRA,TRB,TRG,TRD"
+
+    if window == "all":
+        window = 0
+
+    path = path_to_vidjil
+    args = {"path": path,
+            "compress_eq_clusters_cmd": path_to_igrec + "/py/ig_compress_equal_clusters.py",
+            "vidjil_cmd": "%s/vidjil-algo" % path,
+            "threads": threads,
+            "input_file": input_file,
+            "output_dir": output_dir,
+            "species": species,
+            "loci": "" if loci == "all" else ":" + loci,
+            "n_value": n,
+            "window": "all" if window == 0 else str(window),
+            "input_prefix": splitext(basename(input_file))[0]}
+
+    timer = Timer()
+
+
+    support.sys_call("%(vidjil_cmd)s -c clones -g %(path)s/germline/%(species)s.g%(loci)s -2 -3 -r 1 %(input_file)s -o %(output_dir)s -y all -w %(window)s -n %(n_value)d" %
+                     args, log=log)
+    timer.stamp(output_dir + "/time.txt")
+
+    convert_vidjil_output_to_igrec("%(output_dir)s/%(input_prefix)s.vidjil" % args, "%(output_dir)s/vidjil_uncompressed.fa" % args)
+    support.sys_call("%(compress_eq_clusters_cmd)s %(output_dir)s/vidjil_uncompressed.fa %(output_dir)s/final_repertoire.fa" % args)
+
+
+    import shutil
+
+    if remove_tmp:
+        if input_file_tmp is not None:
+            os.remove(input_file_tmp)
+
+        shutil.rmtree(output_dir + "/seq")
+        os.remove(output_dir + "/%(input_prefix)s.edges" % args)
+        os.remove(output_dir + "/%(input_prefix)s.vdj.fa" % args)
+        os.remove(output_dir + "/%(input_prefix)s.windows.fa" % args)
+        # os.remove(output_dir + "/%(input_prefix)s.vidjil" % args)
+        os.remove(output_dir + "/vidjil_uncompressed.fa")
 
 
 def run_mixcr(input_file, output_dir,

@@ -222,6 +222,14 @@ void load(TreeSizeGeneratorParams::GeometricParams &geometric_params,
     load(geometric_params.lambda, pt, "lambda");
 }
 
+void load(TreeSizeGeneratorParams::UniformParams &uniform_params,
+          boost::property_tree::ptree const &pt, bool)
+{
+    using config_common::load;
+    load(uniform_params.low, pt, "low");
+    load(uniform_params.high, pt, "high");
+}
+
 void load(TreeSizeGeneratorParams &tree_size_generator_params,
           boost::property_tree::ptree const &pt, bool)
 {
@@ -235,6 +243,9 @@ void load(TreeSizeGeneratorParams &tree_size_generator_params,
     if (method_str == "geometric") {
         tree_size_generator_params.method = TreeSizeGeneratorMethod::Geometric;
         load(tree_size_generator_params.geometric_params, pt, "geometric_params");
+    } else if (method_str == "uniform") {
+        tree_size_generator_params.method = TreeSizeGeneratorMethod::Uniform;
+        load(tree_size_generator_params.uniform_params, pt, "uniform_params");
     } else {
         VERIFY(false);
     }
@@ -306,8 +317,8 @@ void load(IgSimulatorConfig &cfg, boost::property_tree::ptree const &pt, bool co
     load(cfg.simulation_params, pt, "simulation_params", complete);
     load(cfg.germline_params, pt, "germline_params");
     // TODO remove this hack
-    cfg.simulation_params.base_repertoire_params.
-        metaroot_simulation_params.cdr_labeler_config.load(cfg.io_params.input_params.cdr_labeler_config_filename);
+    load(cfg.simulation_params.base_repertoire_params.metaroot_simulation_params.cdr_labeler_config,
+            cfg.io_params.input_params.cdr_labeler_config_filename);
 }
 
 void load(IgSimulatorConfig &cfg, std::string const &filename) {

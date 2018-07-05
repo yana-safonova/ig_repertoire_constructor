@@ -24,7 +24,6 @@
  * according to extension.
  */
 
-#include "standard_base.hpp"
 #include "logger/logger.hpp"
 #include "io/parser.hpp"
 #include "io/fasta_fastq_gz_parser.hpp"

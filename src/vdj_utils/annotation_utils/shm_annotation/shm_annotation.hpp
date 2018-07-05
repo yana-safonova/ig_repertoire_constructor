@@ -10,6 +10,7 @@ namespace annotation_utils {
     std::ostream& operator<<(std::ostream& out, const SHMType &shm_type);
 
     struct SHM {
+        germline_utils::SegmentType segment_type;
         SHMType shm_type;
         size_t gene_nucl_pos;
         size_t read_nucl_pos;
@@ -20,10 +21,19 @@ namespace annotation_utils {
 
         void ComputeType();
 
-        SHM(size_t gene_nucl_pos, size_t read_nucl_pos, char gene_nucl, char read_nucl,
-            char gene_aa, char read_aa) :
-                gene_nucl_pos(gene_nucl_pos), read_nucl_pos(read_nucl_pos),
-                gene_nucl(gene_nucl), read_nucl(read_nucl), gene_aa(gene_aa), read_aa(read_aa) {
+        SHM(germline_utils::SegmentType segment_type,
+            size_t gene_nucl_pos,
+            size_t read_nucl_pos,
+            char gene_nucl,
+            char read_nucl,
+            char gene_aa,
+            char read_aa) : segment_type(segment_type),
+                            gene_nucl_pos(gene_nucl_pos),
+                            read_nucl_pos(read_nucl_pos),
+                            gene_nucl(gene_nucl),
+                            read_nucl(read_nucl),
+                            gene_aa(gene_aa),
+                            read_aa(read_aa) {
             ComputeType();
         }
 
@@ -38,13 +48,25 @@ namespace annotation_utils {
                 return false;
             return read_aa == '*';
         }
+
+        bool operator==(const SHM& shm) const;
+
+        bool operator!=(const SHM& shm) const;
+
+        void AppendInMixcrFormat(std::ostream& out) const;
+    };
+
+    bool operator<(const SHM &left, const SHM &right);
+
+    struct TrivialSHMComparator {
+        bool operator()(const SHM& shm1, const SHM& shm2);
     };
 
     std::ostream& operator<<(std::ostream &out, const SHM& shm);
 
     // class stores SHMs in the order of increasing positions
     class GeneSegmentSHMs {
-        const core::Read* read_ptr_;
+        core::Read read_;
         const germline_utils::ImmuneGene *immune_gene_;
 
         std::vector<SHM> shms_;
@@ -52,9 +74,9 @@ namespace annotation_utils {
         void CheckConsistencyFatal(SHM shm);
 
     public:
-        GeneSegmentSHMs(const core::Read &read,
+        GeneSegmentSHMs(core::Read read,
                         const germline_utils::ImmuneGene &immune_gene) :
-                read_ptr_(&read),
+                read_(read),
                 immune_gene_(&immune_gene){ }
 
         void AddSHM(SHM shm);
@@ -73,9 +95,15 @@ namespace annotation_utils {
 
         germline_utils::SegmentType SegmentType() const { return immune_gene_->Segment(); }
 
-        const core::Read& Read() const { return *read_ptr_; }
+        const core::Read& Read() const { return read_; }
 
         const germline_utils::ImmuneGene& ImmuneGene() const { return *immune_gene_; }
+
+        /**
+         * Appends MiXCR-like alignment.
+         * See <a href="http://mixcr.readthedocs.io/en/latest/appendix.html#ref-encoding">MiXCR documentation</a> for description.
+         */
+        void AppendInMixcrFormat(std::ostream& out) const;
     };
 
     std::ostream& operator<<(std::ostream &out, const GeneSegmentSHMs& shms);
