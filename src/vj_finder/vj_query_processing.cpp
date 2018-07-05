@@ -19,7 +19,7 @@ namespace vj_finder {
         return processed_hits;
     }
 
-    ProcessedVJHits VJQueryProcessor::Process(const core::Read &read) {
+    ProcessedVJHits VJQueryProcessor::Process(core::Read &read) {
         VJHits vj_hits = vj_query_aligner.Align(read);
         ProcessedVJHits hits_after_fitering = ComputeFilteringResults(read, vj_hits);
         if(hits_after_fitering.ReadToBeFiltered()) {
