@@ -56,10 +56,6 @@ namespace algorithms {
 
         const SubjectDatabase & Db() const { return db_; }
 
-        bool SubjectsContainKmer(size_t kmer) const {
-            return kmer_query_pos_map_[kmer] > 0;
-        }
-
         const std::vector<SubjectPosition>& GetSubjectPositions(size_t kmer) const {
             return kmer_query_pos_map_.at(kmer);
         }
