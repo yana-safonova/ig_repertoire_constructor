@@ -21,6 +21,7 @@ set(CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 # Define various dirs
+
 set(IGREC_MAIN_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(IGREC_MAIN_INCLUDE_DIR ${IGREC_MAIN_SRC_DIR}/include)
 set(IGREC_BINARY_DIR ${CMAKE_BINARY_DIR})
@@ -36,6 +37,8 @@ set(VDJ_UTILS_DIR "${IGREC_MAIN_SRC_DIR}/vdj_utils")
 set(VJ_FINDER_DIR "${IGREC_MAIN_SRC_DIR}/vj_finder")
 set(CDR_LABELER_DIR "${IGREC_MAIN_SRC_DIR}/cdr_labeler")
 set(IG_SIMULATOR_DIR "${IGREC_MAIN_SRC_DIR}/ig_simulator")
+set(SHM_DIR "${IGREC_MAIN_SRC_DIR}/shm_kmer_matrix_estimator")
+set(ANTEVOLO_DIR "${IGREC_MAIN_SRC_DIR}/antevolo")
 
 # Everything option-dependent
 include(options)
@@ -82,12 +85,15 @@ add_subdirectory(dense_sgraph_finder)
 add_subdirectory(paired_read_merger)
 add_subdirectory(ig_tools)
 add_subdirectory(graph_utils)
+add_subdirectory(shm_kmer_matrix_estimator)
 add_subdirectory(core)
 add_subdirectory(algorithms)
 add_subdirectory(vdj_utils)
 add_subdirectory(vj_finder)
 add_subdirectory(cdr_labeler)
+add_subdirectory(antevolo)
 add_subdirectory(test)
 add_subdirectory(umi_experiments)
 add_subdirectory(pcr_simulator)
 add_subdirectory(ig_simulator)
+add_subdirectory(config)

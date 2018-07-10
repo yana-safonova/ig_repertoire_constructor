@@ -39,7 +39,7 @@ def CheckBinariesExistance(params, log):
 def DomainParamCorrect(domain_str):
     return domain_str == "imgt" or domain_str == "kabat"
 
-def LociParamCorrect(loci_str):
+def LociParamIsIg(loci_str):
     return loci_str == "IG" or loci_str == "IGH" or loci_str == "IGK" or loci_str == "IGL"
 
 organism_dict = {'human' : 'human', 'mouse' : 'mouse', 'rat' : 'rat',
@@ -55,9 +55,9 @@ def CheckParamsCorrectness(params, log):
     if not DomainParamCorrect(params.domain_system):
         log.info("Domain system " + params.domain_system + " is not recognized")
         sys.exit(1)
-    if not LociParamCorrect(params.loci):
-        log.info("Loci " + params.loci + " is not recognized")
-        sys.exit(1)
+#    if not LociParamCorrect(params.loci):
+#        log.info("Loci " + params.loci + " is not recognized")
+#        sys.exit(1)
     if not OrganismParamCorrect(params.organism):
         log.info("Organism " + params.organism + " is not recognized")
         sys.exit(1)
@@ -70,6 +70,8 @@ def SetOutputParams(params, log):
     if params.input_reads != test_reads and params.output_dir == "":
         log.info("ERROR: Output dir (-o) was not specified")
         sys.exit(1)
+    if not LociParamIsIg(params.loci):
+        params.skip_plots = True
     params.output_dir = os.path.abspath(params.output_dir)
     params.config_dir = os.path.join(params.output_dir, "configs")
     params.cdr_config_file = os.path.join(cdr_labeler_config_dir, "config.info")
@@ -188,31 +190,42 @@ def main(argv):
                                type=int,
                                default=16,
                                dest="num_threads",
-                               help="Threads number [default: %(default)d]")
-    optional_args.add_argument("-d", '--domain',
+                               help="Threads number. [default: %(default)d]")
+    optional_args.add_argument("-d", "--domain",
                                type=str,
                                default="imgt",
                                dest="domain_system",
-                               help='Domain system for CDR search: imgt OR kabat [default: %(default)s]')
+                               help="Domain system for CDR search: imgt OR kabat. [default: %(default)s]")
 
     vj_finder_args= parser.add_argument_group("VJ alignment params")
     optional_args.add_argument("-l", "--loci",
                                type=str,
-                               default="IG",
+                               default="all",
                                dest="loci",
-                               help="Loci: IGH, IGK, IGL, IG (all BCRs)" # ", TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
+                               help="Loci: IGH, IGK, IGL, IG (all BCRs), TRA, TRB, TRG, TRD, TR (all TCRs) or all. "
                                     "[default: %(default)s]")
+
     optional_args.add_argument("--org",
                                type=str,
                                default="human",
                                dest="organism",
-                               help="Organism: human, mouse, rat, rabbit, rhesus-monkey [default: %(default)s]")
+                               help="Organism: human, mouse, rat, rabbit, rhesus-monkey. [default: %(default)s]")
 
-    optional_args.add_argument('--skip-plots',
-                               action='store_const',
+    optional_args.add_argument("--skip-plots",
+                               action="store_const",
                                const=True,
                                dest = "skip_plots",
                                help = "Skip drawing plots")
+
+    optional_args.add_argument("--preset",
+                               type=str,
+                               default="divan",
+                               dest="preset",
+                               help="Predefined set of repertoire features to report. Supported values: divan."
+                                    # "min outputs same fields as MiXCR export with min preset, "
+                                    "divan outputs default IgDiversityAnalyzer feature set, "
+                                    # "custom reads feature set from cdr_labeler config file."
+                                    " [default: %(default)s]")
 
     optional_args.add_argument("-h", "--help",
                                action="help",

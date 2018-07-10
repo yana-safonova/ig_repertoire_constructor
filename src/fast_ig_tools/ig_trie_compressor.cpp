@@ -1,6 +1,5 @@
 #include <vector>
 #include <string>
-#include <cassert>
 #include <algorithm>
 #include <chrono>
 

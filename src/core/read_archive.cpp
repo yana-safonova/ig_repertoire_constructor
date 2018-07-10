@@ -39,7 +39,7 @@ namespace core {
         return reads_.size();
     }
 
-    const Read& ReadArchive::operator[](size_t index) const {
+    Read& ReadArchive::operator[](size_t index) {
         VERIFY_MSG(index < reads_.size(), "Index " << index << " exceeds archive size");
         return reads_[index];
     }
@@ -57,7 +57,7 @@ namespace core {
 
     void ReadArchive::FixSpacesInHeaders() {
         for(auto it = reads_.begin(); it != reads_.end(); it++)
-            std::replace(it->name.begin(), it->name.end(), ' ', '_');
+            std::replace_if(it->name.begin(), it->name.end(), [](char c) { return std::isspace(c); }, '_');
     }
 
     void ReadArchive::UpdateReadByIndex(size_t index, seqan::Dna5String new_seq) {

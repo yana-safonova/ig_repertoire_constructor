@@ -24,7 +24,7 @@ namespace vj_finder {
                                 aligner(vj_query_aligner.get_aligner(
                                             kmer_index, kmer_index_helper,
                                             vj_query_aligner.CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::VScoringParams>(vj_query_aligner.algorithm_params.scoring_params.v_scoring),
-                                            vj_query_aligner.CreateVBlockAlignerParams())) { 
+                                            vj_query_aligner.CreateVBlockAlignerParams())) {
                                 //    TRACE("Kmer index for V gene segment DB was constructed");
                                 }
         };
@@ -38,23 +38,23 @@ namespace vj_finder {
             germline_utils::ImmuneGeneType immune_gene_type;
             ImmuneGeneGermlineDbHelper kmer_index_helper;
             SubjectQueryKmerIndex<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> kmer_index;
-            std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > aligner; 
-        
-            
+            std::shared_ptr<PairwiseBlockAligner<germline_utils::ImmuneGeneDatabase, seqan::Dna5String> > aligner;
+
+
 
             JHelper(VJQueryAligner &vj_query_aligner_, germline_utils::ImmuneGeneType immune_gene_type) :
                                 vj_query_aligner(vj_query_aligner_),
                                 j_gene_db(vj_query_aligner.j_custom_db.GetConstDbByGeneType(immune_gene_type)),
                                 immune_gene_type(immune_gene_type),
                                 kmer_index_helper(j_gene_db),
-                                kmer_index(j_gene_db, 
+                                kmer_index(j_gene_db,
                                            vj_query_aligner.algorithm_params.aligner_params.word_size_j,
                                            kmer_index_helper),
                                 aligner(vj_query_aligner.get_aligner(
                                             kmer_index, kmer_index_helper,
                                             vj_query_aligner.CreateBlockAlignmentScoring<VJFinderConfig::AlgorithmParams::ScoringParams::JScoringParams>(
                                             vj_query_aligner.algorithm_params.scoring_params.j_scoring),
-                                            vj_query_aligner.CreateJBlockAlignerParams())) { 
+                                            vj_query_aligner.CreateJBlockAlignerParams())) {
                                 //    TRACE("Kmer index for J gene segment DB was constructed");
                                 }
         };
@@ -122,35 +122,35 @@ namespace vj_finder {
             case vj_finder::VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDAGAlignerAlgorithm:
                 return std::shared_ptr<algorithms::PairwiseBlockAligner<SubjectDatabase, StringType> >(
                     new algorithms::QuadraticDAGPairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params));
-            
+
             case vj_finder::VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::LisAlignerAlgorithm:
                 return std::shared_ptr<algorithms::PairwiseBlockAligner<SubjectDatabase, StringType> >(
-                    new algorithms::LisPairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params));        
-            
+                    new algorithms::LisPairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params));
+
             case vj_finder::VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDpAlignerAlgorithm:
                 return std::shared_ptr<algorithms::PairwiseBlockAligner<SubjectDatabase, StringType> >(
-                    new algorithms::QuadraticDpPairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params));        
-            
+                    new algorithms::QuadraticDpPairwiseBlockAligner<SubjectDatabase, StringType>(kmer_index, kmer_index_helper, scoring, params));
+
             default:
                 VERIFY_MSG(false, "Failed to determine block alignment algorithm, using the default one");
             };
             return NULL;
         }
-        
+
     public:
         VJQueryAligner(const VJFinderConfig::AlgorithmParams &algorithm_params,
-                       core::ReadArchive &read_archive,
+                       //core::ReadArchive &read_archive,
                        const germline_utils::CustomGeneDatabase &v_custom_db,
                        const germline_utils::CustomGeneDatabase &j_custom_db) :
                 algorithm_params(algorithm_params),
-                read_archive(read_archive),
+                //read_archive(read_archive),
                 v_custom_db(v_custom_db),
                 j_custom_db(j_custom_db) {
             CheckDbConsistencyFatal();
             v_helper = std::make_shared<VHelper>(*this);
         }
 
-        VJHits Align(const core::Read& read);
+        VJHits Align(core::Read& read);
 
     private:
         DECL_LOGGER("VJQueryAligner");

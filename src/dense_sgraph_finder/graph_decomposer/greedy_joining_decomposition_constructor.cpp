@@ -21,7 +21,7 @@ void GreedyJoiningDecomposition::InitializeClassStructs() {
 
 void GreedyJoiningDecomposition::InitializeDecompositionGraph() {
     for(size_t i = 0; i < basic_decomposition_ptr_->Size(); i++)
-        decomposition_graph_[i] = set<size_t>();
+        decomposition_graph_[i] = std::set<size_t>();
 }
 
 void GreedyJoiningDecomposition::InitializeVertexClass() {
@@ -73,7 +73,7 @@ size_t GreedyJoiningDecomposition::GetMaximalAvailableClass() {
 double GreedyJoiningDecomposition::ComputeRelativeFillin(size_t class_id, size_t vertex) {
     size_t num_edges_to_class = 0;
     size_t old_vertex = vertex; //collapsed_struct_->OldVerticesList()[vertex];
-    set<size_t> used_main_vertices;
+    std::set<size_t> used_main_vertices;
 
     for(size_t i = hamming_graph_ptr_->RowIndex()[old_vertex];
         i < hamming_graph_ptr_->RowIndex()[old_vertex + 1]; i++) {
@@ -111,7 +111,7 @@ bool GreedyJoiningDecomposition::ClassesCanBeGlued(size_t main_class, size_t sec
     double average_fillin = 0;
     for(auto it = sec_class_set.begin(); it != sec_class_set.end(); it++) {
         double cur_avg_fillin = ComputeRelativeFillin(main_class, *it);
-        assert(cur_avg_fillin <= 1);
+        VERIFY(cur_avg_fillin <= 1);
         average_fillin += cur_avg_fillin;
     }
     average_fillin /= double(sec_class_set.size());
@@ -173,9 +173,9 @@ void GreedyJoiningDecomposition::WriteNewDecomposition() {
     // compute max class
     size_t max_class = 0;
     for(size_t i = 0; i < vertex_class_.size(); i++)
-        max_class = max<size_t>(max_class, vertex_class_[i]);
+        max_class = std::max<size_t>(max_class, vertex_class_[i]);
     // initialization
-    vector<size_t> class_index;
+    std::vector<size_t> class_index;
     for(size_t i = 0; i <= max_class; i++)
         class_index.push_back(size_t(-1));
     // mark significant cells

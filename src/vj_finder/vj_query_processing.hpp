@@ -27,7 +27,8 @@ namespace vj_finder {
         VJQueryAligner vj_query_aligner;
 
 
-        ProcessedVJHits ComputeFilteringResults(const core::Read &read, VJHits vj_hits);
+
+        ProcessedVJHits ComputeFilteringResults(core::Read &read, VJHits vj_hits);
 
         std::shared_ptr<BaseFillFixCropProcessor> GetFillFixCropProcessor();
 
@@ -39,8 +40,8 @@ namespace vj_finder {
                                                                            read_archive_(read_archive),
                                                                            v_db_(v_db),
                                                                            j_db_(j_db),
-                                                                           vj_query_aligner(params_, read_archive_, v_db_, j_db_) { }
+                                                                           vj_query_aligner(params_, v_db_, j_db_) { }
 
-        ProcessedVJHits Process(const core::Read &read);
+        ProcessedVJHits Process(core::Read &read);
     };
 }

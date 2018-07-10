@@ -1,33 +1,35 @@
 #pragma once
 
-#include "../include_me.hpp"
+#include <fstream>
+#include <set>
+#include <string>
 #include "../string_tools.hpp"
 
 class Clusters {
-	ifstream src_;
+	std::ifstream src_;
 
-	map<string, size_t> read_cluster_;
-	map<string, size_t> read_index_;
-	vector<string> reads_;
-	map<size_t, vector<size_t> > clusters_;
+	std::map<std::string, size_t> read_cluster_;
+	std::map<std::string, size_t> read_index_;
+	std::vector<std::string> reads_;
+	std::map<size_t, std::vector<size_t> > clusters_;
 
 public:
-	Clusters(string fname) :
+	Clusters(std::string fname) :
 		src_(fname.c_str()) {
-		assert(!src_.fail());
+		VERIFY(!src_.fail());
 	}
 
 	void ExtractFromFile() {
 		while(!src_.eof()) {
-			string tmp;
+			std::string tmp;
 			getline(src_, tmp);
 			if(tmp != "") {
-				vector<string> splits = split(tmp, '\t');
+				std::vector<std::string> splits = split(tmp, '\t');
                 if(splits.size() != 2) {
                     cout << "String " << tmp << " is wrong. Nummber of splits is " << splits.size() << endl;
-				    assert(splits.size() == 2);
+					VERIFY(splits.size() == 2);
                 }
-				string name;
+				std::string name;
 				size_t pos = splits[0].find("fr=");
 				name = splits[0].substr(0, pos);
 				read_cluster_[/*splits[0]*/name] = string_to_number<size_t>(splits[1]);
@@ -46,24 +48,24 @@ public:
 		}
 	}
 
-	vector<string> Reads() { return reads_; }
+	std::vector<std::string> Reads() { return reads_; }
 
-	map<size_t, vector<size_t> >::iterator clusters_begin() { return clusters_.begin(); }
+	std::map<size_t, std::vector<size_t> >::iterator clusters_begin() { return clusters_.begin(); }
 
-	map<size_t, vector<size_t> >::iterator clusters_end() { return clusters_.end(); }
+	std::map<size_t, std::vector<size_t> >::iterator clusters_end() { return clusters_.end(); }
 
 	size_t GetCluster(size_t read_index) {
-		assert(read_index < reads_.size());
+		VERIFY(read_index < reads_.size());
 		return read_cluster_[reads_[read_index]];
 	}
 
-	size_t GetCluster(string read_name) {
+	size_t GetCluster(std::string read_name) {
 		if(read_index_.find(read_name) == read_index_.end())
 			return size_t(-1);
 		return GetCluster(read_index_[read_name]);
 	}
 
-	size_t GetClusterSizeByReadName(string read_name) {
+	size_t GetClusterSizeByReadName(std::string read_name) {
 		if(read_index_.find(read_name) == read_index_.end())
 			return size_t(-1);
 		return ClusterSize(GetCluster(read_name));
@@ -73,7 +75,7 @@ public:
 		return clusters_[cluster].size();
 	}
 
-	vector<size_t> GetReadsByCluster(size_t cluster) {
+	std::vector<size_t> GetReadsByCluster(size_t cluster) {
 		return clusters_[cluster];
 	}
 
@@ -85,7 +87,7 @@ public:
 		return clusters_[index].size() == 1;
 	}
 
-	bool ReadExists(string read_name) {
+	bool ReadExists(std::string read_name) {
 		return read_index_.find(read_name) != read_index_.end();
 	}
 

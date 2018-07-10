@@ -4,7 +4,6 @@
 #include "alignment_positions.hpp"
 #include <seqan/align.h>
 #undef NDEBUG
-#include <cassert>
 
 #include <verify.hpp>
 
@@ -58,7 +57,7 @@ namespace alignment_utils {
         void ComputeAlignmentStats() {
             auto& subject_row = seqan::row(alignment_, 0);
             auto& query_row = seqan::row(alignment_, 1);
-            assert(length(subject_row) == length(query_row));
+            VERIFY(length(subject_row) == length(query_row));
             for(size_t i = 0; i < length(subject_row); i++) {
                 // std::cout << i << " " << length(subject_row) << " " << length(query_row) << std::endl;
                 if(subject_row[i] == '-' or query_row[i] == '-')
@@ -153,12 +152,12 @@ namespace alignment_utils {
         const QueryTypename* QueryPtr() const { return query_ptr_; }
 
         const SubjectTypename& subject() const {
-            assert(subject_ptr_ != nullptr);
+            VERIFY(subject_ptr_ != nullptr);
             return *subject_ptr_;
         }
 
         const QueryTypename& query() const {
-            assert(query_ptr_ != nullptr);
+            VERIFY(query_ptr_ != nullptr);
             return *query_ptr_;
         }
 

@@ -1,8 +1,9 @@
+#include <verify.hpp>
 #include "crs_matrix.hpp"
 
 // valid only for consecutive filling of structure
 void CrsMatrix::AddEdge(size_t v1, size_t v2, size_t dist) {
-    assert(v1 < v2);
+    VERIFY(v1 < v2);
     dist_.push_back(dist);
     col_.push_back(v2);
     row_index_[v1]++;
@@ -17,7 +18,7 @@ void CrsMatrix::ComputeRowIndex() {
     }
 }
 
-void CrsMatrix::Initialize(const vector<GraphEdge> &edges) {
+void CrsMatrix::Initialize(const std::vector<GraphEdge> &edges) {
     ComputeN_NZ(edges);
     InitializeRowIndex();
     for(auto it = edges.begin(); it != edges.end(); it++)
@@ -29,11 +30,11 @@ void CrsMatrix::Initialize(const vector<GraphEdge> &edges) {
 void CrsMatrix::Initialize(const CrsMatrix &trans_matrix) {
     N_ = trans_matrix.N();
     NZ_ = trans_matrix.NZ();
-    vector<vector<size_t> > trans_nz_col;
-    vector<vector<size_t> > trans_nz_val;
+    std::vector<std::vector<size_t> > trans_nz_col;
+    std::vector<std::vector<size_t> > trans_nz_val;
     for(size_t i = 0; i < trans_matrix.N(); i++) {
-        trans_nz_col.push_back(vector<size_t>());
-        trans_nz_val.push_back(vector<size_t>());
+        trans_nz_col.push_back(std::vector<size_t>());
+        trans_nz_val.push_back(std::vector<size_t>());
     }
     for(size_t i = 0; i < trans_matrix.N(); i++)
         for(size_t j = trans_matrix.RowIndex()[i]; j < trans_matrix.RowIndex()[i + 1]; j++) {
@@ -53,15 +54,15 @@ void CrsMatrix::Initialize(const CrsMatrix &trans_matrix) {
     }
 }
 
-ostream& operator<<(ostream &out, const CrsMatrix &matrix) {
-    out << "N: " << matrix.N() << ", NZ: " << matrix.NZ() << endl;
+std::ostream& operator<<(std::ostream &out, const CrsMatrix &matrix) {
+    out << "N: " << matrix.N() << ", NZ: " << matrix.NZ() << std::endl;
     out << "Columns: ";
     for(auto it = matrix.Col().begin(); it != matrix.Col().end(); it++)
         out << *it << " ";
-    out << endl << "Values: ";
+    out << std::endl << "Values: ";
     for(auto it = matrix.Dist().begin(); it != matrix.Dist().end(); it++)
         out << *it << " ";
-    out << endl << "Row indices: ";
+    out << std::endl << "Row indices: ";
     for(auto it = matrix.RowIndex().begin(); it != matrix.RowIndex().end(); it++)
         out << *it << " ";
     return out;

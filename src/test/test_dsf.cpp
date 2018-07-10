@@ -27,7 +27,7 @@ dsf_config::dense_sgraph_finder_params CreateStandardDsfParams() {
     return dsf_params;
 }
 
-dsf_config::metis_io_params CreateStandardMetisParams(string output_dir) {
+dsf_config::metis_io_params CreateStandardMetisParams(std::string output_dir) {
     dsf_config::metis_io_params metis_params;
     metis_params.path_to_metis = "build/release/bin/";
     metis_params.run_metis = path::append_path(metis_params.path_to_metis, "./metis");

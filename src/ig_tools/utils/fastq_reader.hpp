@@ -1,28 +1,31 @@
 #pragma once
 
-#include "include_me.hpp"
+#include <fstream>
+#include <string>
+#include <vector>
+#include <verify.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 
 struct FastqRead {
-	string name;
-	string seq;
-	string quality;
+	std::string name;
+	std::string seq;
+	std::string quality;
 
 	FastqRead() :
 		name(),
 		seq(),
 		quality() { }
 
-	FastqRead(string new_name, string new_seq, string new_quality) :
+	FastqRead(std::string new_name, std::string new_seq, std::string new_quality) :
 		name(new_name),
 		seq(new_seq),
 		quality(new_quality) { }
 
-	void print(ostream &out) {
-		out << "Name:\t" << name << endl;
-		out << "Seq:\t" << seq << endl;
-		out << "Qual:\t" << quality << endl;
+	void print(std::ostream &out) {
+		out << "Name:\t" << name << std::endl;
+		out << "Seq:\t" << seq << std::endl;
+		out << "Qual:\t" << quality << std::endl;
 	}
 
 	bool is_empty() {
@@ -45,7 +48,7 @@ struct PairedFastqRead {
 
 class SingleFastqReader {
     boost::iostreams::filtering_streambuf<boost::iostreams::input> fb;
-    ifstream file;
+	std::ifstream file;
     std::istream src_;
 
     static bool has_suffix(const std::string &str, const std::string &suffix) {
@@ -54,7 +57,7 @@ class SingleFastqReader {
     }
 
 public:
-	SingleFastqReader(string fname) : file(fname.c_str(), ios_base::in | ios_base::binary), src_(&fb) {
+	SingleFastqReader(std::string fname) : file(fname.c_str(), std::ios_base::in | std::ios_base::binary), src_(&fb) {
         if (has_suffix(fname, ".gz")) {
             fb.push(boost::iostreams::gzip_decompressor());
         } else {
@@ -63,22 +66,22 @@ public:
 
         fb.push(file);
 
-		assert(!src_.fail());
+		VERIFY(!src_.fail());
 	}
 
-	vector<FastqRead> ReadFile() {
-		vector<FastqRead> reads;
+	std::vector<FastqRead> ReadFile() {
+		std::vector<FastqRead> reads;
 		while(!src_.eof()) {
-			string name;
-			string seq;
-			string tmp;
-			string qual;
+			std::string name;
+			std::string seq;
+			std::string tmp;
+			std::string qual;
 			getline(src_, name);
 			getline(src_, seq);
 			getline(src_, tmp);
 			getline(src_, qual);
 
-			assert(seq.size() == qual.size());
+			VERIFY(seq.size() == qual.size());
 
 			if(name != "" && seq != "" && qual != "")
 				reads.push_back(FastqRead(name, seq, qual));
@@ -91,7 +94,7 @@ public:
     }
 
     void reset(){
-        src_.seekg(0, ios::beg);
+        src_.seekg(0, std::ios::beg);
     }
 };
 
@@ -101,15 +104,15 @@ class PairedFastqReader {
 
 public:
 	PairedFastqReader(char *left_fname, char *right_fname) :
-		left_(string(left_fname)),
-		right_(string(right_fname)) {
+		left_(std::string(left_fname)),
+		right_(std::string(right_fname)) {
 	}
 
-	vector<PairedFastqRead> Read() {
-		vector<FastqRead> left_reads = left_.ReadFile();
-		vector<FastqRead> right_reads = right_.ReadFile();
-		assert(left_reads.size() == right_reads.size());
-		vector<PairedFastqRead> paired_reads;
+	std::vector<PairedFastqRead> Read() {
+		std::vector<FastqRead> left_reads = left_.ReadFile();
+		std::vector<FastqRead> right_reads = right_.ReadFile();
+		VERIFY(left_reads.size() == right_reads.size());
+		std::vector<PairedFastqRead> paired_reads;
 		for(size_t i = 0; i < left_reads.size(); i++)
 			paired_reads.push_back(PairedFastqRead(left_reads[i],
 					right_reads[i]));
@@ -118,15 +121,15 @@ public:
 };
 
 class FastqWriter {
-	ofstream out_;
+    std::ofstream out_;
 public:
-	FastqWriter(string fname) :
+	FastqWriter(std::string fname) :
 		out_(fname.c_str()) { }
 
-	void Write(vector<FastqRead> reads) {
+	void Write(std::vector<FastqRead> reads) {
 		for(size_t i = 0; i < reads.size(); i++) {
-			out_ << reads[i].name << endl << reads[i].seq << endl <<
-					"+" << endl << reads[i].quality << endl;
+			out_ << reads[i].name << std::endl << reads[i].seq << std::endl <<
+					"+" << std::endl << reads[i].quality << std::endl;
 		}
 	}
 };

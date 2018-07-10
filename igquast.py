@@ -162,6 +162,11 @@ def parse_command_line():
                  default=False,
                  help="reference-free metrics")
 
+    add_selector(scenarios,
+                 "--reference-free-for-reference",
+                 default=False,
+                 help="reference-free metrics for reference repertoire")
+
     scenarios.add_argument("--experimental",
                            default=False,
                            action="store_true",
@@ -206,7 +211,7 @@ def parse_command_line():
     if args.export_bad_clusters:
         args.reference_free = True
 
-    args.rcm_based = args.reference_free or args.partition_based
+    args.rcm_based = args.reference_free or args.reference_free_for_reference or args.partition_based
 
     args.reference_free_dir = args.output_dir + "/reference_free"
     args.reference_based_dir = args.output_dir + "/reference_based"
@@ -258,7 +263,8 @@ def main(args):
             mkdir_p(dir)
 
             rep.plot_distribution_of_errors_in_reads(out=dir + "/%s_distribution_of_errors_in_reads" % name,
-                                                     format=args.figure_format)
+                                                     format=args.figure_format,
+                                                     max_val=10)
             rep.plot_estimation_of_max_error_distribution(out=dir + "/%s_max_error_scatter" % name,
                                                           format=args.figure_format)
             if args.page_mode:
@@ -292,7 +298,7 @@ def main(args):
     if args.initial_reads and args.constructed_repertoire and args.constructed_rcm and args.reference_free:
         ref_free_plots(rep, "constructed", args.reference_free_dir)
 
-    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free:
+    if args.initial_reads and args.reference_repertoire and args.reference_rcm and args.reference_free_for_reference:
         rep_ideal = Repertoire(args.reference_rcm, args.initial_reads, args.reference_repertoire)
         ref_free_plots(rep_ideal, "reference", args.reference_free_dir)
 
@@ -311,7 +317,8 @@ def main(args):
         if args.figure_format:
             mkdir_p(args.reference_based_dir)
 
-            for size in [1, 3, 5, 10]:
+            sizes=(1, 3, 5, 10, 25, 50)
+            for size in sizes:
                 res.plot_sensitivity_precision(what="ref2cons",
                                                out=args.reference_based_dir + "/reference_to_constructed_distance_distribution_size_%d" % size,
                                                size=size, differential=True,
@@ -322,8 +329,10 @@ def main(args):
                                                size=size, differential=True,
                                                format=args.figure_format)
 
-                res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
-                                  format=args.figure_format)
+            res.plot_octoplot(out=args.reference_based_dir + "/distance_distribution",
+                              sizes=sizes,
+                              format=args.figure_format)
+            res.plot_missed_clusters_sizes_distribution(out=args.reference_based_dir + "/missed_cluster_sizes_distribution")
 
             res.plot_min_cluster_size_choose(out=args.reference_based_dir + "/sensitivity_precision",
                                              format=args.figure_format)

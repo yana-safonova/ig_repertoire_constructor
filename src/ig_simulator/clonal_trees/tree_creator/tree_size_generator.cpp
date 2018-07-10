@@ -10,6 +10,8 @@ AbstractTreeSizeGeneratorCPtr get_tree_size_generator(const TreeSizeGeneratorPar
     using Method = TreeSizeGeneratorParams::TreeSizeGeneratorMethod;
     if (config.method == Method::Geometric) {
         return AbstractTreeSizeGeneratorCPtr(new GeometricTreeSizeGenerator(config.geometric_params));
+    } else if (config.method == Method::Uniform) {
+        return AbstractTreeSizeGeneratorCPtr(new UniformTreeSizeGenerator(config.uniform_params));
     }
     VERIFY(false);
 }

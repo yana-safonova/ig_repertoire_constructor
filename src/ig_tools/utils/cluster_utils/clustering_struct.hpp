@@ -1,11 +1,13 @@
 #pragma once
 
-#include "../include_me.hpp"
+#include <fstream>
+#include <string>
+#include <vector>
 #include "../fasta_reader.hpp"
 #include "../string_tools.hpp"
 
 struct SeqCluster {
-    string seq;
+    std::string seq;
     size_t size;
     size_t id;
 };
@@ -15,7 +17,7 @@ public:
     static SeqCluster Parse(fasta_read read) {
         SeqCluster cluster;
         cluster.seq = read.seq;
-        vector<string> header_splits = split(read.name, "___");
+        std::vector<std::string> header_splits = split(read.name, "___");
         cluster.id = string_to_number<size_t>(header_splits[1]);
         cluster.size = string_to_number<size_t>(header_splits[3]);
         return cluster;
@@ -23,24 +25,24 @@ public:
 };
 
 //class SeqClusterization {
-//    vector<SeqClass> clusters_;
+//    std::vector<SeqClass> clusters_;
 //};
 
 class ClustersFastaReader {
     FastaReader<fasta_read, FastaReadConstructor> fasta_reader_;
-    string fname_;
+    std::string fname_;
 public:
-    ClustersFastaReader(string fname):
+    ClustersFastaReader(std::string fname):
         fasta_reader_(fname),
         fname_(fname) { }
 
-    vector<SeqCluster> Read() {
-        vector<fasta_read> reads = fasta_reader_.Read();
-        vector<SeqCluster> clusters;
+    std::vector<SeqCluster> Read() {
+        std::vector<fasta_read> reads = fasta_reader_.Read();
+        std::vector<SeqCluster> clusters;
         for(auto it = reads.begin(); it != reads.end(); it++) {
             clusters.push_back(SeqClusterParser::Parse(*it));
         }
-        cout << clusters.size() << " cluster(s) were extracted from " << fname_ << endl;
+        std::cout << clusters.size() << " cluster(s) were extracted from " << fname_ << std::endl;
         return clusters;
     }
 };
@@ -60,10 +62,10 @@ struct stop_codon_pos {
 
 
 class StopCodonSearcher {
-        static size_t StopCodonOccurs(string seq, size_t shift) {
-                string stop_codon1 = "TAG";
-                string stop_codon2 = "TAA";
-                string stop_codon3 = "TGA";
+        static size_t StopCodonOccurs(std::string seq, size_t shift) {
+                std::string stop_codon1 = "TAG";
+                std::string stop_codon2 = "TAA";
+                std::string stop_codon3 = "TGA";
 
                 size_t start_pos = 3;
                 size_t end_pos = seq.size() - 3;
@@ -73,7 +75,7 @@ class StopCodonSearcher {
 
                 for(size_t i = start_aa; i < num_aa; i++) {
                         size_t pos = i * 3 + shift;
-                        string aa = seq.substr(pos, 3);
+                        std::string aa = seq.substr(pos, 3);
                         if(aa == stop_codon1 || aa == stop_codon2 || aa == stop_codon3)
                                 return pos;
                 }
@@ -81,7 +83,7 @@ class StopCodonSearcher {
         }
 
 public:
-        static stop_codon_pos SequenceContainsStopCodon(string seq) {
+        static stop_codon_pos SequenceContainsStopCodon(std::string seq) {
                 stop_codon_pos res;
                 res.pos1 = StopCodonOccurs(seq, 0);
                 res.pos2 = StopCodonOccurs(seq, 1);
@@ -93,29 +95,29 @@ public:
 
 
 class AAVerificator {
-    vector<size_t> incorrect_clusters_ids_;
-    vector<size_t> incorrect_clusters_sizes_;
+    std::vector<size_t> incorrect_clusters_ids_;
+    std::vector<size_t> incorrect_clusters_sizes_;
 public:
-    void Verify(vector<SeqCluster> &clusters) {
+    void Verify(std::vector<SeqCluster> &clusters) {
         for(auto it = clusters.begin(); it != clusters.end(); it++) {
             if(StopCodonSearcher::SequenceContainsStopCodon(it->seq).valid) {
                 incorrect_clusters_ids_.push_back(it->id);
                 incorrect_clusters_sizes_.push_back(it->size);
-                //cout << it->id << "\t" << it->seq << endl;
+                //std::cout << it->id << "\t" << it->seq << std::endl;
             }
         }
-        cout << incorrect_clusters_ids_.size() << " cluster contain stop codons" << endl;
+        std::cout << incorrect_clusters_ids_.size() << " cluster contain stop codons" << std::endl;
     }
 
-    void WriteIdsToFile(string output_fname) {
-        ofstream out(output_fname.c_str());
+    void WriteIdsToFile(std::string output_fname) {
+        std::ofstream out(output_fname.c_str());
         for(auto it = incorrect_clusters_ids_.begin(); it != incorrect_clusters_ids_.end(); it++)
-            out << *it << endl;
+            out << *it << std::endl;
     }
 
-    void WriteSizesToFile(string output_fname) {
-        ofstream out(output_fname.c_str());
+    void WriteSizesToFile(std::string output_fname) {
+        std::ofstream out(output_fname.c_str());
         for(auto it = incorrect_clusters_sizes_.begin(); it != incorrect_clusters_sizes_.end(); it++)
-            out << *it << endl;
+            out << *it << std::endl;
     }
 };

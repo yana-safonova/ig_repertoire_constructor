@@ -7,7 +7,7 @@ class ConnectedComponentGraphSplitter {
     SparseGraphPtr graph_ptr_;
 
     // auxiliary parameters
-    vector<bool> visited_vertices_;
+    std::vector<bool> visited_vertices_;
     size_t next_start_vertex_;
 
     void InitializeInnerVertices();
@@ -21,5 +21,5 @@ public:
             graph_ptr_(graph_ptr),
             next_start_vertex_(0) { }
 
-    vector<SparseGraphPtr> Split();
+    std::vector<SparseGraphPtr> Split();
 };

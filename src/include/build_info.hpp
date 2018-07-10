@@ -13,10 +13,12 @@ namespace build_info {
     extern const char *system;
     extern const char *cpu;
 
-    extern const char *c_compiler_id;
-    extern const char *cxx_compiler_id;
     extern const char *c_compiler;
+    extern const char *c_compiler_id;
+    extern const char *c_compiler_version;
     extern const char *cxx_compiler;
+    extern const char *cxx_compiler_id;
+    extern const char *cxx_compiler_version;
 
     extern const char *build_type;
     extern const char *c_flags;

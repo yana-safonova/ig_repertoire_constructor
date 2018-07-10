@@ -1,3 +1,4 @@
+#include <logger/logger.hpp>
 #include "compressed_cdr_set.hpp"
 
 namespace cdr_labeler {

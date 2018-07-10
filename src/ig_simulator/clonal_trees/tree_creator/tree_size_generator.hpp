@@ -47,6 +47,25 @@ public:
     }
 };
 
+class UniformTreeSizeGenerator final : public AbstractTreeSizeGenerator {
+private:
+    mutable std::uniform_int_distribution<size_t> distribution;
+
+public:
+    UniformTreeSizeGenerator(size_t low, size_t high):
+        AbstractTreeSizeGenerator(),
+        distribution(low, high)
+    { }
+
+    UniformTreeSizeGenerator(const TreeSizeGeneratorParams::UniformParams& params):
+        UniformTreeSizeGenerator(params.low, params.high)
+    { }
+
+    size_t Generate() const override {
+        return distribution(MTSingleton::GetInstance());
+    }
+};
+
 AbstractTreeSizeGeneratorCPtr get_tree_size_generator(const TreeSizeGeneratorParams& config);
 
 } // End namespace ig_simulator

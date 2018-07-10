@@ -1,0 +1,251 @@
+---
+title: "SHM_model_analysis"
+author: "Andy"
+date: "March 3, 2016"
+output: html_document
+---
+
+
+```{r}
+setwd('/home/ashlemov/chihua/')
+```
+
+```{r}
+library(lattice)
+```
+
+```{r}
+before.flu = 3
+```
+
+# Dirichlet distribution
+
+```{r}
+library("rgl")
+library("akima")
+library("tcR")
+library('gtools')
+library('parallel')
+```
+
+```{r}
+datasets.before.flu = list(
+  GMC.IGH.k_neighbour[[1]], GMC.IGH.k_neighbour[[2]], GMC.IGH.k_neighbour[[3]],
+  IDO.IGH.k_neighbour[[1]], IDO.IGH.k_neighbour[[2]], IDO.IGH.k_neighbour[[3]],
+  FV.IGH.k_neighbour [[1]], FV.IGH.k_neighbour [[2]], FV.IGH.k_neighbour [[3]]
+)
+```
+
+```{r}
+datasets.after.flu = unlist(list(
+  GMC.IGH.k_neighbour[-c(1:3, 8)],
+  FV.IGH.k_neighbour[-c(1:3, 5)],
+  IDO.IGH.k_neighbour[-(1:3)]
+), recursive = FALSE)
+```
+
+
+```{r}
+#open3d()
+plot.dirichlet(kmer = 'AAAAA', datasets = datasets.before.flu)
+plot.dirichlet(kmer = 'AACAA', datasets = datasets, color = "red")
+```
+
+```{r}
+mers5 <- generate.kmers(.k = 5)
+```
+
+```{r}
+get.dir.samp.from.datasets <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- t(sapply(datasets, function(x) x[kmer,]))
+  samp <- matrix(unlist(samp), ncol = direchlet.dimention + 1)
+  kmer.central.nucl <- strsplit(kmer, "")[[1]][3]
+  samp <- samp[,-which(c("A", "C", "G", "T") == kmer.central.nucl)]
+  
+  samp  
+}
+```
+
+
+```{r}
+calc.dir.model <- function(kmer, datasets, direchlet.dimention = 3) {
+  samp <- get.dir.samp.from.datasets(kmer, datasets)  
+  res <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")
+  res$par
+}
+```
+
+```{r}
+model.before <- t(sapply(mers5, calc.dir.model, datasets.before.flu))
+model.after <- t(sapply(mers5, calc.dir.model, datasets.after.flu))
+model.age <- t(sapply(mers5, calc.dir.model, age.IGH.k_neighbour))
+```
+
+```{r}
+head(sort(rowSums(sapply(datasets.before.flu, rowSums)), decreasing = TRUE))
+head(sort(rowSums(sapply(datasets.after.flu, rowSums)), decreasing = TRUE))
+head(sort(rowSums(sapply(age.IGH.k_neighbour, rowSums)), decreasing = TRUE))
+```
+
+
+```{r}
+plot.dirichlet <- function(kmer, datasets, model, direchlet.dimention = 3, color = "black", draw.lines = FALSE, col.lines = "green", add = FALSE) {
+  x1 <- x2 <- seq(0.01, .99, by=.01) 
+  
+  f <- function(x1, x2) { 
+    ddirichlet(x = matrix(c(x1, x2, 1-x1-x2), ncol=3), alpha = model[kmer,])
+  }
+  
+  z <- outer(x1, x2, f) 
+  z[z <= 0] <- NA
+  
+  persp(x1, x2, z, 
+         main = "Dirichlet Distribution", 
+         col = color, 
+         theta = 50, 
+         phi = 20, 
+         r = 50, 
+         d = 0.1, 
+         expand = 0.5, 
+         ltheta = 90, 
+         lphi = 180, 
+         shade = 0.75, 
+         ticktype = "detailed", 
+         nticks = 5)
+  
+  persp3d(x = x1, y = x2, z = z, col = color, add = add, alpha = 0.5)
+  
+
+  samp <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets)
+  
+  samp <- samp / rowSums(samp)
+  print(samp)
+  if (draw.lines) {
+      apply(samp, 1, function(row) {
+        print(row)
+        lines3d(x = c(row[1], row[1]), c(row[2], row[2]), c(0, max(z, na.rm = TRUE)),
+                color = col.lines, lwd = 2)
+      }
+      )
+    }
+}
+```
+
+
+```{r}
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GTGTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "green")
+plot.dirichlet(kmer = "GTGTA", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "AGCTG", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+
+```{r}
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.before.flu, model = model.before, color = "red")
+plot.dirichlet(kmer = "AGCTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE)
+```
+
+```{r}
+permutation.test <- function(M, datasets1, datasets2, kmer, direchlet.dimention = 3) {
+  par1 <- calc.dir.model(kmer = kmer, datasets = datasets1)
+  par2 <- calc.dir.model(kmer = kmer, datasets = datasets2)
+  means1 <- par1 / sum(par1)
+  means2 <- par2 / sum(par2)
+  
+  real.value <- sum(abs(means1 - means2))
+  
+  samp1 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets1)
+  samp2 <- get.dir.samp.from.datasets(kmer = kmer, datasets = datasets2)
+
+  samp <- rbind(samp1, samp2)
+
+  len <- seq_len(nrow(samp))
+  res <- mclapply(1:M, function(...) {
+  #res <- replicate(M, {
+    part1 <- sample(len, size = nrow(samp1))
+    samp1 <- samp[part1, ]
+    samp2 <- samp[-part1, ]
+    par1 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp1, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+    par2 <- optim(par = rep(10, direchlet.dimention), gr = minuslog.grad,
+        fn = minuslog, samp = samp2, lower = rep(0.1, direchlet.dimention), method = "L-BFGS-B")$par
+    means1 <- par1 / sum(par1)
+    means2 <- par2 / sum(par2)
+    sum(abs(means1 - means2))
+  }, mc.cores = 3)
+  res <- unlist(res)
+  hist(res)
+  abline(v = real.value, col="red")
+}
+```
+
+```{r}
+kmer="ATCTA"
+permutation.test(10000, datasets.before.flu, age.IGH.k_neighbour, kmer)
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
+permutation.test(10000, datasets.after.flu, age.IGH.k_neighbour, kmer)
+```
+
+```{r}
+plot.dirichlet(kmer = "ATCTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "ATCTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "ATCTA", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+kmer="CTCTA"
+permutation.test(10000, datasets.before.flu, age.IGH.k_neighbour, kmer)
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
+permutation.test(10000, datasets.after.flu, age.IGH.k_neighbour, kmer)
+```
+
+```{r}
+plot.dirichlet(kmer = "CTCTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "CTCTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "CTCTA", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+kmer="TATTA"
+permutation.test(10000, datasets.before.flu, age.IGH.k_neighbour, kmer)
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
+permutation.test(10000, datasets.after.flu, age.IGH.k_neighbour, kmer)
+```
+
+```{r}
+plot.dirichlet(kmer = "TATTA", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TATTA", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "TATTA", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+kmer="GACTG"
+permutation.test(10000, datasets.before.flu, age.IGH.k_neighbour, kmer)
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
+permutation.test(10000, datasets.after.flu, age.IGH.k_neighbour, kmer)
+```
+
+```{r}
+plot.dirichlet(kmer = "GACTG", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "GACTG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "GACTG", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```
+
+```{r}
+kmer="TAGCG"
+permutation.test(10000, datasets.before.flu, age.IGH.k_neighbour, kmer)
+permutation.test(10000, datasets.before.flu, datasets.after.flu, kmer)
+permutation.test(10000, datasets.after.flu, age.IGH.k_neighbour, kmer)
+```
+
+```{r}
+plot.dirichlet(kmer = "TAGCG", datasets = datasets.before.flu, model = model.before, color = "red", col.lines = "red")
+plot.dirichlet(kmer = "TAGCG", datasets = datasets.after.flu, model = model.after, color = "blue", add = TRUE, col.lines = "blue")
+plot.dirichlet(kmer = "TAGCG", datasets = age.IGH.k_neighbour, model = model.age, color = "green", add = TRUE, col.lines = "green")
+```

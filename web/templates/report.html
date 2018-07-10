@@ -1,0 +1,34 @@
+{% extends 'template.html' %}
+{% block title %}IgReC - report{% endblock %}
+{% block body %}
+
+<legend>IgReC report</legend>
+
+<a href="/runs/{{output_id}}" class="btn btn-info" role="button">Output files</a>
+<br>
+
+<object data="/runs/{{output_id}}/divan/annotation_report.html" width=100% height=100%>
+
+<script>
+    $('object').attr({'width':$( window ).width() * 0.95})
+    $('object').attr({'height':$( window ).height() * 0.8});
+</script>
+<!-- <object data="/runs/{{output_id}}/divan/annotation_report.html" type="text/html"  style="float:left;width:230px;height:100%"> -->
+<!-- <div id="includedContent"></div> -->
+<!-- <script> -->
+<!-- $(document).ready(function() { -->
+<!--     $("#includedContent").load("/runs/{{output_id}}/divan/annotation_report.html"); -->
+<!-- }); -->
+<!-- </script> -->
+
+
+<!-- <div id="tester" style="width:600px;height:250px;"></div> -->
+<!-- <script> -->
+<!--     var TESTER = $("#tester")[0]; -->
+<!--     Plotly.plot( TESTER, [{ -->
+<!--     x: [1, 2, 3, 4, 5], -->
+<!--     y: [1, 2, 4, 8, 16] }], { -->
+<!--     margin: { t: 0 } } ); -->
+<!-- </script> -->
+
+{% endblock %}

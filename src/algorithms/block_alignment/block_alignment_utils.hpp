@@ -77,7 +77,7 @@ namespace algorithms {
             for (size_t j = i + 1; j < combined.size(); ++j) {
                 // Check topologically order
                 // TODO remove one of these toposort checkings
-                assert(!has_edge(combined[j], combined[i]));
+                VERIFY(!has_edge(combined[j], combined[i]));
 
                 if (has_edge(combined[i], combined[j])) {
                     double new_val = vertex_weight(combined[i]) + values[j] + edge_weight(combined[i], combined[j]);

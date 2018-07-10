@@ -13,6 +13,7 @@
 namespace cdr_labeler {
     void CDRLabelerLaunch::Launch() {
         using namespace annotation_utils;
+        CheckInputParams();
         INFO("Diversity Analyzer starts");
         core::ReadArchive read_archive(config_.input_params.input_reads);
         if(config_.vj_finder_config.io_params.output_params.output_details.fix_spaces)
@@ -64,5 +65,11 @@ namespace cdr_labeler {
         INFO("Clonal Shannon index: " << cdr_analyser.ClonalShannonIndex());
         INFO("Clonal Simpson index: " << cdr_analyser.ClonalSimpsonIndex());
         INFO("Diversity Analyzer ends");
+    }
+
+    void CDRLabelerLaunch::CheckInputParams() {
+        const auto columns = ReportColumns::ColumnSet<DivanReportEvalContext>::ChooseColumns(
+                config_.output_params.feature_report_params.preset, config_.output_params.feature_report_params.columns
+        );
     }
 }

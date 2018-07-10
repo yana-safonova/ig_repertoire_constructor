@@ -9,7 +9,7 @@ namespace vj_finder {
                                                    read_archive_));
     }
 
-    ProcessedVJHits VJQueryProcessor::ComputeFilteringResults(const core::Read &read, VJHits vj_hits) {
+    ProcessedVJHits VJQueryProcessor::ComputeFilteringResults(core::Read &read, VJHits vj_hits) {
         ProcessedVJHits processed_hits(read);
         processed_hits.vj_hits = vj_hits;
         if(params_.filtering_params.enable_filtering) {

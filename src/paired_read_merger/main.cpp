@@ -5,11 +5,11 @@
 
 merger_setting parse_settings(int argc, char *argv[]) {
     merger_setting setting;
-    string min_overlap_str = "--min-overlap=";
-    string max_mismatch_str = "--max-mismatch=";
-    string simulated_mode_str = "--simulated-mode";
+    std::string min_overlap_str = "--min-overlap=";
+    std::string max_mismatch_str = "--max-mismatch=";
+    std::string simulated_mode_str = "--simulated-mode";
     for(size_t i = 4; i < static_cast<size_t>(argc); i++) {
-        string tmp(argv[i]);
+        std::string tmp(argv[i]);
         if(tmp.substr(0, min_overlap_str.size()) == min_overlap_str) {
             tmp = tmp.substr(min_overlap_str.size(), tmp.size() - min_overlap_str.size());
             setting.min_overlap = string_to_number<size_t>(tmp);
@@ -26,7 +26,7 @@ merger_setting parse_settings(int argc, char *argv[]) {
     return setting;
 }
 
-void create_console_logger(string log_filename) {
+void create_console_logger(std::string log_filename) {
     using namespace logging;
     logger *lg = create_logger(path::FileExists(log_filename) ? log_filename : "");
     lg->add_writer(std::make_shared<console_writer>());
@@ -35,6 +35,7 @@ void create_console_logger(string log_filename) {
 
 
 int main(int argc, char *argv[]) {
+    omp_set_num_threads(1);
     /*
      * argv[1] - left fastq reads
      * argv[2] - right fastq reads
@@ -47,13 +48,13 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    vector<PairedFastqRead> paired_reads = PairedFastqReader(argv[1],
+    std::vector<PairedFastqRead> paired_reads = PairedFastqReader(argv[1],
             argv[2]).Read();
     INFO(paired_reads.size() << " paired reads were read from " << argv[1] <<
             " and " << argv[2]);
-    vector<FastqRead> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
+    std::vector<FastqRead> merged_reads = PairedReadsMerger(parse_settings(argc, argv)).Merge(paired_reads);
     INFO(merged_reads.size() << " read from " << paired_reads.size() << " were successfully merged");
-    FastqWriter(string(argv[3])).Write(merged_reads);
-    INFO("Merged reads were written to " << string(argv[3]));
+    FastqWriter(std::string(argv[3])).Write(merged_reads);
+    INFO("Merged reads were written to " << std::string(argv[3]));
     return 0;
 }

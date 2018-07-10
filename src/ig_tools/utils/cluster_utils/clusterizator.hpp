@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../include_me.hpp"
+#include <set>
+#include <vector>
 #include "../concurrent_dsu.hpp"
 #include "../sequence_comparer.hpp"
 #include "../fastq_reader.hpp"
@@ -8,44 +9,44 @@
 template<class ReadType>
 class ReadIndex {
 protected:
-	const vector<ReadType> &reads_;
+	const std::vector<ReadType> &reads_;
 public:
-	ReadIndex(const vector<ReadType> &reads) :
+	ReadIndex(const std::vector<ReadType> &reads) :
 		reads_(reads) {
 	}
 
 	virtual ~ReadIndex() {
 	}
 
-	virtual set<size_t> GetCandidatesFor(size_t index) = 0;
+	virtual std::set<size_t> GetCandidatesFor(size_t index) = 0;
 };
 
 template<class ReadType>
 class EasyReadIndex : public ReadIndex<ReadType> {
-	vector<size_t> indices_;
+	std::vector<size_t> indices_;
 public:
-	EasyReadIndex(const vector<ReadType> &reads) :
+	EasyReadIndex(const std::vector<ReadType> &reads) :
 		ReadIndex<ReadType>(reads) {
 		for(size_t i = 0; i < ReadIndex<ReadType>::reads_.size(); i++)
 			indices_.push_back(i);
 	}
 
-	set<size_t> GetCandidatesFor(size_t index) {
-		return set<size_t>(indices_.begin() + index + 1, indices_.end());
+    std::set<size_t> GetCandidatesFor(size_t index) {
+		return std::set<size_t>(indices_.begin() + index + 1, indices_.end());
 	}
 };
 
 template<class ReadType>
 class FLReadIndex : public ReadIndex<ReadType> {
-	map<string, vector<size_t> > index_;
+	map<std::string, std::vector<size_t> > index_;
 	const size_t k_;
 public:
-	FLReadIndex(const vector<ReadType> &reads, size_t k) :
+	FLReadIndex(const std::vector<ReadType> &reads, size_t k) :
 		ReadIndex<ReadType>(reads), k_(k) {
 		for(size_t i = 0; i < ReadIndex<ReadType>::reads_.size(); i++) {
 			if(ReadIndex<ReadType>::reads_[i].seq.size() >= k) {
-				string start_kmer = ReadIndex<ReadType>::reads_[i].seq.substr(0, k);
-				string end_kmer = ReadIndex<ReadType>::reads_[i].seq.substr(ReadIndex<ReadType>::reads_[i].seq.size() - k, k);
+				std::string start_kmer = ReadIndex<ReadType>::reads_[i].seq.substr(0, k);
+				std::string end_kmer = ReadIndex<ReadType>::reads_[i].seq.substr(ReadIndex<ReadType>::reads_[i].seq.size() - k, k);
 
 				index_[start_kmer].push_back(i);
 				index_[end_kmer].push_back(i);
@@ -63,10 +64,10 @@ public:
         
 	}
 
-	set<size_t> GetCandidatesFor(size_t index) {
-		set<size_t> result;
+	std::set<size_t> GetCandidatesFor(size_t index) {
+		std::set<size_t> result;
 		for(size_t i = 0; i + k_ <= ReadIndex<ReadType>::reads_[index].seq.size(); i++) {
-			string kmer = ReadIndex<ReadType>::reads_[index].seq.substr(i, k_);
+			std::string kmer = ReadIndex<ReadType>::reads_[index].seq.substr(i, k_);
 
             //cout << "Kmer : " << kmer << endl;
 
@@ -77,7 +78,7 @@ public:
 				//result.insert(result.end(), it->second.begin(), it->second.end());
 			}
 
-			string rc_kmer = reverse_complementary(kmer);
+			std::string rc_kmer = reverse_complementary(kmer);
 			it = index_.find(rc_kmer);
 			if(it != index_.end()) {
                 for(auto it2 = it->second.begin(); it2 != it->second.end(); it2++)
@@ -86,18 +87,18 @@ public:
 			}
 		}
 
-        //assert(false);
+        //VERIFY(false);
 		return result;
 	}
 };
 
 class Clusterization {
-	const vector<FastqRead> &reads_;
-	vector<pair<size_t, size_t> > index_cluster_;
-    map<size_t, pair<string, size_t> > cluster_seq_size_;
+	const std::vector<FastqRead> &reads_;
+	std::vector<pair<size_t, size_t> > index_cluster_;
+    map<size_t, pair<std::string, size_t> > cluster_seq_size_;
 
 public:
-	Clusterization(const vector<FastqRead> &reads) :
+	Clusterization(const std::vector<FastqRead> &reads) :
 		reads_(reads) { }
 
 	void Add(size_t index, size_t cluster) {
@@ -105,20 +106,20 @@ public:
 		index_cluster_.push_back(make_pair(index, cluster));
 	}
 
-    void AddClusterSequence(size_t cluster, string seq, size_t size) {
+    void AddClusterSequence(size_t cluster, std::string seq, size_t size) {
         cluster_seq_size_[cluster].first = seq;
         cluster_seq_size_[cluster].second = size;
     }
 
-	void WriteReadClusterMap(string fname) {
+	void WriteReadClusterMap(std::string fname) {
 		ofstream out(fname.c_str());
 		for(size_t i = 0; i < index_cluster_.size(); i++) {
-            string name = reads_[index_cluster_[i].first].name.substr(1, reads_[index_cluster_[i].first].name.size() - 1);
+            std::string name = reads_[index_cluster_[i].first].name.substr(1, reads_[index_cluster_[i].first].name.size() - 1);
 			out << name << "\t" << index_cluster_[i].second << endl;
         }
 	}
 
-    void WriteClustersFasta(string fname) {
+    void WriteClustersFasta(std::string fname) {
         ofstream out(fname.c_str());
         for(auto it = cluster_seq_size_.begin(); it != cluster_seq_size_.end(); it++) {
             out << ">cluster___" << it->first << "___size___" << it->second.second << endl;
@@ -130,18 +131,18 @@ public:
 };
 
 class Clusterizator {
-	const vector<FastqRead> &reads_;
+	const std::vector<FastqRead> &reads_;
 	ReadIndex<FastqRead> &read_index_;
 	SequenceComparer &seq_comparer_;
 	ConcurrentDSU clusters_;
-    map<size_t, string> read_seq_map_;
+    map<size_t, std::string> read_seq_map_;
 
-    string GetSuperString(string s1, string s2, SeqComparisonResults comparison_result) {
-        assert(comparison_result.match);
+    std::string GetSuperString(std::string s1, std::string s2, SeqComparisonResults comparison_result) {
+		VERIFY(comparison_result.match);
         if(comparison_result.second_reverse)
             s2 = reverse_complementary(s2);
         size_t overlap_size = comparison_result.s2_overlap_pos.second - comparison_result.s2_overlap_pos.first + 1;
-        string superstring;
+        std::string superstring;
 
         // substring before overlap
         if(comparison_result.s1_overlap_pos.first != 0)
@@ -183,7 +184,7 @@ class Clusterizator {
     }
 
 public:
-	Clusterizator(const vector<FastqRead> &reads,
+	Clusterizator(const std::vector<FastqRead> &reads,
 			ReadIndex<FastqRead> &read_index,
 			SequenceComparer &seq_comparer) :
 	reads_(reads),
@@ -200,14 +201,14 @@ public:
                 size_t cluster1 = clusters_.find_set(i);
                 size_t cluster2 = clusters_.find_set(*it);
 				if(cluster1 != cluster2) {
-                    string read_seq1 = read_seq_map_[cluster1];
-                    string read_seq2 = read_seq_map_[cluster2];
+                    std::string read_seq1 = read_seq_map_[cluster1];
+                    std::string read_seq2 = read_seq_map_[cluster2];
                     auto comparison_result = seq_comparer_.SequencesMatch(read_seq1, read_seq2);
 					if(comparison_result.match) {
                         //cout << "Sequences match" << endl << "Read1: " << read_seq1 << endl << "Read2: " << read_seq2 << endl;
                         //cout << "Cluster1: " << clusters_.find_set(i) << " , cluster2: " << clusters_.find_set(*it) << endl;
 						clusters_.unite(i, *it);
-                        string superstring = GetSuperString(read_seq1, read_seq2, comparison_result);
+                        std::string superstring = GetSuperString(read_seq1, read_seq2, comparison_result);
                         //cout << "Superstring: " << superstring << endl;
                         size_t new_cluster = clusters_.find_set(i);
                         //cout << "New cluster: " << new_cluster << endl;
@@ -229,7 +230,7 @@ public:
             }
         }
 
-        assert(result.ClustersSize() == clusters_.num_sets());
+		VERIFY(result.ClustersSize() == clusters_.num_sets());
 
 		return result;
 

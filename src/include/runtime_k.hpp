@@ -53,7 +53,7 @@ class TypeContainerImpl {
 public:
     typedef SimpleSeq<size_> Kmer;
 
-    typedef unordered_set<Kmer, typename Kmer::hash, typename Kmer::equal_to> set_type;
+    typedef std::unordered_set<Kmer, typename Kmer::hash, typename Kmer::equal_to> set_type;
 
     typedef std::vector<Kmer> vector_type;
 
@@ -77,7 +77,7 @@ public:
 
     typedef typename base::set_type set_type;
 
-    typedef unordered_map<Kmer, Value, typename Kmer::hash, typename Kmer::equal_to> map_type;
+    typedef std::unordered_map<Kmer, Value, typename Kmer::hash, typename Kmer::equal_to> map_type;
 
 };
 

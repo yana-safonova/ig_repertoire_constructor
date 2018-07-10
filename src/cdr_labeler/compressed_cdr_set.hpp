@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vj_alignment_info.hpp>
 #include <convert.hpp>
 #include <annotation_utils/annotated_clone_set.hpp>
 

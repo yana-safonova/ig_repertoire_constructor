@@ -36,16 +36,16 @@ namespace {
         const dsf_config::dense_sgraph_finder_params &dsf_params_;
         const dsf_config::io_params &io_;
         const dsf_config::metis_io_params &metis_io_;
-        vector<DecompositionPtr> connected_component_decompositions_;
+        std::vector<DecompositionPtr> connected_component_decompositions_;
 
-        string GetSubgraphFilename(size_t subgraph_index) {
-            stringstream ss;
+        std::string GetSubgraphFilename(size_t subgraph_index) {
+            std::stringstream ss;
             ss << "subgraph_" << subgraph_index << ".graph";
             return path::append_path(io_.output_mthreading.connected_components_dir, ss.str());
         }
 
-        string GetDecompositionFilename(size_t subgraph_index) {
-            stringstream ss;
+        std::string GetDecompositionFilename(size_t subgraph_index) {
+            std::stringstream ss;
             ss << "decomposition_" << subgraph_index << ".txt";
             return path::append_path(io_.output_mthreading.decompositions_dir, ss.str());
         }
@@ -57,13 +57,13 @@ namespace {
         DecompositionPtr CreateFinalDecomposition(size_t num_connected_components) {
             GraphComponentMap &component_map = graph_ptr_->GetGraphComponentMap();
             TRACE(component_map);
-            map<size_t, size_t> vertex_new_set;
+            std::map<size_t, size_t> vertex_new_set;
             size_t cur_set_id = 0;
             for(size_t i = 0; i < num_connected_components; i++) {
                 //string cur_decomposition_fname = GetDecompositionFilename(i);
                 DecompositionPtr subgraph_decomposition = connected_component_decompositions_[i]; //(new Decomposition(cur_decomposition_fname));
                 for(size_t j = 0; j < subgraph_decomposition->Size(); j++) {
-                    const set<size_t> &cur_subclass = subgraph_decomposition->GetClass(j);
+                    const std::set<size_t> &cur_subclass = subgraph_decomposition->GetClass(j);
                     for(auto it = cur_subclass.begin(); it != cur_subclass.end(); it++) {
                         size_t subgraph_vertex = *it;
                         size_t old_vertex = component_map.GetOldVertexByNewVertex(i, subgraph_vertex);
@@ -75,14 +75,14 @@ namespace {
             }
             DecompositionPtr final_decomposition_ptr(new Decomposition(graph_ptr_->N()));
             for(size_t i = 0; i < graph_ptr_->N(); i++) {
-                assert(vertex_new_set.find(i) != vertex_new_set.end());
+                VERIFY(vertex_new_set.find(i) != vertex_new_set.end());
                 size_t class_id = vertex_new_set[i];
                 final_decomposition_ptr->SetClass(i, class_id);
             }
             return final_decomposition_ptr;
         }
 
-        void PrintConnectedComponentsStats(const vector<SparseGraphPtr> &connected_components) {
+        void PrintConnectedComponentsStats(const std::vector<SparseGraphPtr> &connected_components) {
             size_t max_vertex_size = 0;
             size_t max_edge_size = 0;
             size_t num_small_components = 0;
@@ -122,14 +122,14 @@ namespace {
                 metis_io_(metis_io) { }
 
         DecompositionPtr Run() {
-            vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
+            std::vector<SparseGraphPtr> connected_components = ConnectedComponentGraphSplitter(graph_ptr_).Split();
             InitializeDecompositionVector(connected_components.size());
             PrintConnectedComponentsStats(connected_components);
 #pragma omp parallel for schedule(dynamic)
             for(size_t i = 0; i < connected_components.size(); i++) {
                 SparseGraphPtr current_subgraph = connected_components[i];
-                string graph_filename = GetSubgraphFilename(i);
-                string decomposition_filename = GetDecompositionFilename(i);
+                std::string graph_filename = GetSubgraphFilename(i);
+                std::string decomposition_filename = GetDecompositionFilename(i);
                 dense_subgraph_finder::MetisDenseSubgraphConstructor denseSubgraphConstructor(
                         dsf_params_,
                         metis_io_,

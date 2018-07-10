@@ -65,7 +65,7 @@ namespace {
             std::string s;
             std::getline(rcm, s);
             if (s.empty()) continue;
-            const std::vector<string>& tokens = split(s, '\t');
+            const std::vector<std::string>& tokens = split(s, '\t');
             VERIFY(tokens.size() == 2);
             const auto& id = seqan::CharString(tokens[0]);
             VERIFY(input.rcm.count(id) == 0);

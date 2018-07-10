@@ -34,11 +34,11 @@ namespace vj_finder {
         return seqan::suffix(read, end_of_v + 1);
     }
 
-    VJHits VJQueryAligner::Align(const core::Read &read) {
+    VJHits VJQueryAligner::Align(core::Read &read) {
         using namespace algorithms;
         TRACE("VJ Aligner algorithm starts");
         // we can construct it once and use as a parameter of constructor
-        
+
         TRACE("Computation of V hits");
         CustomDbBlockAlignmentHits v_aligns = v_helper->aligner->Align(read.seq);
         TRACE(v_aligns.size() << " V hits were computed: ")
@@ -65,9 +65,9 @@ namespace vj_finder {
         TRACE("Strand: " << strand);
 
         germline_utils::ImmuneGeneType immune_gene_type(v_chain_type, germline_utils::SegmentType::JoinSegment);
-        std::shared_ptr<JHelper> j_helper = get_j_helper(immune_gene_type); 
+        std::shared_ptr<JHelper> j_helper = get_j_helper(immune_gene_type);
         const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db.GetConstDbByGeneType(immune_gene_type);
-        
+
         TRACE("J database for locus " << v_chain_type << " consists of " << j_gene_db.size() << " gene segments");
 
         auto dj_read_suffix = DefineReadJSuffix(v_aligns, stranded_read.seq);
@@ -84,7 +84,8 @@ namespace vj_finder {
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
-        read_archive.UpdateReadByIndex(read.id, stranded_read.seq);
+//        read_archive.UpdateReadByIndex(read.id, stranded_read.seq);
+        read.seq = stranded_read.seq;
         VJHits vj_hits(read);
         for (auto& v_align : v_aligns) {
             vj_hits.AddVHit(VGeneHit(read, v_custom_db[v_align.second], v_align.first, strand));

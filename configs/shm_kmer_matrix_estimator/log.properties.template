@@ -1,0 +1,16 @@
+default=INFO
+
+#HammingClustering=TRACE
+#SingletonGluer=TRACE
+#AAVerificator=TRACE
+
+#Permutation=TRACE
+#HGClustersConstructor=TRACE
+#HG_Decomposition=TRACE
+#SimpleDecompositionConstructor=DEBUG
+#AlignmentDecompositionConstructor=TRACE
+#GreedyJoiningDecomposition=DEBUG
+#DecompositionStatsCalculator=TRACE
+#PositionCountersDecomposer=TRACE
+#IterativeDenseSubgraphDecomposer=TRACE
+#UniformClassDecomposer=TRACE

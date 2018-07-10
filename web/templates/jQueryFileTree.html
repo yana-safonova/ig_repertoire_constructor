@@ -1,0 +1,8 @@
+<ul class="jqueryFileTree" style="display: none;">
+    {% for dir in dirs %}
+        <li class="directory collapsed"><a href="#" rel="{{path + ('/' if path != '/' else '') + dir}}">{{dir}}</a></li>
+    {% endfor %}
+    {% for file in files %}
+        <li class="file ext_txt"><a href="#" rel="{{path + ('/' if path != '/' else '') + file}}">{{file}}</a></li>
+    {% endfor %}
+</ul>
