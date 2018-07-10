@@ -72,7 +72,7 @@ namespace vj_finder {
             return j_helpers.back();
         }
 
-        core::ReadArchive &read_archive;
+        //core::ReadArchive &read_archive;
         const germline_utils::CustomGeneDatabase &v_custom_db;
         const germline_utils::CustomGeneDatabase &j_custom_db;
 
