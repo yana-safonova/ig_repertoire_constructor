@@ -11,8 +11,8 @@ namespace vj_finder {
         const core::Read &read;
         VJFilteringInfo filtering_info;
         VJHits vj_hits;
-        
-        ProcessedVJHits(const core::Read &read) : read(read),
+
+        explicit ProcessedVJHits(const core::Read &read) : read(read),
                                                   filtering_info(read),
                                                   vj_hits(read) { }
 

@@ -7,7 +7,7 @@ namespace algorithms {
         std::vector<Match> res;
         res.reserve(matches.size()); // TODO Is it really necessary?
 
-        if (matches.size() == 0) {
+        if (matches.empty()) {
             return res;
         }
 

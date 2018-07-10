@@ -1,7 +1,6 @@
 #pragma once
 
 #include "pairwise_block_alignment.hpp"
-#include "germline_utils/germline_gene_type.hpp"
 #include "../hashes/subject_query_kmer_index.hpp"
 
 namespace algorithms {
@@ -92,7 +91,7 @@ namespace algorithms {
 
         virtual BlockAlignmentHits<SubjectDatabase> Align(const StringType &query) = 0;
 
-        virtual ~PairwiseBlockAligner() {}
+        virtual ~PairwiseBlockAligner() = default;
     };
     
     template<typename SubjectDatabase, typename StringType>
@@ -167,9 +166,11 @@ namespace algorithms {
                     continue;
                 std::sort(matches.begin(), matches.end(),
                           [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos < b.needle_pos; });
-                matches.resize(std::unique(matches.begin(), matches.end(),
-                          [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos == b.needle_pos; }) - 
-                          matches.begin());
+                matches.resize(static_cast<size_t>(
+                        std::unique(matches.begin(), matches.end(),
+                                    [](const KmerMatch &a, const KmerMatch &b) -> bool { return a.needle_pos == b.needle_pos; }
+                                    ) - matches.begin()
+                               ));
 
                 PairwiseBlockAlignment align = MakeAlignment(matches, query, i);
                 if (this->CheckAlignment(align)) {
@@ -188,17 +189,19 @@ namespace algorithms {
             int max_len = 0;
             for (size_t i = 0; i < matches.size(); i++) {
                 int new_value = matches[i].read_pos;
-                int cur_len = std::lower_bound(begin(min_value), end(min_value), new_value) - begin(min_value);
+                int cur_len = static_cast<int>(std::lower_bound(begin(min_value), end(min_value), new_value) - begin(min_value));
                 min_value[cur_len] = new_value;
                 pos[cur_len] = (int) i;
                 pos_before[i] = pos[cur_len - 1];
                 max_len = std::max(cur_len, max_len);
             }
             std::vector<KmerMatch> res;
-            int i = pos[max_len];
-            while (i >= 0) {
-                res.push_back(matches[i]);
-                i = pos_before[i];
+            {
+                int i = pos[max_len];
+                while (i >= 0) {
+                    res.push_back(matches[i]);
+                    i = pos_before[i];
+                }
             }
 
             std::reverse(res.begin(), res.end());
@@ -302,7 +305,7 @@ namespace algorithms {
         		int mx_pos = -1;
         		const Match &b = combined[pos];
 
-        		for (size_t pos2 = pos + 1; pos2 < combined.size(); pos2++) {
+        		for (size_t pos2 = static_cast<size_t>(pos + 1); pos2 < combined.size(); pos2++) {
         			const Match &a = combined[pos2];
         			int read_gap = b.read_pos - a.read_pos;
 		        	int needle_gap = b.subject_pos - a.subject_pos;
@@ -321,7 +324,7 @@ namespace algorithms {
         			}
         		}
 
-        		for (size_t pos2 = pos - 1; pos2 + 1 > 0; pos2--) {
+        		for (size_t pos2 = static_cast<size_t>(pos - 1); pos2 + 1 > 0; pos2--) {
         			const Match &a = combined[pos2];
         			int read_gap = b.read_pos - a.read_pos;
 		        	int needle_gap = b.subject_pos - a.subject_pos;

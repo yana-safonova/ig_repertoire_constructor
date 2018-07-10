@@ -68,7 +68,7 @@ namespace vj_finder {
         load(iop.output_params, pt, "output_params");
     }
 
-    VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm get_aligner_algorithm(std::string str) {
+    VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm get_aligner_algorithm(const std::string& str) {
         if (str == "quadratic_dag")
             return VJFinderConfig::AlgorithmParams::AlignerParams::AlignerAlgorithm::QuadraticDAGAlignerAlgorithm;
         if (str == "lis")
@@ -103,7 +103,7 @@ namespace vj_finder {
         load(fp.min_aligned_length, pt, "min_aligned_length");
     }
 
-    VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm get_fcf_algorithm(std::string str) {
+    VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm get_fcf_algorithm(const std::string& str) {
         if(str == "aggressive_fcf")
             return VJFinderConfig::AlgorithmParams::FixCropFillParams::FixCropFillAlgorithm::AggressiveFCFAlgorithm;
         VERIFY_MSG(false, "FCF algorithm was not recognized");

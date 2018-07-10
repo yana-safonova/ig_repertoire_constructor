@@ -62,7 +62,7 @@ namespace algorithms {
                                                                const Tf1 &has_edge,
                                                                const Tf2 &edge_weight,
                                                                const Tf3 &vertex_weight) {
-        VERIFY(combined.size() > 0);
+        VERIFY(!combined.empty());
         VERIFY(std::is_sorted(combined.cbegin(), combined.cend(), Match::less_subject_pos));
         // Vertices should be topologically sorted
         VERIFY(is_topologically_sorted(combined, has_edge));

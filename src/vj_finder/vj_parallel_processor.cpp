@@ -32,7 +32,7 @@ namespace vj_finder {
 #pragma omp parallel for schedule(dynamic)
         for(size_t i = 0; i < read_archive_.size(); i++) {
             TRACE("Processing read: " << read_archive_[i].name);
-            size_t thread_id = omp_get_thread_num();
+            size_t thread_id = static_cast<size_t>(omp_get_thread_num());
             thread_id_per_read_[i] = thread_id;
             auto processed_read = processor_per_thread[thread_id].Process(read_archive_[i]);
             if(processed_read.ReadToBeFiltered()) {

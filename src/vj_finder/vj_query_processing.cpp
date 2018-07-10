@@ -21,12 +21,12 @@ namespace vj_finder {
 
     ProcessedVJHits VJQueryProcessor::Process(const core::Read &read) {
         VJHits vj_hits = vj_query_aligner.Align(read);
-        ProcessedVJHits hits_after_fitering = ComputeFilteringResults(read, vj_hits);
-        if(hits_after_fitering.ReadToBeFiltered()) {
-            return hits_after_fitering;
+        ProcessedVJHits hits_after_filtering = ComputeFilteringResults(read, vj_hits);
+        if(hits_after_filtering.ReadToBeFiltered()) {
+            return hits_after_filtering;
         }
         auto fix_fill_crop_processor = GetFillFixCropProcessor();
-        hits_after_fitering.vj_hits = fix_fill_crop_processor->Process(hits_after_fitering.vj_hits);
-        return hits_after_fitering;
+        hits_after_filtering.vj_hits = fix_fill_crop_processor->Process(hits_after_filtering.vj_hits);
+        return hits_after_filtering;
     }
 }

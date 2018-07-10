@@ -14,9 +14,8 @@ namespace vj_finder {
             CustomGermlineDbHelper kmer_index_helper;
             SubjectQueryKmerIndex<germline_utils::CustomGeneDatabase, seqan::Dna5String> kmer_index;
             std::shared_ptr<PairwiseBlockAligner<germline_utils::CustomGeneDatabase, seqan::Dna5String> > aligner;
-            
 
-            VHelper(VJQueryAligner &vj_query_aligner_) :
+            explicit VHelper(VJQueryAligner &vj_query_aligner_) :
                                 vj_query_aligner(vj_query_aligner_),
                                 kmer_index_helper(vj_query_aligner.v_custom_db_),
                                 kmer_index(vj_query_aligner.v_custom_db_, 
@@ -45,8 +44,8 @@ namespace vj_finder {
 
             JHelper(VJQueryAligner &vj_query_aligner_, germline_utils::ImmuneGeneType immune_gene_type) :
                                 vj_query_aligner(vj_query_aligner_),
-                                immune_gene_type(immune_gene_type),
                                 j_gene_db(vj_query_aligner.j_custom_db_.GetConstDbByGeneType(immune_gene_type)),
+                                immune_gene_type(immune_gene_type),
                                 kmer_index_helper(j_gene_db),
                                 kmer_index(j_gene_db, 
                                            vj_query_aligner.algorithm_params_.aligner_params.word_size_j, 
@@ -69,7 +68,7 @@ namespace vj_finder {
             if (it != j_helpers.end()) {
                 return *it;
             }
-            j_helpers.push_back(std::shared_ptr<JHelper>(new JHelper(*this, immune_gene_type)));
+            j_helpers.push_back(std::make_shared<JHelper>(*this, immune_gene_type));
             return j_helpers.back();
         }
 
@@ -148,7 +147,7 @@ namespace vj_finder {
                 v_custom_db_(v_custom_db),
                 j_custom_db_(j_custom_db) {
             CheckDbConsistencyFatal();
-            v_helper = std::shared_ptr<VHelper>(new VHelper(*this));
+            v_helper = std::make_shared<VHelper>(*this);
         }
 
         VJHits Align(const core::Read& read);
