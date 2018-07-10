@@ -6,14 +6,14 @@
 
 namespace vj_finder {
     void VJQueryAligner::CheckDbConsistencyFatal() {
-        VERIFY_MSG(v_custom_db_.num_dbs() == j_custom_db_.num_dbs(), "Size of V gene DB (" << v_custom_db_.num_dbs() <<
-                ") does not match with J gene DB (" << j_custom_db_.num_dbs() << ")");
+        VERIFY_MSG(v_custom_db.num_dbs() == j_custom_db.num_dbs(), "Size of V gene DB (" << v_custom_db.num_dbs() <<
+                ") does not match with J gene DB (" << j_custom_db.num_dbs() << ")");
     }
 
     bool VJQueryAligner::VAlignmentsAreConsistent(const VJQueryAligner::CustomDbBlockAlignmentHits &v_alignments) const {
         std::unordered_set<germline_utils::ImmuneGeneType, germline_utils::ImmuneGeneTypeHasher> gene_types;
         for(size_t i = 0; i < v_alignments.size(); i++)
-            gene_types.insert(v_custom_db_[v_alignments[i].second].GeneType());
+            gene_types.insert(v_custom_db[v_alignments[i].second].GeneType());
         return gene_types.size() == 1;
     }
 
@@ -21,7 +21,7 @@ namespace vj_finder {
         if(v_alignments.size() == 0)
             return germline_utils::ChainType();
         size_t index0 = v_alignments[0].second;
-        return v_custom_db_[index0].Chain();
+        return v_custom_db[index0].Chain();
     }
 
     seqan::Dna5String VJQueryAligner::DefineReadJSuffix(const CustomDbBlockAlignmentHits &v_alignments,
@@ -29,7 +29,7 @@ namespace vj_finder {
         size_t end_of_v = core::max_map(v_alignments.cbegin(), v_alignments.cend(),
                                [](const CustomDbBlockAlignmentHits::IndicedPairwiseBlockAlignment &align) ->
                                        size_t { return align.first.last_match_read_pos(); });
-        if(seqan::length(read) - end_of_v < algorithm_params_.filtering_params.min_j_segment_length)
+        if(seqan::length(read) - end_of_v < algorithm_params.filtering_params.min_j_segment_length)
             return seqan::Dna5String();
         return seqan::suffix(read, end_of_v + 1);
     }
@@ -43,12 +43,12 @@ namespace vj_finder {
         CustomDbBlockAlignmentHits v_aligns = v_helper->aligner->Align(read.seq);
         TRACE(v_aligns.size() << " V hits were computed: ")
         for(auto it = v_aligns.begin(); it != v_aligns.end(); it++) {
-            TRACE(v_custom_db_[it->second].name() << ", start: " << it->first.first_match_read_pos() <<
+            TRACE(v_custom_db[it->second].name() << ", start: " << it->first.first_match_read_pos() <<
                     ", end: " << it->first.last_match_read_pos());
         }
         core::Read stranded_read = read;
         bool strand = true;
-        if(algorithm_params_.aligner_params.fix_strand) {
+        if(algorithm_params.aligner_params.fix_strand) {
             core::Read read_rc = read.ReverseComplement();
             CustomDbBlockAlignmentHits reverse_v_aligns = v_helper->aligner->Align(read_rc.seq);
             if(v_aligns.BestScore() < reverse_v_aligns.BestScore()) {
@@ -66,7 +66,7 @@ namespace vj_finder {
 
         germline_utils::ImmuneGeneType immune_gene_type(v_chain_type, germline_utils::SegmentType::JoinSegment);
         std::shared_ptr<JHelper> j_helper = get_j_helper(immune_gene_type); 
-        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db_.GetConstDbByGeneType(immune_gene_type);
+        const germline_utils::ImmuneGeneDatabase& j_gene_db = j_custom_db.GetConstDbByGeneType(immune_gene_type);
         
         TRACE("J database for locus " << v_chain_type << " consists of " << j_gene_db.size() << " gene segments");
 
@@ -84,10 +84,10 @@ namespace vj_finder {
             ", Q end: " << it->first.last_match_read_pos() << ", S start: " << it->first.first_match_subject_pos() <<
             ", S end: " << it->first.last_match_subject_pos());
         }
-        read_archive_.UpdateReadByIndex(read.id, stranded_read.seq);
+        read_archive.UpdateReadByIndex(read.id, stranded_read.seq);
         VJHits vj_hits(read);
         for (auto& v_align : v_aligns) {
-            vj_hits.AddVHit(VGeneHit(read, v_custom_db_[v_align.second], v_align.first, strand));
+            vj_hits.AddVHit(VGeneHit(read, v_custom_db[v_align.second], v_align.first, strand));
         }
         for (auto& j_align : j_aligns) {
             JGeneHit j_hit(read, j_helper->j_gene_db[j_align.second], j_align.first, strand);
