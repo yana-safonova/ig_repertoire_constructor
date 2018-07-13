@@ -36,31 +36,32 @@ namespace algorithms {
         const BlockAlignerParams params_;
 
     public:
-    	const std::function<bool(const Match &a, const Match &b)> has_edge = [this](const Match &a, const Match &b) -> bool {
-                int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.subject_pos - a.subject_pos;
-                int gap = read_gap - needle_gap;
-                if (gap > scoring_.max_local_insertions || -gap > scoring_.max_local_deletions) return false;
-                // Crossing check
-                if (a.subject_pos >= b.subject_pos || a.read_pos >= b.read_pos) return false;
-                return true;
-            };
+        // The following 3 methods were lambda fields. Had to refactor due to gcc 4.8 bugs.
+        bool has_edge(const Match &a, const Match &b) const {
+            int read_gap = b.read_pos - a.read_pos;
+            int needle_gap = b.subject_pos - a.subject_pos;
+            int gap = read_gap - needle_gap;
+            if (gap > scoring_.max_local_insertions || -gap > scoring_.max_local_deletions) return false;
+            // Crossing check
+            if (a.subject_pos >= b.subject_pos || a.read_pos >= b.read_pos) return false;
+            return true;
+        }
 
-        const std::function<int(const Match &a, const Match &b)> edge_weight = [this](const Match &a, const Match &b) -> double {
-                int read_gap = b.read_pos - a.read_pos;
-                int needle_gap = b.subject_pos - a.subject_pos;
-                int gap = read_gap - needle_gap;
-                int mmatch = std::min(b.read_pos - a.read_pos - int(a.length),
-                                      b.subject_pos - a.subject_pos - int(a.length));
-                mmatch = std::max(0, mmatch);
-                return - Match::overlap(a, b)
-                       - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
-                       - ((mmatch) ? scoring_.mismatch_opening_cost + mmatch * scoring_.mismatch_extention_cost : 0);
-            };
+        int edge_weight(const Match &a, const Match &b) const {
+            int read_gap = b.read_pos - a.read_pos;
+            int needle_gap = b.subject_pos - a.subject_pos;
+            int gap = read_gap - needle_gap;
+            int mmatch = std::min(b.read_pos - a.read_pos - int(a.length),
+                                  b.subject_pos - a.subject_pos - int(a.length));
+            mmatch = std::max(0, mmatch);
+            return - Match::overlap(a, b)
+                   - ((gap) ? (scoring_.gap_opening_cost + std::abs(gap) * scoring_.gap_extention_cost) : 0)
+                   - ((mmatch) ? scoring_.mismatch_opening_cost + mmatch * scoring_.mismatch_extention_cost : 0);
+        }
 
-        const std::function<double(const Match &m)> vertex_weight = [this](const Match &m) -> double {
-                return double(m.length) * double(scoring_.match_reward);
-            };
+        double vertex_weight(const Match &m) const {
+            return double(m.length) * double(scoring_.match_reward);
+        }
 
         PairwiseBlockAligner(const SubjectQueryKmerIndex<SubjectDatabase, StringType> &kmer_index,
                              KmerIndexHelper<SubjectDatabase, StringType> &kmer_index_helper,
@@ -110,11 +111,16 @@ namespace algorithms {
         }
 
     private:
+
+        using PairwiseBlockAligner<SubjectDatabase, StringType>::has_edge;
+        using PairwiseBlockAligner<SubjectDatabase, StringType>::edge_weight;
+        using PairwiseBlockAligner<SubjectDatabase, StringType>::vertex_weight;
+
         PairwiseBlockAlignment MakeAlignment(const std::vector<Match> &combined,
                                           const StringType &query,
                                           size_t subject_index) const {
             
-            auto longest_path = weighted_longest_path_in_DAG(combined, this->has_edge, this->edge_weight, this->vertex_weight);
+            auto longest_path = weighted_longest_path_in_DAG(combined);
             return this->pairwiseBlockAlignment(longest_path.first,
             							subject_index,
             							query,
@@ -138,6 +144,61 @@ namespace algorithms {
                 }
             }
             return result;
+        }
+
+        std::pair<AlignmentPath, int> weighted_longest_path_in_DAG(const std::vector<Match> &combined) const {
+            VERIFY(!combined.empty());
+            VERIFY(std::is_sorted(combined.cbegin(), combined.cend(), Match::less_subject_pos));
+            // Vertices should be topologically sorted
+            VERIFY(is_topologically_sorted(combined, [this](const Match &a, const Match &b) -> bool { return has_edge(a, b); }));
+
+            std::vector<double> values(combined.size(), 0.);
+            std::vector<size_t> next(combined.size());
+            std::iota(next.begin(), next.end(), 0);
+
+            for (size_t i = combined.size() - 1; i + 1 > 0; --i) {
+                values[i] = vertex_weight(combined[i]);
+
+                for (size_t j = i + 1; j < combined.size(); ++j) {
+                    // Check topologically order
+                    // TODO remove one of these toposort checkings
+                    VERIFY(!has_edge(combined[j], combined[i]));
+
+                    if (has_edge(combined[i], combined[j])) {
+                        double new_val = vertex_weight(combined[i]) + values[j] + edge_weight(combined[i], combined[j]);
+                        if (new_val > values[i]) {
+                            next[i] = j;
+                            values[i] = new_val;
+                        }
+                    }
+                }
+            }
+
+            AlignmentPath path;
+            path.reserve(combined.size());
+
+            size_t maxi = size_t(std::max_element(values.cbegin(), values.cend()) - values.cbegin());
+            // Sasha, is it ok that score is integer here? Looks like a potential error
+            int score = int(values[maxi]);
+
+            while (true) {
+                path.push_back(combined[maxi]);
+                if (next[maxi] == maxi) {
+                    break;
+                } else {
+                    maxi = next[maxi];
+                }
+            }
+
+            // Fix overlaps (truncate tail of left match)
+            for (size_t i = 0; i < path.size() - 1; ++i) {
+                path[i].length -= Match::overlap(path[i], path[i + 1]);
+            }
+
+            // Path should be correct, all edges should be
+            VERIFY(std::is_sorted(path.cbegin(), path.cend(), [this](const Match &a, const Match &b) -> bool { return has_edge(a, b); }));
+
+            return { path, score };
         }
     };
 
@@ -362,7 +423,7 @@ namespace algorithms {
                 path[i].length -= Match::overlap(path[i], path[i + 1]);
             }
 
-            VERIFY(std::is_sorted(path.cbegin(), path.cend(), this->has_edge));
+            VERIFY(std::is_sorted(path.cbegin(), path.cend(), [this](const Match &a, const Match &b) -> bool { return this->has_edge(a, b); }));
 
             return this->pairwiseBlockAlignment(path,
                                           subject_index,
