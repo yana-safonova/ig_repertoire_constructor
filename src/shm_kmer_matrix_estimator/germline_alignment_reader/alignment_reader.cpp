@@ -75,6 +75,10 @@ VectorEvolutionaryEdgeAlignments AlignmentReader::read_alignments() const {
         //     continue;
 
         --cdr1_start, --cdr1_end, --cdr2_start, --cdr2_end;
+        if (cdr1_start == size_t(-1) or cdr1_end == size_t(-1) or
+            cdr2_start == size_t(-1) or cdr2_end == size_t(-1)) {
+            continue;
+        }
         EvolutionaryEdgeAlignment alignment(std::move(germline_seq), std::move(read_seq), gene_id,
                                             has_stop_codon, in_frame, productive,
                                             cdr1_start, cdr1_end, cdr2_start, cdr2_end);
