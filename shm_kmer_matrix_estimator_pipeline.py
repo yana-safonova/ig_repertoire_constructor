@@ -13,7 +13,7 @@ shm_kmer_matrix_estimator_bin = \
         os.path.join(home_directory, "build", "release", "bin",
                      "shm_kmer_matrix_estimator")
 
-py_src = os.path.join(home_directory, "src/python_pipeline/")
+py_src = os.path.join(home_directory, "py/pipeline")
 sys.path.append(py_src)
 import process_cfg
 import support
@@ -70,8 +70,9 @@ def PrepareParser():
             raise argparse.ArgumentTypeError("%s does not exist" % x)
         return x
 
-    from src.python_add.argparse_ext import ArgumentHiddenParser
-    parser = ArgumentHiddenParser(description="== " + tool_name + " ==",
+    # from src.python_add.argparse_ext import ArgumentHiddenParser
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description="== " + tool_name + " ==",
                                   add_help=False)
     req_args = parser.add_argument_group("Required params")
     req_args.add_argument("-v", "--v_alignments",
@@ -134,7 +135,7 @@ def CopyConfig(params, log):
     shutil.copytree(shm_kmer_matrix_estimator_config_dir,
                     params.output_config_dir)
     params.output_config_file = \
-        os.path.join(params.output_config_dir, "configs.info")
+        os.path.join(params.output_config_dir, "config.info")
 
 
 def ModifyConfigFiles(params, log):
